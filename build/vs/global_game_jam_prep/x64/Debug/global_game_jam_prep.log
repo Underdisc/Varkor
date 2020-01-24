@@ -1,5 +1,3 @@
-﻿  error.cc
-  main.cc
-  Generating Code...
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+﻿  shader.cc
+C:\Users\underdisc\home\tech\proj\global_game_jam_prep\src\shader.cc(63,16): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
   global_game_jam_prep.vcxproj -> C:\Users\underdisc\home\tech\proj\global_game_jam_prep\build\vs\\vs_build\x64\Debug\global_game_jam_prep.exe
