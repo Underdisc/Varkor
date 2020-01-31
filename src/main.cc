@@ -38,14 +38,13 @@ void Core()
     glViewport(0, 0, 800, 600);
     glfwSetFramebufferSizeCallback(window, resize_callback);
 
-    Shader solid("shader/solid.vert", "shader/solid.frag");
-    solid.Use();
+    Shader solid("shader/solid.vs", "shader/solid.fs");
 
     float vertices[] = {
-         0.5f,  0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        -0.5f,  0.5f, 0.0f
+         0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+        -0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 1.0f
     };
 
     unsigned int indicies[] = {
@@ -67,10 +66,13 @@ void Core()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     bool active = true;
     while (active)
@@ -79,6 +81,12 @@ void Core()
 
         glClearColor(0.2f, 0.5f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        float time = (float)glfwGetTime();
+        float green = (sin(time) / 2.0f) + 0.5f;
+        solid.Use();
+        int color_location = glGetUniformLocation(solid.Id(), "color");
+        glUniform4f(color_location, 0.2f, green, 0.2f, 1.0f);
 
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

@@ -6,6 +6,7 @@ class Shader
 public:
     Shader(const char* vertex_file, const char* fragment_file);
     void Use();
+    unsigned int Id();
 private:
     bool Compile(
         const char* shader_source,

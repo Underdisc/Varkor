@@ -47,6 +47,11 @@ void Shader::Use()
     glUseProgram(_program);
 }
 
+unsigned int Shader::Id()
+{
+    return _program;
+}
+
 bool Shader::Compile(
     const char* shader_file,
     int shader_type,
