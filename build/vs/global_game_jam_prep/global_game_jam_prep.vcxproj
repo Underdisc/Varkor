@@ -83,7 +83,7 @@
     <IncludePath>$(SolutionDir)../../ext/inc;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)../../ext/lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\obj</IntDir>
+    <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)../../ext/inc;$(IncludePath)</IncludePath>
