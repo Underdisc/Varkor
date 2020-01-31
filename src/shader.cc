@@ -7,6 +7,8 @@
 
 #include "shader.h"
 
+#include <iostream>
+
 Shader::Shader(const char* vertex_file, const char* fragment_file)
 {
     unsigned int vert_id, frag_id;
@@ -59,15 +61,14 @@ bool Shader::Compile(
         LogError(reason.str().c_str());
         return false;
     }
-    file.seekg(0, file.end);
-    int length = file.tellg();
-    file.seekg(0, file.beg);
-    char* source = new char[length + 1];
-    file.read(source, length);
-    source[length] = 0;
+    
+    std::stringstream file_content_stream;
+    file_content_stream << file.rdbuf();
+    std::string file_content_str = file_content_stream.str();
+    const char* file_content = file_content_str.c_str();
 
     *shader_id = glCreateShader(shader_type);
-    glShaderSource(*shader_id, 1, &source, NULL);
+    glShaderSource(*shader_id, 1, &file_content, NULL);
     glCompileShader(*shader_id);
     int success;
     glGetShaderiv(*shader_id, GL_COMPILE_STATUS, &success);

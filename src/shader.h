@@ -11,7 +11,7 @@ private:
         const char* shader_source,
         int shader_type,
         unsigned int* shader_id);
-    
+
     unsigned int _program;
 };
 

@@ -1,6 +1,0 @@
-Error|src/shader.cc|94> vertex shader file shader/solid.vert failed to compile
-0(7) : error C0000: syntax error, unexpected $undefined at token "<undefined>"
-
-Error|src/shader.cc|94> fragment shader file shader/solid.frag failed to compile
-0(7) : error C0000: syntax error, unexpected $undefined at token "<undefined>"
-
