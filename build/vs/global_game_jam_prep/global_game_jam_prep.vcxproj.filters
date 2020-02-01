@@ -7,6 +7,7 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\error.cc" />
     <ClCompile Include="..\..\..\src\shader.cc" />
+    <ClCompile Include="..\..\..\src\texture.cc" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -16,5 +17,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\error.h" />
     <ClInclude Include="..\..\..\src\shader.h" />
+    <ClInclude Include="..\..\..\src\texture.h" />
   </ItemGroup>
 </Project>

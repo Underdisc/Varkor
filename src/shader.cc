@@ -7,7 +7,7 @@
 
 #include "shader.h"
 
-#include <iostream>
+const int Shader::_invalid_location = -1;
 
 Shader::Shader(const char* vertex_file, const char* fragment_file)
 {
@@ -50,6 +50,30 @@ void Shader::Use()
 unsigned int Shader::Id()
 {
     return _program;
+}
+
+int Shader::UniformLocation(const char* name)
+{
+    int loc = glGetUniformLocation(_program, name);
+    bool valid = loc != _invalid_location;
+    if (!valid)
+    {
+        std::stringstream reason;
+        reason << name << " uniform not found";
+        LogError(reason.str().c_str());
+    }
+    return loc;
+}
+
+void Shader::SetMat4(const char* name, const float* data)
+{
+    int loc = UniformLocation(name);
+    if (loc == _invalid_location)
+    {
+        return;
+    }
+    Use();
+    glUniformMatrix4fv(loc, 1, GL_FALSE, data);
 }
 
 bool Shader::Compile(

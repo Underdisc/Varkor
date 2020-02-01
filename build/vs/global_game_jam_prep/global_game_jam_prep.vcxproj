@@ -23,10 +23,12 @@
     <ClCompile Include="..\..\..\src\error.cc" />
     <ClCompile Include="..\..\..\src\main.cc" />
     <ClCompile Include="..\..\..\src\shader.cc" />
+    <ClCompile Include="..\..\..\src\texture.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\error.h" />
     <ClInclude Include="..\..\..\src\shader.h" />
+    <ClInclude Include="..\..\..\src\texture.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -80,22 +82,28 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)../../ext/inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)../../ext/sub;$(SolutionDir)../../ext/inc;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)../../ext/lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)../../ext/inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)../../ext/sub;$(SolutionDir)../../ext/inc;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)../../ext/lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)../../ext/inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)../../ext/sub;$(SolutionDir)../../ext/inc;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)../../ext/lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)../../ext/inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)../../ext/sub;$(SolutionDir)../../ext/inc;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)../../ext/lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\obj\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
