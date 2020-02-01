@@ -48,20 +48,31 @@ void Core()
     // shader setup
     Shader solid("shader/solid.vs", "shader/solid.fs");
 
-    // texture setup
-    Texture texture_0("texture_1.png");
-
     // buffer setup
     float vertices[] = {
-         0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-         0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-        -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f
     };
 
     unsigned int indicies[] = {
-        0, 1, 3,
-        1, 2, 3
+        0, 1, 2,
+        1, 3, 2,
+        4, 5, 0,
+        5, 1, 0,
+        4, 7, 5,
+        4, 6, 7,
+        6, 3, 7,
+        6, 2, 3,
+        1, 5, 3,
+        3, 5, 7,
+        0, 6, 4,
+        0, 2, 6
     };
 
     unsigned int vao;
@@ -78,16 +89,15 @@ void Core()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*   )0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_DEPTH_TEST);
 
     bool active = true;
     while (active)
@@ -95,7 +105,7 @@ void Core()
         process_input(window);
 
         glClearColor(0.2f, 0.5f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // matrix transformation setup
         const float pi = 3.1415926535897f;
@@ -110,17 +120,13 @@ void Core()
         glm::mat4 proj = glm::mat4(1.0f);
         proj = glm::perspective(fov, (float)width/(float)height, 0.1f, 100.0f);
 
-        solid.Use();
-        int loc = glGetUniformLocation(solid.Id(), "tex_0");
-        glUniform1i(loc, 0);
         solid.SetMat4("model", glm::value_ptr(model));
         solid.SetMat4("view", glm::value_ptr(view));
         solid.SetMat4("proj", glm::value_ptr(proj));
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture_0.Id());
+        solid.Use();
         glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, sizeof(indicies) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
