@@ -8,6 +8,8 @@
 #include <string>
 
 #include "error.h"
+#include "input.h"
+#include "math/vector.hpp"
 #include "shader.h"
 #include "texture.h"
 
@@ -44,6 +46,8 @@ void Core()
 
     glViewport(0, 0, 800, 600);
     glfwSetFramebufferSizeCallback(window, resize_callback);
+
+    Input::Init(window);
 
     // shader setup
     Shader solid("shader/solid.vs", "shader/solid.fs");
@@ -102,7 +106,13 @@ void Core()
     bool active = true;
     while (active)
     {
+        Input::Update();
+        glfwPollEvents();
         process_input(window);
+        active = !glfwWindowShouldClose(window);
+
+        Vec2 mouse_motion = Input::MouseMotion();
+        std::cout << "X: " << mouse_motion[0] << " Y: " << mouse_motion[1] << std::endl;
 
         glClearColor(0.2f, 0.5f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -129,8 +139,6 @@ void Core()
         glDrawElements(GL_TRIANGLES, sizeof(indicies) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
-        glfwPollEvents();
-        active = !glfwWindowShouldClose(window);
     }
 
     glfwTerminate();

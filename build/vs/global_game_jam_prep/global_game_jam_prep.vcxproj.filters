@@ -8,15 +8,23 @@
     <ClCompile Include="..\..\..\src\error.cc" />
     <ClCompile Include="..\..\..\src\shader.cc" />
     <ClCompile Include="..\..\..\src\texture.cc" />
+    <ClCompile Include="..\..\..\src\input.cc" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
       <UniqueIdentifier>{92bc4df5-ba8a-41c6-862f-b27459450ae8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{544f3fe3-4754-48b4-9692-49e19d1dff66}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\error.h" />
     <ClInclude Include="..\..\..\src\shader.h" />
     <ClInclude Include="..\..\..\src\texture.h" />
+    <ClInclude Include="..\..\..\src\input.h" />
+    <ClInclude Include="..\..\..\src\math\vector.hpp">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
