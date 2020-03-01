@@ -9,6 +9,9 @@
     <ClCompile Include="..\..\..\src\shader.cc" />
     <ClCompile Include="..\..\..\src\texture.cc" />
     <ClCompile Include="..\..\..\src\input.cc" />
+    <ClCompile Include="..\..\..\src\math\quaternion.cc">
+      <Filter>math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ext">
@@ -24,6 +27,12 @@
     <ClInclude Include="..\..\..\src\texture.h" />
     <ClInclude Include="..\..\..\src\input.h" />
     <ClInclude Include="..\..\..\src\math\vector.hpp">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\math\quaternion.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\math\matrix.hpp">
       <Filter>math</Filter>
     </ClInclude>
   </ItemGroup>

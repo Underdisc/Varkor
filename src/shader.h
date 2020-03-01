@@ -8,7 +8,7 @@ public:
     void Use();
     unsigned int Id();
     int UniformLocation(const char* name);
-    void SetMat4(const char* name, const float* data);
+    void SetMat4(const char* name, const float* data, bool transpose = false);
 
 private:
     bool Compile(

@@ -10,6 +10,7 @@
 #include "error.h"
 #include "input.h"
 #include "math/vector.hpp"
+#include "math/matrix.hpp"
 #include "shader.h"
 #include "texture.h"
 
@@ -111,27 +112,30 @@ void Core()
         process_input(window);
         active = !glfwWindowShouldClose(window);
 
-        Vec2 mouse_motion = Input::MouseMotion();
-        std::cout << "X: " << mouse_motion[0] << " Y: " << mouse_motion[1] << std::endl;
-
         glClearColor(0.2f, 0.5f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // matrix transformation setup
         const float pi = 3.1415926535897f;
-        float rotation = pi * glfwGetTime();
+        float rotation = pi * (float)glfwGetTime();
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::rotate(model, -rotation, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        float dist = -3.0f;
-        glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, dist));
+        float dist = -3.0f - sin(glfwGetTime());
+        Mat4 view;
+        Vec3 translation;
+        translation[0] = 0.0f;
+        translation[1] = 0.0f;
+        translation[2] = dist;
+        view.Translate(translation);
+
         float fov = pi / 4.0f;
         glm::mat4 proj = glm::mat4(1.0f);
         proj = glm::perspective(fov, (float)width/(float)height, 0.1f, 100.0f);
 
+        // I will be replacing the model matrix using my own matrix implementation.
         solid.SetMat4("model", glm::value_ptr(model));
-        solid.SetMat4("view", glm::value_ptr(view));
+        solid.SetMat4("view", view.Data(), true);
         solid.SetMat4("proj", glm::value_ptr(proj));
 
         solid.Use();

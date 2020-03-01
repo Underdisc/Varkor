@@ -3,7 +3,7 @@
 
 #include "math/vector.hpp"
 
-class GLFWwindow;
+struct GLFWwindow;
 
 class Input
 {
@@ -21,6 +21,7 @@ public:
         Other,
         Total,
     };
+
 public:
     static void Init(GLFWwindow* window);
     static void Update();

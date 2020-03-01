@@ -65,7 +65,7 @@ int Shader::UniformLocation(const char* name)
     return loc;
 }
 
-void Shader::SetMat4(const char* name, const float* data)
+void Shader::SetMat4(const char* name, const float* data, bool transpose)
 {
     int loc = UniformLocation(name);
     if (loc == _invalid_location)
@@ -73,7 +73,7 @@ void Shader::SetMat4(const char* name, const float* data)
         return;
     }
     Use();
-    glUniformMatrix4fv(loc, 1, GL_FALSE, data);
+    glUniformMatrix4fv(loc, 1, transpose, data);
 }
 
 bool Shader::Compile(

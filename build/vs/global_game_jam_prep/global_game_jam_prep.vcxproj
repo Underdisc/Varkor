@@ -23,12 +23,15 @@
     <ClCompile Include="..\..\..\src\error.cc" />
     <ClCompile Include="..\..\..\src\input.cc" />
     <ClCompile Include="..\..\..\src\main.cc" />
+    <ClCompile Include="..\..\..\src\math\quaternion.cc" />
     <ClCompile Include="..\..\..\src\shader.cc" />
     <ClCompile Include="..\..\..\src\texture.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\error.h" />
     <ClInclude Include="..\..\..\src\input.h" />
+    <ClInclude Include="..\..\..\src\math\matrix.hpp" />
+    <ClInclude Include="..\..\..\src\math\quaternion.h" />
     <ClInclude Include="..\..\..\src\math\vector.hpp" />
     <ClInclude Include="..\..\..\src\shader.h" />
     <ClInclude Include="..\..\..\src\texture.h" />
