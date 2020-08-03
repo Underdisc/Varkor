@@ -29,6 +29,7 @@ void Input::Update()
     std::fill(_mouse_released, _mouse_released + (int)Mouse::Total, false);
     std::fill(_key_pressed, _key_pressed + (int)Key::Total, false);
     std::fill(_key_released, _key_released + (int)Key::Total, false);
+    glfwPollEvents();
 }
 
 void Input::Purge()

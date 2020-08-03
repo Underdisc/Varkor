@@ -108,7 +108,7 @@ void Core()
     while (active)
     {
         Input::Update();
-        glfwPollEvents();
+
         process_input(window);
         active = !glfwWindowShouldClose(window);
 
@@ -121,7 +121,7 @@ void Core()
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::rotate(model, -rotation, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        float dist = -3.0f - sin(glfwGetTime());
+        float dist = -3.0f - (float)sin(glfwGetTime());
         Mat4 view;
         Vec3 translation;
         translation[0] = 0.0f;
