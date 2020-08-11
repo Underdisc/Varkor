@@ -1,3 +1,4 @@
 .vs/
+build/
 *.err
-build/vs/build
+*.exe
