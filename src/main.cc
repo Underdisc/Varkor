@@ -9,8 +9,8 @@
 
 #include "error.h"
 #include "input.h"
-#include "math/vector.hpp"
-#include "math/matrix.hpp"
+#include "math/vector.hh"
+#include "math/matrix.hh"
 #include "shader.h"
 #include "texture.h"
 

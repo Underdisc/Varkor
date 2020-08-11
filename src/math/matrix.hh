@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "vector.hpp"
+#include "vector.hh"
 
 template<typename T, unsigned int N>
 class Matrix
