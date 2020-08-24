@@ -4,14 +4,14 @@ Varkor is a custom game engine project that will also do other cool things that 
 
 ## Building Varkor
 
-*Disclaimer*: This is how I (@Underdisc) build the project. Feel free to use your own method if you are inclined. Additionally, these instructions only cover how to create release executables. I will add instructions for debug executables once I arrive at that point.
+*Disclaimer*: This is how I build the project. Feel free to use your own method if you are inclined. Additionally, these instructions only cover how to create release executables. I will add instructions for debug executables once I arrive at that point.
 
 *Once You Build*: After you build the project, you'll find `varkor.exe` in `{repo_root}/working/`. This directory contains all the files that varkor may access at runtime. This is why the Varkor binary is placed here.
 
 At the moment, Varkor only builds under Windows, but will be expanded in the near future for building under Linux as well. On Windows, Varkor can be built under MinGW32 and MSVC. To build Varkor, you are going to want a build of CMake and Ninja.
 
-CMake: https://cmake.org/download/
-Ninja: https://github.com/ninja-build/ninja/releases
+- CMake: https://cmake.org/download/
+- Ninja: https://github.com/ninja-build/ninja/releases
 
 Once you have those, make sure *ninja.exe* and *cmake.exe* are in your path.
 
@@ -30,7 +30,7 @@ mkdir msvc32 msvc64
 cd msvc32
 ```
 
-This will cover MSVC 32bit, but the process for MSVC 32bit is exactly the same as MSVC 64bit except for one detail. The first step is to enter the cmd shell that comes with Windows. I use the [Mintty](https://mintty.github.io/) terminal that comes with Cygwin and I get to the cmd shell by typing `cmd` and the shell starts running within my terminal. You can also choose to just run cmd with the terminal that comes with Windows by typing `cmd` and pressing enter in the start menu.
+This will cover MSVC 32bit, but the process for MSVC 32bit is exactly the same as MSVC 64bit except for one detail. The first step is to enter the cmd shell that comes with Windows. I use the [Mintty](https://mintty.github.io/) terminal that comes with Cygwin and I get to the cmd shell by typing `cmd` and the shell starts running within my terminal. You can also choose to run cmd with the terminal that comes with Windows by typing `cmd` and pressing enter in the start menu.
 
 After this, you want to run the `vcvars32.bat` file from within your cmd shell. This file is specific to your MSVC installation. This will set environment varialbes that are used by cl.exe (the MSVC compiler) and link.exe (the MSVC linker) when compiling and linking the project.
 
@@ -61,14 +61,14 @@ cmd
 cl[32|64].bat
 ```
 
-...and everything is ready to go. The next step is to setup the Ninja build by running CMake and finally build the project. From `build/msvc[32|64]/` run the following.
+...and everything is ready to go. The next step is to setup the Ninja generator by running CMake and finally build the project. From `build/msvc[32|64]/` run the following.
 
 ```
 cmake -G "Ninja" -DCMAKE_BUILD_TYPE=MinSizeRel ../../
 ninja
 ```
 
-If you setup everything properly and I didn't break something, everything should build.
+If you did everything properly and I didn't break something, everything should build.
 
 ### MinGW
 
@@ -79,7 +79,7 @@ cmake -G "Ninja" ../../
 ninja
 ```
 
-The MinGW compiler is automatically selected and the varkor binary is built. This works fine from my Cygwin shell, but if I do the same from the cmd shell, it does not work. I would look into this further to have a complete set of instructions here, but it is not important for me at this time.
+The MinGW compiler is automatically selected and the binary is built. This works fine from my Cygwin shell, but if I do the same from the cmd shell, it does not work. I would look into this further to have a complete set of instructions here, but it is not important for me at this time.
 
 ## Build Issues?
 
