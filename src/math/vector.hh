@@ -1,9 +1,14 @@
 #ifndef Vector_h
 #define Vector_h
 
+#include <iostream>
+
 template<typename T, unsigned int N>
 class Vector
 {
+public:
+  T _value[N];
+
 public:
   T operator[](int index) const;
   T& operator[](int index);
@@ -18,9 +23,6 @@ public:
   Vector<T, N>& operator*=(T scalar);
   template<unsigned int M>
   operator Vector<T, M>() const;
-
-private:
-  T _value[N];
 };
 
 template<typename T, unsigned int N>
@@ -138,10 +140,27 @@ Vector<T, N>::operator Vector<T, M>() const
   {
     result._value[i] = _value[i];
   }
-  for (int i = M - 1; i >= N; ++i)
+  for (int i = M - 1; i >= N; --i)
   {
     result._value[i] = (T)0;
   }
+  return result;
+}
+
+template<typename T, unsigned int N>
+std::ostream& operator<<(std::ostream& os, Vector<T, N> vec)
+{
+  os << "[";
+  for (int i = 0; i < N; ++i)
+  {
+    os << vec[i];
+    if (i < N - 1)
+    {
+      os << ", ";
+    }
+  }
+  os << "]";
+  return os;
 }
 
 typedef Vector<float, 2> Vec2;
