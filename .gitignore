@@ -2,3 +2,4 @@
 build/
 *.err
 *.exe
+test/CMakeLists.txt
