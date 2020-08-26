@@ -40,7 +40,7 @@ void Core()
 
   int width = 800;
   int height = 600;
-  GLFWwindow* window = glfwCreateWindow(width, height, "ggj", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(width, height, "Varkor", NULL, NULL);
   LogAbortIf(!window, "glfw window creation failed");
 
   glfwMakeContextCurrent(window);
