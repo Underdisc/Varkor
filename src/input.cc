@@ -71,8 +71,7 @@ void Input::MouseButtonCallack(
   if (action == GLFW_PRESS)
   {
     _mouse_pressed[button] = true;
-  }
-  else
+  } else
   {
     _mouse_released[button] = true;
   }

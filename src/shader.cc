@@ -112,8 +112,7 @@ bool Shader::Compile(
   if (shader_type == GL_VERTEX_SHADER)
   {
     error << "vertex";
-  }
-  else if (shader_type == GL_FRAGMENT_SHADER)
+  } else if (shader_type == GL_FRAGMENT_SHADER)
   {
     error << "fragment";
   }
