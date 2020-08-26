@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+namespace Math {
+
 template<typename T, unsigned int N>
 class Vector
 {
@@ -163,8 +165,10 @@ std::ostream& operator<<(std::ostream& os, Vector<T, N> vec)
   return os;
 }
 
-typedef Vector<float, 2> Vec2;
-typedef Vector<float, 3> Vec3;
-typedef Vector<float, 4> Vec4;
+} // namespace Math
+
+typedef Math::Vector<float, 2> Vec2;
+typedef Math::Vector<float, 3> Vec3;
+typedef Math::Vector<float, 4> Vec4;
 
 #endif

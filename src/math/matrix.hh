@@ -5,6 +5,8 @@
 
 #include "vector.hh"
 
+namespace Math {
+
 template<typename T, unsigned int N>
 class Matrix
 {
@@ -147,6 +149,8 @@ std::ostream& operator<<(std::ostream& os, Matrix<T, N> mat)
   return os;
 }
 
-typedef Matrix<float, 4> Mat4;
+} // namespace Math
+
+typedef Math::Matrix<float, 4> Mat4;
 
 #endif

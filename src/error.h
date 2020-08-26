@@ -27,14 +27,14 @@ private:
 #define LogErrorIf(cond, reason) \
   if (cond)                      \
   {                              \
-    LogError(reason)             \
+    LogError(reason);            \
   }
 
 #define LogAbort(reason) Error::Abort(__FILE__, __LINE__, reason)
 #define LogAbortIf(cond, reason) \
   if (cond)                      \
   {                              \
-    LogAbort(reason)             \
+    LogAbort(reason);            \
   }
 
 #endif
