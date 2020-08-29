@@ -2,4 +2,6 @@
 build/
 *.err
 *.exe
+*.ilk
+*.pdb
 test/CMakeLists.txt
