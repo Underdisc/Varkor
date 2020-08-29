@@ -114,8 +114,8 @@ void Core()
   while (active)
   {
     Input::Update();
-
     process_input(window);
+
     active = !glfwWindowShouldClose(window);
 
     glClearColor(0.2f, 0.5f, 1.0f, 1.0f);
