@@ -1,5 +1,5 @@
-#ifndef Time_h
-#define Time_h
+#ifndef time_h
+#define time_h
 
 #include <chrono>
 #include <ctime>

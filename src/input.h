@@ -1,5 +1,5 @@
-#ifndef Input_h
-#define Input_h
+#ifndef input_h
+#define input_h
 
 #include "math/vector.hh"
 

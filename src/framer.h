@@ -1,5 +1,5 @@
-#ifndef Framer_h
-#define Framer_h
+#ifndef framer_h
+#define framer_h
 
 #include <chrono>
 

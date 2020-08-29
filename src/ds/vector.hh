@@ -1,5 +1,5 @@
-#ifndef DS_Vector_hh
-#define DS_Vector_hh
+#ifndef ds_vector_hh
+#define ds_vector_hh
 
 #include "../dbg/redef_new.h"
 

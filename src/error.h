@@ -1,5 +1,5 @@
-#ifndef Error_h
-#define Error_h
+#ifndef error_h
+#define error_h
 
 #include <fstream>
 #include <string>

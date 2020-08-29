@@ -1,5 +1,5 @@
-#ifndef Vector_h
-#define Vector_h
+#ifndef math_vector_hh
+#define math_vector_hh
 
 #include <iostream>
 

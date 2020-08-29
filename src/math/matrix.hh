@@ -1,5 +1,5 @@
-#ifndef Matrix_h
-#define Matrix_h
+#ifndef math_matrix_h
+#define math_matrix_h
 
 #include <iostream>
 
