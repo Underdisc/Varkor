@@ -17,6 +17,7 @@ public:
   void Push(const T& value);
   void Pop();
   void Clear();
+  bool Contains(const T& value);
   int Size() const;
   int Capacity() const;
   const T& operator[](int index) const;
@@ -79,6 +80,19 @@ template<typename T>
 void Vector<T>::Clear()
 {
   _size = 0;
+}
+
+template<typename T>
+bool Vector<T>::Contains(const T& value)
+{
+  for (int i = 0; i < _size; ++i)
+  {
+    if (_data[i] == value)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 template<typename T>

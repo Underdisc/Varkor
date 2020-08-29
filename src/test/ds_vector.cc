@@ -74,10 +74,25 @@ void IndexOperator()
   std::cout << "[15]: " << test_vector[15] << std::endl;
 }
 
+void Contains()
+{
+  std::cout << "=Contains=" << std::endl;
+
+  DS::Vector<int> test_vector;
+  for (int i = 0; i < 20; ++i)
+  {
+    test_vector.Push(i);
+  }
+  std::cout << "Contains 10: " << test_vector.Contains(10) << std::endl;
+  std::cout << "Contains 21: " << test_vector.Contains(21) << std::endl;
+}
+
 int main(void)
 {
   InitMemLeakOutput();
   PushPop();
   std::cout << std::endl;
   IndexOperator();
+  std::cout << std::endl;
+  Contains();
 }
