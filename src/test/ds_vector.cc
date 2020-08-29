@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../src/dbg/mem_leak.h"
-#include "../src/ds/vector.hh"
+#include "../dbg/mem_leak.h"
+#include "../ds/vector.hh"
 
 void PrintVector(const DS::Vector<int>& vector)
 {

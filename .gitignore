@@ -4,4 +4,4 @@ build/
 *.exe
 *.ilk
 *.pdb
-test/CMakeLists.txt
+src/test/CMakeLists.txt
