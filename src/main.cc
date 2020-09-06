@@ -10,8 +10,10 @@
 #include <iostream>
 #include <string>
 
+#include "camera.h"
 #include "error.h"
 #include "input.h"
+#include "math/constants.h"
 #include "math/matrix.hh"
 #include "math/vector.hh"
 #include "shader.h"
@@ -111,9 +113,13 @@ void Core()
   glEnable(GL_DEPTH_TEST);
 
   bool active = true;
+  Camera camera;
   while (active)
   {
     Input::Update();
+    // todo: replace this argument with a real dt.
+    float dt = 1.0f / 60.0f;
+    camera.Update(dt);
     process_input(window);
 
     active = !glfwWindowShouldClose(window);
@@ -122,20 +128,14 @@ void Core()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // matrix transformation setup
-    const float pi = 3.1415926535897f;
-    float rotation = pi * (float)glfwGetTime();
+    float rotation = PIf * (float)glfwGetTime();
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, -rotation, glm::vec3(0.0f, 1.0f, 0.0f));
 
     float dist = -3.0f - (float)sin(glfwGetTime());
-    Mat4 view;
-    Vec3 translation;
-    translation[0] = 0.0f;
-    translation[1] = 0.0f;
-    translation[2] = dist;
-    view.Translate(translation);
+    Mat4 view = camera.WorldToCamera();
 
-    float fov = pi / 4.0f;
+    float fov = PIf / 4.0f;
     glm::mat4 proj = glm::mat4(1.0f);
     proj = glm::perspective(fov, (float)width / (float)height, 0.1f, 100.0f);
 

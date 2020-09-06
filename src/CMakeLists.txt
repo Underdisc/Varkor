@@ -1,4 +1,5 @@
 target_sources(varkor PRIVATE
+  camera.cc
   error.cc
   framer.cc
   input.cc
