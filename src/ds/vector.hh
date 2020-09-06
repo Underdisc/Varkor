@@ -128,11 +128,11 @@ void Vector<T>::Grow()
     _data = new T[_capacity];
   } else
   {
-    T* _oldData = _data;
+    T* old_data = _data;
     _capacity = (int)((float)_capacity * _growth_factor);
     _data = new T[_capacity];
-    Copy(_oldData, _data, _size);
-    delete[] _oldData;
+    Copy(old_data, _data, _size);
+    delete[] old_data;
   }
 }
 
