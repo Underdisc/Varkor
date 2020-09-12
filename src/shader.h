@@ -5,8 +5,8 @@ class Shader
 {
 public:
   Shader();
-  Shader(const char* vertex_file, const char* fragment_file);
-  void Init(const char* vertex_file, const char* fragment_file);
+  Shader(const char* vertexFile, const char* fragmentFile);
+  void Init(const char* vertexFile, const char* fragmentFile);
   void Use() const;
   unsigned int Id() const;
   int UniformLocation(const char* name) const;
@@ -16,11 +16,11 @@ public:
 
 private:
   bool Compile(
-    const char* shader_source, int shader_type, unsigned int* shader_id);
+    const char* shaderSource, int shaderType, unsigned int* shaderId);
 
-  unsigned int _program;
+  unsigned int mProgram;
 
-  static const int _invalid_location;
+  static const int smInvalidLocation;
 };
 
 #endif
