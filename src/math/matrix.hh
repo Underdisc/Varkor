@@ -21,8 +21,8 @@ public:
   void Translate(const Vector<T, N - 1>& translation);
   Matrix<T, N> Inverse() const;
   void MultiplyRow(int row, T factor);
-  void AddRowMultiple(int row, int factor_row, T factor);
-  void SwapRows(int row_a, int row_b);
+  void AddRowMultiple(int row, int factorRow, T factor);
+  void SwapRows(int rowA, int rowB);
   T* Data();
   const T* CData() const;
   T* operator[](int row);
@@ -32,8 +32,8 @@ public:
 
 private:
   T CalculateProductElement(
-    int element_row, int element_column, const Matrix<T, N>& other) const;
-  T _value[N][N];
+    int elementRow, int elementColumn, const Matrix<T, N>& other) const;
+  T mValue[N][N];
 };
 
 template<typename T, unsigned int N>
@@ -43,7 +43,7 @@ void Matrix<T, N>::Clear()
   {
     for (int c = 0; c < N; ++c)
     {
-      _value[r][c] = (T)0;
+      mValue[r][c] = (T)0;
     }
   }
 }
@@ -54,7 +54,7 @@ void Matrix<T, N>::Identity()
   Clear();
   for (int d = 0; d < N; ++d)
   {
-    _value[d][d] = (T)1;
+    mValue[d][d] = (T)1;
   }
 }
 
@@ -64,9 +64,9 @@ void Matrix<T, N>::Scale(const Vector<T, N - 1>& scale)
   Clear();
   for (int i = 0; i < N - 1; ++i)
   {
-    _value[i][i] = scale[i];
+    mValue[i][i] = scale[i];
   }
-  _value[N - 1][N - 1] = (T)1;
+  mValue[N - 1][N - 1] = (T)1;
 }
 
 template<typename T, unsigned int N>
@@ -75,7 +75,7 @@ void Matrix<T, N>::Translate(const Vector<T, N - 1>& translate)
   Identity();
   for (int i = 0; i < N - 1; ++i)
   {
-    _value[i][N - 1] = translate[i];
+    mValue[i][N - 1] = translate[i];
   }
 }
 
@@ -98,32 +98,32 @@ Matrix<T, N> Matrix<T, N>::Inverse() const
     // with a row that has a value in current pivot column that is non zero.
     if (copy[pivot][pivot] == 0)
     {
-      bool still_invertible = false;
+      bool stillInvertible = false;
       for (int row = pivot + 1; row < N; ++row)
       {
         if (copy[row][pivot] != (T)0)
         {
           copy.SwapRows(row, pivot);
           inverse.SwapRows(row, pivot);
-          still_invertible = true;
+          stillInvertible = true;
           break;
         }
       }
       // If we can't find a non zero value below the pivot, the matrix is not
       // invertible.
-      LogAbortIf(!still_invertible, "The matrix is not invertible.");
+      LogAbortIf(!stillInvertible, "The matrix is not invertible.");
     }
 
     // We change the pivot to one and make all values below the pivot zero using
     // row operations.
-    T row_factor = (T)1 / copy[pivot][pivot];
-    copy.MultiplyRow(pivot, row_factor);
-    inverse.MultiplyRow(pivot, row_factor);
+    T rowFactor = (T)1 / copy[pivot][pivot];
+    copy.MultiplyRow(pivot, rowFactor);
+    inverse.MultiplyRow(pivot, rowFactor);
     for (int row = pivot + 1; row < N; ++row)
     {
-      row_factor = copy[row][pivot] * (T)-1;
-      copy.AddRowMultiple(row, pivot, row_factor);
-      inverse.AddRowMultiple(row, pivot, row_factor);
+      rowFactor = copy[row][pivot] * (T)-1;
+      copy.AddRowMultiple(row, pivot, rowFactor);
+      inverse.AddRowMultiple(row, pivot, rowFactor);
     }
   }
 
@@ -133,9 +133,9 @@ Matrix<T, N> Matrix<T, N>::Inverse() const
   {
     for (int row = pivot - 1; row >= 0; --row)
     {
-      T row_factor = copy[row][pivot] * (T)-1;
-      copy.AddRowMultiple(row, pivot, row_factor);
-      inverse.AddRowMultiple(row, pivot, row_factor);
+      T rowFactor = copy[row][pivot] * (T)-1;
+      copy.AddRowMultiple(row, pivot, rowFactor);
+      inverse.AddRowMultiple(row, pivot, rowFactor);
     }
   }
   return inverse;
@@ -146,46 +146,46 @@ void Matrix<T, N>::MultiplyRow(int row, T factor)
 {
   for (int col = 0; col < N; ++col)
   {
-    _value[row][col] *= factor;
+    mValue[row][col] *= factor;
   }
 }
 
 template<typename T, unsigned int N>
-void Matrix<T, N>::AddRowMultiple(int row, int factor_row, T factor)
+void Matrix<T, N>::AddRowMultiple(int row, int factorRow, T factor)
 {
   for (int col = 0; col < N; ++col)
   {
-    _value[row][col] += _value[factor_row][col] * factor;
+    mValue[row][col] += mValue[factorRow][col] * factor;
   }
 }
 
 template<typename T, unsigned int N>
-void Matrix<T, N>::SwapRows(int row_a, int row_b)
+void Matrix<T, N>::SwapRows(int rowA, int rowB)
 {
   for (int col = 0; col < N; ++col)
   {
-    T temp = _value[row_a][col];
-    _value[row_a][col] = _value[row_b][col];
-    _value[row_b][col] = temp;
+    T temp = mValue[rowA][col];
+    mValue[rowA][col] = mValue[rowB][col];
+    mValue[rowB][col] = temp;
   }
 }
 
 template<typename T, unsigned int N>
 T* Matrix<T, N>::Data()
 {
-  return (T*)_value;
+  return (T*)mValue;
 }
 
 template<typename T, unsigned int N>
 const T* Matrix<T, N>::CData() const
 {
-  return (const T*)_value;
+  return (const T*)mValue;
 }
 
 template<typename T, unsigned int N>
 T* Matrix<T, N>::operator[](int row)
 {
-  return _value[row];
+  return mValue[row];
 }
 
 template<typename T, unsigned int N>
@@ -195,7 +195,7 @@ Matrix<T, N>& Matrix<T, N>::operator=(const Matrix<T, N>& other)
   {
     for (int c = 0; c < N; ++c)
     {
-      _value[r][c] = other._value[c][r];
+      mValue[r][c] = other.mValue[c][r];
     }
   }
   return *this;
@@ -225,12 +225,12 @@ Matrix<T, N>& Matrix<T, N>::operator*=(const Matrix<T, N>& other)
 
 template<typename T, unsigned int N>
 T Matrix<T, N>::CalculateProductElement(
-  int element_row, int element_column, const Matrix<T, N>& other) const
+  int elementRow, int elementColumn, const Matrix<T, N>& other) const
 {
   T result = (T)0;
   for (int i = 0; i < N; ++i)
   {
-    result += _value[element_row][i] * other._value[i][element_column];
+    result += mValue[elementRow][i] * other.mValue[i][elementColumn];
   }
   return result;
 }
@@ -240,18 +240,18 @@ std::ostream& operator<<(std::ostream& os, Matrix<T, N> mat)
 {
   // We find the longest number in each column so that all columns are aligned
   // when printed to console.
-  int longest_widths[N];
+  int longestWidths[N];
   for (int c = 0; c < N; ++c)
   {
-    longest_widths[c] = 1;
+    longestWidths[c] = 1;
     for (int r = 0; r < N; ++r)
     {
       std::stringstream ss;
       ss << mat[r][c];
       int width = ss.str().size();
-      if (width > longest_widths[c])
+      if (width > longestWidths[c])
       {
-        longest_widths[c] = width;
+        longestWidths[c] = width;
       }
     }
   }
@@ -261,7 +261,7 @@ std::ostream& operator<<(std::ostream& os, Matrix<T, N> mat)
     os << "[";
     for (int c = 0; c < N; ++c)
     {
-      os << std::setw(longest_widths[c]) << std::right << mat[r][c];
+      os << std::setw(longestWidths[c]) << std::right << mat[r][c];
       if (c < N - 1)
       {
         os << ", ";
