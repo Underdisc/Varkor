@@ -7,3 +7,4 @@ target_sources(varkor PRIVATE
   shader.cc
   texture.cc
   time.cc)
+add_subdirectory(debug)

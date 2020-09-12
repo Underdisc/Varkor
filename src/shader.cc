@@ -9,7 +9,17 @@
 
 const int Shader::_invalid_location = -1;
 
+Shader::Shader()
+{
+  _program = 0;
+}
+
 Shader::Shader(const char* vertex_file, const char* fragment_file)
+{
+  Init(vertex_file, fragment_file);
+}
+
+void Shader::Init(const char* vertex_file, const char* fragment_file)
 {
   unsigned int vert_id, frag_id;
   bool compiled = Compile(vertex_file, GL_VERTEX_SHADER, &vert_id);
@@ -43,17 +53,17 @@ Shader::Shader(const char* vertex_file, const char* fragment_file)
   glDeleteShader(frag_id);
 }
 
-void Shader::Use()
+void Shader::Use() const
 {
   glUseProgram(_program);
 }
 
-unsigned int Shader::Id()
+unsigned int Shader::Id() const
 {
   return _program;
 }
 
-int Shader::UniformLocation(const char* name)
+int Shader::UniformLocation(const char* name) const
 {
   int loc = glGetUniformLocation(_program, name);
   bool valid = loc != _invalid_location;
@@ -66,13 +76,16 @@ int Shader::UniformLocation(const char* name)
   return loc;
 }
 
-void Shader::SetMat4(const char* name, const float* data, bool transpose)
+void Shader::SetVec3(const char* name, const float* data) const
 {
   int loc = UniformLocation(name);
-  if (loc == _invalid_location)
-  {
-    return;
-  }
+  Use();
+  glUniform3fv(loc, 1, data);
+}
+
+void Shader::SetMat4(const char* name, const float* data, bool transpose) const
+{
+  int loc = UniformLocation(name);
   Use();
   glUniformMatrix4fv(loc, 1, transpose, data);
 }

@@ -1,7 +1,7 @@
 #ifndef ds_vector_hh
 #define ds_vector_hh
 
-#include "../dbg/redef_new.h"
+#include "../debug/redef_new.h"
 
 namespace DS {
 

@@ -24,14 +24,15 @@ public:
   void AddRowMultiple(int row, int factor_row, T factor);
   void SwapRows(int row_a, int row_b);
   T* Data();
+  const T* CData() const;
   T* operator[](int row);
   Matrix<T, N>& operator=(const Matrix<T, N>& other);
-  Matrix<T, N> operator*(const Matrix<T, N>& other);
+  Matrix<T, N> operator*(const Matrix<T, N>& other) const;
   Matrix<T, N>& operator*=(const Matrix<T, N>& other);
 
 private:
   T CalculateProductElement(
-    int element_row, int element_column, const Matrix<T, N>& other);
+    int element_row, int element_column, const Matrix<T, N>& other) const;
   T _value[N][N];
 };
 
@@ -172,7 +173,13 @@ void Matrix<T, N>::SwapRows(int row_a, int row_b)
 template<typename T, unsigned int N>
 T* Matrix<T, N>::Data()
 {
-  return _value[0];
+  return (T*)_value;
+}
+
+template<typename T, unsigned int N>
+const T* Matrix<T, N>::CData() const
+{
+  return (const T*)_value;
 }
 
 template<typename T, unsigned int N>
@@ -195,7 +202,7 @@ Matrix<T, N>& Matrix<T, N>::operator=(const Matrix<T, N>& other)
 }
 
 template<typename T, unsigned int N>
-Matrix<T, N> Matrix<T, N>::operator*(const Matrix<T, N>& other)
+Matrix<T, N> Matrix<T, N>::operator*(const Matrix<T, N>& other) const
 {
   Matrix<T, N> result;
   for (int r = 0; r < N; ++r)
@@ -218,7 +225,7 @@ Matrix<T, N>& Matrix<T, N>::operator*=(const Matrix<T, N>& other)
 
 template<typename T, unsigned int N>
 T Matrix<T, N>::CalculateProductElement(
-  int element_row, int element_column, const Matrix<T, N>& other)
+  int element_row, int element_column, const Matrix<T, N>& other) const
 {
   T result = (T)0;
   for (int i = 0; i < N; ++i)

@@ -11,6 +11,7 @@
 #include <string>
 
 #include "camera.h"
+#include "debug/draw.h"
 #include "error.h"
 #include "input.h"
 #include "math/constants.h"
@@ -54,6 +55,7 @@ void Core()
   glfwSetFramebufferSizeCallback(window, resize_callback);
 
   Input::Init(window);
+  Debug::Draw::Init();
 
   // shader setup
   Shader solid("shader/solid.vs", "shader/solid.fs");
@@ -124,7 +126,7 @@ void Core()
 
     active = !glfwWindowShouldClose(window);
 
-    glClearColor(0.2f, 0.5f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // matrix transformation setup
@@ -151,6 +153,24 @@ void Core()
       sizeof(indicies) / sizeof(unsigned int),
       GL_UNSIGNED_INT,
       0);
+    glBindVertexArray(0);
+
+    // Drawing the x, y, and z axis using debug drawing.
+    Vec3 x = {1.0f, 0.0f, 0.0f};
+    Vec3 y = {0.0f, 1.0f, 0.0f};
+    Vec3 z = {0.0f, 0.0f, 1.0f};
+    Vec3 o = {0.0f, 0.0f, 0.0f};
+    Debug::Draw::Line(o, x, x);
+    Debug::Draw::Line(o, y, y);
+    Debug::Draw::Line(o, z, z);
+    Mat4 tempProj;
+    float* oProj = glm::value_ptr(proj);
+    float* tProj = tempProj.Data();
+    for (int i = 0; i < 16; ++i)
+    {
+      tProj[i] = oProj[i];
+    }
+    Debug::Draw::Render(view, tempProj);
 
     glfwSwapBuffers(window);
   }
