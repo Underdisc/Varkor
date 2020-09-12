@@ -17,7 +17,7 @@ public:
   void Push(const T& value);
   void Pop();
   void Clear();
-  bool Contains(const T& value);
+  bool Contains(const T& value) const;
   int Size() const;
   int Capacity() const;
   const T& operator[](int index) const;
@@ -83,7 +83,7 @@ void Vector<T>::Clear()
 }
 
 template<typename T>
-bool Vector<T>::Contains(const T& value)
+bool Vector<T>::Contains(const T& value) const
 {
   for (int i = 0; i < _size; ++i)
   {
