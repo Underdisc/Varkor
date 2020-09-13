@@ -242,7 +242,7 @@ T Dot(const Vector<T, N>& a, const Vector<T, N>& b)
 }
 
 template<typename T, unsigned int N>
-std::ostream& operator<<(std::ostream& os, Vector<T, N> vec)
+std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec)
 {
   os << "[";
   for (int i = 0; i < N; ++i)
