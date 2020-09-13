@@ -13,7 +13,7 @@ template<typename T, unsigned int N>
 class Vector
 {
 public:
-  T _value[N];
+  T mValue[N];
 
 public:
   T operator[](int index) const;
@@ -48,13 +48,13 @@ T Dot(const Vector<T, N>& a, const Vector<T, N>& b);
 template<typename T, unsigned int N>
 T Vector<T, N>::operator[](int index) const
 {
-  return _value[index];
+  return mValue[index];
 }
 
 template<typename T, unsigned int N>
 T& Vector<T, N>::operator[](int index)
 {
-  return _value[index];
+  return mValue[index];
 }
 
 template<typename T, unsigned int N>
@@ -62,7 +62,7 @@ Vector<T, N>& Vector<T, N>::operator=(const Vector<T, N>& other)
 {
   for (int i = 0; i < N; ++i)
   {
-    _value[i] = other[i];
+    mValue[i] = other[i];
   }
   return *this;
 }
@@ -73,7 +73,7 @@ Vector<T, N> Vector<T, N>::operator+(const Vector<T, N>& other) const
   Vector<T, N> result;
   for (int i = 0; i < N; ++i)
   {
-    result[i] = _value[i] + other[i];
+    result[i] = mValue[i] + other[i];
   }
   return result;
 }
@@ -84,7 +84,7 @@ Vector<T, N> Vector<T, N>::operator-(const Vector<T, N>& other) const
   Vector<T, N> result;
   for (int i = 0; i < N; ++i)
   {
-    result[i] = _value[i] - other[i];
+    result[i] = mValue[i] - other[i];
   }
   return result;
 }
@@ -95,7 +95,7 @@ Vector<T, N> Vector<T, N>::operator*(const Vector<T, N>& other) const
   Vector<T, N> result;
   for (int i = 0; i < N; ++i)
   {
-    result[i] = _value[i] * other[i];
+    result[i] = mValue[i] * other[i];
   }
   return result;
 }
@@ -106,7 +106,7 @@ Vector<T, N> Vector<T, N>::operator*(T scalar) const
   Vector<T, N> result;
   for (int i = 0; i < N; ++i)
   {
-    result[i] = _value[i] * scalar;
+    result[i] = mValue[i] * scalar;
   }
   return result;
 }
@@ -117,7 +117,7 @@ Vector<T, N> Vector<T, N>::operator/(T scalar) const
   Vector<T, N> result;
   for (int i = 0; i < N; ++i)
   {
-    result[i] = _value[i] / scalar;
+    result[i] = mValue[i] / scalar;
   }
   return result;
 }
@@ -127,7 +127,7 @@ Vector<T, N>& Vector<T, N>::operator+=(const Vector<T, N>& other)
 {
   for (int i = 0; i < N; ++i)
   {
-    _value[i] += other[i];
+    mValue[i] += other[i];
   }
   return *this;
 }
@@ -137,7 +137,7 @@ Vector<T, N>& Vector<T, N>::operator-=(const Vector<T, N>& other)
 {
   for (int i = 0; i < N; ++i)
   {
-    _value[i] -= other[i];
+    mValue[i] -= other[i];
   }
   return *this;
 }
@@ -147,7 +147,7 @@ Vector<T, N>& Vector<T, N>::operator*=(const Vector<T, N>& other)
 {
   for (int i = 0; i < N; ++i)
   {
-    _value[i] *= other[i];
+    mValue[i] *= other[i];
   }
   return *this;
 }
@@ -157,7 +157,7 @@ Vector<T, N>& Vector<T, N>::operator*=(T scalar)
 {
   for (int i = 0; i < N; ++i)
   {
-    _value[i] *= scalar;
+    mValue[i] *= scalar;
   }
   return *this;
 }
@@ -167,7 +167,7 @@ Vector<T, N>& Vector<T, N>::operator/=(T scaler)
 {
   for (int i = 0; i < N; ++i)
   {
-    _value[i] /= scaler;
+    mValue[i] /= scaler;
   }
   return *this;
 }
@@ -178,7 +178,7 @@ Vector<T, N> Vector<T, N>::operator-()
   Vector<T, N> negated;
   for (int i = 0; i < N; ++i)
   {
-    negated[i] = -_value[i];
+    negated[i] = -mValue[i];
   }
   return negated;
 }
@@ -190,11 +190,11 @@ Vector<T, N>::operator Vector<T, M>() const
   Vector<T, M> result;
   for (int i = 0; i < N && i < M; ++i)
   {
-    result._value[i] = _value[i];
+    result.mValue[i] = mValue[i];
   }
   for (int i = M - 1; i >= N; --i)
   {
-    result._value[i] = (T)0;
+    result.mValue[i] = (T)0;
   }
   return result;
 }

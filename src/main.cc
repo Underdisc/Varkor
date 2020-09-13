@@ -20,12 +20,12 @@
 #include "shader.h"
 #include "texture.h"
 
-void resize_callback(GLFWwindow* window, int width, int height)
+void ResizeCallback(GLFWwindow* window, int width, int height)
 {
   glViewport(0, 0, width, height);
 }
 
-void process_input(GLFWwindow* window)
+void ProcessInput(GLFWwindow* window)
 {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
   {
@@ -48,11 +48,11 @@ void Core()
 
   glfwMakeContextCurrent(window);
 
-  bool glad_loaded = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-  LogAbortIf(!glad_loaded, "glad initialization failed");
+  bool gladLoaded = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+  LogAbortIf(!gladLoaded, "glad initialization failed");
 
   glViewport(0, 0, 800, 600);
-  glfwSetFramebufferSizeCallback(window, resize_callback);
+  glfwSetFramebufferSizeCallback(window, ResizeCallback);
 
   Input::Init(window);
   Debug::Draw::Init();
@@ -122,7 +122,7 @@ void Core()
     // todo: replace this argument with a real dt.
     float dt = 1.0f / 60.0f;
     camera.Update(dt);
-    process_input(window);
+    ProcessInput(window);
 
     active = !glfwWindowShouldClose(window);
 
@@ -134,7 +134,6 @@ void Core()
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, -rotation, glm::vec3(0.0f, 1.0f, 0.0f));
 
-    float dist = -3.0f - (float)sin(glfwGetTime());
     Mat4 view = camera.WorldToCamera();
 
     float fov = PIf / 4.0f;

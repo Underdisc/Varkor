@@ -4,7 +4,7 @@
 class Texture
 {
 public:
-  Texture(const char* texture_file);
+  Texture(const char* textureFile);
   ~Texture();
   void Purge();
   int Width() const;
@@ -13,10 +13,10 @@ public:
   unsigned int Id() const;
 
 private:
-  int _width;
-  int _height;
-  int _channels;
-  unsigned int _id;
+  int mWidth;
+  int mHeight;
+  int mChannels;
+  unsigned int mId;
 };
 
 #endif

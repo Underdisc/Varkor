@@ -52,7 +52,7 @@ void Render(const Mat4& view, const Mat4& projection)
   for (int i = 0; i < nRenderables.Size(); ++i)
   {
     const Renderable& renderable = nRenderables[i];
-    nShader.SetVec3("color", renderable.mColor._value);
+    nShader.SetVec3("color", renderable.mColor.mValue);
     glBindVertexArray(renderable.mVao);
     glDrawArrays(GL_LINES, 0, renderable.mCount);
   }

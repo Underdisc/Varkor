@@ -10,11 +10,11 @@ void Cast()
   vec[2] = 2;
   vec[3] = 3;
 
-  Math::Vector<float, 2> smaller_vec = (Math::Vector<float, 2>)vec;
-  Math::Vector<float, 6> larger_vec = (Math::Vector<float, 6>)vec;
+  Math::Vector<float, 2> smallerVec = (Math::Vector<float, 2>)vec;
+  Math::Vector<float, 6> largerVec = (Math::Vector<float, 6>)vec;
   std::cout << "vec " << vec << std::endl;
-  std::cout << "smaller_vec " << smaller_vec << std::endl;
-  std::cout << "larger_vec " << larger_vec << std::endl;
+  std::cout << "smallerVec " << smallerVec << std::endl;
+  std::cout << "largerVec " << largerVec << std::endl;
 }
 
 void Cross()

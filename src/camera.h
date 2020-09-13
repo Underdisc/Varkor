@@ -15,17 +15,17 @@ private:
   void CalculateBasisVectors();
   void CalculateWorldToCamera();
   // Values describing the location and orientation of the camera.
-  float _yaw;
-  float _pitch;
-  Vec3 _position;
+  float mYaw;
+  float mPitch;
+  Vec3 mPosition;
   // Settings used for the camera controls.
-  float _speed;
-  float _sensitivity;
+  float mSpeed;
+  float mSensitivity;
   // Values used to create the world to camera transformation.
-  Vec3 _forward;
-  Vec3 _right;
-  Vec3 _up;
-  Mat4 _wtc;
+  Vec3 mForward;
+  Vec3 mRight;
+  Vec3 mUp;
+  Mat4 mWtc;
 };
 
 #endif

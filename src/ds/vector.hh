@@ -9,7 +9,7 @@ template<typename T>
 class Vector
 {
 public:
-  T* _data;
+  T* mData;
 
 public:
   Vector();
@@ -24,10 +24,10 @@ public:
   T& operator[](int index);
 
 private:
-  int _size;
-  int _capacity;
-  const static int _start_capacity;
-  const static float _growth_factor;
+  int mSize;
+  int mCapacity;
+  const static int smStartCapacity;
+  const static float smGrowthFactor;
 
 private:
   void Grow();
@@ -35,59 +35,59 @@ private:
 };
 
 template<typename T>
-const int Vector<T>::_start_capacity = 10;
+const int Vector<T>::smStartCapacity = 10;
 template<typename T>
-const float Vector<T>::_growth_factor = 2.0f;
+const float Vector<T>::smGrowthFactor = 2.0f;
 
 template<typename T>
 Vector<T>::Vector()
 {
-  _data = nullptr;
-  _size = 0;
-  _capacity = 0;
+  mData = nullptr;
+  mSize = 0;
+  mCapacity = 0;
 }
 
 template<typename T>
 Vector<T>::~Vector()
 {
-  if (_data != nullptr)
+  if (mData != nullptr)
   {
-    delete[] _data;
+    delete[] mData;
   }
 }
 
 template<typename T>
 void Vector<T>::Push(const T& value)
 {
-  if (_size >= _capacity)
+  if (mSize >= mCapacity)
   {
     Grow();
   }
-  _data[_size] = value;
-  ++_size;
+  mData[mSize] = value;
+  ++mSize;
 }
 
 template<typename T>
 void Vector<T>::Pop()
 {
-  if (_size != 0)
+  if (mSize != 0)
   {
-    --_size;
+    --mSize;
   }
 }
 
 template<typename T>
 void Vector<T>::Clear()
 {
-  _size = 0;
+  mSize = 0;
 }
 
 template<typename T>
 bool Vector<T>::Contains(const T& value) const
 {
-  for (int i = 0; i < _size; ++i)
+  for (int i = 0; i < mSize; ++i)
   {
-    if (_data[i] == value)
+    if (mData[i] == value)
     {
       return true;
     }
@@ -98,41 +98,41 @@ bool Vector<T>::Contains(const T& value) const
 template<typename T>
 int Vector<T>::Size() const
 {
-  return _size;
+  return mSize;
 }
 
 template<typename T>
 int Vector<T>::Capacity() const
 {
-  return _capacity;
+  return mCapacity;
 }
 
 template<typename T>
 const T& Vector<T>::operator[](int index) const
 {
-  return _data[index];
+  return mData[index];
 }
 
 template<typename T>
 T& Vector<T>::operator[](int index)
 {
-  return _data[index];
+  return mData[index];
 }
 
 template<typename T>
 void Vector<T>::Grow()
 {
-  if (_data == nullptr)
+  if (mData == nullptr)
   {
-    _capacity = _start_capacity;
-    _data = new T[_capacity];
+    mCapacity = smStartCapacity;
+    mData = new T[mCapacity];
   } else
   {
-    T* old_data = _data;
-    _capacity = (int)((float)_capacity * _growth_factor);
-    _data = new T[_capacity];
-    Copy(old_data, _data, _size);
-    delete[] old_data;
+    T* oldData = mData;
+    mCapacity = (int)((float)mCapacity * smGrowthFactor);
+    mData = new T[mCapacity];
+    Copy(oldData, mData, mSize);
+    delete[] oldData;
   }
 }
 

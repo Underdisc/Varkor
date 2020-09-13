@@ -24,67 +24,67 @@ void PushPop()
 {
   std::cout << "=PushPop=" << std::endl;
 
-  DS::Vector<int> test_vector;
+  DS::Vector<int> testVector;
   std::cout << "<Empty>" << std::endl;
-  PrintVector(test_vector);
+  PrintVector(testVector);
 
   for (int i = 0; i < 5; ++i)
   {
-    test_vector.Push(i);
+    testVector.Push(i);
   }
   std::cout << "<Pushed 5 Values>" << std::endl;
-  PrintVector(test_vector);
+  PrintVector(testVector);
 
   for (int i = 0; i < 20; ++i)
   {
-    test_vector.Push(i);
+    testVector.Push(i);
   }
   std::cout << "<Pushed 20 Values>" << std::endl;
-  PrintVector(test_vector);
+  PrintVector(testVector);
 
   for (int i = 0; i < 10; ++i)
   {
-    test_vector.Pop();
+    testVector.Pop();
   }
   std::cout << "<Popped 10 Values>" << std::endl;
-  PrintVector(test_vector);
+  PrintVector(testVector);
 
-  test_vector.Clear();
+  testVector.Clear();
   std::cout << "<Cleared>" << std::endl;
-  PrintVector(test_vector);
+  PrintVector(testVector);
 }
 
 void IndexOperator()
 {
   std::cout << "=IndexOperator=" << std::endl;
 
-  DS::Vector<int> test_vector;
+  DS::Vector<int> testVector;
   for (int i = 0; i < 20; ++i)
   {
-    test_vector.Push(i);
+    testVector.Push(i);
   }
 
-  int val0 = test_vector[5];
+  int val0 = testVector[5];
   std::cout << "[5]: " << val0 << std::endl;
-  const int& val1 = test_vector[10];
+  const int& val1 = testVector[10];
   std::cout << &val1 << std::endl;
-  std::cout << test_vector._data + 10 << std::endl;
+  std::cout << testVector.mData + 10 << std::endl;
   std::cout << "[10]: " << val1 << std::endl;
-  test_vector[15] = 7;
-  std::cout << "[15]: " << test_vector[15] << std::endl;
+  testVector[15] = 7;
+  std::cout << "[15]: " << testVector[15] << std::endl;
 }
 
 void Contains()
 {
   std::cout << "=Contains=" << std::endl;
 
-  DS::Vector<int> test_vector;
+  DS::Vector<int> testVector;
   for (int i = 0; i < 20; ++i)
   {
-    test_vector.Push(i);
+    testVector.Push(i);
   }
-  std::cout << "Contains 10: " << test_vector.Contains(10) << std::endl;
-  std::cout << "Contains 21: " << test_vector.Contains(21) << std::endl;
+  std::cout << "Contains 10: " << testVector.Contains(10) << std::endl;
+  std::cout << "Contains 21: " << testVector.Contains(21) << std::endl;
 }
 
 int main(void)

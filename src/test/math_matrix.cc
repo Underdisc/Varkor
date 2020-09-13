@@ -47,8 +47,8 @@ void EqualsOperator()
 {
   Mat4 matrix = CreateGenericMat4();
   std::cout << "original" << std::endl << matrix;
-  Mat4 copy_matrix = matrix;
-  std::cout << "copy" << std::endl << copy_matrix;
+  Mat4 copyMatrix = matrix;
+  std::cout << "copy" << std::endl << copyMatrix;
 }
 
 void NoInverseZeroRow()
