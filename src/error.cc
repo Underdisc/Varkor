@@ -4,53 +4,57 @@
 
 #include "error.h"
 
-std::ofstream Error::_error_file = std::ofstream();
-bool Error::_use_cout = true;
+namespace Error {
 
-void Error::Init(const char* log_file, bool use_cout)
+void LogString(const char* string);
+std::string FormatFileName(const char* file);
+std::ofstream nErrorFile;
+bool nUseCout;
+
+void Init(const char* logFile, bool useCout)
 {
-  _error_file.open(log_file);
-  if (!_error_file.is_open())
+  nErrorFile.open(logFile);
+  if (!nErrorFile.is_open())
   {
-    std::cout << "Error log file " << log_file << " failed to open."
+    std::cout << "Error log file " << logFile << " failed to open."
               << std::endl;
   }
-  _use_cout = use_cout;
+  nUseCout = useCout;
 }
 
-void Error::Purge()
+void Purge()
 {
-  if (_error_file.is_open())
+  if (nErrorFile.is_open())
   {
-    _error_file.close();
+    nErrorFile.close();
   }
 }
 
-void Error::Log(const char* file, int line, const char* reason)
+void Log(const char* file, int line, const char* reason)
 {
   std::stringstream ss;
-  std::string file_name = FormatFileName(file);
-  ss << "Error|" << file_name << "|" << line << "> " << reason << std::endl;
+  std::string fileName = FormatFileName(file);
+  ss << "Error|" << fileName << "|" << line << "> " << reason << std::endl;
   LogString(ss.str().c_str());
 }
 
-void Error::Log(const char* reason)
+void Log(const char* reason)
 {
   std::stringstream ss;
   ss << "Error> " << reason << std::endl;
   LogString(ss.str().c_str());
 }
 
-void Error::Abort(const char* file, int line, const char* reason)
+void Abort(const char* file, int line, const char* reason)
 {
   std::stringstream ss;
-  std::string file_name = FormatFileName(file);
-  ss << "Abort|" << file_name << "|" << line << "> " << reason << std::endl;
+  std::string fileName = FormatFileName(file);
+  ss << "Abort|" << fileName << "|" << line << "> " << reason << std::endl;
   LogString(ss.str().c_str());
   abort();
 }
 
-void Error::Abort(const char* reason)
+void Abort(const char* reason)
 {
   std::stringstream ss;
   ss << "Abort> " << reason << std::endl;
@@ -58,36 +62,38 @@ void Error::Abort(const char* reason)
   abort();
 }
 
-void Error::Abort()
+void Abort()
 {
   std::string str("Abort");
   LogString(str.c_str());
   abort();
 }
 
-void Error::LogString(const char* string)
+void LogString(const char* string)
 {
-  if (_use_cout)
+  if (nUseCout)
   {
     std::cout << string;
   }
-  if (_error_file.is_open())
+  if (nErrorFile.is_open())
   {
-    _error_file << string;
+    nErrorFile << string;
   }
 }
 
-std::string Error::FormatFileName(const char* file)
+std::string FormatFileName(const char* file)
 {
-  std::string file_name(file);
-  size_t index = file_name.find("src");
-  file_name = file_name.substr(index);
-  for (int i = 0; i < file_name.size(); ++i)
+  std::string fileName(file);
+  size_t index = fileName.find("src");
+  fileName = fileName.substr(index);
+  for (int i = 0; i < fileName.size(); ++i)
   {
-    if (file_name[i] == '\\')
+    if (fileName[i] == '\\')
     {
-      file_name[i] = '/';
+      fileName[i] = '/';
     }
   }
-  return file_name;
+  return fileName;
 }
+
+} // namespace Error

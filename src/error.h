@@ -4,24 +4,17 @@
 #include <fstream>
 #include <string>
 
-class Error
-{
-public:
-  static void Init(const char* log_file, bool use_cout = true);
-  static void Purge();
-  static void Log(const char* file, int line, const char* reason);
-  static void Log(const char* reason);
-  static void Abort(const char* file, int line, const char* reason);
-  static void Abort(const char* reason);
-  static void Abort();
+namespace Error {
 
-private:
-  static void LogString(const char* string);
-  static std::string FormatFileName(const char* file);
-  static std::ofstream _error_file;
-  static bool _use_cout;
-  Error() {}
-};
+void Init(const char* logFile, bool useCout = true);
+void Purge();
+void Log(const char* file, int line, const char* reason);
+void Log(const char* reason);
+void Abort(const char* file, int line, const char* reason);
+void Abort(const char* reason);
+void Abort();
+
+} // namespace Error
 
 #define LogError(reason) Error::Log(__FILE__, __LINE__, reason)
 #define LogErrorIf(cond, reason) \
