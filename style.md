@@ -21,5 +21,11 @@ Classes and Structs are always camel case and start with an uppercase letter.
 
 - Literally Any Class or Struct `ClassOrStructName`
 
+## Enum Naming Scheme
+Enums are always camel case and start with an uppercase letter. Members of an enum follow the same scheme.
+
+- Literally Any Enum `EnumName`
+- Literall Any Enum Member `EnumMemberName`
+
 ## Everything Else
 .clang-format specifies all other style rules.

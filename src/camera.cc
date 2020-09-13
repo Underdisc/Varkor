@@ -25,34 +25,34 @@ Camera::Camera()
 void Camera::Update(float dt)
 {
   // Change the camera position depending on input.
-  if (Input::KeyDown(Input::Key::w))
+  if (Input::KeyDown(Input::Key::W))
   {
     mPosition += mForward * dt * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::s))
+  if (Input::KeyDown(Input::Key::S))
   {
     mPosition -= mForward * dt * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::d))
+  if (Input::KeyDown(Input::Key::D))
   {
     mPosition += mRight * dt * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::a))
+  if (Input::KeyDown(Input::Key::A))
   {
     mPosition -= mRight * dt * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::e))
+  if (Input::KeyDown(Input::Key::E))
   {
     mPosition += mUp * dt * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::q))
+  if (Input::KeyDown(Input::Key::Q))
   {
     mPosition -= mUp * dt * mSpeed;
   }
 
   // Change the camera yaw and pitch depending on input and calculate the world
   // to camera transformation.
-  if (Input::MouseDown(Input::Mouse::right))
+  if (Input::MouseDown(Input::Mouse::Right))
   {
     Vec2 mouseMotion = Input::MouseMotion();
     mYaw -= mouseMotion[0] * dt * mSensitivity;

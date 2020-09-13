@@ -8,6 +8,7 @@ namespace Error {
 
 void LogString(const char* string);
 std::string FormatFileName(const char* file);
+
 std::ofstream nErrorFile;
 bool nUseCout;
 
