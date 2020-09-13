@@ -3,9 +3,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include "ds/vector.hh"
-#include "math/vector.hh"
-
 namespace Input {
 
 enum class Mouse
