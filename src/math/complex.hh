@@ -2,6 +2,7 @@
 #define math_complex_hh
 
 #include <iostream>
+#include <math.h>
 
 namespace Math {
 
@@ -23,6 +24,8 @@ public:
   Complex<T>& operator*=(const Complex<T>& other);
   Complex<T>& operator*=(T scaler);
 };
+
+Complex<float> ComplexPolar(float magnitude, float angle);
 
 template<typename T>
 Complex<T>& Complex<T>::operator=(const Complex<T>& other)
@@ -100,6 +103,14 @@ Complex<T>& Complex<T>::operator*=(T scaler)
   mReal = mReal * scaler;
   mImaginary = mImaginary * scaler;
   return *this;
+}
+
+Complex<float> ComplexPolar(float magnitude, float angle)
+{
+  Complex<float> result;
+  result.mReal = magnitude * std::cosf(angle);
+  result.mImaginary = magnitude * std::sinf(angle);
+  return result;
 }
 
 template<typename T>

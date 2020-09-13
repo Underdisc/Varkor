@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "../math/complex.hh"
+#include "../math/constants.h"
 
 void Assignment()
 {
@@ -50,10 +51,26 @@ void Multiplication()
   std::cout << "d: " << d << std::endl << std::endl;
 }
 
+void PolarComplex()
+{
+  Complex a = Math::ComplexPolar(2.0f, 0.0f);
+  Complex b = Math::ComplexPolar(3.0f, PIO2f);
+  Complex c = Math::ComplexPolar(1.0f, PIf);
+  Complex d = Math::ComplexPolar(4.0f, PIf * 1.5f);
+  Complex e = Math::ComplexPolar(1.0f, PIf / 4.0f);
+  std::cout << "a: " << a << std::endl;
+  std::cout << "b: " << b << std::endl;
+  std::cout << "c: " << c << std::endl;
+  std::cout << "d: " << d << std::endl;
+  std::cout << "e: " << e << std::endl << std::endl;
+
+}
+
 int main(void)
 {
   // Assignment();
   // Addition();
   // Subtraction();
   // Multiplication();
+  // PolarComplex();
 }
