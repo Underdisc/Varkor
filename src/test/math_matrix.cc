@@ -1,4 +1,3 @@
-#include "../error.h"
 #include "../math/matrix.hh"
 #include "../math/vector.hh"
 
@@ -199,11 +198,9 @@ int main(void)
   // a zero row, a zero column, a linearly dependent row, or a linearly
   // dependent column. Each of these will signal an abort.
   /*
-  Error::Init("log.err");
   NoInverseZeroRow();
   NoInverseZeroColumn();
   NoInverseDependentRow();
   NoInverseDependentColumn();
-  Error::Purge();
   */
 }
