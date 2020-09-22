@@ -8,179 +8,75 @@
 
 namespace Math {
 
-// todo: separate the declaration from the definition.
 template<typename T, unsigned int N>
-class Vector
+struct Vector
 {
-public:
-  T mValue[N];
+  T mD[N];
 
-public:
+  T* Data();
+  const T* CData() const;
   T operator[](int index) const;
   T& operator[](int index);
-  Vector<T, N>& operator=(const Vector<T, N>& other);
-  Vector<T, N> operator+(const Vector<T, N>& other) const;
-  Vector<T, N> operator-(const Vector<T, N>& other) const;
-  Vector<T, N> operator*(const Vector<T, N>& other) const;
-  Vector<T, N> operator*(T scalar) const;
-  Vector<T, N> operator/(T scalar) const;
-  Vector<T, N>& operator+=(const Vector<T, N>& other);
-  Vector<T, N>& operator-=(const Vector<T, N>& other);
-  Vector<T, N>& operator*=(const Vector<T, N>& other);
-  Vector<T, N>& operator*=(T scalar);
-  Vector<T, N>& operator/=(T scalar);
-  Vector<T, N> operator-();
   template<unsigned int M>
   operator Vector<T, M>() const;
 };
 
 template<typename T, unsigned int N>
-T MagSq(const Vector<T, N>& vec);
-template<unsigned int N>
-float Mag(const Vector<float, N>& vec);
+Vector<T, N> operator+(const Vector<T, N>& a, const Vector<T, N>& b);
 template<typename T, unsigned int N>
-Vector<T, N> Normalize(const Vector<T, N>& vec);
+Vector<T, N> operator-(const Vector<T, N>& a, const Vector<T, N>& b);
+template<typename T, unsigned int N>
+Vector<T, N> operator*(const Vector<T, N>& vector, T scalar);
+template<typename T, unsigned int N>
+Vector<T, N> operator*(T scaler, const Vector<T, N>& vector);
+template<typename T, unsigned int N>
+Vector<T, N> operator/(const Vector<T, N>& vector, T scalar);
+template<typename T, unsigned int N>
+Vector<T, N>& operator+=(Vector<T, N>& a, const Vector<T, N>& b);
+template<typename T, unsigned int N>
+Vector<T, N>& operator-=(Vector<T, N>& a, const Vector<T, N>& b);
+template<typename T, unsigned int N>
+Vector<T, N>& operator*=(Vector<T, N>& vector, T scalar);
+template<typename T, unsigned int N>
+Vector<T, N>& operator/=(Vector<T, N>& vector, T scalar);
+template<typename T, unsigned int N>
+Vector<T, N> operator-(const Vector<T, N>& vector);
+template<typename T, unsigned int N>
+std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec);
+
+template<typename T, unsigned int N>
+T MagnitudeSq(const Vector<T, N>& vector);
+template<unsigned int N>
+float Magnitude(const Vector<float, N>& vector);
+template<typename T, unsigned int N>
+Vector<T, N> Normalize(const Vector<T, N>& vector);
 template<typename T>
 Vector<T, 3> Cross(const Vector<T, 3>& a, const Vector<T, 3>& b);
 template<typename T, unsigned int N>
 T Dot(const Vector<T, N>& a, const Vector<T, N>& b);
 
 template<typename T, unsigned int N>
+T* Vector<T, N>::Data()
+{
+  return (T*)mD;
+}
+
+template<typename T, unsigned int N>
+const T* Vector<T, N>::CData() const
+{
+  return (const T*)mD;
+}
+
+template<typename T, unsigned int N>
 T Vector<T, N>::operator[](int index) const
 {
-  return mValue[index];
+  return mD[index];
 }
 
 template<typename T, unsigned int N>
 T& Vector<T, N>::operator[](int index)
 {
-  return mValue[index];
-}
-
-template<typename T, unsigned int N>
-Vector<T, N>& Vector<T, N>::operator=(const Vector<T, N>& other)
-{
-  for (int i = 0; i < N; ++i)
-  {
-    mValue[i] = other[i];
-  }
-  return *this;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N> Vector<T, N>::operator+(const Vector<T, N>& other) const
-{
-  Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
-    result[i] = mValue[i] + other[i];
-  }
-  return result;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N> Vector<T, N>::operator-(const Vector<T, N>& other) const
-{
-  Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
-    result[i] = mValue[i] - other[i];
-  }
-  return result;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N> Vector<T, N>::operator*(const Vector<T, N>& other) const
-{
-  Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
-    result[i] = mValue[i] * other[i];
-  }
-  return result;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N> Vector<T, N>::operator*(T scalar) const
-{
-  Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
-    result[i] = mValue[i] * scalar;
-  }
-  return result;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N> Vector<T, N>::operator/(T scalar) const
-{
-  Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
-    result[i] = mValue[i] / scalar;
-  }
-  return result;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N>& Vector<T, N>::operator+=(const Vector<T, N>& other)
-{
-  for (int i = 0; i < N; ++i)
-  {
-    mValue[i] += other[i];
-  }
-  return *this;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N>& Vector<T, N>::operator-=(const Vector<T, N>& other)
-{
-  for (int i = 0; i < N; ++i)
-  {
-    mValue[i] -= other[i];
-  }
-  return *this;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N>& Vector<T, N>::operator*=(const Vector<T, N>& other)
-{
-  for (int i = 0; i < N; ++i)
-  {
-    mValue[i] *= other[i];
-  }
-  return *this;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N>& Vector<T, N>::operator*=(T scalar)
-{
-  for (int i = 0; i < N; ++i)
-  {
-    mValue[i] *= scalar;
-  }
-  return *this;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N>& Vector<T, N>::operator/=(T scaler)
-{
-  for (int i = 0; i < N; ++i)
-  {
-    mValue[i] /= scaler;
-  }
-  return *this;
-}
-
-template<typename T, unsigned int N>
-Vector<T, N> Vector<T, N>::operator-()
-{
-  Vector<T, N> negated;
-  for (int i = 0; i < N; ++i)
-  {
-    negated[i] = -mValue[i];
-  }
-  return negated;
+  return mD[index];
 }
 
 template<typename T, unsigned int N>
@@ -190,34 +86,151 @@ Vector<T, N>::operator Vector<T, M>() const
   Vector<T, M> result;
   for (int i = 0; i < N && i < M; ++i)
   {
-    result.mValue[i] = mValue[i];
+    result[i] = mD[i];
   }
   for (int i = M - 1; i >= N; --i)
   {
-    result.mValue[i] = (T)0;
+    result[i] = (T)0;
   }
   return result;
 }
 
 template<typename T, unsigned int N>
-T MagSq(const Vector<T, N>& vec)
+Vector<T, N> operator+(const Vector<T, N>& a, const Vector<T, N>& b)
 {
-  return Dot(vec, vec);
-}
-
-template<unsigned int N>
-float Mag(const Vector<float, N>& vec)
-{
-  return std::sqrtf(MagSq(vec));
+  Vector<T, N> result;
+  for (int i = 0; i < N; ++i)
+  {
+    result[i] = a[i] + b[i];
+  }
+  return result;
 }
 
 template<typename T, unsigned int N>
-Vector<T, N> Normalize(const Vector<T, N>& vec)
+Vector<T, N> operator-(const Vector<T, N>& a, const Vector<T, N>& b)
 {
-  T magnitude = Mag(vec);
+  Vector<T, N> result;
+  for (int i = 0; i < N; ++i)
+  {
+    result[i] = a[i] - b[i];
+  }
+  return result;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N> operator*(const Vector<T, N>& vector, T scalar)
+{
+  Vector<T, N> result;
+  for (int i = 0; i < N; ++i)
+  {
+    result[i] = vector[i] * scalar;
+  }
+  return result;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N> operator*(T scaler, const Vector<T, N>& vector)
+{
+  return vector * scaler;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N> operator/(const Vector<T, N>& vector, T scalar)
+{
+  Vector<T, N> result;
+  for (int i = 0; i < N; ++i)
+  {
+    result[i] = vector[i] / scalar;
+  }
+  return result;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N>& operator+=(Vector<T, N>& a, const Vector<T, N>& b)
+{
+  for (int i = 0; i < N; ++i)
+  {
+    a[i] += b[i];
+  }
+  return a;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N>& operator-=(Vector<T, N>& a, const Vector<T, N>& b)
+{
+  for (int i = 0; i < N; ++i)
+  {
+    a[i] -= b[i];
+  }
+  return a;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N>& operator*=(Vector<T, N>& vector, T scalar)
+{
+  for (int i = 0; i < N; ++i)
+  {
+    vector[i] *= scalar;
+  }
+  return vector;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N>& operator/=(Vector<T, N>& vector, T scaler)
+{
+  for (int i = 0; i < N; ++i)
+  {
+    vector[i] /= scaler;
+  }
+  return vector;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N> operator-(const Vector<T, N>& vector)
+{
+  Vector<T, N> negated;
+  for (int i = 0; i < N; ++i)
+  {
+    negated[i] = -vector[i];
+  }
+  return negated;
+}
+
+template<typename T, unsigned int N>
+std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec)
+{
+  os << "[";
+  for (int i = 0; i < N; ++i)
+  {
+    os << vec[i];
+    if (i < N - 1)
+    {
+      os << ", ";
+    }
+  }
+  os << "]";
+  return os;
+}
+
+template<typename T, unsigned int N>
+T MagnitudeSq(const Vector<T, N>& vector)
+{
+  return Dot(vector, vector);
+}
+
+template<unsigned int N>
+float Magnitude(const Vector<float, N>& vector)
+{
+  return std::sqrtf(MagnitudeSq(vector));
+}
+
+template<typename T, unsigned int N>
+Vector<T, N> Normalize(const Vector<T, N>& vector)
+{
+  T magnitude = Magnitude(vector);
   LogAbortIf(
     magnitude == (T)0, "Vector with magnitude of zero can't be normalized.");
-  return vec / magnitude;
+  return vector / magnitude;
 }
 
 template<typename T>
@@ -239,22 +252,6 @@ T Dot(const Vector<T, N>& a, const Vector<T, N>& b)
     dot += a[i] * b[i];
   }
   return dot;
-}
-
-template<typename T, unsigned int N>
-std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec)
-{
-  os << "[";
-  for (int i = 0; i < N; ++i)
-  {
-    os << vec[i];
-    if (i < N - 1)
-    {
-      os << ", ";
-    }
-  }
-  os << "]";
-  return os;
 }
 
 } // namespace Math
