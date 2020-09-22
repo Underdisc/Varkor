@@ -1,6 +1,8 @@
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
+#include <string>
 
 #include "error.h"
 
@@ -10,9 +12,9 @@ void LogString(const char* string);
 std::string FormatFileName(const char* file);
 
 std::ofstream nErrorFile;
-bool nUseCout;
+bool nUseCout = true;
 
-void Init(const char* logFile, bool useCout)
+void Init(const char* logFile)
 {
   nErrorFile.open(logFile);
   if (!nErrorFile.is_open())
@@ -20,7 +22,6 @@ void Init(const char* logFile, bool useCout)
     std::cout << "Error log file " << logFile << " failed to open."
               << std::endl;
   }
-  nUseCout = useCout;
 }
 
 void Purge()

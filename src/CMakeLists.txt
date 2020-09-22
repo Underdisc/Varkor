@@ -8,3 +8,4 @@ target_sources(varkor PRIVATE
   texture.cc
   time.cc)
 add_subdirectory(debug)
+add_subdirectory(math)

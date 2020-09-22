@@ -1,18 +1,17 @@
 #ifndef error_h
 #define error_h
 
-#include <fstream>
-#include <string>
-
 namespace Error {
 
-void Init(const char* logFile, bool useCout = true);
+void Init(const char* logFile);
 void Purge();
 void Log(const char* file, int line, const char* reason);
 void Log(const char* reason);
 void Abort(const char* file, int line, const char* reason);
 void Abort(const char* reason);
 void Abort();
+
+extern bool nUseCout;
 
 } // namespace Error
 

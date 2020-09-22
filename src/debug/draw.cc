@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 
 #include "../ds/vector.hh"
-#include "../math/matrix.hh"
+#include "../math/matrix_4.h"
 #include "../math/vector.hh"
 #include "../shader.h"
 

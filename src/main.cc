@@ -14,8 +14,10 @@
 #include "debug/draw.h"
 #include "error.h"
 #include "input.h"
+#include "math/complex.hh"
 #include "math/constants.h"
-#include "math/matrix.hh"
+#include "math/matrix_4.h"
+#include "math/quaternion.h"
 #include "math/vector.hh"
 #include "shader.h"
 #include "texture.h"
@@ -61,31 +63,31 @@ void Core()
   Shader solid("shader/solid.vs", "shader/solid.fs");
 
   // clang-format off
-    // buffer setup
-    float vertices[] = {
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f
-    };
-    unsigned int indicies[] = {
-        0, 1, 2,
-        1, 3, 2,
-        4, 5, 0,
-        5, 1, 0,
-        4, 7, 5,
-        4, 6, 7,
-        6, 3, 7,
-        6, 2, 3,
-        1, 5, 3,
-        3, 5, 7,
-        0, 6, 4,
-        0, 2, 6
-    };
+  // buffer setup
+  float vertices[] = {
+      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+       0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+       0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
+      -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.0f,
+       0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
+       0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f
+  };
+  unsigned int indicies[] = {
+      0, 1, 2,
+      1, 3, 2,
+      4, 5, 0,
+      5, 1, 0,
+      4, 7, 5,
+      4, 6, 7,
+      6, 3, 7,
+      6, 2, 3,
+      1, 5, 3,
+      3, 5, 7,
+      0, 6, 4,
+      0, 2, 6
+  };
   // clang-format on
 
   unsigned int vao;
@@ -116,6 +118,15 @@ void Core()
 
   bool active = true;
   Camera camera;
+  Complex complexRot = {1.0f, 0.0f};
+  Complex complexRotInc = Math::ComplexPolar(1.0f, PIf / 120.0f);
+
+  Quat cubeRot = {1.0f, 0.0, 0.0f, 0.0f};
+  Vec3 axis = {1.0f, 1.0f, 1.0f};
+  axis = Math::Normalize(axis);
+  Quat cubeRotInc;
+  cubeRotInc.AngleAxis(PIf / 120.0f, axis);
+
   while (active)
   {
     Input::Update();
@@ -129,10 +140,10 @@ void Core()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // matrix transformation setup
-    float rotation = PIf * (float)glfwGetTime();
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::rotate(model, -rotation, glm::vec3(0.0f, 1.0f, 0.0f));
+    // Crete the cube rotation matrix.
+    cubeRot *= cubeRotInc;
+    Mat4 model;
+    Math::Rotate(&model, cubeRot);
 
     Mat4 view = camera.WorldToCamera();
 
@@ -141,8 +152,8 @@ void Core()
     proj = glm::perspective(fov, (float)width / (float)height, 0.1f, 100.0f);
 
     // I will be replacing the model matrix using my own matrix implementation.
-    solid.SetMat4("model", glm::value_ptr(model));
-    solid.SetMat4("view", view.Data(), true);
+    solid.SetMat4("model", model.CData(), true);
+    solid.SetMat4("view", view.CData(), true);
     solid.SetMat4("proj", glm::value_ptr(proj));
 
     solid.Use();
@@ -169,8 +180,18 @@ void Core()
     {
       tProj[i] = oProj[i];
     }
-    Debug::Draw::Render(view, tempProj);
 
+    // Drawing the complex number vector using debug drawing.
+    complexRot *= complexRotInc;
+    Vec3 c = {complexRot.mReal, complexRot.mImaginary, 0.0f};
+    Vec3 white = {1.0f, 1.0f, 1.0f};
+    Debug::Draw::Line(o, c, white);
+
+    // Drawing the cube rotation axis.
+    Vec3 purple = {1.0f, 0.0f, 1.0f};
+    Debug::Draw::Line(o, axis, purple);
+
+    Debug::Draw::Render(view, tempProj);
     glfwSwapBuffers(window);
   }
 
