@@ -48,7 +48,7 @@ void Render(const Mat4& view, const Mat4& projection)
 {
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   nShader.SetMat4("view", view.CData(), true);
-  nShader.SetMat4("proj", projection.CData(), false);
+  nShader.SetMat4("proj", projection.CData(), true);
   for (int i = 0; i < nRenderables.Size(); ++i)
   {
     const Renderable& renderable = nRenderables[i];

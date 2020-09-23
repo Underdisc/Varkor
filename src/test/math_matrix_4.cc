@@ -1,3 +1,4 @@
+#include "../math/constants.h"
 #include "../math/matrix_4.h"
 #include "../math/quaternion.h"
 
@@ -67,6 +68,14 @@ void Rotate()
   std::cout << "matrix" << std::endl << matrix << std::endl;
 }
 
+void Perspective()
+{
+  std::cout << "Perspecive" << std::endl;
+  Mat4 matrix;
+  Math::Perspective(&matrix, PIf / 2.0f, 1.5f, 0.1f, 100.0f);
+  std::cout << "matrix" << std::endl << matrix << std::endl;
+}
+
 int main(void)
 {
   Multiply();
@@ -75,4 +84,5 @@ int main(void)
   UniformScale();
   Translate();
   Rotate();
+  Perspective();
 }

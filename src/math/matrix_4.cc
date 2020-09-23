@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "matrix_4.h"
 
 namespace Math {
@@ -117,6 +119,21 @@ void Rotate(Matrix<float, 4>* m, const Quaternion& rot)
   m->mD[3][1] = 0.0f;
   m->mD[3][2] = 0.0f;
   m->mD[3][3] = 1.0f;
+}
+
+void Perspective(
+  Matrix<float, 4>* m, float fovY, float aspect, float near, float far)
+{
+  // The fov passed into this function is the angle formed by the top and the
+  // bottom of the view fustum, not the left and right.
+  Zero(m);
+  float tanHalfFov = std::tanf(fovY / 2.0f);
+  float nearFarDifference = near - far;
+  m->mD[0][0] = 1.0f / (tanHalfFov * aspect);
+  m->mD[1][1] = 1.0f / tanHalfFov;
+  m->mD[2][2] = (near + far) / nearFarDifference;
+  m->mD[2][3] = 2.0f * near * far / nearFarDifference;
+  m->mD[3][2] = -1.0f;
 }
 
 } // namespace Math

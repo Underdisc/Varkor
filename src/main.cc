@@ -3,9 +3,6 @@
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
-#include <glm/glm/glm.hpp>
-#include <glm/glm/gtc/matrix_transform.hpp>
-#include <glm/glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 #include <string>
@@ -127,6 +124,12 @@ void Core()
   Quat cubeRotInc;
   cubeRotInc.AngleAxis(PIf / 120.0f, axis);
 
+  // Create the projection matrix.
+  float fov = PIf / 2.0f;
+  float aspect = (float)width / (float)height;
+  Mat4 perspective;
+  Math::Perspective(&perspective, fov, aspect, 0.1f, 10.0f);
+
   while (active)
   {
     Input::Update();
@@ -147,14 +150,10 @@ void Core()
 
     Mat4 view = camera.WorldToCamera();
 
-    float fov = PIf / 4.0f;
-    glm::mat4 proj = glm::mat4(1.0f);
-    proj = glm::perspective(fov, (float)width / (float)height, 0.1f, 100.0f);
-
     // I will be replacing the model matrix using my own matrix implementation.
     solid.SetMat4("model", model.CData(), true);
     solid.SetMat4("view", view.CData(), true);
-    solid.SetMat4("proj", glm::value_ptr(proj));
+    solid.SetMat4("proj", perspective.CData(), true);
 
     solid.Use();
     glBindVertexArray(vao);
@@ -173,13 +172,6 @@ void Core()
     Debug::Draw::Line(o, x, x);
     Debug::Draw::Line(o, y, y);
     Debug::Draw::Line(o, z, z);
-    Mat4 tempProj;
-    float* oProj = glm::value_ptr(proj);
-    float* tProj = tempProj.Data();
-    for (int i = 0; i < 16; ++i)
-    {
-      tProj[i] = oProj[i];
-    }
 
     // Drawing the complex number vector using debug drawing.
     complexRot *= complexRotInc;
@@ -191,7 +183,7 @@ void Core()
     Vec3 purple = {1.0f, 0.0f, 1.0f};
     Debug::Draw::Line(o, axis, purple);
 
-    Debug::Draw::Render(view, tempProj);
+    Debug::Draw::Render(view, perspective);
     glfwSwapBuffers(window);
   }
 
