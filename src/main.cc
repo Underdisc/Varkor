@@ -2,8 +2,6 @@
 // any includes or code that contain Opengl calls.
 #include <glad/glad.h>
 
-#include <GLFW/glfw3.h>
-
 #include <iostream>
 #include <string>
 
@@ -18,42 +16,12 @@
 #include "math/vector.hh"
 #include "shader.h"
 #include "texture.h"
-
-void ResizeCallback(GLFWwindow* window, int width, int height)
-{
-  glViewport(0, 0, width, height);
-}
-
-void ProcessInput(GLFWwindow* window)
-{
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-  {
-    glfwSetWindowShouldClose(window, true);
-  }
-}
+#include "viewport.h"
 
 void Core()
 {
-  // window setup
-  glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-  int width = 800;
-  int height = 600;
-  GLFWwindow* window = glfwCreateWindow(width, height, "Varkor", NULL, NULL);
-  LogAbortIf(!window, "glfw window creation failed");
-
-  glfwMakeContextCurrent(window);
-
-  bool gladLoaded = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-  LogAbortIf(!gladLoaded, "glad initialization failed");
-
-  glViewport(0, 0, 800, 600);
-  glfwSetFramebufferSizeCallback(window, ResizeCallback);
-
-  Input::Init(window);
+  Viewport::Init();
+  Input::Init(Viewport::Window());
   Debug::Draw::Init();
 
   // shader setup
@@ -124,21 +92,12 @@ void Core()
   Quat cubeRotInc;
   cubeRotInc.AngleAxis(PIf / 120.0f, axis);
 
-  // Create the projection matrix.
-  float fov = PIf / 2.0f;
-  float aspect = (float)width / (float)height;
-  Mat4 perspective;
-  Math::Perspective(&perspective, fov, aspect, 0.1f, 10.0f);
-
-  while (active)
+  while (Viewport::Active())
   {
     Input::Update();
     // todo: replace this argument with a real dt.
     float dt = 1.0f / 60.0f;
     camera.Update(dt);
-    ProcessInput(window);
-
-    active = !glfwWindowShouldClose(window);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -153,7 +112,7 @@ void Core()
     // I will be replacing the model matrix using my own matrix implementation.
     solid.SetMat4("model", model.CData(), true);
     solid.SetMat4("view", view.CData(), true);
-    solid.SetMat4("proj", perspective.CData(), true);
+    solid.SetMat4("proj", Viewport::Perspective().CData(), true);
 
     solid.Use();
     glBindVertexArray(vao);
@@ -183,11 +142,11 @@ void Core()
     Vec3 purple = {1.0f, 0.0f, 1.0f};
     Debug::Draw::Line(o, axis, purple);
 
-    Debug::Draw::Render(view, perspective);
-    glfwSwapBuffers(window);
+    Debug::Draw::Render(view, Viewport::Perspective());
+    Viewport::SwapBuffers();
+    Viewport::Update();
   }
-
-  glfwTerminate();
+  Viewport::Purge();
 }
 
 int main(void)

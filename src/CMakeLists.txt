@@ -6,6 +6,7 @@ target_sources(varkor PRIVATE
   main.cc
   shader.cc
   texture.cc
-  time.cc)
+  time.cc
+  viewport.cc)
 add_subdirectory(debug)
 add_subdirectory(math)
