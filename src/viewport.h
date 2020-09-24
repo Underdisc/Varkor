@@ -1,3 +1,6 @@
+#ifndef viewport_h
+#define viewport_h
+
 #include "math/matrix_4.h"
 
 class GLFWwindow;
@@ -13,3 +16,5 @@ GLFWwindow* Window();
 bool Active();
 
 } // namespace Viewport
+
+#endif
