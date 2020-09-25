@@ -12,7 +12,7 @@ Camera::Camera()
   mPosition = {0.0f, 0.0f, 0.0f};
 
   mSpeed = 1.0f;
-  mSensitivity = 0.1f;
+  mSensitivity = 0.5f;
 
   CalculateBasisVectors();
   mWtc[3][0] = 0.0f;
@@ -69,7 +69,7 @@ void Camera::Update(float dt)
   CalculateWorldToCamera();
 }
 
-Mat4 Camera::WorldToCamera() const
+const Mat4& Camera::WorldToCamera() const
 {
   return mWtc;
 }

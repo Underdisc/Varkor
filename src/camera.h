@@ -9,7 +9,7 @@ class Camera
 public:
   Camera();
   void Update(float dt);
-  Mat4 WorldToCamera() const;
+  const Mat4& WorldToCamera() const;
 
 private:
   void CalculateBasisVectors();

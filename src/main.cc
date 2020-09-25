@@ -15,11 +15,13 @@
 #include "math/quaternion.h"
 #include "math/vector.hh"
 #include "shader.h"
+#include "time.h"
 #include "texture.h"
 #include "viewport.h"
 
 void Core()
 {
+  Time::Init();
   Viewport::Init();
   Input::Init(Viewport::Window());
   Debug::Draw::Init();
@@ -94,10 +96,9 @@ void Core()
 
   while (Viewport::Active())
   {
+    Time::Update();
     Input::Update();
-    // todo: replace this argument with a real dt.
-    float dt = 1.0f / 60.0f;
-    camera.Update(dt);
+    camera.Update(Time::DeltaTime());
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -107,9 +108,7 @@ void Core()
     Mat4 model;
     Math::Rotate(&model, cubeRot);
 
-    Mat4 view = camera.WorldToCamera();
-
-    // I will be replacing the model matrix using my own matrix implementation.
+    const Mat4& view = camera.WorldToCamera();
     solid.SetMat4("model", model.CData(), true);
     solid.SetMat4("view", view.CData(), true);
     solid.SetMat4("proj", Viewport::Perspective().CData(), true);

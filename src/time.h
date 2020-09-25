@@ -1,30 +1,12 @@
 #ifndef time_h
 #define time_h
 
-#include <chrono>
-#include <ctime>
+namespace Time {
 
-#include <unistd>
+void Init();
+void Update();
+float DeltaTime();
 
-class Time
-{
-public:
-  static void Init();
-  static void Update();
-  static float DeltaTime();
-
-  void temp()
-  {
-    sleep time_t time;
-  }
-
-private:
-  // We need a start time.
-  // We need dt.
-  // So we need a time since start.
-
-  typedef std::chrono::system_clock system_clock;
-  typedef std::chrono::time_point<system_clock> time_point;
-};
+} // namespace Time
 
 #endif
