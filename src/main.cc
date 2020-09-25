@@ -23,7 +23,7 @@ void Core()
 {
   Time::Init();
   Viewport::Init();
-  Input::Init(Viewport::Window());
+  Input::Init();
   Debug::Draw::Init();
 
   // shader setup

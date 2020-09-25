@@ -143,7 +143,7 @@ enum class Key
   Menu = GLFW_KEY_MENU,
 };
 
-void Init(GLFWwindow* window);
+void Init();
 void Update();
 Vec2 MouseMotion();
 bool MousePressed(Mouse mouseButton);

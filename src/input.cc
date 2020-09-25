@@ -2,6 +2,7 @@
 
 #include "ds/vector.hh"
 #include "math/vector.hh"
+#include "viewport.h"
 
 #include "input.h"
 
@@ -12,7 +13,6 @@ void KeyCallback(
   GLFWwindow* window, int key, int scancode, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xPos, double yPos);
 
-GLFWwindow* nWindow;
 Vec2 nMousePosition;
 Vec2 nMouseMotion;
 DS::Vector<int> nMousePressed;
@@ -20,12 +20,11 @@ DS::Vector<int> nMouseReleased;
 DS::Vector<int> nKeyPressed;
 DS::Vector<int> nKeyReleased;
 
-void Input::Init(GLFWwindow* window)
+void Input::Init()
 {
-  nWindow = window;
-  glfwSetMouseButtonCallback(window, MouseCallback);
-  glfwSetKeyCallback(window, KeyCallback);
-  glfwSetCursorPosCallback(window, CursorPosCallback);
+  glfwSetMouseButtonCallback(Viewport::Window(), MouseCallback);
+  glfwSetKeyCallback(Viewport::Window(), KeyCallback);
+  glfwSetCursorPosCallback(Viewport::Window(), CursorPosCallback);
 }
 
 void Input::Update()
@@ -56,7 +55,7 @@ bool Input::MouseReleased(Mouse mouseButton)
 
 bool Input::MouseDown(Mouse mouseButton)
 {
-  return GLFW_PRESS == glfwGetMouseButton(nWindow, (int)mouseButton);
+  return GLFW_PRESS == glfwGetMouseButton(Viewport::Window(), (int)mouseButton);
 }
 
 bool Input::KeyPressed(Key key)
@@ -71,12 +70,12 @@ bool Input::KeyReleased(Key key)
 
 bool Input::KeyDown(Key key)
 {
-  return glfwGetKey(nWindow, (int)key) == GLFW_PRESS;
+  return glfwGetKey(Viewport::Window(), (int)key) == GLFW_PRESS;
 }
 
 void Input::MouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
-  if (window != nWindow)
+  if (window != Viewport::Window())
   {
     return;
   }
@@ -93,7 +92,7 @@ void Input::MouseCallback(GLFWwindow* window, int button, int action, int mods)
 void Input::KeyCallback(
   GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-  if (window != nWindow)
+  if (window != Viewport::Window())
   {
     return;
   }
