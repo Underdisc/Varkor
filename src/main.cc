@@ -8,6 +8,7 @@
 #include "camera.h"
 #include "debug/draw.h"
 #include "error.h"
+#include "framer.h"
 #include "input.h"
 #include "math/complex.hh"
 #include "math/constants.h"
@@ -21,8 +22,7 @@
 
 void Core()
 {
-  Time::Init();
-  Viewport::Init();
+  Framer::SetFramerate(120);
   Input::Init();
   Debug::Draw::Init();
 
@@ -96,8 +96,9 @@ void Core()
 
   while (Viewport::Active())
   {
-    Time::Update();
+    Framer::Start();
     Input::Update();
+
     camera.Update(Time::DeltaTime());
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -144,14 +145,17 @@ void Core()
     Debug::Draw::Render(view, Viewport::Perspective());
     Viewport::SwapBuffers();
     Viewport::Update();
+
+    Framer::End();
   }
-  Viewport::Purge();
 }
 
 int main(void)
 {
   Error::Init("log.err");
+  Viewport::Init();
   Core();
+  Viewport::Purge();
   Error::Purge();
   return 0;
 }

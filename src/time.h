@@ -3,8 +3,6 @@
 
 namespace Time {
 
-void Init();
-void Update();
 float DeltaTime();
 
 } // namespace Time

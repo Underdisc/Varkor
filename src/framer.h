@@ -1,21 +1,14 @@
 #ifndef framer_h
 #define framer_h
 
-#include <chrono>
+namespace Framer {
 
-class Framer
-{
-public:
-  static void Init(int framerate);
-  static void SetFramerate(int framerate);
-  static void Start();
-  static void End();
+void SetFramerate(int framerate);
+void VSyncFrameLimiting();
+void Start();
+void End();
+float DeltaTime();
 
-  typedef std::chrono::system_clock system_clock;
-  typedef std::chrono::time_point<system_clock> time_point;
-  // float
-  time_point _frame_start;
-  time_point _frame_end;
-};
+} // namespace Framer
 
 #endif
