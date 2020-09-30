@@ -1,5 +1,3 @@
-// glad.h must be included before glfw3.h. Including glad.h is required before
-// any includes or code that contain Opengl calls.
 #include <glad/glad.h>
 
 #include <iostream>
@@ -16,8 +14,8 @@
 #include "math/quaternion.h"
 #include "math/vector.hh"
 #include "shader.h"
-#include "time.h"
 #include "texture.h"
+#include "time.h"
 #include "viewport.h"
 
 void Core()
@@ -27,19 +25,20 @@ void Core()
   Debug::Draw::Init();
 
   // shader setup
-  Shader solid("shader/solid.vs", "shader/solid.fs");
+  Shader phong("shader/phong.vs", "shader/phong.fs");
+  Shader light("shader/light.vs", "shader/light.fs");
 
   // clang-format off
   // buffer setup
   float vertices[] = {
-      -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
-       0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
-      -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-       0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
-      -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 1.0f,
-       0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
-      -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-       0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f
+      -0.5f,  0.5f,  0.5f,
+       0.5f,  0.5f,  0.5f,
+      -0.5f, -0.5f,  0.5f,
+       0.5f, -0.5f,  0.5f,
+      -0.5f,  0.5f, -0.5f,
+       0.5f,  0.5f, -0.5f,
+      -0.5f, -0.5f, -0.5f,
+       0.5f, -0.5f, -0.5f
   };
   unsigned int indicies[] = {
       0, 1, 2,
@@ -72,50 +71,59 @@ void Core()
   glBufferData(
     GL_ELEMENT_ARRAY_BUFFER, sizeof(indicies), indicies, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(
-    1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
+  glBindVertexArray(0);
 
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
 
-  bool active = true;
-  Camera camera;
-  Complex complexRot = {1.0f, 0.0f};
-  Complex complexRotInc = Math::ComplexPolar(1.0f, PIf / 120.0f);
+  Vec3 lightColor = {0.0f, 1.0f, 1.0f};
+  Vec3 lightPos = {2.0f, 2.0f, 2.0f};
+  Mat4 lightScaleMat;
+  Mat4 lightTransMat;
+  Math::Scale(&lightScaleMat, 0.2f);
+  Math::Translate(&lightTransMat, lightPos);
+  Mat4 lightModel = lightTransMat * lightScaleMat;
 
-  Quat cubeRot = {1.0f, 0.0, 0.0f, 0.0f};
-  Vec3 axis = {1.0f, 1.0f, 1.0f};
-  axis = Math::Normalize(axis);
-  Quat cubeRotInc;
-  cubeRotInc.AngleAxis(PIf / 120.0f, axis);
+  Vec3 objectColor = {1.0f, 1.0f, 0.0f};
+  Mat4 objectModel;
+  Math::Identity(&objectModel);
+
+  Camera camera;
 
   while (Viewport::Active())
   {
     Framer::Start();
     Input::Update();
 
-    camera.Update(Time::DeltaTime());
-
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Crete the cube rotation matrix.
-    cubeRot *= cubeRotInc;
-    Mat4 model;
-    Math::Rotate(&model, cubeRot);
-
+    camera.Update(Time::DeltaTime());
     const Mat4& view = camera.WorldToCamera();
-    solid.SetMat4("model", model.CData(), true);
-    solid.SetMat4("view", view.CData(), true);
-    solid.SetMat4("proj", Viewport::Perspective().CData(), true);
 
-    solid.Use();
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glBindVertexArray(vao);
+
+    light.SetMat4("model", lightModel.CData(), true);
+    light.SetMat4("view", view.CData(), true);
+    light.SetMat4("proj", Viewport::Perspective().CData(), true);
+    light.SetVec3("lightColor", lightColor.CData());
+
+    glDrawElements(
+      GL_TRIANGLES,
+      sizeof(indicies) / sizeof(unsigned int),
+      GL_UNSIGNED_INT,
+      0);
+
+    phong.SetMat4("model", objectModel.CData(), true);
+    phong.SetMat4("view", view.CData(), true);
+    phong.SetMat4("proj", Viewport::Perspective().CData(), true);
+    phong.SetVec3("lightColor", lightColor.CData());
+    phong.SetVec3("objectColor", objectColor.CData());
+
     glDrawElements(
       GL_TRIANGLES,
       sizeof(indicies) / sizeof(unsigned int),
@@ -123,25 +131,7 @@ void Core()
       0);
     glBindVertexArray(0);
 
-    // Drawing the x, y, and z axis using debug drawing.
-    Vec3 x = {1.0f, 0.0f, 0.0f};
-    Vec3 y = {0.0f, 1.0f, 0.0f};
-    Vec3 z = {0.0f, 0.0f, 1.0f};
-    Vec3 o = {0.0f, 0.0f, 0.0f};
-    Debug::Draw::Line(o, x, x);
-    Debug::Draw::Line(o, y, y);
-    Debug::Draw::Line(o, z, z);
-
-    // Drawing the complex number vector using debug drawing.
-    complexRot *= complexRotInc;
-    Vec3 c = {complexRot.mReal, complexRot.mImaginary, 0.0f};
-    Vec3 white = {1.0f, 1.0f, 1.0f};
-    Debug::Draw::Line(o, c, white);
-
-    // Drawing the cube rotation axis.
-    Vec3 purple = {1.0f, 0.0f, 1.0f};
-    Debug::Draw::Line(o, axis, purple);
-
+    Debug::Draw::CartesianAxes();
     Debug::Draw::Render(view, Viewport::Perspective());
     Viewport::SwapBuffers();
     Viewport::Update();

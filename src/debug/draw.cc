@@ -44,6 +44,17 @@ void Line(const Vec3& a, const Vec3& b, const Vec3& color)
   nRenderables.Push({vao, vbo, 2, color});
 }
 
+void CartesianAxes()
+{
+  Vec3 x = {1.0f, 0.0f, 0.0f};
+  Vec3 y = {0.0f, 1.0f, 0.0f};
+  Vec3 z = {0.0f, 0.0f, 1.0f};
+  Vec3 o = {0.0f, 0.0f, 0.0f};
+  Line(o, x, x);
+  Line(o, y, y);
+  Line(o, z, z);
+}
+
 void Render(const Mat4& view, const Mat4& projection)
 {
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
