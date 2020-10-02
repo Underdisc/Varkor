@@ -1,10 +1,11 @@
 #include <glad/glad.h>
-
+#include <imgui/imgui.h>
 #include <iostream>
 #include <string>
 
 #include "camera.h"
 #include "debug/draw.h"
+#include "editor.h"
 #include "error.h"
 #include "framer.h"
 #include "input.h"
@@ -23,6 +24,7 @@ void Core()
   Framer::SetFramerate(120);
   Input::Init();
   Debug::Draw::Init();
+  Editor::Init();
 
   // shader setup
   Shader phong("shader/phong.vs", "shader/phong.fs");
@@ -133,6 +135,11 @@ void Core()
 
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(view, Viewport::Perspective());
+
+    Editor::Start();
+    ImGui::ShowDemoWindow();
+    Editor::End();
+
     Viewport::SwapBuffers();
     Viewport::Update();
 

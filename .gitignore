@@ -4,4 +4,5 @@ build/
 *.exe
 *.ilk
 *.pdb
+working/imgui.ini
 src/test/CMakeLists.txt
