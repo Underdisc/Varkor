@@ -74,6 +74,11 @@ const Mat4& Camera::WorldToCamera() const
   return mWtc;
 }
 
+const Vec3& Camera::Position() const
+{
+  return mPosition;
+}
+
 void Camera::CalculateBasisVectors()
 {
   float horizontalScale = cosf(mPitch);

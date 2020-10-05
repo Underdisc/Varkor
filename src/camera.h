@@ -10,6 +10,7 @@ public:
   Camera();
   void Update(float dt);
   const Mat4& WorldToCamera() const;
+  const Vec3& Position() const;
 
 private:
   void CalculateBasisVectors();

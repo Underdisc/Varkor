@@ -10,9 +10,10 @@ public:
   void Use() const;
   unsigned int Id() const;
   int UniformLocation(const char* name) const;
+  void SetFloat(const char* name, float value) const;
   void SetVec3(const char* name, const float* data) const;
   void SetMat4(
-    const char* name, const float* data, bool transpose = false) const;
+    const char* name, const float* data, bool transpose = true) const;
 
 private:
   bool Compile(
