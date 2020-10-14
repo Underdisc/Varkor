@@ -2,6 +2,7 @@
 #define ds_vector_hh
 
 #include "../debug/redef_new.h"
+#include "../util/Memory.hh"
 
 namespace DS {
 
@@ -31,7 +32,6 @@ private:
 
 private:
   void Grow();
-  void Copy(T* from, T* to, int amount);
 };
 
 template<typename T>
@@ -131,17 +131,8 @@ void Vector<T>::Grow()
     T* oldData = mData;
     mCapacity = (int)((float)mCapacity * smGrowthFactor);
     mData = new T[mCapacity];
-    Copy(oldData, mData, mSize);
+    Util::Copy<T>(oldData, mData, mSize);
     delete[] oldData;
-  }
-}
-
-template<typename T>
-void Vector<T>::Copy(T* from, T* to, int amount)
-{
-  for (int i = 0; i < amount; ++i)
-  {
-    to[i] = from[i];
   }
 }
 
