@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include "../error.h"
 #include "matrix_4.h"
 
 namespace Math {
@@ -128,8 +129,13 @@ void Perspective(
   // bottom of the view fustum, not the left and right.
   Zero(m);
   float tanHalfFov = std::tanf(fovY / 2.0f);
+  float tanHalfFovAspect = tanHalfFov * aspect;
   float nearFarDifference = near - far;
-  m->mD[0][0] = 1.0f / (tanHalfFov * aspect);
+
+  LogAbortIf(tanHalfFovAspect == 0.0f, "The value of tan(fov/2)*aspect is 0.");
+  LogAbortIf(nearFarDifference == 0.0f, "near and far have the same value.");
+
+  m->mD[0][0] = 1.0f / tanHalfFovAspect;
   m->mD[1][1] = 1.0f / tanHalfFov;
   m->mD[2][2] = (near + far) / nearFarDifference;
   m->mD[2][3] = 2.0f * near * far / nearFarDifference;
