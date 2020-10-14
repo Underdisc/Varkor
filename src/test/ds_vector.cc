@@ -22,7 +22,7 @@ void PrintVector(const DS::Vector<int>& vector)
 
 void PushPop()
 {
-  std::cout << "=PushPop=" << std::endl;
+  std::cout << "PushPop" << std::endl;
 
   DS::Vector<int> testVector;
   std::cout << "<Empty>" << std::endl;
@@ -56,7 +56,7 @@ void PushPop()
 
 void IndexOperator()
 {
-  std::cout << "=IndexOperator=" << std::endl;
+  std::cout << "IndexOperator" << std::endl;
 
   DS::Vector<int> testVector;
   for (int i = 0; i < 20; ++i)
@@ -76,7 +76,7 @@ void IndexOperator()
 
 void Contains()
 {
-  std::cout << "=Contains=" << std::endl;
+  std::cout << "Contains" << std::endl;
 
   DS::Vector<int> testVector;
   for (int i = 0; i < 20; ++i)
