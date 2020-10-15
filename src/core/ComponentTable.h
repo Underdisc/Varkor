@@ -4,7 +4,7 @@
 #include "ds/Vector.hh"
 #include "CoreTypes.h"
 
-// There is are no constructors for the ComponentTable because no default
+// There are no constructors for the ComponentTable because no default
 // constructor would make sense. Every ComponentTable must be initialized with
 // stride using Init().
 class ComponentTable
