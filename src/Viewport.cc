@@ -1,10 +1,10 @@
 // glad.h must be included before glfw3.h.
 #include <glad/glad.h>
-
 #include <GLFW/glfw3.h>
 
-#include "math/constants.h"
-#include "viewport.h"
+#include "math/Constants.h"
+
+#include "Viewport.h"
 
 namespace Viewport {
 

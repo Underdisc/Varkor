@@ -1,8 +1,8 @@
-#ifndef ds_vector_hh
-#define ds_vector_hh
+#ifndef ds_Vector_hh
+#define ds_Vector_hh
 
-#include "../debug/redef_new.h"
-#include "../util/Memory.hh"
+#include "debug/RedefNew.h"
+#include "util/Memory.hh"
 
 namespace DS {
 

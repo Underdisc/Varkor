@@ -1,5 +1,5 @@
-#ifndef constants_h
-#define constants_h
+#ifndef Constants_h
+#define Constants_h
 
 #define PIO2f 1.57079632f
 #define PIf 3.14159265f

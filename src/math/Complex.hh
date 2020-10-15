@@ -1,5 +1,5 @@
-#ifndef math_complex_hh
-#define math_complex_hh
+#ifndef math_Complex_hh
+#define math_Complex_hh
 
 #include <iostream>
 #include <math.h>

@@ -1,5 +1,5 @@
-#ifndef framer_h
-#define framer_h
+#ifndef Framer_h
+#define Framer_h
 
 namespace Framer {
 

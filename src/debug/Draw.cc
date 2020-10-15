@@ -1,11 +1,11 @@
 #include <glad/glad.h>
 
-#include "../ds/vector.hh"
-#include "../math/matrix_4.h"
-#include "../math/vector.hh"
-#include "../shader.h"
+#include "ds/Vector.hh"
+#include "math/Matrix4.h"
+#include "math/Vector.hh"
+#include "Shader.h"
 
-#include "draw.h"
+#include "Draw.h"
 
 namespace Debug {
 namespace Draw {

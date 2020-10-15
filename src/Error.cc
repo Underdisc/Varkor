@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string>
 
-#include "error.h"
+#include "Error.h"
 
 namespace Error {
 

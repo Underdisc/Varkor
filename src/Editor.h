@@ -1,5 +1,5 @@
-#ifndef editor_h
-#define editor_h
+#ifndef Editor_h
+#define Editor_h
 
 namespace Editor {
 

@@ -1,5 +1,5 @@
-#ifndef texture_h
-#define texture_h
+#ifndef Texture_h
+#define Texture_h
 
 class Texture
 {

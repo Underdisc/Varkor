@@ -1,12 +1,12 @@
-#ifndef math_matrix_h
-#define math_matrix_h
+#ifndef math_Matrix_hh
+#define math_Matrix_hh
 
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 
-#include "../error.h"
-#include "vector.hh"
+#include "Error.h"
+#include "math/Vector.hh"
 
 namespace Math {
 

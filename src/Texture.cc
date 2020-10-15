@@ -3,8 +3,8 @@
 #define STBI_FAILURE_USERMSG
 #include <stb/stb_image.h>
 
-#include "error.h"
-#include "texture.h"
+#include "Error.h"
+#include "Texture.h"
 
 Texture::Texture(const char* textureFile)
 {

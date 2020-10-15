@@ -3,9 +3,9 @@
 #include <fstream>
 #include <sstream>
 
-#include "error.h"
+#include "Error.h"
 
-#include "shader.h"
+#include "Shader.h"
 
 const int Shader::smInvalidLocation = -1;
 

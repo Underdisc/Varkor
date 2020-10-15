@@ -1,8 +1,8 @@
-#ifndef dbg_draw_h
-#define dbg_draw_h
+#ifndef debug_Draw_h
+#define debug_Draw_h
 
-#include "../math/matrix.hh"
-#include "../math/vector.hh"
+#include "math/Matrix.hh"
+#include "math/Vector.hh"
 
 namespace Debug {
 namespace Draw {

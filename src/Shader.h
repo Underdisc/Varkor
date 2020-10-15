@@ -1,5 +1,5 @@
-#ifndef shader_h
-#define shader_h
+#ifndef Shader_h
+#define Shader_h
 
 class Shader
 {

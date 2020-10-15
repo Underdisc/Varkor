@@ -1,9 +1,9 @@
-#ifndef math_quaternion_h
-#define math_quaternion_h
+#ifndef math_Quaternion_h
+#define math_Quaternion_h
 
 #include <iostream>
 
-#include "vector.hh"
+#include "math/Vector.hh"
 
 namespace Math {
 

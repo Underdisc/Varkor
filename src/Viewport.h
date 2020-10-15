@@ -1,7 +1,7 @@
-#ifndef viewport_h
-#define viewport_h
+#ifndef Viewport_h
+#define Viewport_h
 
-#include "math/matrix_4.h"
+#include "math/Matrix4.h"
 
 class GLFWwindow;
 

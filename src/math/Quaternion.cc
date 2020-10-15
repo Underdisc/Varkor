@@ -1,6 +1,6 @@
 #include <math.h>
 
-#include "quaternion.h"
+#include "Quaternion.h"
 
 namespace Math {
 

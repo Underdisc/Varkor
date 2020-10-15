@@ -3,21 +3,21 @@
 #include <iostream>
 #include <string>
 
-#include "camera.h"
-#include "debug/draw.h"
-#include "editor.h"
-#include "error.h"
-#include "framer.h"
-#include "input.h"
-#include "math/complex.hh"
-#include "math/constants.h"
-#include "math/matrix_4.h"
-#include "math/quaternion.h"
-#include "math/vector.hh"
-#include "shader.h"
-#include "texture.h"
-#include "time.h"
-#include "viewport.h"
+#include "Camera.h"
+#include "debug/Draw.h"
+#include "Editor.h"
+#include "Error.h"
+#include "Framer.h"
+#include "Input.h"
+#include "math/Complex.hh"
+#include "math/Constants.h"
+#include "math/Matrix4.h"
+#include "math/Quaternion.h"
+#include "math/Vector.hh"
+#include "Shader.h"
+#include "Texture.h"
+#include "Temporal.h"
+#include "Viewport.h"
 
 void Core()
 {
@@ -126,7 +126,7 @@ void Core()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    camera.Update(Time::DeltaTime());
+    camera.Update(Temporal::DeltaTime());
     const Mat4& view = camera.WorldToCamera();
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

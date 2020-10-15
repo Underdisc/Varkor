@@ -1,9 +1,9 @@
-#ifndef input_h
-#define input_h
+#ifndef Input_h
+#define Input_h
 
 #include <GLFW/glfw3.h>
 
-#include "math/vector.hh"
+#include "math/Vector.hh"
 
 namespace Input {
 

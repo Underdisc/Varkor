@@ -1,5 +1,5 @@
-#ifndef error_h
-#define error_h
+#ifndef Error_h
+#define Error_h
 
 namespace Error {
 

@@ -1,10 +1,10 @@
-#ifndef math_vector_hh
-#define math_vector_hh
+#ifndef math_Vector_hh
+#define math_Vector_hh
 
 #include <iostream>
 #include <math.h>
 
-#include "../error.h"
+#include "Error.h"
 
 namespace Math {
 
