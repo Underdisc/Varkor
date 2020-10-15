@@ -1,7 +1,7 @@
-#ifndef ComponentTable_h
-#define ComponentTable_h
+#ifndef core_ComponentTable_h
+#define core_ComponentTable_h
 
-#include "../ds/vector.hh"
+#include "ds/Vector.hh"
 #include "CoreTypes.h"
 
 // There is are no constructors for the ComponentTable because no default

@@ -1,9 +1,9 @@
 #include <math.h>
 
-#include "input.h"
-#include "math/constants.h"
+#include "Input.h"
+#include "math/Constants.h"
 
-#include "camera.h"
+#include "Camera.h"
 
 Camera::Camera()
 {

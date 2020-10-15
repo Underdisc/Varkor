@@ -42,5 +42,6 @@ endif ()
 # Add the necessary include directories and libraries needed to build Varkor.
 if ("${test}" STREQUAL "no")
   target_include_directories(varkor PRIVATE "ext/local" "ext/sub")
+  target_include_directories(varkor PRIVATE "src")
   target_link_libraries(varkor ${glfw} ${OPENGL_gl_LIBRARY})
 endif ()

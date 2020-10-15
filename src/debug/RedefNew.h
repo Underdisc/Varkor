@@ -1,5 +1,5 @@
-#ifndef dbg_redef_new_h
-#define dbg_redef_new_h
+#ifndef debug_RedefNew_h
+#define debug_RedefNew_h
 
 #ifdef WIN32
   #ifdef _DEBUG

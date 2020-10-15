@@ -1,1 +1,1 @@
-target_sources(varkor PRIVATE draw.cc)
+target_sources(varkor PRIVATE Draw.cc)

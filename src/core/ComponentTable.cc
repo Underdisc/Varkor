@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../debug/redef_new.h"
-#include "../util/Memory.hh"
+#include "debug/RedefNew.h"
+#include "util/Memory.hh"
 #include "ComponentTable.h"
 
 const int ComponentTable::smStartCapacity = 10;

@@ -1,7 +1,8 @@
 #include <math.h>
 
-#include "../error.h"
-#include "matrix_4.h"
+#include "Error.h"
+
+#include "Matrix4.h"
 
 namespace Math {
 

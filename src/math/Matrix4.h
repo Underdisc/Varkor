@@ -1,9 +1,9 @@
-#ifndef math_matrix_4_h
-#define math_matrix_4_h
+#ifndef math_Matrix4_h
+#define math_Matrix4_h
 
-#include "matrix.hh"
-#include "quaternion.h"
-#include "vector.hh"
+#include "math/Matrix.hh"
+#include "math/Quaternion.h"
+#include "math/Vector.hh"
 
 namespace Math {
 
