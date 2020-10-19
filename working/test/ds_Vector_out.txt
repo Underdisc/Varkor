@@ -1,0 +1,30 @@
+PushPop
+<Empty>
+Size: 0
+Capactiy: 0
+[]
+<Pushed 5 Values>
+Size: 5
+Capactiy: 10
+[0, 1, 2, 3, 4]
+<Pushed 20 Values>
+Size: 25
+Capactiy: 40
+[0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+<Popped 10 Values>
+Size: 15
+Capactiy: 40
+[0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+<Cleared>
+Size: 0
+Capactiy: 40
+[]
+
+IndexOperator
+[5]: 5
+[10]: 10
+[15]: 7
+
+Contains
+Contains 10: 1
+Contains 21: 0

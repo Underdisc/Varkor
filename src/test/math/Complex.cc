@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../math/complex.hh"
-#include "../math/constants.h"
+#include "math/Complex.hh"
+#include "math/Constants.h"
 
 void Assignment()
 {
@@ -68,9 +68,9 @@ void PolarComplex()
 
 int main(void)
 {
-  // Assignment();
-  // Addition();
-  // Subtraction();
-  // Multiplication();
-  // PolarComplex();
+  Assignment();
+  Addition();
+  Subtraction();
+  Multiplication();
+  PolarComplex();
 }

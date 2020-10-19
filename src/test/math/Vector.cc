@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../math/vector.hh"
+#include "math/Vector.hh"
 
 void Cast()
 {

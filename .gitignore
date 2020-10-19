@@ -1,8 +1,9 @@
-.vs/
-build/
 *.err
 *.exe
 *.ilk
 *.pdb
+.vs/
+build/
+working/buildSpecs.bat
 working/imgui.ini
-src/test/CMakeLists.txt
+working/test/*_out_diff.txt

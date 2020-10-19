@@ -7,21 +7,21 @@ if ("${test}" STREQUAL "")
 endif ()
 
 # Choose the appropriate target to build depending on options.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working")
 if ("${test}" STREQUAL "no")
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working")
   project(varkor)
   add_executable(varkor)
   add_subdirectory(src)
   add_subdirectory(ext)
 elseif ("${test}" STREQUAL "yes")
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working/test")
   project(test)
-  add_executable(test)
   add_subdirectory(src/test)
 else ()
   message(FATAL_ERROR "\"${test}\" is not an available option for \"test\".")
 endif ()
 
-# Find the libraries and set the properties that are needed for the build.
+# Find libraries, set properties, and set compiler flags.
 find_package(OpenGL)
 list(APPEND CMAKE_PREFIX_PATH "ext/lib")
 if (MINGW)
@@ -41,7 +41,6 @@ endif ()
 
 # Add the necessary include directories and libraries needed to build Varkor.
 if ("${test}" STREQUAL "no")
-  target_include_directories(varkor PRIVATE "ext/local" "ext/sub")
-  target_include_directories(varkor PRIVATE "src")
+  target_include_directories(varkor PRIVATE "src" "ext/local" "ext/sub")
   target_link_libraries(varkor ${glfw} ${OPENGL_gl_LIBRARY})
 endif ()

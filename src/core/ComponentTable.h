@@ -6,7 +6,7 @@
 
 // There are no constructors for the ComponentTable because no default
 // constructor would make sense. Every ComponentTable must be initialized with
-// stride using Init().
+// a stride using Init().
 class ComponentTable
 {
 public:

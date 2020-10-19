@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../../core/ComponentTable.h"
-#include "../../debug/mem_leak.h"
+#include "core/ComponentTable.h"
+#include "debug/MemLeak.h"
 
 struct TestComp
 {

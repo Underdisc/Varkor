@@ -1,6 +1,6 @@
-#include "../math/constants.h"
-#include "../math/matrix_4.h"
-#include "../math/quaternion.h"
+#include "math/Constants.h"
+#include "math/Matrix4.h"
+#include "math/Quaternion.h"
 
 #include <iostream>
 

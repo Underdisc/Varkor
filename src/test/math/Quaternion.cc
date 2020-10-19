@@ -1,8 +1,8 @@
 #include <iostream>
 #include <math.h>
 
-#include "../math/constants.h"
-#include "../math/quaternion.h"
+#include "math/Constants.h"
+#include "math/Quaternion.h"
 
 void AngleAxis()
 {

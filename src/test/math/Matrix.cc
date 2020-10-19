@@ -1,5 +1,5 @@
-#include "../math/matrix.hh"
-#include "../math/vector.hh"
+#include "math/Matrix.hh"
+#include "math/Vector.hh"
 
 #include <iostream>
 

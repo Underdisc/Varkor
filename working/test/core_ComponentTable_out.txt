@@ -1,0 +1,22 @@
+Create
+New Component Indicies: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+Head: 1
+Stride: 16
+Size: 15
+SizeInBytes: 240
+Capacity: 20
+CapacityInBytes: 320
+
+IndexOperator
+TestComp7
+mI: 7
+mF: 7
+mD: 7
+TestComp8
+mI: 8
+mF: 8
+mD: 8
+TestComp9
+mI: 9
+mF: 9
+mD: 9

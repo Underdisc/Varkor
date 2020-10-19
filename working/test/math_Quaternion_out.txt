@@ -1,0 +1,18 @@
+AngleAxis
+angle: 1.5708
+axis: [0.57735, 0.57735, 0.57735]
+quaternion: 0.707107 + i(0.408248) + j(0.408248) + k(0.408248)
+
+Conjugate
+quaternion: 1 + i(2) + j(3) + k(4)
+conjugate: 1 + i(-2) + j(-3) + k(-4)
+
+Multiplicaton
+quaternion 1: 1 + i(2) + j(3) + k(4)
+quaternion 2: 1 + i(2) + j(3) + k(4)
+result: -12 + i(6) + j(24) + k(12)
+
+q: 0 + i(0.707107) + j(0) + k(0.707107)
+p: 0 + i(1) + j(0) + k(0)
+q * p * q': 0 + i(0) + j(0) + k(1)
+

@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../debug/mem_leak.h"
-#include "../ds/vector.hh"
+#include "debug/MemLeak.h"
+#include "ds/Vector.hh"
 
 void PrintVector(const DS::Vector<int>& vector)
 {
@@ -67,8 +67,6 @@ void IndexOperator()
   int val0 = testVector[5];
   std::cout << "[5]: " << val0 << std::endl;
   const int& val1 = testVector[10];
-  std::cout << &val1 << std::endl;
-  std::cout << testVector.mData + 10 << std::endl;
   std::cout << "[10]: " << val1 << std::endl;
   testVector[15] = 7;
   std::cout << "[15]: " << testVector[15] << std::endl;

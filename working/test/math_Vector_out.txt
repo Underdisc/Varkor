@@ -1,0 +1,54 @@
+Cast
+vec [0, 1, 2, 3]
+smallerVec [0, 1]
+largerVec [0, 1, 2, 3, 0, 0]
+
+Addition
+a: [1, 2, 3]
+b: [1, 2, 3]
+c: [2, 4, 6]
+d: [2, 4, 6]
+
+Subtraction
+a: [1, 2, 3]
+b: [1, 2, 3]
+c: [0, 0, 0]
+d: [-1, -2, -3]
+
+ScalerMultiplication
+a: [1, 2, 3]
+b: [2, 4, 6]
+c: [3, 6, 9]
+d: [4, 8, 12]
+
+ScalerDivision
+a: [2, 4, 6]
+b: [1, 2, 3]
+c: [1, 2, 3]
+
+Negation
+a: [2, -4, 6]
+b: [-2, 4, -6]
+
+MagnitudeSquared
+a: [1, -2, 3]
+magnitude squared: 14
+
+Magnitude
+a: [1, 2, 3]
+magnitude: 3.74166
+
+Normalize
+original: [1, 2, 3]
+normalized: [0.267261, 0.534522, 0.801784]
+
+Cross
+a: [1, 2, 3]
+b: [4, 5, 6]
+cross: [-3, 6, -3]
+
+Dot
+a: [1, 2, 3]
+b: [4, 5, 6]
+dot: 32
+
