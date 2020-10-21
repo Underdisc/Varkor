@@ -23,12 +23,14 @@ pushd "../"
 call buildSpecs.bat
 
 if "%testBuildDir%" == "" (
-  echo Error: The environment variable "testBuildDir" must be set in ../buildSpecs.bat.
+  echo Error: The environment variable "testBuildDir" must be set in
+  echo ../buildSpecs.bat.
   popd
   goto:eof
 )
 if not exist %testBuildDir% (
-  echo Error: The value of testBuildDir "%testBuildDir%" set in ../buildSpecs.bat does not exist relative to buildSpecs.bat.
+  echo Error: The value of testBuildDir "%testBuildDir%" set in
+  echo ../buildSpecs.bat does not exist relative to buildSpecs.bat.
   popd
   goto:eof
 )
