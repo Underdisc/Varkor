@@ -65,7 +65,7 @@ cmake -G "Ninja" -DCMAKE_BUILD_TYPE=MinSizeRel ../../../
 
 Now you should have a `build.ninja` file in your current directory. All that's left to do is run `ninja`. If you did everything properly and I didn't break something, everything should build.
 
-### Advice For Quick Building.
+### Advice For Quick Building
 
 Because `varkor.exe` is placed in `working/` by default, building Varkor, going to `working/` to run it, and going back to build again can be really fucking annoying. Inside of `working/`, you will find a batch script called `bvarkor.bat`. After setting up the cmd shell, you can run `bvarkor.bat` and the script will go to a specified build directory, run the generator command, and return to `working/`. `bvarkor.bat r` will run varkor as well if the build is successful.
 
