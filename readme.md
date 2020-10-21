@@ -4,35 +4,37 @@ Varkor is a custom game engine project that will also do other cool things that 
 
 ## Building Varkor
 
-*Disclaimer*: This is how I build the project. Feel free to use your own method if you are inclined. Additionally, these instructions only cover how to create release executables. I will add instructions for debug executables once I arrive at that point.
+*Disclaimer*: This is how I build the project. Feel free to use your own method if you are inclined. No promises that you won't encounter some bumps though.
 
 *Once You Build*: After you build the project, you'll find `varkor.exe` in `{repo_root}/working/`. This directory contains all the files that varkor may access at runtime. This is why the Varkor binary is placed here.
 
-At the moment, Varkor only builds under Windows, but will be expanded in the near future for building under Linux as well. On Windows, Varkor can be built under MinGW32 and MSVC. To build Varkor, you are going to want a build of CMake and Ninja.
+At the moment, Varkor only builds under Windows, but will be expanded in the near future for building under Linux as well. On Windows, Varkor can be built under MSVC. To build Varkor, you are going to want a build of CMake and Ninja. I build everything on command line. If you don't already have it, I highly recommend Cygwin as well.
 
-- CMake: https://cmake.org/download/
-- Ninja: https://github.com/ninja-build/ninja/releases
+- CMake:  https://cmake.org/download/
+- Ninja:  https://github.com/ninja-build/ninja/releases
+- Cygwin: https://www.cygwin.com/
 
 Once you have those, make sure *ninja.exe* and *cmake.exe* are in your path.
 
 ### MSVC
 
-Create a build directory at the root of your local copy of the repo.
+This will cover MSVC 32bit, but the process for MSVC 64bit is exactly the same except for one detail mentioned below. Create a build directory at the root of your local copy of the repo. This repo is ignored by git.
 
 ```
 mkdir build
+cd build
 ```
 
-Within the build directory, I like to have multiple directories for different build types under MSVC. Right now I have `msvc32/` and `msvc64/` in my build directory.
+Within the build directory, I like to have multiple directories for different build types. Right now I have `rel/varkor_msvc32/`, `rel/varkor_msvc64/`, `dbg/varkor_msvc32/`, etc. in my build directory. How you organize this is up to you.
 
 ```
-mkdir msvc32 msvc64
-cd msvc32
+mkdir rel/vakor_msvc32
+cd rel/msvc32
 ```
 
-This will cover MSVC 32bit, but the process for MSVC 32bit is exactly the same as MSVC 64bit except for one detail. The first step is to enter the cmd shell that comes with Windows. I use the [Mintty](https://mintty.github.io/) terminal that comes with Cygwin and I get to the cmd shell by typing `cmd` and the shell starts running within my terminal. You can also choose to run cmd with the terminal that comes with Windows by typing `cmd` and pressing enter in the start menu.
+The next step is entering the cmd shell that comes with Windows. There are two ways to do this. You can choose to simply open the command prompt, the typical way of accessing the shell. You can also just run `cmd` from your own terminal to access the shell. I use the [Mintty](https://mintty.github.io/) terminal that comes with Cygwin and the latter is how I access the shell.
 
-After this, you want to run the `vcvars32.bat` file from within your cmd shell. This file is specific to your MSVC installation. This will set environment varialbes that are used by cl.exe (the MSVC compiler) and link.exe (the MSVC linker) when compiling and linking the project.
+After this, you want to run `vcvars32.bat` in the shell. This file is specific to your MSVC installation. This will set environment varialbes that are used by `cl.exe` (the MSVC compiler) and `link.exe` (the MSVC linker) when compiling and linking the project.
 
 I use *Visual Studio 2019 Community*, so this may look different for you. For my setup, this script is located here.
 
@@ -40,7 +42,7 @@ I use *Visual Studio 2019 Community*, so this may look different for you. For my
 C:/"Program Files (x86)"/"Microsoft Visual Studio"/2019/Community/VC/Auxiliary/Build/vcvars32.bat
 ```
 
-If you are building MSVC 64bit, run `vcvars64.bat` instead. It should be within the same directory as `vcvars32.bat`. I would hate typing this path every time I get a tmux pane set up for building and I would be surprised if you didn't get annoyed too. To fix this, I created batch scripts that are in my path and I run them from the cmd shell depending on the types of builds I want to do.
+If you are building MSVC 64bit, run `vcvars64.bat` instead. It should be within the same directory as `vcvars32.bat`. I would hate typing this path every time I get a terminal set up for building and I would be surprised if you didn't get annoyed too. To fix this, I created batch scripts that are in my path and I run them from the cmd shell depending on the types of builds I want to do.
 
 ```
 < cl32.bat >
@@ -48,38 +50,31 @@ If you are building MSVC 64bit, run `vcvars64.bat` instead. It should be within 
 C:/"Program Files (x86)"/"Microsoft Visual Studio"/2019/Community/VC/Auxiliary/Build/vcvars32.bat
 ```
 
-```
-< cl64.bat >
-@echo off
-C:/"Program Files (x86)"/"Microsoft Visual Studio"/2019/Community/VC/Auxiliary/Build/vcvars64.bat
-```
-
-Now it's just a matter of doing this...
+Now getting a terminal ready for building only involves running the commands below.
 
 ```
 cmd
-cl[32|64].bat
+cl32.bat
 ```
 
-...and everything is ready to go. The next step is to setup the Ninja generator by running CMake and finally build the project. From `build/msvc[32|64]/` run the following.
+The next step is to setup the Ninja generator by running CMake. From `build/rel/msvc32/` run the following.
 
 ```
-cmake -G "Ninja" -DCMAKE_BUILD_TYPE=MinSizeRel ../../
-ninja
+cmake -G "Ninja" -DCMAKE_BUILD_TYPE=MinSizeRel ../../../
 ```
 
-If you did everything properly and I didn't break something, everything should build.
+Now you should have a `build.ninja` file in your current directory. All that's left to do is run `ninja`. If you did everything properly and I didn't break something, everything should build.
 
-### MinGW
+### Advice For Quick Building.
 
-*Disclaimer*: For me this is really easy, but depending on your development environment, it might be different for you. All I need to do is the following.
+Because `varkor.exe` is placed in `working/` by default, building Varkor, going to `working/` to run it, and going back to build again can be really fucking annoying. Inside of `working/`, you will find a batch script called `bvarkor.bat`. After setting up the cmd shell, you can run `bvarkor.bat` and the script will go to a specified build directory, run the generator command, and return to `working/`. `bvarkor.bat r` will run varkor as well if the build is successful.
+
+To use `working/bvarkor.bat`, you need to create a file called `working/buildSpecs.bat`. This script should set specific environment variables specific to your environment so they can used by `bvarkor.bat` for building Varkor. You can find out what these environment variables are at the top of `bvarkor.bat`. As an example though, here are the lines in my `buildSpecs.bat` file that allow `bvarkor.bat` to function.
 
 ```
-cmake -G "Ninja" ../../
-ninja
+set generator=ninja
+set varkorBuildDir="../build/rel/varkor_msvc64"
 ```
-
-The MinGW compiler is automatically selected and the binary is built. This works fine from my Cygwin shell, but if I do the same from the cmd shell, it does not work. I would look into this further to have a complete set of instructions here, but it is not important for me at this time.
 
 ## Build Issues?
 
@@ -97,5 +92,3 @@ Once you do that, you need to tell CMake about your toolchain file when invoking
 ```
 cmake -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=path/to/toolchain/file ../../
 ```
-
-More details are given in the [CMake toolchain documentation](https://cmake.org/cmake/help/v3.6/manual/cmake-toolchains.7.html).
