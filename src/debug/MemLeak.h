@@ -1,22 +1,21 @@
 // This is for basic memory debugging under windows while building with msvc
 // debug. Calling InitMemLeakOutput at any point during execution will print
-// all memory leaks to stdout after the program exits. redef_new.h will redefine
-// new and should be included in any file that calls new. Every memory leak will
-// contain a file and line number describing where the allocation was made when
-// new is redefined.
+// all memory leaks to stdout after the program exits. This file should be
+// included with any file that calls new because new will be redefined to track
+// memory leaks.
 
-#ifdef WIN32
+#ifndef debug_MemLeak_h
+#define debug_MemLeak_h
+
+#if defined WIN32 && defined _DEBUG
   // The order of the next three lines must be maintained.
   #define _CRTDBG_MAP_ALLOC
   #include <crtdbg.h>
   #include <stdlib.h>
+
+  #define new new (_NORMAL_BLOCK, __FILE__, __LINE__)
 #endif
 
-void InitMemLeakOutput()
-{
-#ifdef WIN32
-  _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-  _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
-  _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+void InitMemLeakOutput();
+
 #endif
-}

@@ -1,7 +1,7 @@
 #ifndef ds_Vector_hh
 #define ds_Vector_hh
 
-#include "debug/RedefNew.h"
+#include "debug/MemLeak.h"
 #include "util/Memory.hh"
 
 namespace DS {

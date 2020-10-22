@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "debug/RedefNew.h"
+#include "debug/MemLeak.h"
 #include "util/Memory.hh"
 #include "ComponentTable.h"
 

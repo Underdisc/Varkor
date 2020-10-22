@@ -7,10 +7,12 @@ endfunction()
 
 AddTest(core_ComponentTable
   core/ComponentTable.cc
-  ../core/ComponentTable.cc)
+  ../core/ComponentTable.cc
+  ../debug/MemLeak.cc)
 
 AddTest(ds_Vector
-  ds/Vector.cc)
+  ds/Vector.cc
+  ../debug/MemLeak.cc)
 
 AddTest(math_Complex
   math/Complex.cc)
