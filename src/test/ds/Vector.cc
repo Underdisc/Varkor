@@ -20,44 +20,45 @@ void PrintVector(const DS::Vector<int>& vector)
   std::cout << vector[vector.Size() - 1] << "]" << std::endl;
 }
 
-void PushPop()
+void SinglePushPop()
 {
-  std::cout << "PushPop" << std::endl;
-
+  std::cout << "SinglePushPop" << std::endl;
   DS::Vector<int> testVector;
-  std::cout << "<Empty>" << std::endl;
   PrintVector(testVector);
-
   for (int i = 0; i < 5; ++i)
   {
     testVector.Push(i);
   }
-  std::cout << "<Pushed 5 Values>" << std::endl;
   PrintVector(testVector);
-
   for (int i = 0; i < 20; ++i)
   {
     testVector.Push(i);
   }
-  std::cout << "<Pushed 20 Values>" << std::endl;
   PrintVector(testVector);
-
   for (int i = 0; i < 10; ++i)
   {
     testVector.Pop();
   }
-  std::cout << "<Popped 10 Values>" << std::endl;
   PrintVector(testVector);
-
   testVector.Clear();
-  std::cout << "<Cleared>" << std::endl;
   PrintVector(testVector);
+  std::cout << std::endl;
+}
+
+void MultiplePush()
+{
+  std::cout << "MultiplePush" << std::endl;
+  DS::Vector<int> test;
+  test.Push(0, 30);
+  PrintVector(test);
+  test.Push(1, 15);
+  PrintVector(test);
+  std::cout << std::endl;
 }
 
 void IndexOperator()
 {
   std::cout << "IndexOperator" << std::endl;
-
   DS::Vector<int> testVector;
   for (int i = 0; i < 20; ++i)
   {
@@ -70,27 +71,40 @@ void IndexOperator()
   std::cout << "[10]: " << val1 << std::endl;
   testVector[15] = 7;
   std::cout << "[15]: " << testVector[15] << std::endl;
+  std::cout << std::endl;
 }
 
 void Contains()
 {
   std::cout << "Contains" << std::endl;
-
   DS::Vector<int> testVector;
   for (int i = 0; i < 20; ++i)
   {
     testVector.Push(i);
   }
-  std::cout << "Contains 10: " << testVector.Contains(10) << std::endl;
-  std::cout << "Contains 21: " << testVector.Contains(21) << std::endl;
+  std::cout << "10: " << testVector.Contains(10) << std::endl;
+  std::cout << "21: " << testVector.Contains(21) << std::endl;
+  std::cout << std::endl;
+}
+
+void Resize()
+{
+  std::cout << "Resize" << std::endl;
+  DS::Vector<int> test;
+  test.Resize(20, 0);
+  PrintVector(test);
+  test.Resize(30, 1);
+  PrintVector(test);
+  test.Resize(15, 2);
+  PrintVector(test);
 }
 
 int main(void)
 {
   InitMemLeakOutput();
-  PushPop();
-  std::cout << std::endl;
+  SinglePushPop();
+  MultiplePush();
   IndexOperator();
-  std::cout << std::endl;
   Contains();
+  Resize();
 }

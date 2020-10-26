@@ -1,6 +1,7 @@
 #ifndef ds_Vector_hh
 #define ds_Vector_hh
 
+#include "Error.h"
 #include "debug/MemLeak.h"
 #include "util/Memory.hh"
 
@@ -16,8 +17,10 @@ public:
   Vector();
   ~Vector();
   void Push(const T& value);
+  void Push(const T& value, int count);
   void Pop();
   void Clear();
+  void Resize(int newSize, const T& fill);
   bool Contains(const T& value) const;
   int Size() const;
   int Capacity() const;
@@ -32,6 +35,7 @@ private:
 
 private:
   void Grow();
+  void Grow(int newCapacity);
 };
 
 template<typename T>
@@ -68,6 +72,27 @@ void Vector<T>::Push(const T& value)
 }
 
 template<typename T>
+void Vector<T>::Push(const T& value, int count)
+{
+  int newSize = mSize + count;
+  int newCapacity = mCapacity;
+  if (newCapacity == 0)
+  {
+    newCapacity = smStartCapacity;
+  }
+  while (newSize > newCapacity)
+  {
+    newCapacity = (int)((float)newCapacity * smGrowthFactor);
+  }
+  if (newCapacity > mCapacity)
+  {
+    Grow(newCapacity);
+  }
+  Util::Fill<T>(mData + mSize, value, count);
+  mSize = newSize;
+}
+
+template<typename T>
 void Vector<T>::Pop()
 {
   if (mSize != 0)
@@ -80,6 +105,22 @@ template<typename T>
 void Vector<T>::Clear()
 {
   mSize = 0;
+}
+
+template<typename T>
+void Vector<T>::Resize(int newSize, const T& value)
+{
+  if (newSize > mCapacity)
+  {
+    T* oldData = mData;
+    mData = new T[newSize];
+    Util::Copy<T>(oldData, mData, mSize);
+    delete[] oldData;
+  }
+  int sizeDifference = newSize - mSize;
+  Util::Fill<T>(mData + mSize, value, sizeDifference);
+  mCapacity = newSize;
+  mSize = newSize;
 }
 
 template<typename T>
@@ -128,12 +169,22 @@ void Vector<T>::Grow()
     mData = new T[mCapacity];
   } else
   {
-    T* oldData = mData;
-    mCapacity = (int)((float)mCapacity * smGrowthFactor);
-    mData = new T[mCapacity];
-    Util::Copy<T>(oldData, mData, mSize);
-    delete[] oldData;
+    int newCapacity = (int)((float)mCapacity * smGrowthFactor);
+    Grow(newCapacity);
   }
+}
+
+template<typename T>
+void Vector<T>::Grow(int newCapacity)
+{
+  LogAbortIf(
+    newCapacity <= mCapacity,
+    "The new capacity must be greater than the current capacity.");
+  T* oldData = mData;
+  mData = new T[newCapacity];
+  Util::Copy<T>(oldData, mData, mSize);
+  mCapacity = newCapacity;
+  delete[] oldData;
 }
 
 } // namespace DS

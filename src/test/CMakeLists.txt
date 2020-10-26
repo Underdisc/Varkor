@@ -12,6 +12,7 @@ AddTest(core_ComponentTable
 
 AddTest(ds_Vector
   ds/Vector.cc
+  ../Error.cc
   ../debug/MemLeak.cc)
 
 AddTest(math_Complex

@@ -1,24 +1,27 @@
-PushPop
-<Empty>
+SinglePushPop
 Size: 0
 Capactiy: 0
 []
-<Pushed 5 Values>
 Size: 5
 Capactiy: 10
 [0, 1, 2, 3, 4]
-<Pushed 20 Values>
 Size: 25
 Capactiy: 40
 [0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-<Popped 10 Values>
 Size: 15
 Capactiy: 40
 [0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-<Cleared>
 Size: 0
 Capactiy: 40
 []
+
+MultiplePush
+Size: 30
+Capactiy: 40
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Size: 45
+Capactiy: 80
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 IndexOperator
 [5]: 5
@@ -26,5 +29,16 @@ IndexOperator
 [15]: 7
 
 Contains
-Contains 10: 1
-Contains 21: 0
+10: 1
+21: 0
+
+Resize
+Size: 20
+Capactiy: 20
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Size: 30
+Capactiy: 30
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+Size: 15
+Capactiy: 15
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
