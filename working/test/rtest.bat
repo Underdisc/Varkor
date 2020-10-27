@@ -7,7 +7,7 @@ REM {target} - The name of the target executable to run.
 
 REM Optional Arguments
 REM c - Creates a file containing the output of the target executable named
-REM   {target}_out.txt
+REM   {target}_out.txt. The file will be overwritten if it already exists.
 REM d - Creates a file containing the output of the target executable
 REM   named {target}_out_diff.txt and diffs it against {target}_out.txt if
 REM   {target}_out.txt exists
