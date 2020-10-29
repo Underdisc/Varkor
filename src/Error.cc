@@ -1,3 +1,4 @@
+#include <csignal>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -10,12 +11,24 @@ namespace Error {
 
 void LogString(const char* string);
 std::string FormatFileName(const char* file);
+void SignalHandler(int signal);
 
 std::ofstream nErrorFile;
 bool nUseCout = true;
 
 void Init(const char* logFile)
 {
+  signal(SIGABRT, SignalHandler);
+  signal(SIGFPE, SignalHandler);
+  signal(SIGILL, SignalHandler);
+  signal(SIGINT, SignalHandler);
+  signal(SIGSEGV, SignalHandler);
+  signal(SIGTERM, SignalHandler);
+
+  if (logFile == nullptr)
+  {
+    return;
+  }
   nErrorFile.open(logFile);
   if (!nErrorFile.is_open())
   {
@@ -96,6 +109,21 @@ std::string FormatFileName(const char* file)
     }
   }
   return fileName;
+}
+
+void SignalHandler(int signal)
+{
+  switch (signal)
+  {
+  case SIGABRT: LogString("SIGABRT: Abort\n"); break;
+  case SIGFPE: LogString("SIGFPE: Floating-Point Exception\n"); break;
+  case SIGILL: LogString("SIGILL: Illegal Instruction\n"); break;
+  case SIGINT: LogString("SIGINT: Interrupt\n"); break;
+  case SIGSEGV: LogString("SIGSEGV: Segfault\n"); break;
+  case SIGTERM: LogString("SIGTERM: Terminate\n"); break;
+  default: LogString("Unknown Signal\n"); break;
+  }
+  exit(signal);
 }
 
 } // namespace Error

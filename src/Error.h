@@ -3,7 +3,7 @@
 
 namespace Error {
 
-void Init(const char* logFile);
+void Init(const char* logFile = nullptr);
 void Purge();
 void Log(const char* file, int line, const char* reason);
 void Log(const char* reason);
