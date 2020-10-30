@@ -53,8 +53,12 @@ set buildError=1
 if %ERRORLEVEL% EQU %buildError% (
   goto:eof
 )
-
 echo =Target Built=
+
 if "%2" == "r" (
   rtest.bat %1 %3
+)
+if not "%2" == "" (
+  echo Error: "%2" is not a valid argument. Only "r" followed by nothing, c or
+  echo d is valid.
 )
