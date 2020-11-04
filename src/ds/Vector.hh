@@ -26,6 +26,10 @@ public:
   int Capacity() const;
   const T& operator[](int index) const;
   T& operator[](int index);
+  T* begin();
+  T* end();
+  const T* begin() const;
+  const T* end() const;
 
 private:
   int mSize;
@@ -158,6 +162,30 @@ template<typename T>
 T& Vector<T>::operator[](int index)
 {
   return mData[index];
+}
+
+template<typename T>
+T* Vector<T>::begin()
+{
+  return mData;
+}
+
+template<typename T>
+T* Vector<T>::end()
+{
+  return mData + mSize;
+}
+
+template<typename T>
+const T* Vector<T>::begin() const
+{
+  return mData;
+}
+
+template<typename T>
+const T* Vector<T>::end() const
+{
+  return mData + mSize;
 }
 
 template<typename T>

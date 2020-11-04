@@ -2,12 +2,23 @@
 
 #include "debug/MemLeak.h"
 #include "util/Memory.hh"
+
 #include "ComponentTable.h"
+
+namespace Core {
 
 const int ComponentTable::smStartCapacity = 10;
 const float ComponentTable::smGrowthFactor = 2.0f;
 
-void ComponentTable::Init(int stride)
+ComponentTable::ComponentTable()
+{
+  mData = nullptr;
+  mStride = 0;
+  mSize = 0;
+  mCapacity = 0;
+}
+
+ComponentTable::ComponentTable(int stride)
 {
   mData = nullptr;
   mStride = stride;
@@ -23,7 +34,11 @@ ComponentTable::~ComponentTable()
   }
 }
 
-int ComponentTable::Create(ObjRef object)
+// This function will allow adding the same object reference to the table
+// multiple times. The ComponentTable is not responsible for managing the owner
+// object references it stores besides setting the object references when
+// components are added or removed.
+int ComponentTable::Add(ObjRef object)
 {
   if (mSize >= mCapacity)
   {
@@ -32,23 +47,49 @@ int ComponentTable::Create(ObjRef object)
   int componentIndex = mSize;
   ++mSize;
   mOwners.Push(object);
-  mInUse.Push(true);
   return componentIndex;
+}
+
+void ComponentTable::Rem(int index)
+{
+  VerifyIndex(index);
+  mOwners[index] = nInvalidObjRef;
 }
 
 void* ComponentTable::operator[](int index)
 {
+  VerifyIndex(index);
   return (void*)(mData + (mStride * index));
 }
 
-void ComponentTable::ShowStats()
+const void* ComponentTable::Data() const
 {
-  std::cout << "Head: " << (mData != nullptr) << std::endl
-            << "Stride: " << mStride << std::endl
+  return (void*)mData;
+}
+
+void ComponentTable::ShowStats() const
+{
+  std::cout << "Stride: " << mStride << std::endl
             << "Size: " << mSize << std::endl
             << "SizeInBytes: " << mSize * mStride << std::endl
             << "Capacity: " << mCapacity << std::endl
             << "CapacityInBytes: " << mCapacity * mStride << std::endl;
+}
+
+void ComponentTable::ShowOwners() const
+{
+  std::cout << "Owners: ";
+  if (mSize == 0)
+  {
+    std::cout << "[]" << std::endl;
+    return;
+  }
+  std::cout << "[" << mOwners[0];
+  for (int i = 1; i < mSize; ++i)
+  {
+    std::cout << ", " << mOwners[i];
+  }
+  std::cout << "]" << std::endl;
 }
 
 void ComponentTable::Grow()
@@ -67,3 +108,12 @@ void ComponentTable::Grow()
     delete[] oldData;
   }
 }
+
+void ComponentTable::VerifyIndex(int index) const
+{
+  LogAbortIf(
+    index >= mSize || index < 0,
+    "Provided ComponentTable index is out of range.");
+}
+
+} // namespace Core

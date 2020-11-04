@@ -8,7 +8,17 @@ endfunction()
 AddTest(core_ComponentTable
   core/ComponentTable.cc
   ../core/ComponentTable.cc
-  ../debug/MemLeak.cc)
+  ../debug/MemLeak.cc
+  ../core/Types.cc
+  ../Error.cc)
+
+AddTest(core_ObjectSpace
+  core/ObjectSpace.cc
+  ../core/ComponentTable.cc
+  ../core/ObjectSpace.cc
+  ../core/Types.cc
+  ../debug/MemLeak.cc
+  ../Error.cc)
 
 AddTest(ds_Vector
   ds/Vector.cc

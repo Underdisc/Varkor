@@ -1,20 +1,24 @@
 #ifndef core_ComponentTable_h
 #define core_ComponentTable_h
 
+#include "core/Types.h"
 #include "ds/Vector.hh"
-#include "CoreTypes.h"
 
-// There are no constructors for the ComponentTable because no default
-// constructor would make sense. Every ComponentTable must be initialized with
-// a stride using Init().
+namespace Core {
+
 class ComponentTable
 {
 public:
-  void Init(int stride);
+  ComponentTable();
+  ComponentTable(int stride);
   ~ComponentTable();
-  int Create(ObjRef object);
+  int Add(ObjRef object);
+  void Rem(int index);
   void* operator[](int index);
-  void ShowStats();
+  const void* Data() const;
+
+  void ShowStats() const;
+  void ShowOwners() const;
 
   const static int smStartCapacity;
   const static float smGrowthFactor;
@@ -27,11 +31,12 @@ private:
   int mStride;
   int mSize;
   int mCapacity;
-
   DS::Vector<ObjRef> mOwners;
-  DS::Vector<bool> mInUse;
 
   void Grow();
+  void VerifyIndex(int index) const;
 };
+
+} // namespace Core
 
 #endif
