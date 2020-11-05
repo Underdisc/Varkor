@@ -1,7 +1,7 @@
 #ifndef math_Matrix4_h
 #define math_Matrix4_h
 
-#include "math/Matrix.hh"
+#include "math/Matrix.h"
 #include "math/Quaternion.h"
 #include "math/Vector.hh"
 

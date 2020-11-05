@@ -1,9 +1,6 @@
 #ifndef debug_Draw_h
 #define debug_Draw_h
 
-#include "math/Matrix.hh"
-#include "math/Vector.hh"
-
 namespace Debug {
 namespace Draw {
 
