@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "math/Vector.hh"
+#include "math/Vector.h"
 
 namespace Math {
 

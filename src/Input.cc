@@ -1,7 +1,7 @@
 #include <GLFW/glfw3.h>
 
 #include "ds/Vector.h"
-#include "math/Vector.hh"
+#include "math/Vector.h"
 #include "Viewport.h"
 
 #include "Input.h"

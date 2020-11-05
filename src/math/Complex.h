@@ -26,8 +26,8 @@ Complex<float> ComplexPolar(float magnitude, float angle);
 
 } // namespace Math
 
-typedef Math::Complex<float> Complex;
-
 #include "Complex.hh"
+
+typedef Math::Complex<float> Complex;
 
 #endif

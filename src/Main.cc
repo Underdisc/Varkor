@@ -12,7 +12,7 @@
 #include "math/Constants.h"
 #include "math/Matrix4.h"
 #include "math/Quaternion.h"
-#include "math/Vector.hh"
+#include "math/Vector.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "Temporal.h"

@@ -2,7 +2,7 @@
 #define Camera_h
 
 #include "math/Matrix4.h"
-#include "math/Vector.hh"
+#include "math/Vector.h"
 
 class Camera
 {

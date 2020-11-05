@@ -3,7 +3,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "math/Vector.hh"
+#include "math/Vector.h"
 
 namespace Input {
 
