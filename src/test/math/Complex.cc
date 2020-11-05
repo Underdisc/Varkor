@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "math/Complex.hh"
+#include "math/Complex.h"
 #include "math/Constants.h"
 
 void Assignment()

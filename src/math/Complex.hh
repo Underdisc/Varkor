@@ -1,31 +1,7 @@
-#ifndef math_Complex_hh
-#define math_Complex_hh
-
 #include <iostream>
 #include <math.h>
 
 namespace Math {
-
-template<typename T>
-class Complex
-{
-public:
-  T mReal;
-  T mImaginary;
-
-public:
-  Complex<T>& operator=(const Complex<T>& other);
-  Complex<T> operator+(const Complex<T>& other) const;
-  Complex<T> operator-(const Complex<T>& other) const;
-  Complex<T> operator*(const Complex<T>& other) const;
-  Complex<T> operator*(T scaler) const;
-  Complex<T>& operator+=(const Complex<T>& other);
-  Complex<T>& operator-=(const Complex<T>& other);
-  Complex<T>& operator*=(const Complex<T>& other);
-  Complex<T>& operator*=(T scaler);
-};
-
-Complex<float> ComplexPolar(float magnitude, float angle);
 
 template<typename T>
 Complex<T>& Complex<T>::operator=(const Complex<T>& other)
@@ -126,7 +102,3 @@ std::ostream& operator<<(std::ostream& os, const Complex<T>& value)
 }
 
 } // namespace Math
-
-typedef Math::Complex<float> Complex;
-
-#endif
