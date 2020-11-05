@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 
-#include "ds/Vector.hh"
+#include "ds/Vector.h"
 #include "math/Matrix4.h"
 #include "math/Vector.hh"
 #include "Shader.h"

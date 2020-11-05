@@ -1,6 +1,6 @@
 #include <GLFW/glfw3.h>
 
-#include "ds/Vector.hh"
+#include "ds/Vector.h"
 #include "math/Vector.hh"
 #include "Viewport.h"
 

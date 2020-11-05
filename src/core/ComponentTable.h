@@ -2,7 +2,7 @@
 #define core_ComponentTable_h
 
 #include "core/Types.h"
-#include "ds/Vector.hh"
+#include "ds/Vector.h"
 
 namespace Core {
 

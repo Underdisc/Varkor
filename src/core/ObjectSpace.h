@@ -3,7 +3,7 @@
 
 #include "ComponentTable.h"
 #include "Types.h"
-#include "ds/Vector.hh"
+#include "ds/Vector.h"
 
 namespace Core {
 
