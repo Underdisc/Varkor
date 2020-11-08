@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix<T, N>& matrix)
     {
       std::stringstream ss;
       ss << matrix[r][c];
-      int width = ss.str().size();
+      int width = (int)ss.str().size();
       if (width > longestWidths[c])
       {
         longestWidths[c] = width;

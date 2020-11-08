@@ -101,7 +101,7 @@ std::string FormatFileName(const char* file)
   std::string fileName(file);
   size_t index = fileName.find("src");
   fileName = fileName.substr(index);
-  for (int i = 0; i < fileName.size(); ++i)
+  for (unsigned int i = 0; i < fileName.size(); ++i)
   {
     if (fileName[i] == '\\')
     {

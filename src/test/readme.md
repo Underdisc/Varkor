@@ -1,16 +1,10 @@
 # Varkor Tests
 
-This directory is for the various tests that are used while working on and testing the functionality of code in Varkor's source.
+This directory is for the various tests that are used while working on and testing the functionality of Varkor's code.
 
 ### Running Tests
 
-When creating the generator files for Varkor with CMake, a flag can be added for building test executables. Here is an example with Ninja as the generator.
-
-```
-cmake -G "Ninja" -Dtest=yes path/to/repo_root
-```
-
-The `-Dtest=yes` flag will tell CMake to create the build files test targets. Once these have been created, specific tests can be built. All of the possible test targets can be found in the CMakeLists.txt file in this directory.
+All of the possible test targets can be found in the CMakeLists.txt file in this directory.
 
 ```
 AddTest(core_ComponentTable
@@ -29,8 +23,6 @@ Similar to Varkor, exectubles are placed in a specific directory. For Varkor, th
 ```
 {repo_root}/working/test/core_ComponentTable.exe
 ```
-
-When performing normal builds of Varkor, `test` will be set to `no` by default instead of `yes` and this entire test directory will be ignored.
 
 ### Testing Tests
 

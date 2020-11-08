@@ -10,7 +10,7 @@ Math::Matrix<float, 5> CreateGenericMat5()
   {
     for (int c = 0; c < 5; ++c)
     {
-      matrix[r][c] = r * 5 + c + 1;
+      matrix[r][c] = (float)r * 5.0f + (float)c + 1.0f;
     }
   }
   return matrix;

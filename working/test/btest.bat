@@ -3,13 +3,12 @@
 REM Usage: btest.bat {target}|all [r [c|d]]
 
 REM Required Environment Variables in buildSpecs.bat.
-REM testBuildDir - The path to the test generator build dir relative to
-REM   buildSpecs.bat.
-REM generator - The identifier used to call the generator from command line.
+REM buildDir - The path to the build dir relative to buildSpecs.bat.
+REM generator - The identifier used to call the generator.
 
 REM Required Arguments
-REM {target} is the name of the target to build. all can be provided instead of
-REM   the target name to build all possible targets.
+REM {target} - The name of the target to build. all can be provided instead of
+REM   the target name to build all the test targets.
 
 REM Optional Arguments
 REM r - After the target is built, rtest.bat will be called with the built
@@ -26,22 +25,24 @@ if "%1" == "" (
 pushd "../"
 call buildSpecs.bat
 
-if "%testBuildDir%" == "" (
-  echo Error: The environment variable "testBuildDir" must be set in
+if "%buildDir%" == "" (
+  echo Error: The environment variable "buildDir" must be set in
   echo ../buildSpecs.bat.
   popd
   goto:eof
 )
-if not exist %testBuildDir% (
-  echo Error: The value of testBuildDir "%testBuildDir%" set in
-  echo ../buildSpecs.bat does not exist relative to buildSpecs.bat.
+if not exist %buildDir% (
+  echo Error: The value of buildDir [%buildDir%] does not exist relative to
+  echo ../buildSpecs.bat.
   popd
   goto:eof
 )
 
-pushd %testBuildDir%
+pushd %buildDir%
 if "%1" == "all" (
-  %generator%
+  %generator% tests
+  popd
+  popd
   goto:eof
 ) else (
   %generator% %1

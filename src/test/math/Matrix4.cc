@@ -11,7 +11,7 @@ Mat4 CreateGenericMat4()
   {
     for (int c = 0; c < 4; ++c)
     {
-      matrix[r][c] = r * 4 + c + 1;
+      matrix[r][c] = (float)r * 4.0f + (float)c + 1.0f;
     }
   }
   return matrix;

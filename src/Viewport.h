@@ -3,7 +3,7 @@
 
 #include "math/Matrix4.h"
 
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace Viewport {
 

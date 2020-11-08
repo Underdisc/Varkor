@@ -1,8 +1,12 @@
 include_directories("../")
+add_custom_target(tests)
 
 function(AddTest target)
   add_executable(${target})
   target_sources(${target} PRIVATE ${ARGN})
+  set_property(TARGET ${target} PROPERTY RUNTIME_OUTPUT_DIRECTORY
+    "${CMAKE_SOURCE_DIR}/working/test")
+  add_dependencies(tests ${target})
 endfunction()
 
 AddTest(core_ComponentTable

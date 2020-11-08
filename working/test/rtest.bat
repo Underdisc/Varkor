@@ -32,4 +32,8 @@ if "%2" == "d" (
   git diff --no-index %1_out.txt %1_out_diff.txt
   goto:eof
 )
+if not "%2" == "" (
+  echo Error: "%2" is not a valid argument. Only c or d is valid.
+  goto:eof
+)
 %1.exe

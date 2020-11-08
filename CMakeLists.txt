@@ -1,25 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 cmake_policy(SET CMP0048 NEW)
-
-# We don't create a test by default.
-if ("${test}" STREQUAL "")
-  set(test "no")
-endif ()
-
-# Choose the appropriate target to build depending on options.
-if ("${test}" STREQUAL "no")
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working")
-  project(varkor)
-  add_executable(varkor)
-  add_subdirectory(src)
-  add_subdirectory(ext)
-elseif ("${test}" STREQUAL "yes")
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working/test")
-  project(test)
-  add_subdirectory(src/test)
-else ()
-  message(FATAL_ERROR "\"${test}\" is not an available option for \"test\".")
-endif ()
+project(varkor)
 
 # Find libraries, set properties, and set compiler flags.
 find_package(OpenGL)
@@ -28,7 +9,7 @@ if (MINGW)
   find_library(glfw NAMES glfw3_mingw_32 REQUIRED)
 elseif (MSVC)
   set_property(DIRECTORY PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /sdl")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /W3 /sdl")
   if ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
   endif ()
@@ -39,8 +20,15 @@ elseif (MSVC)
   endif ()
 endif ()
 
-# Add the necessary include directories and libraries needed to build Varkor.
-if ("${test}" STREQUAL "no")
-  target_include_directories(varkor PRIVATE "src" "ext/local" "ext/sub")
-  target_link_libraries(varkor ${glfw} ${OPENGL_gl_LIBRARY})
-endif ()
+# Create the target to build Varkor.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working")
+add_executable(varkor)
+add_subdirectory(src)
+add_subdirectory(ext)
+target_include_directories(varkor PRIVATE "src" "ext/local" "ext/sub")
+target_link_libraries(varkor ${glfw} ${OPENGL_gl_LIBRARY})
+set_property(TARGET varkor PROPERTY RUNTIME_OUTPUT_DIRECTORY
+  "${CMAKE_SOURCE_DIR}/working")
+
+# Create all the test targets.
+add_subdirectory(src/test)
