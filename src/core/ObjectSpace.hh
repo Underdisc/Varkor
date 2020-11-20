@@ -32,7 +32,9 @@ T& ObjectSpace::AddComponent(ObjRef object)
   {
     RegisterComponentType<T>();
   }
-  return *((T*)AddComponent(ComponentType<T>::smId, object));
+  void* memory = AddComponent(ComponentType<T>::smId, object);
+  T* compMemory = new (memory) T;
+  return *compMemory;
 }
 
 template<typename T>

@@ -6,8 +6,14 @@
 #pragma pack(push, 1)
 struct Comp0
 {
+  static int smInitValue;
   float m0;
   float m1;
+
+  Comp0(): m0((float)smInitValue), m1((float)smInitValue)
+  {
+    ++smInitValue;
+  }
   void SetData(int value)
   {
     m0 = (float)value;
@@ -18,11 +24,18 @@ struct Comp0
     std::cout << "[" << m0 << ", " << m1 << "]";
   }
 };
+int Comp0::smInitValue = 0;
 
 struct Comp1
 {
+  static int smInitValue;
   double m0;
   double m1;
+
+  Comp1(): m0((double)smInitValue), m1((double)smInitValue)
+  {
+    ++smInitValue;
+  }
   void SetData(int value)
   {
     m0 = (double)value;
@@ -33,12 +46,19 @@ struct Comp1
     std::cout << "[" << m0 << ", " << m1 << "]";
   }
 };
+int Comp1::smInitValue = 1;
 
 struct Comp2
 {
+  static int smInitValue;
   int m0;
   double m1;
   float m2;
+
+  Comp2(): m0(smInitValue), m1((double)smInitValue), m2((float)smInitValue)
+  {
+    ++smInitValue;
+  }
   void SetData(int value)
   {
     m0 = value;
@@ -50,13 +70,24 @@ struct Comp2
     std::cout << "[" << m0 << ", " << m1 << ", " << m2 << "]";
   }
 };
+int Comp2::smInitValue = 2;
 
 struct Comp3
 {
+  static int smInitValue;
   short m0;
   double m1;
   float m2;
   int m3;
+
+  Comp3():
+    m0((short)smInitValue),
+    m1((double)smInitValue),
+    m2((float)smInitValue),
+    m3(smInitValue)
+  {
+    ++smInitValue;
+  }
   void SetData(int value)
   {
     m0 = (short)value;
@@ -69,6 +100,7 @@ struct Comp3
     std::cout << "[" << m0 << ", " << m1 << ", " << m2 << ", " << m3 << "]";
   }
 };
+int Comp3::smInitValue = 3;
 #pragma pack(pop)
 
 template<typename T>
@@ -102,21 +134,14 @@ void AddComponent()
   Core::ObjectSpace space;
   ObjRef obj0 = space.CreateObject();
   Comp0& obj0comp0 = space.AddComponent<Comp0>(obj0);
-  obj0comp0.SetData(0);
   Comp1& obj0comp1 = space.AddComponent<Comp1>(obj0);
-  obj0comp1.SetData(1);
   Comp2& obj0comp2 = space.AddComponent<Comp2>(obj0);
-  obj0comp2.SetData(2);
   ObjRef obj1 = space.CreateObject();
   Comp0& obj1comp0 = space.AddComponent<Comp0>(obj1);
-  obj1comp0.SetData(1);
   Comp1& obj1comp1 = space.AddComponent<Comp1>(obj1);
-  obj1comp1.SetData(2);
   Comp2& obj1comp2 = space.AddComponent<Comp2>(obj1);
-  obj1comp2.SetData(3);
   ObjRef obj2 = space.CreateObject();
   Comp0& obj2comp0 = space.AddComponent<Comp0>(obj2);
-  obj2comp0.SetData(2);
   Comp3& obj2comp3 = space.AddComponent<Comp3>(obj2);
   obj2comp3.SetData(5);
 
@@ -128,7 +153,6 @@ void AddComponent()
   Comp3& obj0comp3 = space.AddComponent<Comp3>(obj0);
   obj0comp3.SetData(3);
   Comp2& obj2comp2 = space.AddComponent<Comp2>(obj2);
-  obj2comp2.SetData(4);
 
   space.ShowAll();
   PrintComponentData<Comp0>(space, 3);
