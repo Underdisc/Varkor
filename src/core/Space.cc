@@ -2,7 +2,7 @@
 
 #include "Error.h"
 
-#include "ObjectSpace.h"
+#include "Space.h"
 
 namespace Core {
 

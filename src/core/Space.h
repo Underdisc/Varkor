@@ -82,6 +82,6 @@ private:
 
 } // namespace Core
 
-#include "ObjectSpace.hh"
+#include "Space.hh"
 
 #endif

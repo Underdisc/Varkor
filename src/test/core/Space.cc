@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "core/ObjectSpace.h"
+#include "core/Space.h"
 #include "debug/MemLeak.h"
 
 #pragma pack(push, 1)

@@ -16,10 +16,10 @@ AddTest(core_ComponentTable
   ../core/Types.cc
   ../Error.cc)
 
-AddTest(core_ObjectSpace
-  core/ObjectSpace.cc
+AddTest(core_Space
+  core/Space.cc
   ../core/ComponentTable.cc
-  ../core/ObjectSpace.cc
+  ../core/Space.cc
   ../core/Types.cc
   ../debug/MemLeak.cc
   ../Error.cc)
