@@ -115,6 +115,12 @@ int Vector<T>::Capacity() const
 }
 
 template<typename T>
+T& Vector<T>::Top() const
+{
+  return mData[mSize - 1];
+}
+
+template<typename T>
 const T& Vector<T>::operator[](int index) const
 {
   return mData[index];

@@ -97,6 +97,26 @@ void Resize()
   PrintVector(test);
   test.Resize(15, 2);
   PrintVector(test);
+  std::cout << std::endl;
+}
+
+void Top()
+{
+  std::cout << "Top" << std::endl;
+  DS::Vector<int> test;
+  for (int i = 0; i < 10; ++i)
+  {
+    test.Push(i * 2);
+  }
+  std::cout << test.Top() << std::endl;
+  for (int i = 0; i < 5; ++i)
+  {
+    test.Pop();
+  }
+  std::cout << test.Top() << std::endl;
+  test.Pop();
+  test.Top() = 20;
+  std::cout << test.Top() << std::endl;
 }
 
 int main(void)
@@ -107,4 +127,5 @@ int main(void)
   IndexOperator();
   Contains();
   Resize();
+  Top();
 }

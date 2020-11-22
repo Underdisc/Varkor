@@ -20,6 +20,7 @@ public:
   bool Contains(const T& value) const;
   int Size() const;
   int Capacity() const;
+  T& Top() const;
   const T& operator[](int index) const;
   T& operator[](int index);
   T* begin();
