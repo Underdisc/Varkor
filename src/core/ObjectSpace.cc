@@ -151,7 +151,7 @@ void ObjectSpace::RemComponent(int componentId, ObjRef object)
   --selected.mCount;
 }
 
-void* ObjectSpace::GetComponent(int componentId, ObjRef object)
+void* ObjectSpace::GetComponent(int componentId, ObjRef object) const
 {
   // Make sure the component table and object exist.
   VerifyComponentTable(componentId);
@@ -172,9 +172,9 @@ void* ObjectSpace::GetComponent(int componentId, ObjRef object)
   return nullptr;
 }
 
-bool ObjectSpace::HasComponent(int componentId, ObjRef object)
+bool ObjectSpace::HasComponent(int componentId, ObjRef object) const
 {
-  void* comp = GetComponent(componentId, object);
+  const void* comp = GetComponent(componentId, object);
   return comp != nullptr;
 }
 

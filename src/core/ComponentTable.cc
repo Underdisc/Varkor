@@ -56,7 +56,7 @@ void ComponentTable::Rem(int index)
   mOwners[index] = nInvalidObjRef;
 }
 
-void* ComponentTable::operator[](int index)
+void* ComponentTable::operator[](int index) const
 {
   VerifyIndex(index);
   return (void*)(mData + (mStride * index));

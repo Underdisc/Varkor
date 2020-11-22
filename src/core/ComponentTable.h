@@ -14,7 +14,7 @@ public:
   ~ComponentTable();
   int Add(ObjRef object);
   void Rem(int index);
-  void* operator[](int index);
+  void* operator[](int index) const;
   const void* Data() const;
 
   void ShowStats() const;

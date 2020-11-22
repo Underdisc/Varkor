@@ -34,8 +34,8 @@ struct ObjectSpace
   ObjRef CreateObject();
   void* AddComponent(int componentId, ObjRef object);
   void RemComponent(int componentId, ObjRef object);
-  void* GetComponent(int componentId, ObjRef object);
-  bool HasComponent(int compnentId, ObjRef object);
+  void* GetComponent(int componentId, ObjRef object) const;
+  bool HasComponent(int compnentId, ObjRef object) const;
   const void* GetComponentData(int componentId) const;
 
   // Any component type that is registered within an ObjectSpace should be
