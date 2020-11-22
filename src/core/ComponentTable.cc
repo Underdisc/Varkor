@@ -34,11 +34,11 @@ ComponentTable::~ComponentTable()
   }
 }
 
-// This function will allow adding the same object reference to the table
+// This function will allow adding the same member reference to the table
 // multiple times. The ComponentTable is not responsible for managing the owner
-// object references it stores besides setting the object references when
+// member references it stores besides setting the member references when
 // components are added or removed.
-int ComponentTable::Add(ObjRef object)
+int ComponentTable::Add(MemRef member)
 {
   if (mSize >= mCapacity)
   {
@@ -46,14 +46,14 @@ int ComponentTable::Add(ObjRef object)
   }
   int componentIndex = mSize;
   ++mSize;
-  mOwners.Push(object);
+  mOwners.Push(member);
   return componentIndex;
 }
 
 void ComponentTable::Rem(int index)
 {
   VerifyIndex(index);
-  mOwners[index] = nInvalidObjRef;
+  mOwners[index] = nInvalidMemRef;
 }
 
 void* ComponentTable::operator[](int index) const

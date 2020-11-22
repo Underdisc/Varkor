@@ -1,10 +1,10 @@
--=CreateObject=-
+-=CreateMember=-
 TableLookup: [ComponentId, Table]
-Objects: [Address, Count], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]
+Members: [Address, Count], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]
 AddressBin: [Table, Index]
 
 -=AddComponent=-
-Objects: [Address, Count], [0, 3], [3, 3], [6, 2]
+Members: [Address, Count], [0, 3], [3, 3], [6, 2]
 AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [3, 0]
 0 {
 Stride: 8
@@ -39,7 +39,7 @@ CapacityInBytes: 180
 Owners: [2, 1, 0]
 }
 TableLookup: [ComponentId, Table], [0, 0], [1, 1], [2, 2], [3, 3]
-Objects: [Address, Count], [0, 4], [8, 4], [12, 3]
+Members: [Address, Count], [0, 4], [8, 4], [12, 3]
 AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 2], [inv], [inv], [inv], [inv], [0, 1], [1, 1], [2, 1], [3, 1], [0, 2], [3, 0], [2, 2]
 [0, 0], [1, 1], [2, 2]
 [1, 1], [2, 2]
@@ -47,11 +47,11 @@ AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 2], [inv], [inv], [inv],
 [5, 5, 5, 5], [4, 4, 4, 4], [3, 3, 3, 3]
 
 -=RemComponent=-
-Objects: [Address, Count], [0, 4], [4, 3], [7, 3], [10, 3]
+Members: [Address, Count], [0, 4], [4, 3], [7, 3], [10, 3]
 AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1], [1, 2], [3, 1], [2, 2], [3, 2], [2, 3], [0, 2]
-Objects: [Address, Count], [0, 3], [4, 2], [7, 1], [10, 3]
+Members: [Address, Count], [0, 3], [4, 2], [7, 1], [10, 3]
 AddressBin: [Table, Index], [0, 0], [3, 0], [2, 0], [inv], [2, 1], [1, 1], [inv], [3, 1], [inv], [inv], [3, 2], [2, 3], [0, 2]
-Objects: [Address, Count], [0, 3], [4, 2], [7, 2], [10, 3]
+Members: [Address, Count], [0, 3], [4, 2], [7, 2], [10, 3]
 AddressBin: [Table, Index], [0, 0], [3, 0], [2, 0], [inv], [2, 1], [1, 1], [inv], [3, 1], [0, 3], [inv], [3, 2], [2, 3], [0, 2]
 0 {
 Stride: 8
@@ -120,7 +120,7 @@ CapacityInBytes: 180
 Owners: [0]
 }
 TableLookup: [ComponentId, Table], [0, 0], [1, 1], [2, 2], [3, 3]
-Objects: [Address, Count], [0, 4], [4, 3]
+Members: [Address, Count], [0, 4], [4, 3]
 AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1]
 [0, 0], [1, 1]
 [1, 1], [2, 2]
@@ -128,7 +128,7 @@ AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 
 [3, 3, 3, 3]
 
 -=HasComponent=-
-Objects: [Address, Count], [4, 3], [2, 2]
+Members: [Address, Count], [4, 3], [2, 2]
 AddressBin: [Table, Index], [inv], [inv], [2, 0], [3, 0], [0, 0], [1, 0], [3, 1]
 TableLookup: [ComponentId, Table], [0, 2], [1, 0], [2, 1], [3, 3]
 01111001

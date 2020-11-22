@@ -7,7 +7,7 @@ namespace Core {
 // verify that the component table exits rather than checking for its existence
 // and creating it.
 template<typename T>
-void ObjectSpace::RegisterComponentType()
+void Space::RegisterComponentType()
 {
   ComponentType<T>::Validate();
   int neededSize = ComponentType<T>::smId + 1;
@@ -19,12 +19,12 @@ void ObjectSpace::RegisterComponentType()
   LogAbortIf(
     mTableLookup[ComponentType<T>::smId] != nInvalidTableRef,
     "The component type being registered has already been registered with this "
-    "object space.");
+    "Space.");
   RegisterComponentType(ComponentType<T>::smId, sizeof(T));
 }
 
 template<typename T>
-T& ObjectSpace::AddComponent(ObjRef object)
+T& Space::AddComponent(MemRef member)
 {
   // Create the component table for the component being added if it doesn't
   // already exist.
@@ -32,37 +32,37 @@ T& ObjectSpace::AddComponent(ObjRef object)
   {
     RegisterComponentType<T>();
   }
-  void* memory = AddComponent(ComponentType<T>::smId, object);
+  void* memory = AddComponent(ComponentType<T>::smId, member);
   T* compMemory = new (memory) T;
   return *compMemory;
 }
 
 template<typename T>
-void ObjectSpace::RemComponent(ObjRef object)
+void Space::RemComponent(MemRef member)
 {
-  RemComponent(ComponentType<T>::smId, object);
+  RemComponent(ComponentType<T>::smId, member);
 }
 
 template<typename T>
-T& ObjectSpace::GetComponent(ObjRef object)
+T& Space::GetComponent(MemRef member)
 {
-  return *((T*)GetComponent(ComponentType<T>::smId, object));
+  return *((T*)GetComponent(ComponentType<T>::smId, member));
 }
 
 template<typename T>
-bool ObjectSpace::HasComponent(ObjRef object)
+bool Space::HasComponent(MemRef member)
 {
-  return HasComponent(ComponentType<T>::smId, object);
+  return HasComponent(ComponentType<T>::smId, member);
 }
 
 template<typename T>
-const T* ObjectSpace::GetComponentData() const
+const T* Space::GetComponentData() const
 {
   return (T*)GetComponentData(ComponentType<T>::smId);
 }
 
 template<typename T>
-void ObjectSpace::ShowTable() const
+void Space::ShowTable() const
 {
   ShowTable(ComponentType<T>::smId);
 }

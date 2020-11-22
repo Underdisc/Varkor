@@ -1,5 +1,5 @@
-#ifndef core_ObjectSpace_h
-#define core_ObjectSpace_h
+#ifndef core_Space_h
+#define core_Space_h
 
 #include "ComponentTable.h"
 #include "Types.h"
@@ -16,45 +16,45 @@ struct ComponentAddress
   bool InUse() const;
 };
 
-struct Object
+struct Member
 {
   int mAddressIndex;
   ObjSizeT mCount;
 
-  static int smInvalidObjectAddress;
+  static int smInvalidMemberAddress;
 
   int EndAddress() const;
   int LastAddress() const;
   bool Valid() const;
 };
 
-struct ObjectSpace
+struct Space
 {
   TableRef RegisterComponentType(int componentId, int size);
-  ObjRef CreateObject();
-  void* AddComponent(int componentId, ObjRef object);
-  void RemComponent(int componentId, ObjRef object);
-  void* GetComponent(int componentId, ObjRef object) const;
-  bool HasComponent(int compnentId, ObjRef object) const;
+  MemRef CreateMember();
+  void* AddComponent(int componentId, MemRef member);
+  void RemComponent(int componentId, MemRef member);
+  void* GetComponent(int componentId, MemRef member) const;
+  bool HasComponent(int compnentId, MemRef member) const;
   const void* GetComponentData(int componentId) const;
 
-  // Any component type that is registered within an ObjectSpace should be
-  // tightly packed. Not doing so won't necessarily result in errors, but
-  // problems will likely appear if the padding of a component's data varies
-  // among different compilers.
+  // Any component type that is registered within a Space should be tightly
+  // packed. Not doing so won't necessarily result in errors, but problems will
+  // likely appear if the padding of a component's data varies among different
+  // compilers.
   template<typename T>
   void RegisterComponentType();
 
-  // Component types that have not been registered with an ObjectSpace will be
-  // if they are added to an object as a component.
+  // Component types that have not been registered with a Space will be if they
+  // are added to a member as a component.
   template<typename T>
-  T& AddComponent(ObjRef object);
+  T& AddComponent(MemRef member);
   template<typename T>
-  void RemComponent(ObjRef object);
+  void RemComponent(MemRef member);
   template<typename T>
-  T& GetComponent(ObjRef object);
+  T& GetComponent(MemRef member);
   template<typename T>
-  bool HasComponent(ObjRef object);
+  bool HasComponent(MemRef member);
   template<typename T>
   const T* GetComponentData() const;
 
@@ -62,7 +62,7 @@ struct ObjectSpace
   void ShowTableLookup() const;
   void ShowTable(int componentId) const;
   void ShowTables() const;
-  void ShowObjects() const;
+  void ShowMembers() const;
   void ShowAddressBin() const;
 
   template<typename T>
@@ -72,12 +72,12 @@ private:
   DS::Vector<TableRef> mTableLookup;
   DS::Vector<ComponentTable> mTables;
 
-  DS::Vector<Object> mObjects;
+  DS::Vector<Member> mMembers;
   DS::Vector<ComponentAddress> mAddressBin;
 
   bool ValidComponentTable(int componentId) const;
   void VerifyComponentTable(int componentId) const;
-  void VerifyObject(ObjRef object) const;
+  void VerifyMember(MemRef member) const;
 };
 
 } // namespace Core

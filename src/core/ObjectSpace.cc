@@ -27,24 +27,24 @@ std::ostream& operator<<(std::ostream& os, const ComponentAddress& addr)
   return os;
 }
 
-int Object::smInvalidObjectAddress = -1;
+int Member::smInvalidMemberAddress = -1;
 
-int Object::EndAddress() const
+int Member::EndAddress() const
 {
   return mAddressIndex + mCount;
 }
 
-int Object::LastAddress() const
+int Member::LastAddress() const
 {
   return mAddressIndex + mCount - 1;
 }
 
-bool Object::Valid() const
+bool Member::Valid() const
 {
-  return mAddressIndex != smInvalidObjectAddress;
+  return mAddressIndex != smInvalidMemberAddress;
 }
 
-TableRef ObjectSpace::RegisterComponentType(int componentId, int size)
+TableRef Space::RegisterComponentType(int componentId, int size)
 {
   TableRef table = mTables.Size();
   ComponentTable newTable(size);
@@ -53,37 +53,37 @@ TableRef ObjectSpace::RegisterComponentType(int componentId, int size)
   return table;
 }
 
-ObjRef ObjectSpace::CreateObject()
+MemRef Space::CreateMember()
 {
-  Object newObject;
-  newObject.mAddressIndex = mAddressBin.Size();
-  newObject.mCount = 0;
-  ObjRef newObjectRef = mObjects.Size();
-  mObjects.Push(newObject);
-  return newObjectRef;
+  Member newMember;
+  newMember.mAddressIndex = mAddressBin.Size();
+  newMember.mCount = 0;
+  MemRef newMemberRef = mMembers.Size();
+  mMembers.Push(newMember);
+  return newMemberRef;
 }
 
-void* ObjectSpace::AddComponent(int componentId, ObjRef object)
+void* Space::AddComponent(int componentId, MemRef member)
 {
-  // Verify that the component table exists, the object exist, and the object
+  // Verify that the component table exists, the member exist, and the member
   // doesn't already have the component being added.
   VerifyComponentTable(componentId);
-  VerifyObject(object);
+  VerifyMember(member);
   LogAbortIf(
-    HasComponent(componentId, object),
-    "This object already has this type of component.");
+    HasComponent(componentId, member),
+    "This member already has this type of component.");
 
   // Allocate data for the new component and save a pointer to the component
   // data so it can be used as the return value.
   TableRef table = mTableLookup[componentId];
   ComponentAddress newAddress;
   newAddress.mTable = table;
-  newAddress.mIndex = mTables[table].Add(object);
+  newAddress.mIndex = mTables[table].Add(member);
   void* componentData = mTables[table][newAddress.mIndex];
 
   // Add the component's address to the address bin, and make that address part
-  // of the object.
-  Object& selected = mObjects[object];
+  // of the member.
+  Member& selected = mMembers[member];
   int nextAddressIndex = selected.EndAddress();
   if (nextAddressIndex >= mAddressBin.Size())
   {
@@ -111,17 +111,17 @@ void* ObjectSpace::AddComponent(int componentId, ObjRef object)
   return componentData;
 }
 
-void ObjectSpace::RemComponent(int componentId, ObjRef object)
+void Space::RemComponent(int componentId, MemRef member)
 {
-  // Verify that the component table and the object both exist.
+  // Verify that the component table and the member both exist.
   VerifyComponentTable(componentId);
-  VerifyObject(object);
+  VerifyMember(member);
 
-  // Verify that the object has the component while finding the index of the
+  // Verify that the member has the component while finding the index of the
   // component address.
   bool foundComponentType = false;
   TableRef table = mTableLookup[componentId];
-  Object& selected = mObjects[object];
+  Member& selected = mMembers[member];
   int compAddrIndex = selected.mAddressIndex;
   int endAddr = selected.EndAddress();
   for (; compAddrIndex < endAddr; ++compAddrIndex)
@@ -134,9 +134,9 @@ void ObjectSpace::RemComponent(int componentId, ObjRef object)
   }
   LogAbortIf(
     !foundComponentType,
-    "The object did not have the component type to be removed.");
+    "The member did not have the component type to be removed.");
 
-  // Remove the old component address from the object's address list.
+  // Remove the old component address from the member's address list.
   ComponentAddress& compAddr = mAddressBin[compAddrIndex];
   mTables[table].Rem(compAddr.mIndex);
   if (compAddrIndex == selected.LastAddress())
@@ -151,16 +151,16 @@ void ObjectSpace::RemComponent(int componentId, ObjRef object)
   --selected.mCount;
 }
 
-void* ObjectSpace::GetComponent(int componentId, ObjRef object) const
+void* Space::GetComponent(int componentId, MemRef member) const
 {
-  // Make sure the component table and object exist.
+  // Make sure the component table and member exist.
   VerifyComponentTable(componentId);
-  VerifyObject(object);
+  VerifyMember(member);
 
-  // Find the requested component by going through the object's component
+  // Find the requested component by going through the member's component
   // references.
   TableRef table = mTableLookup[componentId];
-  const Object& selected = mObjects[object];
+  const Member& selected = mMembers[member];
   for (int i = 0; i < selected.mCount; ++i)
   {
     const ComponentAddress& address = mAddressBin[selected.mAddressIndex + i];
@@ -172,28 +172,28 @@ void* ObjectSpace::GetComponent(int componentId, ObjRef object) const
   return nullptr;
 }
 
-bool ObjectSpace::HasComponent(int componentId, ObjRef object) const
+bool Space::HasComponent(int componentId, MemRef member) const
 {
-  const void* comp = GetComponent(componentId, object);
+  const void* comp = GetComponent(componentId, member);
   return comp != nullptr;
 }
 
-const void* ObjectSpace::GetComponentData(int componentId) const
+const void* Space::GetComponentData(int componentId) const
 {
   VerifyComponentTable(componentId);
   TableRef table = mTableLookup[componentId];
   return mTables[table].Data();
 }
 
-void ObjectSpace::ShowAll() const
+void Space::ShowAll() const
 {
   ShowTables();
   ShowTableLookup();
-  ShowObjects();
+  ShowMembers();
   ShowAddressBin();
 }
 
-void ObjectSpace::ShowTableLookup() const
+void Space::ShowTableLookup() const
 {
   std::cout << "TableLookup: [ComponentId, Table]";
   for (int i = 0; i < mTableLookup.Size(); ++i)
@@ -203,7 +203,7 @@ void ObjectSpace::ShowTableLookup() const
   std::cout << std::endl;
 }
 
-void ObjectSpace::ShowTable(int componentId) const
+void Space::ShowTable(int componentId) const
 {
   VerifyComponentTable(componentId);
   TableRef table = mTableLookup[componentId];
@@ -211,7 +211,7 @@ void ObjectSpace::ShowTable(int componentId) const
   mTables[table].ShowOwners();
 }
 
-void ObjectSpace::ShowTables() const
+void Space::ShowTables() const
 {
   for (int i = 0; i < mTables.Size(); ++i)
   {
@@ -222,17 +222,17 @@ void ObjectSpace::ShowTables() const
   }
 }
 
-void ObjectSpace::ShowObjects() const
+void Space::ShowMembers() const
 {
-  std::cout << "Objects: [Address, Count]";
-  for (const Object& object : mObjects)
+  std::cout << "Members: [Address, Count]";
+  for (const Member& member : mMembers)
   {
-    std::cout << ", [" << object.mAddressIndex << ", " << object.mCount << "]";
+    std::cout << ", [" << member.mAddressIndex << ", " << member.mCount << "]";
   }
   std::cout << std::endl;
 }
 
-void ObjectSpace::ShowAddressBin() const
+void Space::ShowAddressBin() const
 {
   std::cout << "AddressBin: [Table, Index]";
   for (int i = 0; i < mAddressBin.Size(); ++i)
@@ -242,7 +242,7 @@ void ObjectSpace::ShowAddressBin() const
   std::cout << std::endl;
 }
 
-bool ObjectSpace::ValidComponentTable(int componentId) const
+bool Space::ValidComponentTable(int componentId) const
 {
   // Make sure the table lookup is large enough to treat the component id as an
   // index, the component type has been initialized, and the table lookup has a
@@ -251,7 +251,7 @@ bool ObjectSpace::ValidComponentTable(int componentId) const
     mTableLookup[componentId] != nInvalidTableRef;
 }
 
-void ObjectSpace::VerifyComponentTable(int componentId) const
+void Space::VerifyComponentTable(int componentId) const
 {
   // Make sure that a table exists for the component type.
   LogAbortIf(
@@ -259,12 +259,12 @@ void ObjectSpace::VerifyComponentTable(int componentId) const
     "There is no table for this component type.");
 }
 
-void ObjectSpace::VerifyObject(ObjRef object) const
+void Space::VerifyMember(MemRef member) const
 {
-  // Make sure the object both exists and is valid.
+  // Make sure the member both exists and is valid.
   LogAbortIf(
-    object < 0 || object >= mObjects.Size() || !mObjects[object].Valid(),
-    "The object under this reference does not exist.");
+    member < 0 || member >= mMembers.Size() || !mMembers[member].Valid(),
+    "The member under this reference does not exist.");
 }
 
 } // namespace Core

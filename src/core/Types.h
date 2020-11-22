@@ -5,14 +5,14 @@ namespace Core {
 
 typedef signed short TableRef;
 typedef TableRef ObjSizeT;
-typedef int ObjRef;
+typedef int MemRef;
 
 // Though it is accessible, nComponentCount should not be modified anywhere
 // but this file. It is used to hand out component ids, and only the system
 // responsible for handing out component ids should change it.
 extern const int nInvalidComponentId;
 extern int nComponentCount;
-extern const ObjRef nInvalidObjRef;
+extern const MemRef nInvalidMemRef;
 extern const TableRef nInvalidTableRef;
 
 // When a struct is used as a component, a corresponding ComponentType will be
@@ -50,6 +50,6 @@ void ComponentType<T>::Validate()
 // This is the only part of this file that should be used outside of the Core
 // namespace. All other declarations and definitions are intended to be used
 // within the Core namespace only.
-typedef Core::ObjRef ObjRef;
+typedef Core::MemRef MemRef;
 
 #endif

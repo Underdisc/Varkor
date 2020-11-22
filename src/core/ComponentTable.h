@@ -12,7 +12,7 @@ public:
   ComponentTable();
   ComponentTable(int stride);
   ~ComponentTable();
-  int Add(ObjRef object);
+  int Add(MemRef member);
   void Rem(int index);
   void* operator[](int index) const;
   const void* Data() const;
@@ -31,7 +31,7 @@ private:
   int mStride;
   int mSize;
   int mCapacity;
-  DS::Vector<ObjRef> mOwners;
+  DS::Vector<MemRef> mOwners;
 
   void Grow();
   void VerifyIndex(int index) const;

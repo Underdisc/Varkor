@@ -104,7 +104,7 @@ int Comp3::smInitValue = 3;
 #pragma pack(pop)
 
 template<typename T>
-void PrintComponentData(const Core::ObjectSpace& space, int componentCount)
+void PrintComponentData(const Core::Space& space, int componentCount)
 {
   const T* compData = space.GetComponentData<T>();
   compData[0].PrintData();
@@ -116,13 +116,13 @@ void PrintComponentData(const Core::ObjectSpace& space, int componentCount)
   std::cout << std::endl;
 }
 
-void CreateObject()
+void CreateMember()
 {
-  std::cout << "-=CreateObject=-" << std::endl;
-  Core::ObjectSpace space;
+  std::cout << "-=CreateMember=-" << std::endl;
+  Core::Space space;
   for (int i = 0; i < 10; ++i)
   {
-    space.CreateObject();
+    space.CreateMember();
   }
   space.ShowAll();
   std::cout << std::endl;
@@ -131,28 +131,28 @@ void CreateObject()
 void AddComponent()
 {
   std::cout << "-=AddComponent=-" << std::endl;
-  Core::ObjectSpace space;
-  ObjRef obj0 = space.CreateObject();
-  Comp0& obj0comp0 = space.AddComponent<Comp0>(obj0);
-  Comp1& obj0comp1 = space.AddComponent<Comp1>(obj0);
-  Comp2& obj0comp2 = space.AddComponent<Comp2>(obj0);
-  ObjRef obj1 = space.CreateObject();
-  Comp0& obj1comp0 = space.AddComponent<Comp0>(obj1);
-  Comp1& obj1comp1 = space.AddComponent<Comp1>(obj1);
-  Comp2& obj1comp2 = space.AddComponent<Comp2>(obj1);
-  ObjRef obj2 = space.CreateObject();
-  Comp0& obj2comp0 = space.AddComponent<Comp0>(obj2);
-  Comp3& obj2comp3 = space.AddComponent<Comp3>(obj2);
-  obj2comp3.SetData(5);
+  Core::Space space;
+  MemRef mem0 = space.CreateMember();
+  Comp0& mem0comp0 = space.AddComponent<Comp0>(mem0);
+  Comp1& mem0comp1 = space.AddComponent<Comp1>(mem0);
+  Comp2& mem0comp2 = space.AddComponent<Comp2>(mem0);
+  MemRef mem1 = space.CreateMember();
+  Comp0& mem1comp0 = space.AddComponent<Comp0>(mem1);
+  Comp1& mem1comp1 = space.AddComponent<Comp1>(mem1);
+  Comp2& mem1comp2 = space.AddComponent<Comp2>(mem1);
+  MemRef mem2 = space.CreateMember();
+  Comp0& mem2comp0 = space.AddComponent<Comp0>(mem2);
+  Comp3& mem2comp3 = space.AddComponent<Comp3>(mem2);
+  mem2comp3.SetData(5);
 
-  space.ShowObjects();
+  space.ShowMembers();
   space.ShowAddressBin();
 
-  Comp3& obj1comp3 = space.AddComponent<Comp3>(obj1);
-  obj1comp3.SetData(4);
-  Comp3& obj0comp3 = space.AddComponent<Comp3>(obj0);
-  obj0comp3.SetData(3);
-  Comp2& obj2comp2 = space.AddComponent<Comp2>(obj2);
+  Comp3& mem1comp3 = space.AddComponent<Comp3>(mem1);
+  mem1comp3.SetData(4);
+  Comp3& mem0comp3 = space.AddComponent<Comp3>(mem0);
+  mem0comp3.SetData(3);
+  Comp2& mem2comp2 = space.AddComponent<Comp2>(mem2);
 
   space.ShowAll();
   PrintComponentData<Comp0>(space, 3);
@@ -165,39 +165,39 @@ void AddComponent()
 void RemComponent()
 {
   std::cout << "-=RemComponent=-" << std::endl;
-  Core::ObjectSpace space;
-  ObjRef obj0 = space.CreateObject();
-  space.AddComponent<Comp0>(obj0);
-  space.AddComponent<Comp1>(obj0);
-  space.AddComponent<Comp2>(obj0);
-  space.AddComponent<Comp3>(obj0);
-  ObjRef obj1 = space.CreateObject();
-  space.AddComponent<Comp0>(obj1);
-  space.AddComponent<Comp1>(obj1);
-  space.AddComponent<Comp2>(obj1);
-  ObjRef obj2 = space.CreateObject();
-  space.AddComponent<Comp1>(obj2);
-  space.AddComponent<Comp3>(obj2);
-  space.AddComponent<Comp2>(obj2);
-  ObjRef obj3 = space.CreateObject();
-  space.AddComponent<Comp3>(obj3);
-  space.AddComponent<Comp2>(obj3);
-  space.AddComponent<Comp0>(obj3);
+  Core::Space space;
+  MemRef mem0 = space.CreateMember();
+  space.AddComponent<Comp0>(mem0);
+  space.AddComponent<Comp1>(mem0);
+  space.AddComponent<Comp2>(mem0);
+  space.AddComponent<Comp3>(mem0);
+  MemRef mem1 = space.CreateMember();
+  space.AddComponent<Comp0>(mem1);
+  space.AddComponent<Comp1>(mem1);
+  space.AddComponent<Comp2>(mem1);
+  MemRef mem2 = space.CreateMember();
+  space.AddComponent<Comp1>(mem2);
+  space.AddComponent<Comp3>(mem2);
+  space.AddComponent<Comp2>(mem2);
+  MemRef mem3 = space.CreateMember();
+  space.AddComponent<Comp3>(mem3);
+  space.AddComponent<Comp2>(mem3);
+  space.AddComponent<Comp0>(mem3);
 
-  space.ShowObjects();
+  space.ShowMembers();
   space.ShowAddressBin();
 
-  space.RemComponent<Comp2>(obj2);
-  space.RemComponent<Comp0>(obj1);
-  space.RemComponent<Comp1>(obj2);
-  space.RemComponent<Comp1>(obj0);
+  space.RemComponent<Comp2>(mem2);
+  space.RemComponent<Comp0>(mem1);
+  space.RemComponent<Comp1>(mem2);
+  space.RemComponent<Comp1>(mem0);
 
-  space.ShowObjects();
+  space.ShowMembers();
   space.ShowAddressBin();
 
-  space.AddComponent<Comp0>(obj2);
+  space.AddComponent<Comp0>(mem2);
 
-  space.ShowObjects();
+  space.ShowMembers();
   space.ShowAddressBin();
   space.ShowTables();
   std::cout << std::endl;
@@ -206,31 +206,31 @@ void RemComponent()
 void GetComponent()
 {
   std::cout << "-=GetComponent=-" << std::endl;
-  Core::ObjectSpace space;
-  ObjRef obj0 = space.CreateObject();
-  space.AddComponent<Comp0>(obj0);
-  space.AddComponent<Comp1>(obj0);
-  space.AddComponent<Comp2>(obj0);
-  space.AddComponent<Comp3>(obj0);
-  ObjRef obj1 = space.CreateObject();
-  space.AddComponent<Comp0>(obj1);
-  space.AddComponent<Comp1>(obj1);
-  space.AddComponent<Comp2>(obj1);
+  Core::Space space;
+  MemRef mem0 = space.CreateMember();
+  space.AddComponent<Comp0>(mem0);
+  space.AddComponent<Comp1>(mem0);
+  space.AddComponent<Comp2>(mem0);
+  space.AddComponent<Comp3>(mem0);
+  MemRef mem1 = space.CreateMember();
+  space.AddComponent<Comp0>(mem1);
+  space.AddComponent<Comp1>(mem1);
+  space.AddComponent<Comp2>(mem1);
 
-  Comp0& obj0comp0 = space.GetComponent<Comp0>(obj0);
-  obj0comp0.SetData(0);
-  Comp1& obj0comp1 = space.GetComponent<Comp1>(obj0);
-  obj0comp1.SetData(1);
-  Comp2& obj0comp2 = space.GetComponent<Comp2>(obj0);
-  obj0comp2.SetData(2);
-  Comp3& obj0comp3 = space.GetComponent<Comp3>(obj0);
-  obj0comp3.SetData(3);
-  Comp0& obj1comp0 = space.GetComponent<Comp0>(obj1);
-  obj1comp0.SetData(1);
-  Comp1& obj1comp1 = space.GetComponent<Comp1>(obj1);
-  obj1comp1.SetData(2);
-  Comp2& obj1comp2 = space.GetComponent<Comp2>(obj1);
-  obj1comp2.SetData(3);
+  Comp0& mem0comp0 = space.GetComponent<Comp0>(mem0);
+  mem0comp0.SetData(0);
+  Comp1& mem0comp1 = space.GetComponent<Comp1>(mem0);
+  mem0comp1.SetData(1);
+  Comp2& mem0comp2 = space.GetComponent<Comp2>(mem0);
+  mem0comp2.SetData(2);
+  Comp3& mem0comp3 = space.GetComponent<Comp3>(mem0);
+  mem0comp3.SetData(3);
+  Comp0& mem1comp0 = space.GetComponent<Comp0>(mem1);
+  mem1comp0.SetData(1);
+  Comp1& mem1comp1 = space.GetComponent<Comp1>(mem1);
+  mem1comp1.SetData(2);
+  Comp2& mem1comp2 = space.GetComponent<Comp2>(mem1);
+  mem1comp2.SetData(3);
 
   space.ShowAll();
   PrintComponentData<Comp0>(space, 2);
@@ -243,33 +243,33 @@ void GetComponent()
 void HasComponent()
 {
   std::cout << "-=HasComponent=-" << std::endl;
-  Core::ObjectSpace space;
-  ObjRef obj0 = space.CreateObject();
-  space.AddComponent<Comp1>(obj0);
-  space.AddComponent<Comp2>(obj0);
-  ObjRef obj1 = space.CreateObject();
-  space.AddComponent<Comp0>(obj1);
-  space.AddComponent<Comp3>(obj1);
-  space.AddComponent<Comp3>(obj0);
+  Core::Space space;
+  MemRef mem0 = space.CreateMember();
+  space.AddComponent<Comp1>(mem0);
+  space.AddComponent<Comp2>(mem0);
+  MemRef mem1 = space.CreateMember();
+  space.AddComponent<Comp0>(mem1);
+  space.AddComponent<Comp3>(mem1);
+  space.AddComponent<Comp3>(mem0);
 
-  space.ShowObjects();
+  space.ShowMembers();
   space.ShowAddressBin();
   space.ShowTableLookup();
-  std::cout << space.HasComponent<Comp0>(obj0);
-  std::cout << space.HasComponent<Comp1>(obj0);
-  std::cout << space.HasComponent<Comp2>(obj0);
-  std::cout << space.HasComponent<Comp3>(obj0);
-  std::cout << space.HasComponent<Comp0>(obj1);
-  std::cout << space.HasComponent<Comp1>(obj1);
-  std::cout << space.HasComponent<Comp2>(obj1);
-  std::cout << space.HasComponent<Comp3>(obj1);
+  std::cout << space.HasComponent<Comp0>(mem0);
+  std::cout << space.HasComponent<Comp1>(mem0);
+  std::cout << space.HasComponent<Comp2>(mem0);
+  std::cout << space.HasComponent<Comp3>(mem0);
+  std::cout << space.HasComponent<Comp0>(mem1);
+  std::cout << space.HasComponent<Comp1>(mem1);
+  std::cout << space.HasComponent<Comp2>(mem1);
+  std::cout << space.HasComponent<Comp3>(mem1);
   std::cout << std::endl << std::endl;
 }
 
 int main(void)
 {
   InitMemLeakOutput();
-  CreateObject();
+  CreateMember();
   AddComponent();
   RemComponent();
   GetComponent();
