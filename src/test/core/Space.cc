@@ -128,6 +128,31 @@ void CreateMember()
   std::cout << std::endl;
 }
 
+void DeleteMember()
+{
+  std::cout << "-=DeleteMember=-" << std::endl;
+  Core::Space space;
+  MemRef memRefs[10];
+  for (int i = 0; i < 10; ++i)
+  {
+    memRefs[i] = space.CreateMember();
+  }
+  std::cout << "Members Created" << std::endl;
+  space.ShowMembers();
+  space.ShowAddressBin();
+  space.ShowUnusedMemRefs();
+
+  for (int i = 0; i < 10; i += 2)
+  {
+    space.DeleteMember(memRefs[i]);
+  }
+  std::cout << "-----" << std::endl << "Members Removed" << std::endl;
+  space.ShowMembers();
+  space.ShowAddressBin();
+  space.ShowUnusedMemRefs();
+  std::cout << std::endl;
+}
+
 void AddComponent()
 {
   std::cout << "-=AddComponent=-" << std::endl;
@@ -203,6 +228,61 @@ void RemComponent()
   std::cout << std::endl;
 }
 
+void DeleteMembersWithComponents()
+{
+  std::cout << "-=DeleteMembersWithComponents=-" << std::endl;
+  Core::Space space;
+  MemRef memRefs[8];
+  for (int i = 0; i < 8; ++i)
+  {
+    memRefs[i] = space.CreateMember();
+    space.AddComponent<Comp0>(memRefs[i]);
+    if (i % 2 == 0)
+    {
+      space.AddComponent<Comp1>(memRefs[i]);
+    }
+    if (i % 3 == 0)
+    {
+      space.AddComponent<Comp2>(memRefs[i]);
+    }
+    if (i % 5 == 0)
+    {
+      space.AddComponent<Comp3>(memRefs[i]);
+    }
+  }
+  std::cout << "Members and Components Created" << std::endl;
+  space.ShowMembers();
+  space.ShowAddressBin();
+  space.ShowUnusedMemRefs();
+  space.ShowOwnersInTables();
+
+  space.DeleteMember(memRefs[0]);
+  space.DeleteMember(memRefs[3]);
+  space.DeleteMember(memRefs[4]);
+  space.DeleteMember(memRefs[6]);
+  space.DeleteMember(memRefs[7]);
+  std::cout << "-----" << std::endl << "Members Removed" << std::endl;
+  space.ShowMembers();
+  space.ShowAddressBin();
+  space.ShowUnusedMemRefs();
+  space.ShowOwnersInTables();
+
+  MemRef newMemRef = space.CreateMember();
+  space.AddComponent<Comp0>(newMemRef);
+  space.AddComponent<Comp1>(newMemRef);
+  space.AddComponent<Comp2>(newMemRef);
+  newMemRef = space.CreateMember();
+  space.AddComponent<Comp3>(newMemRef);
+  space.AddComponent<Comp1>(newMemRef);
+  std::cout << "-----" << std::endl
+            << "New Members and Components" << std::endl;
+  space.ShowMembers();
+  space.ShowAddressBin();
+  space.ShowUnusedMemRefs();
+  space.ShowOwnersInTables();
+  std::cout << std::endl;
+}
+
 void GetComponent()
 {
   std::cout << "-=GetComponent=-" << std::endl;
@@ -270,8 +350,10 @@ int main(void)
 {
   InitMemLeakOutput();
   CreateMember();
+  DeleteMember();
   AddComponent();
   RemComponent();
+  DeleteMembersWithComponents();
   GetComponent();
   HasComponent();
 }

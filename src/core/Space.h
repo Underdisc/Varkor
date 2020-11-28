@@ -21,17 +21,19 @@ struct Member
   int mAddressIndex;
   ObjSizeT mCount;
 
-  static int smInvalidMemberAddress;
+  static int smInvalidAddressIndex;
 
+  void EndUse();
+  bool InUse() const;
   int EndAddress() const;
   int LastAddress() const;
-  bool Valid() const;
 };
 
 struct Space
 {
   TableRef RegisterComponentType(int componentId, int size);
   MemRef CreateMember();
+  void DeleteMember(MemRef member);
   void* AddComponent(int componentId, MemRef member);
   void RemComponent(int componentId, MemRef member);
   void* GetComponent(int componentId, MemRef member) const;
@@ -62,8 +64,10 @@ struct Space
   void ShowTableLookup() const;
   void ShowTable(int componentId) const;
   void ShowTables() const;
+  void ShowOwnersInTables() const;
   void ShowMembers() const;
   void ShowAddressBin() const;
+  void ShowUnusedMemRefs() const;
 
   template<typename T>
   void ShowTable() const;
@@ -73,6 +77,7 @@ private:
   DS::Vector<ComponentTable> mTables;
 
   DS::Vector<Member> mMembers;
+  DS::Vector<MemRef> mUnusedMemRefs;
   DS::Vector<ComponentAddress> mAddressBin;
 
   bool ValidComponentTable(int componentId) const;

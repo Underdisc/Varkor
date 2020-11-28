@@ -27,7 +27,17 @@ std::ostream& operator<<(std::ostream& os, const ComponentAddress& addr)
   return os;
 }
 
-int Member::smInvalidMemberAddress = -1;
+int Member::smInvalidAddressIndex = -1;
+
+void Member::EndUse()
+{
+  mAddressIndex = smInvalidAddressIndex;
+}
+
+bool Member::InUse() const
+{
+  return mAddressIndex != smInvalidAddressIndex;
+}
 
 int Member::EndAddress() const
 {
@@ -39,9 +49,15 @@ int Member::LastAddress() const
   return mAddressIndex + mCount - 1;
 }
 
-bool Member::Valid() const
+std::ostream& operator<<(std::ostream& os, const Member& member)
 {
-  return mAddressIndex != smInvalidMemberAddress;
+  if (!member.InUse())
+  {
+    os << "[inv]";
+    return os;
+  }
+  os << "[" << member.mAddressIndex << ", " << member.mCount << "]";
+  return os;
 }
 
 TableRef Space::RegisterComponentType(int componentId, int size)
@@ -55,12 +71,47 @@ TableRef Space::RegisterComponentType(int componentId, int size)
 
 MemRef Space::CreateMember()
 {
+  // todo: The starting index of the component address used for new members is
+  // always the end of the address bin. This ignores unused address memory, and
+  // without garbage collection, will result in a perpetually increasing memory
+  // overhead. We should be more smart about what address we hand out for a new
+  // member in the future.
+  int addressIndex = mAddressBin.Size();
+
+  // If we have unused member references, we use those for the new member before
+  // using member references that have yet to be use.
+  if (mUnusedMemRefs.Size() > 0)
+  {
+    MemRef newMemberRef = mUnusedMemRefs.Top();
+    Member& newMember = mMembers[newMemberRef];
+    newMember.mAddressIndex = addressIndex;
+    newMember.mCount = 0;
+    mUnusedMemRefs.Pop();
+    return newMemberRef;
+  }
   Member newMember;
-  newMember.mAddressIndex = mAddressBin.Size();
+  newMember.mAddressIndex = addressIndex;
   newMember.mCount = 0;
   MemRef newMemberRef = mMembers.Size();
   mMembers.Push(newMember);
   return newMemberRef;
+}
+
+void Space::DeleteMember(MemRef memberRef)
+{
+  // Verify the existance of the member, remove all of the member's components,
+  // and end use of the member memory.
+  VerifyMember(memberRef);
+  Member& member = mMembers[memberRef];
+  int addrIndex = member.mAddressIndex;
+  for (; addrIndex < member.EndAddress(); ++addrIndex)
+  {
+    ComponentAddress& compAddr = mAddressBin[addrIndex];
+    mTables[compAddr.mTable].Rem(compAddr.mIndex);
+    mAddressBin[addrIndex].EndUse();
+  }
+  member.EndUse();
+  mUnusedMemRefs.Push(memberRef);
 }
 
 void* Space::AddComponent(int componentId, MemRef member)
@@ -222,12 +273,21 @@ void Space::ShowTables() const
   }
 }
 
+void Space::ShowOwnersInTables() const
+{
+  for (int i = 0; i < mTables.Size(); ++i)
+  {
+    std::cout << "Table " << i << " ";
+    mTables[i].ShowOwners();
+  }
+}
+
 void Space::ShowMembers() const
 {
   std::cout << "Members: [Address, Count]";
   for (const Member& member : mMembers)
   {
-    std::cout << ", [" << member.mAddressIndex << ", " << member.mCount << "]";
+    std::cout << ", " << member;
   }
   std::cout << std::endl;
 }
@@ -238,6 +298,22 @@ void Space::ShowAddressBin() const
   for (int i = 0; i < mAddressBin.Size(); ++i)
   {
     std::cout << ", " << mAddressBin[i];
+  }
+  std::cout << std::endl;
+}
+
+void Space::ShowUnusedMemRefs() const
+{
+  std::cout << "UnusedMemRefs: ";
+  if (mUnusedMemRefs.Size() == 0)
+  {
+    std::cout << "None" << std::endl;
+    return;
+  }
+  std::cout << mUnusedMemRefs[0];
+  for (int i = 1; i < mUnusedMemRefs.Size(); ++i)
+  {
+    std::cout << ", " << mUnusedMemRefs[i];
   }
   std::cout << std::endl;
 }
@@ -263,7 +339,7 @@ void Space::VerifyMember(MemRef member) const
 {
   // Make sure the member both exists and is valid.
   LogAbortIf(
-    member < 0 || member >= mMembers.Size() || !mMembers[member].Valid(),
+    member < 0 || member >= mMembers.Size() || !mMembers[member].InUse(),
     "The member under this reference does not exist.");
 }
 

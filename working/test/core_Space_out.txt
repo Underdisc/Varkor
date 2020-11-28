@@ -3,6 +3,17 @@ TableLookup: [ComponentId, Table]
 Members: [Address, Count], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]
 AddressBin: [Table, Index]
 
+-=DeleteMember=-
+Members Created
+Members: [Address, Count], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]
+AddressBin: [Table, Index]
+UnusedMemRefs: None
+-----
+Members Removed
+Members: [Address, Count], [inv], [0, 0], [inv], [0, 0], [inv], [0, 0], [inv], [0, 0], [inv], [0, 0]
+AddressBin: [Table, Index]
+UnusedMemRefs: 0, 2, 4, 6, 8
+
 -=AddComponent=-
 Members: [Address, Count], [0, 3], [3, 3], [6, 2]
 AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [3, 0]
@@ -85,6 +96,34 @@ Capacity: 10
 CapacityInBytes: 180
 Owners: [0, 2, 3]
 }
+
+-=DeleteMembersWithComponents=-
+Members and Components Created
+Members: [Address, Count], [0, 4], [4, 1], [5, 2], [7, 2], [9, 2], [11, 2], [13, 3], [16, 1]
+AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [0, 2], [1, 1], [0, 3], [2, 1], [0, 4], [1, 2], [0, 5], [3, 1], [0, 6], [1, 3], [2, 2], [0, 7]
+UnusedMemRefs: None
+Table 0 Owners: [0, 1, 2, 3, 4, 5, 6, 7]
+Table 1 Owners: [0, 2, 4, 6]
+Table 2 Owners: [0, 3, 6]
+Table 3 Owners: [0, 5]
+-----
+Members Removed
+Members: [Address, Count], [inv], [4, 1], [5, 2], [inv], [inv], [11, 2], [inv], [inv]
+AddressBin: [Table, Index], [inv], [inv], [inv], [inv], [0, 1], [0, 2], [1, 1], [inv], [inv], [inv], [inv], [0, 5], [3, 1], [inv], [inv], [inv], [inv]
+UnusedMemRefs: 0, 3, 4, 6, 7
+Table 0 Owners: [-1, 1, 2, -1, -1, 5, -1, -1]
+Table 1 Owners: [-1, 2, -1, -1]
+Table 2 Owners: [-1, -1, -1]
+Table 3 Owners: [-1, 5]
+-----
+New Members and Components
+Members: [Address, Count], [inv], [4, 1], [5, 2], [inv], [inv], [11, 2], [20, 2], [17, 3]
+AddressBin: [Table, Index], [inv], [inv], [inv], [inv], [0, 1], [0, 2], [1, 1], [inv], [inv], [inv], [inv], [0, 5], [3, 1], [inv], [inv], [inv], [inv], [0, 8], [1, 4], [2, 3], [3, 2], [1, 5]
+UnusedMemRefs: 0, 3, 4
+Table 0 Owners: [-1, 1, 2, -1, -1, 5, -1, -1, 7]
+Table 1 Owners: [-1, 2, -1, -1, 7, 6]
+Table 2 Owners: [-1, -1, -1, 7]
+Table 3 Owners: [-1, 5, 6]
 
 -=GetComponent=-
 0 {
