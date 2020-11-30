@@ -79,7 +79,7 @@ void Vector<T>::Resize(int newSize, const T& value)
   if (newSize > mCapacity)
   {
     T* oldData = mData;
-    mData = new T[newSize];
+    mData = alloc T[newSize];
     Util::Copy<T>(oldData, mData, mSize);
     delete[] oldData;
   }
@@ -162,7 +162,7 @@ void Vector<T>::Grow()
   if (mData == nullptr)
   {
     mCapacity = smStartCapacity;
-    mData = new T[mCapacity];
+    mData = alloc T[mCapacity];
   } else
   {
     int newCapacity = (int)((float)mCapacity * smGrowthFactor);
@@ -177,7 +177,7 @@ void Vector<T>::Grow(int newCapacity)
     newCapacity <= mCapacity,
     "The new capacity must be greater than the current capacity.");
   T* oldData = mData;
-  mData = new T[newCapacity];
+  mData = alloc T[newCapacity];
   Util::Copy<T>(oldData, mData, mSize);
   mCapacity = newCapacity;
   delete[] oldData;

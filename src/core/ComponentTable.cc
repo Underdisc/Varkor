@@ -96,13 +96,13 @@ void ComponentTable::Grow()
 {
   if (mData == nullptr)
   {
-    mData = new char[smStartCapacity * mStride];
+    mData = alloc char[smStartCapacity * mStride];
     mCapacity = smStartCapacity;
   } else
   {
     char* oldData = mData;
     mCapacity = (int)((float)mCapacity * smGrowthFactor);
-    char* newData = new char[mCapacity * mStride];
+    char* newData = alloc char[mCapacity * mStride];
     Util::Copy<char>(oldData, newData, mSize * mStride);
     mData = newData;
     delete[] oldData;
