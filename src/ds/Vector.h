@@ -7,9 +7,6 @@ template<typename T>
 class Vector
 {
 public:
-  T* mData;
-
-public:
   Vector();
   ~Vector();
   void Push(const T& value);
@@ -17,9 +14,13 @@ public:
   void Pop();
   void Clear();
   void Resize(int newSize, const T& fill);
+  template<typename... Args>
+  void Emplace(const Args&... args);
+
   bool Contains(const T& value) const;
   int Size() const;
   int Capacity() const;
+
   T& Top() const;
   const T& operator[](int index) const;
   T& operator[](int index);
@@ -29,6 +30,7 @@ public:
   const T* end() const;
 
 private:
+  T* mData;
   int mSize;
   int mCapacity;
   const static int smStartCapacity;

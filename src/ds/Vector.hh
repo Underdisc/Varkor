@@ -59,10 +59,23 @@ void Vector<T>::Push(const T& value, int count)
 }
 
 template<typename T>
+template<typename... Args>
+void Vector<T>::Emplace(const Args&... args)
+{
+  if (mSize >= mCapacity)
+  {
+    Grow();
+  }
+  new (mData + mSize) T(args...);
+  ++mSize;
+}
+
+template<typename T>
 void Vector<T>::Pop()
 {
   if (mSize != 0)
   {
+    mData[mSize].~T();
     --mSize;
   }
 }
@@ -70,6 +83,10 @@ void Vector<T>::Pop()
 template<typename T>
 void Vector<T>::Clear()
 {
+  for (int i = 0; i < mSize; ++i)
+  {
+    mData[i].~T();
+  }
   mSize = 0;
 }
 

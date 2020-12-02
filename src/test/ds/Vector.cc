@@ -3,7 +3,8 @@
 #include "debug/MemLeak.h"
 #include "ds/Vector.h"
 
-void PrintVector(const DS::Vector<int>& vector)
+template<typename T>
+void PrintVector(const DS::Vector<T>& vector)
 {
   std::cout << "Size: " << vector.Size() << std::endl;
   std::cout << "Capactiy: " << vector.Capacity() << std::endl;
@@ -20,9 +21,9 @@ void PrintVector(const DS::Vector<int>& vector)
   std::cout << vector[vector.Size() - 1] << "]" << std::endl;
 }
 
-void SinglePushPop()
+void SinglePush()
 {
-  std::cout << "SinglePushPop" << std::endl;
+  std::cout << "<= SinglePush =>" << std::endl;
   DS::Vector<int> testVector;
   PrintVector(testVector);
   for (int i = 0; i < 5; ++i)
@@ -35,19 +36,12 @@ void SinglePushPop()
     testVector.Push(i);
   }
   PrintVector(testVector);
-  for (int i = 0; i < 10; ++i)
-  {
-    testVector.Pop();
-  }
-  PrintVector(testVector);
-  testVector.Clear();
-  PrintVector(testVector);
   std::cout << std::endl;
 }
 
 void MultiplePush()
 {
-  std::cout << "MultiplePush" << std::endl;
+  std::cout << "<= MultiplePush =>" << std::endl;
   DS::Vector<int> test;
   test.Push(0, 30);
   PrintVector(test);
@@ -56,9 +50,81 @@ void MultiplePush()
   std::cout << std::endl;
 }
 
+struct TestType
+{
+  int mA;
+  float mB;
+  TestType() {}
+  TestType(int a, float b): mA(a), mB(b) {}
+  ~TestType()
+  {
+    ++smDestructorCount;
+  }
+
+  static int smDestructorCount;
+  static void ResetDestructorCount()
+  {
+    smDestructorCount = 0;
+  }
+};
+int TestType::smDestructorCount = 0;
+
+std::ostream& operator<<(std::ostream& os, const TestType& rhs)
+{
+  os << "[" << rhs.mA << ", " << rhs.mB << "]";
+  return os;
+}
+
+void Emplace()
+{
+  std::cout << "<= Emplace =>" << std::endl;
+  DS::Vector<TestType> testVector;
+  for (int i = 0; i < 15; ++i)
+  {
+    testVector.Emplace(i, (float)i);
+  }
+  PrintVector(testVector);
+  std::cout << std::endl;
+}
+
+void Pop()
+{
+  std::cout << "<= Pop =>" << std::endl;
+  DS::Vector<TestType> testVector;
+  for (int i = 0; i < 10; ++i)
+  {
+    testVector.Emplace(i, (float)i);
+  }
+
+  TestType::ResetDestructorCount();
+  for (int i = 0; i < 5; ++i)
+  {
+    testVector.Pop();
+  }
+  PrintVector(testVector);
+  std::cout << "Destructor Calls: " << TestType::smDestructorCount << std::endl
+            << std::endl;
+}
+
+void Clear()
+{
+  std::cout << "<= Clear =>" << std::endl;
+  DS::Vector<TestType> testVector;
+  for (int i = 0; i < 5; ++i)
+  {
+    testVector.Emplace(i, (float)i);
+  }
+
+  TestType::ResetDestructorCount();
+  testVector.Clear();
+  PrintVector(testVector);
+  std::cout << "Destructor Calls: " << TestType::smDestructorCount << std::endl
+            << std::endl;
+}
+
 void IndexOperator()
 {
-  std::cout << "IndexOperator" << std::endl;
+  std::cout << "<= IndexOperator =>" << std::endl;
   DS::Vector<int> testVector;
   for (int i = 0; i < 20; ++i)
   {
@@ -76,7 +142,7 @@ void IndexOperator()
 
 void Contains()
 {
-  std::cout << "Contains" << std::endl;
+  std::cout << "<= Contains =>" << std::endl;
   DS::Vector<int> testVector;
   for (int i = 0; i < 20; ++i)
   {
@@ -89,7 +155,7 @@ void Contains()
 
 void Resize()
 {
-  std::cout << "Resize" << std::endl;
+  std::cout << "<= Resize =>" << std::endl;
   DS::Vector<int> test;
   test.Resize(20, 0);
   PrintVector(test);
@@ -102,7 +168,7 @@ void Resize()
 
 void Top()
 {
-  std::cout << "Top" << std::endl;
+  std::cout << "<= Top =>" << std::endl;
   DS::Vector<int> test;
   for (int i = 0; i < 10; ++i)
   {
@@ -122,8 +188,11 @@ void Top()
 int main(void)
 {
   InitMemLeakOutput();
-  SinglePushPop();
+  SinglePush();
   MultiplePush();
+  Emplace();
+  Pop();
+  Clear();
   IndexOperator();
   Contains();
   Resize();
