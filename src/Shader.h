@@ -16,7 +16,7 @@ public:
     const char* name, const float* data, bool transpose = true) const;
 
 private:
-  bool Compile(
+  void Compile(
     const char* shaderSource, int shaderType, unsigned int* shaderId);
 
   unsigned int mProgram;
