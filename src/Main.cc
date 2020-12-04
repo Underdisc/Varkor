@@ -12,6 +12,7 @@
 #include "Temporal.h"
 #include "Texture.h"
 #include "Viewport.h"
+#include "comp/Transform.h"
 #include "debug/Draw.h"
 #include "math/Constants.h"
 #include "math/Matrix4.h"
@@ -104,10 +105,12 @@ void Core()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
 
-  Mat4 objectModel;
-  Math::Identity(&objectModel);
+  Comp::Transform lightTransform;
+  Comp::Transform objectTransform;
+  lightTransform.SetTranslation({2.0f, 2.0f, 2.0f});
+  lightTransform.SetUniformScale(0.2f);
+  objectTransform.SetTranslation({0.0f, 0.0f, 0.0f});
 
-  Vec3 lightPos = {2.0f, 2.0f, 2.0f};
   Vec3 lightAmbient = {0.2f, 0.2f, 0.2f};
   Vec3 lightDiffuse = {0.5f, 0.5f, 0.5f};
   Vec3 lightSpecular = {1.0f, 1.0f, 1.0f};
@@ -126,19 +129,12 @@ void Core()
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     camera.Update(Temporal::DeltaTime());
     const Mat4& view = camera.WorldToCamera();
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    Mat4 lightScaleMat;
-    Mat4 lightTransMat;
-    Math::Scale(&lightScaleMat, 0.2f);
-    Math::Translate(&lightTransMat, lightPos);
-    Mat4 lightModel = lightTransMat * lightScaleMat;
-
-    light.SetMat4("model", lightModel.CData());
+    light.SetMat4("model", lightTransform.GetMatrix().CData());
     light.SetMat4("view", view.CData());
     light.SetMat4("proj", Viewport::Perspective().CData());
     light.SetVec3("lightColor", lightSpecular.CData());
@@ -146,12 +142,12 @@ void Core()
     glBindVertexArray(lightVao);
     glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
 
-    phong.SetMat4("model", objectModel.CData());
+    phong.SetMat4("model", objectTransform.GetMatrix().CData());
     phong.SetMat4("view", view.CData());
     phong.SetMat4("proj", Viewport::Perspective().CData());
 
     phong.SetVec3("viewPos", camera.Position().CData());
-    phong.SetVec3("light.position", lightPos.CData());
+    phong.SetVec3("light.position", lightTransform.GetTranslation().CData());
     phong.SetVec3("light.ambientColor", lightAmbient.CData());
     phong.SetVec3("light.diffuseColor", lightDiffuse.CData());
     phong.SetVec3("light.specularColor", lightSpecular.CData());
@@ -169,18 +165,26 @@ void Core()
     Editor::Start();
     ImGui::Begin("Editor");
     ImGui::Separator();
+
+    Vec3 lightPos = lightTransform.GetTranslation();
     ImGui::Text("Light Values");
-    ImGui::DragFloat3("Light Position", lightPos.mD, 0.001f);
+    ImGui::DragFloat3("Light Position", lightPos.mD, 0.01f);
     ImGui::DragFloat3("Light Ambient", lightAmbient.mD, 0.001f, 0.0f, 1.0f);
     ImGui::DragFloat3("Light Diffuse", lightDiffuse.mD, 0.001f, 0.0f, 1.0f);
     ImGui::DragFloat3("Light Specular", lightSpecular.mD, 0.001f, 0.0f, 1.0f);
     ImGui::Separator();
+    lightTransform.SetTranslation(lightPos);
+
+    Vec3 objectPos = objectTransform.GetTranslation();
     ImGui::Text("Object Values");
+    ImGui::DragFloat3("Object Position", objectPos.mD, 0.01f);
     ImGui::DragFloat3("Ambient Color", materialAmbient.mD, 0.001f, 0.0f, 1.0f);
     ImGui::DragFloat3("Diffuse Color", materialDiffuse.mD, 0.001f, 0.0f, 1.0f);
     ImGui::DragFloat3(
       "Specular Color", materialSpecular.mD, 0.001f, 0.0f, 1.0f);
     ImGui::DragFloat("Specular Exponent", &specularExponent, 1.0f);
+    objectTransform.SetTranslation(objectPos);
+
     ImGui::End();
     Editor::End();
 

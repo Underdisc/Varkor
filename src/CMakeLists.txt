@@ -9,5 +9,6 @@ target_sources(varkor PRIVATE
   Texture.cc
   Temporal.cc
   Viewport.cc)
+add_subdirectory(comp)
 add_subdirectory(debug)
 add_subdirectory(math)
