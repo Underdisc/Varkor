@@ -41,6 +41,7 @@ void Transform::SetScale(const Vec3& newScale)
 void Transform::SetRotation(const Quat& newRotation)
 {
   mRotation = newRotation;
+  mRotation.Normalize();
   mUpdated = false;
 }
 

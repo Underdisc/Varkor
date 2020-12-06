@@ -134,6 +134,41 @@ void Core()
     camera.Update(Temporal::DeltaTime());
     const Mat4& view = camera.WorldToCamera();
 
+    // Rotate the object using the mouse motion.
+    Quat objectQuat = objectTransform.GetRotation();
+    if (Input::MouseDown(Input::Mouse::Left))
+    {
+      Vec2 mouse = Input::MouseMotion();
+      Vec3 rotAxis = (Vec3)mouse;
+      float temp = rotAxis[0];
+      rotAxis[0] = rotAxis[1];
+      rotAxis[1] = temp;
+      float mag = Math::Magnitude(rotAxis);
+      if (mag != 0.0f)
+      {
+        const float magScaling = 0.001f;
+        mag *= magScaling;
+        rotAxis = Math::Normalize(rotAxis);
+
+        Quat rot(mag, rotAxis);
+        objectQuat = rot * objectQuat;
+        objectTransform.SetRotation(objectQuat);
+      }
+    }
+
+    // Reset the rotation of the object when R is pressed.
+    if (Input::KeyPressed(Input::Key::R))
+    {
+      Quat objectQuat = objectTransform.GetRotation();
+      objectQuat *= objectQuat.Conjugate();
+      objectTransform.SetRotation(objectQuat);
+    }
+
+    // Draw the rotation axis of the object's quaternion.
+    Vec3 axis = objectQuat.Axis();
+    Vec3 purple = {1.0f, 0.0f, 1.0f};
+    Debug::Draw::Line(-axis, axis, purple);
+
     light.SetMat4("model", lightTransform.GetMatrix().CData());
     light.SetMat4("view", view.CData());
     light.SetMat4("proj", Viewport::Perspective().CData());

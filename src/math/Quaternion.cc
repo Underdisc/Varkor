@@ -4,6 +4,17 @@
 
 namespace Math {
 
+Quaternion::Quaternion(): mA(1.0f), mB(0.0f), mC(0.0f), mD(0.0f) {}
+
+Quaternion::Quaternion(float angle, Vec3 axis)
+{
+  AngleAxis(angle, axis);
+}
+
+Quaternion::Quaternion(float a, float b, float c, float d):
+  mA(a), mB(b), mC(c), mD(d)
+{}
+
 void Quaternion::AngleAxis(float angle, Vec3 axis)
 {
   float halfAngle = angle / 2.0f;
@@ -15,9 +26,20 @@ void Quaternion::AngleAxis(float angle, Vec3 axis)
   mD = axis[2];
 }
 
+void Quaternion::Normalize()
+{
+  float magnitude = Magnitude();
+  LogAbortIf(
+    magnitude == 0.0f, "Quaternion with a magnitude of 0 can't be normalized.");
+  mA /= magnitude;
+  mB /= magnitude;
+  mC /= magnitude;
+  mD /= magnitude;
+}
+
 Quaternion Quaternion::Conjugate() const
 {
-  Quaternion result = {mA, -mB, -mC, -mD};
+  Quaternion result(mA, -mB, -mC, -mD);
   return result;
 }
 
@@ -25,6 +47,23 @@ Quaternion& Quaternion::operator*=(const Quaternion& other)
 {
   *this = *this * other;
   return *this;
+}
+
+float Quaternion::Magnitude() const
+{
+  return std::sqrtf(mA * mA + mB * mB + mC * mC + mD * mD);
+}
+
+Vec3 Quaternion::Axis() const
+{
+  Vec3 axis = {mB, mC, mD};
+  float magnitude = Math::Magnitude(axis);
+  if (magnitude == 0.0f)
+  {
+    axis = {0.0f, 0.0f, 0.0f};
+    return axis;
+  }
+  return axis / magnitude;
 }
 
 Quaternion operator*(const Quaternion& a, const Quaternion& b)

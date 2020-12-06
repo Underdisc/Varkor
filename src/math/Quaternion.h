@@ -9,11 +9,20 @@ namespace Math {
 
 struct Quaternion
 {
-  float mA, mB, mC, mD;
+  Quaternion();
+  Quaternion(float angle, Vec3 axis);
+  Quaternion(float a, float b, float c, float d);
 
   void AngleAxis(float angle, Vec3 axis);
+  void Normalize();
+
   Quaternion Conjugate() const;
+  float Magnitude() const;
+  Vec3 Axis() const;
+
   Quaternion& operator*=(const Quaternion& other);
+
+  float mA, mB, mC, mD;
 };
 
 Quaternion operator*(const Quaternion& a, const Quaternion& b);
