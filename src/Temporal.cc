@@ -1,5 +1,3 @@
-#include <chrono>
-
 #include "Framer.h"
 
 #include "Temporal.h"
