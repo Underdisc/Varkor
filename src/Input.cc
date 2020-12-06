@@ -1,8 +1,8 @@
 #include <GLFW/glfw3.h>
 
+#include "Viewport.h"
 #include "ds/Vector.h"
 #include "math/Vector.h"
-#include "Viewport.h"
 
 #include "Input.h"
 
@@ -12,25 +12,30 @@ void MouseCallback(GLFWwindow* window, int button, int action, int mods);
 void KeyCallback(
   GLFWwindow* window, int key, int scancode, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xPos, double yPos);
+void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 
 Vec2 nMousePosition;
 Vec2 nMouseMotion;
+Vec2 nMouseScroll;
 DS::Vector<int> nMousePressed;
 DS::Vector<int> nMouseReleased;
 DS::Vector<int> nKeyPressed;
 DS::Vector<int> nKeyReleased;
 
-void Input::Init()
+void Init()
 {
   glfwSetMouseButtonCallback(Viewport::Window(), MouseCallback);
   glfwSetKeyCallback(Viewport::Window(), KeyCallback);
   glfwSetCursorPosCallback(Viewport::Window(), CursorPosCallback);
+  glfwSetScrollCallback(Viewport::Window(), ScrollCallback);
 }
 
-void Input::Update()
+void Update()
 {
   nMouseMotion[0] = 0.0f;
   nMouseMotion[1] = 0.0f;
+  nMouseScroll[0] = 0.0f;
+  nMouseScroll[1] = 0.0f;
   nMousePressed.Clear();
   nMouseReleased.Clear();
   nKeyPressed.Clear();
@@ -38,42 +43,47 @@ void Input::Update()
   glfwPollEvents();
 }
 
-Vec2 Input::MouseMotion()
+const Vec2& MouseMotion()
 {
   return nMouseMotion;
 }
 
-bool Input::MousePressed(Mouse mouseButton)
+const Vec2& MouseScroll()
+{
+  return nMouseScroll;
+}
+
+bool MousePressed(Mouse mouseButton)
 {
   return nMousePressed.Contains((int)mouseButton);
 }
 
-bool Input::MouseReleased(Mouse mouseButton)
+bool MouseReleased(Mouse mouseButton)
 {
   return nMouseReleased.Contains((int)mouseButton);
 }
 
-bool Input::MouseDown(Mouse mouseButton)
+bool MouseDown(Mouse mouseButton)
 {
   return GLFW_PRESS == glfwGetMouseButton(Viewport::Window(), (int)mouseButton);
 }
 
-bool Input::KeyPressed(Key key)
+bool KeyPressed(Key key)
 {
   return nKeyPressed.Contains((int)key);
 }
 
-bool Input::KeyReleased(Key key)
+bool KeyReleased(Key key)
 {
   return nKeyReleased.Contains((int)key);
 }
 
-bool Input::KeyDown(Key key)
+bool KeyDown(Key key)
 {
   return glfwGetKey(Viewport::Window(), (int)key) == GLFW_PRESS;
 }
 
-void Input::MouseCallback(GLFWwindow* window, int button, int action, int mods)
+void MouseCallback(GLFWwindow* window, int button, int action, int mods)
 {
   if (window != Viewport::Window())
   {
@@ -89,7 +99,7 @@ void Input::MouseCallback(GLFWwindow* window, int button, int action, int mods)
   }
 }
 
-void Input::KeyCallback(
+void KeyCallback(
   GLFWwindow* window, int key, int scancode, int action, int mods)
 {
   if (window != Viewport::Window())
@@ -106,7 +116,7 @@ void Input::KeyCallback(
   }
 }
 
-void Input::CursorPosCallback(GLFWwindow* window, double xPos, double yPos)
+void CursorPosCallback(GLFWwindow* window, double xPos, double yPos)
 {
   Vec2 newPos;
   newPos[0] = (float)xPos;
@@ -114,6 +124,12 @@ void Input::CursorPosCallback(GLFWwindow* window, double xPos, double yPos)
   Vec2& oldPos = nMousePosition;
   nMouseMotion = newPos - oldPos;
   nMousePosition = newPos;
+}
+
+void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+{
+  nMouseScroll[0] = (float)xOffset;
+  nMouseScroll[1] = (float)yOffset;
 }
 
 } // namespace Input

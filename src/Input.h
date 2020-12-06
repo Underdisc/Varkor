@@ -145,7 +145,8 @@ enum class Key
 
 void Init();
 void Update();
-Vec2 MouseMotion();
+const Vec2& MouseMotion();
+const Vec2& MouseScroll();
 bool MousePressed(Mouse mouseButton);
 bool MouseReleased(Mouse mouseButton);
 bool MouseDown(Mouse mouseButton);
