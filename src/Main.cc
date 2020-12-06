@@ -78,7 +78,8 @@ void Core()
   // clang-format on
 
   // Texture setup
-  Texture texture("container_diffuse.png");
+  Texture diffuseTexture("container_diffuse.png");
+  Texture specularTexture("container_specular.png");
 
   // Vertex buffer setup
   unsigned int vbo;
@@ -124,8 +125,6 @@ void Core()
   Vec3 lightAmbient = {0.2f, 0.2f, 0.2f};
   Vec3 lightDiffuse = {0.5f, 0.5f, 0.5f};
   Vec3 lightSpecular = {1.0f, 1.0f, 1.0f};
-
-  Vec3 materialSpecular = {0.5f, 0.5f, 0.5f};
   float specularExponent = 32.0f;
 
   Camera camera;
@@ -199,10 +198,12 @@ void Core()
     phong.SetVec3("light.diffuseColor", lightDiffuse.CData());
     phong.SetVec3("light.specularColor", lightSpecular.CData());
     phong.SetSampler("material.diffuseMap", 0);
-    phong.SetVec3("material.specularColor", materialSpecular.CData());
+    phong.SetSampler("material.specularMap", 1);
     phong.SetFloat("material.specularExponent", specularExponent);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture.Id());
+    glBindTexture(GL_TEXTURE_2D, diffuseTexture.Id());
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, specularTexture.Id());
 
     glBindVertexArray(objectVao);
     glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
@@ -226,8 +227,6 @@ void Core()
     Vec3 objectPos = objectTransform.GetTranslation();
     ImGui::Text("Object Values");
     ImGui::DragFloat3("Object Position", objectPos.mD, 0.01f);
-    ImGui::DragFloat3(
-      "Specular Color", materialSpecular.mD, 0.001f, 0.0f, 1.0f);
     ImGui::DragFloat("Specular Exponent", &specularExponent, 1.0f);
     objectTransform.SetTranslation(objectPos);
     ImGui::End();

@@ -17,7 +17,7 @@ struct Light
 struct Material
 {
   sampler2D diffuseMap;
-  vec3 specularColor;
+  sampler2D specularMap;
   float specularExponent;
 };
 
@@ -39,7 +39,8 @@ void main()
   vec3 reflectDir = reflect(-lightDir, norm);
   float specularFactor = max(dot(viewDir, reflectDir), 0.0);
   specularFactor = pow(specularFactor, material.specularExponent);
-  vec3 specular = specularFactor * light.specularColor * material.specularColor;
+  vec3 specularSample = vec3(texture(material.specularMap, texCoord));
+  vec3 specular = specularFactor * light.specularColor * specularSample;
 
   finalColor = vec4(ambient + diffuse + specular, 1.0);
 }
