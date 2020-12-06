@@ -2,6 +2,7 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
+#include "Input.h"
 #include "Viewport.h"
 
 #include "Editor.h"
@@ -20,6 +21,10 @@ void Start()
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
+
+  ImGuiIO& io = ImGui::GetIO();
+  Input::SetMouseFocus(!io.WantCaptureMouse);
+  Input::SetKeyboardFocus(!io.WantCaptureKeyboard);
 }
 
 void End()

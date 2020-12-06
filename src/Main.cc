@@ -125,6 +125,8 @@ void Core()
   while (Viewport::Active())
   {
     Framer::Start();
+    Editor::Start();
+
     Input::Update();
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -197,7 +199,6 @@ void Core()
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(view, Viewport::Perspective());
 
-    Editor::Start();
     ImGui::Begin("Editor");
     ImGui::Separator();
 
@@ -219,8 +220,8 @@ void Core()
       "Specular Color", materialSpecular.mD, 0.001f, 0.0f, 1.0f);
     ImGui::DragFloat("Specular Exponent", &specularExponent, 1.0f);
     objectTransform.SetTranslation(objectPos);
-
     ImGui::End();
+
     Editor::End();
 
     Viewport::SwapBuffers();

@@ -147,6 +147,8 @@ void Init();
 void Update();
 const Vec2& MouseMotion();
 const Vec2& MouseScroll();
+void SetMouseFocus(bool hasFocus);
+void SetKeyboardFocus(bool hasFocus);
 bool MousePressed(Mouse mouseButton);
 bool MouseReleased(Mouse mouseButton);
 bool MouseDown(Mouse mouseButton);

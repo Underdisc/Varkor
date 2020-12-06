@@ -17,6 +17,8 @@ void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 Vec2 nMousePosition;
 Vec2 nMouseMotion;
 Vec2 nMouseScroll;
+bool nMouseFocus;
+bool nKeyboardFocus;
 DS::Vector<int> nMousePressed;
 DS::Vector<int> nMouseReleased;
 DS::Vector<int> nKeyPressed;
@@ -24,6 +26,9 @@ DS::Vector<int> nKeyReleased;
 
 void Init()
 {
+  nMouseFocus = true;
+  nKeyboardFocus = true;
+
   glfwSetMouseButtonCallback(Viewport::Window(), MouseCallback);
   glfwSetKeyCallback(Viewport::Window(), KeyCallback);
   glfwSetCursorPosCallback(Viewport::Window(), CursorPosCallback);
@@ -53,34 +58,46 @@ const Vec2& MouseScroll()
   return nMouseScroll;
 }
 
+void SetMouseFocus(bool hasFocus)
+{
+  nMouseFocus = hasFocus;
+}
+
+void SetKeyboardFocus(bool hasFocus)
+{
+  nKeyboardFocus = hasFocus;
+}
+
 bool MousePressed(Mouse mouseButton)
 {
-  return nMousePressed.Contains((int)mouseButton);
+  return nMouseFocus && nMousePressed.Contains((int)mouseButton);
 }
 
 bool MouseReleased(Mouse mouseButton)
 {
-  return nMouseReleased.Contains((int)mouseButton);
+  return nMouseFocus && nMouseReleased.Contains((int)mouseButton);
 }
 
 bool MouseDown(Mouse mouseButton)
 {
-  return GLFW_PRESS == glfwGetMouseButton(Viewport::Window(), (int)mouseButton);
+  return nMouseFocus &&
+    GLFW_PRESS == glfwGetMouseButton(Viewport::Window(), (int)mouseButton);
 }
 
 bool KeyPressed(Key key)
 {
-  return nKeyPressed.Contains((int)key);
+  return nKeyboardFocus && nKeyPressed.Contains((int)key);
 }
 
 bool KeyReleased(Key key)
 {
-  return nKeyReleased.Contains((int)key);
+  return nKeyboardFocus && nKeyReleased.Contains((int)key);
 }
 
 bool KeyDown(Key key)
 {
-  return glfwGetKey(Viewport::Window(), (int)key) == GLFW_PRESS;
+  return nKeyboardFocus &&
+    GLFW_PRESS == glfwGetKey(Viewport::Window(), (int)key);
 }
 
 void MouseCallback(GLFWwindow* window, int button, int action, int mods)
