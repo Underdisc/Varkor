@@ -24,6 +24,15 @@ Camera::Camera()
 
 void Camera::Update(float dt)
 {
+  // Change the camera speed using scroll wheel input.
+  const Vec2& scroll = Input::MouseScroll();
+  const float scrollSensitivity = 0.1f;
+  mSpeed = mSpeed + scroll[1] * scrollSensitivity * mSpeed;
+  if (mSpeed < 1.0f)
+  {
+    mSpeed = 1.0f;
+  }
+
   // Change the camera position depending on input.
   if (Input::KeyDown(Input::Key::W))
   {
