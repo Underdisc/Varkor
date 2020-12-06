@@ -92,6 +92,13 @@ void Shader::SetMat4(const char* name, const float* data, bool transpose) const
   glUniformMatrix4fv(loc, 1, transpose, data);
 }
 
+void Shader::SetSampler(const char* name, int textureUnit) const
+{
+  int loc = UniformLocation(name);
+  Use();
+  glUniform1i(loc, textureUnit);
+}
+
 void Shader::Compile(
   const char* shaderFile, int shaderType, unsigned int* shaderId)
 {

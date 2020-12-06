@@ -1,6 +1,7 @@
 #version 330 core
 
 in vec3 normal;
+in vec2 texCoord;
 in vec3 fragPos;
 
 out vec4 finalColor;
@@ -15,8 +16,7 @@ struct Light
 
 struct Material
 {
-  vec3 ambientColor;
-  vec3 diffuseColor;
+  sampler2D diffuseMap;
   vec3 specularColor;
   float specularExponent;
 };
@@ -27,12 +27,13 @@ uniform Material material;
 
 void main()
 {
-  vec3 ambient = light.ambientColor * material.ambientColor;
+  vec3 diffuseSample = vec3(texture(material.diffuseMap, texCoord));
+  vec3 ambient = light.ambientColor * diffuseSample;
 
   vec3 norm = normalize(normal);
   vec3 lightDir = normalize(light.position - fragPos);
   float diffuseFactor = max(dot(lightDir, norm), 0.0);
-  vec3 diffuse = diffuseFactor * light.diffuseColor * material.diffuseColor;
+  vec3 diffuse = diffuseFactor * light.diffuseColor * diffuseSample;
 
   vec3 viewDir = normalize(viewPos - fragPos);
   vec3 reflectDir = reflect(-lightDir, norm);

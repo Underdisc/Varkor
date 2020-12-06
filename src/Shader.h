@@ -14,6 +14,7 @@ public:
   void SetVec3(const char* name, const float* data) const;
   void SetMat4(
     const char* name, const float* data, bool transpose = true) const;
+  void SetSampler(const char* name, int textureUnit) const;
 
 private:
   void Compile(
