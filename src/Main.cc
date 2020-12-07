@@ -12,6 +12,7 @@
 #include "Temporal.h"
 #include "Texture.h"
 #include "Viewport.h"
+#include "comp/PointLight.h"
 #include "comp/Transform.h"
 #include "debug/Draw.h"
 #include "math/Constants.h"
@@ -117,14 +118,15 @@ void Core()
   glEnable(GL_DEPTH_TEST);
 
   Comp::Transform lightTransform;
-  Comp::Transform objectTransform;
-  lightTransform.SetTranslation({2.0f, 2.0f, 2.0f});
   lightTransform.SetUniformScale(0.2f);
-  objectTransform.SetTranslation({0.0f, 0.0f, 0.0f});
+  Comp::PointLight lightComp;
+  lightComp.mPosition = {2.0f, 2.0f, 2.0f};
+  lightComp.mAmbient = {0.2f, 0.2f, 0.2f};
+  lightComp.mDiffuse = {0.5f, 0.5f, 0.5f};
+  lightComp.mSpecular = {1.0f, 1.0f, 1.0f};
 
-  Vec3 lightAmbient = {0.2f, 0.2f, 0.2f};
-  Vec3 lightDiffuse = {0.5f, 0.5f, 0.5f};
-  Vec3 lightSpecular = {1.0f, 1.0f, 1.0f};
+  Comp::Transform objectTransform;
+  objectTransform.SetTranslation({0.0f, 0.0f, 0.0f});
   float specularExponent = 32.0f;
 
   Camera camera;
@@ -136,12 +138,11 @@ void Core()
 
     Input::Update();
 
+    camera.Update(Temporal::DeltaTime());
+
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    camera.Update(Temporal::DeltaTime());
-    const Mat4& view = camera.WorldToCamera();
 
     // Rotate the object using the mouse motion.
     Quat objectQuat = objectTransform.GetRotation();
@@ -178,11 +179,26 @@ void Core()
     Vec3 purple = {1.0f, 0.0f, 1.0f};
     Debug::Draw::Line(-axis, axis, purple);
 
+    // Dispaly all adjustable values in an editor window.
+    ImGui::Begin("Editor");
+
+    ImGui::Text("Light Values");
+    lightComp.EditorHook();
+    ImGui::Separator();
+    lightTransform.SetTranslation(lightComp.mPosition);
+
+    Vec3 objectPos = objectTransform.GetTranslation();
+    ImGui::Text("Object Values");
+    ImGui::DragFloat3("Object Position", objectPos.mD, 0.01f);
+    ImGui::DragFloat("Specular Exponent", &specularExponent, 1.0f);
+    objectTransform.SetTranslation(objectPos);
+    ImGui::End();
+
     // Set all of the light uniforms before rendering the light.
     light.SetMat4("model", lightTransform.GetMatrix().CData());
-    light.SetMat4("view", view.CData());
+    light.SetMat4("view", camera.WorldToCamera().CData());
     light.SetMat4("proj", Viewport::Perspective().CData());
-    light.SetVec3("lightColor", lightSpecular.CData());
+    light.SetVec3("lightColor", lightComp.mSpecular.CData());
 
     glBindVertexArray(lightVao);
     glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
@@ -190,13 +206,13 @@ void Core()
     // Set all of the phong uniforms and necessary texture units before
     // rendering the cube.
     phong.SetMat4("model", objectTransform.GetMatrix().CData());
-    phong.SetMat4("view", view.CData());
+    phong.SetMat4("view", camera.WorldToCamera().CData());
     phong.SetMat4("proj", Viewport::Perspective().CData());
     phong.SetVec3("viewPos", camera.Position().CData());
-    phong.SetVec3("light.position", lightTransform.GetTranslation().CData());
-    phong.SetVec3("light.ambientColor", lightAmbient.CData());
-    phong.SetVec3("light.diffuseColor", lightDiffuse.CData());
-    phong.SetVec3("light.specularColor", lightSpecular.CData());
+    phong.SetVec3("light.position", lightComp.mPosition.CData());
+    phong.SetVec3("light.ambientColor", lightComp.mAmbient.CData());
+    phong.SetVec3("light.diffuseColor", lightComp.mDiffuse.CData());
+    phong.SetVec3("light.specularColor", lightComp.mSpecular.CData());
     phong.SetSampler("material.diffuseMap", 0);
     phong.SetSampler("material.specularMap", 1);
     phong.SetFloat("material.specularExponent", specularExponent);
@@ -209,30 +225,10 @@ void Core()
     glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
 
     Debug::Draw::CartesianAxes();
-    Debug::Draw::Render(view, Viewport::Perspective());
+    Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());
 
-    // Dispaly all adjustable values in an editor window.
-    ImGui::Begin("Editor");
-    ImGui::Separator();
-
-    Vec3 lightPos = lightTransform.GetTranslation();
-    ImGui::Text("Light Values");
-    ImGui::DragFloat3("Light Position", lightPos.mD, 0.01f);
-    ImGui::DragFloat3("Light Ambient", lightAmbient.mD, 0.001f, 0.0f, 1.0f);
-    ImGui::DragFloat3("Light Diffuse", lightDiffuse.mD, 0.001f, 0.0f, 1.0f);
-    ImGui::DragFloat3("Light Specular", lightSpecular.mD, 0.001f, 0.0f, 1.0f);
-    ImGui::Separator();
-    lightTransform.SetTranslation(lightPos);
-
-    Vec3 objectPos = objectTransform.GetTranslation();
-    ImGui::Text("Object Values");
-    ImGui::DragFloat3("Object Position", objectPos.mD, 0.01f);
-    ImGui::DragFloat("Specular Exponent", &specularExponent, 1.0f);
-    objectTransform.SetTranslation(objectPos);
-    ImGui::End();
-
+    ImGui::ShowDemoWindow();
     Editor::End();
-
     Viewport::SwapBuffers();
     Viewport::Update();
 
