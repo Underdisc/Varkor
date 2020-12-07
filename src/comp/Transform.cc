@@ -1,3 +1,5 @@
+#include <imgui/imgui.h>
+
 #include "Transform.h"
 
 namespace Comp {
@@ -66,6 +68,15 @@ const Mat4& Transform::GetMatrix()
     mUpdated = true;
   }
   return mMatrix;
+}
+
+void Transform::EditorHook()
+{
+  float uniformScale = mScale[0];
+  ImGui::DragFloat3("Position", mTranslation.mD, 0.01f);
+  ImGui::DragFloat("Scale", &uniformScale, 0.01f);
+  SetUniformScale(uniformScale);
+  mUpdated = false;
 }
 
 } // namespace Comp

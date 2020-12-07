@@ -1,3 +1,4 @@
+#include <cmath>
 #include <glad/glad.h>
 #include <imgui/imgui.h>
 #include <iostream>
@@ -120,13 +121,21 @@ void Core()
   Comp::Transform lightTransform;
   lightTransform.SetUniformScale(0.2f);
   Comp::PointLight lightComp;
-  lightComp.mPosition = {2.0f, 2.0f, 2.0f};
-  lightComp.mAmbient = {0.2f, 0.2f, 0.2f};
+  lightComp.mPosition = {0.0f, 0.0f, 0.0f};
+  lightComp.mAmbient = {0.1f, 0.1f, 0.1f};
   lightComp.mDiffuse = {0.5f, 0.5f, 0.5f};
   lightComp.mSpecular = {1.0f, 1.0f, 1.0f};
 
-  Comp::Transform objectTransform;
-  objectTransform.SetTranslation({0.0f, 0.0f, 0.0f});
+  const int objectCount = 7;
+  int currentFocus = 0;
+  Comp::Transform objectTransforms[objectCount];
+  for (int i = 0; i < objectCount; ++i)
+  {
+    float radians = ((float)i * PI2f) / objectCount;
+    float x = 3.0f * std::cosf(radians);
+    float y = 3.0f * std::sinf(radians);
+    objectTransforms[i].SetTranslation({x, y, 0.0f});
+  }
   float specularExponent = 32.0f;
 
   Camera camera;
@@ -134,9 +143,8 @@ void Core()
   while (Viewport::Active())
   {
     Framer::Start();
-    Editor::Start();
-
     Input::Update();
+    Editor::Start();
 
     camera.Update(Temporal::DeltaTime());
 
@@ -144,8 +152,9 @@ void Core()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    // Rotate the object using the mouse motion.
-    Quat objectQuat = objectTransform.GetRotation();
+    // Rotate the selected object using the mouse motion.
+    Comp::Transform& selectedTransform = objectTransforms[currentFocus];
+    Quat objectQuat = selectedTransform.GetRotation();
     if (Input::MouseDown(Input::Mouse::Left))
     {
       Vec2 mouse = Input::MouseMotion();
@@ -162,39 +171,43 @@ void Core()
 
         Quat rot(mag, rotAxis);
         objectQuat = rot * objectQuat;
-        objectTransform.SetRotation(objectQuat);
+        selectedTransform.SetRotation(objectQuat);
       }
     }
 
-    // Reset the rotation of the object when R is pressed.
+    // Reset the rotation of the selected object when R is pressed.
     if (Input::KeyPressed(Input::Key::R))
     {
-      Quat objectQuat = objectTransform.GetRotation();
+      Quat objectQuat = selectedTransform.GetRotation();
       objectQuat *= objectQuat.Conjugate();
-      objectTransform.SetRotation(objectQuat);
+      selectedTransform.SetRotation(objectQuat);
     }
-
-    // Draw the rotation axis of the object's quaternion.
-    Vec3 axis = objectQuat.Axis();
-    Vec3 purple = {1.0f, 0.0f, 1.0f};
-    Debug::Draw::Line(-axis, axis, purple);
 
     // Dispaly all adjustable values in an editor window.
     ImGui::Begin("Editor");
-
     ImGui::Text("Light Values");
     lightComp.EditorHook();
     ImGui::Separator();
     lightTransform.SetTranslation(lightComp.mPosition);
 
-    Vec3 objectPos = objectTransform.GetTranslation();
     ImGui::Text("Object Values");
-    ImGui::DragFloat3("Object Position", objectPos.mD, 0.01f);
+    for (int i = 0; i < objectCount; ++i)
+    {
+      if (ImGui::TreeNode((void*)(intptr_t)i, "%d", i))
+      {
+        objectTransforms[i].EditorHook();
+        if (ImGui::Button("Focus"))
+        {
+          currentFocus = i;
+        }
+        ImGui::TreePop();
+      }
+    }
+    ImGui::Separator();
     ImGui::DragFloat("Specular Exponent", &specularExponent, 1.0f);
-    objectTransform.SetTranslation(objectPos);
     ImGui::End();
 
-    // Set all of the light uniforms before rendering the light.
+    // Set all of the light uniforms and render the light.
     light.SetMat4("model", lightTransform.GetMatrix().CData());
     light.SetMat4("view", camera.WorldToCamera().CData());
     light.SetMat4("proj", Viewport::Perspective().CData());
@@ -203,9 +216,7 @@ void Core()
     glBindVertexArray(lightVao);
     glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
 
-    // Set all of the phong uniforms and necessary texture units before
-    // rendering the cube.
-    phong.SetMat4("model", objectTransform.GetMatrix().CData());
+    // Set all of the phong uniforms and necessary texture units.
     phong.SetMat4("view", camera.WorldToCamera().CData());
     phong.SetMat4("proj", Viewport::Perspective().CData());
     phong.SetVec3("viewPos", camera.Position().CData());
@@ -221,13 +232,17 @@ void Core()
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, specularTexture.Id());
 
-    glBindVertexArray(objectVao);
-    glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
+    // Render all of the cubes.
+    for (int i = 0; i < objectCount; ++i)
+    {
+      phong.SetMat4("model", objectTransforms[i].GetMatrix().CData());
+      glBindVertexArray(objectVao);
+      glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
+    }
 
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());
 
-    ImGui::ShowDemoWindow();
     Editor::End();
     Viewport::SwapBuffers();
     Viewport::Update();

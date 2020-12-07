@@ -19,6 +19,8 @@ struct Transform
   void SetTranslation(const Vec3& newTranslation);
   const Mat4& GetMatrix();
 
+  void EditorHook();
+
 private:
   Vec3 mScale;
   Quat mRotation;
