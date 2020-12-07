@@ -85,6 +85,13 @@ void Shader::SetVec3(const char* name, const float* data) const
   glUniform3fv(loc, 1, data);
 }
 
+void Shader::SetVec4(const char* name, const float* data) const
+{
+  int loc = UniformLocation(name);
+  Use();
+  glUniform4fv(loc, 1, data);
+}
+
 void Shader::SetMat4(const char* name, const float* data, bool transpose) const
 {
   int loc = UniformLocation(name);

@@ -8,7 +8,7 @@ out vec4 finalColor;
 
 struct Light
 {
-  vec3 position;
+  vec4 vector;
   vec3 ambientColor;
   vec3 diffuseColor;
   vec3 specularColor;
@@ -27,11 +27,20 @@ uniform Material material;
 
 void main()
 {
+  vec3 lightDir;
+  if (light.vector.w == 0.0)
+  {
+    lightDir = normalize(-light.vector.xyz);
+  }
+  else if (light.vector.w == 1.0)
+  {
+    lightDir = normalize(light.vector.xyz - fragPos);
+  }
+
   vec3 diffuseSample = vec3(texture(material.diffuseMap, texCoord));
   vec3 ambient = light.ambientColor * diffuseSample;
 
   vec3 norm = normalize(normal);
-  vec3 lightDir = normalize(light.position - fragPos);
   float diffuseFactor = max(dot(lightDir, norm), 0.0);
   vec3 diffuse = diffuseFactor * light.diffuseColor * diffuseSample;
 

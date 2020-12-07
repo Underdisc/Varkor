@@ -12,6 +12,7 @@ public:
   int UniformLocation(const char* name) const;
   void SetFloat(const char* name, float value) const;
   void SetVec3(const char* name, const float* data) const;
+  void SetVec4(const char* name, const float* data) const;
   void SetMat4(
     const char* name, const float* data, bool transpose = true) const;
   void SetSampler(const char* name, int textureUnit) const;

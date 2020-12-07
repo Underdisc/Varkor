@@ -13,6 +13,7 @@
 #include "Temporal.h"
 #include "Texture.h"
 #include "Viewport.h"
+#include "comp/DirectionalLight.h"
 #include "comp/PointLight.h"
 #include "comp/Transform.h"
 #include "debug/Draw.h"
@@ -120,8 +121,8 @@ void Core()
 
   Comp::Transform lightTransform;
   lightTransform.SetUniformScale(0.2f);
-  Comp::PointLight lightComp;
-  lightComp.mPosition = {0.0f, 0.0f, 0.0f};
+  Comp::DirectionalLight lightComp;
+  lightComp.mDirection = {0.0f, -1.0f, 0.0f};
   lightComp.mAmbient = {0.1f, 0.1f, 0.1f};
   lightComp.mDiffuse = {0.5f, 0.5f, 0.5f};
   lightComp.mSpecular = {1.0f, 1.0f, 1.0f};
@@ -188,7 +189,6 @@ void Core()
     ImGui::Text("Light Values");
     lightComp.EditorHook();
     ImGui::Separator();
-    lightTransform.SetTranslation(lightComp.mPosition);
 
     ImGui::Text("Object Values");
     for (int i = 0; i < objectCount; ++i)
@@ -220,7 +220,9 @@ void Core()
     phong.SetMat4("view", camera.WorldToCamera().CData());
     phong.SetMat4("proj", Viewport::Perspective().CData());
     phong.SetVec3("viewPos", camera.Position().CData());
-    phong.SetVec3("light.position", lightComp.mPosition.CData());
+    Vec4 lightVector = (Vec4)lightComp.mDirection;
+    lightVector[3] = 0.0f;
+    phong.SetVec4("light.vector", lightVector.CData());
     phong.SetVec3("light.ambientColor", lightComp.mAmbient.CData());
     phong.SetVec3("light.diffuseColor", lightComp.mDiffuse.CData());
     phong.SetVec3("light.specularColor", lightComp.mSpecular.CData());
@@ -240,6 +242,9 @@ void Core()
       glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
     }
 
+    Vec3 origin = {0.0f, 0.0f, 0.0f};
+    Vec3 white = {1.0f, 1.0f, 1.0f};
+    Debug::Draw::Line(origin, lightComp.mDirection, white);
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());
 
