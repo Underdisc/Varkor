@@ -12,4 +12,4 @@ void DirectionalLight::EditorHook()
   ImGui::ColorEdit3("Specular", mSpecular.mD, ImGuiColorEditFlags_Float);
 }
 
-}
+} // namespace Comp
