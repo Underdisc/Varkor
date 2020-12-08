@@ -121,11 +121,7 @@ void Core()
 
   Comp::Transform lightTransform;
   lightTransform.SetUniformScale(0.2f);
-  Comp::DirectionalLight lightComp;
-  lightComp.mDirection = {0.0f, -1.0f, 0.0f};
-  lightComp.mAmbient = {0.1f, 0.1f, 0.1f};
-  lightComp.mDiffuse = {0.5f, 0.5f, 0.5f};
-  lightComp.mSpecular = {1.0f, 1.0f, 1.0f};
+  Comp::PointLight lightComp;
 
   const int objectCount = 7;
   int currentFocus = 0;
@@ -188,6 +184,7 @@ void Core()
     ImGui::Begin("Editor");
     ImGui::Text("Light Values");
     lightComp.EditorHook();
+    lightTransform.SetTranslation(lightComp.mPosition);
     ImGui::Separator();
 
     ImGui::Text("Object Values");
@@ -220,12 +217,13 @@ void Core()
     phong.SetMat4("view", camera.WorldToCamera().CData());
     phong.SetMat4("proj", Viewport::Perspective().CData());
     phong.SetVec3("viewPos", camera.Position().CData());
-    Vec4 lightVector = (Vec4)lightComp.mDirection;
-    lightVector[3] = 0.0f;
-    phong.SetVec4("light.vector", lightVector.CData());
+    phong.SetVec3("light.position", lightComp.mPosition.CData());
     phong.SetVec3("light.ambientColor", lightComp.mAmbient.CData());
     phong.SetVec3("light.diffuseColor", lightComp.mDiffuse.CData());
     phong.SetVec3("light.specularColor", lightComp.mSpecular.CData());
+    phong.SetFloat("light.constant", lightComp.mConstant);
+    phong.SetFloat("light.linear", lightComp.mLinear);
+    phong.SetFloat("light.quadratic", lightComp.mQuadratic);
     phong.SetSampler("material.diffuseMap", 0);
     phong.SetSampler("material.specularMap", 1);
     phong.SetFloat("material.specularExponent", specularExponent);
@@ -242,9 +240,6 @@ void Core()
       glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
     }
 
-    Vec3 origin = {0.0f, 0.0f, 0.0f};
-    Vec3 white = {1.0f, 1.0f, 1.0f};
-    Debug::Draw::Line(origin, lightComp.mDirection, white);
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());
 

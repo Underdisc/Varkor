@@ -8,10 +8,14 @@ out vec4 finalColor;
 
 struct Light
 {
-  vec4 vector;
+  vec3 position;
   vec3 ambientColor;
   vec3 diffuseColor;
   vec3 specularColor;
+
+  float constant;
+  float linear;
+  float quadratic;
 };
 
 struct Material
@@ -27,20 +31,14 @@ uniform Material material;
 
 void main()
 {
-  vec3 lightDir;
-  if (light.vector.w == 0.0)
-  {
-    lightDir = normalize(-light.vector.xyz);
-  }
-  else if (light.vector.w == 1.0)
-  {
-    lightDir = normalize(light.vector.xyz - fragPos);
-  }
+  vec3 lightVector = light.position - fragPos;
+  float lightDist = length(lightVector);
 
   vec3 diffuseSample = vec3(texture(material.diffuseMap, texCoord));
   vec3 ambient = light.ambientColor * diffuseSample;
 
   vec3 norm = normalize(normal);
+  vec3 lightDir = normalize(lightVector);
   float diffuseFactor = max(dot(lightDir, norm), 0.0);
   vec3 diffuse = diffuseFactor * light.diffuseColor * diffuseSample;
 
@@ -50,6 +48,13 @@ void main()
   specularFactor = pow(specularFactor, material.specularExponent);
   vec3 specularSample = vec3(texture(material.specularMap, texCoord));
   vec3 specular = specularFactor * light.specularColor * specularSample;
+
+  float linearTerm = light.linear * lightDist;
+  float quadraticTerm = light.quadratic * lightDist * lightDist;
+  float attenuation = 1.0 / (light.constant + linearTerm + quadraticTerm);
+  ambient *= attenuation;
+  diffuse *= attenuation;
+  specular *= attenuation;
 
   finalColor = vec4(ambient + diffuse + specular, 1.0);
 }
