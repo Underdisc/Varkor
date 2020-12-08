@@ -11,6 +11,7 @@ public:
   void Update(float dt);
   const Mat4& WorldToCamera() const;
   const Vec3& Position() const;
+  const Vec3& Forward() const;
 
 private:
   void CalculateBasisVectors();

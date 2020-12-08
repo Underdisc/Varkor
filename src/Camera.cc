@@ -88,6 +88,11 @@ const Vec3& Camera::Position() const
   return mPosition;
 }
 
+const Vec3& Camera::Forward() const
+{
+  return mForward;
+}
+
 void Camera::CalculateBasisVectors()
 {
   float horizontalScale = cosf(mPitch);
