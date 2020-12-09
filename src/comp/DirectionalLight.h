@@ -8,6 +8,8 @@ namespace Comp {
 #pragma pack(push, 1)
 struct DirectionalLight
 {
+  DirectionalLight();
+
   Vec3 mDirection;
   Vec3 mAmbient;
   Vec3 mDiffuse;

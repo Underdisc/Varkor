@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <imgui/imgui.h>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include "Camera.h"
@@ -32,7 +33,7 @@ void Core()
 
   // shader setup
   Shader phong("shader/phong.vs", "shader/phong.fs");
-  Shader light("shader/light.vs", "shader/light.fs");
+  Shader lightShader("shader/light.vs", "shader/light.fs");
 
   // clang-format off
   float vertices[] = {
@@ -120,9 +121,16 @@ void Core()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
 
-  Comp::Transform lightTransform;
-  lightTransform.SetUniformScale(0.2f);
-  Comp::SpotLight lightComp;
+  const int positionLightCount = 5;
+  const int pointLightCount = 4;
+  Comp::Transform lightTransforms[positionLightCount];
+  for (int i = 0; i < positionLightCount; ++i)
+  {
+    lightTransforms[i].SetUniformScale(0.2f);
+  }
+  Comp::PointLight pointLights[pointLightCount];
+  Comp::SpotLight spotLight;
+  Comp::DirectionalLight dirLight;
 
   const int objectCount = 7;
   int currentFocus = 0;
@@ -183,51 +191,121 @@ void Core()
 
     // Dispaly all adjustable values in an editor window.
     ImGui::Begin("Editor");
-    ImGui::Text("Light Values");
-    lightComp.EditorHook();
-    lightTransform.SetTranslation(lightComp.mPosition);
-    ImGui::Separator();
-
-    ImGui::Text("Object Values");
-    for (int i = 0; i < objectCount; ++i)
+    if (ImGui::TreeNode("Lights"))
     {
-      if (ImGui::TreeNode((void*)(intptr_t)i, "%d", i))
+      for (int i = 0; i < pointLightCount; ++i)
       {
-        objectTransforms[i].EditorHook();
-        if (ImGui::Button("Focus"))
+        if (ImGui::TreeNode((void*)(intptr_t)i, "Point Light %d", i))
         {
-          currentFocus = i;
+          pointLights[i].EditorHook();
+          ImGui::TreePop();
         }
+        lightTransforms[i].SetTranslation(pointLights[i].mPosition);
+      }
+      if (ImGui::TreeNode("Spot Light"))
+      {
+        spotLight.EditorHook();
+        lightTransforms[4].SetTranslation(spotLight.mPosition);
         ImGui::TreePop();
       }
+      if (ImGui::TreeNode("Directional Light"))
+      {
+        dirLight.EditorHook();
+        ImGui::TreePop();
+      }
+      ImGui::TreePop();
+    }
+    ImGui::Separator();
+
+    if (ImGui::TreeNode("Objects"))
+    {
+      for (int i = 0; i < objectCount; ++i)
+      {
+        if (ImGui::TreeNode((void*)(intptr_t)i, "%d", i))
+        {
+          objectTransforms[i].EditorHook();
+          if (ImGui::Button("Focus"))
+          {
+            currentFocus = i;
+          }
+          ImGui::TreePop();
+        }
+      }
+      ImGui::TreePop();
     }
     ImGui::Separator();
     ImGui::DragFloat("Specular Exponent", &specularExponent, 1.0f);
     ImGui::End();
 
-    // Set all of the light uniforms and render the light.
-    light.SetMat4("model", lightTransform.GetMatrix().CData());
-    light.SetMat4("view", camera.WorldToCamera().CData());
-    light.SetMat4("proj", Viewport::Perspective().CData());
-    light.SetVec3("lightColor", lightComp.mSpecular.CData());
-
+    // Render all of the point lights.
     glBindVertexArray(lightVao);
+    lightShader.SetMat4("view", camera.WorldToCamera().CData());
+    lightShader.SetMat4("proj", Viewport::Perspective().CData());
+    for (int i = 0; i < pointLightCount; ++i)
+    {
+      lightShader.SetMat4("model", lightTransforms[i].GetMatrix().CData());
+      lightShader.SetVec3("lightColor", pointLights[i].mSpecular.CData());
+      glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
+    }
+
+    // Render the spotLight
+    lightShader.SetMat4("model", lightTransforms[4].GetMatrix().CData());
+    lightShader.SetVec3("lightColor", spotLight.mSpecular.CData());
     glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
 
-    // Set all of the phong uniforms and necessary texture units.
+    // Show the direction of the directional light.
+    Vec3 white = {1.0f, 1.0f, 1.0f};
+    Vec3 origin = {0.0f, 0.0f, 0.0f};
+    Debug::Draw::Line(origin, dirLight.mDirection, white);
+
+    // Set all of the phong uniforms.
     phong.SetMat4("view", camera.WorldToCamera().CData());
     phong.SetMat4("proj", Viewport::Perspective().CData());
     phong.SetVec3("viewPos", camera.Position().CData());
-    phong.SetVec3("light.position", lightComp.mPosition.CData());
-    phong.SetVec3("light.direction", lightComp.mDirection.CData());
-    phong.SetVec3("light.ambientColor", lightComp.mAmbient.CData());
-    phong.SetVec3("light.diffuseColor", lightComp.mDiffuse.CData());
-    phong.SetVec3("light.specularColor", lightComp.mSpecular.CData());
-    phong.SetFloat("light.constant", lightComp.mConstant);
-    phong.SetFloat("light.linear", lightComp.mLinear);
-    phong.SetFloat("light.quadratic", lightComp.mQuadratic);
-    phong.SetFloat("light.innerCutoff", lightComp.mInnerCutoff);
-    phong.SetFloat("light.outerCutoff", lightComp.mOuterCutoff);
+
+    // Set all of the uniforms for the point lights.
+    for (int i = 0; i < pointLightCount; ++i)
+    {
+      std::stringstream ssPos, ssAmbient, ssDiffuse, ssSpecular, ssConstant,
+        ssLinear, ssQuadratic;
+      ssPos << "pointLights[" << i << "].position";
+      ssAmbient << "pointLights[" << i << "].ambient";
+      ssDiffuse << "pointLights[" << i << "].diffuse";
+      ssSpecular << "pointLights[" << i << "].specular";
+      ssConstant << "pointLights[" << i << "].constant";
+      ssLinear << "pointLights[" << i << "].linear";
+      ssQuadratic << "pointLights[" << i << "].quadratic";
+
+      const Comp::PointLight& light = pointLights[i];
+      phong.SetVec3(ssPos.str().c_str(), light.mPosition.CData());
+      phong.SetVec3(ssAmbient.str().c_str(), light.mAmbient.CData());
+      phong.SetVec3(ssDiffuse.str().c_str(), light.mDiffuse.CData());
+      phong.SetVec3(ssSpecular.str().c_str(), light.mSpecular.CData());
+      phong.SetFloat(ssConstant.str().c_str(), light.mConstant);
+      phong.SetFloat(ssLinear.str().c_str(), light.mLinear);
+      phong.SetFloat(ssQuadratic.str().c_str(), light.mQuadratic);
+    }
+
+    // Set the uniforms for the spot light.
+    phong.SetVec3("spotLight.position", spotLight.mPosition.CData());
+    phong.SetVec3("spotLight.direction", spotLight.mDirection.CData());
+    phong.SetVec3("spotLight.ambient", spotLight.mAmbient.CData());
+    phong.SetVec3("spotLight.diffuse", spotLight.mDiffuse.CData());
+    phong.SetVec3("spotLight.specular", spotLight.mSpecular.CData());
+    phong.SetFloat("spotLight.constant", spotLight.mConstant);
+    phong.SetFloat("spotLight.linear", spotLight.mLinear);
+    phong.SetFloat("spotLight.quadratic", spotLight.mQuadratic);
+    phong.SetFloat("spotLight.innerCutoff", spotLight.mInnerCutoff);
+    phong.SetFloat("spotLight.outerCutoff", spotLight.mOuterCutoff);
+
+    // Set the uniforms for the directional light.
+    phong.SetVec3("dirLight.direction", dirLight.mDirection.CData());
+    phong.SetVec3("dirLight.ambient", dirLight.mAmbient.CData());
+    phong.SetVec3("dirLight.diffuse", dirLight.mDiffuse.CData());
+    phong.SetVec3("dirLight.specular", dirLight.mSpecular.CData());
+
+    // Set the material uniforms and bind the correct textures to the texture
+    // units.
     phong.SetSampler("material.diffuseMap", 0);
     phong.SetSampler("material.specularMap", 1);
     phong.SetFloat("material.specularExponent", specularExponent);
@@ -237,16 +315,12 @@ void Core()
     glBindTexture(GL_TEXTURE_2D, specularTexture.Id());
 
     // Render all of the cubes.
+    glBindVertexArray(objectVao);
     for (int i = 0; i < objectCount; ++i)
     {
       phong.SetMat4("model", objectTransforms[i].GetMatrix().CData());
-      glBindVertexArray(objectVao);
       glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
     }
-
-    Vec3 white = {1.0f, 1.0f, 1.0f};
-    Vec3 end = lightComp.mPosition + lightComp.mDirection;
-    Debug::Draw::Line(lightComp.mPosition, end, white);
 
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());
