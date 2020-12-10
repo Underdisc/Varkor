@@ -1,9 +1,9 @@
 #include <glad/glad.h>
 
 #include "ds/Vector.h"
+#include "gfx/Shader.h"
 #include "math/Matrix4.h"
 #include "math/Vector.h"
-#include "Shader.h"
 
 #include "Draw.h"
 
@@ -19,7 +19,7 @@ struct Renderable
 };
 
 DS::Vector<Renderable> nRenderables;
-Shader nShader;
+Gfx::Shader nShader;
 
 void Init()
 {

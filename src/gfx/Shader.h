@@ -1,5 +1,7 @@
-#ifndef Shader_h
-#define Shader_h
+#ifndef gfx_Shader_h
+#define gfx_Shader_h
+
+namespace Gfx {
 
 class Shader
 {
@@ -25,5 +27,7 @@ private:
 
   static const int smInvalidLocation;
 };
+
+} // namespace Gfx
 
 #endif

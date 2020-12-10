@@ -7,6 +7,8 @@
 
 #include "Shader.h"
 
+namespace Gfx {
+
 const int Shader::smInvalidLocation = -1;
 
 Shader::Shader()
@@ -148,3 +150,5 @@ void Shader::Compile(
         << log;
   LogAbort(error.str().c_str());
 }
+
+} // namespace Gfx

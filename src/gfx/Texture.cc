@@ -6,6 +6,8 @@
 #include "Error.h"
 #include "Texture.h"
 
+namespace Gfx {
+
 Texture::Texture(const char* textureFile)
 {
   stbi_set_flip_vertically_on_load(true);
@@ -59,3 +61,5 @@ unsigned int Texture::Id() const
 {
   return mId;
 }
+
+} // namespace Gfx

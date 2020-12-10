@@ -10,15 +10,15 @@
 #include "Error.h"
 #include "Framer.h"
 #include "Input.h"
-#include "Shader.h"
 #include "Temporal.h"
-#include "Texture.h"
 #include "Viewport.h"
 #include "comp/DirectionalLight.h"
 #include "comp/PointLight.h"
 #include "comp/SpotLight.h"
 #include "comp/Transform.h"
 #include "debug/Draw.h"
+#include "gfx/Shader.h"
+#include "gfx/Texture.h"
 #include "math/Constants.h"
 #include "math/Matrix4.h"
 #include "math/Quaternion.h"
@@ -32,8 +32,8 @@ void Core()
   Editor::Init();
 
   // shader setup
-  Shader phong("shader/phong.vs", "shader/phong.fs");
-  Shader lightShader("shader/light.vs", "shader/light.fs");
+  Gfx::Shader phong("shader/phong.vs", "shader/phong.fs");
+  Gfx::Shader lightShader("shader/light.vs", "shader/light.fs");
 
   // clang-format off
   float vertices[] = {
@@ -83,8 +83,8 @@ void Core()
   // clang-format on
 
   // Texture setup
-  Texture diffuseTexture("container_diffuse.png");
-  Texture specularTexture("container_specular.png");
+  Gfx::Texture diffuseTexture("container_diffuse.png");
+  Gfx::Texture specularTexture("container_specular.png");
 
   // Vertex buffer setup
   unsigned int vbo;

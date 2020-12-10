@@ -5,10 +5,9 @@ target_sources(varkor PRIVATE
   Framer.cc
   Input.cc
   Main.cc
-  Shader.cc
-  Texture.cc
   Temporal.cc
   Viewport.cc)
 add_subdirectory(comp)
 add_subdirectory(debug)
+add_subdirectory(gfx)
 add_subdirectory(math)

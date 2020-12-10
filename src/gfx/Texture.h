@@ -1,5 +1,7 @@
-#ifndef Texture_h
-#define Texture_h
+#ifndef gfx_Texture_h
+#define gfx_Texture_h
+
+namespace Gfx {
 
 class Texture
 {
@@ -18,5 +20,7 @@ private:
   int mChannels;
   unsigned int mId;
 };
+
+} // namespace Gfx
 
 #endif
