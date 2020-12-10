@@ -39,7 +39,8 @@ AddTest(math_Matrix
 AddTest(math_Matrix4
   math/Matrix4.cc
   ../Error.cc
-  ../math/Matrix4.cc)
+  ../math/Matrix4.cc
+  ../math/Quaternion.cc)
 
 AddTest(math_Quaternion
   math/Quaternion.cc

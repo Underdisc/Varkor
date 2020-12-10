@@ -63,7 +63,7 @@ void Rotate()
 {
   std::cout << "Rotate" << std::endl;
   Mat4 matrix;
-  Quat quat = {1.0f, 2.0f, 3.0f, 4.0f};
+  Quat quat(1.0f, 2.0f, 3.0f, 4.0f);
   Math::Rotate(&matrix, quat);
   std::cout << "matrix" << std::endl << matrix << std::endl;
 }
