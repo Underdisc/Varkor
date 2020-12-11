@@ -10,11 +10,14 @@ template<typename T>
 const float Vector<T>::smGrowthFactor = 2.0f;
 
 template<typename T>
-Vector<T>::Vector()
+Vector<T>::Vector(): mData(nullptr), mSize(0), mCapacity(0)
+{}
+
+template<typename T>
+Vector<T>::Vector(const Vector<T>& other):
+  mData(alloc T[other.mSize]), mSize(other.mSize), mCapacity(other.mSize)
 {
-  mData = nullptr;
-  mSize = 0;
-  mCapacity = 0;
+  Util::Copy<T>(other.mData, mData, other.mSize);
 }
 
 template<typename T>

@@ -21,6 +21,21 @@ void PrintVector(const Ds::Vector<T>& vector)
   std::cout << vector[vector.Size() - 1] << "]" << std::endl;
 }
 
+void CopyConstructor()
+{
+  std::cout << "<= CopyConstructor =>" << std::endl;
+  const int elementCount = 15;
+  Ds::Vector<int> testVector;
+  for (int i = 0; i < elementCount; ++i)
+  {
+    testVector.Push(elementCount - i);
+  }
+  Ds::Vector<int> copyVector(testVector);
+  PrintVector(testVector);
+  PrintVector(copyVector);
+  std::cout << std::endl;
+}
+
 void SinglePush()
 {
   std::cout << "<= SinglePush =>" << std::endl;
@@ -188,6 +203,7 @@ void Top()
 int main(void)
 {
   InitMemLeakOutput();
+  CopyConstructor();
   SinglePush();
   MultiplePush();
   Emplace();

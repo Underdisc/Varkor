@@ -8,6 +8,7 @@ class Vector
 {
 public:
   Vector();
+  Vector(const Vector<T>& other);
   ~Vector();
   void Push(const T& value);
   void Push(const T& value, int count);
