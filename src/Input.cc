@@ -19,10 +19,10 @@ Vec2 nMouseMotion;
 Vec2 nMouseScroll;
 bool nMouseFocus;
 bool nKeyboardFocus;
-DS::Vector<int> nMousePressed;
-DS::Vector<int> nMouseReleased;
-DS::Vector<int> nKeyPressed;
-DS::Vector<int> nKeyReleased;
+Ds::Vector<int> nMousePressed;
+Ds::Vector<int> nMouseReleased;
+Ds::Vector<int> nKeyPressed;
+Ds::Vector<int> nKeyReleased;
 
 void Init()
 {

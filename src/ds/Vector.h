@@ -1,7 +1,7 @@
 #ifndef ds_Vector_h
 #define ds_Vector_h
 
-namespace DS {
+namespace Ds {
 
 template<typename T>
 class Vector
@@ -41,7 +41,7 @@ private:
   void Grow(int newCapacity);
 };
 
-} // namespace DS
+} // namespace Ds
 
 #include "Vector.hh"
 

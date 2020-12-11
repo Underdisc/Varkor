@@ -4,7 +4,7 @@
 #include "ds/Vector.h"
 
 template<typename T>
-void PrintVector(const DS::Vector<T>& vector)
+void PrintVector(const Ds::Vector<T>& vector)
 {
   std::cout << "Size: " << vector.Size() << std::endl;
   std::cout << "Capactiy: " << vector.Capacity() << std::endl;
@@ -24,7 +24,7 @@ void PrintVector(const DS::Vector<T>& vector)
 void SinglePush()
 {
   std::cout << "<= SinglePush =>" << std::endl;
-  DS::Vector<int> testVector;
+  Ds::Vector<int> testVector;
   PrintVector(testVector);
   for (int i = 0; i < 5; ++i)
   {
@@ -42,7 +42,7 @@ void SinglePush()
 void MultiplePush()
 {
   std::cout << "<= MultiplePush =>" << std::endl;
-  DS::Vector<int> test;
+  Ds::Vector<int> test;
   test.Push(0, 30);
   PrintVector(test);
   test.Push(1, 15);
@@ -78,7 +78,7 @@ std::ostream& operator<<(std::ostream& os, const TestType& rhs)
 void Emplace()
 {
   std::cout << "<= Emplace =>" << std::endl;
-  DS::Vector<TestType> testVector;
+  Ds::Vector<TestType> testVector;
   for (int i = 0; i < 15; ++i)
   {
     testVector.Emplace(i, (float)i);
@@ -90,7 +90,7 @@ void Emplace()
 void Pop()
 {
   std::cout << "<= Pop =>" << std::endl;
-  DS::Vector<TestType> testVector;
+  Ds::Vector<TestType> testVector;
   for (int i = 0; i < 10; ++i)
   {
     testVector.Emplace(i, (float)i);
@@ -109,7 +109,7 @@ void Pop()
 void Clear()
 {
   std::cout << "<= Clear =>" << std::endl;
-  DS::Vector<TestType> testVector;
+  Ds::Vector<TestType> testVector;
   for (int i = 0; i < 5; ++i)
   {
     testVector.Emplace(i, (float)i);
@@ -125,7 +125,7 @@ void Clear()
 void IndexOperator()
 {
   std::cout << "<= IndexOperator =>" << std::endl;
-  DS::Vector<int> testVector;
+  Ds::Vector<int> testVector;
   for (int i = 0; i < 20; ++i)
   {
     testVector.Push(i);
@@ -143,7 +143,7 @@ void IndexOperator()
 void Contains()
 {
   std::cout << "<= Contains =>" << std::endl;
-  DS::Vector<int> testVector;
+  Ds::Vector<int> testVector;
   for (int i = 0; i < 20; ++i)
   {
     testVector.Push(i);
@@ -156,7 +156,7 @@ void Contains()
 void Resize()
 {
   std::cout << "<= Resize =>" << std::endl;
-  DS::Vector<int> test;
+  Ds::Vector<int> test;
   test.Resize(20, 0);
   PrintVector(test);
   test.Resize(30, 1);
@@ -169,7 +169,7 @@ void Resize()
 void Top()
 {
   std::cout << "<= Top =>" << std::endl;
-  DS::Vector<int> test;
+  Ds::Vector<int> test;
   for (int i = 0; i < 10; ++i)
   {
     test.Push(i * 2);

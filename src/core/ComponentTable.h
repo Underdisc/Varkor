@@ -31,7 +31,7 @@ private:
   int mStride;
   int mSize;
   int mCapacity;
-  DS::Vector<MemRef> mOwners;
+  Ds::Vector<MemRef> mOwners;
 
   void Grow();
   void VerifyIndex(int index) const;

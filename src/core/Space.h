@@ -73,12 +73,12 @@ struct Space
   void ShowTable() const;
 
 private:
-  DS::Vector<TableRef> mTableLookup;
-  DS::Vector<ComponentTable> mTables;
+  Ds::Vector<TableRef> mTableLookup;
+  Ds::Vector<ComponentTable> mTables;
 
-  DS::Vector<Member> mMembers;
-  DS::Vector<MemRef> mUnusedMemRefs;
-  DS::Vector<ComponentAddress> mAddressBin;
+  Ds::Vector<Member> mMembers;
+  Ds::Vector<MemRef> mUnusedMemRefs;
+  Ds::Vector<ComponentAddress> mAddressBin;
 
   bool ValidComponentTable(int componentId) const;
   void VerifyComponentTable(int componentId) const;

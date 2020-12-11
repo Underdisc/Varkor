@@ -18,7 +18,7 @@ struct Renderable
   Vec3 mColor;
 };
 
-DS::Vector<Renderable> nRenderables;
+Ds::Vector<Renderable> nRenderables;
 Gfx::Shader nShader;
 
 void Init()

@@ -2,7 +2,7 @@
 #include "debug/MemLeak.h"
 #include "util/Memory.hh"
 
-namespace DS {
+namespace Ds {
 
 template<typename T>
 const int Vector<T>::smStartCapacity = 10;
@@ -200,4 +200,4 @@ void Vector<T>::Grow(int newCapacity)
   delete[] oldData;
 }
 
-} // namespace DS
+} // namespace Ds
