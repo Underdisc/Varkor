@@ -22,6 +22,7 @@ public:
   int Size() const;
   int Capacity() const;
 
+  const T* CData() const;
   T& Top() const;
   const T& operator[](int index) const;
   T& operator[](int index);

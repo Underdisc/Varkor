@@ -135,6 +135,12 @@ int Vector<T>::Capacity() const
 }
 
 template<typename T>
+const T* Vector<T>::CData() const
+{
+  return mData;
+}
+
+template<typename T>
 T& Vector<T>::Top() const
 {
   return mData[mSize - 1];

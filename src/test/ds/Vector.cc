@@ -181,6 +181,24 @@ void Resize()
   std::cout << std::endl;
 }
 
+void CData()
+{
+  std::cout << "<= CData =>" << std::endl;
+  Ds::Vector<int> test;
+  for (int i = 0; i < 5; ++i)
+  {
+    test.Push(i);
+  }
+  const int* data = test.CData();
+  std::cout << "[";
+  for (int i = 0; i < 4; ++i)
+  {
+    std::cout << data[i] << ", ";
+  }
+  std::cout << data[4] << "]" << std::endl;
+  std::cout << std::endl;
+}
+
 void Top()
 {
   std::cout << "<= Top =>" << std::endl;
@@ -212,5 +230,6 @@ int main(void)
   IndexOperator();
   Contains();
   Resize();
+  CData();
   Top();
 }

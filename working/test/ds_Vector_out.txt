@@ -1,3 +1,11 @@
+<= CopyConstructor =>
+Size: 15
+Capactiy: 20
+[15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+Size: 15
+Capactiy: 15
+[15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+
 <= SinglePush =>
 Size: 0
 Capactiy: 0
@@ -53,6 +61,9 @@ Capactiy: 30
 Size: 15
 Capactiy: 15
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+<= CData =>
+[0, 1, 2, 3, 4]
 
 <= Top =>
 18
