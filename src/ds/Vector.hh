@@ -1,6 +1,7 @@
 #include "Error.h"
 #include "debug/MemLeak.h"
 #include "util/Memory.hh"
+#include "util/Utility.h"
 
 namespace Ds {
 
@@ -21,6 +22,15 @@ Vector<T>::Vector(const Vector<T>& other):
 }
 
 template<typename T>
+Vector<T>::Vector(Vector<T>&& other):
+  mData(other.mData), mSize(other.mSize), mCapacity(other.mCapacity)
+{
+  other.mData = nullptr;
+  other.mSize = 0;
+  other.mCapacity = 0;
+}
+
+template<typename T>
 Vector<T>::~Vector()
 {
   if (mData != nullptr)
@@ -37,6 +47,17 @@ void Vector<T>::Push(const T& value)
     Grow();
   }
   mData[mSize] = value;
+  ++mSize;
+}
+
+template<typename T>
+void Vector<T>::Push(T&& value)
+{
+  if (mSize >= mCapacity)
+  {
+    Grow();
+  }
+  mData[mSize] = Util::Move(value);
   ++mSize;
 }
 
@@ -163,7 +184,7 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {
   if (other.mSize <= mCapacity)
   {
-    Util::Copy(other.mData, mData, mSize);
+    Util::Copy<T>(other.mData, mData, mSize);
     mSize = other.mSize;
     return *this;
   }
@@ -175,7 +196,24 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& other)
   mData = alloc T[other.mSize];
   mSize = other.mSize;
   mCapacity = other.mSize;
-  Util::Copy(other.mData, mData, mSize);
+  Util::Copy<T>(other.mData, mData, mSize);
+  return *this;
+}
+
+template<typename T>
+Vector<T>& Vector<T>::operator=(Vector<T>&& other)
+{
+  if (mData != nullptr)
+  {
+    delete[] mData;
+  }
+  mData = other.mData;
+  mSize = other.mSize;
+  mCapacity = other.mCapacity;
+
+  other.mData = nullptr;
+  other.mSize = 0;
+  other.mCapacity = 0;
   return *this;
 }
 
@@ -223,9 +261,13 @@ void Vector<T>::Grow(int newCapacity)
   LogAbortIf(
     newCapacity <= mCapacity,
     "The new capacity must be greater than the current capacity.");
+
   T* oldData = mData;
   mData = alloc T[newCapacity];
-  Util::Copy<T>(oldData, mData, mSize);
+  for (int i = 0; i < mSize; ++i)
+  {
+    mData[i] = Util::Move(oldData[i]);
+  }
   mCapacity = newCapacity;
   delete[] oldData;
 }

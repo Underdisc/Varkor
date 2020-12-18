@@ -9,8 +9,10 @@ class Vector
 public:
   Vector();
   Vector(const Vector<T>& other);
+  Vector(Vector<T>&& other);
   ~Vector();
   void Push(const T& value);
+  void Push(T&& value);
   void Push(const T& value, int count);
   void Pop();
   void Clear();
@@ -27,6 +29,7 @@ public:
   const T& operator[](int index) const;
   T& operator[](int index);
   Vector<T>& operator=(const Vector<T>& other);
+  Vector<T>& operator=(Vector<T>&& other);
 
   T* begin();
   T* end();

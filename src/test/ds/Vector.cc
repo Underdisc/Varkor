@@ -2,6 +2,7 @@
 
 #include "debug/MemLeak.h"
 #include "ds/Vector.h"
+#include "util/Utility.h"
 
 template<typename T>
 void PrintVector(const Ds::Vector<T>& vector, bool stats = true)
@@ -39,6 +40,23 @@ void CopyConstructor()
   std::cout << std::endl;
 }
 
+void MoveConstructor()
+{
+  std::cout << "<= MoveConstructor =>" << std::endl;
+  Ds::Vector<int> ogVector;
+  for (int i = 0; i < 20; ++i)
+  {
+    ogVector.Push(i);
+  }
+  const int* ogVectorPtr = ogVector.CData();
+  Ds::Vector<int> moveVector(Util::Move(ogVector));
+  const int* moveVectorPtr = moveVector.CData();
+  PrintVector(ogVector);
+  PrintVector(moveVector);
+  std::cout << "Moved: " << (ogVectorPtr == moveVectorPtr) << std::endl;
+  std::cout << std::endl;
+}
+
 void SinglePush()
 {
   std::cout << "<= SinglePush =>" << std::endl;
@@ -55,6 +73,42 @@ void SinglePush()
   }
   PrintVector(testVector);
   std::cout << std::endl;
+}
+
+void MovePush()
+{
+  std::cout << "<= MovePush =>" << std::endl;
+  // We create a vector of vectors and save the pointers to the data for each of
+  // the inner vectors.
+  Ds::Vector<Ds::Vector<int>> testVector;
+  const int innerVectorCount = 6;
+  const int* ogInnerPtrs[innerVectorCount];
+  for (int i = 0; i < innerVectorCount; ++i)
+  {
+    Ds::Vector<int> innerVector;
+    for (int j = 0; j < 10; ++j)
+    {
+      innerVector.Push(i + j);
+    }
+    ogInnerPtrs[i] = innerVector.CData();
+    testVector.Push(Util::Move(innerVector));
+  }
+
+  // We print out the content of each inner vector and we also make sure that
+  // pointers for the inner vectors are still the same as the pointers in use
+  // when the inner vectors were first created.
+  const int* movedInnerPtrs[innerVectorCount];
+  for (int i = 0; i < innerVectorCount; ++i)
+  {
+    movedInnerPtrs[i] = testVector[i].CData();
+    PrintVector(testVector[i], false);
+  }
+  std::cout << "Moved: ";
+  for (int i = 0; i < innerVectorCount; ++i)
+  {
+    std::cout << (ogInnerPtrs[i] == movedInnerPtrs[i]);
+  }
+  std::cout << std::endl << std::endl;
 }
 
 void MultiplePush()
@@ -189,6 +243,26 @@ void CopyAssignment()
   std::cout << std::endl;
 }
 
+void MoveAssignment()
+{
+  std::cout << "<= MoveAssignment =>" << std::endl;
+  // This test is nearly identical to the MoveConstructor test, but instead of
+  // using the move constructor, we use the move assignment operator.
+  Ds::Vector<int> ogVector;
+  for (int i = 0; i < 20; ++i)
+  {
+    ogVector.Push(i);
+  }
+  const int* ogVectorPtr = ogVector.CData();
+  Ds::Vector<int> moveVector;
+  moveVector = Util::Move(ogVector);
+  const int* moveVectorPtr = moveVector.CData();
+  PrintVector(ogVector);
+  PrintVector(moveVector);
+  std::cout << "Moved: " << (ogVectorPtr == moveVectorPtr) << std::endl;
+  std::cout << std::endl;
+}
+
 void Contains()
 {
   std::cout << "<= Contains =>" << std::endl;
@@ -279,13 +353,16 @@ int main(void)
 {
   InitMemLeakOutput();
   CopyConstructor();
+  MoveConstructor();
   SinglePush();
+  MovePush();
   MultiplePush();
   Emplace();
   Pop();
   Clear();
   IndexOperator();
   CopyAssignment();
+  MoveAssignment();
   Contains();
   Resize();
   CData();
