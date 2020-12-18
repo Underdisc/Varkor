@@ -4,10 +4,13 @@
 #include "ds/Vector.h"
 
 template<typename T>
-void PrintVector(const Ds::Vector<T>& vector)
+void PrintVector(const Ds::Vector<T>& vector, bool stats = true)
 {
-  std::cout << "Size: " << vector.Size() << std::endl;
-  std::cout << "Capactiy: " << vector.Capacity() << std::endl;
+  if (stats)
+  {
+    std::cout << "Size: " << vector.Size() << std::endl;
+    std::cout << "Capactiy: " << vector.Capacity() << std::endl;
+  }
   if (vector.Size() == 0)
   {
     std::cout << "[]" << std::endl;
@@ -155,6 +158,37 @@ void IndexOperator()
   std::cout << std::endl;
 }
 
+void CopyAssignment()
+{
+  std::cout << "<= CopyAssignment =>" << std::endl;
+  // We first test the case where the vector being copied from has a size larger
+  // than the capacity of the vector being copied to.
+  Ds::Vector<int> ogVector;
+  for (int i = 0; i < 15; ++i)
+  {
+    ogVector.Push(i);
+  }
+  // We push one value into the copy vector so it allocates some memory. That
+  // way we can make sure the vector is freeing its old pointer.
+  Ds::Vector<int> copyVector;
+  copyVector.Push(1);
+  copyVector = ogVector;
+  PrintVector(ogVector);
+  PrintVector(copyVector);
+
+  // We then test the case where the vector being copied to already has enough
+  // space to copy all of the elements from the other vector.
+  ogVector.Clear();
+  for (int i = 0; i < 7; ++i)
+  {
+    ogVector.Push(i);
+  }
+  copyVector = ogVector;
+  PrintVector(ogVector);
+  PrintVector(copyVector);
+  std::cout << std::endl;
+}
+
 void Contains()
 {
   std::cout << "<= Contains =>" << std::endl;
@@ -216,6 +250,29 @@ void Top()
   test.Pop();
   test.Top() = 20;
   std::cout << test.Top() << std::endl;
+  std::cout << std::endl;
+}
+
+void InnerVector()
+{
+  std::cout << "<= InnerVector =>" << std::endl;
+  Ds::Vector<Ds::Vector<TestType>> testVector;
+
+  for (int i = 0; i < 5; ++i)
+  {
+    Ds::Vector<TestType> innerTest;
+    for (int j = 0; j < 5; ++j)
+    {
+      int value = i + j;
+      innerTest.Push(TestType(value, (float)value));
+    }
+    testVector.Push(innerTest);
+  }
+
+  for (int i = 0; i < 5; ++i)
+  {
+    PrintVector(testVector[i], false);
+  }
 }
 
 int main(void)
@@ -228,8 +285,10 @@ int main(void)
   Pop();
   Clear();
   IndexOperator();
+  CopyAssignment();
   Contains();
   Resize();
   CData();
   Top();
+  InnerVector();
 }

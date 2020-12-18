@@ -21,11 +21,13 @@ public:
   bool Contains(const T& value) const;
   int Size() const;
   int Capacity() const;
-
   const T* CData() const;
   T& Top() const;
+
   const T& operator[](int index) const;
   T& operator[](int index);
+  Vector<T>& operator=(const Vector<T>& other);
+
   T* begin();
   T* end();
   const T* begin() const;

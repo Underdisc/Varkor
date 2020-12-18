@@ -159,6 +159,27 @@ T& Vector<T>::operator[](int index)
 }
 
 template<typename T>
+Vector<T>& Vector<T>::operator=(const Vector<T>& other)
+{
+  if (other.mSize <= mCapacity)
+  {
+    Util::Copy(other.mData, mData, mSize);
+    mSize = other.mSize;
+    return *this;
+  }
+
+  if (mData != nullptr)
+  {
+    delete[] mData;
+  }
+  mData = alloc T[other.mSize];
+  mSize = other.mSize;
+  mCapacity = other.mSize;
+  Util::Copy(other.mData, mData, mSize);
+  return *this;
+}
+
+template<typename T>
 T* Vector<T>::begin()
 {
   return mData;
