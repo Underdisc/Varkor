@@ -19,6 +19,7 @@ public:
   void Resize(int newSize, const T& fill);
   template<typename... Args>
   void Emplace(const Args&... args);
+  void Reserve(int newCapacity);
 
   bool Contains(const T& value) const;
   int Size() const;

@@ -289,6 +289,30 @@ void Resize()
   std::cout << std::endl;
 }
 
+void Reserve()
+{
+  std::cout << "<= Reserve =>" << std::endl;
+  // We first test the case where we give an empty vector some capacity and then
+  // we make sure reserving a smaller capacity doesn't change the capacity of
+  // the vector.
+  Ds::Vector<int> test0;
+  test0.Reserve(50);
+  PrintVector(test0);
+  test0.Reserve(25);
+  PrintVector(test0);
+
+  // We then test reserving on a vector that already has values in it and will
+  // need a new allocation for the reservation.
+  Ds::Vector<int> test1;
+  for (int i = 0; i < 10; ++i)
+  {
+    test1.Push(i);
+  }
+  test1.Reserve(30);
+  PrintVector(test1);
+  std::cout << std::endl;
+}
+
 void CData()
 {
   std::cout << "<= CData =>" << std::endl;
@@ -365,6 +389,7 @@ int main(void)
   MoveAssignment();
   Contains();
   Resize();
+  Reserve();
   CData();
   Top();
   InnerVector();

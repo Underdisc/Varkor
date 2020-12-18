@@ -131,6 +131,16 @@ void Vector<T>::Resize(int newSize, const T& value)
 }
 
 template<typename T>
+void Vector<T>::Reserve(int newCapacity)
+{
+  if (mCapacity >= newCapacity)
+  {
+    return;
+  }
+  Grow(newCapacity);
+}
+
+template<typename T>
 bool Vector<T>::Contains(const T& value) const
 {
   for (int i = 0; i < mSize; ++i)
