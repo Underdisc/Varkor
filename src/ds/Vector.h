@@ -47,6 +47,8 @@ private:
 private:
   void Grow();
   void Grow(int newCapacity);
+  T* CreateAllocation(int capacity);
+  void DeleteAllocation(T* allocation);
 };
 
 } // namespace Ds

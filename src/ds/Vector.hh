@@ -16,7 +16,9 @@ Vector<T>::Vector(): mData(nullptr), mSize(0), mCapacity(0)
 
 template<typename T>
 Vector<T>::Vector(const Vector<T>& other):
-  mData(alloc T[other.mSize]), mSize(other.mSize), mCapacity(other.mSize)
+  mData(CreateAllocation(other.mSize)),
+  mSize(other.mSize),
+  mCapacity(other.mSize)
 {
   Util::Copy<T>(other.mData, mData, other.mSize);
 }
@@ -33,9 +35,10 @@ Vector<T>::Vector(Vector<T>&& other):
 template<typename T>
 Vector<T>::~Vector()
 {
+  Clear();
   if (mData != nullptr)
   {
-    delete[] mData;
+    DeleteAllocation(mData);
   }
 }
 
@@ -46,7 +49,7 @@ void Vector<T>::Push(const T& value)
   {
     Grow();
   }
-  mData[mSize] = value;
+  new (mData + mSize) T(value);
   ++mSize;
 }
 
@@ -57,7 +60,7 @@ void Vector<T>::Push(T&& value)
   {
     Grow();
   }
-  mData[mSize] = Util::Move(value);
+  new (mData + mSize) T(Util::Move(value));
   ++mSize;
 }
 
@@ -120,9 +123,9 @@ void Vector<T>::Resize(int newSize, const T& value)
   if (newSize > mCapacity)
   {
     T* oldData = mData;
-    mData = alloc T[newSize];
+    mData = CreateAllocation(newSize);
     Util::Copy<T>(oldData, mData, mSize);
-    delete[] oldData;
+    DeleteAllocation(oldData);
   }
   int sizeDifference = newSize - mSize;
   Util::Fill<T>(mData + mSize, value, sizeDifference);
@@ -192,6 +195,7 @@ T& Vector<T>::operator[](int index)
 template<typename T>
 Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {
+  Clear();
   if (other.mSize <= mCapacity)
   {
     Util::Copy<T>(other.mData, mData, mSize);
@@ -201,9 +205,9 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 
   if (mData != nullptr)
   {
-    delete[] mData;
+    DeleteAllocation(mData);
   }
-  mData = alloc T[other.mSize];
+  mData = CreateAllocation(other.mSize);
   mSize = other.mSize;
   mCapacity = other.mSize;
   Util::Copy<T>(other.mData, mData, mSize);
@@ -213,9 +217,10 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 template<typename T>
 Vector<T>& Vector<T>::operator=(Vector<T>&& other)
 {
+  Clear();
   if (mData != nullptr)
   {
-    delete[] mData;
+    DeleteAllocation(mData);
   }
   mData = other.mData;
   mSize = other.mSize;
@@ -257,7 +262,7 @@ void Vector<T>::Grow()
   if (mData == nullptr)
   {
     mCapacity = smStartCapacity;
-    mData = alloc T[mCapacity];
+    mData = CreateAllocation(mCapacity);
   } else
   {
     int newCapacity = (int)((float)mCapacity * smGrowthFactor);
@@ -273,13 +278,28 @@ void Vector<T>::Grow(int newCapacity)
     "The new capacity must be greater than the current capacity.");
 
   T* oldData = mData;
-  mData = alloc T[newCapacity];
+  mData = CreateAllocation(newCapacity);
   for (int i = 0; i < mSize; ++i)
   {
-    mData[i] = Util::Move(oldData[i]);
+    new (mData + i) T(Util::Move(oldData[i]));
   }
   mCapacity = newCapacity;
-  delete[] oldData;
+  DeleteAllocation(oldData);
+}
+
+template<typename T>
+T* Vector<T>::CreateAllocation(int capacity)
+{
+  int byteCount = sizeof(T) * capacity;
+  char* byteAllocation = alloc char[byteCount];
+  return (T*)byteAllocation;
+}
+
+template<typename T>
+void Vector<T>::DeleteAllocation(T* allocation)
+{
+  char* byteAllocation = (char*)allocation;
+  delete[] byteAllocation;
 }
 
 } // namespace Ds

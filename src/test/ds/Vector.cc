@@ -126,19 +126,39 @@ struct TestType
 {
   int mA;
   float mB;
-  TestType() {}
-  TestType(int a, float b): mA(a), mB(b) {}
+  TestType()
+  {
+    ++smDefaultConstructorCount;
+  }
+  TestType(const TestType& other): mA(other.mA), mB(other.mB)
+  {
+    ++smCopyConstructorCount;
+  }
+  TestType(int a, float b): mA(a), mB(b)
+  {
+    ++smConstructorCount;
+  }
   ~TestType()
   {
     ++smDestructorCount;
   }
 
+  static int smDefaultConstructorCount;
+  static int smCopyConstructorCount;
+  static int smConstructorCount;
   static int smDestructorCount;
-  static void ResetDestructorCount()
+
+  static void ResetCounts()
   {
+    smDefaultConstructorCount = 0;
+    smCopyConstructorCount = 0;
+    smConstructorCount = 0;
     smDestructorCount = 0;
   }
 };
+int TestType::smDefaultConstructorCount = 0;
+int TestType::smCopyConstructorCount = 0;
+int TestType::smConstructorCount = 0;
 int TestType::smDestructorCount = 0;
 
 std::ostream& operator<<(std::ostream& os, const TestType& rhs)
@@ -168,13 +188,13 @@ void Pop()
     testVector.Emplace(i, (float)i);
   }
 
-  TestType::ResetDestructorCount();
+  TestType::ResetCounts();
   for (int i = 0; i < 5; ++i)
   {
     testVector.Pop();
   }
   PrintVector(testVector);
-  std::cout << "Destructor Calls: " << TestType::smDestructorCount << std::endl
+  std::cout << "DestructorCount: " << TestType::smDestructorCount << std::endl
             << std::endl;
 }
 
@@ -187,10 +207,10 @@ void Clear()
     testVector.Emplace(i, (float)i);
   }
 
-  TestType::ResetDestructorCount();
+  TestType::ResetCounts();
   testVector.Clear();
   PrintVector(testVector);
-  std::cout << "Destructor Calls: " << TestType::smDestructorCount << std::endl
+  std::cout << "DestructorCount: " << TestType::smDestructorCount << std::endl
             << std::endl;
 }
 
@@ -371,6 +391,63 @@ void InnerVector()
   {
     PrintVector(testVector[i], false);
   }
+  std::cout << std::endl;
+}
+
+void BigInnerVector()
+{
+  std::cout << "<= BigInnerVector =>" << std::endl;
+  // We create one vector that will contain 100 Vectors and each of those will
+  // have 100 TestType values. Besides being a minor stress test, this also
+  // ensures that the outer vector grows without crashing or losing any of the
+  // data in the subvectors.
+  Ds::Vector<Ds::Vector<TestType>> testVector;
+  for (int i = 0; i < 100; ++i)
+  {
+    Ds::Vector<TestType> innerTest;
+    for (int j = 0; j < 100; ++j)
+    {
+      int value = i + j;
+      innerTest.Push(TestType(value, (float)value));
+    }
+    testVector.Push(Util::Move(innerTest));
+  }
+
+  std::cout << "Main Vector Stats: [" << testVector.Size() << ", "
+            << testVector.Capacity() << "]" << std::endl
+            << "[0][0]: " << testVector[0][0] << std::endl
+            << "[25][25]: " << testVector[25][25] << std::endl
+            << "[50][50]: " << testVector[50][50] << std::endl
+            << "[75][75]: " << testVector[75][75] << std::endl
+            << "[99][99]: " << testVector[99][99] << std::endl
+            << std::endl;
+}
+
+void ConstructionDestructionCounts()
+{
+  std::cout << "<= ConstructionDestructionCounts =>" << std::endl;
+  // We reset the counts on TestType and perform a good chunk of vector
+  // operations to see how many times constructors and destructors are called.
+  TestType::ResetCounts();
+  Ds::Vector<Ds::Vector<TestType>> testVector;
+  for (int i = 0; i < 30; ++i)
+  {
+    Ds::Vector<TestType> inner;
+    for (int j = 0; j < 100; ++j)
+    {
+      int value = i + j;
+      inner.Emplace(value, (float)value);
+    }
+    testVector.Push(Util::Move(inner));
+  }
+  testVector.Clear();
+
+  std::cout << "DefaultConstructorCount: "
+            << TestType::smDefaultConstructorCount << std::endl
+            << "CopyConstructorCount: " << TestType::smCopyConstructorCount
+            << std::endl
+            << "ConstructorCount: " << TestType::smConstructorCount << std::endl
+            << "DestructorCount: " << TestType::smDestructorCount << std::endl;
 }
 
 int main(void)
@@ -393,4 +470,6 @@ int main(void)
   CData();
   Top();
   InnerVector();
+  BigInnerVector();
+  ConstructionDestructionCounts();
 }

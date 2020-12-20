@@ -52,13 +52,13 @@ Capactiy: 20
 Size: 5
 Capactiy: 10
 [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]]
-Destructor Calls: 5
+DestructorCount: 5
 
 <= Clear =>
 Size: 0
 Capactiy: 10
 []
-Destructor Calls: 5
+DestructorCount: 5
 
 <= IndexOperator =>
 [5]: 5
@@ -128,3 +128,17 @@ Capactiy: 30
 [[2, 2], [3, 3], [4, 4], [5, 5], [6, 6]]
 [[3, 3], [4, 4], [5, 5], [6, 6], [7, 7]]
 [[4, 4], [5, 5], [6, 6], [7, 7], [8, 8]]
+
+<= BigInnerVector =>
+Main Vector Stats: [100, 160]
+[0][0]: [0, 0]
+[25][25]: [50, 50]
+[50][50]: [100, 100]
+[75][75]: [150, 150]
+[99][99]: [198, 198]
+
+<= ConstructionDestructionCounts =>
+DefaultConstructorCount: 0
+CopyConstructorCount: 4500
+ConstructorCount: 3000
+DestructorCount: 3000
