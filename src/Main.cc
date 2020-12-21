@@ -17,6 +17,7 @@
 #include "comp/SpotLight.h"
 #include "comp/Transform.h"
 #include "debug/Draw.h"
+#include "gfx/Model.h"
 #include "gfx/Shader.h"
 #include "gfx/Texture.h"
 #include "math/Constants.h"
@@ -30,6 +31,10 @@ void Core()
   Input::Init();
   Debug::Draw::Init();
   Editor::Init();
+
+  Comp::Transform backpackTransform;
+  backpackTransform.SetTranslation({0.0f, 0.0f, -5.0f});
+  Gfx::Model backpack("res/backpack/backpack.obj");
 
   // shader setup
   Gfx::Shader phong("shader/phong.vs", "shader/phong.fs");
@@ -154,7 +159,7 @@ void Core()
 
     camera.Update(Temporal::DeltaTime());
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -178,6 +183,10 @@ void Core()
         Quat rot(mag, rotAxis);
         objectQuat = rot * objectQuat;
         selectedTransform.SetRotation(objectQuat);
+
+        Quat backpackRot = backpackTransform.GetRotation();
+        backpackRot = rot * backpackRot;
+        backpackTransform.SetRotation(backpackRot);
       }
     }
 
@@ -321,6 +330,10 @@ void Core()
       phong.SetMat4("model", objectTransforms[i].GetMatrix().CData());
       glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
     }
+
+    // Render the backpack.
+    phong.SetMat4("model", backpackTransform.GetMatrix().CData());
+    backpack.Draw(phong);
 
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());

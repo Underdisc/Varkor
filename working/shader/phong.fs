@@ -45,10 +45,13 @@ struct SpotLight
   float outerCutoff;
 };
 
+#define DIFFUSE_MAP_COUNT 3
+#define SPECULAR_MAP_COUNT 2
+
 struct Material
 {
-  sampler2D diffuseMap;
-  sampler2D specularMap;
+  sampler2D diffuseMap[DIFFUSE_MAP_COUNT];
+  sampler2D specularMap[SPECULAR_MAP_COUNT];
   float specularExponent;
 };
 
@@ -102,8 +105,8 @@ void main()
 {
   vec3 normal = normalize(iNormal);
   vec3 viewDir = normalize(viewPos - iFragPos);
-  vec3 diffuseSample = vec3(texture(material.diffuseMap, iTexCoord));
-  vec3 specularSample = vec3(texture(material.specularMap, iTexCoord));
+  vec3 diffuseSample = vec3(texture(material.diffuseMap[0], iTexCoord));
+  vec3 specularSample = vec3(texture(material.specularMap[0], iTexCoord));
 
   // Sum the contributions from all of the light types.
   vec3 fragColor = vec3(0.0, 0.0, 0.0);

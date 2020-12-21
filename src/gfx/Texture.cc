@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
+#include <sstream>
 #include <stb/stb_image.h>
 
 #include "Error.h"
@@ -8,14 +9,17 @@
 
 namespace Gfx {
 
-Texture::Texture(const char* textureFile)
+Texture::Texture(const char* textureFile, TextureType type):
+  mType(type), mFile(textureFile)
 {
   stbi_set_flip_vertically_on_load(true);
   unsigned char* data =
     stbi_load(textureFile, &mWidth, &mHeight, &mChannels, 0);
   if (!data)
   {
-    LogError(stbi_failure_reason());
+    std::stringstream reason;
+    reason << textureFile << " loading failed: " << stbi_failure_reason();
+    LogError(reason.str().c_str());
     mId = 0;
     return;
   }
@@ -71,6 +75,11 @@ int Texture::Channels() const
 unsigned int Texture::Id() const
 {
   return mId;
+}
+
+TextureType Texture::Type() const
+{
+  return mType;
 }
 
 } // namespace Gfx
