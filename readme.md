@@ -25,41 +25,41 @@ mkdir build
 cd build
 ```
 
-Within the build directory, I like to have multiple directories for different build types. Right now I have `rel/msvc32/`, `rel/msvc64/`, `dbg/msvc32/`, and `dbg/msvc64` in my build directory. How you organize this is up to you.
+Within the build directory, I like to have multiple directories for different build types. Right now I have `rel/msvc64/` and `dbg/msvc64/` in my build directory. How you organize this is up to you.
 
 ```
 mkdir rel
 cd rel
-mkdir msvc32
-cd msvc32
+mkdir msvc64
+cd msvc64
 ```
 
 The next step is entering the cmd shell that comes with Windows. There are two ways to do this. You can choose to simply open the command prompt, the typical way of accessing the shell. You can also just run `cmd` from your own terminal to access the shell. I use the [Mintty](https://mintty.github.io/) terminal that comes with Cygwin and the latter is how I access the shell.
 
-After this, you want to run `vcvars32.bat` in the shell. This file is specific to your MSVC installation. This will set environment varialbes that are used by `cl.exe` (the MSVC compiler) and `link.exe` (the MSVC linker) when compiling and linking the project.
+After this, you want to run `vcvars64.bat` in the shell. This file is specific to your MSVC installation. This will set environment varialbes that are used by `cl.exe` (the MSVC compiler) and `link.exe` (the MSVC linker) when compiling and linking the project.
 
 I use *Visual Studio 2019 Community*, so this may look different for you. For my setup, this script is located here.
 
 ```
-C:/"Program Files (x86)"/"Microsoft Visual Studio"/2019/Community/VC/Auxiliary/Build/vcvars32.bat
+C:/"Program Files (x86)"/"Microsoft Visual Studio"/2019/Community/VC/Auxiliary/Build/vcvars64.bat
 ```
 
-If you are building MSVC 64bit, run `vcvars64.bat` instead. It should be within the same directory as `vcvars32.bat`. I would hate typing this path every time I get a terminal set up for building and I would be surprised if you didn't get annoyed too. To fix this, I created batch scripts that are in my path and I run them from the cmd shell depending on the types of builds I want to do.
+I would hate typing this path every time I get a terminal set up for building and I would be surprised if you didn't get annoyed too. To fix this, I created batch scripts that are in my path and I run them from the cmd shell depending on the types of builds I want to do.
 
 ```
-< cl32.bat >
+< cl64.bat >
 @echo off
-C:/"Program Files (x86)"/"Microsoft Visual Studio"/2019/Community/VC/Auxiliary/Build/vcvars32.bat
+C:/"Program Files (x86)"/"Microsoft Visual Studio"/2019/Community/VC/Auxiliary/Build/vcvars64.bat
 ```
 
 Now getting a terminal ready for building only involves running the commands below.
 
 ```
 cmd
-cl32.bat
+cl64.bat
 ```
 
-The next step is to setup the Ninja generator by running CMake. From `build/rel/msvc32/` run the following.
+The next step is to setup the Ninja generator by running CMake. From `build/rel/msvc64/` run the following.
 
 ```
 cmake -G "Ninja" -DCMAKE_BUILD_TYPE=MinSizeRel ../../../
