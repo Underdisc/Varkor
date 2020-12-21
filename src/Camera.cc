@@ -64,7 +64,7 @@ void Camera::Update(float dt)
   if (Input::MouseDown(Input::Mouse::Right))
   {
     Vec2 mouseMotion = Input::MouseMotion();
-    mYaw -= mouseMotion[0] * dt * mSensitivity;
+    mYaw += mouseMotion[0] * dt * mSensitivity;
     mPitch -= mouseMotion[1] * dt * mSensitivity;
     if (mPitch >= PIO2f)
     {
@@ -100,9 +100,9 @@ void Camera::CalculateBasisVectors()
   mForward[1] = sinf(mPitch);
   mForward[2] = sinf(mYaw) * horizontalScale;
   Vec3 globalUp = {0.0f, 1.0f, 0.0f};
-  mRight = Math::Cross(globalUp, mForward);
+  mRight = Math::Cross(mForward, globalUp);
   mRight = Math::Normalize(mRight);
-  mUp = Math::Cross(mForward, mRight);
+  mUp = Math::Cross(mRight, mForward);
 }
 
 void Camera::CalculateWorldToCamera()
