@@ -32,100 +32,18 @@ void Core()
   Debug::Draw::Init();
   Editor::Init();
 
-  Comp::Transform backpackTransform;
-  backpackTransform.SetTranslation({0.0f, 0.0f, -5.0f});
-  Gfx::Model backpack("res/backpack/backpack.obj");
-
-  // shader setup
-  Gfx::Shader phong("shader/phong.vs", "shader/phong.fs");
-  Gfx::Shader lightShader("shader/light.vs", "shader/light.fs");
-
-  // clang-format off
-  float vertices[] = {
-    // positions          normals              texture coords
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-  };
-  // clang-format on
-
-  // Texture setup
-  Gfx::Texture diffuseTexture("container_diffuse.png");
-  Gfx::Texture specularTexture("container_specular.png");
-
-  // Vertex buffer setup
-  unsigned int vbo;
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  // Light vertex array setup
-  unsigned int lightVao;
-  glGenVertexArrays(1, &lightVao);
-  glBindVertexArray(lightVao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
-  glBindVertexArray(0);
-
-  // Object vertex array setup
-  unsigned int objectVao;
-  glGenVertexArrays(1, &objectVao);
-  glBindVertexArray(objectVao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(
-    1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(
-    2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-  glEnableVertexAttribArray(2);
-  glBindVertexArray(0);
-
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
 
+  Camera camera;
+
+  // shader setup
+  Gfx::Shader phongShader("shader/phong.vs", "shader/phong.fs");
+  Gfx::Shader lightShader("shader/light.vs", "shader/light.fs");
+
+  // light setup
+  float specularExponent = 32.0f;
   const int positionLightCount = 5;
   const int pointLightCount = 4;
   Comp::Transform lightTransforms[positionLightCount];
@@ -136,7 +54,9 @@ void Core()
   Comp::PointLight pointLights[pointLightCount];
   Comp::SpotLight spotLight;
   Comp::DirectionalLight dirLight;
+  Gfx::Model lightModel("res/sphere.obj");
 
+  // object setup
   const int objectCount = 7;
   int currentFocus = 0;
   Comp::Transform objectTransforms[objectCount];
@@ -146,10 +66,16 @@ void Core()
     float x = 3.0f * std::cosf(radians);
     float y = 3.0f * std::sinf(radians);
     objectTransforms[i].SetTranslation({x, y, 0.0f});
+    objectTransforms[i].SetUniformScale(0.5f);
   }
-  float specularExponent = 32.0f;
+  Gfx::Texture diffuseTexture("container_diffuse.png");
+  Gfx::Texture specularTexture("container_specular.png");
+  Gfx::Model objectModel("res/cube.obj");
 
-  Camera camera;
+  // backpack setup
+  Comp::Transform backpackTransform;
+  backpackTransform.SetTranslation({0.0f, 0.0f, -5.0f});
+  Gfx::Model backpackModel("res/backpack/backpack.obj");
 
   while (Viewport::Active())
   {
@@ -157,13 +83,13 @@ void Core()
     Input::Update();
     Editor::Start();
 
-    camera.Update(Temporal::DeltaTime());
-
     glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    // Rotate the selected object using the mouse motion.
+    camera.Update(Temporal::DeltaTime());
+
+    // Rotate the selected object and backpack using the mouse motion.
     Comp::Transform& selectedTransform = objectTransforms[currentFocus];
     Quat objectQuat = selectedTransform.GetRotation();
     if (Input::MouseDown(Input::Mouse::Left))
@@ -247,20 +173,19 @@ void Core()
     ImGui::End();
 
     // Render all of the point lights.
-    glBindVertexArray(lightVao);
     lightShader.SetMat4("view", camera.WorldToCamera().CData());
     lightShader.SetMat4("proj", Viewport::Perspective().CData());
     for (int i = 0; i < pointLightCount; ++i)
     {
       lightShader.SetMat4("model", lightTransforms[i].GetMatrix().CData());
       lightShader.SetVec3("lightColor", pointLights[i].mSpecular.CData());
-      glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
+      lightModel.Draw(lightShader);
     }
 
     // Render the spotLight
     lightShader.SetMat4("model", lightTransforms[4].GetMatrix().CData());
     lightShader.SetVec3("lightColor", spotLight.mSpecular.CData());
-    glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
+    lightModel.Draw(lightShader);
 
     // Show the direction of the directional light.
     Vec3 white = {1.0f, 1.0f, 1.0f};
@@ -268,10 +193,9 @@ void Core()
     Debug::Draw::Line(origin, dirLight.mDirection, white);
 
     // Set all of the phong uniforms.
-    phong.SetMat4("view", camera.WorldToCamera().CData());
-    phong.SetMat4("proj", Viewport::Perspective().CData());
-    phong.SetVec3("viewPos", camera.Position().CData());
-
+    phongShader.SetMat4("view", camera.WorldToCamera().CData());
+    phongShader.SetMat4("proj", Viewport::Perspective().CData());
+    phongShader.SetVec3("viewPos", camera.Position().CData());
     // Set all of the uniforms for the point lights.
     for (int i = 0; i < pointLightCount; ++i)
     {
@@ -286,54 +210,50 @@ void Core()
       ssQuadratic << "pointLights[" << i << "].quadratic";
 
       const Comp::PointLight& light = pointLights[i];
-      phong.SetVec3(ssPos.str().c_str(), light.mPosition.CData());
-      phong.SetVec3(ssAmbient.str().c_str(), light.mAmbient.CData());
-      phong.SetVec3(ssDiffuse.str().c_str(), light.mDiffuse.CData());
-      phong.SetVec3(ssSpecular.str().c_str(), light.mSpecular.CData());
-      phong.SetFloat(ssConstant.str().c_str(), light.mConstant);
-      phong.SetFloat(ssLinear.str().c_str(), light.mLinear);
-      phong.SetFloat(ssQuadratic.str().c_str(), light.mQuadratic);
+      phongShader.SetVec3(ssPos.str().c_str(), light.mPosition.CData());
+      phongShader.SetVec3(ssAmbient.str().c_str(), light.mAmbient.CData());
+      phongShader.SetVec3(ssDiffuse.str().c_str(), light.mDiffuse.CData());
+      phongShader.SetVec3(ssSpecular.str().c_str(), light.mSpecular.CData());
+      phongShader.SetFloat(ssConstant.str().c_str(), light.mConstant);
+      phongShader.SetFloat(ssLinear.str().c_str(), light.mLinear);
+      phongShader.SetFloat(ssQuadratic.str().c_str(), light.mQuadratic);
     }
-
     // Set the uniforms for the spot light.
-    phong.SetVec3("spotLight.position", spotLight.mPosition.CData());
-    phong.SetVec3("spotLight.direction", spotLight.mDirection.CData());
-    phong.SetVec3("spotLight.ambient", spotLight.mAmbient.CData());
-    phong.SetVec3("spotLight.diffuse", spotLight.mDiffuse.CData());
-    phong.SetVec3("spotLight.specular", spotLight.mSpecular.CData());
-    phong.SetFloat("spotLight.constant", spotLight.mConstant);
-    phong.SetFloat("spotLight.linear", spotLight.mLinear);
-    phong.SetFloat("spotLight.quadratic", spotLight.mQuadratic);
-    phong.SetFloat("spotLight.innerCutoff", spotLight.mInnerCutoff);
-    phong.SetFloat("spotLight.outerCutoff", spotLight.mOuterCutoff);
-
+    phongShader.SetVec3("spotLight.position", spotLight.mPosition.CData());
+    phongShader.SetVec3("spotLight.direction", spotLight.mDirection.CData());
+    phongShader.SetVec3("spotLight.ambient", spotLight.mAmbient.CData());
+    phongShader.SetVec3("spotLight.diffuse", spotLight.mDiffuse.CData());
+    phongShader.SetVec3("spotLight.specular", spotLight.mSpecular.CData());
+    phongShader.SetFloat("spotLight.constant", spotLight.mConstant);
+    phongShader.SetFloat("spotLight.linear", spotLight.mLinear);
+    phongShader.SetFloat("spotLight.quadratic", spotLight.mQuadratic);
+    phongShader.SetFloat("spotLight.innerCutoff", spotLight.mInnerCutoff);
+    phongShader.SetFloat("spotLight.outerCutoff", spotLight.mOuterCutoff);
     // Set the uniforms for the directional light.
-    phong.SetVec3("dirLight.direction", dirLight.mDirection.CData());
-    phong.SetVec3("dirLight.ambient", dirLight.mAmbient.CData());
-    phong.SetVec3("dirLight.diffuse", dirLight.mDiffuse.CData());
-    phong.SetVec3("dirLight.specular", dirLight.mSpecular.CData());
-
+    phongShader.SetVec3("dirLight.direction", dirLight.mDirection.CData());
+    phongShader.SetVec3("dirLight.ambient", dirLight.mAmbient.CData());
+    phongShader.SetVec3("dirLight.diffuse", dirLight.mDiffuse.CData());
+    phongShader.SetVec3("dirLight.specular", dirLight.mSpecular.CData());
     // Set the material uniforms and bind the correct textures to the texture
     // units.
-    phong.SetSampler("material.diffuseMap", 0);
-    phong.SetSampler("material.specularMap", 1);
-    phong.SetFloat("material.specularExponent", specularExponent);
+    phongShader.SetSampler("material.diffuseMap", 0);
+    phongShader.SetSampler("material.specularMap", 1);
+    phongShader.SetFloat("material.specularExponent", specularExponent);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, diffuseTexture.Id());
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, specularTexture.Id());
 
-    // Render all of the cubes.
-    glBindVertexArray(objectVao);
+    // Render all of the objects.
     for (int i = 0; i < objectCount; ++i)
     {
-      phong.SetMat4("model", objectTransforms[i].GetMatrix().CData());
-      glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices) / sizeof(float));
+      phongShader.SetMat4("model", objectTransforms[i].GetMatrix().CData());
+      objectModel.Draw(phongShader);
     }
 
     // Render the backpack.
-    phong.SetMat4("model", backpackTransform.GetMatrix().CData());
-    backpack.Draw(phong);
+    phongShader.SetMat4("model", backpackTransform.GetMatrix().CData());
+    backpackModel.Draw(phongShader);
 
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());
