@@ -1,6 +1,6 @@
 #include "Error.h"
 #include "debug/MemLeak.h"
-#include "util/Memory.hh"
+#include "util/Memory.h"
 #include "util/Utility.h"
 
 namespace Ds {

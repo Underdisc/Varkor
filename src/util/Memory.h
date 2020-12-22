@@ -1,5 +1,5 @@
-#ifndef util_Memory_hh
-#define util_Memory_hh
+#ifndef util_Memory_h
+#define util_Memory_h
 
 namespace Util {
 

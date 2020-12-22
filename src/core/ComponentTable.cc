@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "debug/MemLeak.h"
-#include "util/Memory.hh"
+#include "util/Memory.h"
 
 #include "ComponentTable.h"
 
