@@ -5,6 +5,7 @@ target_sources(varkor PRIVATE
   Framer.cc
   Input.cc
   Main.cc
+  Profiler.cc
   Temporal.cc
   Viewport.cc)
 add_subdirectory(comp)
