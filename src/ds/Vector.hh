@@ -16,10 +16,14 @@ Vector<T>::Vector(): mData(nullptr), mSize(0), mCapacity(0)
 
 template<typename T>
 Vector<T>::Vector(const Vector<T>& other):
-  mData(CreateAllocation(other.mSize)),
-  mSize(other.mSize),
-  mCapacity(other.mSize)
+  mSize(other.mSize), mCapacity(other.mSize)
 {
+  if (other.mData == nullptr)
+  {
+    mData = nullptr;
+    return;
+  }
+  mData = CreateAllocation(other.mSize);
   Util::Copy<T>(other.mData, mData, other.mSize);
 }
 
