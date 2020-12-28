@@ -102,6 +102,30 @@ void Vector<T>::Emplace(const Args&... args)
 }
 
 template<typename T>
+void Vector<T>::Insert(int index, const T& value)
+{
+  LogAbortIf(
+    index > mSize || index < 0,
+    "The provided index is outside of the range of insertable positions.");
+  if (index == mSize)
+  {
+    Push(value);
+    return;
+  }
+
+  if (mSize >= mCapacity)
+  {
+    Grow();
+  }
+  for (int i = mSize; i > index; --i)
+  {
+    mData[i] = Util::Move(mData[i - 1]);
+  }
+  mData[index] = value;
+  ++mSize;
+}
+
+template<typename T>
 void Vector<T>::Pop()
 {
   if (mSize != 0)
@@ -128,12 +152,12 @@ void Vector<T>::Resize(int newSize, const T& value)
   {
     T* oldData = mData;
     mData = CreateAllocation(newSize);
-    Util::Copy<T>(oldData, mData, mSize);
+    Util::MoveData<T>(oldData, mData, mSize);
     DeleteAllocation(oldData);
+    mCapacity = newSize;
   }
   int sizeDifference = newSize - mSize;
   Util::Fill<T>(mData + mSize, value, sizeDifference);
-  mCapacity = newSize;
   mSize = newSize;
 }
 
@@ -145,6 +169,21 @@ void Vector<T>::Reserve(int newCapacity)
     return;
   }
   Grow(newCapacity);
+}
+
+template<typename T>
+void Vector<T>::Shrink()
+{
+  if (mSize == mCapacity)
+  {
+    return;
+  }
+
+  T* oldData = mData;
+  mData = CreateAllocation(mSize);
+  Util::MoveData(oldData, mData, mSize);
+  DeleteAllocation(oldData);
+  mCapacity = mSize;
 }
 
 template<typename T>

@@ -143,10 +143,27 @@ struct TestType
     ++smDestructorCount;
   }
 
+  TestType& operator=(const TestType& other)
+  {
+    mA = other.mA;
+    mB = other.mB;
+    ++smCopyEqualsOpCount;
+    return *this;
+  }
+  TestType& operator=(TestType&& other)
+  {
+    mA = other.mA;
+    mB = other.mB;
+    ++smMoveEqualsOpCount;
+    return *this;
+  }
+
   static int smDefaultConstructorCount;
   static int smCopyConstructorCount;
   static int smConstructorCount;
   static int smDestructorCount;
+  static int smCopyEqualsOpCount;
+  static int smMoveEqualsOpCount;
 
   static void ResetCounts()
   {
@@ -154,12 +171,16 @@ struct TestType
     smCopyConstructorCount = 0;
     smConstructorCount = 0;
     smDestructorCount = 0;
+    smCopyEqualsOpCount = 0;
+    smMoveEqualsOpCount = 0;
   }
 };
 int TestType::smDefaultConstructorCount = 0;
 int TestType::smCopyConstructorCount = 0;
 int TestType::smConstructorCount = 0;
 int TestType::smDestructorCount = 0;
+int TestType::smCopyEqualsOpCount = 0;
+int TestType::smMoveEqualsOpCount = 0;
 
 std::ostream& operator<<(std::ostream& os, const TestType& rhs)
 {
@@ -175,6 +196,24 @@ void Emplace()
   {
     testVector.Emplace(i, (float)i);
   }
+  PrintVector(testVector);
+  std::cout << std::endl;
+}
+
+void Insert()
+{
+  std::cout << "<= Insert =>" << std::endl;
+  Ds::Vector<int> testVector;
+  for (int i = 0; i < Ds::Vector<int>::smStartCapacity; ++i)
+  {
+    testVector.Push(i);
+  }
+  testVector.Insert(Ds::Vector<int>::smStartCapacity, -1);
+  PrintVector(testVector);
+  testVector.Shrink();
+  testVector.Insert(5, -1);
+  PrintVector(testVector);
+  testVector.Insert(3, -1);
   PrintVector(testVector);
   std::cout << std::endl;
 }
@@ -299,14 +338,24 @@ void Contains()
 void Resize()
 {
   std::cout << "<= Resize =>" << std::endl;
-  Ds::Vector<int> test;
-  test.Resize(20, 0);
+  TestType::ResetCounts();
+  // Make sure the vector grows in the next two Resize calls since the new size
+  // is greater than the capacity in both instances.
+  Ds::Vector<TestType> test;
+  test.Resize(10, TestType(0, 0));
   PrintVector(test);
-  test.Resize(30, 1);
+  test.Resize(20, TestType(1, 1));
   PrintVector(test);
-  test.Resize(15, 2);
+
+  // This time the vector's capacity should remain the same since it has enough
+  // available space for the new size.
+  test.Resize(15, TestType(2, 2));
   PrintVector(test);
-  std::cout << std::endl;
+  std::cout << "CopyEqualsOpCount: " << TestType::smCopyEqualsOpCount
+            << std::endl
+            << "MoveEqualsOpCount: " << TestType::smMoveEqualsOpCount
+            << std::endl
+            << std::endl;
 }
 
 void Reserve()
@@ -459,6 +508,7 @@ int main(void)
   MovePush();
   MultiplePush();
   Emplace();
+  Insert();
   Pop();
   Clear();
   IndexOperator();

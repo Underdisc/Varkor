@@ -14,12 +14,14 @@ public:
   void Push(const T& value);
   void Push(T&& value);
   void Push(const T& value, int count);
+  template<typename... Args>
+  void Emplace(const Args&... args);
+  void Insert(int index, const T& value);
   void Pop();
   void Clear();
   void Resize(int newSize, const T& fill);
-  template<typename... Args>
-  void Emplace(const Args&... args);
   void Reserve(int newCapacity);
+  void Shrink();
 
   bool Contains(const T& value) const;
   int Size() const;
@@ -37,12 +39,13 @@ public:
   const T* begin() const;
   const T* end() const;
 
+  const static int smStartCapacity;
+  const static float smGrowthFactor;
+
 private:
   T* mData;
   int mSize;
   int mCapacity;
-  const static int smStartCapacity;
-  const static float smGrowthFactor;
 
 private:
   void Grow();
