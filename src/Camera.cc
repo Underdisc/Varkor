@@ -12,7 +12,7 @@ Camera::Camera()
   mPosition = {0.0f, 0.0f, 0.0f};
 
   mSpeed = 1.0f;
-  mSensitivity = 0.5f;
+  mSensitivity = 0.3f * PIf / 256.0f;
 
   CalculateBasisVectors();
   mWtc[3][0] = 0.0f;
@@ -26,11 +26,12 @@ void Camera::Update(float dt)
 {
   // Change the camera speed using scroll wheel input.
   const Vec2& scroll = Input::MouseScroll();
-  const float scrollSensitivity = 0.1f;
+  constexpr float scrollSensitivity = 0.1f;
   mSpeed = mSpeed + scroll[1] * scrollSensitivity * mSpeed;
-  if (mSpeed < 1.0f)
+  constexpr float minCameraSpeed = 0.1f;
+  if (mSpeed < minCameraSpeed)
   {
-    mSpeed = 1.0f;
+    mSpeed = minCameraSpeed;
   }
 
   // Change the camera position depending on input.
@@ -64,8 +65,8 @@ void Camera::Update(float dt)
   if (Input::MouseDown(Input::Mouse::Right))
   {
     Vec2 mouseMotion = Input::MouseMotion();
-    mYaw += mouseMotion[0] * dt * mSensitivity;
-    mPitch -= mouseMotion[1] * dt * mSensitivity;
+    mYaw += mouseMotion[0] * mSensitivity;
+    mPitch -= mouseMotion[1] * mSensitivity;
     if (mPitch >= PIO2f)
     {
       mPitch = PIO2f - EPSILONLf;
