@@ -16,8 +16,8 @@ SpotLight::SpotLight():
   mLinear(0.35f),
   mQuadratic(0.44f)
 {
-  SetInnerCutoff(PIf / 6.0f);
-  SetOuterCutoff(PIf / 5.0f);
+  SetInnerCutoff(Math::nPi / 6.0f);
+  SetOuterCutoff(Math::nPi / 5.0f);
 }
 
 void SpotLight::SetInnerCutoff(float angle)
@@ -56,7 +56,8 @@ void SpotLight::EditorHook()
   float innerCutoff = GetInnerCutoff();
   float outerCutoff = GetOuterCutoff();
   ImGui::DragFloat("Inner Cutoff", &innerCutoff, 0.01f, 0.0f, outerCutoff);
-  ImGui::DragFloat("Outer Cutoff", &outerCutoff, 0.01f, innerCutoff, PIO2f);
+  ImGui::DragFloat(
+    "Outer Cutoff", &outerCutoff, 0.01f, innerCutoff, Math::nPiO2);
   SetInnerCutoff(innerCutoff);
   SetOuterCutoff(outerCutoff);
 }

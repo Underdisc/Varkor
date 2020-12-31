@@ -12,7 +12,7 @@ Camera::Camera()
   mPosition = {0.0f, 0.0f, 0.0f};
 
   mSpeed = 1.0f;
-  mSensitivity = 0.3f * PIf / 256.0f;
+  mSensitivity = 0.3f * Math::nPi / 256.0f;
 
   CalculateBasisVectors();
   mWtc[3][0] = 0.0f;
@@ -67,12 +67,12 @@ void Camera::Update(float dt)
     Vec2 mouseMotion = Input::MouseMotion();
     mYaw += mouseMotion[0] * mSensitivity;
     mPitch -= mouseMotion[1] * mSensitivity;
-    if (mPitch >= PIO2f)
+    if (mPitch >= Math::nPiO2)
     {
-      mPitch = PIO2f - EPSILONLf;
-    } else if (mPitch <= -PIO2f)
+      mPitch = Math::nPiO2 - Math::nEpsilonL;
+    } else if (mPitch <= -Math::nPiO2)
     {
-      mPitch = -PIO2f + EPSILONLf;
+      mPitch = -Math::nPiO2 + Math::nEpsilonL;
     }
     CalculateBasisVectors();
   }

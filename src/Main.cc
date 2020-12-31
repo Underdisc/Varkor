@@ -61,7 +61,7 @@ void Core()
   Comp::Transform objectTransforms[objectCount];
   for (int i = 0; i < objectCount; ++i)
   {
-    float radians = ((float)i * PI2f) / objectCount;
+    float radians = ((float)i * Math::nTao) / objectCount;
     float x = 3.0f * std::cosf(radians);
     float y = 3.0f * std::sinf(radians);
     objectTransforms[i].SetTranslation({x, y, 0.0f});

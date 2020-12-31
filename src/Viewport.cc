@@ -12,7 +12,7 @@ void ResizeCallback(GLFWwindow* window, int width, int height);
 
 GLFWwindow* nWindow;
 bool nActive = true;
-float nFov = PIf / 2.0f;
+float nFov = Math::nPi / 2.0f;
 int nWidth = 800;
 int nHeight = 800;
 float nNear = 0.1f;
