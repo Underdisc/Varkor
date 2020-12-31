@@ -27,7 +27,6 @@
 
 void Core()
 {
-  Framer::SetFramerate(120);
   Input::Init();
   Debug::Draw::Init();
   Editor::Init();
@@ -125,7 +124,7 @@ void Core()
     }
 
     // Dispaly all adjustable values in an editor window.
-    ImGui::Begin("Editor");
+    ImGui::Begin("TempEditor");
     if (ImGui::TreeNode("Lights"))
     {
       for (int i = 0; i < pointLightCount; ++i)
@@ -270,7 +269,9 @@ int main(void)
 {
   Error::Init("log.err");
   Viewport::Init();
+  Framer::Init();
   Core();
+  Framer::Purge();
   Viewport::Purge();
   Error::Purge();
   return 0;

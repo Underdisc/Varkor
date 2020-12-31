@@ -3,11 +3,26 @@
 
 namespace Framer {
 
-void SetFramerate(int framerate);
-void VSyncFrameLimiting();
+extern float nAverageUpdatePeriod;
+
+void Init();
+void Purge();
+
 void Start();
 void End();
+
+void SetVSync(bool enable);
+void SetFramerate(int framerate);
+void SetDefaultFramerate();
+void SetFrameAverageCount(int count);
+
+bool VSyncEnabled();
+bool FramerateUncapped();
+
 float DeltaTime();
+float GetAverageFrameUsage();
+float GetAverageFps();
+int GetFramerate();
 
 } // namespace Framer
 
