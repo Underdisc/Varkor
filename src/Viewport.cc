@@ -1,6 +1,8 @@
 // glad.h must be included before glfw3.h.
+// clang-format off
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+// clang-format on
 
 #include "math/Constants.h"
 
@@ -55,6 +57,16 @@ void SwapBuffers()
 const Mat4& Perspective()
 {
   return nPerspective;
+}
+
+float Near()
+{
+  return nNear;
+}
+
+float Far()
+{
+  return nFar;
 }
 
 GLFWwindow* Window()

@@ -172,18 +172,18 @@ void Core()
     ImGui::End();
 
     // Render all of the point lights.
-    lightShader.SetMat4("view", camera.WorldToCamera().CData());
-    lightShader.SetMat4("proj", Viewport::Perspective().CData());
+    lightShader.SetMat4("uView", camera.WorldToCamera().CData());
+    lightShader.SetMat4("uProj", Viewport::Perspective().CData());
     for (int i = 0; i < pointLightCount; ++i)
     {
-      lightShader.SetMat4("model", lightTransforms[i].GetMatrix().CData());
-      lightShader.SetVec3("lightColor", pointLights[i].mSpecular.CData());
+      lightShader.SetMat4("uModel", lightTransforms[i].GetMatrix().CData());
+      lightShader.SetVec3("uLightColor", pointLights[i].mSpecular.CData());
       lightModel.Draw(lightShader);
     }
 
     // Render the spotLight
-    lightShader.SetMat4("model", lightTransforms[4].GetMatrix().CData());
-    lightShader.SetVec3("lightColor", spotLight.mSpecular.CData());
+    lightShader.SetMat4("uModel", lightTransforms[4].GetMatrix().CData());
+    lightShader.SetVec3("uLightColor", spotLight.mSpecular.CData());
     lightModel.Draw(lightShader);
 
     // Show the direction of the directional light.

@@ -1,10 +1,10 @@
 #version 330 core
 
-out vec4 finalColor;
+out vec4 iFinalColor;
 
-uniform vec3 lightColor;
+uniform vec3 uLightColor;
 
 void main()
 {
-  finalColor = vec4(lightColor, 1.0);
+  iFinalColor = vec4(uLightColor, 1.0);
 }

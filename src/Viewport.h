@@ -11,7 +11,10 @@ void Init();
 void Update();
 void Purge();
 void SwapBuffers();
+
 const Mat4& Perspective();
+float Near();
+float Far();
 GLFWwindow* Window();
 bool Active();
 
