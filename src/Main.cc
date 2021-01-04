@@ -34,12 +34,13 @@ void Core()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_STENCIL_TEST);
 
   Camera camera;
 
   // shader setup
   Gfx::Shader phongShader("shader/phong.vs", "shader/phong.fs");
-  Gfx::Shader lightShader("shader/light.vs", "shader/light.fs");
+  Gfx::Shader colorShader("shader/light.vs", "shader/PureColor.fs");
 
   // light setup
   float specularExponent = 32.0f;
@@ -172,19 +173,19 @@ void Core()
     ImGui::End();
 
     // Render all of the point lights.
-    lightShader.SetMat4("uView", camera.WorldToCamera().CData());
-    lightShader.SetMat4("uProj", Viewport::Perspective().CData());
+    colorShader.SetMat4("uView", camera.WorldToCamera().CData());
+    colorShader.SetMat4("uProj", Viewport::Perspective().CData());
     for (int i = 0; i < pointLightCount; ++i)
     {
-      lightShader.SetMat4("uModel", lightTransforms[i].GetMatrix().CData());
-      lightShader.SetVec3("uLightColor", pointLights[i].mSpecular.CData());
-      lightModel.Draw(lightShader);
+      colorShader.SetMat4("uModel", lightTransforms[i].GetMatrix().CData());
+      colorShader.SetVec3("uColor", pointLights[i].mSpecular.CData());
+      lightModel.Draw(colorShader);
     }
 
     // Render the spotLight
-    lightShader.SetMat4("uModel", lightTransforms[4].GetMatrix().CData());
-    lightShader.SetVec3("uLightColor", spotLight.mSpecular.CData());
-    lightModel.Draw(lightShader);
+    colorShader.SetMat4("uModel", lightTransforms[4].GetMatrix().CData());
+    colorShader.SetVec3("uColor", spotLight.mSpecular.CData());
+    lightModel.Draw(colorShader);
 
     // Show the direction of the directional light.
     Vec3 white = {1.0f, 1.0f, 1.0f};
@@ -195,6 +196,7 @@ void Core()
     phongShader.SetMat4("view", camera.WorldToCamera().CData());
     phongShader.SetMat4("proj", Viewport::Perspective().CData());
     phongShader.SetVec3("viewPos", camera.Position().CData());
+    phongShader.SetFloat("material.specularExponent", specularExponent);
     // Set all of the uniforms for the point lights.
     for (int i = 0; i < pointLightCount; ++i)
     {
@@ -233,26 +235,50 @@ void Core()
     phongShader.SetVec3("dirLight.ambient", dirLight.mAmbient.CData());
     phongShader.SetVec3("dirLight.diffuse", dirLight.mDiffuse.CData());
     phongShader.SetVec3("dirLight.specular", dirLight.mSpecular.CData());
-    // Set the material uniforms and bind the correct textures to the texture
-    // units.
+
+    // Render the backpack.
+    phongShader.SetMat4("model", backpackTransform.GetMatrix().CData());
+    backpackModel.Draw(phongShader);
+
+    // Set up the correct textures for the objects.
     phongShader.SetSampler("material.diffuseMap", 0);
     phongShader.SetSampler("material.specularMap", 1);
-    phongShader.SetFloat("material.specularExponent", specularExponent);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, diffuseTexture.Id());
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, specularTexture.Id());
 
-    // Render all of the objects.
+    // Render the objects and write to the stencil buffer.
+    glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 0x10, 0xff);
+    glStencilMask(0xff);
     for (int i = 0; i < objectCount; ++i)
     {
       phongShader.SetMat4("model", objectTransforms[i].GetMatrix().CData());
       objectModel.Draw(phongShader);
     }
 
-    // Render the backpack.
-    phongShader.SetMat4("model", backpackTransform.GetMatrix().CData());
-    backpackModel.Draw(phongShader);
+    // Render the outlines of the objects.
+    glDisable(GL_DEPTH_TEST);
+    glStencilFunc(GL_NOTEQUAL, 0x10, 0xff);
+    glStencilMask(0x00);
+    for (int i = 0; i < objectCount; ++i)
+    {
+      Mat4 scaleBump;
+      Math::Scale(&scaleBump, 1.1f);
+      const Mat4& currentTransform = objectTransforms[i].GetMatrix();
+      Mat4 newTransform = currentTransform * scaleBump;
+      Vec3 red = {1.0f, 0.0f, 0.0f};
+      colorShader.SetMat4("uModel", newTransform.CData());
+      colorShader.SetVec3("uColor", red.CData());
+      objectModel.Draw(colorShader);
+    }
+    glEnable(GL_DEPTH_TEST);
+
+    // Clear the stencil buffer.
+    glStencilMask(0xff);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glStencilMask(0x00);
 
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());
