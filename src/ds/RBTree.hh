@@ -1,11 +1,31 @@
 #include "Error.h"
 #include "debug/MemLeak.h"
+#include "util/Utility.h"
 
 namespace Ds {
 
 template<typename T>
 RbTree<T>::Node::Node(const T& value):
   mValue(value),
+  mParent(nullptr),
+  mLeft(nullptr),
+  mRight(nullptr),
+  mColor(Color::Red)
+{}
+
+template<typename T>
+RbTree<T>::Node::Node(T&& value):
+  mValue(Util::Move(value)),
+  mParent(nullptr),
+  mLeft(nullptr),
+  mRight(nullptr),
+  mColor(Color::Red)
+{}
+
+template<typename T>
+template<typename... Args>
+RbTree<T>::Node::Node(const Args&... args):
+  mValue(args...),
   mParent(nullptr),
   mLeft(nullptr),
   mRight(nullptr),
@@ -40,6 +60,21 @@ template<typename T>
 void RbTree<T>::Insert(const T& value)
 {
   Node* newNode = alloc Node(value);
+  Insert(newNode);
+}
+
+template<typename T>
+void RbTree<T>::Insert(T&& value)
+{
+  Node* newNode = alloc Node(Util::Move(value));
+  Insert(newNode);
+}
+
+template<typename T>
+template<typename... Args>
+void RbTree<T>::Emplace(const Args&... args)
+{
+  Node* newNode = alloc Node(args...);
   Insert(newNode);
 }
 

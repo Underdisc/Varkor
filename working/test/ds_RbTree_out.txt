@@ -66,3 +66,27 @@ B: 19
    | \B: 3
    \B: 1
     \R: 0
+
+<= MoveInsert =>
+B: [6, 6]
+| \B: [10, 10]
+|  | \R: [11, 11]
+|  \R: [9, 9]
+\B: [2, 2]
+ | \R: [5, 5]
+ \R: [1, 1]
+ConstructorCount: 7
+MoveConstructorCount: 7
+
+<= Emplace =>
+B: [3, 3]
+| \B: [8, 8]
+|  | \B: [9, 9]
+|  \R: [6, 6]
+|   | \B: [7, 7]
+|   \B: [4, 4]
+|      \R: [5, 5]
+\B: [1, 1]
+ | \B: [2, 2]
+ \B: [0, 0]
+ConstructorCount: 10

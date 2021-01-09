@@ -3,6 +3,8 @@
 
 #include "debug/MemLeak.h"
 #include "ds/RbTree.h"
+#include "test/ds/TestType.h"
+#include "util/Utility.h"
 
 struct BTreeIndenter
 {
@@ -134,6 +136,42 @@ void ExplicitInsert()
     tree.Insert(sequence[i]);
   }
   PrintRbTree(tree);
+  std::cout << std::endl;
+}
+
+void MoveInsert()
+{
+  std::cout << "<= MoveInsert =>" << std::endl;
+  int sequence[] = {10, 5, 6, 11, 1, 9, 2};
+  int sequenceSize = sizeof(sequence) / sizeof(int);
+  Ds::RbTree<TestType> tree;
+  for (int i = 0; i < sequenceSize; ++i)
+  {
+    TestType newValue(sequence[i], (float)sequence[i]);
+    tree.Insert(Util::Move(newValue));
+  }
+  PrintRbTree(tree);
+  std::cout << "ConstructorCount: " << TestType::smConstructorCount << std::endl
+            << "MoveConstructorCount: " << TestType::smMoveConstructorCount
+            << std::endl
+            << std::endl;
+  TestType::ResetCounts();
+}
+
+void Emplace()
+{
+  std::cout << "<= Emplace =>" << std::endl;
+  int sequence[] = {0, 9, 1, 8, 2, 7, 3, 6, 4, 5};
+  int sequenceSize = sizeof(sequence) / sizeof(int);
+  Ds::RbTree<TestType> tree;
+  for (int i = 0; i < sequenceSize; ++i)
+  {
+    tree.Emplace(sequence[i], (float)sequence[i]);
+  }
+  PrintRbTree(tree);
+  std::cout << "ConstructorCount: " << TestType::smConstructorCount
+            << std::endl;
+  TestType::ResetCounts();
 }
 
 int main()
@@ -142,4 +180,6 @@ int main()
   LeftInsert();
   RightInsert();
   ExplicitInsert();
+  MoveInsert();
+  Emplace();
 }

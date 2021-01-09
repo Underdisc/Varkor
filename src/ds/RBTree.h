@@ -10,6 +10,9 @@ public:
   struct Node
   {
     Node(const T& value);
+    Node(T&& value);
+    template<typename... Args>
+    Node(const Args&... args);
     void Recolor();
 
     enum class Color
@@ -29,6 +32,9 @@ public:
   RbTree();
   ~RbTree();
   void Insert(const T& value);
+  void Insert(T&& value);
+  template<typename... Args>
+  void Emplace(const Args&... args);
   const Node* GetHead() const;
 
 private:

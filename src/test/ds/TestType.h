@@ -6,16 +6,20 @@
 struct TestType
 {
   TestType();
-  TestType(const TestType& other);
   TestType(int a, float b);
+  TestType(const TestType& other);
+  TestType(TestType&& other);
   ~TestType();
   TestType& operator=(const TestType& other);
   TestType& operator=(TestType&& other);
+  bool operator>(const TestType& other);
+  bool operator<(const TestType& other);
   static void ResetCounts();
 
   static int smDefaultConstructorCount;
-  static int smCopyConstructorCount;
   static int smConstructorCount;
+  static int smCopyConstructorCount;
+  static int smMoveConstructorCount;
   static int smDestructorCount;
   static int smCopyEqualsOpCount;
   static int smMoveEqualsOpCount;
