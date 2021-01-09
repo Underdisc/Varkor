@@ -2,6 +2,7 @@
 
 #include "debug/MemLeak.h"
 #include "ds/Vector.h"
+#include "test/ds/TestType.h"
 #include "util/Utility.h"
 
 template<typename T>
@@ -120,72 +121,6 @@ void MultiplePush()
   test.Push(1, 15);
   PrintVector(test);
   std::cout << std::endl;
-}
-
-struct TestType
-{
-  int mA;
-  float mB;
-  TestType()
-  {
-    ++smDefaultConstructorCount;
-  }
-  TestType(const TestType& other): mA(other.mA), mB(other.mB)
-  {
-    ++smCopyConstructorCount;
-  }
-  TestType(int a, float b): mA(a), mB(b)
-  {
-    ++smConstructorCount;
-  }
-  ~TestType()
-  {
-    ++smDestructorCount;
-  }
-
-  TestType& operator=(const TestType& other)
-  {
-    mA = other.mA;
-    mB = other.mB;
-    ++smCopyEqualsOpCount;
-    return *this;
-  }
-  TestType& operator=(TestType&& other)
-  {
-    mA = other.mA;
-    mB = other.mB;
-    ++smMoveEqualsOpCount;
-    return *this;
-  }
-
-  static int smDefaultConstructorCount;
-  static int smCopyConstructorCount;
-  static int smConstructorCount;
-  static int smDestructorCount;
-  static int smCopyEqualsOpCount;
-  static int smMoveEqualsOpCount;
-
-  static void ResetCounts()
-  {
-    smDefaultConstructorCount = 0;
-    smCopyConstructorCount = 0;
-    smConstructorCount = 0;
-    smDestructorCount = 0;
-    smCopyEqualsOpCount = 0;
-    smMoveEqualsOpCount = 0;
-  }
-};
-int TestType::smDefaultConstructorCount = 0;
-int TestType::smCopyConstructorCount = 0;
-int TestType::smConstructorCount = 0;
-int TestType::smDestructorCount = 0;
-int TestType::smCopyEqualsOpCount = 0;
-int TestType::smMoveEqualsOpCount = 0;
-
-std::ostream& operator<<(std::ostream& os, const TestType& rhs)
-{
-  os << "[" << rhs.mA << ", " << rhs.mB << "]";
-  return os;
 }
 
 void Emplace()

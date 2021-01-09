@@ -12,8 +12,8 @@ endfunction()
 AddTest(core_ComponentTable
   core/ComponentTable.cc
   ../core/ComponentTable.cc
-  ../debug/MemLeak.cc
   ../core/Types.cc
+  ../debug/MemLeak.cc
   ../Error.cc)
 
 AddTest(core_Space
@@ -24,10 +24,17 @@ AddTest(core_Space
   ../debug/MemLeak.cc
   ../Error.cc)
 
+Addtest(ds_RbTree
+  ds/RbTree.cc
+  ds/TestType.cc
+  ../debug/MemLeak.cc
+  ../Error.cc)
+
 AddTest(ds_Vector
   ds/Vector.cc
-  ../Error.cc
-  ../debug/MemLeak.cc)
+  ds/TestType.cc
+  ../debug/MemLeak.cc
+  ../Error.cc)
 
 AddTest(math_Complex
   math/Complex.cc)
