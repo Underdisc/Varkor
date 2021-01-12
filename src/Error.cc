@@ -88,11 +88,11 @@ void LogString(const char* string)
 {
   if (nUseCout)
   {
-    std::cout << string;
+    std::cout << string << std::endl;
   }
   if (nErrorFile.is_open())
   {
-    nErrorFile << string;
+    nErrorFile << string << std::endl;
   }
 }
 
