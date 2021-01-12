@@ -49,14 +49,14 @@ void Log(const char* file, int line, const char* reason)
 {
   std::stringstream ss;
   std::string fileName = FormatFileName(file);
-  ss << "Error|" << fileName << "|" << line << "> " << reason << std::endl;
+  ss << "Error|" << fileName << "|" << line << "> " << reason;
   LogString(ss.str().c_str());
 }
 
 void Log(const char* reason)
 {
   std::stringstream ss;
-  ss << "Error> " << reason << std::endl;
+  ss << "Error> " << reason;
   LogString(ss.str().c_str());
 }
 
@@ -64,7 +64,7 @@ void Abort(const char* file, int line, const char* reason)
 {
   std::stringstream ss;
   std::string fileName = FormatFileName(file);
-  ss << "Abort|" << fileName << "|" << line << "> " << reason << std::endl;
+  ss << "Abort|" << fileName << "|" << line << "> " << reason;
   LogString(ss.str().c_str());
   abort();
 }
@@ -72,7 +72,7 @@ void Abort(const char* file, int line, const char* reason)
 void Abort(const char* reason)
 {
   std::stringstream ss;
-  ss << "Abort> " << reason << std::endl;
+  ss << "Abort> " << reason;
   LogString(ss.str().c_str());
   abort();
 }
