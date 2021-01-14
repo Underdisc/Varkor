@@ -13,7 +13,6 @@ public:
     Node(T&& value);
     template<typename... Args>
     Node(const Args&... args);
-    void Recolor();
 
     enum class Color
     {
@@ -35,14 +34,25 @@ public:
   void Insert(T&& value);
   template<typename... Args>
   void Emplace(const Args&... args);
+  void Remove(const T& value);
+  void Clear();
+  bool Contains(const T& value);
+
   const Node* GetHead() const;
+  bool HasConsistentBlackHeight();
+  bool HasDoubleRed();
 
 private:
   void Insert(Node* newNode);
   void BalanceInsertion(Node* child);
+  void BalanceRemoval(Node* node);
   void RotateLeft(Node* oldRoot);
   void RotateRight(Node* oldRoot);
   void Delete(Node* node);
+
+  Node* FindPredecessor(Node* node);
+  bool HasBlackHeight(Node* node, int currentBh, int expectedBh);
+  bool HasDoubleRed(Node* node);
 
   Node* mHead;
 };

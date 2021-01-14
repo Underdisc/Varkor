@@ -1,6 +1,8 @@
 #include <iostream>
+#include <stdlib.h>
 #include <string>
 
+#include "Error.h"
 #include "debug/MemLeak.h"
 #include "ds/RbTree.h"
 #include "test/ds/TestType.h"
@@ -91,9 +93,14 @@ void PrintRbTreeNode(
 template<typename T>
 void PrintRbTree(const Ds::RbTree<T>& rbTree)
 {
-  const Ds::RbTree<T>::Node& head = *rbTree.GetHead();
+  const Ds::RbTree<T>::Node* head = rbTree.GetHead();
+  if (head == nullptr)
+  {
+    std::cout << "Empty Tree" << std::endl;
+    return;
+  }
   BTreeIndenter indenter;
-  PrintRbTreeNode<T>(head, indenter);
+  PrintRbTreeNode<T>(*head, indenter);
 }
 
 void LeftInsert()
@@ -169,9 +176,132 @@ void Emplace()
     tree.Emplace(sequence[i], (float)sequence[i]);
   }
   PrintRbTree(tree);
-  std::cout << "ConstructorCount: " << TestType::smConstructorCount
+  std::cout << "ConstructorCount: " << TestType::smConstructorCount << std::endl
             << std::endl;
   TestType::ResetCounts();
+}
+
+void BasicRemove()
+{
+  std::cout << "<= BasicRemove =>" << std::endl;
+  // This tests the basic cases for removal such as deleting the head or
+  // removing dangling red nodes.
+  Ds::RbTree<int> tree;
+  tree.Insert(5);
+  tree.Remove(5);
+  PrintRbTree(tree);
+  std::cout << "--- 0 ---" << std::endl;
+  tree.Insert(5);
+  tree.Insert(3);
+  tree.Remove(3);
+  PrintRbTree(tree);
+  std::cout << "--- 1 ---" << std::endl;
+  tree.Insert(7);
+  tree.Remove(7);
+  PrintRbTree(tree);
+  std::cout << "--- 2 ---" << std::endl;
+  tree.Insert(7);
+  tree.Remove(5);
+  PrintRbTree(tree);
+  std::cout << "--- 3 ---" << std::endl;
+  tree.Insert(5);
+  tree.Remove(7);
+  PrintRbTree(tree);
+  std::cout << "--- 4 ---" << std::endl;
+  tree.Insert(3);
+  tree.Insert(7);
+  tree.Remove(5);
+  PrintRbTree(tree);
+  std::cout << "--- 5 ---" << std::endl;
+  tree.Insert(5);
+  tree.Insert(4);
+  tree.Remove(5);
+  PrintRbTree(tree);
+  std::cout << "--- 6 ---" << std::endl;
+  tree.Insert(2);
+  tree.Remove(4);
+  PrintRbTree(tree);
+  std::cout << "--- 7 ---" << std::endl;
+  tree.Insert(10);
+  tree.Insert(5);
+  tree.Insert(6);
+  tree.Insert(8);
+  tree.Insert(15);
+  tree.Insert(20);
+  tree.Remove(10);
+  PrintRbTree(tree);
+  std::cout << "--- 8 ---" << std::endl;
+  std::cout << std::endl;
+}
+
+void ExtensiveModification()
+{
+  std::cout << "<= ExtensiveModification =>" << std::endl;
+  Ds::RbTree<int> tree;
+  constexpr int exchangeCount = 20;
+  int treeValues[2][exchangeCount];
+  int* front = treeValues[0];
+  int* back = treeValues[1];
+
+  auto checkTree = [&tree]()
+  {
+    LogAbortIf(
+      !tree.HasConsistentBlackHeight(),
+      "The black height of the tree is not consistent.");
+    LogAbortIf(tree.HasDoubleRed(), "The tree has a double red.");
+  };
+
+  // This will insert values into the tree and store the inserted values in the
+  // provided buffer.
+  auto insertValues = [&checkTree, &tree, exchangeCount](int* buffer)
+  {
+    int insertionCount = 0;
+    while (insertionCount < exchangeCount)
+    {
+      int value = rand() % 1000;
+      if (!tree.Contains(value))
+      {
+        tree.Insert(value);
+        checkTree();
+        buffer[insertionCount] = value;
+        ++insertionCount;
+      }
+    }
+  };
+
+  // This will remove all of the values in the provided buffer from the tree.
+  auto removeValues = [&checkTree, &tree, exchangeCount](int* buffer)
+  {
+    for (int i = 0; i < exchangeCount; ++i)
+    {
+      tree.Remove(buffer[i]);
+      checkTree();
+    }
+  };
+
+  // We begin by insterting values into the tree and the front buffer as an
+  // initialization step.
+  srand(5);
+  insertValues(front);
+
+  for (int i = 0; i < 10; ++i)
+  {
+    // Values are inserted into the tree and the back buffer first. After this,
+    // all of the values in the front buffer are removed and the buffers are
+    // swapped.
+    insertValues(back);
+    removeValues(front);
+    PrintRbTree(tree);
+    std::cout << "--- " << i << " ---" << std::endl;
+
+    int* temp = front;
+    front = back;
+    back = temp;
+  }
+
+  // We end by emptying all values from the tree.
+  removeValues(front);
+  PrintRbTree(tree);
 }
 
 int main()
@@ -182,4 +312,6 @@ int main()
   ExplicitInsert();
   MoveInsert();
   Emplace();
+  BasicRemove();
+  ExtensiveModification();
 }
