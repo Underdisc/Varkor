@@ -42,6 +42,12 @@ public:
   bool HasConsistentBlackHeight();
   bool HasDoubleRed();
 
+protected:
+  // CT is a type that is comparable to the type stored in the tree. In other
+  // words, T can be compared to CT with the > and < operators.
+  template<typename CT>
+  Node* Find(const CT& value);
+
 private:
   void Insert(Node* newNode);
   void BalanceInsertion(Node* child);
