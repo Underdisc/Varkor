@@ -2,29 +2,9 @@
 
 #include "debug/MemLeak.h"
 #include "ds/Vector.h"
+#include "test/ds/Print.h"
 #include "test/ds/TestType.h"
 #include "util/Utility.h"
-
-template<typename T>
-void PrintVector(const Ds::Vector<T>& vector, bool stats = true)
-{
-  if (stats)
-  {
-    std::cout << "Size: " << vector.Size() << std::endl;
-    std::cout << "Capactiy: " << vector.Capacity() << std::endl;
-  }
-  if (vector.Size() == 0)
-  {
-    std::cout << "[]" << std::endl;
-    return;
-  }
-  std::cout << "[";
-  for (int i = 0; i < vector.Size() - 1; ++i)
-  {
-    std::cout << vector[i] << ", ";
-  }
-  std::cout << vector[vector.Size() - 1] << "]" << std::endl;
-}
 
 void CopyConstructor()
 {

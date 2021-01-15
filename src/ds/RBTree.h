@@ -46,10 +46,11 @@ protected:
   // CT is a type that is comparable to the type stored in the tree. In other
   // words, T can be compared to CT with the > and < operators.
   template<typename CT>
-  Node* Find(const CT& value);
+  Node* FindNode(const CT& value);
+  void RemoveNode(Node* node);
 
 private:
-  void Insert(Node* newNode);
+  void InsertNode(Node* newNode);
   void BalanceInsertion(Node* child);
   void BalanceRemoval(Node* node);
   void RotateLeft(Node* oldRoot);

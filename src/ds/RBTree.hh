@@ -52,14 +52,14 @@ template<typename T>
 void RbTree<T>::Insert(const T& value)
 {
   Node* newNode = alloc Node(value);
-  Insert(newNode);
+  InsertNode(newNode);
 }
 
 template<typename T>
 void RbTree<T>::Insert(T&& value)
 {
   Node* newNode = alloc Node(Util::Move(value));
-  Insert(newNode);
+  InsertNode(newNode);
 }
 
 template<typename T>
@@ -67,16 +67,20 @@ template<typename... Args>
 void RbTree<T>::Emplace(const Args&... args)
 {
   Node* newNode = alloc Node(args...);
-  Insert(newNode);
+  InsertNode(newNode);
 }
 
 template<typename T>
 void RbTree<T>::Remove(const T& value)
 {
-  // Find the node that contains the value.
-  Node* node = Find<T>(value);
+  Node* node = FindNode<T>(value);
   LogAbortIf(node == nullptr, "The RbTree does not contain the value.");
+  RemoveNode(node);
+}
 
+template<typename T>
+void RbTree<T>::RemoveNode(Node* node)
+{
   // Find out if there is a node that will take the place of the node to be
   // removed.
   Node* replace = nullptr;
@@ -161,7 +165,7 @@ void RbTree<T>::Clear()
 template<typename T>
 bool RbTree<T>::Contains(const T& value)
 {
-  Node* node = Find<T>(value);
+  Node* node = FindNode<T>(value);
   return node != nullptr;
 }
 
@@ -199,15 +203,15 @@ const typename RbTree<T>::Node* RbTree<T>::GetHead() const
 
 template<typename T>
 template<typename CT>
-typename RbTree<T>::Node* RbTree<T>::Find(const CT& value)
+typename RbTree<T>::Node* RbTree<T>::FindNode(const CT& value)
 {
   Node* node = mHead;
   while (node != nullptr)
   {
-    if (value < node->mValue)
+    if (node->mValue > value)
     {
       node = node->mLeft;
-    } else if (value > node->mValue)
+    } else if (node->mValue < value)
     {
       node = node->mRight;
     } else
@@ -219,7 +223,7 @@ typename RbTree<T>::Node* RbTree<T>::Find(const CT& value)
 }
 
 template<typename T>
-void RbTree<T>::Insert(Node* newNode)
+void RbTree<T>::InsertNode(Node* newNode)
 {
   if (mHead == nullptr)
   {

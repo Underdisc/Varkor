@@ -24,6 +24,10 @@ AddTest(core_Space
   ../debug/MemLeak.cc
   ../Error.cc)
 
+Addtest(ds_Map
+  ds/Map.cc
+  ../Error.cc)
+
 Addtest(ds_RbTree
   ds/RbTree.cc
   ds/TestType.cc
