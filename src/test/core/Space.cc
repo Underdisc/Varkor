@@ -297,20 +297,20 @@ void GetComponent()
   space.AddComponent<Comp1>(mem1);
   space.AddComponent<Comp2>(mem1);
 
-  Comp0& mem0comp0 = space.GetComponent<Comp0>(mem0);
-  mem0comp0.SetData(0);
-  Comp1& mem0comp1 = space.GetComponent<Comp1>(mem0);
-  mem0comp1.SetData(1);
-  Comp2& mem0comp2 = space.GetComponent<Comp2>(mem0);
-  mem0comp2.SetData(2);
-  Comp3& mem0comp3 = space.GetComponent<Comp3>(mem0);
-  mem0comp3.SetData(3);
-  Comp0& mem1comp0 = space.GetComponent<Comp0>(mem1);
-  mem1comp0.SetData(1);
-  Comp1& mem1comp1 = space.GetComponent<Comp1>(mem1);
-  mem1comp1.SetData(2);
-  Comp2& mem1comp2 = space.GetComponent<Comp2>(mem1);
-  mem1comp2.SetData(3);
+  Comp0* mem0comp0 = space.GetComponent<Comp0>(mem0);
+  mem0comp0->SetData(0);
+  Comp1* mem0comp1 = space.GetComponent<Comp1>(mem0);
+  mem0comp1->SetData(1);
+  Comp2* mem0comp2 = space.GetComponent<Comp2>(mem0);
+  mem0comp2->SetData(2);
+  Comp3* mem0comp3 = space.GetComponent<Comp3>(mem0);
+  mem0comp3->SetData(3);
+  Comp0* mem1comp0 = space.GetComponent<Comp0>(mem1);
+  mem1comp0->SetData(1);
+  Comp1* mem1comp1 = space.GetComponent<Comp1>(mem1);
+  mem1comp1->SetData(2);
+  Comp2* mem1comp2 = space.GetComponent<Comp2>(mem1);
+  mem1comp2->SetData(3);
 
   space.ShowAll();
   PrintComponentData<Comp0>(space, 2);

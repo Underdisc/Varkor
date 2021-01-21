@@ -95,6 +95,8 @@ void Space::MemberVisitor::ReachValidMember()
   }
 }
 
+Space::Space(): mName("DefaultName") {}
+
 Space::Space(const std::string& name): mName(name) {}
 
 TableRef Space::RegisterComponentType(int componentId, int size)
