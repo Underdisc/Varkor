@@ -132,7 +132,7 @@ void DeleteMember()
 {
   std::cout << "-=DeleteMember=-" << std::endl;
   Core::Space space;
-  MemRef memRefs[10];
+  Core::MemRef memRefs[10];
   for (int i = 0; i < 10; ++i)
   {
     memRefs[i] = space.CreateMember();
@@ -157,15 +157,15 @@ void AddComponent()
 {
   std::cout << "-=AddComponent=-" << std::endl;
   Core::Space space;
-  MemRef mem0 = space.CreateMember();
+  Core::MemRef mem0 = space.CreateMember();
   Comp0& mem0comp0 = space.AddComponent<Comp0>(mem0);
   Comp1& mem0comp1 = space.AddComponent<Comp1>(mem0);
   Comp2& mem0comp2 = space.AddComponent<Comp2>(mem0);
-  MemRef mem1 = space.CreateMember();
+  Core::MemRef mem1 = space.CreateMember();
   Comp0& mem1comp0 = space.AddComponent<Comp0>(mem1);
   Comp1& mem1comp1 = space.AddComponent<Comp1>(mem1);
   Comp2& mem1comp2 = space.AddComponent<Comp2>(mem1);
-  MemRef mem2 = space.CreateMember();
+  Core::MemRef mem2 = space.CreateMember();
   Comp0& mem2comp0 = space.AddComponent<Comp0>(mem2);
   Comp3& mem2comp3 = space.AddComponent<Comp3>(mem2);
   mem2comp3.SetData(5);
@@ -191,20 +191,20 @@ void RemComponent()
 {
   std::cout << "-=RemComponent=-" << std::endl;
   Core::Space space;
-  MemRef mem0 = space.CreateMember();
+  Core::MemRef mem0 = space.CreateMember();
   space.AddComponent<Comp0>(mem0);
   space.AddComponent<Comp1>(mem0);
   space.AddComponent<Comp2>(mem0);
   space.AddComponent<Comp3>(mem0);
-  MemRef mem1 = space.CreateMember();
+  Core::MemRef mem1 = space.CreateMember();
   space.AddComponent<Comp0>(mem1);
   space.AddComponent<Comp1>(mem1);
   space.AddComponent<Comp2>(mem1);
-  MemRef mem2 = space.CreateMember();
+  Core::MemRef mem2 = space.CreateMember();
   space.AddComponent<Comp1>(mem2);
   space.AddComponent<Comp3>(mem2);
   space.AddComponent<Comp2>(mem2);
-  MemRef mem3 = space.CreateMember();
+  Core::MemRef mem3 = space.CreateMember();
   space.AddComponent<Comp3>(mem3);
   space.AddComponent<Comp2>(mem3);
   space.AddComponent<Comp0>(mem3);
@@ -232,7 +232,7 @@ void DeleteMembersWithComponents()
 {
   std::cout << "-=DeleteMembersWithComponents=-" << std::endl;
   Core::Space space;
-  MemRef memRefs[8];
+  Core::MemRef memRefs[8];
   for (int i = 0; i < 8; ++i)
   {
     memRefs[i] = space.CreateMember();
@@ -267,7 +267,7 @@ void DeleteMembersWithComponents()
   space.ShowUnusedMemRefs();
   space.ShowOwnersInTables();
 
-  MemRef newMemRef = space.CreateMember();
+  Core::MemRef newMemRef = space.CreateMember();
   space.AddComponent<Comp0>(newMemRef);
   space.AddComponent<Comp1>(newMemRef);
   space.AddComponent<Comp2>(newMemRef);
@@ -287,12 +287,12 @@ void GetComponent()
 {
   std::cout << "-=GetComponent=-" << std::endl;
   Core::Space space;
-  MemRef mem0 = space.CreateMember();
+  Core::MemRef mem0 = space.CreateMember();
   space.AddComponent<Comp0>(mem0);
   space.AddComponent<Comp1>(mem0);
   space.AddComponent<Comp2>(mem0);
   space.AddComponent<Comp3>(mem0);
-  MemRef mem1 = space.CreateMember();
+  Core::MemRef mem1 = space.CreateMember();
   space.AddComponent<Comp0>(mem1);
   space.AddComponent<Comp1>(mem1);
   space.AddComponent<Comp2>(mem1);
@@ -324,10 +324,10 @@ void HasComponent()
 {
   std::cout << "-=HasComponent=-" << std::endl;
   Core::Space space;
-  MemRef mem0 = space.CreateMember();
+  Core::MemRef mem0 = space.CreateMember();
   space.AddComponent<Comp1>(mem0);
   space.AddComponent<Comp2>(mem0);
-  MemRef mem1 = space.CreateMember();
+  Core::MemRef mem1 = space.CreateMember();
   space.AddComponent<Comp0>(mem1);
   space.AddComponent<Comp3>(mem1);
   space.AddComponent<Comp3>(mem0);

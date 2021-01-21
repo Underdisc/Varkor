@@ -2,6 +2,10 @@
 
 namespace Core {
 
-int nComponentCount = 0;
+int CreateId()
+{
+  static int id = 0;
+  return id++;
+}
 
 } // namespace Core
