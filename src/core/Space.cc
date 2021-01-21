@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #include "Error.h"
 
@@ -26,8 +27,6 @@ std::ostream& operator<<(std::ostream& os, const ComponentAddress& addr)
   os << "[" << addr.mTable << ", " << addr.mIndex << "]";
   return os;
 }
-
-int Member::smInvalidAddressIndex = -1;
 
 void Member::EndUse()
 {
@@ -60,6 +59,44 @@ std::ostream& operator<<(std::ostream& os, const Member& member)
   return os;
 }
 
+Space::MemberVisitor::MemberVisitor(Space& space):
+  mSpace(space), mCurrentMember(0)
+{
+  ReachValidMember();
+}
+
+Member& Space::MemberVisitor::CurrentMember()
+{
+  return mSpace.mMembers[mCurrentMember];
+}
+
+MemRef Space::MemberVisitor::CurrentMemberRef()
+{
+  return mCurrentMember;
+}
+
+void Space::MemberVisitor::Next()
+{
+  ++mCurrentMember;
+  ReachValidMember();
+}
+
+bool Space::MemberVisitor::End()
+{
+  return mCurrentMember >= mSpace.mMembers.Size();
+}
+
+void Space::MemberVisitor::ReachValidMember()
+{
+  Ds::Vector<Member>& members = mSpace.mMembers;
+  while (mCurrentMember < members.Size() && !members[mCurrentMember].InUse())
+  {
+    ++mCurrentMember;
+  }
+}
+
+Space::Space(const std::string& name): mName(name) {}
+
 TableRef Space::RegisterComponentType(int componentId, int size)
 {
   TableRef table = mTables.Size();
@@ -67,6 +104,11 @@ TableRef Space::RegisterComponentType(int componentId, int size)
   mTables.Push(newTable);
   mTableLookup[componentId] = table;
   return table;
+}
+
+Space::MemberVisitor Space::CreateMemberVisitor()
+{
+  return MemberVisitor(*this);
 }
 
 MemRef Space::CreateMember()
@@ -77,6 +119,7 @@ MemRef Space::CreateMember()
   // overhead. We should be more smart about what address we hand out for a new
   // member in the future.
   int addressIndex = mAddressBin.Size();
+  std::stringstream name;
 
   // If we have unused member references, we use those for the new member before
   // using member references that have yet to be use.
@@ -86,6 +129,8 @@ MemRef Space::CreateMember()
     Member& newMember = mMembers[newMemberRef];
     newMember.mAddressIndex = addressIndex;
     newMember.mCount = 0;
+    name << "Member " << newMemberRef;
+    newMember.mName = name.str();
     mUnusedMemRefs.Pop();
     return newMemberRef;
   }
@@ -93,6 +138,8 @@ MemRef Space::CreateMember()
   newMember.mAddressIndex = addressIndex;
   newMember.mCount = 0;
   MemRef newMemberRef = mMembers.Size();
+  name << "Member " << newMemberRef;
+  newMember.mName = name.str();
   mMembers.Push(newMember);
   return newMemberRef;
 }
@@ -205,7 +252,10 @@ void Space::RemComponent(int componentId, MemRef member)
 void* Space::GetComponent(int componentId, MemRef member) const
 {
   // Make sure the component table and member exist.
-  VerifyComponentTable(componentId);
+  if (!ValidComponentTable(componentId))
+  {
+    return nullptr;
+  }
   VerifyMember(member);
 
   // Find the requested component by going through the member's component

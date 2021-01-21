@@ -6,14 +6,17 @@ namespace Core {
 typedef signed short TableRef;
 typedef TableRef ObjSizeT;
 typedef int MemRef;
+typedef int SpaceRef;
+
+constexpr int nInvalidComponentId = -1;
+constexpr TableRef nInvalidTableRef = -1;
+constexpr MemRef nInvalidMemRef = -1;
+constexpr SpaceRef nInvalidSpaceRef = -1;
 
 // Though it is accessible, nComponentCount should not be modified anywhere
 // but this file. It is used to hand out component ids, and only the system
 // responsible for handing out component ids should change it.
-extern const int nInvalidComponentId;
 extern int nComponentCount;
-extern const MemRef nInvalidMemRef;
-extern const TableRef nInvalidTableRef;
 
 // When a struct is used as a component, a corresponding ComponentType will be
 // created and initialized to make an id for that type of component. This is

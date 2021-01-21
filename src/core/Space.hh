@@ -44,9 +44,9 @@ void Space::RemComponent(MemRef member)
 }
 
 template<typename T>
-T& Space::GetComponent(MemRef member)
+T* Space::GetComponent(MemRef member)
 {
-  return *((T*)GetComponent(ComponentType<T>::smId, member));
+  return (T*)GetComponent(ComponentType<T>::smId, member);
 }
 
 template<typename T>

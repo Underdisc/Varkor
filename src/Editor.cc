@@ -1,26 +1,92 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
+#include <sstream>
 
 #include "Framer.h"
 #include "Input.h"
 #include "Viewport.h"
+#include "comp/Transform.h"
+#include "core/Types.h"
+#include "core/World.h"
 
 #include "Editor.h"
 
 namespace Editor {
 
+Core::SpaceRef nSelectedSpace = Core::nInvalidSpaceRef;
+Core::World::Object nSelectedObject;
+
 bool nShowEditorWindow = false;
 bool nShowFramerWindow = false;
+bool nShowAddComponentWindow = false;
 
 void EditorWindow();
+void OverviewWindow();
+void InspectorWindow();
 void FramerWindow();
+
+// This acts as a replacement for ImGui::InputText when std::string types are
+// being modified rather than c style character buffers.
+bool InputText(const char* label, std::string* str);
+int InputTextCallback(ImGuiInputTextCallbackData* data);
+// Both of these functions abstract away the boiler plate code that is needed
+// for displaying editor elements related to component types.
+template<typename T>
+void AddComponentButton(Core::World::Object& selected);
+template<typename T>
+void DisplayComponent(Core::World::Object& object);
 
 void Init()
 {
   ImGui::CreateContext();
   ImGui_ImplGlfw_InitForOpenGL(Viewport::Window(), true);
   ImGui_ImplOpenGL3_Init("#version 330");
+
+  // Change imgui's default style so I find it more pleasing (ah opinions).
+  ImGuiStyle& imStyle = ImGui::GetStyle();
+  imStyle.WindowRounding = 0.0f;
+  imStyle.ScrollbarRounding = 0.0f;
+  imStyle.TabRounding = 0.0f;
+  imStyle.FrameBorderSize = 1.0f;
+  imStyle.TabBorderSize = 1.0f;
+  imStyle.WindowMenuButtonPosition = ImGuiDir_Right;
+
+  // A theme made for nerds.
+  ImVec4* colors = imStyle.Colors;
+  colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+  colors[ImGuiCol_WindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.90f);
+  colors[ImGuiCol_ChildBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.78f);
+  colors[ImGuiCol_PopupBg] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+  colors[ImGuiCol_Border] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+  colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+  colors[ImGuiCol_FrameBgHovered] = ImVec4(0.00f, 0.29f, 0.00f, 1.00f);
+  colors[ImGuiCol_FrameBgActive] = ImVec4(0.00f, 0.39f, 0.00f, 1.00f);
+  colors[ImGuiCol_TitleBg] = ImVec4(0.00f, 0.29f, 0.00f, 1.00f);
+  colors[ImGuiCol_TitleBgActive] = ImVec4(0.00f, 0.49f, 0.00f, 1.00f);
+  colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 0.94f);
+  colors[ImGuiCol_MenuBarBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+  colors[ImGuiCol_ScrollbarBg] = ImVec4(0.78f, 0.78f, 0.78f, 1.00f);
+  colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+  colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.00f, 0.39f, 0.00f, 1.00f);
+  colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
+  colors[ImGuiCol_CheckMark] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
+  colors[ImGuiCol_SliderGrab] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+  colors[ImGuiCol_SliderGrabActive] = ImVec4(0.20f, 0.59f, 0.20f, 1.00f);
+  colors[ImGuiCol_Button] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+  colors[ImGuiCol_ButtonHovered] = ImVec4(0.00f, 0.29f, 0.00f, 1.00f);
+  colors[ImGuiCol_ButtonActive] = ImVec4(0.00f, 0.39f, 0.00f, 1.00f);
+  colors[ImGuiCol_Header] = ImVec4(0.00f, 0.39f, 0.00f, 1.00f);
+  colors[ImGuiCol_HeaderHovered] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
+  colors[ImGuiCol_HeaderActive] = ImVec4(0.00f, 0.78f, 0.00f, 1.00f);
+  colors[ImGuiCol_Separator] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+  colors[ImGuiCol_ResizeGrip] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
+  colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.00f, 0.39f, 0.00f, 1.00f);
+  colors[ImGuiCol_ResizeGripActive] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
+  colors[ImGuiCol_Tab] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+  colors[ImGuiCol_TabHovered] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
+  colors[ImGuiCol_TabActive] = ImVec4(0.00f, 0.39f, 0.00f, 1.00f);
+  colors[ImGuiCol_PlotHistogram] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
 }
 
 void Start()
@@ -34,6 +100,14 @@ void Start()
   Input::SetKeyboardFocus(!io.WantCaptureKeyboard);
 
   EditorWindow();
+  if (nSelectedSpace != Core::nInvalidSpaceRef)
+  {
+    OverviewWindow();
+  }
+  if (nSelectedObject.Valid())
+  {
+    InspectorWindow();
+  }
   if (nShowFramerWindow)
   {
     FramerWindow();
@@ -50,15 +124,111 @@ void EditorWindow()
 {
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar;
   ImGui::Begin("Editor", &nShowEditorWindow, windowFlags);
-  if (ImGui::BeginMenuBar())
+  ImGui::BeginMenuBar();
+  if (ImGui::BeginMenu("View"))
   {
-    if (ImGui::BeginMenu("View"))
-    {
-      ImGui::MenuItem("Framer", NULL, &nShowFramerWindow);
-      ImGui::EndMenu();
-    }
-    ImGui::EndMenuBar();
+    ImGui::MenuItem("Framer", NULL, &nShowFramerWindow);
+    ImGui::EndMenu();
   }
+  ImGui::EndMenuBar();
+
+  // Display a button for space creation and display all of the existing spaces.
+  if (ImGui::Button("Create Space", ImVec2(-1, 0)))
+  {
+    Core::World::CreateSpace();
+  }
+  ImGui::BeginChild("Spaces", ImVec2(0, 0), true);
+  int iteration = 0;
+  for (Core::World::SpaceVisitor visitor; !visitor.End(); visitor.Next())
+  {
+    Core::Space& space = visitor.CurrentSpace();
+    bool selected = nSelectedSpace == visitor.CurrentSpaceRef();
+    std::stringstream label;
+    label << iteration << ": " << space.mName;
+    if (ImGui::Selectable(label.str().c_str(), selected))
+    {
+      if (selected)
+      {
+        nSelectedSpace = Core::nInvalidSpaceRef;
+      } else
+      {
+        nSelectedSpace = visitor.CurrentSpaceRef();
+      }
+
+      // The selected object is no longer valid because the space selection has
+      // been changed in some way.
+      nSelectedObject.Invalidate();
+      nShowAddComponentWindow = false;
+    }
+    ++iteration;
+  }
+  ImGui::EndChild();
+  ImGui::End();
+}
+
+void OverviewWindow()
+{
+  // Display the text box for changing the space's name and display a button for
+  // adding new members to the space.
+  ImGui::Begin("Overview");
+  Core::Space& space = Core::World::GetSpace(nSelectedSpace);
+  ImGui::PushItemWidth(-1);
+  InputText("Name", &space.mName);
+  if (ImGui::Button("Create Member", ImVec2(-1, 0)))
+  {
+    space.CreateMember();
+  }
+
+  // Display a selectable list of all members in the space.
+  ImGui::BeginChild("Members", ImVec2(0, 0), true);
+  int iteration = 0;
+  for (Core::Space::MemberVisitor visitor = space.CreateMemberVisitor();
+       !visitor.End();
+       visitor.Next())
+  {
+    Core::Member& member = visitor.CurrentMember();
+    bool selected = visitor.CurrentMemberRef() == nSelectedObject.mMember &&
+      nSelectedSpace == nSelectedObject.mSpace;
+    std::stringstream label;
+    label << iteration << ": " << member.mName;
+    if (ImGui::Selectable(label.str().c_str(), selected))
+    {
+      if (selected)
+      {
+        nSelectedObject.Invalidate();
+      } else
+      {
+        nSelectedObject.mSpace = nSelectedSpace;
+        nSelectedObject.mMember = visitor.CurrentMemberRef();
+      }
+      nShowAddComponentWindow = false;
+    }
+    ++iteration;
+  }
+  ImGui::EndChild();
+  ImGui::End();
+}
+
+void InspectorWindow()
+{
+  // Display the inspector window.
+  ImGui::Begin("Inspector", nullptr);
+  ImGui::PushItemWidth(-1);
+  InputText("Name", &nSelectedObject.GetName());
+  if (ImGui::Button("Add Component", ImVec2(-1, 0)))
+  {
+    nShowAddComponentWindow = !nShowAddComponentWindow;
+  }
+  DisplayComponent<Comp::Transform>(nSelectedObject);
+  ImGui::End();
+
+  // Display the add component window.
+  if (!nShowAddComponentWindow)
+  {
+    return;
+  }
+  ImGui::Begin("Add Component", &nShowAddComponentWindow);
+  AddComponentButton<Comp::Transform>(nSelectedObject);
   ImGui::End();
 }
 
@@ -117,6 +287,64 @@ void FramerWindow()
     }
   }
   ImGui::End();
+}
+
+bool InputText(const char* label, std::string* str)
+{
+  return ImGui::InputText(
+    label,
+    (char*)str->data(),
+    str->capacity(),
+    ImGuiInputTextFlags_CallbackResize,
+    InputTextCallback,
+    str);
+}
+
+int InputTextCallback(ImGuiInputTextCallbackData* data)
+{
+  std::string* str = (std::string*)data->UserData;
+  str->resize(data->BufTextLen);
+  data->Buf = (char*)str->data();
+  return 0;
+}
+
+template<typename T>
+std::string GetRawName()
+{
+  std::string fullName(typeid(T).name());
+  std::string::size_type loc = fullName.find_last_of(" :");
+  fullName.erase(0, loc + 1);
+  return fullName;
+}
+
+template<typename T>
+void AddComponentButton(Core::World::Object& selected)
+{
+  if (selected.HasComponent<T>())
+  {
+    return;
+  }
+  std::string name(GetRawName<T>());
+  if (ImGui::Button(name.c_str(), ImVec2(-1, 0)))
+  {
+    selected.AddComponent<T>();
+    nShowAddComponentWindow = false;
+  }
+}
+
+template<typename T>
+void DisplayComponent(Core::World::Object& object)
+{
+  T* comp = nSelectedObject.GetComponent<T>();
+  if (comp == nullptr)
+  {
+    return;
+  }
+  std::string name(GetRawName<T>());
+  if (ImGui::CollapsingHeader(name.c_str()))
+  {
+    comp->EditorHook();
+  }
 }
 
 } // namespace Editor

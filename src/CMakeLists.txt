@@ -9,6 +9,7 @@ target_sources(varkor PRIVATE
   Temporal.cc
   Viewport.cc)
 add_subdirectory(comp)
+add_subdirectory(core)
 add_subdirectory(debug)
 add_subdirectory(gfx)
 add_subdirectory(math)
