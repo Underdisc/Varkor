@@ -1,0 +1,125 @@
+#include <cstring>
+#include <dirent/dirent.h>
+#include <imgui/imgui.h>
+#include <string>
+
+#include "Error.h"
+
+namespace Editor {
+
+void (*nFileSelectCallback)(const std::string& file) = nullptr;
+std::string nFileSelectPath;
+bool nShowFileSelectWindow = false;
+
+void FileSelectWindow()
+{
+  LogAbortIf(
+    nFileSelectCallback == nullptr,
+    "The file selection callback must be set before calling this function.");
+
+  ImGui::Begin("Select File", &nShowFileSelectWindow);
+  ImGui::Text("Current Directory: %s", nFileSelectPath.c_str());
+
+  // Open the currently selected directory.
+  DIR* directory;
+  if (nFileSelectPath.empty())
+  {
+    directory = opendir(".");
+    // We iterate over a directory entry to avoid going up a level when we are
+    // still in the executable's working directory.
+    readdir(directory);
+  } else
+  {
+    directory = opendir(nFileSelectPath.c_str());
+  }
+  // We iterate over the first entry since it will always be '.'.
+  readdir(directory);
+
+  // List all of the directories and files in the directory.
+  ImGui::BeginChild("Files", ImVec2(0, 0), true);
+  dirent* entry;
+  while (entry = readdir(directory))
+  {
+    bool isDir = entry->d_type == DT_DIR;
+    bool isFile = entry->d_type == DT_REG;
+    if (!isDir && !isFile)
+    {
+      continue;
+    }
+    if (!ImGui::Selectable(entry->d_name, isDir))
+    {
+      continue;
+    }
+
+    // Reaching this point means that the entry was selected.
+    if (isFile)
+    {
+      nFileSelectPath += entry->d_name;
+      std::string selectedFile(nFileSelectPath);
+      nFileSelectCallback(selectedFile);
+      nShowFileSelectWindow = false;
+      continue;
+    }
+
+    // Whenever we go up a level, we remove a directory from the current path.
+    if (strcmp(entry->d_name, "..") == 0)
+    {
+      std::string::size_type loc = nFileSelectPath.find_last_of('/');
+      loc = nFileSelectPath.find_last_of('/', loc - 1);
+      if (loc == std::string::npos)
+      {
+        nFileSelectPath.clear();
+      } else
+      {
+        nFileSelectPath.erase(loc + 1);
+      }
+      continue;
+    }
+    nFileSelectPath += entry->d_name;
+    nFileSelectPath += '/';
+  }
+  closedir(directory);
+  ImGui::EndChild();
+  ImGui::End();
+
+  if (!nShowFileSelectWindow)
+  {
+    nFileSelectCallback = nullptr;
+  }
+}
+
+void ShowUtilWindows()
+{
+  if (nShowFileSelectWindow)
+  {
+    FileSelectWindow();
+  }
+}
+
+void StartFileSelection(void (*callback)(const std::string& path))
+{
+  nShowFileSelectWindow = true;
+  nFileSelectPath = "";
+  nFileSelectCallback = callback;
+}
+
+int InputTextCallback(ImGuiInputTextCallbackData* data)
+{
+  std::string* str = (std::string*)data->UserData;
+  str->resize(data->BufTextLen);
+  data->Buf = (char*)str->data();
+  return 0;
+}
+
+bool InputText(const char* label, std::string* str)
+{
+  return ImGui::InputText(
+    label,
+    (char*)str->data(),
+    str->capacity(),
+    ImGuiInputTextFlags_CallbackResize,
+    InputTextCallback,
+    str);
+}
+
+} // namespace Editor

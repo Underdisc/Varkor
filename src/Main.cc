@@ -6,7 +6,6 @@
 #include <string>
 
 #include "Camera.h"
-#include "Editor.h"
 #include "Error.h"
 #include "Framer.h"
 #include "Input.h"
@@ -17,6 +16,7 @@
 #include "comp/SpotLight.h"
 #include "comp/Transform.h"
 #include "debug/Draw.h"
+#include "editor/Primary.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
 #include "gfx/Texture.h"

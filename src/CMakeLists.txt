@@ -1,6 +1,5 @@
 target_sources(varkor PRIVATE
   Camera.cc
-  Editor.cc
   Error.cc
   Framer.cc
   Input.cc
@@ -11,5 +10,6 @@ target_sources(varkor PRIVATE
 add_subdirectory(comp)
 add_subdirectory(core)
 add_subdirectory(debug)
+add_subdirectory(editor)
 add_subdirectory(gfx)
 add_subdirectory(math)

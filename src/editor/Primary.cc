@@ -9,8 +9,9 @@
 #include "comp/Transform.h"
 #include "core/Types.h"
 #include "core/World.h"
+#include "editor/Util.h"
 
-#include "Editor.h"
+#include "Primary.h"
 
 namespace Editor {
 
@@ -18,18 +19,16 @@ Core::SpaceRef nSelectedSpace = Core::nInvalidSpaceRef;
 Core::World::Object nSelectedObject;
 
 bool nShowEditorWindow = false;
+bool nShowAssetLibraryWindow = false;
 bool nShowFramerWindow = false;
 bool nShowAddComponentWindow = false;
 
 void EditorWindow();
+void AssetLibraryWindow();
 void OverviewWindow();
 void InspectorWindow();
 void FramerWindow();
 
-// This acts as a replacement for ImGui::InputText when std::string types are
-// being modified rather than c style character buffers.
-bool InputText(const char* label, std::string* str);
-int InputTextCallback(ImGuiInputTextCallbackData* data);
 // Both of these functions abstract away the boiler plate code that is needed
 // for displaying editor elements related to component types.
 template<typename T>
@@ -99,6 +98,8 @@ void Start()
   Input::SetMouseFocus(!io.WantCaptureMouse);
   Input::SetKeyboardFocus(!io.WantCaptureKeyboard);
 
+  ImGui::ShowDemoWindow();
+
   EditorWindow();
   if (nSelectedSpace != Core::nInvalidSpaceRef)
   {
@@ -108,10 +109,15 @@ void Start()
   {
     InspectorWindow();
   }
+  if (nShowAssetLibraryWindow)
+  {
+    AssetLibraryWindow();
+  }
   if (nShowFramerWindow)
   {
     FramerWindow();
   }
+  ShowUtilWindows();
 }
 
 void End()
@@ -127,6 +133,7 @@ void EditorWindow()
   ImGui::BeginMenuBar();
   if (ImGui::BeginMenu("View"))
   {
+    ImGui::MenuItem("Asset Library", NULL, &nShowAssetLibraryWindow);
     ImGui::MenuItem("Framer", NULL, &nShowFramerWindow);
     ImGui::EndMenu();
   }
@@ -163,6 +170,21 @@ void EditorWindow()
     ++iteration;
   }
   ImGui::EndChild();
+  ImGui::End();
+}
+
+void AddModelCallback(const std::string& path)
+{
+  std::cout << "You selected: " << path << std::endl;
+}
+
+void AssetLibraryWindow()
+{
+  ImGui::Begin("Asset Library", &nShowAssetLibraryWindow);
+  if (ImGui::Button("Add Model", ImVec2(-1, 0)))
+  {
+    StartFileSelection(AddModelCallback);
+  }
   ImGui::End();
 }
 
@@ -287,25 +309,6 @@ void FramerWindow()
     }
   }
   ImGui::End();
-}
-
-bool InputText(const char* label, std::string* str)
-{
-  return ImGui::InputText(
-    label,
-    (char*)str->data(),
-    str->capacity(),
-    ImGuiInputTextFlags_CallbackResize,
-    InputTextCallback,
-    str);
-}
-
-int InputTextCallback(ImGuiInputTextCallbackData* data)
-{
-  std::string* str = (std::string*)data->UserData;
-  str->resize(data->BufTextLen);
-  data->Buf = (char*)str->data();
-  return 0;
 }
 
 template<typename T>
