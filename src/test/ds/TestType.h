@@ -21,8 +21,8 @@ struct TestType
   static int smCopyConstructorCount;
   static int smMoveConstructorCount;
   static int smDestructorCount;
-  static int smCopyEqualsOpCount;
-  static int smMoveEqualsOpCount;
+  static int smCopyAssignmentCount;
+  static int smMoveAssignmentCount;
 
   int mA;
   float mB;

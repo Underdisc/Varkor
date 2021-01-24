@@ -5,8 +5,8 @@ int TestType::smConstructorCount = 0;
 int TestType::smCopyConstructorCount = 0;
 int TestType::smMoveConstructorCount = 0;
 int TestType::smDestructorCount = 0;
-int TestType::smCopyEqualsOpCount = 0;
-int TestType::smMoveEqualsOpCount = 0;
+int TestType::smCopyAssignmentCount = 0;
+int TestType::smMoveAssignmentCount = 0;
 
 TestType::TestType()
 {
@@ -37,7 +37,7 @@ TestType& TestType::operator=(const TestType& other)
 {
   mA = other.mA;
   mB = other.mB;
-  ++smCopyEqualsOpCount;
+  ++smCopyAssignmentCount;
   return *this;
 }
 
@@ -45,7 +45,7 @@ TestType& TestType::operator=(TestType&& other)
 {
   mA = other.mA;
   mB = other.mB;
-  ++smMoveEqualsOpCount;
+  ++smMoveAssignmentCount;
   return *this;
 }
 
@@ -66,8 +66,8 @@ void TestType::ResetCounts()
   smCopyConstructorCount = 0;
   smMoveConstructorCount = 0;
   smDestructorCount = 0;
-  smCopyEqualsOpCount = 0;
-  smMoveEqualsOpCount = 0;
+  smCopyAssignmentCount = 0;
+  smMoveAssignmentCount = 0;
 }
 
 std::ostream& operator<<(std::ostream& os, const TestType& rhs)

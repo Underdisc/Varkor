@@ -113,8 +113,8 @@ Capactiy: 20
 Size: 15
 Capactiy: 20
 [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1]]
-CopyEqualsOpCount: 20
-MoveEqualsOpCount: 10
+CopyAssignmentCount: 20
+MoveAssignmentCount: 10
 
 <= Reserve =>
 Size: 0

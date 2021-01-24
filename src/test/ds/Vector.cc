@@ -266,9 +266,9 @@ void Resize()
   // available space for the new size.
   test.Resize(15, TestType(2, 2));
   PrintVector(test);
-  std::cout << "CopyEqualsOpCount: " << TestType::smCopyEqualsOpCount
+  std::cout << "CopyAssignmentCount: " << TestType::smCopyAssignmentCount
             << std::endl
-            << "MoveEqualsOpCount: " << TestType::smMoveEqualsOpCount
+            << "MoveAssignmentCount: " << TestType::smMoveAssignmentCount
             << std::endl
             << std::endl;
 }
