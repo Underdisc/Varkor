@@ -4,6 +4,8 @@
 
 #include "ds/Map.h"
 #include "test/ds/Print.h"
+#include "test/ds/TestType.h"
+#include "util/Utility.h"
 
 void InsertRemoveFind()
 {
@@ -93,10 +95,40 @@ void StringMap()
     map.Remove(sequence[i]);
   }
   PrintMap(map);
+  std::cout << std::endl;
+}
+
+void MoveInsert()
+{
+  std::cout << "<= MoveInsert =>" << std::endl;
+  Ds::Map<int, TestType> map;
+  // We perfom ten insertions using move and ten without the use of move to make
+  // sure the correct constructor types are called.
+  for (int i = 0; i < 10; ++i)
+  {
+    TestType newTestType(i, (float)i);
+    map.Insert(i, Util::Move(newTestType));
+  }
+  for (int i = 10; i < 20; ++i)
+  {
+    TestType newTestType(i, (float)i);
+    map.Insert(i, newTestType);
+  }
+  PrintMap(map);
+  map.Clear();
+  std::cout << "--- 0 ---" << std::endl;
+  std::cout << "ConstructorCount: " << TestType::smConstructorCount << std::endl
+            << "MoveConstructorCount: " << TestType::smMoveConstructorCount
+            << std::endl
+            << "CopyConstructorCount: " << TestType::smCopyConstructorCount
+            << std::endl
+            << "DestructorCount: " << TestType::smDestructorCount << std::endl;
+  TestType::ResetCounts();
 }
 
 int main()
 {
   InsertRemoveFind();
   StringMap();
+  MoveInsert();
 }

@@ -15,7 +15,7 @@ RbTree<T>::Node::Node(const T& value):
 
 template<typename T>
 RbTree<T>::Node::Node(T&& value):
-  mValue(Util::Move(value)),
+  mValue(Util::Forward(value)),
   mParent(nullptr),
   mLeft(nullptr),
   mRight(nullptr),
@@ -24,8 +24,8 @@ RbTree<T>::Node::Node(T&& value):
 
 template<typename T>
 template<typename... Args>
-RbTree<T>::Node::Node(const Args&... args):
-  mValue(args...),
+RbTree<T>::Node::Node(Args&&... args):
+  mValue(Util::Forward<Args>(args)...),
   mParent(nullptr),
   mLeft(nullptr),
   mRight(nullptr),
@@ -58,15 +58,15 @@ void RbTree<T>::Insert(const T& value)
 template<typename T>
 void RbTree<T>::Insert(T&& value)
 {
-  Node* newNode = alloc Node(Util::Move(value));
+  Node* newNode = alloc Node(Util::Forward(value));
   InsertNode(newNode);
 }
 
 template<typename T>
 template<typename... Args>
-void RbTree<T>::Emplace(const Args&... args)
+void RbTree<T>::Emplace(Args&&... args)
 {
-  Node* newNode = alloc Node(args...);
+  Node* newNode = alloc Node(Util::Forward<Args>(args)...);
   InsertNode(newNode);
 }
 

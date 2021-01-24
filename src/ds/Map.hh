@@ -1,7 +1,14 @@
+#include "util/Utility.h"
+
 namespace Ds {
 
 template<typename K, typename V>
 KvPair<K, V>::KvPair(const K& key, const V& value): mKey(key), mValue(value)
+{}
+
+template<typename K, typename V>
+KvPair<K, V>::KvPair(const K& key, V&& value):
+  mKey(key), mValue(Util::Forward(value))
 {}
 
 template<typename K, typename V>
@@ -32,6 +39,12 @@ template<typename K, typename V>
 void Map<K, V>::Insert(const K& key, const V& value)
 {
   Emplace(key, value);
+}
+
+template<typename K, typename V>
+void Map<K, V>::Insert(const K& key, V&& value)
+{
+  Emplace(key, Util::Forward(value));
 }
 
 template<typename K, typename V>

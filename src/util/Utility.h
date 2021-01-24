@@ -9,6 +9,12 @@ constexpr T&& Move(T& arg)
   return static_cast<T&&>(arg);
 }
 
+template<typename T>
+constexpr T&& Forward(T& arg)
+{
+  return static_cast<T&&>(arg);
+}
+
 } // namespace Util
 
 #endif

@@ -12,7 +12,7 @@ public:
     Node(const T& value);
     Node(T&& value);
     template<typename... Args>
-    Node(const Args&... args);
+    Node(Args&&... args);
 
     enum class Color
     {
@@ -33,7 +33,7 @@ public:
   void Insert(const T& value);
   void Insert(T&& value);
   template<typename... Args>
-  void Emplace(const Args&... args);
+  void Emplace(Args&&... args);
   void Remove(const T& value);
   void Clear();
   bool Contains(const T& value);

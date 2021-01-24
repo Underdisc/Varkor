@@ -9,6 +9,7 @@ template<typename K, typename V>
 struct KvPair
 {
   KvPair(const K& key, const V& value);
+  KvPair(const K& key, V&& value);
   bool operator>(const KvPair& other) const;
   bool operator<(const KvPair& other) const;
   bool operator>(const K& otherKey) const;
@@ -22,6 +23,7 @@ class Map: public RbTree<KvPair<K, V>>
 {
 public:
   void Insert(const K& key, const V& value);
+  void Insert(const K& key, V&& value);
   void Remove(const K& key);
   V* Find(const K& key);
   bool Contains(const K& key);

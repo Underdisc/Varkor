@@ -26,6 +26,7 @@ AddTest(core_Space
 
 Addtest(ds_Map
   ds/Map.cc
+  ds/TestType.cc
   ../Error.cc)
 
 Addtest(ds_RbTree
