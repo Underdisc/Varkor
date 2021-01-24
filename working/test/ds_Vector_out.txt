@@ -152,6 +152,6 @@ Main Vector Stats: [100, 160]
 
 <= ConstructionDestructionCounts =>
 DefaultConstructorCount: 0
-CopyConstructorCount: 4500
+MoveConstructorCount: 4500
 ConstructorCount: 3000
 DestructorCount: 3000

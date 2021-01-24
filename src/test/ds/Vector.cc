@@ -408,7 +408,7 @@ void ConstructionDestructionCounts()
 
   std::cout << "DefaultConstructorCount: "
             << TestType::smDefaultConstructorCount << std::endl
-            << "CopyConstructorCount: " << TestType::smCopyConstructorCount
+            << "MoveConstructorCount: " << TestType::smMoveConstructorCount
             << std::endl
             << "ConstructorCount: " << TestType::smConstructorCount << std::endl
             << "DestructorCount: " << TestType::smDestructorCount << std::endl;
