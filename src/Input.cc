@@ -145,8 +145,14 @@ void CursorPosCallback(GLFWwindow* window, double xPos, double yPos)
 
 void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
-  nMouseScroll[0] = (float)xOffset;
-  nMouseScroll[1] = (float)yOffset;
+  if (nMouseFocus)
+  {
+    nMouseScroll[0] = (float)xOffset;
+    nMouseScroll[1] = (float)yOffset;
+    return;
+  }
+  nMouseScroll[0] = 0.0f;
+  nMouseScroll[1] = 0.0f;
 }
 
 } // namespace Input
