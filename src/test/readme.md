@@ -7,35 +7,37 @@ This directory is for the various tests that are used while working on and testi
 All of the possible test targets can be found in the CMakeLists.txt file in this directory.
 
 ```
-AddTest(core_ComponentTable
-  core/ComponentTable.cc
-  ../core/ComponentTable.cc)
+AddTest(ds_Vector
+  ds/Vector.cc
+  ds/TestType.cc
+  ../debug/MemLeak.cc
+  ../Error.cc)
 ```
 
-This is an example of such a test. `core_ComponentTable` will be added as a build target. This target can be passed to the generator to build that test. For example, this is the command used to build the `core_ComponentTable` test with Ninja.
+This is an example of such a test. `ds_Vector` will be added as a build target. This target can be passed to the generator to build that test. For example, this is the command used to build the `ds_Vector` test with Ninja.
 
 ```
-ninja core_ComponentTable
+ninja ds_Vector
 ```
 
-Similar to Varkor, exectubles are placed in a specific directory. For Varkor, this is `{repo_root}/working`. For test executables, this is `{repo_root}/working/test`. After building the `core_ComponentTable` test, the executable can be found here.
+Similar to Varkor, exectubles are placed in a specific directory. For Varkor, this is `{repo_root}/working`. For test executables, this is `{repo_root}/working/test`. After building the `ds_Vector` test, the executable can be found here.
 
 ```
-{repo_root}/working/test/core_ComponentTable.exe
+{repo_root}/working/test/ds_Vector.exe
 ```
 
 ### Testing Tests
 
-Files containing the output of every test can be found in `{repo_root}/working/test`. All output files are named with the following format, `{target}_out.txt`. `core_ComponentTable_out.txt` is an example of such a file.
+Files containing the output of every test can be found in `{repo_root}/working/test`. All output files are named with the following format, `{target}_out.txt`. `ds_Vector_out.txt` is an example of such a file.
 
-To perform a test to make sure that the output hasn't changed, build the target being tested, output the result of the test into a new file called `{target}_out_diff.txt`, and diff this file against `{target}_out.txt`. The file should be called `{target}_out_diff.txt` because these files are gitignored. Here is an example of what this would like like for the `core_ComponentTable` target with Ninja.
+To perform a test to make sure that the output hasn't changed, build the target being tested, output the result of the test into a new file called `{target}_out_diff.txt`, and diff this file against `{target}_out.txt`. The file should be called `{target}_out_diff.txt` because these files are gitignored. Here is an example of what this would like like for the `ds_Vector` target with Ninja.
 
 ```
 cd build/directory
-ninja core_ComponentTable
+ninja ds_Vector
 cd {repo_root}/working/test
-core_ComponentTable.exe > core_ComponentTable_out_diff.txt
-diff core_ComponentTable_out.txt core_ComponentTable_out_diff.txt
+ds_Vector.exe > ds_Vector_out_diff.txt
+diff ds_Vector_out.txt ds_Vector_out_diff.txt
 ```
 
 ### Adding Tests
