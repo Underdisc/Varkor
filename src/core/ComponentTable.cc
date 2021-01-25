@@ -10,21 +10,13 @@ namespace Core {
 const int ComponentTable::smStartCapacity = 10;
 const float ComponentTable::smGrowthFactor = 2.0f;
 
-ComponentTable::ComponentTable()
-{
-  mData = nullptr;
-  mStride = 0;
-  mSize = 0;
-  mCapacity = 0;
-}
+ComponentTable::ComponentTable():
+  mData(nullptr), mStride(0), mSize(0), mCapacity(0), mOwners()
+{}
 
-ComponentTable::ComponentTable(int stride)
-{
-  mData = nullptr;
-  mStride = stride;
-  mSize = 0;
-  mCapacity = 0;
-}
+ComponentTable::ComponentTable(int stride):
+  mData(nullptr), mStride(stride), mSize(0), mCapacity(0), mOwners()
+{}
 
 ComponentTable::~ComponentTable()
 {
