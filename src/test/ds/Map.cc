@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string>
 
+#include "debug/MemLeak.h"
 #include "ds/Map.h"
 #include "test/ds/Print.h"
 #include "test/ds/TestType.h"
@@ -128,6 +129,7 @@ void MoveInsert()
 
 int main()
 {
+  InitMemLeakOutput();
   InsertRemoveFind();
   StringMap();
   MoveInsert();
