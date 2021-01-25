@@ -13,7 +13,11 @@ namespace Gfx {
 
 struct Model
 {
-  Model(const std::string& file);
+  Model(
+    const std::string& file,
+    bool* success = nullptr,
+    std::string* error = nullptr);
+  Model(Model&& other);
   void Draw(const Shader& shader) const;
 
 private:

@@ -5,11 +5,52 @@
 
 #include "Error.h"
 
+// todo: Reorder the implementations in this file to closely match the header.
+// Additionally, put groups of functionality together. Don't keep global Editor
+// variables at the top. Put them next to the code where they are used.
 namespace Editor {
 
-void (*nFileSelectCallback)(const std::string& file) = nullptr;
+void (*nFileSelectCallback)(const std::string& file, void* data) = nullptr;
 std::string nFileSelectPath;
+void* nFileSelectData = nullptr;
 bool nShowFileSelectWindow = false;
+
+const char* nPopupName = nullptr;
+std::string nPopupText;
+bool nInitPopupWindow = false;
+bool nShowPopupWindow = false;
+
+void OpenPopup(const char* name, const std::string& text)
+{
+  nPopupName = name;
+  nPopupText = text;
+  nInitPopupWindow = true;
+  nShowPopupWindow = true;
+}
+
+void PopupWindow()
+{
+  if (nInitPopupWindow)
+  {
+    ImGui::OpenPopup(nPopupName);
+    nInitPopupWindow = false;
+  }
+  bool popupOpen = ImGui::BeginPopupModal(
+    nPopupName, &nShowPopupWindow, ImGuiWindowFlags_AlwaysAutoResize);
+  if (popupOpen)
+  {
+    ImGui::Text(nPopupText.c_str());
+    if (ImGui::Button("OK", ImVec2(-1, 0)))
+    {
+      nShowPopupWindow = false;
+    }
+    ImGui::EndPopup();
+  }
+  if (!nShowPopupWindow)
+  {
+    ImGui::CloseCurrentPopup();
+  }
+}
 
 void FileSelectWindow()
 {
@@ -56,7 +97,7 @@ void FileSelectWindow()
     {
       nFileSelectPath += entry->d_name;
       std::string selectedFile(nFileSelectPath);
-      nFileSelectCallback(selectedFile);
+      nFileSelectCallback(selectedFile, nFileSelectData);
       nShowFileSelectWindow = false;
       continue;
     }
@@ -94,11 +135,17 @@ void ShowUtilWindows()
   {
     FileSelectWindow();
   }
+  if (nShowPopupWindow)
+  {
+    PopupWindow();
+  }
 }
 
-void StartFileSelection(void (*callback)(const std::string& path))
+void StartFileSelection(
+  void (*callback)(const std::string& path, void* data), void* data)
 {
   nShowFileSelectWindow = true;
+  nFileSelectData = data;
   nFileSelectPath = "";
   nFileSelectCallback = callback;
 }

@@ -6,6 +6,7 @@
 #include "Framer.h"
 #include "Input.h"
 #include "Viewport.h"
+#include "comp/Model.h"
 #include "comp/Transform.h"
 #include "core/Types.h"
 #include "core/World.h"
@@ -19,12 +20,10 @@ Core::SpaceRef nSelectedSpace = Core::nInvalidSpaceRef;
 Core::World::Object nSelectedObject;
 
 bool nShowEditorWindow = false;
-bool nShowAssetLibraryWindow = false;
 bool nShowFramerWindow = false;
 bool nShowAddComponentWindow = false;
 
 void EditorWindow();
-void AssetLibraryWindow();
 void OverviewWindow();
 void InspectorWindow();
 void FramerWindow();
@@ -109,10 +108,6 @@ void Start()
   {
     InspectorWindow();
   }
-  if (nShowAssetLibraryWindow)
-  {
-    AssetLibraryWindow();
-  }
   if (nShowFramerWindow)
   {
     FramerWindow();
@@ -133,7 +128,6 @@ void EditorWindow()
   ImGui::BeginMenuBar();
   if (ImGui::BeginMenu("View"))
   {
-    ImGui::MenuItem("Asset Library", NULL, &nShowAssetLibraryWindow);
     ImGui::MenuItem("Framer", NULL, &nShowFramerWindow);
     ImGui::EndMenu();
   }
@@ -170,21 +164,6 @@ void EditorWindow()
     ++iteration;
   }
   ImGui::EndChild();
-  ImGui::End();
-}
-
-void AddModelCallback(const std::string& path)
-{
-  std::cout << "You selected: " << path << std::endl;
-}
-
-void AssetLibraryWindow()
-{
-  ImGui::Begin("Asset Library", &nShowAssetLibraryWindow);
-  if (ImGui::Button("Add Model", ImVec2(-1, 0)))
-  {
-    StartFileSelection(AddModelCallback);
-  }
   ImGui::End();
 }
 
@@ -241,6 +220,7 @@ void InspectorWindow()
   {
     nShowAddComponentWindow = !nShowAddComponentWindow;
   }
+  DisplayComponent<Comp::Model>(nSelectedObject);
   DisplayComponent<Comp::Transform>(nSelectedObject);
   ImGui::End();
 
@@ -250,6 +230,7 @@ void InspectorWindow()
     return;
   }
   ImGui::Begin("Add Component", &nShowAddComponentWindow);
+  AddComponentButton<Comp::Model>(nSelectedObject);
   AddComponentButton<Comp::Transform>(nSelectedObject);
   ImGui::End();
 }
