@@ -5,16 +5,28 @@
 
 #include "Error.h"
 
-// todo: Reorder the implementations in this file to closely match the header.
-// Additionally, put groups of functionality together. Don't keep global Editor
-// variables at the top. Put them next to the code where they are used.
 namespace Editor {
 
-void (*nFileSelectCallback)(const std::string& file, void* data) = nullptr;
-std::string nFileSelectPath;
-void* nFileSelectData = nullptr;
-bool nShowFileSelectWindow = false;
+int InputTextCallback(ImGuiInputTextCallbackData* data)
+{
+  std::string* str = (std::string*)data->UserData;
+  str->resize(data->BufTextLen);
+  data->Buf = (char*)str->data();
+  return 0;
+}
 
+bool InputText(const char* label, std::string* str)
+{
+  return ImGui::InputText(
+    label,
+    (char*)str->data(),
+    str->capacity(),
+    ImGuiInputTextFlags_CallbackResize,
+    InputTextCallback,
+    str);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 const char* nPopupName = nullptr;
 std::string nPopupText;
 bool nInitPopupWindow = false;
@@ -50,6 +62,21 @@ void PopupWindow()
   {
     ImGui::CloseCurrentPopup();
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void (*nFileSelectCallback)(const std::string& file, void* data) = nullptr;
+std::string nFileSelectPath;
+void* nFileSelectData = nullptr;
+bool nShowFileSelectWindow = false;
+
+void StartFileSelection(
+  void (*callback)(const std::string& path, void* data), void* data)
+{
+  nShowFileSelectWindow = true;
+  nFileSelectData = data;
+  nFileSelectPath = "";
+  nFileSelectCallback = callback;
 }
 
 void FileSelectWindow()
@@ -129,6 +156,7 @@ void FileSelectWindow()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void ShowUtilWindows()
 {
   if (nShowFileSelectWindow)
@@ -139,34 +167,6 @@ void ShowUtilWindows()
   {
     PopupWindow();
   }
-}
-
-void StartFileSelection(
-  void (*callback)(const std::string& path, void* data), void* data)
-{
-  nShowFileSelectWindow = true;
-  nFileSelectData = data;
-  nFileSelectPath = "";
-  nFileSelectCallback = callback;
-}
-
-int InputTextCallback(ImGuiInputTextCallbackData* data)
-{
-  std::string* str = (std::string*)data->UserData;
-  str->resize(data->BufTextLen);
-  data->Buf = (char*)str->data();
-  return 0;
-}
-
-bool InputText(const char* label, std::string* str)
-{
-  return ImGui::InputText(
-    label,
-    (char*)str->data(),
-    str->capacity(),
-    ImGuiInputTextFlags_CallbackResize,
-    InputTextCallback,
-    str);
 }
 
 } // namespace Editor
