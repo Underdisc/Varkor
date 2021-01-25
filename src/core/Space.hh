@@ -28,7 +28,7 @@ T& Space::AddComponent(MemRef member)
 {
   // Create the component table for the component being added if it doesn't
   // already exist.
-  if (!ValidComponentTable(ComponentType<T>::smId))
+  if (!ValidTable(ComponentType<T>::smId))
   {
     RegisterComponentType<T>();
   }

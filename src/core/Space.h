@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "ComponentTable.h"
+#include "Table.h"
 #include "Types.h"
 #include "ds/Vector.h"
 
@@ -110,14 +110,14 @@ struct Space
 
 private:
   Ds::Vector<TableRef> mTableLookup;
-  Ds::Vector<ComponentTable> mTables;
+  Ds::Vector<Table> mTables;
 
   Ds::Vector<Member> mMembers;
   Ds::Vector<MemRef> mUnusedMemRefs;
   Ds::Vector<ComponentAddress> mAddressBin;
 
-  bool ValidComponentTable(int componentId) const;
-  void VerifyComponentTable(int componentId) const;
+  bool ValidTable(int componentId) const;
+  void VerifyTable(int componentId) const;
   void VerifyMember(MemRef member) const;
 
   friend World::Object;

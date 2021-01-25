@@ -3,22 +3,20 @@
 #include "debug/MemLeak.h"
 #include "util/Memory.h"
 
-#include "ComponentTable.h"
+#include "Table.h"
 
 namespace Core {
 
-const int ComponentTable::smStartCapacity = 10;
-const float ComponentTable::smGrowthFactor = 2.0f;
+const int Table::smStartCapacity = 10;
+const float Table::smGrowthFactor = 2.0f;
 
-ComponentTable::ComponentTable():
-  mData(nullptr), mStride(0), mSize(0), mCapacity(0), mOwners()
-{}
+Table::Table(): mData(nullptr), mStride(0), mSize(0), mCapacity(0), mOwners() {}
 
-ComponentTable::ComponentTable(int stride):
+Table::Table(int stride):
   mData(nullptr), mStride(stride), mSize(0), mCapacity(0), mOwners()
 {}
 
-ComponentTable::~ComponentTable()
+Table::~Table()
 {
   if (mData != nullptr)
   {
@@ -27,10 +25,10 @@ ComponentTable::~ComponentTable()
 }
 
 // This function will allow adding the same member reference to the table
-// multiple times. The ComponentTable is not responsible for managing the owner
+// multiple times. The Table is not responsible for managing the owner
 // member references it stores besides setting the member references when
 // components are added or removed.
-int ComponentTable::Add(MemRef member)
+int Table::Add(MemRef member)
 {
   if (mSize >= mCapacity)
   {
@@ -42,24 +40,24 @@ int ComponentTable::Add(MemRef member)
   return componentIndex;
 }
 
-void ComponentTable::Rem(int index)
+void Table::Rem(int index)
 {
   VerifyIndex(index);
   mOwners[index] = nInvalidMemRef;
 }
 
-void* ComponentTable::operator[](int index) const
+void* Table::operator[](int index) const
 {
   VerifyIndex(index);
   return (void*)(mData + (mStride * index));
 }
 
-const void* ComponentTable::Data() const
+const void* Table::Data() const
 {
   return (void*)mData;
 }
 
-void ComponentTable::ShowStats() const
+void Table::ShowStats() const
 {
   std::cout << "Stride: " << mStride << std::endl
             << "Size: " << mSize << std::endl
@@ -68,7 +66,7 @@ void ComponentTable::ShowStats() const
             << "CapacityInBytes: " << mCapacity * mStride << std::endl;
 }
 
-void ComponentTable::ShowOwners() const
+void Table::ShowOwners() const
 {
   std::cout << "Owners: ";
   if (mSize == 0)
@@ -84,7 +82,7 @@ void ComponentTable::ShowOwners() const
   std::cout << "]" << std::endl;
 }
 
-void ComponentTable::Grow()
+void Table::Grow()
 {
   if (mData == nullptr)
   {
@@ -101,11 +99,10 @@ void ComponentTable::Grow()
   }
 }
 
-void ComponentTable::VerifyIndex(int index) const
+void Table::VerifyIndex(int index) const
 {
   LogAbortIf(
-    index >= mSize || index < 0,
-    "Provided ComponentTable index is out of range.");
+    index >= mSize || index < 0, "Provided Table index is out of range.");
 }
 
 } // namespace Core

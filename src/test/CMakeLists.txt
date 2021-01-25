@@ -9,17 +9,17 @@ function(AddTest target)
   add_dependencies(tests ${target})
 endfunction()
 
-AddTest(core_ComponentTable
-  core/ComponentTable.cc
-  ../core/ComponentTable.cc
+AddTest(core_Table
+  core/Table.cc
+  ../core/Table.cc
   ../core/Types.cc
   ../debug/MemLeak.cc
   ../Error.cc)
 
 AddTest(core_Space
   core/Space.cc
-  ../core/ComponentTable.cc
   ../core/Space.cc
+  ../core/Table.cc
   ../core/Types.cc
   ../debug/MemLeak.cc
   ../Error.cc)

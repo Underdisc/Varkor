@@ -1,17 +1,17 @@
-#ifndef core_ComponentTable_h
-#define core_ComponentTable_h
+#ifndef core_Table_h
+#define core_Table_h
 
 #include "core/Types.h"
 #include "ds/Vector.h"
 
 namespace Core {
 
-class ComponentTable
+class Table
 {
 public:
-  ComponentTable();
-  ComponentTable(int stride);
-  ~ComponentTable();
+  Table();
+  Table(int stride);
+  ~Table();
   int Add(MemRef member);
   void Rem(int index);
   void* operator[](int index) const;

@@ -102,7 +102,7 @@ Space::Space(const std::string& name): mName(name) {}
 TableRef Space::RegisterComponentType(int componentId, int size)
 {
   TableRef table = mTables.Size();
-  ComponentTable newTable(size);
+  Table newTable(size);
   mTables.Push(newTable);
   mTableLookup[componentId] = table;
   return table;
@@ -167,7 +167,7 @@ void* Space::AddComponent(int componentId, MemRef member)
 {
   // Verify that the component table exists, the member exist, and the member
   // doesn't already have the component being added.
-  VerifyComponentTable(componentId);
+  VerifyTable(componentId);
   VerifyMember(member);
   LogAbortIf(
     HasComponent(componentId, member),
@@ -214,7 +214,7 @@ void* Space::AddComponent(int componentId, MemRef member)
 void Space::RemComponent(int componentId, MemRef member)
 {
   // Verify that the component table and the member both exist.
-  VerifyComponentTable(componentId);
+  VerifyTable(componentId);
   VerifyMember(member);
 
   // Verify that the member has the component while finding the index of the
@@ -254,7 +254,7 @@ void Space::RemComponent(int componentId, MemRef member)
 void* Space::GetComponent(int componentId, MemRef member) const
 {
   // Make sure the component table and member exist.
-  if (!ValidComponentTable(componentId))
+  if (!ValidTable(componentId))
   {
     return nullptr;
   }
@@ -283,7 +283,7 @@ bool Space::HasComponent(int componentId, MemRef member) const
 
 const void* Space::GetComponentData(int componentId) const
 {
-  VerifyComponentTable(componentId);
+  VerifyTable(componentId);
   TableRef table = mTableLookup[componentId];
   return mTables[table].Data();
 }
@@ -308,7 +308,7 @@ void Space::ShowTableLookup() const
 
 void Space::ShowTable(int componentId) const
 {
-  VerifyComponentTable(componentId);
+  VerifyTable(componentId);
   TableRef table = mTableLookup[componentId];
   mTables[table].ShowStats();
   mTables[table].ShowOwners();
@@ -370,7 +370,7 @@ void Space::ShowUnusedMemRefs() const
   std::cout << std::endl;
 }
 
-bool Space::ValidComponentTable(int componentId) const
+bool Space::ValidTable(int componentId) const
 {
   // Make sure the table lookup is large enough to treat the component id as an
   // index, the component type has been initialized, and the table lookup has a
@@ -379,12 +379,11 @@ bool Space::ValidComponentTable(int componentId) const
     mTableLookup[componentId] != nInvalidTableRef;
 }
 
-void Space::VerifyComponentTable(int componentId) const
+void Space::VerifyTable(int componentId) const
 {
   // Make sure that a table exists for the component type.
   LogAbortIf(
-    !ValidComponentTable(componentId),
-    "There is no table for this component type.");
+    !ValidTable(componentId), "There is no table for this component type.");
 }
 
 void Space::VerifyMember(MemRef member) const

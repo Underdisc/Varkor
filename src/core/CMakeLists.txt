@@ -1,5 +1,5 @@
 target_sources(varkor PRIVATE
-  ComponentTable.cc
   Space.cc
+  Table.cc
   Types.cc
   World.cc)
