@@ -87,11 +87,14 @@ struct Space
   template<typename T>
   void RemComponent(MemRef member);
   template<typename T>
-  T* GetComponent(MemRef member);
+  T* GetComponent(MemRef member) const;
   template<typename T>
-  bool HasComponent(MemRef member);
+  bool HasComponent(MemRef member) const;
   template<typename T>
   const T* GetComponentData() const;
+
+  template<typename T>
+  Table::Visitor<T> CreateTableVisitor() const;
 
   // todo: Remove all of the functions used for printing out data about a space.
   // This is only used by unit tests and the unit tests should take the

@@ -57,6 +57,16 @@ const void* Table::Data() const
   return (void*)mData;
 }
 
+int Table::Size() const
+{
+  return mSize;
+}
+
+MemRef Table::GetOwner(int index) const
+{
+  return mOwners[index];
+}
+
 void Table::ShowStats() const
 {
   std::cout << "Stride: " << mStride << std::endl

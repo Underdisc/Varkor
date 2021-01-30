@@ -1,5 +1,7 @@
 #include <sstream>
 
+#include "gfx/Renderer.h"
+
 #include "World.h"
 
 namespace Core {
@@ -51,6 +53,11 @@ bool Object::Valid()
   return mSpace != nInvalidSpaceRef && mMember != nInvalidMemRef;
 }
 
+void Init()
+{
+  Gfx::Renderer::Init();
+}
+
 SpaceRef CreateSpace()
 {
   SpaceRef newSpace = (SpaceRef)nSpaces.Size();
@@ -70,6 +77,16 @@ Space& GetSpace(SpaceRef ref)
 {
   VerifySpace(ref);
   return nSpaces[ref];
+}
+
+// todo: Every space should have its own camera.
+void Render(const Camera& camera)
+{
+  for (int i = 0; i < nSpaces.Size(); ++i)
+  {
+    Space& space = nSpaces[i];
+    Gfx::Renderer::Render(space, camera.WorldToCamera());
+  }
 }
 
 } // namespace World

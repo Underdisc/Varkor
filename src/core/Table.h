@@ -14,8 +14,26 @@ public:
   ~Table();
   int Add(MemRef member);
   void Rem(int index);
+
   void* operator[](int index) const;
   const void* Data() const;
+  int Size() const;
+  MemRef GetOwner(int index) const;
+
+  template<typename T>
+  struct Visitor
+  {
+    Visitor(const Table* table);
+    MemRef CurrentOwner();
+    T& CurrentComponent();
+    void Next();
+    bool End();
+    void ReachValidComponent();
+    const Table* mTable;
+    int mCurrentIndex;
+  };
+  template<typename T>
+  Visitor<T> CreateVisitor() const;
 
   void ShowStats() const;
   void ShowOwners() const;
@@ -24,9 +42,6 @@ public:
   const static float smGrowthFactor;
 
 private:
-  // todo: Consider putting this into a RawVector. It's almost the same as a
-  // typical generic vector. The exception is the stride value for tracking
-  // element size rather than relying on type information.
   char* mData;
   int mStride;
   int mSize;
@@ -38,5 +53,7 @@ private:
 };
 
 } // namespace Core
+
+#include "Table.hh"
 
 #endif

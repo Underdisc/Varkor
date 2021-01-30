@@ -33,7 +33,7 @@ AddResult AddModel(const std::string& path)
   return result;
 }
 
-const Gfx::Model* GetModel(std::string path)
+const Gfx::Model* GetModel(const std::string& path)
 {
   return nModels.Find(path);
 }

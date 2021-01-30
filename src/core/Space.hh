@@ -44,13 +44,13 @@ void Space::RemComponent(MemRef member)
 }
 
 template<typename T>
-T* Space::GetComponent(MemRef member)
+T* Space::GetComponent(MemRef member) const
 {
   return (T*)GetComponent(ComponentType<T>::smId, member);
 }
 
 template<typename T>
-bool Space::HasComponent(MemRef member)
+bool Space::HasComponent(MemRef member) const
 {
   return HasComponent(ComponentType<T>::smId, member);
 }
@@ -65,6 +65,18 @@ template<typename T>
 void Space::ShowTable() const
 {
   ShowTable(ComponentType<T>::smId);
+}
+
+template<typename T>
+Table::Visitor<T> Space::CreateTableVisitor() const
+{
+  int componentId = ComponentType<T>::smId;
+  if (!ValidTable(componentId))
+  {
+    return Table::Visitor<T>(nullptr);
+  }
+  TableRef tableRef = mTableLookup[componentId];
+  return mTables[tableRef].CreateVisitor<T>();
 }
 
 } // namespace Core

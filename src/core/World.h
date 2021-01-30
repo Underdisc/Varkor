@@ -1,6 +1,7 @@
 #ifndef core_World_h
 #define core_World_h
 
+#include "Camera.h"
 #include "core/Space.h"
 #include "ds/Vector.h"
 
@@ -46,8 +47,10 @@ struct Object
   MemRef mMember;
 };
 
+void Init();
 SpaceRef CreateSpace();
 Space& GetSpace(SpaceRef ref);
+void Render(const Camera& camera);
 
 } // namespace World
 } // namespace Core

@@ -15,6 +15,7 @@
 #include "comp/PointLight.h"
 #include "comp/SpotLight.h"
 #include "comp/Transform.h"
+#include "core/World.h"
 #include "debug/Draw.h"
 #include "editor/Primary.h"
 #include "gfx/Model.h"
@@ -25,11 +26,12 @@
 #include "math/Quaternion.h"
 #include "math/Vector.h"
 
-void Core()
+void Engine()
 {
   Input::Init();
-  Debug::Draw::Init();
+  Core::World::Init();
   Editor::Init();
+  Debug::Draw::Init();
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -84,7 +86,7 @@ void Core()
     Input::Update();
     Editor::Start();
 
-    glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -281,6 +283,8 @@ void Core()
     glClear(GL_STENCIL_BUFFER_BIT);
     glStencilMask(0x00);
 
+    Core::World::Render(camera);
+
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());
 
@@ -297,7 +301,7 @@ int main(void)
   Error::Init("log.err");
   Viewport::Init();
   Framer::Init();
-  Core();
+  Engine();
   Framer::Purge();
   Viewport::Purge();
   Error::Purge();
