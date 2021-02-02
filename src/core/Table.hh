@@ -15,7 +15,7 @@ MemRef Table::Visitor<T>::CurrentOwner()
 template<typename T>
 T& Table::Visitor<T>::CurrentComponent()
 {
-  return *(T*)(*mTable)[mCurrentIndex];
+  return *(T*)mTable->GetData(mCurrentIndex);
 }
 
 template<typename T>

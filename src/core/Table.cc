@@ -1,14 +1,9 @@
-#include <iostream>
-
 #include "debug/MemLeak.h"
 #include "util/Memory.h"
 
 #include "Table.h"
 
 namespace Core {
-
-const int Table::smStartCapacity = 10;
-const float Table::smGrowthFactor = 2.0f;
 
 Table::Table(): mData(nullptr), mStride(0), mSize(0), mCapacity(0), mOwners() {}
 
@@ -46,20 +41,10 @@ void Table::Rem(int index)
   mOwners[index] = nInvalidMemRef;
 }
 
-void* Table::operator[](int index) const
+void* Table::GetData(int index) const
 {
   VerifyIndex(index);
   return (void*)(mData + (mStride * index));
-}
-
-const void* Table::Data() const
-{
-  return (void*)mData;
-}
-
-int Table::Size() const
-{
-  return mSize;
 }
 
 MemRef Table::GetOwner(int index) const
@@ -67,29 +52,24 @@ MemRef Table::GetOwner(int index) const
   return mOwners[index];
 }
 
-void Table::ShowStats() const
+const void* Table::Data() const
 {
-  std::cout << "Stride: " << mStride << std::endl
-            << "Size: " << mSize << std::endl
-            << "SizeInBytes: " << mSize * mStride << std::endl
-            << "Capacity: " << mCapacity << std::endl
-            << "CapacityInBytes: " << mCapacity * mStride << std::endl;
+  return (void*)mData;
 }
 
-void Table::ShowOwners() const
+int Table::Stride() const
 {
-  std::cout << "Owners: ";
-  if (mSize == 0)
-  {
-    std::cout << "[]" << std::endl;
-    return;
-  }
-  std::cout << "[" << mOwners[0];
-  for (int i = 1; i < mSize; ++i)
-  {
-    std::cout << ", " << mOwners[i];
-  }
-  std::cout << "]" << std::endl;
+  return mStride;
+}
+
+int Table::Size() const
+{
+  return mSize;
+}
+
+int Table::Capacity() const
+{
+  return mCapacity;
 }
 
 void Table::Grow()
