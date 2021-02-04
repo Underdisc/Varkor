@@ -2,34 +2,7 @@
 
 #include "core/Table.h"
 #include "debug/MemLeak.h"
-
-void PrintTableStats(const Core::Table& table)
-{
-  int stride = table.Stride();
-  int size = table.Size();
-  int capacity = table.Capacity();
-  std::cout << "Stride: " << stride << std::endl
-            << "Size: " << size << std::endl
-            << "SizeInBytes: " << size * stride << std::endl
-            << "Capacity: " << capacity << std::endl
-            << "CapacityInBytes: " << capacity * stride << std::endl;
-}
-
-void PrintTableOwners(const Core::Table& table)
-{
-  int size = table.Size();
-  if (size == 0)
-  {
-    std::cout << "Empty Table" << std::endl;
-    return;
-  }
-  std::cout << "[" << table.GetOwner(0);
-  for (int i = 1; i < size; ++i)
-  {
-    std::cout << ", " << table.GetOwner(i);
-  }
-  std::cout << "]" << std::endl;
-}
+#include "test/core/Print.h"
 
 struct TestComp
 {

@@ -1,4 +1,3 @@
-#include <iostream>
 #include <sstream>
 
 #include "Error.h"
@@ -15,17 +14,6 @@ void ComponentAddress::EndUse()
 bool ComponentAddress::InUse() const
 {
   return mTable != nInvalidTableRef;
-}
-
-std::ostream& operator<<(std::ostream& os, const ComponentAddress& addr)
-{
-  if (!addr.InUse())
-  {
-    os << "[inv]";
-    return os;
-  }
-  os << "[" << addr.mTable << ", " << addr.mIndex << "]";
-  return os;
 }
 
 void Member::EndUse()
@@ -46,17 +34,6 @@ int Member::EndAddress() const
 int Member::LastAddress() const
 {
   return mAddressIndex + mCount - 1;
-}
-
-std::ostream& operator<<(std::ostream& os, const Member& member)
-{
-  if (!member.InUse())
-  {
-    os << "[inv]";
-    return os;
-  }
-  os << "[" << member.mAddressIndex << ", " << member.mCount << "]";
-  return os;
 }
 
 Space::MemberVisitor::MemberVisitor(Space& space):
@@ -179,7 +156,7 @@ void* Space::AddComponent(int componentId, MemRef member)
   ComponentAddress newAddress;
   newAddress.mTable = table;
   newAddress.mIndex = mTables[table].Add(member);
-  void* componentData = mTables[table][newAddress.mIndex];
+  void* componentData = mTables[table].GetData(newAddress.mIndex);
 
   // Add the component's address to the address bin, and make that address part
   // of the member.
@@ -269,7 +246,7 @@ void* Space::GetComponent(int componentId, MemRef member) const
     const ComponentAddress& address = mAddressBin[selected.mAddressIndex + i];
     if (address.mTable == table)
     {
-      return mTables[address.mTable][address.mIndex];
+      return mTables[address.mTable].GetData(address.mIndex);
     }
   }
   return nullptr;
@@ -288,86 +265,29 @@ const void* Space::GetComponentData(int componentId) const
   return mTables[table].Data();
 }
 
-void Space::ShowAll() const
+const Ds::Vector<TableRef>& Space::TableLookup() const
 {
-  ShowTables();
-  ShowTableLookup();
-  ShowMembers();
-  ShowAddressBin();
+  return mTableLookup;
 }
 
-void Space::ShowTableLookup() const
+const Ds::Vector<Table>& Space::Tables() const
 {
-  std::cout << "TableLookup: [ComponentId, Table]";
-  for (int i = 0; i < mTableLookup.Size(); ++i)
-  {
-    std::cout << ", [" << i << ", " << mTableLookup[i] << "]";
-  }
-  std::cout << std::endl;
+  return mTables;
 }
 
-void Space::ShowTable(int componentId) const
+const Ds::Vector<Member>& Space::Members() const
 {
-  VerifyTable(componentId);
-  TableRef table = mTableLookup[componentId];
-  mTables[table].ShowStats();
-  mTables[table].ShowOwners();
+  return mMembers;
 }
 
-void Space::ShowTables() const
+const Ds::Vector<MemRef>& Space::UnusedMemRefs() const
 {
-  for (int i = 0; i < mTables.Size(); ++i)
-  {
-    std::cout << i << " {" << std::endl;
-    mTables[i].ShowStats();
-    mTables[i].ShowOwners();
-    std::cout << "}" << std::endl;
-  }
+  return mUnusedMemRefs;
 }
 
-void Space::ShowOwnersInTables() const
+const Ds::Vector<ComponentAddress> Space::AddressBin() const
 {
-  for (int i = 0; i < mTables.Size(); ++i)
-  {
-    std::cout << "Table " << i << " ";
-    mTables[i].ShowOwners();
-  }
-}
-
-void Space::ShowMembers() const
-{
-  std::cout << "Members: [Address, Count]";
-  for (const Member& member : mMembers)
-  {
-    std::cout << ", " << member;
-  }
-  std::cout << std::endl;
-}
-
-void Space::ShowAddressBin() const
-{
-  std::cout << "AddressBin: [Table, Index]";
-  for (int i = 0; i < mAddressBin.Size(); ++i)
-  {
-    std::cout << ", " << mAddressBin[i];
-  }
-  std::cout << std::endl;
-}
-
-void Space::ShowUnusedMemRefs() const
-{
-  std::cout << "UnusedMemRefs: ";
-  if (mUnusedMemRefs.Size() == 0)
-  {
-    std::cout << "None" << std::endl;
-    return;
-  }
-  std::cout << mUnusedMemRefs[0];
-  for (int i = 1; i < mUnusedMemRefs.Size(); ++i)
-  {
-    std::cout << ", " << mUnusedMemRefs[i];
-  }
-  std::cout << std::endl;
+  return mAddressBin;
 }
 
 bool Space::ValidTable(int componentId) const

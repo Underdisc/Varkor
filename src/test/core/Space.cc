@@ -2,6 +2,7 @@
 
 #include "core/Space.h"
 #include "debug/MemLeak.h"
+#include "test/core/Print.h"
 
 #pragma pack(push, 1)
 struct Comp0
@@ -118,19 +119,19 @@ void PrintComponentData(const Core::Space& space, int componentCount)
 
 void CreateMember()
 {
-  std::cout << "-=CreateMember=-" << std::endl;
+  std::cout << "<= CreateMember =>" << std::endl;
   Core::Space space;
   for (int i = 0; i < 10; ++i)
   {
     space.CreateMember();
   }
-  space.ShowAll();
+  PrintSpace(space);
   std::cout << std::endl;
 }
 
 void DeleteMember()
 {
-  std::cout << "-=DeleteMember=-" << std::endl;
+  std::cout << "<= DeleteMember =>" << std::endl;
   Core::Space space;
   Core::MemRef memRefs[10];
   for (int i = 0; i < 10; ++i)
@@ -138,24 +139,24 @@ void DeleteMember()
     memRefs[i] = space.CreateMember();
   }
   std::cout << "Members Created" << std::endl;
-  space.ShowMembers();
-  space.ShowAddressBin();
-  space.ShowUnusedMemRefs();
+  PrintSpaceMembers(space);
+  PrintSpaceAddressBin(space);
+  PrintSpaceUnusedMemRefs(space);
 
   for (int i = 0; i < 10; i += 2)
   {
     space.DeleteMember(memRefs[i]);
   }
   std::cout << "-----" << std::endl << "Members Removed" << std::endl;
-  space.ShowMembers();
-  space.ShowAddressBin();
-  space.ShowUnusedMemRefs();
+  PrintSpaceMembers(space);
+  PrintSpaceAddressBin(space);
+  PrintSpaceUnusedMemRefs(space);
   std::cout << std::endl;
 }
 
 void AddComponent()
 {
-  std::cout << "-=AddComponent=-" << std::endl;
+  std::cout << "<= AddComponent =>" << std::endl;
   Core::Space space;
   Core::MemRef mem0 = space.CreateMember();
   Comp0& mem0comp0 = space.AddComponent<Comp0>(mem0);
@@ -170,8 +171,8 @@ void AddComponent()
   Comp3& mem2comp3 = space.AddComponent<Comp3>(mem2);
   mem2comp3.SetData(5);
 
-  space.ShowMembers();
-  space.ShowAddressBin();
+  PrintSpaceMembers(space);
+  PrintSpaceAddressBin(space);
 
   Comp3& mem1comp3 = space.AddComponent<Comp3>(mem1);
   mem1comp3.SetData(4);
@@ -179,7 +180,7 @@ void AddComponent()
   mem0comp3.SetData(3);
   Comp2& mem2comp2 = space.AddComponent<Comp2>(mem2);
 
-  space.ShowAll();
+  PrintSpace(space);
   PrintComponentData<Comp0>(space, 3);
   PrintComponentData<Comp1>(space, 2);
   PrintComponentData<Comp2>(space, 3);
@@ -189,7 +190,7 @@ void AddComponent()
 
 void RemComponent()
 {
-  std::cout << "-=RemComponent=-" << std::endl;
+  std::cout << "<= RemComponent =>" << std::endl;
   Core::Space space;
   Core::MemRef mem0 = space.CreateMember();
   space.AddComponent<Comp0>(mem0);
@@ -209,28 +210,28 @@ void RemComponent()
   space.AddComponent<Comp2>(mem3);
   space.AddComponent<Comp0>(mem3);
 
-  space.ShowMembers();
-  space.ShowAddressBin();
+  PrintSpaceMembers(space);
+  PrintSpaceAddressBin(space);
 
   space.RemComponent<Comp2>(mem2);
   space.RemComponent<Comp0>(mem1);
   space.RemComponent<Comp1>(mem2);
   space.RemComponent<Comp1>(mem0);
 
-  space.ShowMembers();
-  space.ShowAddressBin();
+  PrintSpaceMembers(space);
+  PrintSpaceAddressBin(space);
 
   space.AddComponent<Comp0>(mem2);
 
-  space.ShowMembers();
-  space.ShowAddressBin();
-  space.ShowTables();
+  PrintSpaceMembers(space);
+  PrintSpaceAddressBin(space);
+  PrintSpaceTables(space);
   std::cout << std::endl;
 }
 
 void DeleteMembersWithComponents()
 {
-  std::cout << "-=DeleteMembersWithComponents=-" << std::endl;
+  std::cout << "<= DeleteMembersWithComponents =>" << std::endl;
   Core::Space space;
   Core::MemRef memRefs[8];
   for (int i = 0; i < 8; ++i)
@@ -251,10 +252,10 @@ void DeleteMembersWithComponents()
     }
   }
   std::cout << "Members and Components Created" << std::endl;
-  space.ShowMembers();
-  space.ShowAddressBin();
-  space.ShowUnusedMemRefs();
-  space.ShowOwnersInTables();
+  PrintSpaceMembers(space);
+  PrintSpaceAddressBin(space);
+  PrintSpaceUnusedMemRefs(space);
+  PrintSpaceTablesOwners(space);
 
   space.DeleteMember(memRefs[0]);
   space.DeleteMember(memRefs[3]);
@@ -262,10 +263,10 @@ void DeleteMembersWithComponents()
   space.DeleteMember(memRefs[6]);
   space.DeleteMember(memRefs[7]);
   std::cout << "-----" << std::endl << "Members Removed" << std::endl;
-  space.ShowMembers();
-  space.ShowAddressBin();
-  space.ShowUnusedMemRefs();
-  space.ShowOwnersInTables();
+  PrintSpaceMembers(space);
+  PrintSpaceAddressBin(space);
+  PrintSpaceUnusedMemRefs(space);
+  PrintSpaceTablesOwners(space);
 
   Core::MemRef newMemRef = space.CreateMember();
   space.AddComponent<Comp0>(newMemRef);
@@ -276,16 +277,16 @@ void DeleteMembersWithComponents()
   space.AddComponent<Comp1>(newMemRef);
   std::cout << "-----" << std::endl
             << "New Members and Components" << std::endl;
-  space.ShowMembers();
-  space.ShowAddressBin();
-  space.ShowUnusedMemRefs();
-  space.ShowOwnersInTables();
+  PrintSpaceMembers(space);
+  PrintSpaceAddressBin(space);
+  PrintSpaceUnusedMemRefs(space);
+  PrintSpaceTablesOwners(space);
   std::cout << std::endl;
 }
 
 void GetComponent()
 {
-  std::cout << "-=GetComponent=-" << std::endl;
+  std::cout << "<= GetComponent =>" << std::endl;
   Core::Space space;
   Core::MemRef mem0 = space.CreateMember();
   space.AddComponent<Comp0>(mem0);
@@ -312,7 +313,7 @@ void GetComponent()
   Comp2* mem1comp2 = space.GetComponent<Comp2>(mem1);
   mem1comp2->SetData(3);
 
-  space.ShowAll();
+  PrintSpace(space);
   PrintComponentData<Comp0>(space, 2);
   PrintComponentData<Comp1>(space, 2);
   PrintComponentData<Comp2>(space, 2);
@@ -322,7 +323,7 @@ void GetComponent()
 
 void HasComponent()
 {
-  std::cout << "-=HasComponent=-" << std::endl;
+  std::cout << "<= HasComponent =>" << std::endl;
   Core::Space space;
   Core::MemRef mem0 = space.CreateMember();
   space.AddComponent<Comp1>(mem0);
@@ -332,9 +333,9 @@ void HasComponent()
   space.AddComponent<Comp3>(mem1);
   space.AddComponent<Comp3>(mem0);
 
-  space.ShowMembers();
-  space.ShowAddressBin();
-  space.ShowTableLookup();
+  PrintSpaceMembers(space);
+  PrintSpaceAddressBin(space);
+  PrintSpaceTableLookup(space);
   std::cout << space.HasComponent<Comp0>(mem0);
   std::cout << space.HasComponent<Comp1>(mem0);
   std::cout << space.HasComponent<Comp2>(mem0);

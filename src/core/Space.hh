@@ -62,12 +62,6 @@ const T* Space::GetComponentData() const
 }
 
 template<typename T>
-void Space::ShowTable() const
-{
-  ShowTable(ComponentType<T>::smId);
-}
-
-template<typename T>
 Table::Visitor<T> Space::CreateTableVisitor() const
 {
   int componentId = ComponentType<T>::smId;
