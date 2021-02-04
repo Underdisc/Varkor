@@ -1,30 +1,30 @@
 @echo off
 
-REM Usage: btest.bat {target}|all [r [c|d]]
+REM Usage: btest.bat all|({target} [r|c|d])
 
-REM Required Environment Variables in buildSpecs.bat.
-REM buildDir - The path to the build dir relative to buildSpecs.bat.
+REM Required Environment Variables to be set in buildSpecs.bat.
+REM buildDir - The path to the build directory relative to buildSpecs.bat.
 REM generator - The identifier used to call the generator.
 
 REM Required Arguments
-REM {target} - The name of the target to build. all can be provided instead of
-REM   the target name to build all the test targets.
+REM all - Build all of the existing test targets.
+REM {target} - Build only the provided target.
 
 REM Optional Arguments
-REM r - After the target is built, rtest.bat will be called with the built
-REM   target as the argument. This and the following arguments will be ignored
-REM   if all is provided instead of a specific target.
-REM c|d - If one of these arguments is provided, it will be forwared to
-REM   rtest.bat. Look in rtest.bat to read about their purpose.
+REM r - Runs the target executable if successfully built.
+REM c - Creates a file containing the output of the target executable named
+REM   {target}_out.txt. The file will be overwritten if it already exists.
+REM d - Creates a file containing the output of the target executable named
+REM   {target}_out_diff.txt and diffs it against {target}_out.txt.
 
 if "%1" == "" (
   echo Error: A target name or all must be provided as the first argument.
   goto:eof
 )
 
+REM Ensure that an existing build directory was selected.
 pushd "../"
 call buildSpecs.bat
-
 if "%buildDir%" == "" (
   echo Error: The environment variable "buildDir" must be set in
   echo ../buildSpecs.bat.
@@ -38,6 +38,7 @@ if not exist %buildDir% (
   goto:eof
 )
 
+REM Build the target.
 pushd %buildDir%
 if "%1" == "all" (
   %generator% tests
@@ -49,17 +50,26 @@ if "%1" == "all" (
 )
 popd
 popd
-
 set buildError=1
 if %ERRORLEVEL% EQU %buildError% (
   goto:eof
 )
 echo =Target Built=
 
+REM The target has been built and we will now run the target if requested.
 if "%2" == "r" (
-  rtest.bat %1 %3
+  %1.exe
+  goto:eof
+)
+if "%2" == "c" (
+  %1.exe > %1_out.txt
+  goto:eof
+)
+if "%2" == "d" (
+  %1.exe > %1_out_diff.txt
+  git diff --no-index %1_out.txt %1_out_diff.txt
+  goto:eof
 )
 if not "%2" == "" (
-  echo Error: "%2" is not a valid argument. Only "r" followed by nothing, c or
-  echo d is valid.
+  echo Error: %2 is not a valid argument. Only r, c, or d is valid.
 )
