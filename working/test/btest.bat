@@ -17,28 +17,21 @@ REM   {target}_out.txt. The file will be overwritten if it already exists.
 REM d - Creates a file containing the output of the target executable named
 REM   {target}_out_diff.txt and diffs it against {target}_out.txt.
 
-if "%1" == "" (
-  echo Error: A target name or all must be provided as the first argument.
-  goto:eof
-)
-
-REM Ensure that an existing build directory was selected.
+REM Ensure that the build specifications exist.
 pushd "../"
-call buildSpecs.bat
-if "%buildDir%" == "" (
-  echo Error: The environment variable "buildDir" must be set in
-  echo ../buildSpecs.bat.
-  popd
-  goto:eof
-)
-if not exist %buildDir% (
-  echo Error: The value of buildDir [%buildDir%] does not exist relative to
-  echo ../buildSpecs.bat.
+call checkBuildSpecs.bat
+set build_specs_check_failed=1
+if %ERRORLEVEL% EQU %build_specs_check_failed% (
   popd
   goto:eof
 )
 
 REM Build the target.
+if "%1" == "" (
+  echo Error: all or a target name must be provided as the first argument.
+  popd
+  goto:eof
+)
 pushd %buildDir%
 if "%1" == "all" (
   %generator% tests

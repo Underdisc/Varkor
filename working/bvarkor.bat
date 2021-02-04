@@ -9,29 +9,23 @@ REM generator - The identifier used to call the generator.
 REM Optional Arguments
 REM r - Varkor will run after a successful build.
 
-call buildSpecs.bat
-
-if "%buildDir%" == "" (
-  echo Error: The environment variable "buildDir" must be set in
-  echo buildSpecs.bat.
-  goto:eof
-)
-if not exist %buildDir% (
-  echo Error: The value of buildDir [%buildDir%] does not exist relative to
-  echo buildSpecs.bat.
+REM Ensure that the build specifications exist.
+call checkBuildSpecs.bat
+set build_specs_check_failed=1
+if %ERRORLEVEL% EQU %build_specs_check_failed% (
   goto:eof
 )
 
+REM Build Varkor.
 pushd %buildDir%
 %generator% varkor
 popd
-
 set build_failed=1
 if %ERRORLEVEL% EQU %build_failed% (
   goto:eof
 )
 
+REM Run Varkor if requested.
 if "%1" == "r" (
-  echo =Running=
   varkor.exe
 )
