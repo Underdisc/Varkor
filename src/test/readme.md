@@ -69,7 +69,7 @@ math_NewType.exe > math_NewType_out.txt
 
 ### Advice For Quick Testing
 
-Inside of `{repo_root}/working/test` you will find `btest.bat` and `rtest.bat`. These are batch scripts for quickly building and running tests because no one should have to repeat the steps above for running and testing tests. There are no shell scripts at the moment because of lack of linux support. To use the scripts, read the comments at the top of both files to understand their usage. You will have to set the environment variables specified in `btest.bat` in `{repo_root}/working/buildSpecs.bat`.
+Inside of `{repo_root}/working/test` you will find `btest.bat`. This script is for quickly building and running tests because no one should have to repeat the steps above for running and testing tests. There are no shell scripts at the moment because of lack of linux support. To use the script, read the comments at the top of the file to understand its usage. You will have to set the environment variables specified in `btest.bat` in `{repo_root}/working/buildSpecs.bat`.
 
 ### Organization Details
 
