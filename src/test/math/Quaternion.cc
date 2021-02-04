@@ -7,7 +7,7 @@
 void AngleAxis()
 {
   std::cout << "AngleAxis" << std::endl;
-  float angle = PIO2f;
+  float angle = Math::nPiO2;
   Vec3 axis = {1.0f, 1.0f, 1.0f};
   axis = Math::Normalize(axis);
   Quat quat;

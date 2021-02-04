@@ -72,7 +72,7 @@ void Perspective()
 {
   std::cout << "Perspecive" << std::endl;
   Mat4 matrix;
-  Math::Perspective(&matrix, PIf / 2.0f, 1.5f, 0.1f, 100.0f);
+  Math::Perspective(&matrix, Math::nPi / 2.0f, 1.5f, 0.1f, 100.0f);
   std::cout << "matrix" << std::endl << matrix << std::endl;
 }
 

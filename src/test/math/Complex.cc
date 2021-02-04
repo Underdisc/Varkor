@@ -54,10 +54,10 @@ void Multiplication()
 void PolarComplex()
 {
   Complex a = Math::ComplexPolar(2.0f, 0.0f);
-  Complex b = Math::ComplexPolar(3.0f, PIO2f);
-  Complex c = Math::ComplexPolar(1.0f, PIf);
-  Complex d = Math::ComplexPolar(4.0f, PIf * 1.5f);
-  Complex e = Math::ComplexPolar(1.0f, PIf / 4.0f);
+  Complex b = Math::ComplexPolar(3.0f, Math::nPiO2);
+  Complex c = Math::ComplexPolar(1.0f, Math::nPi);
+  Complex d = Math::ComplexPolar(4.0f, Math::nPi * 1.5f);
+  Complex e = Math::ComplexPolar(1.0f, Math::nPi / 4.0f);
   std::cout << "a: " << a << std::endl;
   std::cout << "b: " << b << std::endl;
   std::cout << "c: " << c << std::endl;
