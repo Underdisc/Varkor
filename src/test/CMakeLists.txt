@@ -7,6 +7,12 @@ function(AddTest target)
   set_property(TARGET ${target} PROPERTY RUNTIME_OUTPUT_DIRECTORY
     "${CMAKE_SOURCE_DIR}/working/test")
   add_dependencies(tests ${target})
+
+  if("${testNames}" STREQUAL "")
+    set(testNames "${target}" PARENT_SCOPE)
+  else()
+    set(testNames "${testNames}\n${target}" PARENT_SCOPE)
+  endif()
 endfunction()
 
 AddTest(core_Space
@@ -66,3 +72,5 @@ AddTest(math_Quaternion
 AddTest(math_Vector
   math/Vector.cc
   ../Error.cc)
+
+set(testNames "${testNames}" PARENT_SCOPE)

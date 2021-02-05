@@ -7,3 +7,4 @@ build/
 working/buildSpecs.bat
 working/imgui.ini
 working/test/*_out_diff.txt
+working/test/testNames.txt

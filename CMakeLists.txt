@@ -31,3 +31,4 @@ set_property(TARGET varkor PROPERTY RUNTIME_OUTPUT_DIRECTORY
 
 # Create all the test targets.
 add_subdirectory(src/test)
+file(WRITE working/test/testNames.txt ${testNames})
