@@ -20,8 +20,8 @@ REM Build Varkor.
 pushd %buildDir%
 %generator% varkor
 popd
-set build_failed=1
-if %ERRORLEVEL% EQU %build_failed% (
+set buildFailed=1
+if errorlevel %buildFailed% (
   goto:eof
 )
 
