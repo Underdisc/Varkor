@@ -9,8 +9,6 @@
 
 namespace Gfx {
 
-const int Shader::smInvalidLocation = -1;
-
 Shader::Shader()
 {
   mProgram = 0;
@@ -18,15 +16,30 @@ Shader::Shader()
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile)
 {
-  Init(vertexFile, fragmentFile);
+  InitResult result = Init(vertexFile, fragmentFile);
+  if (!result.mSuccess)
+  {
+    LogAbort(result.mError.c_str());
+  }
 }
 
-void Shader::Init(const char* vertexFile, const char* fragmentFile)
+Shader::InitResult Shader::Init(
+  const char* vertexFile, const char* fragmentFile)
 {
+  // Compile the provided shader files.
   unsigned int vertId, fragId;
-  Compile(vertexFile, GL_VERTEX_SHADER, &vertId);
-  Compile(fragmentFile, GL_FRAGMENT_SHADER, &fragId);
+  InitResult result = Compile(vertexFile, GL_VERTEX_SHADER, &vertId);
+  if (!result.mSuccess)
+  {
+    return result;
+  }
+  result = Compile(fragmentFile, GL_FRAGMENT_SHADER, &fragId);
+  if (!result.mSuccess)
+  {
+    return result;
+  }
 
+  // Link the compiled shaders.
   mProgram = glCreateProgram();
   glAttachShader(mProgram, vertId);
   glAttachShader(mProgram, fragId);
@@ -42,12 +55,14 @@ void Shader::Init(const char* vertexFile, const char* fragmentFile)
     reason << " shader files " << vertexFile << " and " << fragmentFile
            << " failed to link." << std::endl
            << errorLog;
-    LogAbort(reason.str().c_str());
+    result.mSuccess = false;
+    result.mError = reason.str();
     mProgram = 0;
-    return;
+    return result;
   }
   glDeleteShader(vertId);
   glDeleteShader(fragId);
+  return result;
 }
 
 void Shader::Use() const
@@ -108,23 +123,27 @@ void Shader::SetSampler(const char* name, int textureUnit) const
   glUniform1i(loc, textureUnit);
 }
 
-void Shader::Compile(
+Shader::InitResult Shader::Compile(
   const char* shaderFile, int shaderType, unsigned int* shaderId)
 {
+  // Read the content of the provided file.
   std::ifstream file;
   file.open(shaderFile);
   if (!file.is_open())
   {
     std::stringstream reason;
     reason << "shader file " << shaderFile << " does not exist.";
-    LogAbort(reason.str().c_str());
+    InitResult result;
+    result.mSuccess = false;
+    result.mError = reason.str();
+    return result;
   }
-
   std::stringstream fileContentStream;
   fileContentStream << file.rdbuf();
   std::string fileContentStr = fileContentStream.str();
   const char* fileContent = fileContentStr.c_str();
 
+  // Compile the source read from the file.
   *shaderId = glCreateShader(shaderType);
   glShaderSource(*shaderId, 1, &fileContent, NULL);
   glCompileShader(*shaderId);
@@ -132,9 +151,12 @@ void Shader::Compile(
   glGetShaderiv(*shaderId, GL_COMPILE_STATUS, &success);
   if (success)
   {
-    return;
+    InitResult result;
+    result.mSuccess = true;
+    return result;
   }
 
+  // The shader failed to compile and we retrieve the error here.
   const int logLen = 512;
   char log[logLen];
   glGetShaderInfoLog(*shaderId, logLen, NULL, log);
@@ -148,7 +170,10 @@ void Shader::Compile(
   }
   error << " shader file " << shaderFile << " failed to compile" << std::endl
         << log;
-  LogAbort(error.str().c_str());
+  InitResult result;
+  result.mSuccess = false;
+  result.mError = error.str();
+  return result;
 }
 
 } // namespace Gfx

@@ -1,14 +1,23 @@
 #ifndef gfx_Shader_h
 #define gfx_Shader_h
 
+#include <string>
+
 namespace Gfx {
 
 class Shader
 {
 public:
+  struct InitResult
+  {
+    bool mSuccess;
+    std::string mError;
+  };
+
+public:
   Shader();
   Shader(const char* vertexFile, const char* fragmentFile);
-  void Init(const char* vertexFile, const char* fragmentFile);
+  InitResult Init(const char* vertexFile, const char* fragmentFile);
   void Use() const;
   unsigned int Id() const;
   int UniformLocation(const char* name) const;
@@ -20,12 +29,12 @@ public:
   void SetSampler(const char* name, int textureUnit) const;
 
 private:
-  void Compile(
+  InitResult Compile(
     const char* shaderSource, int shaderType, unsigned int* shaderId);
 
   unsigned int mProgram;
 
-  static const int smInvalidLocation;
+  static constexpr int smInvalidLocation = -1;
 };
 
 } // namespace Gfx
