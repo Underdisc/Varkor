@@ -11,9 +11,9 @@ REM r - Varkor will run after a successful build.
 
 REM Ensure that the build specifications exist.
 call checkBuildSpecs.bat
-set build_specs_check_failed=1
-if %ERRORLEVEL% EQU %build_specs_check_failed% (
-  goto:eof
+set buildSpecsCheckFailed=1
+if errorlevel %buildSpecsCheckFailed% (
+  exit /b 1
 )
 
 REM Build Varkor.
@@ -22,10 +22,16 @@ pushd %buildDir%
 popd
 set buildFailed=1
 if errorlevel %buildFailed% (
-  goto:eof
+  exit /b 1
 )
 
 REM Run Varkor if requested.
 if "%1" == "r" (
   varkor.exe
+  exit /b 0
 )
+if not "%1" == "" (
+  echo Error: %2 is not a valid argument. Only r is valid.
+  exit /b 1
+)
+exit /b 0

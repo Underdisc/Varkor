@@ -27,14 +27,14 @@ call checkBuildSpecs.bat
 set buildSpecsCheckFailed=1
 if errorlevel %buildSpecsCheckFailed% (
   popd
-  goto:eof
+  exit /b 1
 )
 
 REM Build the target or targets.
 if "%1" == "" (
   echo Error: all or a target name must be provided as the first argument.
   popd
-  goto:eof
+  exit /b 1
 )
 pushd %buildDir%
 if "%1" == "all" (
@@ -46,43 +46,45 @@ popd
 popd
 set buildError=1
 if errorlevel %buildError% (
-  goto:eof
+  exit /b 1
 )
 
 REM Run all of the test targets if requested.
 if "%1" == "all" (
   if "%2" == "t" (
     for /f %%t in (testNames.txt) do call :PerformTest %%t
-    goto:eof
+    exit /b 0
   )
   if not "%2" == "" (
     echo Error: %2 is not a valid argument. Only t is valid.
+    exit /b 1
   )
-  goto:eof
+  exit /b 0
 )
 
 REM Run a single target with the desired output if requested.
 if "%2" == "r" (
   %1.exe
-  goto:eof
+  exit /b 0
 )
 if "%2" == "c" (
   %1.exe > %1_out.txt
-  goto:eof
+  exit /b 0
 )
 if "%2" == "d" (
   %1.exe > %1_out_diff.txt
   git diff --no-index %1_out.txt %1_out_diff.txt
-  goto:eof
+  exit /b 0
 )
 if "%2" == "t" (
   call :PerformTest %1
-  goto:eof
+  exit /b 0
 )
 if not "%2" == "" (
   echo Error: %2 is not a valid argument. Only r, c, d, or t are valid.
+  exit /b 1
 )
-goto:eof
+exit /b 0
 
 :PerformTest
   %1.exe > %1_out_diff.txt
