@@ -32,7 +32,7 @@ std::string nPopupText;
 bool nInitPopupWindow = false;
 bool nShowPopupWindow = false;
 
-void OpenPopup(const char* name, const std::string& text)
+void OpenPopup(const char* name, const char* text)
 {
   nPopupName = name;
   nPopupText = text;

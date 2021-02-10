@@ -16,7 +16,7 @@ void ChangeAssetCallback(const std::string& path, void* data)
     comp->mAsset = path;
   } else
   {
-    Editor::OpenPopup("Model Import Failed", result.mError);
+    Editor::OpenPopup("Model Import Failed", result.mError.c_str());
   }
 }
 
