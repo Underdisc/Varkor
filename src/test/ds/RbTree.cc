@@ -140,6 +140,35 @@ void BasicRemove()
   std::cout << std::endl;
 }
 
+void Iterator()
+{
+  std::cout << "<= Iterator =>" << std::endl;
+  Ds::RbTree<int> tree;
+  int insertionCount = 0;
+  srand(10);
+  while (insertionCount < 20)
+  {
+    int value = rand() % 100;
+    if (!tree.Contains(value))
+    {
+      tree.Insert(value);
+      ++insertionCount;
+    }
+  }
+
+  PrintRbTree(tree);
+  Ds::RbTree<int>::Iter it = tree.Begin();
+  Ds::RbTree<int>::Iter itE = tree.End();
+  std::cout << *it;
+  ++it;
+  while (it != itE)
+  {
+    std::cout << ", " << *it;
+    ++it;
+  }
+  std::cout << std::endl << std::endl;
+}
+
 void ExtensiveModification()
 {
   std::cout << "<= ExtensiveModification =>" << std::endl;
@@ -219,5 +248,6 @@ int main()
   MoveInsert();
   Emplace();
   BasicRemove();
+  Iterator();
   ExtensiveModification();
 }

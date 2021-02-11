@@ -33,6 +33,80 @@ RbTree<T>::Node::Node(Args&&... args):
 {}
 
 template<typename T>
+typename RbTree<T>::Node* RbTree<T>::Node::FindPredecessor() const
+{
+  if (mLeft == nullptr)
+  {
+    return nullptr;
+  }
+  Node* predecessor = mLeft;
+  while (predecessor->mRight != nullptr)
+  {
+    predecessor = predecessor->mRight;
+  }
+  return predecessor;
+}
+
+template<typename T>
+typename RbTree<T>::Node* RbTree<T>::Node::FindSuccessor() const
+{
+  if (mRight == nullptr)
+  {
+    return nullptr;
+  }
+  Node* successor = mRight;
+  while (successor->mLeft != nullptr)
+  {
+    successor = successor->mLeft;
+  }
+  return successor;
+}
+
+template<typename T>
+const T& RbTree<T>::Iter::operator*()
+{
+  return mCurrent->mValue;
+}
+
+template<typename T>
+typename RbTree<T>::Iter RbTree<T>::Iter::operator++()
+{
+  Node* successor = mCurrent->FindSuccessor();
+  if (successor != nullptr)
+  {
+    mCurrent = successor;
+    return *this;
+  }
+
+  // There was no right subtree so we need to travel up the tree.
+  while (mCurrent->mParent != nullptr)
+  {
+    Node* child = mCurrent;
+    mCurrent = mCurrent->mParent;
+    if (mCurrent->mLeft == child)
+    {
+      return *this;
+    }
+  }
+
+  // mCurrent was at the rightmost node, hence we are done traversing the tree.
+  mCurrent = nullptr;
+  return *this;
+}
+
+template<typename T>
+bool RbTree<T>::Iter::operator==(const Iter& other)
+{
+  return mCurrent == other.mCurrent;
+}
+
+template<typename T>
+bool RbTree<T>::Iter::operator!=(const Iter& other)
+{
+  return mCurrent != other.mCurrent;
+}
+
+template<typename T>
 RbTree<T>::RbTree()
 {
   mHead = nullptr;
@@ -92,7 +166,7 @@ void RbTree<T>::RemoveNode(Node* node)
     replace = node->mLeft;
   } else
   {
-    replace = FindPredecessor(node);
+    replace = node->FindPredecessor();
   }
   if (replace != nullptr)
   {
@@ -167,6 +241,28 @@ bool RbTree<T>::Contains(const T& value)
 {
   Node* node = FindNode<T>(value);
   return node != nullptr;
+}
+
+template<typename T>
+typename RbTree<T>::Iter RbTree<T>::Begin()
+{
+  // Find the leftmost node in the tree.
+  Node* node = mHead;
+  while (node->mLeft != nullptr)
+  {
+    node = node->mLeft;
+  }
+  Iter begin;
+  begin.mCurrent = node;
+  return begin;
+}
+
+template<typename T>
+typename RbTree<T>::Iter RbTree<T>::End()
+{
+  Iter end;
+  end.mCurrent = nullptr;
+  return end;
 }
 
 template<typename T>
@@ -498,22 +594,6 @@ void RbTree<T>::Delete(Node* node)
   Delete(node->mLeft);
   Delete(node->mRight);
   delete node;
-}
-
-template<typename T>
-typename RbTree<T>::Node* RbTree<T>::FindPredecessor(Node* node)
-{
-  if (node->mLeft == nullptr)
-  {
-    return nullptr;
-  }
-
-  Node* predecessor = node->mLeft;
-  while (predecessor->mRight != nullptr)
-  {
-    predecessor = predecessor->mRight;
-  }
-  return predecessor;
 }
 
 template<typename T>

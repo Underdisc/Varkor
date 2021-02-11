@@ -13,6 +13,8 @@ public:
     Node(T&& value);
     template<typename... Args>
     Node(Args&&... args);
+    Node* FindPredecessor() const;
+    Node* FindSuccessor() const;
 
     enum class Color
     {
@@ -28,6 +30,20 @@ public:
   };
 
 public:
+  struct Iter
+  {
+  public:
+    const T& operator*();
+    Iter operator++();
+    bool operator==(const Iter& other);
+    bool operator!=(const Iter& other);
+
+  private:
+    Node* mCurrent;
+    friend RbTree<T>;
+  };
+
+public:
   RbTree();
   ~RbTree();
   void Insert(const T& value);
@@ -37,6 +53,8 @@ public:
   void Remove(const T& value);
   void Clear();
   bool Contains(const T& value);
+  Iter Begin();
+  Iter End();
 
   const Node* GetHead() const;
   bool HasConsistentBlackHeight();
@@ -57,7 +75,6 @@ private:
   void RotateRight(Node* oldRoot);
   void Delete(Node* node);
 
-  Node* FindPredecessor(Node* node);
   bool HasBlackHeight(Node* node, int currentBh, int expectedBh);
   bool HasDoubleRed(Node* node);
 
