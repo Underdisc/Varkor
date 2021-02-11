@@ -15,14 +15,14 @@ struct KvPair
   V mValue;
 
 private:
+  K mKey;
+
   KvPair(const K& key, const V& value);
   KvPair(const K& key, V&& value);
   bool operator>(const KvPair& other) const;
   bool operator<(const KvPair& other) const;
   bool operator>(const K& otherKey) const;
   bool operator<(const K& otherKey) const;
-
-  K mKey;
 
   friend Map<K, V>;
   friend RbTree<KvPair<K, V>>;
