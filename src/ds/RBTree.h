@@ -29,19 +29,35 @@ public:
     Color mColor;
   };
 
-public:
-  struct Iter
+private:
+  struct IterBase
   {
-  public:
-    const T& operator*();
-    Iter operator++();
-    bool operator==(const Iter& other);
-    bool operator!=(const Iter& other);
+    void operator++();
+    bool operator==(const IterBase& other);
+    bool operator!=(const IterBase& other);
 
-  private:
+  protected:
     Node* mCurrent;
     friend RbTree<T>;
   };
+
+public:
+  struct CIter: IterBase
+  {
+    const T& operator*();
+    const T* operator->();
+  };
+  CIter CBegin();
+  CIter CEnd();
+
+protected:
+  struct Iter: IterBase
+  {
+    T& operator*();
+    T* operator->();
+  };
+  Iter Begin();
+  Iter End();
 
 public:
   RbTree();
@@ -53,8 +69,6 @@ public:
   void Remove(const T& value);
   void Clear();
   bool Contains(const T& value);
-  Iter Begin();
-  Iter End();
 
   const Node* GetHead() const;
   bool HasConsistentBlackHeight();
@@ -74,6 +88,7 @@ private:
   void RotateLeft(Node* oldRoot);
   void RotateRight(Node* oldRoot);
   void Delete(Node* node);
+  Node* LeftmostNode();
 
   bool HasBlackHeight(Node* node, int currentBh, int expectedBh);
   bool HasDoubleRed(Node* node);

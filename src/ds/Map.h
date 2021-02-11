@@ -6,21 +6,36 @@
 namespace Ds {
 
 template<typename K, typename V>
+class Map;
+
+template<typename K, typename V>
 struct KvPair
 {
+  const K& Key() const;
+  V mValue;
+
+private:
   KvPair(const K& key, const V& value);
   KvPair(const K& key, V&& value);
   bool operator>(const KvPair& other) const;
   bool operator<(const KvPair& other) const;
   bool operator>(const K& otherKey) const;
   bool operator<(const K& otherKey) const;
+
   K mKey;
-  V mValue;
+
+  friend Map<K, V>;
+  friend RbTree<KvPair<K, V>>;
 };
 
 template<typename K, typename V>
 class Map: public RbTree<KvPair<K, V>>
 {
+public:
+  typedef RbTree<KvPair<K, V>>::Iter Iter;
+  Iter Begin();
+  Iter End();
+
 public:
   void Insert(const K& key, const V& value);
   void Insert(const K& key, V&& value);

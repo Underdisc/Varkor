@@ -157,8 +157,8 @@ void Iterator()
   }
 
   PrintRbTree(tree);
-  Ds::RbTree<int>::Iter it = tree.Begin();
-  Ds::RbTree<int>::Iter itE = tree.End();
+  Ds::RbTree<int>::CIter it = tree.CBegin();
+  Ds::RbTree<int>::CIter itE = tree.CEnd();
   std::cout << *it;
   ++it;
   while (it != itE)

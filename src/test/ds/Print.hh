@@ -117,7 +117,7 @@ void PrintRbTree(const Ds::RbTree<T>& rbTree)
 template<typename K, typename V>
 std::ostream& operator<<(std::ostream& os, const Ds::KvPair<K, V>& kv)
 {
-  os << "[" << kv.mKey << ", " << kv.mValue << "]";
+  os << "[" << kv.Key() << ", " << kv.mValue << "]";
   return os;
 }
 

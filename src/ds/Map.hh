@@ -36,6 +36,24 @@ bool KvPair<K, V>::operator<(const K& otherKey) const
 }
 
 template<typename K, typename V>
+const K& KvPair<K, V>::Key() const
+{
+  return mKey;
+}
+
+template<typename K, typename V>
+typename Map<K, V>::Iter Map<K, V>::Begin()
+{
+  return RbTree<KvPair<K, V>>::Begin();
+}
+
+template<typename K, typename V>
+typename Map<K, V>::Iter Map<K, V>::End()
+{
+  return RbTree<KvPair<K, V>>::End();
+}
+
+template<typename K, typename V>
 void Map<K, V>::Insert(const K& key, const V& value)
 {
   Emplace(key, value);

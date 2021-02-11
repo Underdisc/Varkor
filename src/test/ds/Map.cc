@@ -123,8 +123,51 @@ void MoveInsert()
             << std::endl
             << "CopyConstructorCount: " << TestType::smCopyConstructorCount
             << std::endl
-            << "DestructorCount: " << TestType::smDestructorCount << std::endl;
+            << "DestructorCount: " << TestType::smDestructorCount << std::endl
+            << std::endl;
   TestType::ResetCounts();
+}
+
+void Iterator()
+{
+  std::cout << "<= Iterator =>" << std::endl;
+  // Insert a chunk of random key value pairs into the map.
+  Ds::Map<int, int> map;
+  int insertionCount = 0;
+  srand(20);
+  while (insertionCount < 20)
+  {
+    int key = rand() % 100;
+    if (!map.Contains(key))
+    {
+      map.Insert(key, insertionCount);
+      ++insertionCount;
+    }
+  }
+  PrintMap(map);
+
+  // Change the value of all the key value pairs using an iterator.
+  Ds::Map<int, int>::Iter it = map.Begin();
+  Ds::Map<int, int>::Iter itE = map.End();
+  int iterationCount = 0;
+  while (it != itE)
+  {
+    it->mValue = iterationCount;
+    ++iterationCount;
+    ++it;
+  }
+  std::cout << "--- 0 ---" << std::endl;
+  PrintMap(map);
+
+  // Print out all the keys using a const iterator.
+  std::cout << "--- 1 ---" << std::endl;
+  Ds::Map<int, int>::CIter cIt = map.CBegin();
+  Ds::Map<int, int>::CIter cItE = map.CEnd();
+  while (cIt != cItE)
+  {
+    std::cout << *cIt << std::endl;
+    ++cIt;
+  }
 }
 
 int main()
@@ -133,4 +176,5 @@ int main()
   InsertRemoveFind();
   StringMap();
   MoveInsert();
+  Iterator();
 }

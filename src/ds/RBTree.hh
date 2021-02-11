@@ -62,20 +62,15 @@ typename RbTree<T>::Node* RbTree<T>::Node::FindSuccessor() const
   return successor;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 template<typename T>
-const T& RbTree<T>::Iter::operator*()
-{
-  return mCurrent->mValue;
-}
-
-template<typename T>
-typename RbTree<T>::Iter RbTree<T>::Iter::operator++()
+void RbTree<T>::IterBase::operator++()
 {
   Node* successor = mCurrent->FindSuccessor();
   if (successor != nullptr)
   {
     mCurrent = successor;
-    return *this;
+    return;
   }
 
   // There was no right subtree so we need to travel up the tree.
@@ -85,27 +80,83 @@ typename RbTree<T>::Iter RbTree<T>::Iter::operator++()
     mCurrent = mCurrent->mParent;
     if (mCurrent->mLeft == child)
     {
-      return *this;
+      return;
     }
   }
 
   // mCurrent was at the rightmost node, hence we are done traversing the tree.
   mCurrent = nullptr;
-  return *this;
 }
 
 template<typename T>
-bool RbTree<T>::Iter::operator==(const Iter& other)
+bool RbTree<T>::IterBase::operator==(const IterBase& other)
 {
   return mCurrent == other.mCurrent;
 }
 
 template<typename T>
-bool RbTree<T>::Iter::operator!=(const Iter& other)
+bool RbTree<T>::IterBase::operator!=(const IterBase& other)
 {
   return mCurrent != other.mCurrent;
 }
 
+template<typename T>
+const T& RbTree<T>::CIter::operator*()
+{
+  return mCurrent->mValue;
+}
+
+template<typename T>
+const T* RbTree<T>::CIter::operator->()
+{
+  return &mCurrent->mValue;
+}
+
+template<typename T>
+T& RbTree<T>::Iter::operator*()
+{
+  return mCurrent->mValue;
+}
+
+template<typename T>
+T* RbTree<T>::Iter::operator->()
+{
+  return &mCurrent->mValue;
+}
+
+template<typename T>
+typename RbTree<T>::CIter RbTree<T>::CBegin()
+{
+  CIter begin;
+  begin.mCurrent = LeftmostNode();
+  return begin;
+}
+
+template<typename T>
+typename RbTree<T>::CIter RbTree<T>::CEnd()
+{
+  CIter end;
+  end.mCurrent = nullptr;
+  return end;
+}
+
+template<typename T>
+typename RbTree<T>::Iter RbTree<T>::Begin()
+{
+  Iter begin;
+  begin.mCurrent = LeftmostNode();
+  return begin;
+}
+
+template<typename T>
+typename RbTree<T>::Iter RbTree<T>::End()
+{
+  Iter end;
+  end.mCurrent = nullptr;
+  return end;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 template<typename T>
 RbTree<T>::RbTree()
 {
@@ -241,28 +292,6 @@ bool RbTree<T>::Contains(const T& value)
 {
   Node* node = FindNode<T>(value);
   return node != nullptr;
-}
-
-template<typename T>
-typename RbTree<T>::Iter RbTree<T>::Begin()
-{
-  // Find the leftmost node in the tree.
-  Node* node = mHead;
-  while (node->mLeft != nullptr)
-  {
-    node = node->mLeft;
-  }
-  Iter begin;
-  begin.mCurrent = node;
-  return begin;
-}
-
-template<typename T>
-typename RbTree<T>::Iter RbTree<T>::End()
-{
-  Iter end;
-  end.mCurrent = nullptr;
-  return end;
 }
 
 template<typename T>
@@ -594,6 +623,17 @@ void RbTree<T>::Delete(Node* node)
   Delete(node->mLeft);
   Delete(node->mRight);
   delete node;
+}
+
+template<typename T>
+typename RbTree<T>::Node* RbTree<T>::LeftmostNode()
+{
+  Node* node = mHead;
+  while (node->mLeft != nullptr)
+  {
+    node = node->mLeft;
+  }
+  return node;
 }
 
 template<typename T>
