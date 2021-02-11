@@ -143,7 +143,15 @@ void BasicRemove()
 void Iterator()
 {
   std::cout << "<= Iterator =>" << std::endl;
+  // Attempt to create an iterator for an empty tree.
   Ds::RbTree<int> tree;
+  if (tree.CBegin() == tree.CEnd())
+  {
+    std::cout << "Empty Tree" << std::endl;
+  }
+  std::cout << "--- 0 ---" << std::endl;
+
+  // Insert random values into the tree.
   int insertionCount = 0;
   srand(10);
   while (insertionCount < 20)
@@ -155,8 +163,10 @@ void Iterator()
       ++insertionCount;
     }
   }
-
   PrintRbTree(tree);
+  std::cout << "--- 1 ---" << std::endl;
+
+  // Iterate over the values in the tree.
   Ds::RbTree<int>::CIter it = tree.CBegin();
   Ds::RbTree<int>::CIter itE = tree.CEnd();
   std::cout << *it;

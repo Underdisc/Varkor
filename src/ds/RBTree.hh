@@ -628,6 +628,10 @@ void RbTree<T>::Delete(Node* node)
 template<typename T>
 typename RbTree<T>::Node* RbTree<T>::LeftmostNode()
 {
+  if (mHead == nullptr)
+  {
+    return nullptr;
+  }
   Node* node = mHead;
   while (node->mLeft != nullptr)
   {
