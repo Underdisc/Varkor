@@ -10,6 +10,7 @@
 #include "comp/Transform.h"
 #include "core/Types.h"
 #include "core/World.h"
+#include "editor/Asset.h"
 #include "editor/Util.h"
 
 #include "Primary.h"
@@ -54,7 +55,7 @@ void Init()
   ImVec4* colors = imStyle.Colors;
   colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
   colors[ImGuiCol_WindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.90f);
-  colors[ImGuiCol_ChildBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.78f);
+  colors[ImGuiCol_ChildBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.78f);
   colors[ImGuiCol_PopupBg] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
   colors[ImGuiCol_Border] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
   colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
@@ -112,6 +113,7 @@ void Start()
   {
     FramerWindow();
   }
+  ShowAssetWindows();
   ShowUtilWindows();
 }
 
@@ -129,6 +131,7 @@ void EditorWindow()
   if (ImGui::BeginMenu("View"))
   {
     ImGui::MenuItem("Framer", NULL, &nShowFramerWindow);
+    ImGui::MenuItem("Asset", NULL, &nShowAssetWindow);
     ImGui::EndMenu();
   }
   ImGui::EndMenuBar();

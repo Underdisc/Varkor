@@ -1,12 +1,27 @@
+#include <sstream>
 #include <string>
 
-#include "ds/Map.h"
 #include "gfx/Model.h"
 #include "util/Utility.h"
 
 #include "AssetLibrary.h"
 
 namespace AssetLibrary {
+
+// Stores all of the shaders that have been added.
+Ds::Map<ShaderId, Shader> nShaders;
+// Used to hand out shader ids and is incremented after a shader is created.
+ShaderId nShaderIdHandout = 0;
+
+void CreateEmptyShader()
+{
+  std::stringstream name;
+  name << "Shader " << nShaderIdHandout;
+  Shader shaderAsset;
+  shaderAsset.mName = name.str();
+  nShaders.Insert(nShaderIdHandout, shaderAsset);
+  ++nShaderIdHandout;
+}
 
 // Stores all of the models that have been added.
 Ds::Map<std::string, Gfx::Model> nModels;
