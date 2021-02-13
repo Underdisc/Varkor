@@ -9,12 +9,9 @@
 
 namespace Gfx {
 
-Shader::Shader()
-{
-  mProgram = 0;
-}
+Shader::Shader(): mProgram(0) {}
 
-Shader::Shader(const char* vertexFile, const char* fragmentFile)
+Shader::Shader(const char* vertexFile, const char* fragmentFile): mProgram(0)
 {
   InitResult result = Init(vertexFile, fragmentFile);
   if (!result.mSuccess)
@@ -26,6 +23,13 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 Shader::InitResult Shader::Init(
   const char* vertexFile, const char* fragmentFile)
 {
+  // Delete the current shader program if it exists.
+  if (mProgram != 0)
+  {
+    glDeleteProgram(mProgram);
+    mProgram = 0;
+  }
+
   // Compile the provided shader files.
   unsigned int vertId, fragId;
   InitResult result = Compile(vertexFile, GL_VERTEX_SHADER, &vertId);
@@ -44,6 +48,8 @@ Shader::InitResult Shader::Init(
   glAttachShader(mProgram, vertId);
   glAttachShader(mProgram, fragId);
   glLinkProgram(mProgram);
+  glDeleteShader(vertId);
+  glDeleteShader(fragId);
   int linked;
   glGetProgramiv(mProgram, GL_LINK_STATUS, &linked);
   if (!linked)
@@ -58,10 +64,7 @@ Shader::InitResult Shader::Init(
     result.mSuccess = false;
     result.mError = reason.str();
     mProgram = 0;
-    return result;
   }
-  glDeleteShader(vertId);
-  glDeleteShader(fragId);
   return result;
 }
 
@@ -73,6 +76,11 @@ void Shader::Use() const
 unsigned int Shader::Id() const
 {
   return mProgram;
+}
+
+bool Shader::Live() const
+{
+  return mProgram != 0;
 }
 
 int Shader::UniformLocation(const char* name) const

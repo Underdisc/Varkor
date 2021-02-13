@@ -20,6 +20,7 @@ public:
   InitResult Init(const char* vertexFile, const char* fragmentFile);
   void Use() const;
   unsigned int Id() const;
+  bool Live() const;
   int UniformLocation(const char* name) const;
   void SetFloat(const char* name, float value) const;
   void SetVec3(const char* name, const float* data) const;
