@@ -23,6 +23,11 @@ void CreateEmptyShader()
   ++nShaderIdHandout;
 }
 
+const Shader* GetShader(ShaderId shaderId)
+{
+  return nShaders.Find(shaderId);
+}
+
 // Stores all of the models that have been added.
 Ds::Map<std::string, Gfx::Model> nModels;
 

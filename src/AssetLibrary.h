@@ -18,9 +18,10 @@ struct Shader
 };
 typedef int ShaderId;
 constexpr ShaderId nInvalidShaderId = -1;
-
 extern Ds::Map<ShaderId, Shader> nShaders;
+
 void CreateEmptyShader();
+const Shader* GetShader(ShaderId shaderId);
 
 // Used for recording and checking whether an asset was successfully added to
 // the asset library.

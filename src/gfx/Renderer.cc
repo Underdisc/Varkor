@@ -18,34 +18,49 @@ void Init()
   nDefaultShader.SetVec3("uColor", color.CData());
 }
 
-void RenderModels(const Core::Space& space, const Shader& shader)
+void RenderModels(const Core::Space& space, const Mat4& view)
 {
   // Visit all of the model components within the space.
   Core::Table::Visitor<Comp::Model> visitor =
     space.CreateTableVisitor<Comp::Model>();
   while (!visitor.End())
   {
+    // Find the shader that will be used to draw the model.
+    const Comp::Model& modelComp = visitor.CurrentComponent();
+    const AssetLibrary::Shader* shaderAsset =
+      AssetLibrary::GetShader(modelComp.mShaderId);
+    const Shader* drawShader;
+    if (shaderAsset != nullptr && shaderAsset->mShader.Live())
+    {
+      drawShader = &shaderAsset->mShader;
+    } else
+    {
+      drawShader = &nDefaultShader;
+    }
+    drawShader->Use();
+
     // If the object whose model component is being visited has a transfrom
-    // component, we use transformation matrix it provides.
+    // component, we use the transformation matrix it provides.
     Comp::Transform* transform =
       space.GetComponent<Comp::Transform>(visitor.CurrentOwner());
     if (transform == nullptr)
     {
       Mat4 identity;
       Math::Identity(&identity);
-      shader.SetMat4("uModel", identity.CData());
+      drawShader->SetMat4("uModel", identity.CData());
     } else
     {
-      shader.SetMat4("uModel", transform->GetMatrix().CData());
+      drawShader->SetMat4("uModel", transform->GetMatrix().CData());
     }
+    drawShader->SetMat4("uView", view.CData());
+    drawShader->SetMat4("uProj", Viewport::Perspective().CData());
 
     // We render the model referenced by the model component if the model has
     // been added to the asset library.
-    const Comp::Model& modelComp = visitor.CurrentComponent();
     const Gfx::Model* model = AssetLibrary::GetModel(modelComp.mAsset);
     if (model != nullptr)
     {
-      model->Draw(shader);
+      model->Draw(*drawShader);
     }
     visitor.Next();
   }
@@ -53,9 +68,7 @@ void RenderModels(const Core::Space& space, const Shader& shader)
 
 void Render(const Core::Space& space, const Mat4& view)
 {
-  nDefaultShader.SetMat4("uView", view.CData());
-  nDefaultShader.SetMat4("uProj", Viewport::Perspective().CData());
-  RenderModels(space, nDefaultShader);
+  RenderModels(space, view);
 }
 
 } // namespace Renderer

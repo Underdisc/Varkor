@@ -3,12 +3,17 @@
 
 #include <string>
 
+#include "AssetLibrary.h"
+
 namespace Comp {
 
 #pragma pack(push, 1)
 struct Model
 {
+  Model();
   void EditorHook();
+
+  AssetLibrary::ShaderId mShaderId;
   std::string mAsset;
 };
 #pragma pack(pop)

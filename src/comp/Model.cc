@@ -1,11 +1,15 @@
 #include <imgui/imgui.h>
+#include <sstream>
 
 #include "AssetLibrary.h"
+#include "editor/Asset.h"
 #include "editor/Util.h"
 
 #include "Model.h"
 
 namespace Comp {
+
+Model::Model(): mShaderId(AssetLibrary::nInvalidShaderId), mAsset() {}
 
 void ChangeAssetCallback(const std::string& path, void* data)
 {
@@ -20,18 +24,41 @@ void ChangeAssetCallback(const std::string& path, void* data)
   }
 }
 
+void ChangeShaderCallback(AssetLibrary::ShaderId shaderId, void* data)
+{
+  Model* comp = (Model*)data;
+  comp->mShaderId = shaderId;
+}
+
 void Model::EditorHook()
 {
-  if (ImGui::Button("Select Model", ImVec2(-1, 0)))
+  std::stringstream buttonLabel;
+  buttonLabel << "Model: ";
+  if (mAsset.empty())
+  {
+    buttonLabel << "None";
+  } else
+  {
+    buttonLabel << mAsset;
+  }
+  if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f)))
   {
     Editor::StartFileSelection(ChangeAssetCallback, (void*)this);
   }
-  if (mAsset.empty())
+
+  buttonLabel.str("");
+  buttonLabel << "Shader: ";
+  const AssetLibrary::Shader* shaderAsset = AssetLibrary::GetShader(mShaderId);
+  if (shaderAsset == nullptr)
   {
-    ImGui::Text("Current Model: None");
+    buttonLabel << "None";
   } else
   {
-    ImGui::Text("Current Model: %s", mAsset.c_str());
+    buttonLabel << shaderAsset->mName;
+  }
+  if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f)))
+  {
+    Editor::StartShaderSelection(ChangeShaderCallback, (void*)this);
   }
 }
 

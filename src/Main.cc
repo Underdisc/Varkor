@@ -86,7 +86,7 @@ void Engine()
     Input::Update();
     Editor::Start();
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -196,8 +196,8 @@ void Engine()
     Debug::Draw::Line(origin, dirLight.mDirection, white);
 
     // Set all of the phong uniforms.
-    phongShader.SetMat4("view", camera.WorldToCamera().CData());
-    phongShader.SetMat4("proj", Viewport::Perspective().CData());
+    phongShader.SetMat4("uView", camera.WorldToCamera().CData());
+    phongShader.SetMat4("uProj", Viewport::Perspective().CData());
     phongShader.SetVec3("viewPos", camera.Position().CData());
     phongShader.SetFloat("material.specularExponent", specularExponent);
     // Set all of the uniforms for the point lights.
@@ -240,7 +240,7 @@ void Engine()
     phongShader.SetVec3("dirLight.specular", dirLight.mSpecular.CData());
 
     // Render the backpack.
-    phongShader.SetMat4("model", backpackTransform.GetMatrix().CData());
+    phongShader.SetMat4("uModel", backpackTransform.GetMatrix().CData());
     backpackModel.Draw(phongShader);
 
     // Set up the correct textures for the objects.
@@ -257,7 +257,7 @@ void Engine()
     glStencilMask(0xff);
     for (int i = 0; i < objectCount; ++i)
     {
-      phongShader.SetMat4("model", objectTransforms[i].GetMatrix().CData());
+      phongShader.SetMat4("uModel", objectTransforms[i].GetMatrix().CData());
       objectModel.Draw(phongShader);
     }
 

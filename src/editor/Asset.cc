@@ -6,7 +6,41 @@
 #include "AssetLibrary.h"
 #include "editor/Util.h"
 
+#include "Asset.h"
+
 namespace Editor {
+
+bool nShowShaderSelectWindow = false;
+ShaderSelectCallback nShaderSelectCallback = nullptr;
+void* nShaderSelectData = nullptr;
+
+void StartShaderSelection(ShaderSelectCallback callback, void* data)
+{
+  nShowShaderSelectWindow = true;
+  nShaderSelectCallback = callback;
+  nShaderSelectData = data;
+}
+
+void ShaderSelectWindow()
+{
+  ImGui::Begin("Select Shader", &nShowShaderSelectWindow);
+  ImGui::BeginChild("Shaders", ImVec2(0, 0), true);
+  auto it = AssetLibrary::nShaders.Begin();
+  auto itE = AssetLibrary::nShaders.End();
+  while (it != itE)
+  {
+    if (ImGui::Selectable(it->mValue.mName.c_str()))
+    {
+      nShaderSelectCallback(it->Key(), nShaderSelectData);
+      nShowShaderSelectWindow = false;
+      nShaderSelectCallback = nullptr;
+      nShaderSelectData = nullptr;
+    }
+    ++it;
+  }
+  ImGui::EndChild();
+  ImGui::End();
+}
 
 bool nShowAssetWindow = false;
 AssetLibrary::ShaderId nSelectedShader = AssetLibrary::nInvalidShaderId;
@@ -126,21 +160,24 @@ void ShowShaders()
 
 void ShowAssetWindows()
 {
-  if (!nShowAssetWindow)
+  if (nShowAssetWindow)
   {
-    return;
+    ImGui::Begin("Asset", &nShowAssetWindow);
+    if (ImGui::CollapsingHeader("Shaders"))
+    {
+      ShowShaders();
+    }
+    ImGui::End();
+
+    if (nSelectedShader != AssetLibrary::nInvalidShaderId)
+    {
+      EditShaderWindow();
+    }
   }
 
-  ImGui::Begin("Asset", &nShowAssetWindow);
-  if (ImGui::CollapsingHeader("Shaders"))
+  if (nShowShaderSelectWindow)
   {
-    ShowShaders();
-  }
-  ImGui::End();
-
-  if (nSelectedShader != AssetLibrary::nInvalidShaderId)
-  {
-    EditShaderWindow();
+    ShaderSelectWindow();
   }
 }
 

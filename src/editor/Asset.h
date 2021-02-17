@@ -3,8 +3,10 @@
 
 namespace Editor {
 
-extern bool nShowAssetWindow;
+typedef void (*ShaderSelectCallback)(AssetLibrary::ShaderId, void*);
+void StartShaderSelection(ShaderSelectCallback callback, void* data = nullptr);
 
+extern bool nShowAssetWindow;
 void ShowAssetWindows();
 
 } // namespace Editor

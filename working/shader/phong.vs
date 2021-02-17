@@ -7,14 +7,14 @@ out vec3 iNormal;
 out vec2 iTexCoord;
 out vec3 iFragPos;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
+uniform mat4 uModel;
+uniform mat4 uView;
+uniform mat4 uProj;
 
 void main()
 {
-  gl_Position = proj * view * model * vec4(aPos, 1.0);
-  iNormal = mat3(model) * aNormal;
+  gl_Position = uProj * uView * uModel * vec4(aPos, 1.0);
+  iNormal = mat3(uModel) * aNormal;
   iTexCoord = aTexCoord;
-  iFragPos = vec3(model * vec4(aPos, 1.0));
+  iFragPos = vec3(uModel * vec4(aPos, 1.0));
 }
