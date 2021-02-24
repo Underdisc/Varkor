@@ -1,0 +1,25 @@
+<= FailedIncludeBasic =>
+Success: 0
+Failed to compile FailedIncludeBasic.fs.
+FailedIncludeBasic.fs(3): Failed to include "notafile".
+
+<= FailedInclude =>
+Success: 0
+Failed to compile FailedInclude.fs.
+FailedInclude0.glsl(6): Failed to include "notafile".
+
+<= FailedIncludeSubdirectory =>
+Success: 0
+Failed to compile FailedIncludeSubdirectory.fs.
+fis0/fis1/FailedIncludeSubdirectory1.glsl(5): Failed to include "nota/file".
+
+<= CompilerErrors =>
+Success: 0
+Failed to compile CompilerErrors.fs.
+CompilerErrors1.glsl(3) : error C1503: undefined variable "error"
+CompilerErrors0.glsl(2) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+CompilerErrors0.glsl(6) : error C1503: undefined variable "error"
+CompilerErrors2.glsl(4) : error C1503: undefined variable "error"
+CompilerErrors2.glsl(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+CompilerErrors.fs(11) : error C1503: undefined variable "error"
+

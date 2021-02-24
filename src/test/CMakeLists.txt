@@ -1,9 +1,10 @@
-include_directories("../")
 add_custom_target(tests)
 
 function(AddTest target)
   add_executable(${target})
   target_sources(${target} PRIVATE ${ARGN})
+  target_include_directories(${target} PRIVATE "../" "../../ext/local")
+  target_link_libraries(${target} ${glfw} ${OPENGL_gl_LIBRARY})
   set_property(TARGET ${target} PROPERTY RUNTIME_OUTPUT_DIRECTORY
     "${CMAKE_SOURCE_DIR}/working/test")
   add_dependencies(tests ${target})
@@ -50,6 +51,15 @@ AddTest(ds_Vector
   ds/TestType.cc
   ../debug/MemLeak.cc
   ../Error.cc)
+
+AddTest(gfx_Shader
+  gfx/Shader.cc
+  ../gfx/Shader.cc
+  ../Error.cc
+  ../Viewport.cc
+  ../debug/MemLeak.cc
+  ../math/Matrix4.cc
+  ../../ext/local/glad/glad.c)
 
 AddTest(math_Complex
   math/Complex.cc)
