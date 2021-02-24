@@ -220,15 +220,19 @@ void CopyAssignment()
 void MoveAssignment()
 {
   std::cout << "<= MoveAssignment =>" << std::endl;
-  // This test is nearly identical to the MoveConstructor test, but instead of
-  // using the move constructor, we use the move assignment operator.
+  // We push values into the vector being moved from and the vector being moved
+  // to to ensure that the data in the vector being moved to is deallocated.
   Ds::Vector<int> ogVector;
   for (int i = 0; i < 20; ++i)
   {
     ogVector.Push(i);
   }
-  const int* ogVectorPtr = ogVector.CData();
   Ds::Vector<int> moveVector;
+  for (int i = 20; i > 0; --i)
+  {
+    moveVector.Push(i);
+  }
+  const int* ogVectorPtr = ogVector.CData();
   moveVector = Util::Move(ogVector);
   const int* moveVectorPtr = moveVector.CData();
   PrintVector(ogVector);
