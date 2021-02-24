@@ -7,7 +7,7 @@ struct GLFWwindow;
 
 namespace Viewport {
 
-void Init();
+void Init(bool visible = true);
 void Update();
 void Purge();
 void SwapBuffers();

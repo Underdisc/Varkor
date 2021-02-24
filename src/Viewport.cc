@@ -21,13 +21,17 @@ float nNear = 0.1f;
 float nFar = 100.0f;
 Mat4 nPerspective;
 
-void Init()
+void Init(bool visible)
 {
+  // Create the window and opengl context.
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
+  if (!visible)
+  {
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+  }
   nWindow = glfwCreateWindow(nWidth, nHeight, "Varkor", NULL, NULL);
   LogAbortIf(!nWindow, "glfw window creation failed.");
   glfwMakeContextCurrent(nWindow);
