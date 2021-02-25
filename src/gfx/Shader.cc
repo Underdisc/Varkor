@@ -144,7 +144,7 @@ int GetLineNumber(size_t until, const std::string& string)
   return lineNumber;
 }
 
-Shader::IncludeResult Shader::HandleIncludesRecursive(
+Shader::IncludeResult Shader::HandleIncludes(
   const char* shaderFile, std::string& content)
 {
   // Extract the path of the file.
@@ -164,12 +164,17 @@ Shader::IncludeResult Shader::HandleIncludesRecursive(
   std::smatch match;
   while (std::regex_search(content.cbegin(), content.cend(), match, expression))
   {
-    // Find the end line for the backmost chunk and use that end line to find
-    // the chunk's size.
+    // Find the backmost chunk's end line, and use it to find the number of
+    // lines excluded from the next chunk for the current file.
     int includeLine = GetLineNumber(match[0].first - content.begin(), content);
     result.mChunks.Top().mEndLine = includeLine;
-    int chunkSize =
-      result.mChunks.Top().mEndLine - result.mChunks.Top().mStartLine + 1;
+    chunk.mExcludedLines += includeLine - result.mChunks.Top().mStartLine + 1;
+
+    // Remove the backmost chunk if it doesn't contain content.
+    if (result.mChunks.Top().mStartLine == result.mChunks.Top().mEndLine)
+    {
+      result.mChunks.Pop();
+    }
 
     // Open and read the content of the included file.
     std::string includeFilename(path);
@@ -180,7 +185,7 @@ Shader::IncludeResult Shader::HandleIncludesRecursive(
     {
       result.mSuccess = false;
       std::stringstream error;
-      error << shaderFile << "(" << chunk.mExcludedLines + chunkSize << "): "
+      error << shaderFile << "(" << chunk.mExcludedLines << "): "
             << "Failed to include \"" << match[1].str() << "\".";
       result.mError = error.str();
       return result;
@@ -192,7 +197,7 @@ Shader::IncludeResult Shader::HandleIncludesRecursive(
     // Handle any includes that show up within the included content and replace
     // the include statement in the content with the included content.
     IncludeResult subResult =
-      HandleIncludesRecursive(includeFilename.c_str(), includeContent);
+      HandleIncludes(includeFilename.c_str(), includeContent);
     if (!subResult.mSuccess)
     {
       return subResult;
@@ -214,31 +219,11 @@ Shader::IncludeResult Shader::HandleIncludesRecursive(
 
     // Now that we've handled all the sub chunks, we make the current file the
     // backmost chunk again.
-    chunk.mExcludedLines += chunkSize;
     chunk.mStartLine = result.mChunks.Top().mEndLine;
     result.mChunks.Push(chunk);
   }
   result.mChunks.Top().mEndLine = GetLineNumber(content.size(), content);
   result.mSuccess = true;
-  return result;
-}
-
-Shader::IncludeResult Shader::HandleIncludes(
-  const char* shaderFile, std::string& content)
-{
-  // Because of how the recursive inclusion works, there will be chunks where
-  // the start and end lines are the same. We remove all of those artifact
-  // chunks here.
-  IncludeResult result = HandleIncludesRecursive(shaderFile, content);
-  Ds::Vector<SourceChunk> sourceChunks;
-  for (SourceChunk& chunk : result.mChunks)
-  {
-    if (chunk.mStartLine != chunk.mEndLine)
-    {
-      sourceChunks.Push(Util::Move(chunk));
-    }
-  }
-  result.mChunks = Util::Move(sourceChunks);
   return result;
 }
 

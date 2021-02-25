@@ -54,9 +54,7 @@ private:
     std::string mError;
     Ds::Vector<SourceChunk> mChunks;
   };
-  Shader::IncludeResult Shader::HandleIncludesRecursive(
-    const char* shaderFile, std::string& content);
-  Shader::IncludeResult Shader::HandleIncludes(
+  Shader::IncludeResult HandleIncludes(
     const char* shaderFile, std::string& content);
   InitResult Compile(
     const char* shaderSource, int shaderType, unsigned int* shaderId);
