@@ -130,7 +130,7 @@ void Vector<T>::Pop()
 {
   if (mSize != 0)
   {
-    mData[mSize].~T();
+    mData[mSize - 1].~T();
     --mSize;
   }
 }
