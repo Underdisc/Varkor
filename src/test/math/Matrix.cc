@@ -41,6 +41,15 @@ void MultiplyEquals()
   std::cout << "product matrix" << std::endl << matrix << std::endl;
 }
 
+void MultiplyVector()
+{
+  std::cout << "MultiplyVector" << std::endl;
+  Math::Matrix<float, 5> matrix = CreateGenericMat5();
+  Math::Vector<float, 5> vector = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
+  Math::Vector<float, 5> result = matrix * vector;
+  std::cout << result << std::endl << std::endl;
+}
+
 void Zero()
 {
   std::cout << "Zero" << std::endl;
@@ -185,6 +194,7 @@ int main(void)
   EqualsOperator();
   Multiply();
   MultiplyEquals();
+  MultiplyVector();
   Zero();
   Identity();
   Scale();

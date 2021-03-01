@@ -52,6 +52,21 @@ Matrix<T, N>& operator*=(Matrix<T, N>& a, const Matrix<T, N>& b)
 }
 
 template<typename T, unsigned int N>
+Vector<T, N> operator*(const Matrix<T, N>& matrix, const Vector<T, N>& vector)
+{
+  Vector<T, N> result;
+  for (int r = 0; r < N; ++r)
+  {
+    result[r] = (T)0;
+    for (int c = 0; c < N; ++c)
+    {
+      result[r] += matrix[r][c] * vector[c];
+    }
+  }
+  return result;
+}
+
+template<typename T, unsigned int N>
 std::ostream& operator<<(std::ostream& os, const Matrix<T, N>& matrix)
 {
   // We find the longest number in each column so that all columns are aligned

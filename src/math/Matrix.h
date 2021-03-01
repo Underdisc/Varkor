@@ -23,6 +23,8 @@ Matrix<T, N> operator*(const Matrix<T, N>& a, const Matrix<T, N>& b);
 template<typename T, unsigned int N>
 Matrix<T, N>& operator*=(Matrix<T, N>& a, const Matrix<T, N>& b);
 template<typename T, unsigned int N>
+Vector<T, N> operator*(const Matrix<T, N>& matrix, const Vector<T, N>& vector);
+template<typename T, unsigned int N>
 std::ostream& operator<<(std::ostream& os, const Matrix<T, N>& matrix);
 
 template<typename T, unsigned int N>
