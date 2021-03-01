@@ -1,4 +1,4 @@
-EqualsOperator
+<= EqualsOperator =>
 original
 [ 1,  2,  3,  4,  5]
 [ 6,  7,  8,  9, 10]
@@ -12,7 +12,7 @@ copy
 [16, 17, 18, 19, 20]
 [21, 22, 23, 24, 25]
 
-Multiply
+<= Multiply =>
 product matrix
 [ 215,  230,  245,  260,  275]
 [ 490,  530,  570,  610,  650]
@@ -20,7 +20,7 @@ product matrix
 [1040, 1130, 1220, 1310, 1400]
 [1315, 1430, 1545, 1660, 1775]
 
-MultiplyEquals
+<= MultiplyEquals =>
 product matrix
 [ 215,  230,  245,  260,  275]
 [ 490,  530,  570,  610,  650]
@@ -28,10 +28,10 @@ product matrix
 [1040, 1130, 1220, 1310, 1400]
 [1315, 1430, 1545, 1660, 1775]
 
-MultiplyVector
+<= MultiplyVector =>
 [55, 130, 205, 280, 355]
 
-Zero
+<= Zero =>
 zero matrix
 [0, 0, 0, 0, 0]
 [0, 0, 0, 0, 0]
@@ -39,7 +39,7 @@ zero matrix
 [0, 0, 0, 0, 0]
 [0, 0, 0, 0, 0]
 
-Identity
+<= Identity =>
 identity matrix
 [1, 0, 0, 0, 0]
 [0, 1, 0, 0, 0]
@@ -47,7 +47,7 @@ identity matrix
 [0, 0, 0, 1, 0]
 [0, 0, 0, 0, 1]
 
-Scale
+<= Scale =>
 scale matrix
 [1, 0, 0, 0, 0]
 [0, 2, 0, 0, 0]
@@ -55,7 +55,7 @@ scale matrix
 [0, 0, 0, 4, 0]
 [0, 0, 0, 0, 1]
 
-Translate
+<= Translate =>
 translation matrix
 [1, 0, 0, 0, 1]
 [0, 1, 0, 0, 2]
@@ -63,7 +63,7 @@ translation matrix
 [0, 0, 0, 1, 4]
 [0, 0, 0, 0, 1]
 
-Inverse
+<= Inverse =>
 original
 [ 0, 300, 0, 60,  0]
 [22,   1, 0,  0, 33]
@@ -83,7 +83,7 @@ identity
 [1.86265e-09,  8.19564e-08, -1.49012e-08,            1, 1.86265e-09]
 [ 1.0652e-08, -6.44475e-07, -4.21423e-07, -1.47335e-06,           1]
 
-MultiplyRow
+<= MultiplyRow =>
 original
 [ 1,  2,  3,  4,  5]
 [ 6,  7,  8,  9, 10]
@@ -97,7 +97,7 @@ row 1 multiplied by 4
 [16, 17, 18, 19, 20]
 [21, 22, 23, 24, 25]
 
-AddRowMultiple
+<= AddRowMultiple =>
 original
 [ 1,  2,  3,  4,  5]
 [ 6,  7,  8,  9, 10]
@@ -111,7 +111,7 @@ row 1 multiplied by 2 and added to row 0
 [16, 17, 18, 19, 20]
 [21, 22, 23, 24, 25]
 
-SwapRows
+<= SwapRows =>
 original
 [ 1,  2,  3,  4,  5]
 [ 6,  7,  8,  9, 10]
