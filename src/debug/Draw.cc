@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 
+#include "Error.h"
 #include "ds/Vector.h"
 #include "gfx/Shader.h"
 #include "math/Matrix4.h"
@@ -23,7 +24,9 @@ Gfx::Shader nShader;
 
 void Init()
 {
-  nShader.Init("shader/debug.vs", "shader/debug.fs");
+  Gfx::Shader::InitResult result =
+    nShader.Init("vres/debugLine.vs", "vres/debugLine.fs");
+  LogAbortIf(!result.mSuccess, result.mError.c_str());
 }
 
 void Line(const Vec3& a, const Vec3& b, const Vec3& color)
