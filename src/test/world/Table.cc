@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "core/Table.h"
+#include "world/Table.h"
 #include "debug/MemLeak.h"
-#include "test/core/Print.h"
+#include "test/world/Print.h"
 
 struct TestComp
 {

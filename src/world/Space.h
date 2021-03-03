@@ -1,10 +1,10 @@
-#ifndef core_Space_h
-#define core_Space_h
+#ifndef world_Space_h
+#define world_Space_h
 
 #include <string>
 
-#include "core/Table.h"
-#include "core/Types.h"
+#include "world/Table.h"
+#include "world/Types.h"
 #include "ds/Vector.h"
 
 namespace World {

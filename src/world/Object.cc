@@ -1,4 +1,4 @@
-#include "core/World.h"
+#include "world/World.h"
 
 #include "Object.h"
 

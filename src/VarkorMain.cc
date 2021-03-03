@@ -15,7 +15,6 @@
 #include "comp/PointLight.h"
 #include "comp/SpotLight.h"
 #include "comp/Transform.h"
-#include "core/World.h"
 #include "debug/Draw.h"
 #include "editor/Primary.h"
 #include "gfx/Model.h"
@@ -25,6 +24,7 @@
 #include "math/Matrix4.h"
 #include "math/Quaternion.h"
 #include "math/Vector.h"
+#include "world/World.h"
 
 void Engine()
 {

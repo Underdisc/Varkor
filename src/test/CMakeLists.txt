@@ -16,24 +16,6 @@ function(AddTest target)
   endif()
 endfunction()
 
-AddTest(core_Space
-  core/Space.cc
-  core/Print.cc
-  ../core/Space.cc
-  ../core/Table.cc
-  ../core/Types.cc
-  ../debug/MemLeak.cc
-  ../Error.cc)
-
-AddTest(core_Table
-  core/Table.cc
-  core/Print.cc
-  ../core/Space.cc
-  ../core/Table.cc
-  ../core/Types.cc
-  ../debug/MemLeak.cc
-  ../Error.cc)
-
 Addtest(ds_Map
   ds/Map.cc
   ds/TestType.cc
@@ -81,6 +63,24 @@ AddTest(math_Quaternion
 
 AddTest(math_Vector
   math/Vector.cc
+  ../Error.cc)
+
+AddTest(world_Space
+  world/Space.cc
+  world/Print.cc
+  ../world/Space.cc
+  ../world/Table.cc
+  ../world/Types.cc
+  ../debug/MemLeak.cc
+  ../Error.cc)
+
+AddTest(world_Table
+  world/Table.cc
+  world/Print.cc
+  ../world/Space.cc
+  ../world/Table.cc
+  ../world/Types.cc
+  ../debug/MemLeak.cc
   ../Error.cc)
 
 set(testNames "${testNames}" PARENT_SCOPE)

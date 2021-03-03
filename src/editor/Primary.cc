@@ -8,10 +8,10 @@
 #include "Viewport.h"
 #include "comp/Model.h"
 #include "comp/Transform.h"
-#include "core/Types.h"
-#include "core/World.h"
 #include "editor/Asset.h"
 #include "editor/Util.h"
+#include "world/Types.h"
+#include "world/World.h"
 
 #include "Primary.h"
 

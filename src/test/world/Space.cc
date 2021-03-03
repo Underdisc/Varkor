@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "core/Space.h"
+#include "world/Space.h"
 #include "debug/MemLeak.h"
-#include "test/core/Print.h"
+#include "test/world/Print.h"
 
 #pragma pack(push, 1)
 struct Comp0

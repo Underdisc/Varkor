@@ -2,9 +2,9 @@
 #include "Viewport.h"
 #include "comp/Model.h"
 #include "comp/Transform.h"
-#include "core/Space.h"
 #include "gfx/Shader.h"
 #include "math/Vector.h"
+#include "world/Space.h"
 
 namespace Gfx {
 namespace Renderer {

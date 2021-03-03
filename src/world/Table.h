@@ -1,7 +1,7 @@
-#ifndef core_Table_h
-#define core_Table_h
+#ifndef world_Table_h
+#define world_Table_h
 
-#include "core/Types.h"
+#include "world/Types.h"
 #include "ds/Vector.h"
 
 namespace World {

@@ -1,7 +1,7 @@
-#ifndef core_Object_h
-#define core_Object_h
+#ifndef world_Object_h
+#define world_Object_h
 
-#include "core/Space.h"
+#include "world/Space.h"
 
 namespace World {
 

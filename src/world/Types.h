@@ -1,5 +1,5 @@
-#ifndef core_Types_h
-#define core_Types_h
+#ifndef world_Types_h
+#define world_Types_h
 
 namespace World {
 

@@ -9,8 +9,8 @@ target_sources(varkor PRIVATE
   VarkorMain.cc
   Viewport.cc)
 add_subdirectory(comp)
-add_subdirectory(core)
 add_subdirectory(debug)
 add_subdirectory(editor)
 add_subdirectory(gfx)
 add_subdirectory(math)
+add_subdirectory(world)

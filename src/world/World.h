@@ -1,8 +1,8 @@
-#ifndef core_World_h
-#define core_World_h
+#ifndef world_World_h
+#define world_World_h
 
 #include "Camera.h"
-#include "core/Space.h"
+#include "world/Space.h"
 #include "ds/Vector.h"
 
 namespace World {

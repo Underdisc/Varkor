@@ -1,8 +1,8 @@
-#ifndef test_core_Print_h
-#define test_core_Print_h
+#ifndef test_world_Print_h
+#define test_world_Print_h
 
-#include "core/Space.h"
-#include "core/Table.h"
+#include "world/Space.h"
+#include "world/Table.h"
 
 // Functions used for printing out table data.
 void PrintTableStats(const World::Table& table);
