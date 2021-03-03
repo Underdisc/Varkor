@@ -1,7 +1,7 @@
 #ifndef editor_Primary_h
 #define editor_Primary_h
 
-#include "core/World.h"
+#include "core/Object.h"
 
 namespace Editor {
 

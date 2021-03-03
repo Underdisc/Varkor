@@ -33,26 +33,6 @@ bool SpaceVisitor::End()
   return mCurrentSpace >= nSpaces.Size();
 }
 
-Object::Object(): mSpace(nInvalidSpaceRef), mMember(nInvalidMemRef) {}
-
-Object::Object(SpaceRef space, MemRef member): mSpace(space), mMember(member) {}
-
-std::string& Object::GetName() const
-{
-  return nSpaces[mSpace].mMembers[mMember].mName;
-}
-
-void Object::Invalidate()
-{
-  mSpace = nInvalidSpaceRef;
-  mMember = nInvalidMemRef;
-}
-
-bool Object::Valid() const
-{
-  return mSpace != nInvalidSpaceRef && mMember != nInvalidMemRef;
-}
-
 // Function pointers for calling into project code.
 void (*CentralUpdate)() = nullptr;
 void (*SpaceUpdate)(const Space& space, SpaceRef spaceRef) = nullptr;
