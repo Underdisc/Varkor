@@ -3,7 +3,6 @@
 
 #include "core/Space.h"
 
-namespace Core {
 namespace World {
 
 // This represents a game object in the world. Objects do not store any data.
@@ -32,7 +31,6 @@ struct Object
 };
 
 } // namespace World
-} // namespace Core
 
 #include "Object.hh"
 

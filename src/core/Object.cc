@@ -2,7 +2,6 @@
 
 #include "Object.h"
 
-namespace Core {
 namespace World {
 
 Object::Object(): mSpace(nInvalidSpaceRef), mMember(nInvalidMemRef) {}
@@ -26,4 +25,3 @@ bool Object::Valid() const
 }
 
 } // namespace World
-} // namespace Core

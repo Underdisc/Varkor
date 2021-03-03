@@ -4,7 +4,7 @@
 
 #include "Space.h"
 
-namespace Core {
+namespace World {
 
 void ComponentAddress::EndUse()
 {
@@ -314,4 +314,4 @@ void Space::VerifyMember(MemRef member) const
     "The member under this reference does not exist.");
 }
 
-} // namespace Core
+} // namespace World

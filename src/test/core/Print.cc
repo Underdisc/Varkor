@@ -2,7 +2,7 @@
 
 #include "Print.h"
 
-void PrintTableStats(const Core::Table& table)
+void PrintTableStats(const World::Table& table)
 {
   int stride = table.Stride();
   int size = table.Size();
@@ -14,7 +14,7 @@ void PrintTableStats(const Core::Table& table)
             << "CapacityInBytes: " << capacity * stride << std::endl;
 }
 
-void PrintTableOwners(const Core::Table& table)
+void PrintTableOwners(const World::Table& table)
 {
   std::cout << "Owners: ";
   int size = table.Size();
@@ -31,7 +31,7 @@ void PrintTableOwners(const Core::Table& table)
   std::cout << "]" << std::endl;
 }
 
-void PrintSpace(const Core::Space& space)
+void PrintSpace(const World::Space& space)
 {
   PrintSpaceTables(space);
   PrintSpaceTableLookup(space);
@@ -39,9 +39,9 @@ void PrintSpace(const Core::Space& space)
   PrintSpaceAddressBin(space);
 }
 
-void PrintSpaceTables(const Core::Space& space)
+void PrintSpaceTables(const World::Space& space)
 {
-  const Ds::Vector<Core::Table>& tables = space.Tables();
+  const Ds::Vector<World::Table>& tables = space.Tables();
   for (int i = 0; i < tables.Size(); ++i)
   {
     std::cout << i << " {" << std::endl;
@@ -51,9 +51,9 @@ void PrintSpaceTables(const Core::Space& space)
   }
 }
 
-void PrintSpaceTableLookup(const Core::Space& space)
+void PrintSpaceTableLookup(const World::Space& space)
 {
-  const Ds::Vector<Core::TableRef>& lookup = space.TableLookup();
+  const Ds::Vector<World::TableRef>& lookup = space.TableLookup();
   std::cout << "TableLookup: [ComponentId, Table]";
   for (int i = 0; i < lookup.Size(); ++i)
   {
@@ -62,9 +62,9 @@ void PrintSpaceTableLookup(const Core::Space& space)
   std::cout << std::endl;
 }
 
-void PrintSpaceTablesOwners(const Core::Space& space)
+void PrintSpaceTablesOwners(const World::Space& space)
 {
-  const Ds::Vector<Core::Table>& tables = space.Tables();
+  const Ds::Vector<World::Table>& tables = space.Tables();
   for (int i = 0; i < tables.Size(); ++i)
   {
     std::cout << "Table " << i << " ";
@@ -72,11 +72,11 @@ void PrintSpaceTablesOwners(const Core::Space& space)
   }
 }
 
-void PrintSpaceMembers(const Core::Space& space)
+void PrintSpaceMembers(const World::Space& space)
 {
-  const Ds::Vector<Core::Member>& members = space.Members();
+  const Ds::Vector<World::Member>& members = space.Members();
   std::cout << "Members: [Address, Count]";
-  for (const Core::Member& member : members)
+  for (const World::Member& member : members)
   {
     std::cout << ", ";
     if (!member.InUse())
@@ -89,11 +89,11 @@ void PrintSpaceMembers(const Core::Space& space)
   std::cout << std::endl;
 }
 
-void PrintSpaceAddressBin(const Core::Space& space)
+void PrintSpaceAddressBin(const World::Space& space)
 {
-  const Ds::Vector<Core::ComponentAddress>& addressBin = space.AddressBin();
+  const Ds::Vector<World::ComponentAddress>& addressBin = space.AddressBin();
   std::cout << "AddressBin: [Table, Index]";
-  for (const Core::ComponentAddress& addr : addressBin)
+  for (const World::ComponentAddress& addr : addressBin)
   {
     std::cout << ", ";
     if (!addr.InUse())
@@ -106,9 +106,9 @@ void PrintSpaceAddressBin(const Core::Space& space)
   std::cout << std::endl;
 }
 
-void PrintSpaceUnusedMemRefs(const Core::Space& space)
+void PrintSpaceUnusedMemRefs(const World::Space& space)
 {
-  const Ds::Vector<Core::MemRef>& unusedMemRefs = space.UnusedMemRefs();
+  const Ds::Vector<World::MemRef>& unusedMemRefs = space.UnusedMemRefs();
   std::cout << "UnusedMemRefs: ";
   if (unusedMemRefs.Size() == 0)
   {

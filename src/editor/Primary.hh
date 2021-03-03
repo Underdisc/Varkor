@@ -12,7 +12,7 @@ std::string GetRawName()
 }
 
 template<typename T>
-void InspectComponent(const Core::World::Object& object)
+void InspectComponent(const World::Object& object)
 {
   T* comp = object.GetComponent<T>();
   if (comp == nullptr)
@@ -27,7 +27,7 @@ void InspectComponent(const Core::World::Object& object)
 }
 
 template<typename T>
-void MakeComponentAvailable(const Core::World::Object& object)
+void MakeComponentAvailable(const World::Object& object)
 {
   if (object.HasComponent<T>())
   {

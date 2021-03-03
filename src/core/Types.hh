@@ -1,6 +1,6 @@
 #include "Types.h"
 
-namespace Core {
+namespace World {
 
 int CreateId();
 
@@ -16,4 +16,4 @@ void ComponentType<T>::Validate()
   }
 }
 
-} // namespace Core
+} // namespace World

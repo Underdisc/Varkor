@@ -105,7 +105,7 @@ int Comp3::smInitValue = 3;
 #pragma pack(pop)
 
 template<typename T>
-void PrintComponentData(const Core::Space& space, int componentCount)
+void PrintComponentData(const World::Space& space, int componentCount)
 {
   const T* compData = space.GetComponentData<T>();
   compData[0].PrintData();
@@ -120,7 +120,7 @@ void PrintComponentData(const Core::Space& space, int componentCount)
 void CreateMember()
 {
   std::cout << "<= CreateMember =>" << std::endl;
-  Core::Space space;
+  World::Space space;
   for (int i = 0; i < 10; ++i)
   {
     space.CreateMember();
@@ -132,8 +132,8 @@ void CreateMember()
 void DeleteMember()
 {
   std::cout << "<= DeleteMember =>" << std::endl;
-  Core::Space space;
-  Core::MemRef memRefs[10];
+  World::Space space;
+  World::MemRef memRefs[10];
   for (int i = 0; i < 10; ++i)
   {
     memRefs[i] = space.CreateMember();
@@ -157,16 +157,16 @@ void DeleteMember()
 void AddComponent()
 {
   std::cout << "<= AddComponent =>" << std::endl;
-  Core::Space space;
-  Core::MemRef mem0 = space.CreateMember();
+  World::Space space;
+  World::MemRef mem0 = space.CreateMember();
   Comp0& mem0comp0 = space.AddComponent<Comp0>(mem0);
   Comp1& mem0comp1 = space.AddComponent<Comp1>(mem0);
   Comp2& mem0comp2 = space.AddComponent<Comp2>(mem0);
-  Core::MemRef mem1 = space.CreateMember();
+  World::MemRef mem1 = space.CreateMember();
   Comp0& mem1comp0 = space.AddComponent<Comp0>(mem1);
   Comp1& mem1comp1 = space.AddComponent<Comp1>(mem1);
   Comp2& mem1comp2 = space.AddComponent<Comp2>(mem1);
-  Core::MemRef mem2 = space.CreateMember();
+  World::MemRef mem2 = space.CreateMember();
   Comp0& mem2comp0 = space.AddComponent<Comp0>(mem2);
   Comp3& mem2comp3 = space.AddComponent<Comp3>(mem2);
   mem2comp3.SetData(5);
@@ -191,21 +191,21 @@ void AddComponent()
 void RemComponent()
 {
   std::cout << "<= RemComponent =>" << std::endl;
-  Core::Space space;
-  Core::MemRef mem0 = space.CreateMember();
+  World::Space space;
+  World::MemRef mem0 = space.CreateMember();
   space.AddComponent<Comp0>(mem0);
   space.AddComponent<Comp1>(mem0);
   space.AddComponent<Comp2>(mem0);
   space.AddComponent<Comp3>(mem0);
-  Core::MemRef mem1 = space.CreateMember();
+  World::MemRef mem1 = space.CreateMember();
   space.AddComponent<Comp0>(mem1);
   space.AddComponent<Comp1>(mem1);
   space.AddComponent<Comp2>(mem1);
-  Core::MemRef mem2 = space.CreateMember();
+  World::MemRef mem2 = space.CreateMember();
   space.AddComponent<Comp1>(mem2);
   space.AddComponent<Comp3>(mem2);
   space.AddComponent<Comp2>(mem2);
-  Core::MemRef mem3 = space.CreateMember();
+  World::MemRef mem3 = space.CreateMember();
   space.AddComponent<Comp3>(mem3);
   space.AddComponent<Comp2>(mem3);
   space.AddComponent<Comp0>(mem3);
@@ -232,8 +232,8 @@ void RemComponent()
 void DeleteMembersWithComponents()
 {
   std::cout << "<= DeleteMembersWithComponents =>" << std::endl;
-  Core::Space space;
-  Core::MemRef memRefs[8];
+  World::Space space;
+  World::MemRef memRefs[8];
   for (int i = 0; i < 8; ++i)
   {
     memRefs[i] = space.CreateMember();
@@ -268,7 +268,7 @@ void DeleteMembersWithComponents()
   PrintSpaceUnusedMemRefs(space);
   PrintSpaceTablesOwners(space);
 
-  Core::MemRef newMemRef = space.CreateMember();
+  World::MemRef newMemRef = space.CreateMember();
   space.AddComponent<Comp0>(newMemRef);
   space.AddComponent<Comp1>(newMemRef);
   space.AddComponent<Comp2>(newMemRef);
@@ -287,13 +287,13 @@ void DeleteMembersWithComponents()
 void GetComponent()
 {
   std::cout << "<= GetComponent =>" << std::endl;
-  Core::Space space;
-  Core::MemRef mem0 = space.CreateMember();
+  World::Space space;
+  World::MemRef mem0 = space.CreateMember();
   space.AddComponent<Comp0>(mem0);
   space.AddComponent<Comp1>(mem0);
   space.AddComponent<Comp2>(mem0);
   space.AddComponent<Comp3>(mem0);
-  Core::MemRef mem1 = space.CreateMember();
+  World::MemRef mem1 = space.CreateMember();
   space.AddComponent<Comp0>(mem1);
   space.AddComponent<Comp1>(mem1);
   space.AddComponent<Comp2>(mem1);
@@ -324,11 +324,11 @@ void GetComponent()
 void HasComponent()
 {
   std::cout << "<= HasComponent =>" << std::endl;
-  Core::Space space;
-  Core::MemRef mem0 = space.CreateMember();
+  World::Space space;
+  World::MemRef mem0 = space.CreateMember();
   space.AddComponent<Comp1>(mem0);
   space.AddComponent<Comp2>(mem0);
-  Core::MemRef mem1 = space.CreateMember();
+  World::MemRef mem1 = space.CreateMember();
   space.AddComponent<Comp0>(mem1);
   space.AddComponent<Comp3>(mem1);
   space.AddComponent<Comp3>(mem0);

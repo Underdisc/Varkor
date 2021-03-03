@@ -29,7 +29,7 @@
 void Engine()
 {
   Input::Init();
-  Core::World::Init();
+  World::Init();
   Editor::Init();
   Debug::Draw::Init();
 
@@ -282,8 +282,8 @@ void Engine()
     glClear(GL_STENCIL_BUFFER_BIT);
     glStencilMask(0x00);
 
-    Core::World::Update();
-    Core::World::Render(camera);
+    World::Update();
+    World::Render(camera);
 
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());

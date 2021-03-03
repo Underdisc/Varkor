@@ -17,11 +17,11 @@
 
 namespace Editor {
 
-void (*InspectComponents)(const Core::World::Object& selected) = nullptr;
-void (*AvailableComponents)(const Core::World::Object& selected) = nullptr;
+void (*InspectComponents)(const World::Object& selected) = nullptr;
+void (*AvailableComponents)(const World::Object& selected) = nullptr;
 
-Core::SpaceRef nSelectedSpace = Core::nInvalidSpaceRef;
-Core::World::Object nSelectedObject;
+World::SpaceRef nSelectedSpace = World::nInvalidSpaceRef;
+World::Object nSelectedObject;
 
 bool nShowEditorWindow = false;
 bool nShowFramerWindow = false;
@@ -97,7 +97,7 @@ void Start()
   ImGui::ShowDemoWindow();
 
   EditorWindow();
-  if (nSelectedSpace != Core::nInvalidSpaceRef)
+  if (nSelectedSpace != World::nInvalidSpaceRef)
   {
     OverviewWindow();
   }
@@ -135,13 +135,13 @@ void EditorWindow()
   // Display a button for space creation and display all of the existing spaces.
   if (ImGui::Button("Create Space", ImVec2(-1, 0)))
   {
-    Core::World::CreateSpace();
+    World::CreateSpace();
   }
   ImGui::BeginChild("Spaces", ImVec2(0, 0), true);
   int iteration = 0;
-  for (Core::World::SpaceVisitor visitor; !visitor.End(); visitor.Next())
+  for (World::SpaceVisitor visitor; !visitor.End(); visitor.Next())
   {
-    Core::Space& space = visitor.CurrentSpace();
+    World::Space& space = visitor.CurrentSpace();
     bool selected = nSelectedSpace == visitor.CurrentSpaceRef();
     std::stringstream label;
     label << iteration << ": " << space.mName;
@@ -149,7 +149,7 @@ void EditorWindow()
     {
       if (selected)
       {
-        nSelectedSpace = Core::nInvalidSpaceRef;
+        nSelectedSpace = World::nInvalidSpaceRef;
       } else
       {
         nSelectedSpace = visitor.CurrentSpaceRef();
@@ -171,7 +171,7 @@ void OverviewWindow()
   // Display the text box for changing the space's name and display a button for
   // adding new members to the space.
   ImGui::Begin("Overview");
-  Core::Space& space = Core::World::GetSpace(nSelectedSpace);
+  World::Space& space = World::GetSpace(nSelectedSpace);
   ImGui::PushItemWidth(-1);
   InputText("Name", &space.mName);
   if (ImGui::Button("Create Member", ImVec2(-1, 0)))
@@ -182,11 +182,11 @@ void OverviewWindow()
   // Display a selectable list of all members in the space.
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
   int iteration = 0;
-  for (Core::Space::MemberVisitor visitor = space.CreateMemberVisitor();
+  for (World::Space::MemberVisitor visitor = space.CreateMemberVisitor();
        !visitor.End();
        visitor.Next())
   {
-    Core::Member& member = visitor.CurrentMember();
+    World::Member& member = visitor.CurrentMember();
     bool selected = visitor.CurrentMemberRef() == nSelectedObject.mMember &&
       nSelectedSpace == nSelectedObject.mSpace;
     std::stringstream label;

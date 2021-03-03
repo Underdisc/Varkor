@@ -1,4 +1,3 @@
-namespace Core {
 namespace World {
 
 template<typename T>
@@ -16,4 +15,3 @@ void UpdateComponentType(const Space& space, SpaceRef spaceRef)
 }
 
 } // namespace World
-} // namespace Core

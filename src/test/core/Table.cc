@@ -14,7 +14,7 @@ struct TestComp
 void Add()
 {
   std::cout << "<= Add =>" << std::endl;
-  Core::Table table(sizeof(TestComp));
+  World::Table table(sizeof(TestComp));
   int newCompIndex = table.Add(0);
   std::cout << "[" << newCompIndex;
   for (int i = 1; i < 15; ++i)
@@ -32,7 +32,7 @@ void Add()
 void Rem()
 {
   std::cout << "<= Rem =>" << std::endl;
-  Core::Table table(sizeof(TestComp));
+  World::Table table(sizeof(TestComp));
   for (int i = 0; i < 10; ++i)
   {
     table.Add(i);
@@ -56,10 +56,10 @@ void GetData()
   std::cout << "<= GetData =>" << std::endl;
   // We create some components, but before creating all components, we set some
   // data to ensure that data is copied when the table grows.
-  Core::Table table(sizeof(TestComp));
+  World::Table table(sizeof(TestComp));
   const int numComponents = 15;
-  const int compRangeStart = Core::Table::smStartCapacity - 3;
-  const int compRangeEnd = Core::Table::smStartCapacity;
+  const int compRangeStart = World::Table::smStartCapacity - 3;
+  const int compRangeEnd = World::Table::smStartCapacity;
   for (int i = 0; i < compRangeEnd; ++i)
   {
     table.Add(i);

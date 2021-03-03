@@ -21,10 +21,10 @@ void Init()
   nDefaultShader.SetVec3("uColor", color.CData());
 }
 
-void RenderModels(const Core::Space& space, const Mat4& view)
+void RenderModels(const World::Space& space, const Mat4& view)
 {
   // Visit all of the model components within the space.
-  Core::Table::Visitor<Comp::Model> visitor =
+  World::Table::Visitor<Comp::Model> visitor =
     space.CreateTableVisitor<Comp::Model>();
   while (!visitor.End())
   {
@@ -69,7 +69,7 @@ void RenderModels(const Core::Space& space, const Mat4& view)
   }
 }
 
-void Render(const Core::Space& space, const Mat4& view)
+void Render(const World::Space& space, const Mat4& view)
 {
   RenderModels(space, view);
 }

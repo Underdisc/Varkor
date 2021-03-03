@@ -1,6 +1,6 @@
 #include "Types.h"
 
-namespace Core {
+namespace World {
 
 int CreateId()
 {
@@ -8,4 +8,4 @@ int CreateId()
   return id++;
 }
 
-} // namespace Core
+} // namespace World

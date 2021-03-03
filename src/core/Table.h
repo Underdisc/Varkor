@@ -4,7 +4,7 @@
 #include "core/Types.h"
 #include "ds/Vector.h"
 
-namespace Core {
+namespace World {
 
 class Table
 {
@@ -58,7 +58,7 @@ private:
   void VerifyIndex(int index) const;
 };
 
-} // namespace Core
+} // namespace World
 
 #include "Table.hh"
 

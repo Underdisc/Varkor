@@ -5,7 +5,6 @@
 #include "core/Space.h"
 #include "ds/Vector.h"
 
-namespace Core {
 namespace World {
 
 // This is used to iterate through all of the spaces that are currently in the
@@ -35,7 +34,6 @@ template<typename T>
 void UpdateComponentType(const Space& space, SpaceRef spaceRef);
 
 } // namespace World
-} // namespace Core
 
 #include "World.hh"
 

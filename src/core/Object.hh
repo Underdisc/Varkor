@@ -1,4 +1,3 @@
-namespace Core {
 namespace World {
 
 template<typename T>
@@ -30,4 +29,3 @@ bool Object::HasComponent() const
 }
 
 } // namespace World
-} // namespace Core

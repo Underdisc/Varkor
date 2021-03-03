@@ -4,7 +4,6 @@
 
 #include "World.h"
 
-namespace Core {
 namespace World {
 
 // todo: This should be a list instead of a vector.
@@ -91,4 +90,3 @@ void Render(const Camera& camera)
 }
 
 } // namespace World
-} // namespace Core

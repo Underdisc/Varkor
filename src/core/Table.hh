@@ -1,4 +1,4 @@
-namespace Core {
+namespace World {
 
 template<typename T>
 Table::Visitor<T>::Visitor(const Table* table): mTable(table), mCurrentIndex(0)
@@ -51,4 +51,4 @@ Table::Visitor<T> Table::CreateVisitor() const
   return Visitor<T>(this);
 }
 
-} // namespace Core
+} // namespace World

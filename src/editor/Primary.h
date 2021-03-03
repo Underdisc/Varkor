@@ -5,13 +5,13 @@
 
 namespace Editor {
 
-extern void (*InspectComponents)(const Core::World::Object& selected);
-extern void (*AvailableComponents)(const Core::World::Object& selected);
+extern void (*InspectComponents)(const World::Object& selected);
+extern void (*AvailableComponents)(const World::Object& selected);
 
 template<typename T>
-void InspectComponent(const Core::World::Object& object);
+void InspectComponent(const World::Object& object);
 template<typename T>
-void MakeComponentAvailable(const Core::World::Object& object);
+void MakeComponentAvailable(const World::Object& object);
 
 void Init();
 void Start();

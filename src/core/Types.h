@@ -1,7 +1,7 @@
 #ifndef core_Types_h
 #define core_Types_h
 
-namespace Core {
+namespace World {
 
 typedef signed short TableRef;
 typedef TableRef ObjSizeT;
@@ -23,7 +23,7 @@ struct ComponentType
   static void Validate();
 };
 
-} // namespace Core
+} // namespace World
 
 #include "Types.hh"
 

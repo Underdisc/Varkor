@@ -1,6 +1,6 @@
 #include "Error.h"
 
-namespace Core {
+namespace World {
 
 // todo: Consider requiring every component to manually register with the object
 // space it will exist under. This means that the add function will only need to
@@ -73,4 +73,4 @@ Table::Visitor<T> Space::CreateTableVisitor() const
   return mTables[tableRef].CreateVisitor<T>();
 }
 
-} // namespace Core
+} // namespace World

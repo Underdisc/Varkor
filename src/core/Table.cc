@@ -3,7 +3,7 @@
 
 #include "Table.h"
 
-namespace Core {
+namespace World {
 
 Table::Table(): mData(nullptr), mStride(0), mSize(0), mCapacity(0), mOwners() {}
 
@@ -95,4 +95,4 @@ void Table::VerifyIndex(int index) const
     index >= mSize || index < 0, "Provided Table index is out of range.");
 }
 
-} // namespace Core
+} // namespace World

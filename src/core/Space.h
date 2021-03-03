@@ -3,16 +3,14 @@
 
 #include <string>
 
-#include "Table.h"
-#include "Types.h"
+#include "core/Table.h"
+#include "core/Types.h"
 #include "ds/Vector.h"
 
-namespace Core {
+namespace World {
 
 // Pre-declaration
-namespace World {
 struct Object;
-}
 
 struct ComponentAddress
 {
@@ -125,7 +123,7 @@ private:
   friend World::Object;
 };
 
-} // namespace Core
+} // namespace World
 
 #include "Space.hh"
 
