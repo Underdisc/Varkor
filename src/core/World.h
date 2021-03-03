@@ -31,26 +31,33 @@ struct Object
   Object(SpaceRef space, MemRef member);
 
   template<typename T>
-  void AddComponent();
+  void AddComponent() const;
   template<typename T>
-  void RemComponent();
+  void RemComponent() const;
   template<typename T>
-  T* GetComponent();
+  T* GetComponent() const;
   template<typename T>
-  bool HasComponent();
+  bool HasComponent() const;
 
-  std::string& GetName();
+  std::string& GetName() const;
   void Invalidate();
-  bool Valid();
+  bool Valid() const;
 
   SpaceRef mSpace;
   MemRef mMember;
 };
 
+extern void (*CentralUpdate)();
+extern void (*SpaceUpdate)(const Space& space, SpaceRef spaceRef);
+
 void Init();
 SpaceRef CreateSpace();
 Space& GetSpace(SpaceRef ref);
+void Update();
 void Render(const Camera& camera);
+
+template<typename T>
+void UpdateComponentType(const Space& space, SpaceRef spaceRef);
 
 } // namespace World
 } // namespace Core

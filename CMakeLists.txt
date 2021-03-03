@@ -19,16 +19,23 @@ if (MSVC)
   endif ()
 endif ()
 
-# Create the target to build Varkor.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working")
-add_executable(varkor)
+# Decide whether varkor is being used as a standalone executable or a library.
+if ("${CMAKE_PROJECT_NAME}" STREQUAL "varkor")
+  add_executable(varkor)
+  add_compile_definitions(VarkorStandalone)
+  set_property(TARGET varkor PROPERTY RUNTIME_OUTPUT_DIRECTORY
+    "${CMAKE_SOURCE_DIR}/working")
+
+  # The test targets are only created when varkor is used as a standalone exe.
+  add_subdirectory(src/test)
+  file(WRITE working/test/testNames.txt ${testNames})
+else ()
+  add_library(varkor)
+endif ()
+
+# Add all of the source files, include directories, and libraries needed to
+# build Varkor.
 add_subdirectory(src)
 add_subdirectory(ext)
-target_include_directories(varkor PRIVATE "src" "ext/local" "ext/sub")
+target_include_directories(varkor PUBLIC "src" "ext/local" "ext/sub")
 target_link_libraries(varkor ${assimp} ${glfw} ${OPENGL_gl_LIBRARY})
-set_property(TARGET varkor PROPERTY RUNTIME_OUTPUT_DIRECTORY
-  "${CMAKE_SOURCE_DIR}/working")
-
-# Create all the test targets.
-add_subdirectory(src/test)
-file(WRITE working/test/testNames.txt ${testNames})

@@ -37,7 +37,7 @@ Object::Object(): mSpace(nInvalidSpaceRef), mMember(nInvalidMemRef) {}
 
 Object::Object(SpaceRef space, MemRef member): mSpace(space), mMember(member) {}
 
-std::string& Object::GetName()
+std::string& Object::GetName() const
 {
   return nSpaces[mSpace].mMembers[mMember].mName;
 }
@@ -48,10 +48,14 @@ void Object::Invalidate()
   mMember = nInvalidMemRef;
 }
 
-bool Object::Valid()
+bool Object::Valid() const
 {
   return mSpace != nInvalidSpaceRef && mMember != nInvalidMemRef;
 }
+
+// Function pointers for calling into project code.
+void (*CentralUpdate)() = nullptr;
+void (*SpaceUpdate)(const Space& space, SpaceRef spaceRef) = nullptr;
 
 void Init()
 {
@@ -77,6 +81,23 @@ Space& GetSpace(SpaceRef ref)
 {
   VerifySpace(ref);
   return nSpaces[ref];
+}
+
+void Update()
+{
+  // Call the project update functions to give them control of processing.
+  for (int i = 0; i < nSpaces.Size(); ++i)
+  {
+    SpaceRef spaceRef = i;
+    if (SpaceUpdate != nullptr)
+    {
+      SpaceUpdate(nSpaces[i], spaceRef);
+    }
+  }
+  if (CentralUpdate != nullptr)
+  {
+    CentralUpdate();
+  }
 }
 
 // todo: Every space should have its own camera.

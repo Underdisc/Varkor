@@ -4,9 +4,9 @@ target_sources(varkor PRIVATE
   Error.cc
   Framer.cc
   Input.cc
-  Main.cc
   Profiler.cc
   Temporal.cc
+  VarkorMain.cc
   Viewport.cc)
 add_subdirectory(comp)
 add_subdirectory(core)

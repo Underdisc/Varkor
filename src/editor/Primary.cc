@@ -17,6 +17,9 @@
 
 namespace Editor {
 
+void (*InspectComponents)(const Core::World::Object& selected) = nullptr;
+void (*AvailableComponents)(const Core::World::Object& selected) = nullptr;
+
 Core::SpaceRef nSelectedSpace = Core::nInvalidSpaceRef;
 Core::World::Object nSelectedObject;
 
@@ -28,13 +31,6 @@ void EditorWindow();
 void OverviewWindow();
 void InspectorWindow();
 void FramerWindow();
-
-// Both of these functions abstract away the boiler plate code that is needed
-// for displaying editor elements related to component types.
-template<typename T>
-void AddComponentButton(Core::World::Object& selected);
-template<typename T>
-void DisplayComponent(Core::World::Object& object);
 
 void Init()
 {
@@ -219,12 +215,16 @@ void InspectorWindow()
   ImGui::Begin("Inspector", nullptr);
   ImGui::PushItemWidth(-1);
   InputText("Name", &nSelectedObject.GetName());
-  if (ImGui::Button("Add Component", ImVec2(-1, 0)))
+  if (ImGui::Button("Add Components", ImVec2(-1, 0)))
   {
     nShowAddComponentWindow = !nShowAddComponentWindow;
   }
-  DisplayComponent<Comp::Model>(nSelectedObject);
-  DisplayComponent<Comp::Transform>(nSelectedObject);
+  InspectComponent<Comp::Model>(nSelectedObject);
+  InspectComponent<Comp::Transform>(nSelectedObject);
+  if (InspectComponents != nullptr)
+  {
+    InspectComponents(nSelectedObject);
+  }
   ImGui::End();
 
   // Display the add component window.
@@ -232,9 +232,14 @@ void InspectorWindow()
   {
     return;
   }
-  ImGui::Begin("Add Component", &nShowAddComponentWindow);
-  AddComponentButton<Comp::Model>(nSelectedObject);
-  AddComponentButton<Comp::Transform>(nSelectedObject);
+  ImGui::Begin("Add Components", &nShowAddComponentWindow);
+  MakeComponentAvailable<Comp::Model>(nSelectedObject);
+  MakeComponentAvailable<Comp::Transform>(nSelectedObject);
+  if (AvailableComponents != nullptr)
+  {
+    AvailableComponents(nSelectedObject);
+  }
+
   ImGui::End();
 }
 
@@ -293,45 +298,6 @@ void FramerWindow()
     }
   }
   ImGui::End();
-}
-
-template<typename T>
-std::string GetRawName()
-{
-  std::string fullName(typeid(T).name());
-  std::string::size_type loc = fullName.find_last_of(" :");
-  fullName.erase(0, loc + 1);
-  return fullName;
-}
-
-template<typename T>
-void AddComponentButton(Core::World::Object& selected)
-{
-  if (selected.HasComponent<T>())
-  {
-    return;
-  }
-  std::string name(GetRawName<T>());
-  if (ImGui::Button(name.c_str(), ImVec2(-1, 0)))
-  {
-    selected.AddComponent<T>();
-    nShowAddComponentWindow = false;
-  }
-}
-
-template<typename T>
-void DisplayComponent(Core::World::Object& object)
-{
-  T* comp = nSelectedObject.GetComponent<T>();
-  if (comp == nullptr)
-  {
-    return;
-  }
-  std::string name(GetRawName<T>());
-  if (ImGui::CollapsingHeader(name.c_str()))
-  {
-    comp->EditorHook();
-  }
 }
 
 } // namespace Editor

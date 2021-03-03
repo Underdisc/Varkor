@@ -42,8 +42,8 @@ void Engine()
   Camera camera;
 
   // shader setup
-  Gfx::Shader phongShader("shader/phong.vs", "shader/phong.fs");
-  Gfx::Shader colorShader("shader/light.vs", "shader/PureColor.fs");
+  Gfx::Shader phongShader("res/shader/phong.vs", "res/shader/phong.fs");
+  Gfx::Shader colorShader("res/shader/light.vs", "res/shader/PureColor.fs");
 
   // light setup
   float specularExponent = 32.0f;
@@ -71,8 +71,8 @@ void Engine()
     objectTransforms[i].SetTranslation({x, y, 0.0f});
     objectTransforms[i].SetUniformScale(0.5f);
   }
-  Gfx::Texture diffuseTexture("container_diffuse.png");
-  Gfx::Texture specularTexture("container_specular.png");
+  Gfx::Texture diffuseTexture("res/container_diffuse.png");
+  Gfx::Texture specularTexture("res/container_specular.png");
   Gfx::Model objectModel("res/cube.obj");
 
   // backpack setup
@@ -89,7 +89,6 @@ void Engine()
     glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
     camera.Update(Temporal::DeltaTime());
 
     // Rotate the selected object and backpack using the mouse motion.
@@ -283,6 +282,7 @@ void Engine()
     glClear(GL_STENCIL_BUFFER_BIT);
     glStencilMask(0x00);
 
+    Core::World::Update();
     Core::World::Render(camera);
 
     Debug::Draw::CartesianAxes();
@@ -296,7 +296,7 @@ void Engine()
   }
 }
 
-int main(void)
+void VarkorMain()
 {
   Error::Init("log.err");
   Viewport::Init();
@@ -305,5 +305,12 @@ int main(void)
   Framer::Purge();
   Viewport::Purge();
   Error::Purge();
+}
+
+#ifdef VarkorStandalone
+int main(void)
+{
+  VarkorMain();
   return 0;
 }
+#endif

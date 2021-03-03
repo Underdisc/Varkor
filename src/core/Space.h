@@ -45,6 +45,7 @@ struct Member
   std::string mName;
 };
 
+// todo: Space's should keep a copy of their id.
 struct Space
 {
   Space();
