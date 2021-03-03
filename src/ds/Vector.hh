@@ -1,3 +1,5 @@
+#include <new>
+
 #include "Error.h"
 #include "debug/MemLeak.h"
 #include "util/Memory.h"
