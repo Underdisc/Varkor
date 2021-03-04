@@ -22,6 +22,12 @@ void InspectComponent(const World::Object& object)
   std::string name(GetRawName<T>());
   if (ImGui::CollapsingHeader(name.c_str()))
   {
+    std::string removeButtonLabel = "Remove " + name;
+    if (ImGui::Button(removeButtonLabel.c_str(), ImVec2(-1, 0)))
+    {
+      object.RemComponent<T>();
+      return;
+    }
     comp->EditorHook();
   }
 }
