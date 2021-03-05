@@ -3,13 +3,13 @@
 
 namespace World {
 
-typedef signed short TableRef;
-typedef TableRef ObjSizeT;
+typedef signed short TableId;
+typedef TableId ObjSizeT;
 typedef int MemRef;
 typedef int SpaceRef;
 
 constexpr int nInvalidComponentId = -1;
-constexpr TableRef nInvalidTableRef = -1;
+constexpr TableId nInvalidTableId = -1;
 constexpr MemRef nInvalidMemRef = -1;
 constexpr SpaceRef nInvalidSpaceRef = -1;
 

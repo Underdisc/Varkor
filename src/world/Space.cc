@@ -8,12 +8,12 @@ namespace World {
 
 void ComponentAddress::EndUse()
 {
-  mTable = nInvalidTableRef;
+  mTable = nInvalidTableId;
 }
 
 bool ComponentAddress::InUse() const
 {
-  return mTable != nInvalidTableRef;
+  return mTable != nInvalidTableId;
 }
 
 void Member::EndUse()
@@ -76,9 +76,9 @@ Space::Space(): mName("DefaultName") {}
 
 Space::Space(const std::string& name): mName(name) {}
 
-TableRef Space::RegisterComponentType(int componentId, int size)
+TableId Space::RegisterComponentType(int componentId, int size)
 {
-  TableRef table = mTables.Size();
+  TableId table = mTables.Size();
   Table newTable(size);
   mTables.Push(newTable);
   mTableLookup[componentId] = table;
@@ -152,7 +152,7 @@ void* Space::AddComponent(int componentId, MemRef member)
 
   // Allocate data for the new component and save a pointer to the component
   // data so it can be used as the return value.
-  TableRef table = mTableLookup[componentId];
+  TableId table = mTableLookup[componentId];
   ComponentAddress newAddress;
   newAddress.mTable = table;
   newAddress.mIndex = mTables[table].Add(member);
@@ -197,7 +197,7 @@ void Space::RemComponent(int componentId, MemRef member)
   // Verify that the member has the component while finding the index of the
   // component address.
   bool foundComponentType = false;
-  TableRef table = mTableLookup[componentId];
+  TableId table = mTableLookup[componentId];
   Member& selected = mMembers[member];
   int compAddrIndex = selected.mAddressIndex;
   int endAddr = selected.EndAddress();
@@ -239,7 +239,7 @@ void* Space::GetComponent(int componentId, MemRef member) const
 
   // Find the requested component by going through the member's component
   // references.
-  TableRef table = mTableLookup[componentId];
+  TableId table = mTableLookup[componentId];
   const Member& selected = mMembers[member];
   for (int i = 0; i < selected.mCount; ++i)
   {
@@ -261,11 +261,11 @@ bool Space::HasComponent(int componentId, MemRef member) const
 const void* Space::GetComponentData(int componentId) const
 {
   VerifyTable(componentId);
-  TableRef table = mTableLookup[componentId];
+  TableId table = mTableLookup[componentId];
   return mTables[table].Data();
 }
 
-const Ds::Vector<TableRef>& Space::TableLookup() const
+const Ds::Vector<TableId>& Space::TableLookup() const
 {
   return mTableLookup;
 }
@@ -294,9 +294,9 @@ bool Space::ValidTable(int componentId) const
 {
   // Make sure the table lookup is large enough to treat the component id as an
   // index, the component type has been initialized, and the table lookup has a
-  // valid table reference for the component id.
+  // valid table id for the component id.
   return componentId < mTableLookup.Size() && componentId >= 0 &&
-    mTableLookup[componentId] != nInvalidTableRef;
+    mTableLookup[componentId] != nInvalidTableId;
 }
 
 void Space::VerifyTable(int componentId) const

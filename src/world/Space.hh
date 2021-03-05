@@ -14,10 +14,10 @@ void Space::RegisterComponentType()
   if (neededSize > mTableLookup.Size())
   {
     int neededElementCount = neededSize - mTableLookup.Size();
-    mTableLookup.Push(nInvalidTableRef, neededElementCount);
+    mTableLookup.Push(nInvalidTableId, neededElementCount);
   }
   LogAbortIf(
-    mTableLookup[ComponentType<T>::smId] != nInvalidTableRef,
+    mTableLookup[ComponentType<T>::smId] != nInvalidTableId,
     "The component type being registered has already been registered with this "
     "Space.");
   RegisterComponentType(ComponentType<T>::smId, sizeof(T));
@@ -69,8 +69,8 @@ Table::Visitor<T> Space::CreateTableVisitor() const
   {
     return Table::Visitor<T>(nullptr);
   }
-  TableRef tableRef = mTableLookup[componentId];
-  return mTables[tableRef].CreateVisitor<T>();
+  TableId tableId = mTableLookup[componentId];
+  return mTables[tableId].CreateVisitor<T>();
 }
 
 } // namespace World

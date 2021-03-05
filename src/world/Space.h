@@ -3,9 +3,9 @@
 
 #include <string>
 
+#include "ds/Vector.h"
 #include "world/Table.h"
 #include "world/Types.h"
-#include "ds/Vector.h"
 
 namespace World {
 
@@ -18,7 +18,7 @@ struct ComponentAddress
   bool InUse() const;
 
   // The table the component is stored in.
-  TableRef mTable;
+  TableId mTable;
   // The offset of the component data within the table.
   int mIndex;
 };
@@ -50,7 +50,7 @@ struct Space
   Space(const std::string& name);
 
   // Component Registration.
-  TableRef RegisterComponentType(int componentId, int size);
+  TableId RegisterComponentType(int componentId, int size);
   template<typename T>
   void RegisterComponentType();
 
@@ -100,7 +100,7 @@ struct Space
   MemberVisitor CreateMemberVisitor();
 
   // Private member access.
-  const Ds::Vector<TableRef>& TableLookup() const;
+  const Ds::Vector<TableId>& TableLookup() const;
   const Ds::Vector<Table>& Tables() const;
   const Ds::Vector<Member>& Members() const;
   const Ds::Vector<MemRef>& UnusedMemRefs() const;
@@ -110,7 +110,7 @@ public:
   std::string mName;
 
 private:
-  Ds::Vector<TableRef> mTableLookup;
+  Ds::Vector<TableId> mTableLookup;
   Ds::Vector<Table> mTables;
   Ds::Vector<Member> mMembers;
   Ds::Vector<MemRef> mUnusedMemRefs;

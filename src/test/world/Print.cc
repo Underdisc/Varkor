@@ -53,7 +53,7 @@ void PrintSpaceTables(const World::Space& space)
 
 void PrintSpaceTableLookup(const World::Space& space)
 {
-  const Ds::Vector<World::TableRef>& lookup = space.TableLookup();
+  const Ds::Vector<World::TableId>& lookup = space.TableLookup();
   std::cout << "TableLookup: [ComponentId, Table]";
   for (int i = 0; i < lookup.Size(); ++i)
   {
