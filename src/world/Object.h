@@ -11,7 +11,7 @@ namespace World {
 struct Object
 {
   Object();
-  Object(SpaceRef space, MemRef member);
+  Object(SpaceId space, MemRef member);
 
   template<typename T>
   void AddComponent() const;
@@ -26,7 +26,7 @@ struct Object
   void Invalidate();
   bool Valid() const;
 
-  SpaceRef mSpace;
+  SpaceId mSpace;
   MemRef mMember;
 };
 

@@ -20,7 +20,7 @@ namespace Editor {
 void (*InspectComponents)(const World::Object& selected) = nullptr;
 void (*AvailableComponents)(const World::Object& selected) = nullptr;
 
-World::SpaceRef nSelectedSpace = World::nInvalidSpaceRef;
+World::SpaceId nSelectedSpace = World::nInvalidSpaceId;
 World::Object nSelectedObject;
 
 bool nShowEditorWindow = false;
@@ -97,7 +97,7 @@ void Start()
   ImGui::ShowDemoWindow();
 
   EditorWindow();
-  if (nSelectedSpace != World::nInvalidSpaceRef)
+  if (nSelectedSpace != World::nInvalidSpaceId)
   {
     OverviewWindow();
   }
@@ -142,17 +142,17 @@ void EditorWindow()
   for (World::SpaceVisitor visitor; !visitor.End(); visitor.Next())
   {
     World::Space& space = visitor.CurrentSpace();
-    bool selected = nSelectedSpace == visitor.CurrentSpaceRef();
+    bool selected = nSelectedSpace == visitor.CurrentSpaceId();
     std::stringstream label;
     label << iteration << ": " << space.mName;
     if (ImGui::Selectable(label.str().c_str(), selected))
     {
       if (selected)
       {
-        nSelectedSpace = World::nInvalidSpaceRef;
+        nSelectedSpace = World::nInvalidSpaceId;
       } else
       {
-        nSelectedSpace = visitor.CurrentSpaceRef();
+        nSelectedSpace = visitor.CurrentSpaceId();
       }
 
       // The selected object is no longer valid because the space selection has

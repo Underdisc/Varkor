@@ -1,10 +1,10 @@
 namespace World {
 
 template<typename T>
-void UpdateComponentType(const Space& space, SpaceRef spaceRef)
+void UpdateComponentType(const Space& space, SpaceId spaceId)
 {
   Object currentObject;
-  currentObject.mSpace = spaceRef;
+  currentObject.mSpace = spaceId;
   Table::Visitor<T> visitor = space.CreateTableVisitor<T>();
   while (!visitor.End())
   {

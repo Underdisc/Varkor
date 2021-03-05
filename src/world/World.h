@@ -2,8 +2,8 @@
 #define world_World_h
 
 #include "Camera.h"
-#include "world/Space.h"
 #include "ds/Vector.h"
+#include "world/Space.h"
 
 namespace World {
 
@@ -13,25 +13,25 @@ struct SpaceVisitor
 {
   SpaceVisitor();
   Space& CurrentSpace();
-  SpaceRef CurrentSpaceRef();
+  SpaceId CurrentSpaceId();
   void Next();
   bool End();
 
 private:
-  SpaceRef mCurrentSpace;
+  SpaceId mCurrentSpace;
 };
 
 extern void (*CentralUpdate)();
-extern void (*SpaceUpdate)(const Space& space, SpaceRef spaceRef);
+extern void (*SpaceUpdate)(const Space& space, SpaceId spaceId);
 
 void Init();
-SpaceRef CreateSpace();
-Space& GetSpace(SpaceRef ref);
+SpaceId CreateSpace();
+Space& GetSpace(SpaceId id);
 void Update();
 void Render(const Camera& camera);
 
 template<typename T>
-void UpdateComponentType(const Space& space, SpaceRef spaceRef);
+void UpdateComponentType(const Space& space, SpaceId spaceId);
 
 } // namespace World
 

@@ -17,7 +17,7 @@ Space& SpaceVisitor::CurrentSpace()
   return nSpaces[mCurrentSpace];
 }
 
-SpaceRef SpaceVisitor::CurrentSpaceRef()
+SpaceId SpaceVisitor::CurrentSpaceId()
 {
   return mCurrentSpace;
 }
@@ -34,32 +34,32 @@ bool SpaceVisitor::End()
 
 // Function pointers for calling into project code.
 void (*CentralUpdate)() = nullptr;
-void (*SpaceUpdate)(const Space& space, SpaceRef spaceRef) = nullptr;
+void (*SpaceUpdate)(const Space& space, SpaceId spaceId) = nullptr;
 
 void Init()
 {
   Gfx::Renderer::Init();
 }
 
-SpaceRef CreateSpace()
+SpaceId CreateSpace()
 {
-  SpaceRef newSpace = (SpaceRef)nSpaces.Size();
+  SpaceId newSpace = (SpaceId)nSpaces.Size();
   std::stringstream defaultName;
   defaultName << "Space " << newSpace;
   nSpaces.Emplace(defaultName.str());
   return newSpace;
 }
 
-void VerifySpace(SpaceRef space)
+void VerifySpace(SpaceId space)
 {
   LogAbortIf(
     space < 0 || space >= nSpaces.Size(), "The provided space does not exist.");
 }
 
-Space& GetSpace(SpaceRef ref)
+Space& GetSpace(SpaceId id)
 {
-  VerifySpace(ref);
-  return nSpaces[ref];
+  VerifySpace(id);
+  return nSpaces[id];
 }
 
 void Update()
@@ -67,10 +67,10 @@ void Update()
   // Call the project update functions to give them control of processing.
   for (int i = 0; i < nSpaces.Size(); ++i)
   {
-    SpaceRef spaceRef = i;
+    SpaceId spaceId = i;
     if (SpaceUpdate != nullptr)
     {
-      SpaceUpdate(nSpaces[i], spaceRef);
+      SpaceUpdate(nSpaces[i], spaceId);
     }
   }
   if (CentralUpdate != nullptr)
