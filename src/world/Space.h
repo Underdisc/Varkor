@@ -55,22 +55,22 @@ struct Space
   void RegisterComponentType();
 
   // Member creation and deletion.
-  MemRef CreateMember();
-  void DeleteMember(MemRef member);
+  MemberId CreateMember();
+  void DeleteMember(MemberId member);
 
   // Component creation, deletion, and access.
-  void* AddComponent(int componentId, MemRef member);
-  void RemComponent(int componentId, MemRef member);
-  void* GetComponent(int componentId, MemRef member) const;
-  bool HasComponent(int compnentId, MemRef member) const;
+  void* AddComponent(int componentId, MemberId member);
+  void RemComponent(int componentId, MemberId member);
+  void* GetComponent(int componentId, MemberId member) const;
+  bool HasComponent(int compnentId, MemberId member) const;
   template<typename T>
-  T& AddComponent(MemRef member);
+  T& AddComponent(MemberId member);
   template<typename T>
-  void RemComponent(MemRef member);
+  void RemComponent(MemberId member);
   template<typename T>
-  T* GetComponent(MemRef member) const;
+  T* GetComponent(MemberId member) const;
   template<typename T>
-  bool HasComponent(MemRef member) const;
+  bool HasComponent(MemberId member) const;
 
   // Get the pointer to the beginning of a component table.
   const void* GetComponentData(int componentId) const;
@@ -85,13 +85,13 @@ struct Space
   struct MemberVisitor
   {
     Member& CurrentMember();
-    MemRef CurrentMemberRef();
+    MemberId CurrentMemberId();
     void Next();
     bool End();
 
   private:
     Space& mSpace;
-    MemRef mCurrentMember;
+    MemberId mCurrentMember;
     MemberVisitor(Space& space);
     void ReachValidMember();
 
@@ -103,7 +103,7 @@ struct Space
   const Ds::Vector<TableId>& TableLookup() const;
   const Ds::Vector<Table>& Tables() const;
   const Ds::Vector<Member>& Members() const;
-  const Ds::Vector<MemRef>& UnusedMemRefs() const;
+  const Ds::Vector<MemberId>& UnusedMemberIds() const;
   const Ds::Vector<ComponentAddress> AddressBin() const;
 
 public:
@@ -113,12 +113,12 @@ private:
   Ds::Vector<TableId> mTableLookup;
   Ds::Vector<Table> mTables;
   Ds::Vector<Member> mMembers;
-  Ds::Vector<MemRef> mUnusedMemRefs;
+  Ds::Vector<MemberId> mUnusedMemberIds;
   Ds::Vector<ComponentAddress> mAddressBin;
 
   bool ValidTable(int componentId) const;
   void VerifyTable(int componentId) const;
-  void VerifyMember(MemRef member) const;
+  void VerifyMember(MemberId member) const;
 
   friend World::Object;
 };

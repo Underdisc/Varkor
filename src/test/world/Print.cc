@@ -106,19 +106,19 @@ void PrintSpaceAddressBin(const World::Space& space)
   std::cout << std::endl;
 }
 
-void PrintSpaceUnusedMemRefs(const World::Space& space)
+void PrintSpaceUnusedMemberIds(const World::Space& space)
 {
-  const Ds::Vector<World::MemRef>& unusedMemRefs = space.UnusedMemRefs();
-  std::cout << "UnusedMemRefs: ";
-  if (unusedMemRefs.Size() == 0)
+  const Ds::Vector<World::MemberId>& unusedMemberIds = space.UnusedMemberIds();
+  std::cout << "UnusedMemberIds: ";
+  if (unusedMemberIds.Size() == 0)
   {
     std::cout << "None" << std::endl;
     return;
   }
-  std::cout << unusedMemRefs[0];
-  for (int i = 1; i < unusedMemRefs.Size(); ++i)
+  std::cout << unusedMemberIds[0];
+  for (int i = 1; i < unusedMemberIds.Size(); ++i)
   {
-    std::cout << ", " << unusedMemRefs[i];
+    std::cout << ", " << unusedMemberIds[i];
   }
   std::cout << std::endl;
 }

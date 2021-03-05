@@ -4,9 +4,10 @@
 
 namespace World {
 
-Object::Object(): mSpace(nInvalidSpaceId), mMember(nInvalidMemRef) {}
+Object::Object(): mSpace(nInvalidSpaceId), mMember(nInvalidMemberId) {}
 
-Object::Object(SpaceId space, MemRef member): mSpace(space), mMember(member) {}
+Object::Object(SpaceId space, MemberId member): mSpace(space), mMember(member)
+{}
 
 std::string& Object::GetName() const
 {
@@ -16,12 +17,12 @@ std::string& Object::GetName() const
 void Object::Invalidate()
 {
   mSpace = nInvalidSpaceId;
-  mMember = nInvalidMemRef;
+  mMember = nInvalidMemberId;
 }
 
 bool Object::Valid() const
 {
-  return mSpace != nInvalidSpaceId && mMember != nInvalidMemRef;
+  return mSpace != nInvalidSpaceId && mMember != nInvalidMemberId;
 }
 
 } // namespace World

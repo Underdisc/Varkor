@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "world/Space.h"
 #include "debug/MemLeak.h"
 #include "test/world/Print.h"
+#include "world/Space.h"
 
 #pragma pack(push, 1)
 struct Comp0
@@ -133,24 +133,24 @@ void DeleteMember()
 {
   std::cout << "<= DeleteMember =>" << std::endl;
   World::Space space;
-  World::MemRef memRefs[10];
+  World::MemberId memberIds[10];
   for (int i = 0; i < 10; ++i)
   {
-    memRefs[i] = space.CreateMember();
+    memberIds[i] = space.CreateMember();
   }
   std::cout << "Members Created" << std::endl;
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
-  PrintSpaceUnusedMemRefs(space);
+  PrintSpaceUnusedMemberIds(space);
 
   for (int i = 0; i < 10; i += 2)
   {
-    space.DeleteMember(memRefs[i]);
+    space.DeleteMember(memberIds[i]);
   }
   std::cout << "-----" << std::endl << "Members Removed" << std::endl;
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
-  PrintSpaceUnusedMemRefs(space);
+  PrintSpaceUnusedMemberIds(space);
   std::cout << std::endl;
 }
 
@@ -158,15 +158,15 @@ void AddComponent()
 {
   std::cout << "<= AddComponent =>" << std::endl;
   World::Space space;
-  World::MemRef mem0 = space.CreateMember();
+  World::MemberId mem0 = space.CreateMember();
   Comp0& mem0comp0 = space.AddComponent<Comp0>(mem0);
   Comp1& mem0comp1 = space.AddComponent<Comp1>(mem0);
   Comp2& mem0comp2 = space.AddComponent<Comp2>(mem0);
-  World::MemRef mem1 = space.CreateMember();
+  World::MemberId mem1 = space.CreateMember();
   Comp0& mem1comp0 = space.AddComponent<Comp0>(mem1);
   Comp1& mem1comp1 = space.AddComponent<Comp1>(mem1);
   Comp2& mem1comp2 = space.AddComponent<Comp2>(mem1);
-  World::MemRef mem2 = space.CreateMember();
+  World::MemberId mem2 = space.CreateMember();
   Comp0& mem2comp0 = space.AddComponent<Comp0>(mem2);
   Comp3& mem2comp3 = space.AddComponent<Comp3>(mem2);
   mem2comp3.SetData(5);
@@ -192,20 +192,20 @@ void RemComponent()
 {
   std::cout << "<= RemComponent =>" << std::endl;
   World::Space space;
-  World::MemRef mem0 = space.CreateMember();
+  World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Comp0>(mem0);
   space.AddComponent<Comp1>(mem0);
   space.AddComponent<Comp2>(mem0);
   space.AddComponent<Comp3>(mem0);
-  World::MemRef mem1 = space.CreateMember();
+  World::MemberId mem1 = space.CreateMember();
   space.AddComponent<Comp0>(mem1);
   space.AddComponent<Comp1>(mem1);
   space.AddComponent<Comp2>(mem1);
-  World::MemRef mem2 = space.CreateMember();
+  World::MemberId mem2 = space.CreateMember();
   space.AddComponent<Comp1>(mem2);
   space.AddComponent<Comp3>(mem2);
   space.AddComponent<Comp2>(mem2);
-  World::MemRef mem3 = space.CreateMember();
+  World::MemberId mem3 = space.CreateMember();
   space.AddComponent<Comp3>(mem3);
   space.AddComponent<Comp2>(mem3);
   space.AddComponent<Comp0>(mem3);
@@ -233,53 +233,53 @@ void DeleteMembersWithComponents()
 {
   std::cout << "<= DeleteMembersWithComponents =>" << std::endl;
   World::Space space;
-  World::MemRef memRefs[8];
+  World::MemberId memberIds[8];
   for (int i = 0; i < 8; ++i)
   {
-    memRefs[i] = space.CreateMember();
-    space.AddComponent<Comp0>(memRefs[i]);
+    memberIds[i] = space.CreateMember();
+    space.AddComponent<Comp0>(memberIds[i]);
     if (i % 2 == 0)
     {
-      space.AddComponent<Comp1>(memRefs[i]);
+      space.AddComponent<Comp1>(memberIds[i]);
     }
     if (i % 3 == 0)
     {
-      space.AddComponent<Comp2>(memRefs[i]);
+      space.AddComponent<Comp2>(memberIds[i]);
     }
     if (i % 5 == 0)
     {
-      space.AddComponent<Comp3>(memRefs[i]);
+      space.AddComponent<Comp3>(memberIds[i]);
     }
   }
   std::cout << "Members and Components Created" << std::endl;
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
-  PrintSpaceUnusedMemRefs(space);
+  PrintSpaceUnusedMemberIds(space);
   PrintSpaceTablesOwners(space);
 
-  space.DeleteMember(memRefs[0]);
-  space.DeleteMember(memRefs[3]);
-  space.DeleteMember(memRefs[4]);
-  space.DeleteMember(memRefs[6]);
-  space.DeleteMember(memRefs[7]);
+  space.DeleteMember(memberIds[0]);
+  space.DeleteMember(memberIds[3]);
+  space.DeleteMember(memberIds[4]);
+  space.DeleteMember(memberIds[6]);
+  space.DeleteMember(memberIds[7]);
   std::cout << "-----" << std::endl << "Members Removed" << std::endl;
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
-  PrintSpaceUnusedMemRefs(space);
+  PrintSpaceUnusedMemberIds(space);
   PrintSpaceTablesOwners(space);
 
-  World::MemRef newMemRef = space.CreateMember();
-  space.AddComponent<Comp0>(newMemRef);
-  space.AddComponent<Comp1>(newMemRef);
-  space.AddComponent<Comp2>(newMemRef);
-  newMemRef = space.CreateMember();
-  space.AddComponent<Comp3>(newMemRef);
-  space.AddComponent<Comp1>(newMemRef);
+  World::MemberId newMemberId = space.CreateMember();
+  space.AddComponent<Comp0>(newMemberId);
+  space.AddComponent<Comp1>(newMemberId);
+  space.AddComponent<Comp2>(newMemberId);
+  newMemberId = space.CreateMember();
+  space.AddComponent<Comp3>(newMemberId);
+  space.AddComponent<Comp1>(newMemberId);
   std::cout << "-----" << std::endl
             << "New Members and Components" << std::endl;
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
-  PrintSpaceUnusedMemRefs(space);
+  PrintSpaceUnusedMemberIds(space);
   PrintSpaceTablesOwners(space);
   std::cout << std::endl;
 }
@@ -288,12 +288,12 @@ void GetComponent()
 {
   std::cout << "<= GetComponent =>" << std::endl;
   World::Space space;
-  World::MemRef mem0 = space.CreateMember();
+  World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Comp0>(mem0);
   space.AddComponent<Comp1>(mem0);
   space.AddComponent<Comp2>(mem0);
   space.AddComponent<Comp3>(mem0);
-  World::MemRef mem1 = space.CreateMember();
+  World::MemberId mem1 = space.CreateMember();
   space.AddComponent<Comp0>(mem1);
   space.AddComponent<Comp1>(mem1);
   space.AddComponent<Comp2>(mem1);
@@ -325,10 +325,10 @@ void HasComponent()
 {
   std::cout << "<= HasComponent =>" << std::endl;
   World::Space space;
-  World::MemRef mem0 = space.CreateMember();
+  World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Comp1>(mem0);
   space.AddComponent<Comp2>(mem0);
-  World::MemRef mem1 = space.CreateMember();
+  World::MemberId mem1 = space.CreateMember();
   space.AddComponent<Comp0>(mem1);
   space.AddComponent<Comp3>(mem1);
   space.AddComponent<Comp3>(mem0);

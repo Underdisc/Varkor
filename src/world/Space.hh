@@ -24,7 +24,7 @@ void Space::RegisterComponentType()
 }
 
 template<typename T>
-T& Space::AddComponent(MemRef member)
+T& Space::AddComponent(MemberId member)
 {
   // Create the component table for the component being added if it doesn't
   // already exist.
@@ -38,19 +38,19 @@ T& Space::AddComponent(MemRef member)
 }
 
 template<typename T>
-void Space::RemComponent(MemRef member)
+void Space::RemComponent(MemberId member)
 {
   RemComponent(ComponentType<T>::smId, member);
 }
 
 template<typename T>
-T* Space::GetComponent(MemRef member) const
+T* Space::GetComponent(MemberId member) const
 {
   return (T*)GetComponent(ComponentType<T>::smId, member);
 }
 
 template<typename T>
-bool Space::HasComponent(MemRef member) const
+bool Space::HasComponent(MemberId member) const
 {
   return HasComponent(ComponentType<T>::smId, member);
 }

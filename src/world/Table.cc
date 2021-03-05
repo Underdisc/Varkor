@@ -19,11 +19,10 @@ Table::~Table()
   }
 }
 
-// This function will allow adding the same member reference to the table
-// multiple times. The Table is not responsible for managing the owner
-// member references it stores besides setting the member references when
-// components are added or removed.
-int Table::Add(MemRef member)
+// This function will allow adding the same member id to the table multiple
+// times. The Table is not responsible for managing the owner member ids it
+// stores besides setting the member ids when components are added or removed.
+int Table::Add(MemberId member)
 {
   if (mSize >= mCapacity)
   {
@@ -38,7 +37,7 @@ int Table::Add(MemRef member)
 void Table::Rem(int index)
 {
   VerifyIndex(index);
-  mOwners[index] = nInvalidMemRef;
+  mOwners[index] = nInvalidMemberId;
 }
 
 void* Table::GetData(int index) const
@@ -47,7 +46,7 @@ void* Table::GetData(int index) const
   return (void*)(mData + (mStride * index));
 }
 
-MemRef Table::GetOwner(int index) const
+MemberId Table::GetOwner(int index) const
 {
   return mOwners[index];
 }

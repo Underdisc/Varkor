@@ -1,8 +1,8 @@
 #ifndef world_Table_h
 #define world_Table_h
 
-#include "world/Types.h"
 #include "ds/Vector.h"
+#include "world/Types.h"
 
 namespace World {
 
@@ -14,12 +14,12 @@ public:
   ~Table();
 
   // Add and remove components to and from the table.
-  int Add(MemRef member);
+  int Add(MemberId member);
   void Rem(int index);
 
   // Access component data and the owner of that component data.
   void* GetData(int index) const;
-  MemRef GetOwner(int index) const;
+  MemberId GetOwner(int index) const;
 
   // Access private members that allow the component table to function.
   const void* Data() const;
@@ -32,7 +32,7 @@ public:
   struct Visitor
   {
     Visitor(const Table* table);
-    MemRef CurrentOwner();
+    MemberId CurrentOwner();
     T& CurrentComponent();
     void Next();
     bool End();
@@ -52,7 +52,7 @@ private:
   int mStride;
   int mSize;
   int mCapacity;
-  Ds::Vector<MemRef> mOwners;
+  Ds::Vector<MemberId> mOwners;
 
   void Grow();
   void VerifyIndex(int index) const;

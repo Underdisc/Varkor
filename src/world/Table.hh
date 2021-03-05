@@ -7,7 +7,7 @@ Table::Visitor<T>::Visitor(const Table* table): mTable(table), mCurrentIndex(0)
 }
 
 template<typename T>
-MemRef Table::Visitor<T>::CurrentOwner()
+MemberId Table::Visitor<T>::CurrentOwner()
 {
   return mTable->GetOwner(mCurrentIndex);
 }
@@ -38,7 +38,7 @@ void Table::Visitor<T>::ReachValidComponent()
   {
     return;
   }
-  while (mTable->GetOwner(mCurrentIndex) == nInvalidMemRef &&
+  while (mTable->GetOwner(mCurrentIndex) == nInvalidMemberId &&
          mCurrentIndex < mTable->Size())
   {
     ++mCurrentIndex;

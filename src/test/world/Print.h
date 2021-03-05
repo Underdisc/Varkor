@@ -15,6 +15,6 @@ void PrintSpaceTableLookup(const World::Space& space);
 void PrintSpaceTablesOwners(const World::Space& space);
 void PrintSpaceMembers(const World::Space& space);
 void PrintSpaceAddressBin(const World::Space& space);
-void PrintSpaceUnusedMemRefs(const World::Space& space);
+void PrintSpaceUnusedMemberIds(const World::Space& space);
 
 #endif

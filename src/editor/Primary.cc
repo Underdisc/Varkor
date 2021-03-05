@@ -187,7 +187,7 @@ void OverviewWindow()
        visitor.Next())
   {
     World::Member& member = visitor.CurrentMember();
-    bool selected = visitor.CurrentMemberRef() == nSelectedObject.mMember &&
+    bool selected = visitor.CurrentMemberId() == nSelectedObject.mMember &&
       nSelectedSpace == nSelectedObject.mSpace;
     std::stringstream label;
     label << iteration << ": " << member.mName;
@@ -199,7 +199,7 @@ void OverviewWindow()
       } else
       {
         nSelectedObject.mSpace = nSelectedSpace;
-        nSelectedObject.mMember = visitor.CurrentMemberRef();
+        nSelectedObject.mMember = visitor.CurrentMemberId();
       }
       nShowAddComponentWindow = false;
     }

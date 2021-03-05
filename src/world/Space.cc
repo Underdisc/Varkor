@@ -47,7 +47,7 @@ Member& Space::MemberVisitor::CurrentMember()
   return mSpace.mMembers[mCurrentMember];
 }
 
-MemRef Space::MemberVisitor::CurrentMemberRef()
+MemberId Space::MemberVisitor::CurrentMemberId()
 {
   return mCurrentMember;
 }
@@ -90,7 +90,7 @@ Space::MemberVisitor Space::CreateMemberVisitor()
   return MemberVisitor(*this);
 }
 
-MemRef Space::CreateMember()
+MemberId Space::CreateMember()
 {
   // todo: The starting index of the component address used for new members is
   // always the end of the address bin. This ignores unused address memory, and
@@ -100,35 +100,35 @@ MemRef Space::CreateMember()
   int addressIndex = mAddressBin.Size();
   std::stringstream name;
 
-  // If we have unused member references, we use those for the new member before
-  // using member references that have yet to be use.
-  if (mUnusedMemRefs.Size() > 0)
+  // If we have unused member ids, we use those for the new member before using
+  // member ids that have yet to be used.
+  if (mUnusedMemberIds.Size() > 0)
   {
-    MemRef newMemberRef = mUnusedMemRefs.Top();
-    Member& newMember = mMembers[newMemberRef];
+    MemberId newMemberId = mUnusedMemberIds.Top();
+    Member& newMember = mMembers[newMemberId];
     newMember.mAddressIndex = addressIndex;
     newMember.mCount = 0;
-    name << "Member " << newMemberRef;
+    name << "Member " << newMemberId;
     newMember.mName = name.str();
-    mUnusedMemRefs.Pop();
-    return newMemberRef;
+    mUnusedMemberIds.Pop();
+    return newMemberId;
   }
   Member newMember;
   newMember.mAddressIndex = addressIndex;
   newMember.mCount = 0;
-  MemRef newMemberRef = mMembers.Size();
-  name << "Member " << newMemberRef;
+  MemberId newMemberId = mMembers.Size();
+  name << "Member " << newMemberId;
   newMember.mName = name.str();
   mMembers.Push(newMember);
-  return newMemberRef;
+  return newMemberId;
 }
 
-void Space::DeleteMember(MemRef memberRef)
+void Space::DeleteMember(MemberId MemberId)
 {
   // Verify the existance of the member, remove all of the member's components,
   // and end use of the member memory.
-  VerifyMember(memberRef);
-  Member& member = mMembers[memberRef];
+  VerifyMember(MemberId);
+  Member& member = mMembers[MemberId];
   int addrIndex = member.mAddressIndex;
   for (; addrIndex < member.EndAddress(); ++addrIndex)
   {
@@ -137,10 +137,10 @@ void Space::DeleteMember(MemRef memberRef)
     mAddressBin[addrIndex].EndUse();
   }
   member.EndUse();
-  mUnusedMemRefs.Push(memberRef);
+  mUnusedMemberIds.Push(MemberId);
 }
 
-void* Space::AddComponent(int componentId, MemRef member)
+void* Space::AddComponent(int componentId, MemberId member)
 {
   // Verify that the component table exists, the member exist, and the member
   // doesn't already have the component being added.
@@ -188,7 +188,7 @@ void* Space::AddComponent(int componentId, MemRef member)
   return componentData;
 }
 
-void Space::RemComponent(int componentId, MemRef member)
+void Space::RemComponent(int componentId, MemberId member)
 {
   // Verify that the component table and the member both exist.
   VerifyTable(componentId);
@@ -228,7 +228,7 @@ void Space::RemComponent(int componentId, MemRef member)
   --selected.mCount;
 }
 
-void* Space::GetComponent(int componentId, MemRef member) const
+void* Space::GetComponent(int componentId, MemberId member) const
 {
   // Make sure the component table and member exist.
   if (!ValidTable(componentId))
@@ -252,7 +252,7 @@ void* Space::GetComponent(int componentId, MemRef member) const
   return nullptr;
 }
 
-bool Space::HasComponent(int componentId, MemRef member) const
+bool Space::HasComponent(int componentId, MemberId member) const
 {
   const void* comp = GetComponent(componentId, member);
   return comp != nullptr;
@@ -280,9 +280,9 @@ const Ds::Vector<Member>& Space::Members() const
   return mMembers;
 }
 
-const Ds::Vector<MemRef>& Space::UnusedMemRefs() const
+const Ds::Vector<MemberId>& Space::UnusedMemberIds() const
 {
-  return mUnusedMemRefs;
+  return mUnusedMemberIds;
 }
 
 const Ds::Vector<ComponentAddress> Space::AddressBin() const
@@ -306,7 +306,7 @@ void Space::VerifyTable(int componentId) const
     !ValidTable(componentId), "There is no table for this component type.");
 }
 
-void Space::VerifyMember(MemRef member) const
+void Space::VerifyMember(MemberId member) const
 {
   // Make sure the member both exists and is valid.
   LogAbortIf(
