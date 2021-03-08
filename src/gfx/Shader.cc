@@ -97,6 +97,13 @@ int Shader::UniformLocation(const char* name) const
   return loc;
 }
 
+void Shader::SetInt(const char* name, int value) const
+{
+  int loc = UniformLocation(name);
+  Use();
+  glUniform1i(loc, value);
+}
+
 void Shader::SetFloat(const char* name, float value) const
 {
   int loc = UniformLocation(name);
