@@ -111,6 +111,13 @@ void Shader::SetFloat(const char* name, float value) const
   glUniform1f(loc, value);
 }
 
+void Shader::SetVec2(const char* name, const float* data) const
+{
+  int loc = UniformLocation(name);
+  Use();
+  glUniform2fv(loc, 1, data);
+}
+
 void Shader::SetVec3(const char* name, const float* data) const
 {
   int loc = UniformLocation(name);

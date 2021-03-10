@@ -26,6 +26,7 @@ public:
   int UniformLocation(const char* name) const;
   void SetInt(const char* name, int value) const;
   void SetFloat(const char* name, float value) const;
+  void SetVec2(const char* name, const float* data) const;
   void SetVec3(const char* name, const float* data) const;
   void SetVec4(const char* name, const float* data) const;
   void SetMat4(
