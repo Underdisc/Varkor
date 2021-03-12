@@ -21,7 +21,7 @@ float nNear = 0.1f;
 float nFar = 100.0f;
 Mat4 nPerspective;
 
-void Init(bool visible)
+void Init(const char* windowName, bool visible)
 {
   // Create the window and opengl context.
   glfwInit();
@@ -32,7 +32,7 @@ void Init(bool visible)
   {
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
   }
-  nWindow = glfwCreateWindow(nWidth, nHeight, "Varkor", NULL, NULL);
+  nWindow = glfwCreateWindow(nWidth, nHeight, windowName, NULL, NULL);
   LogAbortIf(!nWindow, "glfw window creation failed.");
   glfwMakeContextCurrent(nWindow);
 
@@ -73,6 +73,11 @@ float Far()
   return nFar;
 }
 
+float Aspect()
+{
+  return (float)nWidth / (float)nHeight;
+}
+
 GLFWwindow* Window()
 {
   return nWindow;
@@ -86,10 +91,9 @@ bool Active()
 void ResizeCallback(GLFWwindow* window, int width, int height)
 {
   glViewport(0, 0, width, height);
-  float aspect = (float)width / (float)height;
-  Math::Perspective(&nPerspective, nFov, aspect, nNear, nFar);
   nWidth = width;
   nHeight = height;
+  Math::Perspective(&nPerspective, nFov, Aspect(), nNear, nFar);
 }
 
 } // namespace Viewport

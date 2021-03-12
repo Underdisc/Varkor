@@ -7,7 +7,7 @@ struct GLFWwindow;
 
 namespace Viewport {
 
-void Init(bool visible = true);
+void Init(const char* windowName, bool visible = true);
 void Update();
 void Purge();
 void SwapBuffers();
@@ -15,6 +15,7 @@ void SwapBuffers();
 const Mat4& Perspective();
 float Near();
 float Far();
+float Aspect();
 GLFWwindow* Window();
 bool Active();
 

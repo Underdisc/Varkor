@@ -26,7 +26,7 @@
 #include "math/Vector.h"
 #include "world/World.h"
 
-void Engine()
+void VarkorEngine()
 {
   Input::Init();
   World::Init();
@@ -296,12 +296,15 @@ void Engine()
   }
 }
 
-void VarkorMain()
+void VarkorInit(const char* windowName)
 {
   Error::Init("log.err");
-  Viewport::Init();
+  Viewport::Init(windowName);
   Framer::Init();
-  Engine();
+}
+
+void VarkorPurge()
+{
   Framer::Purge();
   Viewport::Purge();
   Error::Purge();
@@ -310,7 +313,9 @@ void VarkorMain()
 #ifdef VarkorStandalone
 int main(void)
 {
-  VarkorMain();
+  VarkorInit("Varkor");
+  VarkorEngine();
+  VarkorPurge();
   return 0;
 }
 #endif
