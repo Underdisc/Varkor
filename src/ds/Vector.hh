@@ -148,6 +148,19 @@ void Vector<T>::Clear()
 }
 
 template<typename T>
+void Vector<T>::LazyRemove(int index)
+{
+  VerifyIndex(index);
+  if (mSize == 1)
+  {
+    Pop();
+    return;
+  }
+  mData[index] = Util::Move(mData[mSize - 1]);
+  --mSize;
+}
+
+template<typename T>
 void Vector<T>::Resize(int newSize, const T& value)
 {
   if (newSize > mCapacity)
@@ -299,6 +312,12 @@ template<typename T>
 const T* Vector<T>::end() const
 {
   return mData + mSize;
+}
+
+template<typename T>
+void Vector<T>::VerifyIndex(int index)
+{
+  LogAbortIf(index < 0 || index >= mSize, "An invalid index was provided.");
 }
 
 template<typename T>

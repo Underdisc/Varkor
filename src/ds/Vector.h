@@ -19,6 +19,7 @@ public:
   void Insert(int index, const T& value);
   void Pop();
   void Clear();
+  void LazyRemove(int index);
   void Resize(int newSize, const T& fill);
   void Reserve(int newCapacity);
   void Shrink();
@@ -48,6 +49,7 @@ private:
   int mCapacity;
 
 private:
+  void VerifyIndex(int index);
   void Grow();
   void Grow(int newCapacity);
   T* CreateAllocation(int capacity);

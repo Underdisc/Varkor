@@ -168,6 +168,34 @@ void Clear()
             << std::endl;
 }
 
+void LazyRemove()
+{
+  std::cout << "<= LazyRemove =>" << std::endl;
+  Ds::Vector<TestType> testVector;
+  for (int i = 0; i < 10; ++i)
+  {
+    testVector.Emplace(i, (float)i);
+  }
+
+  // Lazy remove all of the elements to test the usage of move assignment and
+  // the destruction of the last element.
+  TestType::ResetCounts();
+  for (int i = 8; i >= 0; i -= 2)
+  {
+    testVector.LazyRemove(i);
+  }
+  PrintVector(testVector, false);
+  for (int i = 0; i < 5; ++i)
+  {
+    testVector.LazyRemove(0);
+  }
+  PrintVector(testVector, false);
+  std::cout << "DestructorCount: " << TestType::smDestructorCount << std::endl
+            << "MoveAssignmentCount: " << TestType::smMoveAssignmentCount
+            << std::endl
+            << std::endl;
+}
+
 void IndexOperator()
 {
   std::cout << "<= IndexOperator =>" << std::endl;
@@ -430,6 +458,7 @@ int main(void)
   Insert();
   Pop();
   Clear();
+  LazyRemove();
   IndexOperator();
   CopyAssignment();
   MoveAssignment();
