@@ -43,7 +43,7 @@ void CompilerErrors()
 int main()
 {
   InitMemLeakOutput();
-  Viewport::Init(false);
+  Viewport::Init("gfx_Shader", false);
   FailedIncludeBasic();
   FailedInclude();
   FailedIncludeSub();
