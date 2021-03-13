@@ -178,7 +178,7 @@ void DisplayMember(World::Space& space, World::MemberId memberId)
   {
     flags |= ImGuiTreeNodeFlags_Selected;
   }
-  if (member.mChildren.Size() == 0)
+  if (member.Children().Size() == 0)
   {
     flags |= ImGuiTreeNodeFlags_Leaf;
   }
@@ -221,7 +221,7 @@ void DisplayMember(World::Space& space, World::MemberId memberId)
   // Display all of the children if the member's tree node is opened.
   if (memberOpened)
   {
-    for (World::MemberId childId : member.mChildren)
+    for (World::MemberId childId : member.Children())
     {
       DisplayMember(space, childId);
     }

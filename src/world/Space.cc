@@ -106,6 +106,7 @@ void Space::MemberVisitor::ReachValidMember()
     {
       break;
     }
+    ++mCurrentMember;
   }
 }
 

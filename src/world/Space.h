@@ -32,6 +32,7 @@ public:
   int AddressIndex() const;
   ObjSizeT Count() const;
   const Ds::Vector<MemberId>& Children() const;
+  bool HasParent() const;
   bool InUseRootMember() const;
 
 private:
@@ -47,7 +48,6 @@ private:
   void StartUse(int addressIndex, const std::string& name);
   void EndUse();
   bool InUse() const;
-  bool HasParent() const;
   int EndAddress() const;
   int LastAddress() const;
 
