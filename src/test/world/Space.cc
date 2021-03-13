@@ -125,7 +125,7 @@ void CreateMember()
   {
     space.CreateMember();
   }
-  PrintSpace(space);
+  PrintSpaceMembers(space);
   std::cout << std::endl;
 }
 
@@ -138,18 +138,12 @@ void DeleteMember()
   {
     memberIds[i] = space.CreateMember();
   }
-  std::cout << "Members Created" << std::endl;
-  PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
-  PrintSpaceUnusedMemberIds(space);
 
   for (int i = 0; i < 10; i += 2)
   {
     space.DeleteMember(memberIds[i]);
   }
-  std::cout << "-----" << std::endl << "Members Removed" << std::endl;
   PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
   PrintSpaceUnusedMemberIds(space);
   std::cout << std::endl;
 }
