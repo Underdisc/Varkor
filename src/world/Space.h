@@ -11,6 +11,7 @@ namespace World {
 
 // Pre-declaration
 struct Object;
+struct Space;
 
 struct ComponentAddress
 {
@@ -25,22 +26,32 @@ struct ComponentAddress
 
 struct Member
 {
+public:
+  std::string mName;
+
+  int AddressIndex() const;
+  ObjSizeT Count() const;
+  const Ds::Vector<MemberId>& Children() const;
+  bool InUseRootMember() const;
+
+private:
+  // The index of the first component address within a space address bin.
+  int mAddressIndex;
+  static constexpr int smInvalidAddressIndex = -1;
+  // The number of component addresses used by the member.
+  ObjSizeT mCount;
+  // These are values for tracking parent child relationships.
+  MemberId mParent;
+  Ds::Vector<MemberId> mChildren;
+
+  void StartUse(int addressIndex, const std::string& name);
   void EndUse();
   bool InUse() const;
+  bool HasParent() const;
   int EndAddress() const;
   int LastAddress() const;
 
-  static constexpr int smInvalidAddressIndex = -1;
-  // The index of the first component address within a space address bin.
-  int mAddressIndex;
-  // The number of component addresses used by the member.
-  ObjSizeT mCount;
-  // todo: Remove names from the member structure. Names should only be
-  // necessary for interacting with objects in the editor and saving them to
-  // file. They should never used for any sort of gameplay code. A
-  // SpaceInteraction struct could be built outside of the space to serve this
-  // purpose. This may also get rid of the need for the MemberVisitor.
-  std::string mName;
+  friend Space;
 };
 
 // todo: Space's should keep a copy of their id.
@@ -54,9 +65,12 @@ struct Space
   template<typename T>
   void RegisterComponentType();
 
-  // Member creation and deletion.
+  // Member modification.
   MemberId CreateMember();
   void DeleteMember(MemberId member);
+  void MakeParent(MemberId parent, MemberId child);
+  void RemoveParent(MemberId childId);
+  Member& GetMember(MemberId id);
 
   // Component creation, deletion, and access.
   void* AddComponent(int componentId, MemberId member);
@@ -84,10 +98,10 @@ struct Space
   // Create a visitor for visiting all of the members in a space.
   struct MemberVisitor
   {
-    Member& CurrentMember();
-    MemberId CurrentMemberId();
+    Member& CurrentMember() const;
+    MemberId CurrentMemberId() const;
     void Next();
-    bool End();
+    bool End() const;
 
   private:
     Space& mSpace;

@@ -16,14 +16,33 @@ bool ComponentAddress::InUse() const
   return mTable != nInvalidTableId;
 }
 
+void Member::StartUse(int addressIndex, const std::string& name)
+{
+  mAddressIndex = addressIndex;
+  mCount = 0;
+  mParent = nInvalidMemberId;
+  mName = name;
+}
+
 void Member::EndUse()
 {
   mAddressIndex = smInvalidAddressIndex;
+  mChildren.Clear();
 }
 
 bool Member::InUse() const
 {
   return mAddressIndex != smInvalidAddressIndex;
+}
+
+bool Member::HasParent() const
+{
+  return mParent != nInvalidMemberId;
+}
+
+bool Member::InUseRootMember() const
+{
+  return InUse() && !HasParent();
 }
 
 int Member::EndAddress() const
@@ -36,18 +55,33 @@ int Member::LastAddress() const
   return mAddressIndex + mCount - 1;
 }
 
+int Member::AddressIndex() const
+{
+  return mAddressIndex;
+}
+
+ObjSizeT Member::Count() const
+{
+  return mCount;
+}
+
+const Ds::Vector<MemberId>& Member::Children() const
+{
+  return mChildren;
+}
+
 Space::MemberVisitor::MemberVisitor(Space& space):
   mSpace(space), mCurrentMember(0)
 {
   ReachValidMember();
 }
 
-Member& Space::MemberVisitor::CurrentMember()
+Member& Space::MemberVisitor::CurrentMember() const
 {
   return mSpace.mMembers[mCurrentMember];
 }
 
-MemberId Space::MemberVisitor::CurrentMemberId()
+MemberId Space::MemberVisitor::CurrentMemberId() const
 {
   return mCurrentMember;
 }
@@ -58,17 +92,20 @@ void Space::MemberVisitor::Next()
   ReachValidMember();
 }
 
-bool Space::MemberVisitor::End()
+bool Space::MemberVisitor::End() const
 {
   return mCurrentMember >= mSpace.mMembers.Size();
 }
 
 void Space::MemberVisitor::ReachValidMember()
 {
-  Ds::Vector<Member>& members = mSpace.mMembers;
-  while (mCurrentMember < members.Size() && !members[mCurrentMember].InUse())
+  while (mCurrentMember < mSpace.mMembers.Size())
   {
-    ++mCurrentMember;
+    Member& member = mSpace.mMembers[mCurrentMember];
+    if (member.InUseRootMember())
+    {
+      break;
+    }
   }
 }
 
@@ -106,29 +143,32 @@ MemberId Space::CreateMember()
   {
     MemberId newMemberId = mUnusedMemberIds.Top();
     Member& newMember = mMembers[newMemberId];
-    newMember.mAddressIndex = addressIndex;
-    newMember.mCount = 0;
     name << "Member " << newMemberId;
-    newMember.mName = name.str();
+    newMember.StartUse(addressIndex, name.str());
     mUnusedMemberIds.Pop();
     return newMemberId;
   }
   Member newMember;
-  newMember.mAddressIndex = addressIndex;
-  newMember.mCount = 0;
   MemberId newMemberId = mMembers.Size();
   name << "Member " << newMemberId;
-  newMember.mName = name.str();
-  mMembers.Push(newMember);
+  newMember.StartUse(addressIndex, name.str());
+  mMembers.Push(Util::Move(newMember));
   return newMemberId;
 }
 
-void Space::DeleteMember(MemberId MemberId)
+void Space::DeleteMember(MemberId memberId)
 {
-  // Verify the existance of the member, remove all of the member's components,
-  // and end use of the member memory.
-  VerifyMember(MemberId);
-  Member& member = mMembers[MemberId];
+  // Verify the existance of the member.
+  VerifyMember(memberId);
+  Member& member = mMembers[memberId];
+
+  // Delete all of the children of the member to be deleted.
+  for (MemberId childId : member.mChildren)
+  {
+    DeleteMember(childId);
+  }
+
+  // Remove all of the member's components and end use of the member's memory.
   int addrIndex = member.mAddressIndex;
   for (; addrIndex < member.EndAddress(); ++addrIndex)
   {
@@ -137,7 +177,52 @@ void Space::DeleteMember(MemberId MemberId)
     mAddressBin[addrIndex].EndUse();
   }
   member.EndUse();
-  mUnusedMemberIds.Push(MemberId);
+  mUnusedMemberIds.Push(memberId);
+}
+
+void Space::MakeParent(MemberId parentId, MemberId childId)
+{
+  // Verify the existance of the parent and child members.
+  VerifyMember(parentId);
+  VerifyMember(childId);
+  Member& parentMember = mMembers[parentId];
+  Member& childMember = mMembers[childId];
+
+  // If the child already has a parent, remove that parent relationship and
+  // create a new one.
+  if (childMember.HasParent())
+  {
+    RemoveParent(childId);
+  }
+  parentMember.mChildren.Push(childId);
+  childMember.mParent = parentId;
+}
+
+void Space::RemoveParent(MemberId childId)
+{
+  // Verify that the child exists and has a parent.
+  VerifyMember(childId);
+  Member& childMember = mMembers[childId];
+  LogAbortIf(!childMember.HasParent(), "This member has no parent.");
+
+  // End the relationship by removing the child from the parent's children and
+  // removing the parent from the child.
+  Member& childParent = mMembers[childMember.mParent];
+  for (int i = 0; i < childParent.mChildren.Size(); ++i)
+  {
+    if (childParent.mChildren[i] == childId)
+    {
+      childParent.mChildren.LazyRemove(i);
+      break;
+    }
+  }
+  childMember.mParent = nInvalidMemberId;
+}
+
+Member& Space::GetMember(MemberId id)
+{
+  VerifyMember(id);
+  return mMembers[id];
 }
 
 void* Space::AddComponent(int componentId, MemberId member)

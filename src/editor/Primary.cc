@@ -45,6 +45,7 @@ void Init()
   imStyle.TabRounding = 0.0f;
   imStyle.FrameBorderSize = 1.0f;
   imStyle.TabBorderSize = 1.0f;
+  imStyle.IndentSpacing = 11.0f;
   imStyle.WindowMenuButtonPosition = ImGuiDir_Right;
 
   // A theme made for nerds.
@@ -166,6 +167,68 @@ void EditorWindow()
   ImGui::End();
 }
 
+void DisplayMember(World::Space& space, World::MemberId memberId)
+{
+  // Create the member's tree node.
+  World::Member& member = space.GetMember(memberId);
+  ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+  bool selected = memberId == nSelectedObject.mMember;
+  selected = selected && nSelectedSpace == nSelectedObject.mSpace;
+  if (selected)
+  {
+    flags |= ImGuiTreeNodeFlags_Selected;
+  }
+  if (member.mChildren.Size() == 0)
+  {
+    flags |= ImGuiTreeNodeFlags_Leaf;
+  }
+  std::stringstream label;
+  label << memberId << ": " << member.mName;
+  bool memberOpened = ImGui::TreeNodeEx(label.str().c_str(), flags);
+
+  // Make the node a source and target for parenting drag drop operations.
+  if (ImGui::BeginDragDropSource())
+  {
+    ImGui::SetDragDropPayload("Member", &memberId, sizeof(World::MemberId));
+    ImGui::Text(label.str().c_str());
+    ImGui::EndDragDropSource();
+  }
+  if (ImGui::BeginDragDropTarget())
+  {
+    const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Member");
+    if (payload != nullptr)
+    {
+      World::MemberId childId = *(const World::MemberId*)payload->Data;
+      space.MakeParent(memberId, childId);
+    }
+    ImGui::EndDragDropTarget();
+  }
+
+  // Select the member if it is clicked.
+  if (ImGui::IsItemClicked())
+  {
+    if (selected)
+    {
+      nSelectedObject.Invalidate();
+    } else
+    {
+      nSelectedObject.mSpace = nSelectedSpace;
+      nSelectedObject.mMember = memberId;
+    }
+    nShowAddComponentWindow = false;
+  }
+
+  // Display all of the children if the member's tree node is opened.
+  if (memberOpened)
+  {
+    for (World::MemberId childId : member.mChildren)
+    {
+      DisplayMember(space, childId);
+    }
+    ImGui::TreePop();
+  }
+}
+
 void OverviewWindow()
 {
   // Display the text box for changing the space's name and display a button for
@@ -181,38 +244,36 @@ void OverviewWindow()
 
   // Display a selectable list of all members in the space.
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
-  int iteration = 0;
-  for (World::Space::MemberVisitor visitor = space.CreateMemberVisitor();
-       !visitor.End();
-       visitor.Next())
+  World::Space::MemberVisitor visitor = space.CreateMemberVisitor();
+  while (!visitor.End())
   {
-    World::Member& member = visitor.CurrentMember();
-    bool selected = visitor.CurrentMemberId() == nSelectedObject.mMember &&
-      nSelectedSpace == nSelectedObject.mSpace;
-    std::stringstream label;
-    label << iteration << ": " << member.mName;
-    if (ImGui::Selectable(label.str().c_str(), selected))
-    {
-      if (selected)
-      {
-        nSelectedObject.Invalidate();
-      } else
-      {
-        nSelectedObject.mSpace = nSelectedSpace;
-        nSelectedObject.mMember = visitor.CurrentMemberId();
-      }
-      nShowAddComponentWindow = false;
-    }
-    ++iteration;
+    DisplayMember(space, visitor.CurrentMemberId());
+    visitor.Next();
   }
   ImGui::EndChild();
+
+  // Make the member window a drag drop target for ending parent relationships.
+  if (ImGui::BeginDragDropTarget())
+  {
+    const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Member");
+    if (payload != nullptr)
+    {
+      World::MemberId childId = *(const World::MemberId*)payload->Data;
+      World::Member& member = space.GetMember(childId);
+      if (member.HasParent())
+      {
+        space.RemoveParent(childId);
+      }
+    }
+    ImGui::EndDragDropTarget();
+  }
   ImGui::End();
 }
 
 void InspectorWindow()
 {
   // Display the inspector window.
-  ImGui::Begin("Inspector", nullptr);
+  ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoFocusOnAppearing);
   ImGui::PushItemWidth(-1);
   InputText("Name", &nSelectedObject.GetName());
   if (ImGui::Button("Add Components", ImVec2(-1, 0)))

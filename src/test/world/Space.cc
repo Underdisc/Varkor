@@ -154,6 +154,35 @@ void DeleteMember()
   std::cout << std::endl;
 }
 
+void ParentChildMembers()
+{
+  std::cout << "<= ParentChildMembers =>" << std::endl;
+  World::Space space;
+  World::MemberId memberIds[10];
+  for (int i = 0; i < 10; ++i)
+  {
+    memberIds[i] = space.CreateMember();
+  }
+  space.MakeParent(memberIds[0], memberIds[1]);
+  space.MakeParent(memberIds[0], memberIds[2]);
+  space.MakeParent(memberIds[0], memberIds[3]);
+  space.MakeParent(memberIds[1], memberIds[4]);
+  space.MakeParent(memberIds[2], memberIds[5]);
+  space.MakeParent(memberIds[3], memberIds[6]);
+  space.MakeParent(memberIds[3], memberIds[7]);
+  PrintSpaceMembers(space);
+
+  // Delete the member with children and create members that take the MemberIds
+  // that were once used by the children.
+  space.DeleteMember(memberIds[0]);
+  for (int i = 0; i < 7; ++i)
+  {
+    space.CreateMember();
+  }
+  PrintSpaceMembers(space);
+  std::cout << std::endl;
+}
+
 void AddComponent()
 {
   std::cout << "<= AddComponent =>" << std::endl;
@@ -352,6 +381,7 @@ int main(void)
   InitMemLeakOutput();
   CreateMember();
   DeleteMember();
+  ParentChildMembers();
   AddComponent();
   RemComponent();
   DeleteMembersWithComponents();

@@ -72,21 +72,32 @@ void PrintSpaceTablesOwners(const World::Space& space)
   }
 }
 
+void PrintSpaceMember(
+  const World::Space& space,
+  World::MemberId memberId,
+  const std::string& indent = "")
+{
+  const World::Member& member = space.Members()[memberId];
+  std::cout << indent << "[" << memberId << ", " << member.AddressIndex()
+            << ", " << member.Count() << "]" << std::endl;
+  for (World::MemberId childId : member.Children())
+  {
+    PrintSpaceMember(space, childId, indent + "| ");
+  }
+}
+
 void PrintSpaceMembers(const World::Space& space)
 {
+  std::cout << "-[MemberId, Address, Count]-" << std::endl;
   const Ds::Vector<World::Member>& members = space.Members();
-  std::cout << "Members: [Address, Count]";
-  for (const World::Member& member : members)
+  for (World::MemberId memberId = 0; memberId < members.Size(); ++memberId)
   {
-    std::cout << ", ";
-    if (!member.InUse())
+    const World::Member& member = members[memberId];
+    if (member.InUseRootMember())
     {
-      std::cout << "[inv]";
-      continue;
+      PrintSpaceMember(space, memberId);
     }
-    std::cout << "[" << member.mAddressIndex << ", " << member.mCount << "]";
   }
-  std::cout << std::endl;
 }
 
 void PrintSpaceAddressBin(const World::Space& space)
