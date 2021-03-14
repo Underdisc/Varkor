@@ -1,3 +1,5 @@
+#include "world/World.h"
+
 namespace World {
 
 template<typename T>

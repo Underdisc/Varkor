@@ -1,5 +1,7 @@
 #include <imgui/imgui.h>
 
+#include "world/Object.h"
+
 #include "Transform.h"
 
 namespace Comp {
@@ -53,7 +55,7 @@ void Transform::SetTranslation(const Vec3& newTranslation)
   mUpdated = false;
 }
 
-const Mat4& Transform::GetMatrix()
+const Mat4& Transform::GetLocalMatrix()
 {
   if (!mUpdated)
   {
@@ -68,6 +70,23 @@ const Mat4& Transform::GetMatrix()
     mUpdated = true;
   }
   return mMatrix;
+}
+
+Mat4 Transform::GetWorldMatrix(const World::Object& owner)
+{
+  if (!owner.HasParent())
+  {
+    return GetLocalMatrix();
+  }
+  World::Object parent = owner.Parent();
+  Transform* parentTransform = parent.GetComponent<Transform>();
+  if (parentTransform == nullptr)
+  {
+    return GetLocalMatrix();
+  }
+  const Mat4& localTransformation = GetLocalMatrix();
+  Mat4 parentTransformation = parentTransform->GetWorldMatrix(parent);
+  return parentTransformation * localTransformation;
 }
 
 void Transform::EditorHook()

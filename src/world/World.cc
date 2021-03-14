@@ -84,8 +84,7 @@ void Render(const Camera& camera)
 {
   for (int i = 0; i < nSpaces.Size(); ++i)
   {
-    Space& space = nSpaces[i];
-    Gfx::Renderer::Render(space, camera.WorldToCamera());
+    Gfx::Renderer::Render(i, camera.WorldToCamera());
   }
 }
 

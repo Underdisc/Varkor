@@ -1,7 +1,9 @@
 #ifndef world_Object_h
 #define world_Object_h
 
-#include "world/Space.h"
+#include <string>
+
+#include "world/Types.h"
 
 namespace World {
 
@@ -23,6 +25,8 @@ struct Object
   bool HasComponent() const;
 
   std::string& GetName() const;
+  bool HasParent() const;
+  Object Parent() const;
   void Invalidate();
   bool Valid() const;
 

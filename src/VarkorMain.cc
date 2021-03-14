@@ -179,13 +179,14 @@ void VarkorEngine()
     colorShader.SetMat4("uProj", Viewport::Perspective().CData());
     for (int i = 0; i < pointLightCount; ++i)
     {
-      colorShader.SetMat4("uModel", lightTransforms[i].GetMatrix().CData());
+      colorShader.SetMat4(
+        "uModel", lightTransforms[i].GetLocalMatrix().CData());
       colorShader.SetVec3("uColor", pointLights[i].mSpecular.CData());
       lightModel.Draw(colorShader);
     }
 
     // Render the spotLight
-    colorShader.SetMat4("uModel", lightTransforms[4].GetMatrix().CData());
+    colorShader.SetMat4("uModel", lightTransforms[4].GetLocalMatrix().CData());
     colorShader.SetVec3("uColor", spotLight.mSpecular.CData());
     lightModel.Draw(colorShader);
 
@@ -239,7 +240,7 @@ void VarkorEngine()
     phongShader.SetVec3("dirLight.specular", dirLight.mSpecular.CData());
 
     // Render the backpack.
-    phongShader.SetMat4("uModel", backpackTransform.GetMatrix().CData());
+    phongShader.SetMat4("uModel", backpackTransform.GetLocalMatrix().CData());
     backpackModel.Draw(phongShader);
 
     // Set up the correct textures for the objects.
@@ -256,7 +257,8 @@ void VarkorEngine()
     glStencilMask(0xff);
     for (int i = 0; i < objectCount; ++i)
     {
-      phongShader.SetMat4("uModel", objectTransforms[i].GetMatrix().CData());
+      phongShader.SetMat4(
+        "uModel", objectTransforms[i].GetLocalMatrix().CData());
       objectModel.Draw(phongShader);
     }
 
@@ -268,7 +270,7 @@ void VarkorEngine()
     {
       Mat4 scaleBump;
       Math::Scale(&scaleBump, 1.1f);
-      const Mat4& currentTransform = objectTransforms[i].GetMatrix();
+      const Mat4& currentTransform = objectTransforms[i].GetLocalMatrix();
       Mat4 newTransform = currentTransform * scaleBump;
       Vec3 red = {1.0f, 0.0f, 0.0f};
       colorShader.SetMat4("uModel", newTransform.CData());

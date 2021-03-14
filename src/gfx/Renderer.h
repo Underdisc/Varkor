@@ -5,7 +5,7 @@ namespace Gfx {
 namespace Renderer {
 
 void Init();
-void Render(const World::Space& space, const Mat4& view);
+void Render(World::SpaceId spaceId, const Mat4& view);
 
 } // namespace Renderer
 } // namespace Gfx

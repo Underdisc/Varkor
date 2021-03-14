@@ -4,7 +4,9 @@
 #include "comp/Transform.h"
 #include "gfx/Shader.h"
 #include "math/Vector.h"
+#include "world/Object.h"
 #include "world/Space.h"
+#include "world/World.h"
 
 namespace Gfx {
 namespace Renderer {
@@ -21,9 +23,10 @@ void Init()
   nDefaultShader.SetVec3("uColor", color.CData());
 }
 
-void RenderModels(const World::Space& space, const Mat4& view)
+void RenderModels(World::SpaceId spaceId, const Mat4& view)
 {
   // Visit all of the model components within the space.
+  const World::Space& space = World::GetSpace(spaceId);
   World::Table::Visitor<Comp::Model> visitor =
     space.CreateTableVisitor<Comp::Model>();
   while (!visitor.End())
@@ -53,7 +56,8 @@ void RenderModels(const World::Space& space, const Mat4& view)
       drawShader->SetMat4("uModel", identity.CData());
     } else
     {
-      drawShader->SetMat4("uModel", transform->GetMatrix().CData());
+      World::Object object(spaceId, visitor.CurrentOwner());
+      drawShader->SetMat4("uModel", transform->GetWorldMatrix(object).CData());
     }
     drawShader->SetMat4("uView", view.CData());
     drawShader->SetMat4("uProj", Viewport::Perspective().CData());
@@ -69,9 +73,9 @@ void RenderModels(const World::Space& space, const Mat4& view)
   }
 }
 
-void Render(const World::Space& space, const Mat4& view)
+void Render(World::SpaceId spaceId, const Mat4& view)
 {
-  RenderModels(space, view);
+  RenderModels(spaceId, view);
 }
 
 } // namespace Renderer

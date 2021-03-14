@@ -1,6 +1,10 @@
 #ifndef comp_Transform_h
 #define comp_Transform_h
 
+namespace World {
+struct Object;
+}
+
 #include "math/Matrix4.h"
 #include "math/Vector.h"
 
@@ -17,7 +21,8 @@ struct Transform
   void SetScale(const Vec3& newScale);
   void SetRotation(const Quat& newRotation);
   void SetTranslation(const Vec3& newTranslation);
-  const Mat4& GetMatrix();
+  const Mat4& GetLocalMatrix();
+  Mat4 GetWorldMatrix(const World::Object& owner);
 
   void EditorHook();
 

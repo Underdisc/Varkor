@@ -65,6 +65,11 @@ ObjSizeT Member::Count() const
   return mCount;
 }
 
+MemberId Member::Parent() const
+{
+  return mParent;
+}
+
 const Ds::Vector<MemberId>& Member::Children() const
 {
   return mChildren;

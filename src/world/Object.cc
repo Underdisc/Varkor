@@ -14,6 +14,17 @@ std::string& Object::GetName() const
   return GetSpace(mSpace).mMembers[mMember].mName;
 }
 
+bool Object::HasParent() const
+{
+  return GetSpace(mSpace).mMembers[mMember].HasParent();
+}
+
+Object Object::Parent() const
+{
+  Object parent(mSpace, GetSpace(mSpace).mMembers[mMember].Parent());
+  return parent;
+}
+
 void Object::Invalidate()
 {
   mSpace = nInvalidSpaceId;

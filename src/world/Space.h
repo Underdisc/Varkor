@@ -31,6 +31,7 @@ public:
 
   int AddressIndex() const;
   ObjSizeT Count() const;
+  MemberId Parent() const;
   const Ds::Vector<MemberId>& Children() const;
   bool HasParent() const;
   bool InUseRootMember() const;
