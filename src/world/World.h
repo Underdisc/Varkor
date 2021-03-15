@@ -1,7 +1,6 @@
 #ifndef world_World_h
 #define world_World_h
 
-#include "Camera.h"
 #include "ds/Vector.h"
 #include "world/Space.h"
 
@@ -24,11 +23,9 @@ private:
 extern void (*CentralUpdate)();
 extern void (*SpaceUpdate)(const Space& space, SpaceId spaceId);
 
-void Init();
 SpaceId CreateSpace();
 Space& GetSpace(SpaceId id);
 void Update();
-void Render(const Camera& camera);
 
 template<typename T>
 void UpdateComponentType(const Space& space, SpaceId spaceId);

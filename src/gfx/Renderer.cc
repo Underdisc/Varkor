@@ -73,9 +73,14 @@ void RenderModels(World::SpaceId spaceId, const Mat4& view)
   }
 }
 
-void Render(World::SpaceId spaceId, const Mat4& view)
+void RenderWorld(const Mat4& view)
 {
-  RenderModels(spaceId, view);
+  World::SpaceVisitor visitor;
+  while (!visitor.End())
+  {
+    RenderModels(visitor.CurrentSpaceId(), view);
+    visitor.Next();
+  }
 }
 
 } // namespace Renderer

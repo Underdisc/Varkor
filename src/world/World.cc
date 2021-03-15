@@ -1,7 +1,5 @@
 #include <sstream>
 
-#include "gfx/Renderer.h"
-
 #include "World.h"
 
 namespace World {
@@ -35,11 +33,6 @@ bool SpaceVisitor::End()
 // Function pointers for calling into project code.
 void (*CentralUpdate)() = nullptr;
 void (*SpaceUpdate)(const Space& space, SpaceId spaceId) = nullptr;
-
-void Init()
-{
-  Gfx::Renderer::Init();
-}
 
 SpaceId CreateSpace()
 {
@@ -76,15 +69,6 @@ void Update()
   if (CentralUpdate != nullptr)
   {
     CentralUpdate();
-  }
-}
-
-// todo: Every space should have its own camera.
-void Render(const Camera& camera)
-{
-  for (int i = 0; i < nSpaces.Size(); ++i)
-  {
-    Gfx::Renderer::Render(i, camera.WorldToCamera());
   }
 }
 

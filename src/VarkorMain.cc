@@ -18,6 +18,7 @@
 #include "debug/Draw.h"
 #include "editor/Primary.h"
 #include "gfx/Model.h"
+#include "gfx/Renderer.h"
 #include "gfx/Shader.h"
 #include "gfx/Texture.h"
 #include "math/Constants.h"
@@ -29,7 +30,7 @@
 void VarkorEngine()
 {
   Input::Init();
-  World::Init();
+  Gfx::Renderer::Init();
   Editor::Init();
   Debug::Draw::Init();
 
@@ -285,7 +286,7 @@ void VarkorEngine()
     glStencilMask(0x00);
 
     World::Update();
-    World::Render(camera);
+    Gfx::Renderer::RenderWorld(camera.WorldToCamera());
 
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());
