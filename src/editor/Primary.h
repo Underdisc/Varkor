@@ -1,6 +1,7 @@
 #ifndef editor_Primary_h
 #define editor_Primary_h
 
+#include "editor/Camera.h"
 #include "world/Object.h"
 
 namespace Editor {
@@ -16,6 +17,7 @@ void MakeComponentAvailable(const World::Object& object);
 void Init();
 void Start();
 void End();
+const Camera& GetCamera();
 
 } // namespace Editor
 

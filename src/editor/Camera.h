@@ -1,8 +1,10 @@
-#ifndef Camera_h
-#define Camera_h
+#ifndef editor_Camera_h
+#define editor_Camera_h
 
 #include "math/Matrix4.h"
 #include "math/Vector.h"
+
+namespace Editor {
 
 class Camera
 {
@@ -32,5 +34,7 @@ private:
   Vec3 mUp;
   Mat4 mWtc;
 };
+
+} // namespace Editor
 
 #endif

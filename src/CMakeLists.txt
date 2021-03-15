@@ -1,6 +1,5 @@
 target_sources(varkor PRIVATE
   AssetLibrary.cc
-  Camera.cc
   Error.cc
   Framer.cc
   Input.cc

@@ -5,10 +5,12 @@
 
 #include "Framer.h"
 #include "Input.h"
+#include "Temporal.h"
 #include "Viewport.h"
 #include "comp/Model.h"
 #include "comp/Transform.h"
 #include "editor/Asset.h"
+#include "editor/Camera.h"
 #include "editor/Util.h"
 #include "world/Types.h"
 #include "world/World.h"
@@ -20,6 +22,7 @@ namespace Editor {
 void (*InspectComponents)(const World::Object& selected) = nullptr;
 void (*AvailableComponents)(const World::Object& selected) = nullptr;
 
+Camera nCamera;
 World::SpaceId nSelectedSpace = World::nInvalidSpaceId;
 World::Object nSelectedObject;
 
@@ -87,6 +90,8 @@ void Init()
 
 void Start()
 {
+  nCamera.Update(Temporal::DeltaTime());
+
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
@@ -118,6 +123,11 @@ void End()
 {
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+const Camera& GetCamera()
+{
+  return nCamera;
 }
 
 void EditorWindow()

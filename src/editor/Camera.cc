@@ -5,6 +5,8 @@
 
 #include "Camera.h"
 
+namespace Editor {
+
 Camera::Camera()
 {
   mYaw = 0.0f;
@@ -123,3 +125,5 @@ void Camera::CalculateWorldToCamera()
   mWtc[2][2] = back[2];
   mWtc[2][3] = Math::Dot(negativePosition, back);
 }
+
+} // namespace Editor

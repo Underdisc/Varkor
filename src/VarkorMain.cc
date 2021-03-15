@@ -5,7 +5,6 @@
 #include <sstream>
 #include <string>
 
-#include "Camera.h"
 #include "Error.h"
 #include "Framer.h"
 #include "Input.h"
@@ -16,6 +15,7 @@
 #include "comp/SpotLight.h"
 #include "comp/Transform.h"
 #include "debug/Draw.h"
+#include "editor/Camera.h"
 #include "editor/Primary.h"
 #include "gfx/Model.h"
 #include "gfx/Renderer.h"
@@ -39,8 +39,6 @@ void VarkorEngine()
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_STENCIL_TEST);
   glEnable(GL_CULL_FACE);
-
-  Camera camera;
 
   // shader setup
   Gfx::Shader phongShader("res/shader/phong.vs", "res/shader/phong.fs");
@@ -90,7 +88,6 @@ void VarkorEngine()
     glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    camera.Update(Temporal::DeltaTime());
 
     // Rotate the selected object and backpack using the mouse motion.
     Comp::Transform& selectedTransform = objectTransforms[currentFocus];
@@ -176,7 +173,7 @@ void VarkorEngine()
     ImGui::End();
 
     // Render all of the point lights.
-    colorShader.SetMat4("uView", camera.WorldToCamera().CData());
+    colorShader.SetMat4("uView", Editor::GetCamera().WorldToCamera().CData());
     colorShader.SetMat4("uProj", Viewport::Perspective().CData());
     for (int i = 0; i < pointLightCount; ++i)
     {
@@ -197,9 +194,9 @@ void VarkorEngine()
     Debug::Draw::Line(origin, dirLight.mDirection, white);
 
     // Set all of the phong uniforms.
-    phongShader.SetMat4("uView", camera.WorldToCamera().CData());
+    phongShader.SetMat4("uView", Editor::GetCamera().WorldToCamera().CData());
     phongShader.SetMat4("uProj", Viewport::Perspective().CData());
-    phongShader.SetVec3("viewPos", camera.Position().CData());
+    phongShader.SetVec3("viewPos", Editor::GetCamera().Position().CData());
     phongShader.SetFloat("material.specularExponent", specularExponent);
     // Set all of the uniforms for the point lights.
     for (int i = 0; i < pointLightCount; ++i)
@@ -286,10 +283,11 @@ void VarkorEngine()
     glStencilMask(0x00);
 
     World::Update();
-    Gfx::Renderer::RenderWorld(camera.WorldToCamera());
+    Gfx::Renderer::RenderWorld(Editor::GetCamera().WorldToCamera());
 
     Debug::Draw::CartesianAxes();
-    Debug::Draw::Render(camera.WorldToCamera(), Viewport::Perspective());
+    Debug::Draw::Render(
+      Editor::GetCamera().WorldToCamera(), Viewport::Perspective());
 
     Editor::End();
     Viewport::SwapBuffers();
