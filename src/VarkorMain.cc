@@ -85,9 +85,10 @@ void VarkorEngine()
     Input::Update();
     Editor::Start();
 
-    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    // We must clear the render buffer before showing the editor because the
+    // editor may perform draw calls.
+    Gfx::Renderer::Clear();
+    Editor::Show();
 
     // Rotate the selected object and backpack using the mouse motion.
     Comp::Transform& selectedTransform = objectTransforms[currentFocus];
@@ -283,11 +284,10 @@ void VarkorEngine()
     glStencilMask(0x00);
 
     World::Update();
-    Gfx::Renderer::RenderWorld(Editor::GetCamera().WorldToCamera());
-
-    Debug::Draw::CartesianAxes();
-    Debug::Draw::Render(
-      Editor::GetCamera().WorldToCamera(), Viewport::Perspective());
+    if (!Editor::EditorMode())
+    {
+      Gfx::Renderer::RenderWorld();
+    }
 
     Editor::End();
     Viewport::SwapBuffers();

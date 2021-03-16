@@ -9,9 +9,11 @@
 #include "Viewport.h"
 #include "comp/Model.h"
 #include "comp/Transform.h"
+#include "debug/Draw.h"
 #include "editor/Asset.h"
 #include "editor/Camera.h"
 #include "editor/Util.h"
+#include "gfx/Renderer.h"
 #include "world/Types.h"
 #include "world/World.h"
 
@@ -26,6 +28,7 @@ Camera nCamera;
 World::SpaceId nSelectedSpace = World::nInvalidSpaceId;
 World::Object nSelectedObject;
 
+bool nEditorMode = true;
 bool nShowEditorWindow = false;
 bool nShowFramerWindow = false;
 bool nShowAddComponentWindow = false;
@@ -90,8 +93,6 @@ void Init()
 
 void Start()
 {
-  nCamera.Update(Temporal::DeltaTime());
-
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
@@ -99,9 +100,12 @@ void Start()
   ImGuiIO& io = ImGui::GetIO();
   Input::SetMouseFocus(!io.WantCaptureMouse);
   Input::SetKeyboardFocus(!io.WantCaptureKeyboard);
+}
 
+void Show()
+{
+  // Show all of the opened editor windows.
   ImGui::ShowDemoWindow();
-
   EditorWindow();
   if (nSelectedSpace != World::nInvalidSpaceId)
   {
@@ -117,12 +121,26 @@ void Start()
   }
   ShowAssetWindows();
   ShowUtilWindows();
+
+  // Update the camera and render the selected space if we are in editor mode.
+  if (nEditorMode && nSelectedSpace != World::nInvalidSpaceId)
+  {
+    nCamera.Update(Temporal::DeltaTime());
+    Gfx::Renderer::RenderSpace(nSelectedSpace, nCamera.WorldToCamera());
+    Debug::Draw::CartesianAxes();
+    Debug::Draw::Render(nCamera.WorldToCamera(), Viewport::Perspective());
+  }
 }
 
 void End()
 {
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+bool EditorMode()
+{
+  return nEditorMode;
 }
 
 const Camera& GetCamera()
@@ -142,6 +160,7 @@ void EditorWindow()
     ImGui::EndMenu();
   }
   ImGui::EndMenuBar();
+  ImGui::Checkbox("Editor Mode", &nEditorMode);
 
   // Display a button for space creation and display all of the existing spaces.
   if (ImGui::Button("Create Space", ImVec2(-1, 0)))
@@ -199,13 +218,13 @@ void DisplayMember(World::Space& space, World::MemberId memberId)
   // Make the node a source and target for parenting drag drop operations.
   if (ImGui::BeginDragDropSource())
   {
-    ImGui::SetDragDropPayload("Member", &memberId, sizeof(World::MemberId));
+    ImGui::SetDragDropPayload("MemberId", &memberId, sizeof(World::MemberId));
     ImGui::Text(label.str().c_str());
     ImGui::EndDragDropSource();
   }
   if (ImGui::BeginDragDropTarget())
   {
-    const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Member");
+    const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
     if (payload != nullptr)
     {
       World::MemberId childId = *(const World::MemberId*)payload->Data;
@@ -247,6 +266,29 @@ void OverviewWindow()
   World::Space& space = World::GetSpace(nSelectedSpace);
   ImGui::PushItemWidth(-1);
   InputText("Name", &space.mName);
+
+  // Allow the user to change the camera used for the space by dragging a member
+  // onto the camera widget.
+  std::stringstream cameraLabel;
+  cameraLabel << "Camera: ";
+  if (space.mCameraId != World::nInvalidMemberId)
+  {
+    const World::Member& camera = space.GetMember(space.mCameraId);
+    cameraLabel << camera.mName;
+  } else
+  {
+    cameraLabel << "None" << std::endl;
+  }
+  ImGui::Button(cameraLabel.str().c_str(), ImVec2(-1, 0));
+  if (ImGui::BeginDragDropTarget())
+  {
+    const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
+    if (payload != nullptr)
+    {
+      space.mCameraId = *(const World::MemberId*)payload->Data;
+    }
+  }
+
   if (ImGui::Button("Create Member", ImVec2(-1, 0)))
   {
     space.CreateMember();
@@ -265,7 +307,7 @@ void OverviewWindow()
   // Make the member window a drag drop target for ending parent relationships.
   if (ImGui::BeginDragDropTarget())
   {
-    const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Member");
+    const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
     if (payload != nullptr)
     {
       World::MemberId childId = *(const World::MemberId*)payload->Data;

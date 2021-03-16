@@ -1,3 +1,5 @@
+#include <glad/glad.h>
+
 #include "AssetLibrary.h"
 #include "Viewport.h"
 #include "comp/Model.h"
@@ -21,6 +23,14 @@ void Init()
 
   Vec3 color = {0.0f, 1.0f, 0.0f};
   nDefaultShader.SetVec3("uColor", color.CData());
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Clear()
+{
+  glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void RenderModels(World::SpaceId spaceId, const Mat4& view)
@@ -73,12 +83,38 @@ void RenderModels(World::SpaceId spaceId, const Mat4& view)
   }
 }
 
-void RenderWorld(const Mat4& view)
+void RenderSpace(World::SpaceId spaceId, const Mat4& view)
+{
+  RenderModels(spaceId, view);
+}
+
+void RenderSpace(World::SpaceId spaceId)
+{
+  // Find the view matrix using the space's camera and render the space.
+  const World::Space& space = World::GetSpace(spaceId);
+  Comp::Transform* cameraTransform = nullptr;
+  if (space.mCameraId != World::nInvalidMemberId)
+  {
+    cameraTransform = space.GetComponent<Comp::Transform>(space.mCameraId);
+  }
+  Mat4 view;
+  if (cameraTransform == nullptr)
+  {
+    Math::Identity(&view);
+  } else
+  {
+    World::Object cameraOwner(spaceId, space.mCameraId);
+    view = Math::Inverse(cameraTransform->GetWorldMatrix(cameraOwner));
+  }
+  RenderModels(spaceId, view);
+}
+
+void RenderWorld()
 {
   World::SpaceVisitor visitor;
   while (!visitor.End())
   {
-    RenderModels(visitor.CurrentSpaceId(), view);
+    RenderSpace(visitor.CurrentSpaceId());
     visitor.Next();
   }
 }

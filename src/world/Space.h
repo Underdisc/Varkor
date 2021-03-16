@@ -123,6 +123,7 @@ struct Space
 
 public:
   std::string mName;
+  MemberId mCameraId;
 
 private:
   Ds::Vector<TableId> mTableLookup;

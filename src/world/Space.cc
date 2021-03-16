@@ -115,9 +115,10 @@ void Space::MemberVisitor::ReachValidMember()
   }
 }
 
-Space::Space(): mName("DefaultName") {}
+Space::Space(): mName("DefaultName"), mCameraId(nInvalidMemberId) {}
 
-Space::Space(const std::string& name): mName(name) {}
+Space::Space(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
+{}
 
 TableId Space::RegisterComponentType(int componentId, int size)
 {

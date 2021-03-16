@@ -16,7 +16,9 @@ void MakeComponentAvailable(const World::Object& object);
 
 void Init();
 void Start();
+void Show();
 void End();
+bool EditorMode();
 const Camera& GetCamera();
 
 } // namespace Editor
