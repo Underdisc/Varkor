@@ -7,6 +7,13 @@
 #include "gfx/Renderer.h"
 #include "world/World.h"
 
+void VarkorInit(const char* windowName)
+{
+  Error::Init("log.err");
+  Viewport::Init(windowName);
+  Framer::Init();
+}
+
 void VarkorEngine()
 {
   Input::Init();
@@ -34,16 +41,8 @@ void VarkorEngine()
     Editor::End();
     Viewport::SwapBuffers();
     Viewport::Update();
-
     Framer::End();
   }
-}
-
-void VarkorInit(const char* windowName)
-{
-  Error::Init("log.err");
-  Viewport::Init(windowName);
-  Framer::Init();
 }
 
 void VarkorPurge()
