@@ -44,6 +44,10 @@ void Init()
   ImGui_ImplGlfw_InitForOpenGL(Viewport::Window(), true);
   ImGui_ImplOpenGL3_Init("#version 330");
 
+  // Enable the ImGui docking features.
+  ImGuiIO& io = ImGui::GetIO();
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
   // Change imgui's default style so I find it more pleasing (ah opinions).
   ImGuiStyle& imStyle = ImGui::GetStyle();
   imStyle.WindowRounding = 0.0f;
