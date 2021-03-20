@@ -18,7 +18,7 @@ float nFov = Math::nPi / 2.0f;
 int nWidth = 800;
 int nHeight = 800;
 float nNear = 0.1f;
-float nFar = 100.0f;
+float nFar = 1000000.0f;
 Mat4 nPerspective;
 
 void Init(const char* windowName, bool visible)
