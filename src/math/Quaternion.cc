@@ -66,6 +66,21 @@ Vec3 Quaternion::Axis() const
   return axis / magnitude;
 }
 
+Vec3 Quaternion::EulerAngles() const
+{
+  Vec3 angles;
+  float m21 = 2.0f * mC * mD + 2.0f * mB * mA;
+  float m22 = 1.0f - 2.0f * mB * mB - 2.0f * mC * mC;
+  angles[0] = std::atan2(m21, m22);
+  float cPsi = std::sqrtf(m21 * m21 + m22 * m22);
+  float m20 = 2.0f * mB * mD - 2.0f * mC * mA;
+  angles[1] = std::atan2(-m20, cPsi);
+  float m00 = 1.0f - 2.0f * mC * mC - 2.0f * mD * mD;
+  float m10 = 2.0f * mB * mC + 2.0f * mD * mA;
+  angles[2] = std::atan2(m10, m00);
+  return angles;
+}
+
 Quaternion operator*(const Quaternion& a, const Quaternion& b)
 {
   Quaternion result;

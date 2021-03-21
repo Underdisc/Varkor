@@ -19,6 +19,7 @@ struct Quaternion
   Quaternion Conjugate() const;
   float Magnitude() const;
   Vec3 Axis() const;
+  Vec3 EulerAngles() const;
 
   Quaternion& operator*=(const Quaternion& other);
 
