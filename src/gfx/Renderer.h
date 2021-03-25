@@ -6,6 +6,7 @@ namespace Renderer {
 
 void Init();
 void Clear();
+void RenderMemberIds(World::SpaceId spaceId, const Mat4& view);
 void RenderSpace(World::SpaceId spaceId, const Mat4& view);
 void RenderWorld();
 

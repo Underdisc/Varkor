@@ -1,3 +1,4 @@
+#include <glad/glad.h>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
@@ -13,6 +14,7 @@
 #include "editor/Asset.h"
 #include "editor/Camera.h"
 #include "editor/Util.h"
+#include "gfx/Framebuffer.h"
 #include "gfx/Renderer.h"
 #include "world/Types.h"
 #include "world/World.h"
@@ -109,8 +111,41 @@ void Start()
 
 void Show()
 {
+  // Update the camera, render the selected space, and allow object selection in
+  // the world if we are in editor mode.
+  if (nEditorMode && nSelectedSpace != World::nInvalidSpaceId)
+  {
+    nCamera.Update(Temporal::DeltaTime());
+    Gfx::Renderer::RenderSpace(nSelectedSpace, nCamera.WorldToCamera());
+    Debug::Draw::CartesianAxes();
+    Debug::Draw::Render(nCamera.WorldToCamera(), Viewport::Perspective());
+
+    if (Input::MousePressed(Input::Mouse::Left))
+    {
+      // Render all of the MemberIds to a framebuffer.
+      Gfx::Framebuffer memberIdBuffer(Viewport::Width(), Viewport::Height());
+      glBindFramebuffer(GL_FRAMEBUFFER, memberIdBuffer.Fbo());
+      glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
+      glClear(GL_DEPTH_BUFFER_BIT);
+      Gfx::Renderer::RenderMemberIds(nSelectedSpace, nCamera.WorldToCamera());
+
+      // Find the MemberId at the mouse position.
+      World::MemberId memberId;
+      const Vec2& mousePos = Input::MousePosition();
+      glReadPixels(
+        (int)mousePos[0],
+        Viewport::Height() - (int)mousePos[1],
+        1,
+        1,
+        memberIdBuffer.Format(),
+        memberIdBuffer.PixelType(),
+        (void*)&memberId);
+      nSelectedObject.mMember = memberId;
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+  }
+
   // Show all of the opened editor windows.
-  ImGui::ShowDemoWindow();
   EditorWindow();
   if (nSelectedSpace != World::nInvalidSpaceId)
   {
@@ -126,15 +161,6 @@ void Show()
   }
   ShowAssetWindows();
   ShowUtilWindows();
-
-  // Update the camera and render the selected space if we are in editor mode.
-  if (nEditorMode && nSelectedSpace != World::nInvalidSpaceId)
-  {
-    nCamera.Update(Temporal::DeltaTime());
-    Gfx::Renderer::RenderSpace(nSelectedSpace, nCamera.WorldToCamera());
-    Debug::Draw::CartesianAxes();
-    Debug::Draw::Render(nCamera.WorldToCamera(), Viewport::Perspective());
-  }
 }
 
 void End()

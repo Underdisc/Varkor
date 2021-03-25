@@ -14,11 +14,14 @@ namespace Gfx {
 namespace Renderer {
 
 Shader nDefaultShader;
+Shader nMemberIdShader;
 
 void Init()
 {
   Shader::InitResult result =
     nDefaultShader.Init("vres/default.vs", "vres/default.fs");
+  LogAbortIf(!result.mSuccess, result.mError.c_str());
+  result = nMemberIdShader.Init("vres/default.vs", "vres/MemberId.fs");
   LogAbortIf(!result.mSuccess, result.mError.c_str());
 
   Vec3 color = {0.0f, 1.0f, 0.0f};
@@ -28,13 +31,58 @@ void Init()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glPolygonMode(GL_FRONT, GL_FILL);
 }
 
 void Clear()
 {
   glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+Mat4 GetTransformation(
+  const World::Space& space, World::SpaceId spaceId, World::MemberId memberId)
+{
+  Comp::Transform* transform = space.GetComponent<Comp::Transform>(memberId);
+  if (transform == nullptr)
+  {
+    Mat4 identity;
+    Math::Identity(&identity);
+    return identity;
+  }
+  World::Object object(spaceId, memberId);
+  return transform->GetWorldMatrix(object);
+}
+
+void RenderModel(const Shader& shader, const Comp::Model& modelComp)
+{
+  const Gfx::Model* model = AssetLibrary::GetModel(modelComp.mAsset);
+  if (model != nullptr)
+  {
+    model->Draw(shader);
+  }
+}
+
+void RenderMemberIds(World::SpaceId spaceId, const Mat4& view)
+{
+  nMemberIdShader.Use();
+  nMemberIdShader.SetMat4("uView", view.CData());
+  nMemberIdShader.SetMat4("uProj", Viewport::Perspective().CData());
+
+  // Render every model in the space and use the model owner's MemberId as the
+  // color value.
+  const World::Space& space = World::GetSpace(spaceId);
+  World::Table::Visitor<Comp::Model> visitor =
+    space.CreateTableVisitor<Comp::Model>();
+  while (!visitor.End())
+  {
+    Mat4 model = GetTransformation(space, spaceId, visitor.CurrentOwner());
+    nMemberIdShader.SetMat4("uModel", model.CData());
+    nMemberIdShader.SetInt("uMemberId", visitor.CurrentOwner());
+    const Comp::Model& modelComp = visitor.CurrentComponent();
+    RenderModel(nMemberIdShader, modelComp);
+    visitor.Next();
+  }
 }
 
 void RenderModels(World::SpaceId spaceId, const Mat4& view)
@@ -57,32 +105,14 @@ void RenderModels(World::SpaceId spaceId, const Mat4& view)
     {
       drawShader = &nDefaultShader;
     }
-    drawShader->Use();
 
-    // If the object whose model component is being visited has a transfrom
-    // component, we use the transformation matrix it provides.
-    Comp::Transform* transform =
-      space.GetComponent<Comp::Transform>(visitor.CurrentOwner());
-    if (transform == nullptr)
-    {
-      Mat4 identity;
-      Math::Identity(&identity);
-      drawShader->SetMat4("uModel", identity.CData());
-    } else
-    {
-      World::Object object(spaceId, visitor.CurrentOwner());
-      drawShader->SetMat4("uModel", transform->GetWorldMatrix(object).CData());
-    }
+    // Draw the model.
+    drawShader->Use();
+    Mat4 model = GetTransformation(space, spaceId, visitor.CurrentOwner());
+    drawShader->SetMat4("uModel", model.CData());
     drawShader->SetMat4("uView", view.CData());
     drawShader->SetMat4("uProj", Viewport::Perspective().CData());
-
-    // We render the model referenced by the model component if the model has
-    // been added to the asset library.
-    const Gfx::Model* model = AssetLibrary::GetModel(modelComp.mAsset);
-    if (model != nullptr)
-    {
-      model->Draw(*drawShader);
-    }
+    RenderModel(*drawShader, modelComp);
     visitor.Next();
   }
 }
