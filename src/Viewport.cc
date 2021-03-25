@@ -73,6 +73,16 @@ float Far()
   return nFar;
 }
 
+int Width()
+{
+  return nWidth;
+}
+
+int Height()
+{
+  return nHeight;
+}
+
 float Aspect()
 {
   return (float)nWidth / (float)nHeight;

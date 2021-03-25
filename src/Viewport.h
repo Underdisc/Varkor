@@ -15,6 +15,8 @@ void SwapBuffers();
 const Mat4& Perspective();
 float Near();
 float Far();
+int Width();
+int Height();
 float Aspect();
 GLFWwindow* Window();
 bool Active();
