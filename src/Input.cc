@@ -48,6 +48,11 @@ void Update()
   glfwPollEvents();
 }
 
+const Vec2& MousePosition()
+{
+  return nMousePosition;
+}
+
 const Vec2& MouseMotion()
 {
   return nMouseMotion;
