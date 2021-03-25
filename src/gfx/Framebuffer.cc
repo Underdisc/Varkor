@@ -14,15 +14,7 @@ Framebuffer::Framebuffer(int width, int height):
   glGenTextures(1, &mColorTbo);
   glBindTexture(GL_TEXTURE_2D, mColorTbo);
   glTexImage2D(
-    GL_TEXTURE_2D,
-    0,
-    GL_R32I,
-    width,
-    height,
-    0,
-    mFormat,
-    mPixelType,
-    nullptr);
+    GL_TEXTURE_2D, 0, GL_R32I, width, height, 0, mFormat, mPixelType, nullptr);
   glFramebufferTexture2D(
     GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorTbo, 0);
 
