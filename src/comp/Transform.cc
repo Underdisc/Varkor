@@ -1,5 +1,3 @@
-#include <imgui/imgui.h>
-
 #include "world/Object.h"
 
 #include "Transform.h"
@@ -87,37 +85,6 @@ Mat4 Transform::GetWorldMatrix(const World::Object& owner)
   const Mat4& localTransformation = GetLocalMatrix();
   Mat4 parentTransformation = parentTransform->GetWorldMatrix(parent);
   return parentTransformation * localTransformation;
-}
-
-void Transform::EditorHook()
-{
-  ImGui::PushItemWidth(-60.0f);
-  ImGui::DragFloat3("Position", mTranslation.mD, 0.01f);
-
-  float uniformScale = mScale[0];
-  ImGui::DragFloat("Scale", &uniformScale, 0.01f);
-  SetUniformScale(uniformScale);
-
-  Vec3 eulerAngles = mRotation.EulerAngles();
-  Vec3 newAngles = eulerAngles;
-  bool rotationDragged = ImGui::DragFloat3(
-    "Rotation",
-    newAngles.mD,
-    0.01f,
-    0.0f,
-    0.0f,
-    "%.3f",
-    ImGuiSliderFlags_NoInput);
-  if (rotationDragged)
-  {
-    Vec3 delta = newAngles - eulerAngles;
-    Quat xDelta(delta[0], {1.0f, 0.0f, 0.0f});
-    Quat yDelta(delta[1], {0.0f, 1.0f, 0.0f});
-    Quat zDelta(delta[2], {0.0f, 0.0f, 1.0f});
-    SetRotation(zDelta * yDelta * xDelta * mRotation);
-  }
-  ImGui::PopItemWidth();
-  mUpdated = false;
 }
 
 } // namespace Comp

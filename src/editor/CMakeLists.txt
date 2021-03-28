@@ -3,3 +3,4 @@ target_sources(varkor PRIVATE
   Camera.cc
   Primary.cc
   Util.cc)
+add_subdirectory(hook)

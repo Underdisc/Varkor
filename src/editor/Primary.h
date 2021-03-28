@@ -10,7 +10,7 @@ extern void (*InspectComponents)(const World::Object& selected);
 extern void (*AvailableComponents)(const World::Object& selected);
 
 template<typename T>
-void InspectComponent(const World::Object& object);
+bool InspectComponent(const World::Object& object);
 template<typename T>
 void MakeComponentAvailable(const World::Object& object);
 

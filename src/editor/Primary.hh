@@ -1,5 +1,7 @@
 #include <imgui/imgui.h>
 
+#include "hook/Hook.h"
+
 namespace Editor {
 
 template<typename T>
@@ -12,24 +14,26 @@ std::string GetRawName()
 }
 
 template<typename T>
-void InspectComponent(const World::Object& object)
+bool InspectComponent(const World::Object& object)
 {
-  T* comp = object.GetComponent<T>();
-  if (comp == nullptr)
+  T* component = object.GetComponent<T>();
+  if (component == nullptr)
   {
-    return;
+    return false;
   }
   std::string name(GetRawName<T>());
-  if (ImGui::CollapsingHeader(name.c_str()))
+  bool editing = ImGui::CollapsingHeader(name.c_str());
+  if (editing)
   {
     std::string removeButtonLabel = "Remove " + name;
     if (ImGui::Button(removeButtonLabel.c_str(), ImVec2(-1, 0)))
     {
       object.RemComponent<T>();
-      return;
+      return false;
     }
-    comp->EditorHook();
+    Hook::Edit<T>(component);
   }
+  return editing;
 }
 
 template<typename T>

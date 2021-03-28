@@ -11,7 +11,6 @@ namespace Comp {
 struct Model
 {
   Model();
-  void EditorHook();
 
   AssetLibrary::ShaderId mShaderId;
   std::string mAsset;
