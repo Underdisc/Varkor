@@ -1,6 +1,8 @@
 #ifndef editor_Asset_h
 #define editor_Asset_h
 
+#include "AssetLibrary.h"
+
 namespace Editor {
 
 typedef void (*ShaderSelectCallback)(AssetLibrary::ShaderId, void*);

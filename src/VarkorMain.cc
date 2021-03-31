@@ -11,6 +11,7 @@ void VarkorInit(const char* windowName)
 {
   Error::Init("log.err");
   Viewport::Init(windowName);
+  Editor::Init();
   Framer::Init();
 }
 
@@ -18,7 +19,6 @@ void VarkorEngine()
 {
   Input::Init();
   Gfx::Renderer::Init();
-  Editor::Init();
   Debug::Draw::Init();
 
   while (Viewport::Active())
@@ -48,6 +48,7 @@ void VarkorEngine()
 void VarkorPurge()
 {
   Framer::Purge();
+  Editor::Purge();
   Viewport::Purge();
   Error::Purge();
 }

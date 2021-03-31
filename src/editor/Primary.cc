@@ -98,6 +98,11 @@ void Init()
   colors[ImGuiCol_DragDropTarget] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
 }
 
+void Purge()
+{
+  Hook::EndAllGizmos();
+}
+
 void Start()
 {
   ImGui_ImplOpenGL3_NewFrame();
@@ -219,6 +224,7 @@ void EditorWindow()
       // The selected object is no longer valid because the space selection has
       // been changed in some way.
       nSelectedObject.Invalidate();
+      Hook::EndAllGizmos();
       nShowAddComponentWindow = false;
     }
     ++iteration;
@@ -270,6 +276,7 @@ void DisplayMember(World::Space& space, World::MemberId memberId)
     if (selected)
     {
       nSelectedObject.Invalidate();
+      Hook::EndAllGizmos();
     } else
     {
       nSelectedObject.mSpace = nSelectedSpace;
@@ -365,8 +372,8 @@ void InspectorWindow()
   {
     nShowAddComponentWindow = !nShowAddComponentWindow;
   }
-  InspectComponent<Comp::Model>(nSelectedObject);
-  InspectComponent<Comp::Transform>(nSelectedObject);
+  Hook::InspectComponent<Comp::Model>(nSelectedObject);
+  Hook::InspectGizmoComponent<Comp::Transform>(nSelectedObject);
   if (InspectComponents != nullptr)
   {
     InspectComponents(nSelectedObject);
@@ -379,8 +386,8 @@ void InspectorWindow()
     return;
   }
   ImGui::Begin("Add Components", &nShowAddComponentWindow);
-  MakeComponentAvailable<Comp::Model>(nSelectedObject);
-  MakeComponentAvailable<Comp::Transform>(nSelectedObject);
+  Hook::MakeComponentAvailable<Comp::Model>(nSelectedObject);
+  Hook::MakeComponentAvailable<Comp::Transform>(nSelectedObject);
   if (AvailableComponents != nullptr)
   {
     AvailableComponents(nSelectedObject);

@@ -9,12 +9,8 @@ namespace Editor {
 extern void (*InspectComponents)(const World::Object& selected);
 extern void (*AvailableComponents)(const World::Object& selected);
 
-template<typename T>
-bool InspectComponent(const World::Object& object);
-template<typename T>
-void MakeComponentAvailable(const World::Object& object);
-
 void Init();
+void Purge();
 void Start();
 void Show();
 void End();
@@ -22,7 +18,5 @@ bool EditorMode();
 const Camera& GetCamera();
 
 } // namespace Editor
-
-#include "Primary.hh"
 
 #endif
