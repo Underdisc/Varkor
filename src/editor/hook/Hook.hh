@@ -5,8 +5,6 @@
 #include "Error.h"
 #include "util/Utility.h"
 
-#include "comp/Model.h"
-
 namespace Editor {
 namespace Hook {
 
