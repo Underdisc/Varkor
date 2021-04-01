@@ -25,7 +25,7 @@ Gfx::Shader nShader;
 void Init()
 {
   Gfx::Shader::InitResult result =
-    nShader.Init("vres/debugLine.vs", "vres/debugLine.fs");
+    nShader.Init("vres/shader/DebugLine.vs", "vres/shader/Color.fs");
   LogAbortIf(!result.mSuccess, result.mError.c_str());
 }
 
@@ -60,12 +60,12 @@ void CartesianAxes()
 
 void Render(const Mat4& view, const Mat4& projection)
 {
-  nShader.SetMat4("view", view.CData(), true);
-  nShader.SetMat4("proj", projection.CData(), true);
+  nShader.SetMat4("uView", view.CData(), true);
+  nShader.SetMat4("uProj", projection.CData(), true);
   for (int i = 0; i < nRenderables.Size(); ++i)
   {
     const Renderable& renderable = nRenderables[i];
-    nShader.SetVec3("color", renderable.mColor.CData());
+    nShader.SetVec3("uColor", renderable.mColor.CData());
     glBindVertexArray(renderable.mVao);
     glDrawArrays(GL_LINES, 0, renderable.mCount);
   }
