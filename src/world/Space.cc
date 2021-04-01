@@ -232,6 +232,12 @@ Member& Space::GetMember(MemberId id)
   return mMembers[id];
 }
 
+const Member& Space::GetConstMember(MemberId id) const
+{
+  VerifyMember(id);
+  return mMembers[id];
+}
+
 void* Space::AddComponent(int componentId, MemberId member)
 {
   // Verify that the component table exists, the member exist, and the member

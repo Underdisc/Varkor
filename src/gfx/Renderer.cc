@@ -40,8 +40,7 @@ void Clear()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-Mat4 GetTransformation(
-  const World::Space& space, World::SpaceId spaceId, World::MemberId memberId)
+Mat4 GetTransformation(const World::Space& space, World::MemberId memberId)
 {
   Comp::Transform* transform = space.GetComponent<Comp::Transform>(memberId);
   if (transform == nullptr)
@@ -50,8 +49,7 @@ Mat4 GetTransformation(
     Math::Identity(&identity);
     return identity;
   }
-  World::Object object(spaceId, memberId);
-  return transform->GetWorldMatrix(object);
+  return transform->GetWorldMatrix(space, memberId);
 }
 
 void RenderModel(const Shader& shader, const Comp::Model& modelComp)
@@ -63,7 +61,7 @@ void RenderModel(const Shader& shader, const Comp::Model& modelComp)
   }
 }
 
-void RenderMemberIds(World::SpaceId spaceId, const Mat4& view)
+void RenderMemberIds(const World::Space& space, const Mat4& view)
 {
   nMemberIdShader.Use();
   nMemberIdShader.SetMat4("uView", view.CData());
@@ -71,12 +69,11 @@ void RenderMemberIds(World::SpaceId spaceId, const Mat4& view)
 
   // Render every model in the space and use the model owner's MemberId as the
   // color value.
-  const World::Space& space = World::GetSpace(spaceId);
   World::Table::Visitor<Comp::Model> visitor =
     space.CreateTableVisitor<Comp::Model>();
   while (!visitor.End())
   {
-    Mat4 model = GetTransformation(space, spaceId, visitor.CurrentOwner());
+    Mat4 model = GetTransformation(space, visitor.CurrentOwner());
     nMemberIdShader.SetMat4("uModel", model.CData());
     nMemberIdShader.SetInt("uMemberId", visitor.CurrentOwner());
     const Comp::Model& modelComp = visitor.CurrentComponent();
@@ -85,10 +82,9 @@ void RenderMemberIds(World::SpaceId spaceId, const Mat4& view)
   }
 }
 
-void RenderModels(World::SpaceId spaceId, const Mat4& view)
+void RenderModels(const World::Space& space, const Mat4& view)
 {
   // Visit all of the model components within the space.
-  const World::Space& space = World::GetSpace(spaceId);
   World::Table::Visitor<Comp::Model> visitor =
     space.CreateTableVisitor<Comp::Model>();
   while (!visitor.End())
@@ -108,7 +104,7 @@ void RenderModels(World::SpaceId spaceId, const Mat4& view)
 
     // Draw the model.
     drawShader->Use();
-    Mat4 model = GetTransformation(space, spaceId, visitor.CurrentOwner());
+    Mat4 model = GetTransformation(space, visitor.CurrentOwner());
     drawShader->SetMat4("uModel", model.CData());
     drawShader->SetMat4("uView", view.CData());
     drawShader->SetMat4("uProj", Viewport::Perspective().CData());
@@ -117,15 +113,14 @@ void RenderModels(World::SpaceId spaceId, const Mat4& view)
   }
 }
 
-void RenderSpace(World::SpaceId spaceId, const Mat4& view)
+void RenderSpace(const World::Space& space, const Mat4& view)
 {
-  RenderModels(spaceId, view);
+  RenderModels(space, view);
 }
 
-void RenderSpace(World::SpaceId spaceId)
+void RenderSpace(const World::Space& space)
 {
   // Find the view matrix using the space's camera and render the space.
-  const World::Space& space = World::GetSpace(spaceId);
   Comp::Transform* cameraTransform = nullptr;
   if (space.mCameraId != World::nInvalidMemberId)
   {
@@ -137,10 +132,10 @@ void RenderSpace(World::SpaceId spaceId)
     Math::Identity(&view);
   } else
   {
-    World::Object cameraOwner(spaceId, space.mCameraId);
-    view = Math::Inverse(cameraTransform->GetWorldMatrix(cameraOwner));
+    view = cameraTransform->GetWorldMatrix(space, space.mCameraId);
+    view = Math::Inverse(view);
   }
-  RenderModels(spaceId, view);
+  RenderModels(space, view);
 }
 
 void RenderWorld()
@@ -148,7 +143,7 @@ void RenderWorld()
   World::SpaceVisitor visitor;
   while (!visitor.End())
   {
-    RenderSpace(visitor.CurrentSpaceId());
+    RenderSpace(visitor.CurrentSpace());
     visitor.Next();
   }
 }

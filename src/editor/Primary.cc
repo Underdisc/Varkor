@@ -121,7 +121,8 @@ void Show()
   if (nEditorMode && nSelectedSpace != World::nInvalidSpaceId)
   {
     nCamera.Update(Temporal::DeltaTime());
-    Gfx::Renderer::RenderSpace(nSelectedSpace, nCamera.WorldToCamera());
+    const World::Space& space = World::GetSpace(nSelectedSpace);
+    Gfx::Renderer::RenderSpace(space, nCamera.WorldToCamera());
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(nCamera.WorldToCamera(), Viewport::Perspective());
 
@@ -132,7 +133,7 @@ void Show()
       glBindFramebuffer(GL_FRAMEBUFFER, memberIdBuffer.Fbo());
       glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
       glClear(GL_DEPTH_BUFFER_BIT);
-      Gfx::Renderer::RenderMemberIds(nSelectedSpace, nCamera.WorldToCamera());
+      Gfx::Renderer::RenderMemberIds(space, nCamera.WorldToCamera());
 
       // Find the MemberId at the mouse position.
       World::MemberId memberId;

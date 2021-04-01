@@ -7,6 +7,8 @@ struct Object;
 
 #include "math/Matrix4.h"
 #include "math/Vector.h"
+#include "world/Space.h"
+#include "world/Types.h"
 
 namespace Comp {
 
@@ -22,7 +24,7 @@ struct Transform
   void SetRotation(const Quat& newRotation);
   void SetTranslation(const Vec3& newTranslation);
   const Mat4& GetLocalMatrix();
-  Mat4 GetWorldMatrix(const World::Object& owner);
+  Mat4 GetWorldMatrix(const World::Space& space, World::MemberId member);
 
   void EditorHook();
 

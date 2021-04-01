@@ -1,5 +1,3 @@
-#include "world/Object.h"
-
 #include "Transform.h"
 
 namespace Comp {
@@ -70,20 +68,22 @@ const Mat4& Transform::GetLocalMatrix()
   return mMatrix;
 }
 
-Mat4 Transform::GetWorldMatrix(const World::Object& owner)
+Mat4 Transform::GetWorldMatrix(
+  const World::Space& space, World::MemberId memberId)
 {
-  if (!owner.HasParent())
+  const World::Member& member = space.GetConstMember(memberId);
+  if (!member.HasParent())
   {
     return GetLocalMatrix();
   }
-  World::Object parent = owner.Parent();
-  Transform* parentTransform = parent.GetComponent<Transform>();
+  World::MemberId parentId = member.Parent();
+  Transform* parentTransform = space.GetComponent<Transform>(parentId);
   if (parentTransform == nullptr)
   {
     return GetLocalMatrix();
   }
   const Mat4& localTransformation = GetLocalMatrix();
-  Mat4 parentTransformation = parentTransform->GetWorldMatrix(parent);
+  Mat4 parentTransformation = parentTransform->GetWorldMatrix(space, parentId);
   return parentTransformation * localTransformation;
 }
 

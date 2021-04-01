@@ -72,6 +72,7 @@ struct Space
   void MakeParent(MemberId parent, MemberId child);
   void RemoveParent(MemberId childId);
   Member& GetMember(MemberId id);
+  const Member& GetConstMember(MemberId id) const;
 
   // Component creation, deletion, and access.
   void* AddComponent(int componentId, MemberId member);
