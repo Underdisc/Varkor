@@ -61,6 +61,11 @@ AddTest(math_Quaternion
   ../Error.cc
   ../math/Quaternion.cc)
 
+AddTest(math_Ray
+  math/Ray.cc
+  ../Error.cc
+  ../math/Ray.cc)
+
 AddTest(math_Vector
   math/Vector.cc
   ../Error.cc)
