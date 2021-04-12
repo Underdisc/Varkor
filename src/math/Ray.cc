@@ -37,4 +37,10 @@ Vec3 Ray::ClosestPointTo(const Ray& other) const
   return At(ta);
 }
 
+Vec3 Ray::ClosestPointTo(const Vec3& point) const
+{
+  float t = Math::Dot(mDirection, point - mStart);
+  return At(t);
+}
+
 } // namespace Math

@@ -42,13 +42,16 @@ void ClosestPoint()
   std::cout << a.ClosestPointTo(e) << std::endl;
   Math::Ray f({1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, -1.0f});
   std::cout << a.ClosestPointTo(f) << std::endl;
-
   // These attempts to find the closest point will signal an abort because f is
   // parallel to a in both cases.
   // f.Direction({1.0f, 0.0f, 0.0f});
   // a.ClosestPointTo(f);
   // f.Direction({-1.0f, 0.0f, 0.0f});
   // a.ClosestPointTo(f);
+
+  std::cout << a.ClosestPointTo({3.0f, 3.0f, 3.0f}) << std::endl;
+  Math::Ray g({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f});
+  std::cout << g.ClosestPointTo({2.0f, 2.0f, 0.0f});
 }
 
 int main(void)

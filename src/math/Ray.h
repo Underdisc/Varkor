@@ -12,6 +12,7 @@ struct Ray
   const Vec3& Direction() const;
   Vec3 At(float t) const;
   Vec3 ClosestPointTo(const Ray& other) const;
+  Vec3 ClosestPointTo(const Vec3& point) const;
 
 public:
   Vec3 mStart;
