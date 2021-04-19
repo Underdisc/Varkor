@@ -53,6 +53,14 @@ const Vec2& MousePosition()
   return nMousePosition;
 }
 
+Vec2 StandardMousePosition()
+{
+  Vec2 standard = nMousePosition;
+  standard[0] = 2.0f * (standard[0] / Viewport::Width() - 0.5f);
+  standard[1] = -2.0f * (standard[1] / Viewport::Height() - 0.5f);
+  return standard;
+}
+
 const Vec2& MouseMotion()
 {
   return nMouseMotion;
