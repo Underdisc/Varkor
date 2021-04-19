@@ -86,9 +86,30 @@ const Mat4& Camera::WorldToCamera() const
   return mWtc;
 }
 
+Mat4 Camera::CameraToWorld() const
+{
+  // clang-format off
+  Mat4 ctw = {mRight[0], mUp[0], mForward[0], mPosition[0],
+              mRight[1], mUp[1], mForward[1], mPosition[1],
+              mRight[2], mUp[2], mForward[2], mPosition[2],
+                   0.0f,   0.0f,        0.0f,         1.0f};
+  // clang-format on
+  return ctw;
+}
+
 const Vec3& Camera::Position() const
 {
   return mPosition;
+}
+
+const Vec3& Camera::Right() const
+{
+  return mRight;
+}
+
+const Vec3& Camera::Up() const
+{
+  return mUp;
 }
 
 const Vec3& Camera::Forward() const

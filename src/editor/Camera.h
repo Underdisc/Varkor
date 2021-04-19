@@ -12,7 +12,10 @@ public:
   Camera();
   void Update(float dt);
   const Mat4& WorldToCamera() const;
+  Mat4 CameraToWorld() const;
   const Vec3& Position() const;
+  const Vec3& Right() const;
+  const Vec3& Up() const;
   const Vec3& Forward() const;
 
 private:
