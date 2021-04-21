@@ -133,7 +133,7 @@ Mesh Model::ProcessMesh(const aiMesh* mesh, const aiScene* scene)
     CollectMaterialTextures(&textures, material, TextureType::Diffuse);
     CollectMaterialTextures(&textures, material, TextureType::Specular);
   }
-  return Mesh(Util::Move(vertices), Util::Move(indices), Util::Move(textures));
+  return Mesh(vertices, indices, Util::Move(textures));
 }
 
 void Model::CollectMaterialTextures(

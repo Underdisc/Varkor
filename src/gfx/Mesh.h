@@ -19,23 +19,28 @@ struct Mesh
 
   Mesh();
   Mesh(
-    Ds::Vector<Vertex>&& vertices,
-    Ds::Vector<unsigned int>&& indices,
+    const Ds::Vector<Vertex>& vertices,
+    const Ds::Vector<unsigned int>& indices,
     Ds::Vector<Texture>&& textures);
   Mesh(Mesh&& other);
   ~Mesh();
 
   Mesh& operator=(Mesh&& other);
 
+  void Upload(
+    const Ds::Vector<Vec3>& vertices, const Ds::Vector<unsigned int>& indices);
+  void Upload(
+    const Ds::Vector<Vertex>& vertices,
+    const Ds::Vector<unsigned int>& indices);
   void Draw(const Shader& shader) const;
 
 private:
-  void Upload();
+  void UploadIndices(const Ds::Vector<unsigned int> indices);
+  void DeleteBuffers();
 
-  Ds::Vector<Vertex> mVertices;
-  Ds::Vector<unsigned int> mIndices;
   Ds::Vector<Texture> mTextures;
   unsigned int mVao, mVbo, mEbo;
+  unsigned int mIndexCount;
 };
 
 } // namespace Gfx

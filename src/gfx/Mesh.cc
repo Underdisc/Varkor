@@ -7,26 +7,23 @@
 
 namespace Gfx {
 
-Mesh::Mesh() {}
+Mesh::Mesh(): mTextures(), mVao(0), mVbo(0), mEbo(0), mIndexCount(0) {}
 
 Mesh::Mesh(
-  Ds::Vector<Vertex>&& vertices,
-  Ds::Vector<unsigned int>&& indices,
+  const Ds::Vector<Vertex>& vertices,
+  const Ds::Vector<unsigned int>& indices,
   Ds::Vector<Texture>&& textures):
-  mVertices(Util::Move(vertices)),
-  mIndices(Util::Move(indices)),
   mTextures(Util::Move(textures))
 {
-  Upload();
+  Upload(vertices, indices);
 }
 
 Mesh::Mesh(Mesh&& other):
-  mVertices(Util::Move(other.mVertices)),
-  mIndices(Util::Move(other.mIndices)),
   mTextures(Util::Move(other.mTextures)),
   mVao(other.mVao),
   mVbo(other.mVbo),
-  mEbo(other.mEbo)
+  mEbo(other.mEbo),
+  mIndexCount(other.mIndexCount)
 {
   other.mVao = 0;
   other.mVbo = 0;
@@ -35,15 +32,11 @@ Mesh::Mesh(Mesh&& other):
 
 Mesh::~Mesh()
 {
-  glDeleteVertexArrays(1, &mVao);
-  glDeleteBuffers(1, &mVbo);
-  glDeleteBuffers(1, &mEbo);
+  DeleteBuffers();
 }
 
 Mesh& Mesh::operator=(Mesh&& other)
 {
-  mVertices = Util::Move(other.mVertices);
-  mIndices = Util::Move(other.mIndices);
   mTextures = Util::Move(other.mTextures);
   mVao = other.mVao;
   mVbo = other.mVbo;
@@ -54,6 +47,79 @@ Mesh& Mesh::operator=(Mesh&& other)
   other.mEbo = 0;
 
   return *this;
+}
+
+void Mesh::UploadIndices(const Ds::Vector<unsigned int> indices)
+{
+  glGenBuffers(1, &mEbo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEbo);
+  glBufferData(
+    GL_ELEMENT_ARRAY_BUFFER,
+    sizeof(unsigned int) * indices.Size(),
+    indices.CData(),
+    GL_STATIC_DRAW);
+  mIndexCount = indices.Size();
+}
+
+void Mesh::Upload(
+  const Ds::Vector<Vec3>& vertices, const Ds::Vector<unsigned int>& indices)
+{
+  DeleteBuffers();
+  glGenVertexArrays(1, &mVao);
+  glBindVertexArray(mVao);
+
+  // Upload the mesh data.
+  glGenBuffers(1, &mVbo);
+  glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+  glBufferData(
+    GL_ARRAY_BUFFER,
+    sizeof(Vec3) * vertices.Size(),
+    vertices.CData(),
+    GL_STATIC_DRAW);
+  UploadIndices(indices);
+
+  // Specify the layout of the vertex data.
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3), (void*)0);
+
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Mesh::Upload(
+  const Ds::Vector<Vertex>& vertices, const Ds::Vector<unsigned int>& indices)
+{
+  DeleteBuffers();
+  glGenVertexArrays(1, &mVao);
+  glBindVertexArray(mVao);
+
+  // Upload the mesh data.
+  glGenBuffers(1, &mVbo);
+  glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+  unsigned int vertexDataSize = sizeof(Vertex) * vertices.Size();
+  glBufferData(
+    GL_ARRAY_BUFFER, vertexDataSize, vertices.CData(), GL_STATIC_DRAW);
+  UploadIndices(indices);
+
+  // Specify the layout of the vertex data.
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(
+    1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, mNormal));
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(
+    2,
+    2,
+    GL_FLOAT,
+    GL_FALSE,
+    sizeof(Vertex),
+    (void*)offsetof(Vertex, mTexCoord));
+
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Mesh::Draw(const Shader& shader) const
@@ -88,44 +154,15 @@ void Mesh::Draw(const Shader& shader) const
 
   // Render the mesh.
   glBindVertexArray(mVao);
-  glDrawElements(GL_TRIANGLES, mIndices.Size(), GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, mIndexCount, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 }
 
-void Mesh::Upload()
+void Mesh::DeleteBuffers()
 {
-  glGenVertexArrays(1, &mVao);
-  glBindVertexArray(mVao);
-
-  // Upload the vertex data to the gpu.
-  glGenBuffers(1, &mVbo);
-  glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-  unsigned int vertexDataSize = sizeof(Vertex) * mVertices.Size();
-  glBufferData(
-    GL_ARRAY_BUFFER, vertexDataSize, mVertices.CData(), GL_STATIC_DRAW);
-
-  // Upload the index data to the gpu.
-  glGenBuffers(1, &mEbo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEbo);
-  unsigned int indexDataSize = sizeof(unsigned int) * mIndices.Size();
-  glBufferData(
-    GL_ELEMENT_ARRAY_BUFFER, indexDataSize, mIndices.CData(), GL_STATIC_DRAW);
-
-  // Specify the layout of the vertex data.
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(
-    1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, mNormal));
-  glEnableVertexAttribArray(2);
-  glVertexAttribPointer(
-    2,
-    2,
-    GL_FLOAT,
-    GL_FALSE,
-    sizeof(Vertex),
-    (void*)offsetof(Vertex, mTexCoord));
-  glBindVertexArray(0);
+  glDeleteVertexArrays(1, &mVao);
+  glDeleteBuffers(1, &mVbo);
+  glDeleteBuffers(1, &mEbo);
 }
 
 } // namespace Gfx
