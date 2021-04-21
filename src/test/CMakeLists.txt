@@ -46,6 +46,11 @@ AddTest(gfx_Shader
 AddTest(math_Complex
   math/Complex.cc)
 
+AddTest(math_Geometry
+  math/Geometry.cc
+  ../Error.cc
+  ../math/Geometry.cc)
+
 AddTest(math_Matrix
   math/Matrix.cc
   ../Error.cc)
@@ -60,11 +65,6 @@ AddTest(math_Quaternion
   math/Quaternion.cc
   ../Error.cc
   ../math/Quaternion.cc)
-
-AddTest(math_Ray
-  math/Ray.cc
-  ../Error.cc
-  ../math/Ray.cc)
 
 AddTest(math_Vector
   math/Vector.cc
