@@ -4,7 +4,7 @@
 
 void Cast()
 {
-  std::cout << "Cast" << std::endl;
+  std::cout << "<= Cast =>" << std::endl;
   Math::Vector<float, 4> vec;
   vec[0] = 0;
   vec[1] = 1;
@@ -20,7 +20,7 @@ void Cast()
 
 void Addition()
 {
-  std::cout << "Addition" << std::endl;
+  std::cout << "<= Addition =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = a;
   Vec3 c = a + b;
@@ -34,7 +34,7 @@ void Addition()
 
 void Subtraction()
 {
-  std::cout << "Subtraction" << std::endl;
+  std::cout << "<= Subtraction =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = a;
   Vec3 c = a - b;
@@ -48,7 +48,7 @@ void Subtraction()
 
 void ScalerMultiplication()
 {
-  std::cout << "ScalerMultiplication" << std::endl;
+  std::cout << "<= ScalerMultiplication =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = a * 2.0f;
   Vec3 c = 3.0f * a;
@@ -62,7 +62,7 @@ void ScalerMultiplication()
 
 void ScalerDivision()
 {
-  std::cout << "ScalerDivision" << std::endl;
+  std::cout << "<= ScalerDivision =>" << std::endl;
   Vec3 a = {2.0f, 4.0f, 6.0f};
   Vec3 b = a / 2.0f;
   Vec3 c = a;
@@ -74,16 +74,25 @@ void ScalerDivision()
 
 void Negation()
 {
-  std::cout << "Negation" << std::endl;
+  std::cout << "<= Negation =>" << std::endl;
   Vec3 a = {2.0f, -4.0f, 6.0f};
   Vec3 b = -a;
   std::cout << "a: " << a << std::endl;
   std::cout << "b: " << b << std::endl << std::endl;
 }
 
+void Equality()
+{
+  std::cout << "<= Eqaulity =>" << std::endl;
+  Vec3 a = {1.0f, 0.0f, 0.0f};
+  Vec3 b = {2.0f, 0.0f, 1.0f};
+  Vec3 c = {2.0f, 0.0f, 1.0f};
+  std::cout << (a == a) << (a == b) << (b == c) << std::endl << std::endl;
+}
+
 void MagnitudeSquared()
 {
-  std::cout << "MagnitudeSquared" << std::endl;
+  std::cout << "<= MagnitudeSquared =>" << std::endl;
   Vec3 a = {1.0f, -2.0f, 3.0f};
   float magSq = Math::MagnitudeSq(a);
   std::cout << "a: " << a << std::endl;
@@ -92,7 +101,7 @@ void MagnitudeSquared()
 
 void Magnitude()
 {
-  std::cout << "Magnitude" << std::endl;
+  std::cout << "<= Magnitude =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   float mag = Math::Magnitude(a);
   std::cout << "a: " << a << std::endl;
@@ -101,16 +110,20 @@ void Magnitude()
 
 void Normalize()
 {
-  std::cout << "Normalize" << std::endl;
+  std::cout << "<= Normalize =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   std::cout << "original: " << a << std::endl;
   a = Math::Normalize(a);
   std::cout << "normalized: " << a << std::endl << std::endl;
+
+  // This should cause an abort because the vector has a magnitude of zero.
+  // a = {0.0f, 0.0f, 0.0f};
+  // Math::Normalize(a);
 }
 
 void Cross()
 {
-  std::cout << "Cross" << std::endl;
+  std::cout << "<= Cross =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = {4.0f, 5.0f, 6.0f};
   Vec3 cross = Math::Cross(a, b);
@@ -121,7 +134,7 @@ void Cross()
 
 void Dot()
 {
-  std::cout << "Dot" << std::endl;
+  std::cout << "<= Dot =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = {4.0f, 5.0f, 6.0f};
   float dot = Math::Dot(a, b);
@@ -130,11 +143,25 @@ void Dot()
   std::cout << "dot: " << dot << std::endl << std::endl;
 }
 
-void NormalizeZeroVector()
+void ComponentProduct()
 {
-  std::cout << "NormalizeZeroVector" << std::endl;
-  Vec3 a = {0.0f, 0.0f, 0.0f};
-  Math::Normalize(a);
+  std::cout << "<= ComponentProduct =>" << std::endl;
+  Vec3 a = {1.0f, 2.0f, 3.0f};
+  Vec3 b = {3.0f, 2.0f, 1.0f};
+  std::cout << Math::ComponentProduct(a, a) << std::endl;
+  std::cout << Math::ComponentProduct(b, b) << std::endl;
+  std::cout << Math::ComponentProduct(a, b) << std::endl << std::endl;
+}
+
+void PerpendicularTo()
+{
+  std::cout << "<= PerpendicularTo =>" << std::endl;
+  Vec3 a = {0.0f, 0.5f, 0.0f};
+  Vec3 b = {1.0f, 1.0f, -1.0f};
+  Vec3 c = {1.0f, 0.0f, -2.0f};
+  std::cout << Math::PerpendicularTo(a) << std::endl;
+  std::cout << Math::PerpendicularTo(b) << std::endl;
+  std::cout << Math::PerpendicularTo(c) << std::endl;
 }
 
 int main(void)
@@ -145,15 +172,12 @@ int main(void)
   ScalerMultiplication();
   ScalerDivision();
   Negation();
+  Equality();
   MagnitudeSquared();
   Magnitude();
   Normalize();
   Cross();
   Dot();
-
-  // This function will cause an abort. Normalizing a zero vector means there
-  // will be a division by zero. The function aborts before this happens.
-  /*
-  NormalizeZeroVector();
-  */
+  ComponentProduct();
+  PerpendicularTo();
 }

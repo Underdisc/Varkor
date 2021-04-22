@@ -1,54 +1,66 @@
-Cast
+<= Cast =>
 vec [0, 1, 2, 3]
 smallerVec [0, 1]
 largerVec [0, 1, 2, 3, 0, 0]
 
-Addition
+<= Addition =>
 a: [1, 2, 3]
 b: [1, 2, 3]
 c: [2, 4, 6]
 d: [2, 4, 6]
 
-Subtraction
+<= Subtraction =>
 a: [1, 2, 3]
 b: [1, 2, 3]
 c: [0, 0, 0]
 d: [-1, -2, -3]
 
-ScalerMultiplication
+<= ScalerMultiplication =>
 a: [1, 2, 3]
 b: [2, 4, 6]
 c: [3, 6, 9]
 d: [4, 8, 12]
 
-ScalerDivision
+<= ScalerDivision =>
 a: [2, 4, 6]
 b: [1, 2, 3]
 c: [1, 2, 3]
 
-Negation
+<= Negation =>
 a: [2, -4, 6]
 b: [-2, 4, -6]
 
-MagnitudeSquared
+<= Eqaulity =>
+101
+
+<= MagnitudeSquared =>
 a: [1, -2, 3]
 magnitude squared: 14
 
-Magnitude
+<= Magnitude =>
 a: [1, 2, 3]
 magnitude: 3.74166
 
-Normalize
+<= Normalize =>
 original: [1, 2, 3]
 normalized: [0.267261, 0.534522, 0.801784]
 
-Cross
+<= Cross =>
 a: [1, 2, 3]
 b: [4, 5, 6]
 cross: [-3, 6, -3]
 
-Dot
+<= Dot =>
 a: [1, 2, 3]
 b: [4, 5, 6]
 dot: 32
 
+<= ComponentProduct =>
+[1, 4, 9]
+[9, 4, 1]
+[3, 4, 3]
+
+<= PerpendicularTo =>
+[1, 0, 0]
+[1, 0, 1]
+[2, 0, 1]

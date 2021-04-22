@@ -146,6 +146,19 @@ Vector<T, N> operator-(const Vector<T, N>& vector)
 }
 
 template<typename T, unsigned int N>
+bool operator==(const Vector<T, N>& a, const Vector<T, N>& b)
+{
+  for (int i = 0; i < N; ++i)
+  {
+    if (a[i] != b[i])
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+template<typename T, unsigned int N>
 std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec)
 {
   os << "[";
@@ -201,6 +214,31 @@ T Dot(const Vector<T, N>& a, const Vector<T, N>& b)
     dot += a[i] * b[i];
   }
   return dot;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N> ComponentProduct(const Vector<T, N>& a, const Vector<T, N>& b)
+{
+  Vector<T, N> result;
+  for (int i = 0; i < N; ++i)
+  {
+    result[i] = a[i] * b[i];
+  }
+  return result;
+}
+
+template<typename T>
+Vector<T, 3> PerpendicularTo(const Vector<T, 3>& vector)
+{
+  Vector<T, 3> result;
+  if (vector[0] == 0.0f && vector[2] == 0.0f)
+  {
+    result = {1.0f, 0.0f, 0.0f};
+  } else
+  {
+    result = {-vector[2], 0.0f, vector[0]};
+  }
+  return result;
 }
 
 } // namespace Math
