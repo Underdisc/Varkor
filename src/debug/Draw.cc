@@ -3,10 +3,10 @@
 #include "Error.h"
 #include "ds/Vector.h"
 #include "gfx/Shader.h"
+#include "math/Geometry.h"
 #include "math/Matrix4.h"
-#include "math/Vector.h"
 
-#include "Draw.h"
+#include "debug/Draw.h"
 
 namespace Debug {
 namespace Draw {
@@ -28,8 +28,8 @@ void Init()
     nShader.Init("vres/shader/DebugLine.vs", "vres/shader/Color.fs");
   LogAbortIf(!result.mSuccess, result.mError.c_str());
 
-  glPointSize(8.0f);
-  glLineWidth(4.0f);
+  glPointSize(12.0f);
+  glLineWidth(3.0f);
 }
 
 void Point(const Vec3& point, const Vec3& color)
@@ -68,6 +68,25 @@ void Line(const Vec3& a, const Vec3& b, const Vec3& color)
   nRenderables.Push({vao, vbo, 2, color});
 }
 
+void Plane(const Math::Plane& plane, const Vec3& color)
+{
+  Vec3 corners[4];
+  const Vec3& normal = plane.Normal();
+  Vec3 planeLines[2];
+  planeLines[0] = Math::Normalize(Math::PerpendicularTo(plane.Normal()));
+  planeLines[1] = Math::Cross(normal, planeLines[0]);
+
+  corners[0] = plane.mPoint + planeLines[0] + planeLines[1];
+  corners[1] = plane.mPoint - planeLines[0] + planeLines[1];
+  corners[2] = plane.mPoint - planeLines[0] - planeLines[1];
+  corners[3] = plane.mPoint + planeLines[0] - planeLines[1];
+
+  Line(corners[0], corners[1], color);
+  Line(corners[1], corners[2], color);
+  Line(corners[2], corners[3], color);
+  Line(corners[3], corners[0], color);
+}
+
 void CartesianAxes()
 {
   Vec3 x = {1.0f, 0.0f, 0.0f};
@@ -81,12 +100,15 @@ void CartesianAxes()
 
 void Render(const Mat4& view, const Mat4& projection)
 {
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   nShader.SetMat4("uView", view.CData(), true);
   nShader.SetMat4("uProj", projection.CData(), true);
   for (int i = 0; i < nRenderables.Size(); ++i)
   {
     const Renderable& renderable = nRenderables[i];
-    nShader.SetVec3("uColor", renderable.mColor.CData());
+    Vec4 fullColor = (Vec4)renderable.mColor;
+    fullColor[3] = 1.0f;
+    nShader.SetVec4("uColor", fullColor.CData());
     glBindVertexArray(renderable.mVao);
     if (renderable.mCount == 1)
     {
