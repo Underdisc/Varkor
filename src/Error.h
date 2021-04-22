@@ -7,6 +7,7 @@ void Init(const char* logFile = nullptr);
 void Purge();
 void Log(const char* file, int line, const char* reason);
 void Log(const char* reason);
+void LogGlStatus();
 void Abort(const char* file, int line, const char* reason);
 void Abort(const char* reason);
 void Abort();
