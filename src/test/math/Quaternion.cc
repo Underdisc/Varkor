@@ -17,6 +17,26 @@ void AngleAxis()
   std::cout << "quaternion: " << quat << std::endl << std::endl;
 }
 
+void FromTo()
+{
+  std::cout << "<= FromTo =>" << std::endl;
+  Vec3 v[4];
+  Math::Quaternion q[3];
+  v[0] = {1.0f, 0.0f, 0.0f};
+  v[1] = {0.0f, 1.0f, 0.0f};
+  v[2] = {0.0f, 0.0f, 1.0f};
+  v[3] = {-1.0f, 0.0f, 0.0f};
+  q[0].FromTo(v[0], v[1]);
+  q[1].FromTo(v[1], v[2]);
+  q[2].FromTo(v[0], v[3]);
+  std::cout << q[0] << std::endl;
+  std::cout << q[0].Rotate(v[0]) << std::endl;
+  std::cout << q[1] << std::endl;
+  std::cout << q[1].Rotate(v[1]) << std::endl;
+  std::cout << q[2] << std::endl;
+  std::cout << q[2].Rotate(v[0]) << std::endl << std::endl;
+}
+
 void Conjugate()
 {
   std::cout << "<= Conjugate =>" << std::endl;
@@ -40,7 +60,8 @@ void Multiplication()
 void EulerAngles()
 {
   std::cout << "<= EulerAngles =>" << std::endl;
-  Quat q(Math::nPi / 2.0f, {1.0f, 0.0f, 0.0f});
+  Quat q;
+  q.AngleAxis(Math::nPi / 2.0f, {1.0f, 0.0f, 0.0f});
   Vec3 eulerAngles = q.EulerAngles();
   std::cout << eulerAngles << std::endl;
   q.AngleAxis(Math::nPi / 2.0f, {0.0f, 1.0f, 0.0f});
@@ -54,17 +75,19 @@ void EulerAngles()
 void Rotate()
 {
   std::cout << "<= Rotate =>" << std::endl;
-  Quat q = {0.0f, 1.0f / std::sqrtf(2.0f), 0.0f, 1.0f / std::sqrtf(2.0f)};
-  Quat p = {0.0f, 1.0f, 0.0f, 0.0f};
-  std::cout << "q: " << q << std::endl;
-  std::cout << "p: " << p << std::endl;
-  p = q * p * q.Conjugate();
-  std::cout << "q * p * q': " << p << std::endl << std::endl;
+  Math::Quaternion a, b;
+  a = {0.0f, 1.0f / std::sqrtf(2.0f), 0.0f, 1.0f / std::sqrtf(2.0f)};
+  b.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
+  std::cout << a.Rotate({1.0f, 0.0f, 0.0f}) << std::endl;
+  std::cout << a.Rotate({-1.0f, 0.0f, -1.0f}) << std::endl;
+  std::cout << b.Rotate({1.0f, 0.0f, 0.0f}) << std::endl;
+  std::cout << b.Rotate({0.0f, 1.0f, 0.0f}) << std::endl;
 }
 
 int main(void)
 {
   AngleAxis();
+  FromTo();
   Conjugate();
   Multiplication();
   EulerAngles();

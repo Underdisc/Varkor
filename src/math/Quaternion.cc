@@ -1,29 +1,46 @@
 #include <math.h>
 
-#include "Quaternion.h"
+#include "math/Utility.h"
+
+#include "math/Quaternion.h"
 
 namespace Math {
 
-Quaternion::Quaternion(): mA(1.0f), mB(0.0f), mC(0.0f), mD(0.0f) {}
-
-Quaternion::Quaternion(float angle, Vec3 axis)
+void Quaternion::Identity()
 {
-  AngleAxis(angle, axis);
+  mA = 1.0f;
+  mB = 0.0f;
+  mC = 0.0f;
+  mD = 0.0f;
 }
-
-Quaternion::Quaternion(float a, float b, float c, float d):
-  mA(a), mB(b), mC(c), mD(d)
-{}
 
 void Quaternion::AngleAxis(float angle, Vec3 axis)
 {
   float halfAngle = angle / 2.0f;
   mA = std::cosf(halfAngle);
-  float axisScaler = std::sinf(halfAngle);
-  axis *= axisScaler;
+  axis = Math::Normalize(axis) * std::sinf(halfAngle);
   mB = axis[0];
   mC = axis[1];
   mD = axis[2];
+}
+
+void Quaternion::FromTo(Vec3 from, Vec3 to)
+{
+  float magSqProduct = Math::MagnitudeSq(from) * Math::MagnitudeSq(to);
+  LogAbortIf(magSqProduct == 0.0f, "One of the vectors is a zero vector.");
+  mA = std::sqrtf(magSqProduct) + Math::Dot(from, to);
+  Vec3 axis;
+  if (Near(mA, 0.0f))
+  {
+    axis = Math::PerpendicularTo(from);
+  } else
+  {
+    axis = Math::Cross(from, to);
+  }
+  mB = axis[0];
+  mC = axis[1];
+  mD = axis[2];
+  Normalize();
 }
 
 void Quaternion::Normalize()
@@ -39,7 +56,7 @@ void Quaternion::Normalize()
 
 Quaternion Quaternion::Conjugate() const
 {
-  Quaternion result(mA, -mB, -mC, -mD);
+  Quaternion result = {mA, -mB, -mC, -mD};
   return result;
 }
 
@@ -79,6 +96,15 @@ Vec3 Quaternion::EulerAngles() const
   float m10 = 2.0f * mB * mC + 2.0f * mD * mA;
   angles[2] = std::atan2(m10, m00);
   return angles;
+}
+
+Vec3 Quaternion::Rotate(const Vec3& vector) const
+{
+  Vec3 axis = {mB, mC, mD};
+  Vec3 result = 2.0f * Math::Dot(axis, vector) * axis;
+  result += (mA * mA - Math::MagnitudeSq(axis)) * vector;
+  result += 2.0f * mA * Math::Cross(axis, vector);
+  return result;
 }
 
 Quaternion operator*(const Quaternion& a, const Quaternion& b)
