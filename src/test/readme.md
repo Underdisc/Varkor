@@ -7,11 +7,7 @@ This directory is for the various tests that are used while working on and testi
 All of the possible test targets can be found in the CMakeLists.txt file in this directory.
 
 ```
-AddTest(ds_Vector
-  ds/Vector.cc
-  ds/TestType.cc
-  ../debug/MemLeak.cc
-  ../Error.cc)
+AddTest(ds_Vector ds/Vector.cc ds/TestType.cc)
 ```
 
 This is an example of such a test. `ds_Vector` will be added as a build target. This target can be passed to the generator to build that test. For example, this is the command used to build the `ds_Vector` test with Ninja.
@@ -52,12 +48,8 @@ touch NewType.cc
 Now that the driver file has been created, we need to add the test as a build target to the CMakeLists.txt file in this directory.
 
 ```
-AddTest(math_NewType
-  math/NewType.cc
-  ../math/NewType.cc)
+AddTest(math_NewType math/NewType.cc)
 ```
-
-You'll probably notice that there are a lot of targets that also require `../Error.cc` because they use functionality from that source file. You can add whatever source files are needed to build the target to the list of source files.
 
 The last thing to do is actually write the test driver and create the output file. The tests are really simple. There is no special testing framework shennanigans to deal with. Take a look at some of the existing tests to see how they are structured.
 
@@ -66,6 +58,12 @@ Once the test is complete, create the output file for the test.
 ```
 math_NewType.exe > math_NewType_out.txt
 ```
+
+You'll probably notice that some of the test targets require files other than
+the main test driver. `AddTest(ds_Vector ds/Vector.cc ds/TestType.cc)` is an
+example of this. This is because these targets require that these files are also built
+in order to create the driver. These extra files can be added any time it is
+necessary to do so. The files in Varkor's `src/` directory that are needed for the test target do not need to be accounted for because every test will link against the library version of Varkor.
 
 ### Advice For Quick Testing
 

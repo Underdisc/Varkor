@@ -1,4 +1,4 @@
-target_sources(varkor PRIVATE
+target_sources(${varkorTarget} PRIVATE
   Framebuffer.cc
   Mesh.cc
   Model.cc

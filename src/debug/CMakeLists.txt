@@ -1,1 +1,3 @@
-target_sources(varkor PRIVATE Draw.cc)
+target_sources(${varkorTarget} PRIVATE
+  Draw.cc
+  MemLeak.cc)

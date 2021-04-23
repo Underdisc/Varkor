@@ -1,4 +1,4 @@
-target_sources(varkor PRIVATE
+target_sources(${varkorTarget} PRIVATE
   local/glad/glad.c
   local/imgui/imgui.cpp
   local/imgui/imgui_demo.cpp

@@ -1,4 +1,4 @@
-target_sources(varkor PRIVATE
+target_sources(${varkorTarget} PRIVATE
   Hook.cc
   Model.cc
   Transform.cc)

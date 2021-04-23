@@ -19,23 +19,26 @@ if (MSVC)
   endif ()
 endif ()
 
-# Decide whether varkor is being used as a standalone executable or a library.
-if ("${CMAKE_PROJECT_NAME}" STREQUAL "varkor")
-  add_executable(varkor)
-  add_compile_definitions(VarkorStandalone)
-  set_property(TARGET varkor PROPERTY RUNTIME_OUTPUT_DIRECTORY
-    "${CMAKE_SOURCE_DIR}/working")
+function(AddVarkorTarget)
+  add_subdirectory(src ${varkorTarget}Src)
+  add_subdirectory(ext ${varkorTarget}Ext)
+  target_include_directories(${varkorTarget} PUBLIC "src" "ext/local" "ext/sub")
+  target_link_libraries(${varkorTarget} ${assimp} ${glfw} ${OPENGL_gl_LIBRARY})
+endfunction()
 
-  # The test targets are only created when varkor is used as a standalone exe.
-  add_subdirectory(src/test)
-  file(WRITE working/test/testNames.txt ${testNames})
-else ()
-  add_library(varkor)
-endif ()
+# Create the target for the standalone version of Varkor.
+add_executable(varkor)
+target_compile_definitions(varkor PRIVATE VarkorStandalone)
+set_property(TARGET varkor PROPERTY RUNTIME_OUTPUT_DIRECTORY
+  "${CMAKE_SOURCE_DIR}/working")
+set(varkorTarget varkor)
+AddVarkorTarget()
 
-# Add all of the source files, include directories, and libraries needed to
-# build Varkor.
-add_subdirectory(src)
-add_subdirectory(ext)
-target_include_directories(varkor PUBLIC "src" "ext/local" "ext/sub")
-target_link_libraries(varkor ${assimp} ${glfw} ${OPENGL_gl_LIBRARY})
+# Create the target for the library version of Varkor.
+add_library(varkorLibrary)
+set(varkorTarget varkorLibrary)
+AddVarkorTarget()
+
+# Create all of the test targets.
+add_subdirectory(src/test)
+file(WRITE working/test/testNames.txt ${testNames})
