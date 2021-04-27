@@ -63,6 +63,18 @@ const Mat4& Perspective()
   return nPerspective;
 }
 
+Vec3 MouseToWorldPosition(Vec2 standardPosition, const Mat4& inverseView)
+{
+  // The value returned by this function will be on the camera frustrum's near
+  // plane.
+  float heightOver2 = std::tanf(nFov / 2.0f) * nNear;
+  standardPosition[0] *= heightOver2 * Aspect();
+  standardPosition[1] *= heightOver2;
+  Vec4 worldPosition = {standardPosition[0], standardPosition[1], nNear, 1.0f};
+  worldPosition = inverseView * worldPosition;
+  return (Vec3)worldPosition;
+}
+
 float Near()
 {
   return nNear;
@@ -86,6 +98,11 @@ int Height()
 float Aspect()
 {
   return (float)nWidth / (float)nHeight;
+}
+
+float Fov()
+{
+  return nFov;
 }
 
 GLFWwindow* Window()
