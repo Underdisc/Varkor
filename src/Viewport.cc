@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
+#include "gfx/Framebuffer.h"
 #include "math/Constants.h"
 
 #include "Viewport.h"
@@ -121,6 +122,7 @@ void ResizeCallback(GLFWwindow* window, int width, int height)
   nWidth = width;
   nHeight = height;
   Math::Perspective(&nPerspective, nFov, Aspect(), nNear, nFar);
+  Gfx::Framebuffer::ResizeFullscreens(width, height);
 }
 
 } // namespace Viewport
