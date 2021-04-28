@@ -31,6 +31,7 @@ struct AddResult
   std::string mError;
 };
 AddResult AddModel(const std::string& path);
+void AddRequiredModel(const std::string& path);
 const Gfx::Model* GetModel(const std::string& path);
 
 } // namespace AssetLibrary

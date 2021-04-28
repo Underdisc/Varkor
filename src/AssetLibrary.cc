@@ -1,6 +1,7 @@
 #include <sstream>
 #include <string>
 
+#include "Error.h"
 #include "gfx/Model.h"
 #include "util/Utility.h"
 
@@ -56,6 +57,12 @@ AddResult AddModel(const std::string& path)
 const Gfx::Model* GetModel(const std::string& path)
 {
   return nModels.Find(path);
+}
+
+void AddRequiredModel(const std::string& path)
+{
+  AddResult result = AddModel(path);
+  LogAbortIf(!result.mSuccess, result.mError.c_str());
 }
 
 } // namespace AssetLibrary
