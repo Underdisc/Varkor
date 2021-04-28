@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include "Error.h"
+#include "math/Utility.h"
 
 namespace Math {
 
@@ -159,6 +160,19 @@ bool operator==(const Vector<T, N>& a, const Vector<T, N>& b)
 }
 
 template<typename T, unsigned int N>
+bool Near(const Vector<T, N>& a, const Vector<T, N>& b)
+{
+  for (int i = 0; i < N; ++i)
+  {
+    if (!Near(a[i], b[i]))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+template<typename T, unsigned int N>
 std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec)
 {
   os << "[";
@@ -217,7 +231,7 @@ T Dot(const Vector<T, N>& a, const Vector<T, N>& b)
 }
 
 template<typename T, unsigned int N>
-Vector<T, N> ComponentProduct(const Vector<T, N>& a, const Vector<T, N>& b)
+Vector<T, N> ComponentwiseProduct(const Vector<T, N>& a, const Vector<T, N>& b)
 {
   Vector<T, N> result;
   for (int i = 0; i < N; ++i)

@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "math/Constants.h"
 #include "math/Vector.h"
 
 void Cast()
@@ -90,6 +91,17 @@ void Equality()
   std::cout << (a == a) << (a == b) << (b == c) << std::endl << std::endl;
 }
 
+void Near()
+{
+  std::cout << "<= Near =>" << std::endl;
+  Vec3 a = {1.0f, 0.0f, 0.0f};
+  Vec3 b = {0.0f, 1.0f, 0.0f};
+  Vec3 c = {Math::nEpsilon * Math::nEpsilon, 1.0f, 0.0f};
+  std::cout << Math::Near(a, b) << Math::Near(a, c) << Math::Near(b, c)
+            << std::endl
+            << std::endl;
+}
+
 void MagnitudeSquared()
 {
   std::cout << "<= MagnitudeSquared =>" << std::endl;
@@ -143,14 +155,14 @@ void Dot()
   std::cout << "dot: " << dot << std::endl << std::endl;
 }
 
-void ComponentProduct()
+void ComponentwiseProduct()
 {
-  std::cout << "<= ComponentProduct =>" << std::endl;
+  std::cout << "<= ComponentwiseProduct =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = {3.0f, 2.0f, 1.0f};
-  std::cout << Math::ComponentProduct(a, a) << std::endl;
-  std::cout << Math::ComponentProduct(b, b) << std::endl;
-  std::cout << Math::ComponentProduct(a, b) << std::endl << std::endl;
+  std::cout << Math::ComponentwiseProduct(a, a) << std::endl;
+  std::cout << Math::ComponentwiseProduct(b, b) << std::endl;
+  std::cout << Math::ComponentwiseProduct(a, b) << std::endl << std::endl;
 }
 
 void PerpendicularTo()
@@ -173,11 +185,12 @@ int main(void)
   ScalerDivision();
   Negation();
   Equality();
+  Near();
   MagnitudeSquared();
   Magnitude();
   Normalize();
   Cross();
   Dot();
-  ComponentProduct();
+  ComponentwiseProduct();
   PerpendicularTo();
 }
