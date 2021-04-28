@@ -25,8 +25,7 @@ void ClosestPoint()
 {
   std::cout << "<= ClosestPoint =>" << std::endl;
 
-  // These tests are for finding the closest points on two Rays.
-  Math::Ray a, b, c, d, e, f, g;
+  Math::Ray a, b, c, d, e, f, g, h, i;
   a.StartDirection({1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f});
   b.StartDirection({1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f});
   c.StartDirection({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f});
@@ -34,22 +33,26 @@ void ClosestPoint()
   e.StartDirection({1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, -1.0f});
   f.StartDirection({1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, -1.0f});
   g.StartDirection({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f});
+  h.StartDirection({0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f});
+  i.StartDirection({0.0f, 0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f});
+
   std::cout << a.ClosestPointTo(b) << std::endl;
   std::cout << a.ClosestPointTo(c) << std::endl;
   std::cout << a.ClosestPointTo(d) << std::endl;
   std::cout << a.ClosestPointTo(e) << std::endl;
   std::cout << a.ClosestPointTo(f) << std::endl;
 
-  // These tests are for finding the point on a Ray that is closest to a point.
   std::cout << a.ClosestPointTo({3.0f, 3.0f, 3.0f}) << std::endl;
-  std::cout << g.ClosestPointTo({2.0f, 2.0f, 0.0f}) << std::endl << std::endl;
+  std::cout << g.ClosestPointTo({2.0f, 2.0f, 0.0f}) << std::endl;
 
-  // These attempts to find the closest point will signal an abort because f is
-  // parallel to a in both cases.
-  // f.Direction({1.0f, 0.0f, 0.0f});
-  // a.ClosestPointTo(f);
-  // f.Direction({-1.0f, 0.0f, 0.0f});
-  // a.ClosestPointTo(f);
+  std::cout << a.HasClosestTo(c) << a.HasClosestTo(f) << a.HasClosestTo(h)
+            << a.HasClosestTo(i) << c.HasClosestTo(d) << std::endl
+            << std::endl;
+
+  // These attempts to find the closest point will signal an abort because h and
+  // i are both parallel to a.
+  // a.ClosestPointTo(h);
+  // a.ClosestPointTo(i);
 }
 
 void Intersection()

@@ -1,3 +1,5 @@
+#include "math/Utility.h"
+
 #include "math/Geometry.h"
 
 namespace Math {
@@ -33,6 +35,12 @@ Vec3 Ray::ClosestPointTo(const Vec3& point) const
 {
   float t = Math::Dot(mDirection, point - mStart);
   return At(t);
+}
+
+bool Ray::HasClosestTo(const Ray& other) const
+{
+  float directionDot = Math::Dot(mDirection, other.mDirection);
+  return !Math::Near(directionDot, 1.0f) && !Math::Near(directionDot, -1.0f);
 }
 
 float Ray::ClosestTTo(const Ray& other) const

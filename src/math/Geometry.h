@@ -20,6 +20,7 @@ public:
   Vec3 At(float t) const;
   float ClosestTTo(const Vec3& point) const;
   Vec3 ClosestPointTo(const Vec3& point) const;
+  bool HasClosestTo(const Ray& other) const;
   float ClosestTTo(const Ray& other) const;
   Vec3 ClosestPointTo(const Ray& other) const;
 };
