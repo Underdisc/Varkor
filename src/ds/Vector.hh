@@ -341,14 +341,15 @@ void Vector<T>::Grow(int newCapacity)
     newCapacity <= mCapacity,
     "The new capacity must be greater than the current capacity.");
 
-  T* oldData = mData;
-  mData = CreateAllocation(newCapacity);
+  T* newData = CreateAllocation(newCapacity);
   for (int i = 0; i < mSize; ++i)
   {
-    new (mData + i) T(Util::Move(oldData[i]));
+    new (newData + i) T(std::move(mData[i]));
+    mData[i].~T();
   }
   mCapacity = newCapacity;
-  DeleteAllocation(oldData);
+  DeleteAllocation(mData);
+  mData = newData;
 }
 
 template<typename T>
