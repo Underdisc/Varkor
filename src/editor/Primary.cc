@@ -29,6 +29,7 @@ void (*AvailableComponents)(const World::Object& selected) = nullptr;
 Camera nCamera;
 World::SpaceId nSelectedSpace = World::nInvalidSpaceId;
 World::Object nSelectedObject;
+bool nSuppressObjectPicking = false;
 
 bool nEditorMode = true;
 bool nShowEditorWindow = false;
@@ -116,39 +117,10 @@ void Start()
 
 void Show()
 {
-  // Update the camera, render the selected space, and allow object selection in
-  // the world if we are in editor mode.
-  if (nEditorMode && nSelectedSpace != World::nInvalidSpaceId)
+  // Update the camera while in editor mode.
+  if (nEditorMode)
   {
     nCamera.Update(Temporal::DeltaTime());
-    const World::Space& space = World::GetSpace(nSelectedSpace);
-    Gfx::Renderer::RenderSpace(space, nCamera.WorldToCamera());
-    Debug::Draw::CartesianAxes();
-    Debug::Draw::Render(nCamera.WorldToCamera(), Viewport::Perspective());
-
-    if (Input::MousePressed(Input::Mouse::Left))
-    {
-      // Render all of the MemberIds to a framebuffer.
-      Gfx::Framebuffer memberIdBuffer(Viewport::Width(), Viewport::Height());
-      glBindFramebuffer(GL_FRAMEBUFFER, memberIdBuffer.Fbo());
-      glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
-      glClear(GL_DEPTH_BUFFER_BIT);
-      Gfx::Renderer::RenderMemberIds(space, nCamera.WorldToCamera());
-
-      // Find the MemberId at the mouse position.
-      World::MemberId memberId;
-      const Vec2& mousePos = Input::MousePosition();
-      glReadPixels(
-        (int)mousePos[0],
-        Viewport::Height() - (int)mousePos[1],
-        1,
-        1,
-        memberIdBuffer.Format(),
-        memberIdBuffer.PixelType(),
-        (void*)&memberId);
-      nSelectedObject.mMember = memberId;
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
   }
 
   // Show all of the opened editor windows.
@@ -167,6 +139,23 @@ void Show()
   }
   ShowAssetWindows();
   ShowUtilWindows();
+
+  // Render the selected space.
+  if (nEditorMode && nSelectedSpace != World::nInvalidSpaceId)
+  {
+    const World::Space& space = World::GetSpace(nSelectedSpace);
+    Gfx::Renderer::RenderSpace(space, nCamera.WorldToCamera());
+    Debug::Draw::CartesianAxes();
+    Debug::Draw::Render(nCamera.WorldToCamera(), Viewport::Perspective());
+
+    // Detect clicking on an object to select it.
+    if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left))
+    {
+      nSelectedObject.mMember =
+        Gfx::Renderer::HoveredMemberId(space, nCamera.WorldToCamera());
+    }
+    nSuppressObjectPicking = false;
+  }
 }
 
 void End()
@@ -393,7 +382,6 @@ void InspectorWindow()
   {
     AvailableComponents(nSelectedObject);
   }
-
   ImGui::End();
 }
 

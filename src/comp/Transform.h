@@ -26,8 +26,6 @@ struct Transform
   const Mat4& GetLocalMatrix();
   Mat4 GetWorldMatrix(const World::Space& space, World::MemberId member);
 
-  void EditorHook();
-
 private:
   Vec3 mScale;
   Quat mRotation;

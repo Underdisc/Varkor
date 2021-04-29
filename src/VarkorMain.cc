@@ -26,18 +26,16 @@ void VarkorEngine()
     Framer::Start();
     Input::Update();
     Editor::Start();
-
-    // We must clear the render buffer before showing the editor because the
-    // editor may perform draw calls.
     Gfx::Renderer::Clear();
-    Editor::Show();
 
+    Editor::Show();
     World::Update();
     if (!Editor::EditorMode())
     {
       Gfx::Renderer::RenderWorld();
     }
 
+    Gfx::Renderer::RenderQueuedFullscreenFramebuffers();
     Editor::End();
     Viewport::SwapBuffers();
     Viewport::Update();

@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Error.h"
+#include "editor/Primary.h"
 #include "util/Utility.h"
 
 namespace Editor {
@@ -87,11 +88,11 @@ void EndGizmo()
 }
 
 template<typename T>
-void ShowGizmo(T* component)
+bool RunGizmo(T* component)
 {
   int gizmoIndex = GetExistingGizmoIndex<T>();
   Gizmo<T>* gizmo = (Gizmo<T>*)nGizmoStore[gizmoIndex].mGizmo;
-  gizmo->Show(component);
+  return gizmo->Run(component);
 }
 
 template<typename T>
@@ -127,7 +128,8 @@ T* InspectGizmoComponent(const World::Object& object)
     {
       StartGizmo<T>();
     }
-    ShowGizmo<T>(component);
+    bool editing = RunGizmo<T>(component);
+    nSuppressObjectPicking |= editing;
   } else if (ActiveGizmo<T>())
   {
     EndGizmo<T>();
@@ -171,7 +173,7 @@ Gizmo<T>::Gizmo()
 // compile and link errors and instead abort when one uses the generic Gizmo
 // structure instead of their own specialization.
 template<typename T>
-void Gizmo<T>::Show(T* component)
+bool Gizmo<T>::Run(T* component)
 {}
 
 } // namespace Hook

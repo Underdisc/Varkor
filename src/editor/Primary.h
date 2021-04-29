@@ -17,6 +17,8 @@ void End();
 bool EditorMode();
 const Camera& GetCamera();
 
+extern bool nSuppressObjectPicking;
+
 } // namespace Editor
 
 #endif

@@ -24,7 +24,7 @@ template<typename T>
 struct Gizmo: public GizmoBase
 {
   Gizmo();
-  void Show(T* component);
+  bool Run(T* component);
 };
 void EndAllGizmos();
 

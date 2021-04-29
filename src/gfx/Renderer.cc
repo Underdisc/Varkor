@@ -1,29 +1,69 @@
 #include <glad/glad.h>
 
 #include "AssetLibrary.h"
+#include "Input.h"
 #include "Viewport.h"
 #include "comp/Model.h"
 #include "comp/Transform.h"
-#include "gfx/Shader.h"
+#include "ds/Vector.h"
+#include "gfx/Framebuffer.h"
 #include "math/Vector.h"
 #include "world/Object.h"
 #include "world/Space.h"
 #include "world/World.h"
 
+#include "gfx/Renderer.h"
+
 namespace Gfx {
 namespace Renderer {
 
+Shader nColorShader;
 Shader nDefaultShader;
+Shader nFramebufferShader;
 Shader nMemberIdShader;
+
+constexpr unsigned int nFullscreenVertexCount = 12;
+unsigned int nFullscreenVao;
+unsigned int nFullscreenVbo;
+Ds::Vector<unsigned int> nQueuedFullscreenFramebuffers;
 
 void Init()
 {
+  // Initialize all of the expected shader types.
   Shader::InitResult result =
+    nColorShader.Init("vres/shader/Default.vs", "vres/shader/Color.fs");
+  LogAbortIf(!result.mSuccess, result.mError.c_str());
+  result =
     nDefaultShader.Init("vres/shader/Default.vs", "vres/shader/Default.fs");
+  LogAbortIf(!result.mSuccess, result.mError.c_str());
+  result = nFramebufferShader.Init(
+    "vres/shader/Fullscreen.vs", "vres/shader/Fullscreen.fs");
   LogAbortIf(!result.mSuccess, result.mError.c_str());
   result =
     nMemberIdShader.Init("vres/shader/Default.vs", "vres/shader/MemberId.fs");
   LogAbortIf(!result.mSuccess, result.mError.c_str());
+
+  // Initialize the fullscreen quad vertex array that will be used for drawing
+  // fullscreen framebuffers.
+  // clang-format off
+  float fullscreenVerts[nFullscreenVertexCount] =
+    {-1.0f,  1.0f,
+     -1.0f, -1.0f,
+      1.0f,  1.0f,
+      1.0f, -1.0f,
+      1.0f,  1.0f,
+     -1.0f, -1.0f};
+  // clang-format on
+  glGenVertexArrays(1, &nFullscreenVao);
+  glBindVertexArray(nFullscreenVao);
+  glGenBuffers(1, &nFullscreenVbo);
+  glBindBuffer(GL_ARRAY_BUFFER, nFullscreenVbo);
+  unsigned int size = sizeof(float) * nFullscreenVertexCount;
+  glBufferData(GL_ARRAY_BUFFER, size, fullscreenVerts, GL_STATIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -34,7 +74,7 @@ void Init()
 
 void Clear()
 {
-  glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -78,6 +118,30 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
     RenderModel(nMemberIdShader, modelComp);
     visitor.Next();
   }
+}
+
+World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view)
+{
+  // Render all of the MemberIds to a framebuffer.
+  Gfx::Framebuffer handlebuffer(GL_RED_INTEGER, GL_INT);
+  glBindFramebuffer(GL_FRAMEBUFFER, handlebuffer.Fbo());
+  glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  Gfx::Renderer::RenderMemberIds(space, view);
+
+  // Find the MemberId at the mouse position.
+  World::MemberId memberId;
+  const Vec2& mousePos = Input::MousePosition();
+  glReadPixels(
+    (int)mousePos[0],
+    Viewport::Height() - (int)mousePos[1],
+    1,
+    1,
+    handlebuffer.Format(),
+    handlebuffer.PixelType(),
+    (void*)&memberId);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  return memberId;
 }
 
 void RenderModels(const World::Space& space, const Mat4& view)
@@ -144,6 +208,39 @@ void RenderWorld()
     RenderSpace(visitor.CurrentSpace());
     visitor.Next();
   }
+}
+
+void RenderFullscreenTexture(unsigned int tbo)
+{
+  glDisable(GL_DEPTH_TEST);
+  nFramebufferShader.Use();
+  glBindVertexArray(nFullscreenVao);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, tbo);
+  nFramebufferShader.SetInt("uTexture", 0);
+  glDrawArrays(GL_TRIANGLES, 0, nFullscreenVertexCount / 2);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glBindVertexArray(0);
+  glEnable(GL_DEPTH_TEST);
+}
+
+void RenderQueuedFullscreenFramebuffers()
+{
+  for (unsigned int tbo : nQueuedFullscreenFramebuffers)
+  {
+    RenderFullscreenTexture(tbo);
+  }
+  nQueuedFullscreenFramebuffers.Clear();
+}
+
+void QueueFullscreenFramebuffer(const Framebuffer& framebuffer)
+{
+  nQueuedFullscreenFramebuffers.Push(framebuffer.ColorTbo());
+}
+
+const Shader& ColorShader()
+{
+  return nColorShader;
 }
 
 } // namespace Renderer
