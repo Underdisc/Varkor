@@ -121,7 +121,7 @@ void CreateMember()
 {
   std::cout << "<= CreateMember =>" << std::endl;
   World::Space space;
-  for (int i = 0; i < 10; ++i)
+  for (int i = 0; i < 20; ++i)
   {
     space.CreateMember();
   }
@@ -164,12 +164,16 @@ void ParentChildMembers()
   space.MakeParent(memberIds[2], memberIds[5]);
   space.MakeParent(memberIds[3], memberIds[6]);
   space.MakeParent(memberIds[3], memberIds[7]);
+  space.CreateChildMember(memberIds[0]);
+  space.CreateChildMember(memberIds[1]);
+  space.CreateChildMember(memberIds[2]);
+  space.CreateChildMember(memberIds[3]);
   PrintSpaceMembers(space);
 
   // Delete the member with children and create members that take the MemberIds
   // that were once used by the children.
   space.DeleteMember(memberIds[0]);
-  for (int i = 0; i < 7; ++i)
+  for (int i = 0; i < 11; ++i)
   {
     space.CreateMember();
   }

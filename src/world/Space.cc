@@ -163,6 +163,13 @@ MemberId Space::CreateMember()
   return newMemberId;
 }
 
+MemberId Space::CreateChildMember(MemberId parentId)
+{
+  MemberId childId = CreateMember();
+  MakeParent(parentId, childId);
+  return childId;
+}
+
 void Space::DeleteMember(MemberId memberId)
 {
   // Verify the existance of the member.

@@ -68,6 +68,7 @@ struct Space
 
   // Member modification.
   MemberId CreateMember();
+  MemberId CreateChildMember(MemberId parentId);
   void DeleteMember(MemberId member);
   void MakeParent(MemberId parent, MemberId child);
   void RemoveParent(MemberId childId);
