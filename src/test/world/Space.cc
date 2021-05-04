@@ -363,15 +363,16 @@ void HasComponent()
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
   PrintSpaceTableLookup(space);
-  std::cout << space.HasComponent<Comp0>(mem0);
-  std::cout << space.HasComponent<Comp1>(mem0);
-  std::cout << space.HasComponent<Comp2>(mem0);
-  std::cout << space.HasComponent<Comp3>(mem0);
-  std::cout << space.HasComponent<Comp0>(mem1);
-  std::cout << space.HasComponent<Comp1>(mem1);
-  std::cout << space.HasComponent<Comp2>(mem1);
-  std::cout << space.HasComponent<Comp3>(mem1);
-  std::cout << std::endl << std::endl;
+  std::cout << space.HasComponent<Comp0>(mem0)
+            << space.HasComponent<Comp1>(mem0)
+            << space.HasComponent<Comp2>(mem0)
+            << space.HasComponent<Comp3>(mem0)
+            << space.HasComponent<Comp0>(mem1)
+            << space.HasComponent<Comp1>(mem1)
+            << space.HasComponent<Comp2>(mem1)
+            << space.HasComponent<Comp3>(mem1)
+            << space.HasComponent<Comp0>(World::nInvalidMemberId) << std::endl
+            << std::endl;
 }
 
 int main(void)

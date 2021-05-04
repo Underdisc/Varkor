@@ -135,6 +135,7 @@ private:
   Ds::Vector<ComponentAddress> mAddressBin;
 
   bool ValidTable(int componentId) const;
+  bool ValidMember(MemberId id) const;
   void VerifyTable(int componentId) const;
   void VerifyMember(MemberId member) const;
 

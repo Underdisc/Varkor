@@ -336,11 +336,10 @@ void Space::RemComponent(int componentId, MemberId member)
 void* Space::GetComponent(int componentId, MemberId member) const
 {
   // Make sure the component table and member exist.
-  if (!ValidTable(componentId))
+  if (!ValidTable(componentId) || !ValidMember(member))
   {
     return nullptr;
   }
-  VerifyMember(member);
 
   // Find the requested component by going through the member's component
   // references.
@@ -404,6 +403,11 @@ bool Space::ValidTable(int componentId) const
     mTableLookup[componentId] != nInvalidTableId;
 }
 
+bool Space::ValidMember(MemberId id) const
+{
+  return id >= 0 && id < mMembers.Size() && mMembers[id].InUse();
+}
+
 void Space::VerifyTable(int componentId) const
 {
   // Make sure that a table exists for the component type.
@@ -415,8 +419,7 @@ void Space::VerifyMember(MemberId member) const
 {
   // Make sure the member both exists and is valid.
   LogAbortIf(
-    member < 0 || member >= mMembers.Size() || !mMembers[member].InUse(),
-    "The member under this reference does not exist.");
+    !ValidMember(member), "The member under this reference does not exist.");
 }
 
 } // namespace World
