@@ -36,6 +36,13 @@ void Scale(Matrix<T, N>* matrix, const Vector<T, N - 1>& scale);
 template<typename T, unsigned int N>
 void Translate(Matrix<T, N>* matrix, const Vector<T, N - 1>& translation);
 template<typename T, unsigned int N>
+Vector<T, N - 1> ApplyToPoint(
+  const Matrix<T, N>& matrix, const Vector<T, N - 1>& point);
+template<typename T, unsigned int N>
+Vector<T, N - 1> ApplyToVector(
+  const Matrix<T, N>& matrix, const Vector<T, N - 1>& vector);
+
+template<typename T, unsigned int N>
 Matrix<T, N> Inverse(const Matrix<T, N>& matrix);
 template<typename T, unsigned int N>
 void MultiplyRow(Matrix<T, N>* matrix, int row, T factor);

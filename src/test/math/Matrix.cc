@@ -84,6 +84,19 @@ void Translate()
   std::cout << "translation matrix" << std::endl << matrix << std::endl;
 }
 
+void ApplyToPointVector()
+{
+  std::cout << "<= ApplyToPointVector =>" << std::endl;
+  Vec3 value = {1.0f, 1.0f, 1.0f};
+  Math::Matrix<float, 4> scale;
+  Math::Matrix<float, 4> translate;
+  Math::Scale(&scale, {1.0f, 2.0f, 3.0f});
+  Math::Translate(&translate, {1.0f, 1.0f, 1.0f});
+  Math::Matrix<float, 4> matrix = translate * scale;
+  std::cout << Math::ApplyToPoint(matrix, value) << std::endl;
+  std::cout << Math::ApplyToVector(matrix, value) << std::endl << std::endl;
+}
+
 void Inverse()
 {
   std::cout << "<= Inverse =>" << std::endl;
@@ -199,6 +212,7 @@ int main(void)
   Identity();
   Scale();
   Translate();
+  ApplyToPointVector();
   Inverse();
   MultiplyRow();
   AddRowMultiple();

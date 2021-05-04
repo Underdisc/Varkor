@@ -147,6 +147,22 @@ void Translate(Matrix<T, N>* matrix, const Vector<T, N - 1>& translation)
 }
 
 template<typename T, unsigned int N>
+Vector<T, N - 1> ApplyToPoint(
+  const Matrix<T, N>& matrix, const Vector<T, N - 1>& point)
+{
+  Vec4 fullPoint = {point[0], point[1], point[2], 1.0f};
+  return (Vector<T, N - 1>)(matrix * fullPoint);
+}
+
+template<typename T, unsigned int N>
+Vector<T, N - 1> ApplyToVector(
+  const Matrix<T, N>& matrix, const Vector<T, N - 1>& vector)
+{
+  Vec4 fullVector = {vector[0], vector[1], vector[2], 0.0f};
+  return (Vector<T, N - 1>)(matrix * fullVector);
+}
+
+template<typename T, unsigned int N>
 Matrix<T, N> Inverse(const Matrix<T, N>& matrix)
 {
   // We find the inverse using Gauss-Jordan elimination. That is, we augment
