@@ -68,9 +68,11 @@ void ScalerDivision()
   Vec3 b = a / 2.0f;
   Vec3 c = a;
   c /= 2.0f;
+  Vec3 d = 12.0f / a;
   std::cout << "a: " << a << std::endl;
   std::cout << "b: " << b << std::endl;
-  std::cout << "c: " << c << std::endl << std::endl;
+  std::cout << "c: " << c << std::endl;
+  std::cout << "d: " << d << std::endl << std::endl;
 }
 
 void Negation()

@@ -29,6 +29,8 @@ Vector<T, N> operator*(T scaler, const Vector<T, N>& vector);
 template<typename T, unsigned int N>
 Vector<T, N> operator/(const Vector<T, N>& vector, T scalar);
 template<typename T, unsigned int N>
+Vector<T, N> operator/(T scalar, const Vector<T, N>& vector);
+template<typename T, unsigned int N>
 Vector<T, N>& operator+=(Vector<T, N>& a, const Vector<T, N>& b);
 template<typename T, unsigned int N>
 Vector<T, N>& operator-=(Vector<T, N>& a, const Vector<T, N>& b);

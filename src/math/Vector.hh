@@ -96,6 +96,17 @@ Vector<T, N> operator/(const Vector<T, N>& vector, T scalar)
 }
 
 template<typename T, unsigned int N>
+Vector<T, N> operator/(T scalar, const Vector<T, N>& vector)
+{
+  Vector<T, N> result;
+  for (int i = 0; i < N; ++i)
+  {
+    result[i] = scalar / vector[i];
+  }
+  return result;
+}
+
+template<typename T, unsigned int N>
 Vector<T, N>& operator+=(Vector<T, N>& a, const Vector<T, N>& b)
 {
   for (int i = 0; i < N; ++i)
