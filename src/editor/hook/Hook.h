@@ -24,7 +24,7 @@ template<typename T>
 struct Gizmo: public GizmoBase
 {
   Gizmo();
-  bool Run(T* component);
+  bool Run(T* component, const World::Object& object);
 };
 void EndAllGizmos();
 

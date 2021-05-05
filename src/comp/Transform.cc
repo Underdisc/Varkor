@@ -24,6 +24,50 @@ const Vec3& Transform::GetTranslation() const
   return mTranslation;
 }
 
+Quat Transform::GetWorldRotation(
+  const World::Space& space, World::MemberId ownerId) const
+{
+  return GetParentWorldRotation(space, ownerId) * mRotation;
+}
+
+Vec3 Transform::GetWorldTranslation(
+  const World::Space& space, World::MemberId ownerId)
+{
+  Mat4 worldMatrix = GetWorldMatrix(space, ownerId);
+  return Math::ApplyToPoint(worldMatrix, {0.0f, 0.0f, 0.0f});
+}
+
+void Transform::SetWorldTranslation(
+  const Vec3& worldTranslation,
+  const World::Space& space,
+  World::MemberId ownerId)
+{
+  const World::Member& member = space.GetConstMember(ownerId);
+  Transform* pTransform = space.GetComponent<Transform>(member.Parent());
+  if (pTransform == nullptr)
+  {
+    SetTranslation(worldTranslation);
+    return;
+  }
+  Mat4 parentWorldMatrix = pTransform->GetWorldMatrix(space, member.Parent());
+  Mat4 inverseParentMatrix = Math::Inverse(parentWorldMatrix);
+  SetTranslation(Math::ApplyToPoint(inverseParentMatrix, worldTranslation));
+}
+
+Quat Transform::GetParentWorldRotation(
+  const World::Space& space, World::MemberId ownerId) const
+{
+  const World::Member& member = space.GetConstMember(ownerId);
+  Transform* pTransform = space.GetComponent<Transform>(member.Parent());
+  if (pTransform == nullptr)
+  {
+    Math::Quaternion identity;
+    identity.Identity();
+    return identity;
+  }
+  return pTransform->GetWorldRotation(space, member.Parent());
+}
+
 void Transform::SetUniformScale(float newUniformScale)
 {
   mScale[0] = newUniformScale;
@@ -69,9 +113,9 @@ const Mat4& Transform::GetLocalMatrix()
 }
 
 Mat4 Transform::GetWorldMatrix(
-  const World::Space& space, World::MemberId memberId)
+  const World::Space& space, World::MemberId ownerId)
 {
-  const World::Member& member = space.GetConstMember(memberId);
+  const World::Member& member = space.GetConstMember(ownerId);
   if (!member.HasParent())
   {
     return GetLocalMatrix();

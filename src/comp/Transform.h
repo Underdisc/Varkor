@@ -19,12 +19,24 @@ struct Transform
   const Vec3& GetScale() const;
   const Quat& GetRotation() const;
   const Vec3& GetTranslation() const;
+  Quat GetWorldRotation(
+    const World::Space& space, World::MemberId ownerId) const;
+  Vec3 GetWorldTranslation(const World::Space& space, World::MemberId ownerId);
+
   void SetUniformScale(float newUniformScale);
   void SetScale(const Vec3& newScale);
   void SetRotation(const Quat& newRotation);
   void SetTranslation(const Vec3& newTranslation);
+  void SetWorldTranslation(
+    const Vec3& worldTranslation,
+    const World::Space& space,
+    World::MemberId ownerId);
+
+  Quat GetParentWorldRotation(
+    const World::Space& space, World::MemberId ownerId) const;
+
   const Mat4& GetLocalMatrix();
-  Mat4 GetWorldMatrix(const World::Space& space, World::MemberId member);
+  Mat4 GetWorldMatrix(const World::Space& space, World::MemberId ownerId);
 
 private:
   Vec3 mScale;

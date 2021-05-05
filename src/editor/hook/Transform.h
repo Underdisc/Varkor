@@ -18,7 +18,7 @@ struct Gizmo<Comp::Transform>: public GizmoBase
 {
 public:
   Gizmo();
-  bool Run(Comp::Transform* transform);
+  bool Run(Comp::Transform* transform, const World::Object& object);
 
 private:
   enum class Mode
@@ -39,20 +39,41 @@ private:
     Xyz
   };
 
-  void TryStartOperation(Comp::Transform* transform, const Math::Ray& mouseRay);
-  bool Translate(Comp::Transform* transform, const Math::Ray& mouseRay);
-  bool Scale(Comp::Transform* transform, const Math::Ray& mouseRay);
-  bool Rotate(Comp::Transform* transform, const Math::Ray& mouseRay);
+  void TryStartOperation(
+    Comp::Transform* transform,
+    const World::Space& space,
+    World::MemberId ownerId,
+    const Math::Ray& mouseRay);
+  bool Translate(
+    Comp::Transform* transform,
+    const World::Space& space,
+    World::MemberId ownerId,
+    const Math::Ray& mouseRay);
+  bool Scale(
+    Comp::Transform* transform,
+    const World::Space& space,
+    World::MemberId ownerId,
+    const Math::Ray& mouseRay);
+  bool Rotate(
+    Comp::Transform* transform,
+    const World::Space& space,
+    World::MemberId ownerId,
+    const Math::Ray& mouseRay);
 
   void SwitchMode(Mode newMode);
-  Operation GetHandleOperation(World::MemberId memberId) const;
+  Operation GetHandleOperation(World::MemberId handleId) const;
   void PrepareGizmoRepresentation(
-    const Comp::Transform* transform,
+    Comp::Transform* transform,
+    const World::Space& space,
+    World::MemberId ownerId,
     Math::Ray* gizmoRay,
     Math::Plane* gizmoPlane) const;
 
-  void RenderHandle(World::MemberId memberId, const Vec4& color);
-  void RenderHandles(const Comp::Transform* transform);
+  void RenderHandle(World::MemberId handleId, const Vec4& color);
+  void RenderHandles(
+    Comp::Transform* transform,
+    const World::Space& space,
+    World::MemberId ownerId);
 
   World::Space mSpace;
   World::MemberId mParent, mX, mY, mZ, mXy, mXz, mYz, mXyz;
@@ -62,6 +83,7 @@ private:
   Operation mOperation;
   Vec3 mStartScale;
   Quat mStartRotation;
+  Quat mStartWorldRotation;
   Vec3 mTranslateOffset;
 
   const char* arrowPath = "vres/model/arrow.fbx";

@@ -88,11 +88,11 @@ void EndGizmo()
 }
 
 template<typename T>
-bool RunGizmo(T* component)
+bool RunGizmo(T* component, const World::Object& object)
 {
   int gizmoIndex = GetExistingGizmoIndex<T>();
   Gizmo<T>* gizmo = (Gizmo<T>*)nGizmoStore[gizmoIndex].mGizmo;
-  return gizmo->Run(component);
+  return gizmo->Run(component, object);
 }
 
 template<typename T>
@@ -128,7 +128,7 @@ T* InspectGizmoComponent(const World::Object& object)
     {
       StartGizmo<T>();
     }
-    bool editing = RunGizmo<T>(component);
+    bool editing = RunGizmo<T>(component, object);
     nSuppressObjectPicking |= editing;
   } else if (ActiveGizmo<T>())
   {
@@ -173,7 +173,7 @@ Gizmo<T>::Gizmo()
 // compile and link errors and instead abort when one uses the generic Gizmo
 // structure instead of their own specialization.
 template<typename T>
-bool Gizmo<T>::Run(T* component)
+bool Gizmo<T>::Run(T* component, const World::Object& object)
 {}
 
 } // namespace Hook
