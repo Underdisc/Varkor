@@ -38,7 +38,14 @@ private:
     Yz,
     Xyz
   };
+  enum class ReferenceFrame
+  {
+    World,
+    Parent,
+    Relative,
+  };
 
+  void DisplayOptionsWindow();
   void TryStartOperation(
     Comp::Transform* transform,
     const World::Space& space,
@@ -68,6 +75,10 @@ private:
     World::MemberId ownerId,
     Math::Ray* gizmoRay,
     Math::Plane* gizmoPlane) const;
+  Quat ReferenceFrameRotation(
+    Comp::Transform* transform,
+    const World::Space& space,
+    World::MemberId ownerId) const;
 
   void RenderHandle(World::MemberId handleId, const Vec4& color);
   void RenderHandles(
@@ -78,7 +89,9 @@ private:
   World::Space mSpace;
   World::MemberId mParent, mX, mY, mZ, mXy, mXz, mYz, mXyz;
   Gfx::Framebuffer mDrawbuffer;
+
   Mode mMode;
+  ReferenceFrame mReferenceFrame;
 
   Operation mOperation;
   Vec3 mStartScale;

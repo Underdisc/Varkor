@@ -51,7 +51,9 @@ void Edit(Comp::Transform* transform)
 }
 
 Gizmo<Comp::Transform>::Gizmo():
-  mDrawbuffer(GL_RGBA, GL_UNSIGNED_BYTE), mOperation(Operation::None)
+  mDrawbuffer(GL_RGBA, GL_UNSIGNED_BYTE),
+  mReferenceFrame(ReferenceFrame::World),
+  mOperation(Operation::None)
 {
   AssetLibrary::AddRequiredModel(arrowPath);
   AssetLibrary::AddRequiredModel(cubePath);
@@ -115,16 +117,32 @@ Gizmo<Comp::Transform>::Gizmo():
 bool Gizmo<Comp::Transform>::Run(
   Comp::Transform* transform, const World::Object& object)
 {
-  if (Input::KeyPressed(Input::Key::Z))
+  if (Input::KeyDown(Input::Key::LeftControl))
   {
-    SwitchMode(Mode::Translate);
-  } else if (Input::KeyPressed(Input::Key::X))
+    if (Input::KeyPressed(Input::Key::Z))
+    {
+      mReferenceFrame = ReferenceFrame::World;
+    } else if (Input::KeyPressed(Input::Key::X))
+    {
+      mReferenceFrame = ReferenceFrame::Parent;
+    } else if (Input::KeyPressed(Input::Key::C))
+    {
+      mReferenceFrame = ReferenceFrame::Relative;
+    }
+  } else
   {
-    SwitchMode(Mode::Scale);
-  } else if (Input::KeyPressed(Input::Key::C))
-  {
-    SwitchMode(Mode::Rotate);
+    if (Input::KeyPressed(Input::Key::Z))
+    {
+      SwitchMode(Mode::Translate);
+    } else if (Input::KeyPressed(Input::Key::X))
+    {
+      SwitchMode(Mode::Scale);
+    } else if (Input::KeyPressed(Input::Key::C))
+    {
+      SwitchMode(Mode::Rotate);
+    }
   }
+  DisplayOptionsWindow();
 
   // Find the world ray represented by the mouse and camera positions.
   Vec3 worldPosition = Viewport::MouseToWorldPosition(
@@ -160,6 +178,28 @@ bool Gizmo<Comp::Transform>::Run(
   }
   RenderHandles(transform, space, object.mMember);
   return editing;
+}
+
+void Gizmo<Comp::Transform>::DisplayOptionsWindow()
+{
+  ImGui::Begin("Transform Gizmo Options");
+  ImGui::PushItemWidth(-110.0f);
+  const char* modeNames[] = {"Translate", "Scale", "Rotate"};
+  const int modeNameCount = sizeof(modeNames) / sizeof(const char*);
+  int intMode = (int)mMode;
+  ImGui::Combo("Mode", &intMode, modeNames, modeNameCount);
+  Mode newMode = (Mode)intMode;
+  if (newMode != mMode)
+  {
+    SwitchMode(newMode);
+  }
+  const char* frameNames[] = {"World", "Parent", "Relative"};
+  const int frameNameCount = sizeof(frameNames) / sizeof(const char*);
+  int intFrame = (int)mReferenceFrame;
+  ImGui::Combo("Reference Frame", &intFrame, frameNames, frameNameCount);
+  mReferenceFrame = (ReferenceFrame)intFrame;
+  ImGui::PopItemWidth();
+  ImGui::End();
 }
 
 void Gizmo<Comp::Transform>::TryStartOperation(
@@ -454,29 +494,28 @@ void Gizmo<Comp::Transform>::PrepareGizmoRepresentation(
   Math::Ray* gizmoRay,
   Math::Plane* gizmoPlane) const
 {
+  // Place the gizmo representations in the correct position.
   Mat4 worldMatrix = transform->GetWorldMatrix(space, ownerId);
   Vec3 worldTranslation = Math::ApplyToPoint(worldMatrix, {0.0f, 0.0f, 0.0f});
   gizmoRay->mStart = worldTranslation;
   gizmoPlane->mPoint = worldTranslation;
 
-  Math::Quaternion worldRotation = mStartWorldRotation;
-  Vec3 x = worldRotation.Rotate({1.0f, 0.0f, 0.0f});
-  Vec3 y = worldRotation.Rotate({0.0f, 1.0f, 0.0f});
-  Vec3 z = worldRotation.Rotate({0.0f, 0.0f, 1.0f});
+  // Rotate the gizmo representations to the correct orientation.
+  Math::Quaternion rotation = ReferenceFrameRotation(transform, space, ownerId);
+  if (mReferenceFrame == ReferenceFrame::Relative)
+  {
+    // The reference frame function returned the transform's current world
+    // rotation. This creates an unstable quaternion when rotating around a
+    // single axis. We overwrite the rotation here to keep this quaternion the
+    // same throughout an entire operation.
+    rotation = mStartWorldRotation;
+  }
+  Vec3 x = rotation.Rotate({1.0f, 0.0f, 0.0f});
+  Vec3 y = rotation.Rotate({0.0f, 1.0f, 0.0f});
+  Vec3 z = rotation.Rotate({0.0f, 0.0f, 1.0f});
   switch (mMode)
   {
   case Mode::Translate:
-    switch (mOperation)
-    {
-    case Operation::X: gizmoRay->Direction(x); break;
-    case Operation::Y: gizmoRay->Direction(y); break;
-    case Operation::Z: gizmoRay->Direction(z); break;
-    case Operation::Xy: gizmoPlane->Normal(z); break;
-    case Operation::Xz: gizmoPlane->Normal(y); break;
-    case Operation::Yz: gizmoPlane->Normal(x); break;
-    case Operation::Xyz: gizmoPlane->Normal(GetCamera().Forward()); break;
-    }
-    break;
   case Mode::Scale:
     switch (mOperation)
     {
@@ -500,6 +539,30 @@ void Gizmo<Comp::Transform>::PrepareGizmoRepresentation(
   }
 }
 
+Quat Gizmo<Comp::Transform>::ReferenceFrameRotation(
+  Comp::Transform* transform,
+  const World::Space& space,
+  World::MemberId ownerId) const
+{
+  Quat rotation;
+  if (mMode == Mode::Scale)
+  {
+    rotation = transform->GetWorldRotation(space, ownerId);
+    return rotation;
+  }
+  switch (mReferenceFrame)
+  {
+  case ReferenceFrame::World: rotation.Identity(); break;
+  case ReferenceFrame::Parent:
+    rotation = transform->GetParentWorldRotation(space, ownerId);
+    break;
+  case ReferenceFrame::Relative:
+    rotation = transform->GetWorldRotation(space, ownerId);
+    break;
+  }
+  return rotation;
+}
+
 void Gizmo<Comp::Transform>::RenderHandle(
   World::MemberId handleId, const Vec4& color)
 {
@@ -517,10 +580,9 @@ void Gizmo<Comp::Transform>::RenderHandles(
   const World::Space& space,
   World::MemberId ownerId)
 {
-  // Set the translation and rotation of the gizmo so that it's relative to the
-  // transform and scale it depending on the distance from the camera.
+  // Set the handles' translation to the transform's position, the rotation to
+  // the frame rotation and scale depending on the distance from the camera.
   Vec3 worldTranslation = transform->GetWorldTranslation(space, ownerId);
-  Math::Quaternion worldRotation = transform->GetWorldRotation(space, ownerId);
   const Vec3& cameraTranslation = GetCamera().Position();
   Math::Ray cameraRay;
   cameraRay.StartDirection(cameraTranslation, GetCamera().Forward());
@@ -529,7 +591,7 @@ void Gizmo<Comp::Transform>::RenderHandles(
   Comp::Transform& parentT = *mSpace.GetComponent<Comp::Transform>(mParent);
   parentT.SetTranslation(worldTranslation);
   parentT.SetUniformScale(Math::Magnitude(projectedDistance) * 0.3f);
-  parentT.SetRotation(worldRotation);
+  parentT.SetRotation(ReferenceFrameRotation(transform, space, ownerId));
 
   // Always make the outer scale ring face the camera.
   if (mMode == Mode::Scale)
@@ -538,7 +600,7 @@ void Gizmo<Comp::Transform>::RenderHandles(
     Math::Quaternion xyzRot;
     Vec3 transformDirection = cameraTranslation - worldTranslation;
     xyzRot.FromTo({1.0f, 0.0f, 0.0f}, transformDirection);
-    xyzRot = worldRotation.Conjugate() * xyzRot;
+    xyzRot = transform->GetWorldRotation(space, ownerId).Conjugate() * xyzRot;
     xyzT->SetRotation(xyzRot);
   }
 
