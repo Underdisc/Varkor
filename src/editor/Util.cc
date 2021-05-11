@@ -157,6 +157,19 @@ void FileSelectWindow()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void HelpMarker(const char* text)
+{
+  ImGui::SameLine();
+  ImGui::TextDisabled("(?)");
+  if (ImGui::IsItemHovered())
+  {
+    ImGui::BeginTooltip();
+    ImGui::TextUnformatted(text);
+    ImGui::EndTooltip();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void ShowUtilWindows()
 {
   if (nShowFileSelectWindow)

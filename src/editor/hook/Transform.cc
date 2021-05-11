@@ -5,6 +5,7 @@
 #include "Viewport.h"
 #include "comp/Model.h"
 #include "comp/Transform.h"
+#include "editor/Util.h"
 #include "editor/hook/Transform.h"
 #include "gfx/Renderer.h"
 #include "math/Constants.h"
@@ -53,6 +54,10 @@ void Edit(Comp::Transform* transform)
 Gizmo<Comp::Transform>::Gizmo():
   mDrawbuffer(GL_RGBA, GL_UNSIGNED_BYTE),
   mReferenceFrame(ReferenceFrame::World),
+  mSnapping(false),
+  mTranslateSnapInterval(1.0f),
+  mScaleSnapInterval(0.1f),
+  mRotationSnapDenominator(4),
   mOperation(Operation::None)
 {
   AssetLibrary::AddRequiredModel(arrowPath);
@@ -198,6 +203,17 @@ void Gizmo<Comp::Transform>::DisplayOptionsWindow()
   int intFrame = (int)mReferenceFrame;
   ImGui::Combo("Reference Frame", &intFrame, frameNames, frameNameCount);
   mReferenceFrame = (ReferenceFrame)intFrame;
+
+  ImGui::Checkbox("Snapping", &mSnapping);
+  if (mSnapping)
+  {
+    ImGui::Text("Snap Parameters");
+    ImGui::InputFloat("Translate", &mTranslateSnapInterval, 0.1f);
+    ImGui::InputFloat("Scale", &mScaleSnapInterval, 0.1f);
+    ImGui::InputInt("Rotation", &mRotationSnapDenominator);
+    HelpMarker("This represents the number of snaps until 180 degrees.");
+  }
+
   ImGui::PopItemWidth();
   ImGui::End();
 }
@@ -266,28 +282,79 @@ bool Gizmo<Comp::Transform>::Translate(
 {
   Math::Ray gizmoRay;
   Math::Plane gizmoPlane;
-  PrepareGizmoRepresentation(transform, space, ownerId, &gizmoRay, &gizmoPlane);
+  Vec3 planeAxis;
+  PrepareGizmoRepresentation(
+    transform, space, ownerId, &gizmoRay, &gizmoPlane, &planeAxis);
+
+  auto singleTranslate = [&]()
+  {
+    if (!gizmoRay.HasClosestTo(mouseRay))
+    {
+      return;
+    }
+    Vec3 mousePoint = gizmoRay.ClosestPointTo(mouseRay);
+    Vec3 newWorldTranslation = mousePoint - mTranslateOffset;
+    if (!mSnapping)
+    {
+      transform->SetWorldTranslation(newWorldTranslation, space, ownerId);
+      return;
+    }
+    Vec3 translation = transform->GetTranslation();
+    Vec3 newTranslation =
+      transform->WorldToLocalTranslation(newWorldTranslation, space, ownerId);
+    Vec3 delta = newTranslation - translation;
+    delta = ScaleToInterval(delta, mTranslateSnapInterval);
+    newTranslation = translation + delta;
+    transform->SetTranslation(newTranslation);
+  };
+
+  auto multiTranslate = [&]()
+  {
+    if (!Math::HasIntersection(mouseRay, gizmoPlane))
+    {
+      return;
+    }
+    Vec3 mousePoint = Math::Intersection(mouseRay, gizmoPlane);
+    Vec3 newWorldTranslation = mousePoint - mTranslateOffset;
+    if (!mSnapping)
+    {
+      transform->SetWorldTranslation(newWorldTranslation, space, ownerId);
+      return;
+    }
+    Vec3 translation = transform->GetTranslation();
+    Vec3 newTranslation =
+      transform->WorldToLocalTranslation(newWorldTranslation, space, ownerId);
+    Vec3 delta = newTranslation - translation;
+    // We find perpendicular vectors that describe the delta and are parallel to
+    // the plane that the transform is moving on.
+    Quat pWorldRotation = transform->GetParentWorldRotation(space, ownerId);
+    planeAxis = pWorldRotation.Conjugate().Rotate(planeAxis);
+    Math::Ray planeRay;
+    planeRay.StartDirection({0.0f, 0.0f, 0.0f}, planeAxis);
+    Vec3 axesDelta[2];
+    axesDelta[0] = planeRay.ClosestPointTo(delta);
+    axesDelta[1] = delta - axesDelta[0];
+    // We then scale those vectors to the snap interval to find the snap delta.
+    axesDelta[0] = ScaleToInterval(axesDelta[0], mTranslateSnapInterval);
+    axesDelta[1] = ScaleToInterval(axesDelta[1], mTranslateSnapInterval);
+    newTranslation = translation + axesDelta[0] + axesDelta[1];
+    transform->SetTranslation(newTranslation);
+  };
+
   switch (mOperation)
   {
   case Operation::X:
   case Operation::Y:
-  case Operation::Z:
-    if (gizmoRay.HasClosestTo(mouseRay))
-    {
-      Vec3 mousePoint = gizmoRay.ClosestPointTo(mouseRay);
-      Vec3 worldTranslation = mousePoint - mTranslateOffset;
-      transform->SetWorldTranslation(worldTranslation, space, ownerId);
-    }
-    return true;
+  case Operation::Z: singleTranslate(); return true;
   case Operation::Xy:
   case Operation::Xz:
-  case Operation::Yz:
+  case Operation::Yz: multiTranslate(); return true;
   case Operation::Xyz:
     if (Math::HasIntersection(mouseRay, gizmoPlane))
     {
       Vec3 mousePoint = Math::Intersection(mouseRay, gizmoPlane);
-      Vec3 worldTranslation = mousePoint - mTranslateOffset;
-      transform->SetWorldTranslation(worldTranslation, space, ownerId);
+      Vec3 newWorldTranslation = mousePoint - mTranslateOffset;
+      transform->SetWorldTranslation(newWorldTranslation, space, ownerId);
     }
     return true;
   }
@@ -305,7 +372,7 @@ bool Gizmo<Comp::Transform>::Scale(
   PrepareGizmoRepresentation(transform, space, ownerId, &gizmoRay, &gizmoPlane);
   Vec3 startingPoint =
     transform->GetWorldTranslation(space, ownerId) + mTranslateOffset;
-  const float scaleSensitivity = 0.3f;
+  const float sensitivity = 0.3f;
 
   // This will peform scaling on a single axis.
   auto singleScale = [&](const Vec3& axis)
@@ -317,7 +384,14 @@ bool Gizmo<Comp::Transform>::Scale(
     float mouseT = gizmoRay.ClosestTTo(mouseRay);
     float startT = gizmoRay.ClosestTTo(startingPoint);
     float deltaT = mouseT - startT;
-    transform->SetScale(mStartScale + axis * deltaT * scaleSensitivity);
+    float deltaScaler = deltaT * sensitivity;
+    if (!mSnapping)
+    {
+      transform->SetScale(mStartScale + axis * deltaScaler);
+      return;
+    }
+    deltaScaler = Math::RoundToNearest(deltaScaler, mScaleSnapInterval);
+    transform->SetScale(mStartScale + axis * deltaScaler);
   };
 
   // This will perform scaling on multiple axes.
@@ -330,17 +404,22 @@ bool Gizmo<Comp::Transform>::Scale(
     Vec3 mousePoint = Math::Intersection(mouseRay, gizmoPlane);
     Vec3 mouseDistance = mousePoint - startingPoint;
     Vec3 offsetDirection = Math::Normalize(mTranslateOffset);
-    Vec3 ratios;
-    if (Math::Near(mStartScale, {0.0f, 0.0f, 0.0f}))
+    float deltaScaler = Math::Dot(offsetDirection, mouseDistance) * sensitivity;
+    if (!mSnapping)
     {
-      ratios = axes;
-    } else
-    {
-      ratios = Math::Normalize(Math::ComponentwiseProduct(mStartScale, axes));
+      Vec3 ratios;
+      if (Math::Near(mStartScale, {0.0f, 0.0f, 0.0f}))
+      {
+        ratios = axes;
+      } else
+      {
+        ratios = Math::ComponentwiseProduct(mStartScale, axes);
+      }
+      transform->SetScale(mStartScale + ratios * deltaScaler);
+      return;
     }
-    transform->SetScale(
-      mStartScale +
-      ratios * Math::Dot(offsetDirection, mouseDistance) * scaleSensitivity);
+    deltaScaler = Math::RoundToNearest(deltaScaler, mScaleSnapInterval);
+    transform->SetScale(mStartScale + axes * deltaScaler);
   };
 
   switch (mOperation)
@@ -391,6 +470,11 @@ bool Gizmo<Comp::Transform>::Rotate(
     if (Math::Dot(normCurrent, positiveDirection) < 0.0f)
     {
       angle *= -1.0f;
+    }
+    if (mSnapping)
+    {
+      float snapDelta = Math::nPi / (float)mRotationSnapDenominator;
+      angle = Math::RoundToNearest(angle, snapDelta);
     }
     Math::Quaternion parentRotation =
       transform->GetParentWorldRotation(space, ownerId);
@@ -492,7 +576,8 @@ void Gizmo<Comp::Transform>::PrepareGizmoRepresentation(
   const World::Space& space,
   World::MemberId ownerId,
   Math::Ray* gizmoRay,
-  Math::Plane* gizmoPlane) const
+  Math::Plane* gizmoPlane,
+  Vec3* planeAxis) const
 {
   // Place the gizmo representations in the correct position.
   Mat4 worldMatrix = transform->GetWorldMatrix(space, ownerId);
@@ -537,6 +622,17 @@ void Gizmo<Comp::Transform>::PrepareGizmoRepresentation(
     }
     break;
   }
+
+  if (planeAxis == nullptr)
+  {
+    return;
+  }
+  switch (mOperation)
+  {
+  case Operation::Xy: *planeAxis = x; break;
+  case Operation::Xz: *planeAxis = x; break;
+  case Operation::Yz: *planeAxis = y; break;
+  }
 }
 
 Quat Gizmo<Comp::Transform>::ReferenceFrameRotation(
@@ -561,6 +657,18 @@ Quat Gizmo<Comp::Transform>::ReferenceFrameRotation(
     break;
   }
   return rotation;
+}
+
+Vec3 Gizmo<Comp::Transform>::ScaleToInterval(Vec3 vector, float interval)
+{
+  float length = Math::Magnitude(vector);
+  if (Math::Near(length, 0.0f))
+  {
+    return {0.0f, 0.0f, 0.0f};
+  }
+  float newLength = Math::RoundToNearest(length, interval);
+  vector = vector / length;
+  return vector * newLength;
 }
 
 void Gizmo<Comp::Transform>::RenderHandle(

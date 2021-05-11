@@ -34,9 +34,14 @@ struct Transform
 
   Quat GetParentWorldRotation(
     const World::Space& space, World::MemberId ownerId) const;
+  Vec3 WorldToLocalTranslation(
+    Vec3 worldTranslation, const World::Space& space, World::MemberId ownerId);
 
   const Mat4& GetLocalMatrix();
+  Mat4 GetInverseLocalMatrix();
   Mat4 GetWorldMatrix(const World::Space& space, World::MemberId ownerId);
+  Mat4 GetInverseWorldMatrix(
+    const World::Space& space, World::MemberId ownerId);
 
 private:
   Vec3 mScale;

@@ -74,11 +74,13 @@ private:
     const World::Space& space,
     World::MemberId ownerId,
     Math::Ray* gizmoRay,
-    Math::Plane* gizmoPlane) const;
+    Math::Plane* gizmoPlane,
+    Vec3* planeAxis = nullptr) const;
   Quat ReferenceFrameRotation(
     Comp::Transform* transform,
     const World::Space& space,
     World::MemberId ownerId) const;
+  Vec3 ScaleToInterval(Vec3 vector, float interval);
 
   void RenderHandle(World::MemberId handleId, const Vec4& color);
   void RenderHandles(
@@ -92,6 +94,10 @@ private:
 
   Mode mMode;
   ReferenceFrame mReferenceFrame;
+  bool mSnapping;
+  float mTranslateSnapInterval;
+  float mScaleSnapInterval;
+  int mRotationSnapDenominator;
 
   Operation mOperation;
   Vec3 mStartScale;

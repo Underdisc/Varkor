@@ -37,37 +37,6 @@ Vec3 Transform::GetWorldTranslation(
   return Math::ApplyToPoint(worldMatrix, {0.0f, 0.0f, 0.0f});
 }
 
-void Transform::SetWorldTranslation(
-  const Vec3& worldTranslation,
-  const World::Space& space,
-  World::MemberId ownerId)
-{
-  const World::Member& member = space.GetConstMember(ownerId);
-  Transform* pTransform = space.GetComponent<Transform>(member.Parent());
-  if (pTransform == nullptr)
-  {
-    SetTranslation(worldTranslation);
-    return;
-  }
-  Mat4 parentWorldMatrix = pTransform->GetWorldMatrix(space, member.Parent());
-  Mat4 inverseParentMatrix = Math::Inverse(parentWorldMatrix);
-  SetTranslation(Math::ApplyToPoint(inverseParentMatrix, worldTranslation));
-}
-
-Quat Transform::GetParentWorldRotation(
-  const World::Space& space, World::MemberId ownerId) const
-{
-  const World::Member& member = space.GetConstMember(ownerId);
-  Transform* pTransform = space.GetComponent<Transform>(member.Parent());
-  if (pTransform == nullptr)
-  {
-    Math::Quaternion identity;
-    identity.Identity();
-    return identity;
-  }
-  return pTransform->GetWorldRotation(space, member.Parent());
-}
-
 void Transform::SetUniformScale(float newUniformScale)
 {
   mScale[0] = newUniformScale;
@@ -95,6 +64,42 @@ void Transform::SetTranslation(const Vec3& newTranslation)
   mUpdated = false;
 }
 
+void Transform::SetWorldTranslation(
+  const Vec3& worldTranslation,
+  const World::Space& space,
+  World::MemberId ownerId)
+{
+  SetTranslation(WorldToLocalTranslation(worldTranslation, space, ownerId));
+}
+
+Quat Transform::GetParentWorldRotation(
+  const World::Space& space, World::MemberId ownerId) const
+{
+  const World::Member& member = space.GetConstMember(ownerId);
+  Transform* pTransform = space.GetComponent<Transform>(member.Parent());
+  if (pTransform == nullptr)
+  {
+    Math::Quaternion identity;
+    identity.Identity();
+    return identity;
+  }
+  return pTransform->GetWorldRotation(space, member.Parent());
+}
+
+Vec3 Transform::WorldToLocalTranslation(
+  Vec3 worldTranslation, const World::Space& space, World::MemberId ownerId)
+{
+  const World::Member& member = space.GetConstMember(ownerId);
+  Transform* pTransform = space.GetComponent<Transform>(member.Parent());
+  if (pTransform == nullptr)
+  {
+    return worldTranslation;
+  }
+  Mat4 pInverseWorldMatrix =
+    pTransform->GetInverseWorldMatrix(space, member.Parent());
+  return Math::ApplyToPoint(pInverseWorldMatrix, worldTranslation);
+}
+
 const Mat4& Transform::GetLocalMatrix()
 {
   if (!mUpdated)
@@ -112,14 +117,19 @@ const Mat4& Transform::GetLocalMatrix()
   return mMatrix;
 }
 
+Mat4 Transform::GetInverseLocalMatrix()
+{
+  Mat4 inverseScale, inverseRotate, inverseTranslate;
+  Math::Scale(&inverseScale, 1.0f / mScale);
+  Math::Rotate(&inverseRotate, mRotation.Conjugate());
+  Math::Translate(&inverseTranslate, -mTranslation);
+  return inverseScale * inverseRotate * inverseTranslate;
+}
+
 Mat4 Transform::GetWorldMatrix(
   const World::Space& space, World::MemberId ownerId)
 {
   const World::Member& member = space.GetConstMember(ownerId);
-  if (!member.HasParent())
-  {
-    return GetLocalMatrix();
-  }
   World::MemberId parentId = member.Parent();
   Transform* parentTransform = space.GetComponent<Transform>(parentId);
   if (parentTransform == nullptr)
@@ -129,6 +139,22 @@ Mat4 Transform::GetWorldMatrix(
   const Mat4& localTransformation = GetLocalMatrix();
   Mat4 parentTransformation = parentTransform->GetWorldMatrix(space, parentId);
   return parentTransformation * localTransformation;
+}
+
+Mat4 Transform::GetInverseWorldMatrix(
+  const World::Space& space, World::MemberId ownerId)
+{
+  const World::Member& member = space.GetConstMember(ownerId);
+  World::MemberId parentId = member.Parent();
+  Transform* parentTransform = space.GetComponent<Transform>(parentId);
+  if (parentTransform == nullptr)
+  {
+    return GetInverseLocalMatrix();
+  }
+  Mat4 inverseLocalMatrix = GetInverseLocalMatrix();
+  Mat4 inverseParentMatrix =
+    parentTransform->GetInverseWorldMatrix(space, parentId);
+  return inverseLocalMatrix * inverseParentMatrix;
 }
 
 } // namespace Comp

@@ -9,6 +9,7 @@ bool InputText(const char* label, std::string* str);
 void OpenPopup(const char* name, const char* text);
 void StartFileSelection(
   void (*callback)(const std::string& file, void* data), void* data = nullptr);
+void HelpMarker(const char* text);
 
 // This function is only intended to be called by the main function driving the
 // editor. Some of the editor utility functions create windows that will not
