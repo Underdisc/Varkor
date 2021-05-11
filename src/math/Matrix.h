@@ -43,6 +43,8 @@ Vector<T, N - 1> ApplyToVector(
   const Matrix<T, N>& matrix, const Vector<T, N - 1>& vector);
 
 template<typename T, unsigned int N>
+Matrix<T, N> HomogeneousOrthogonalInverse(const Matrix<T, N>& matrix);
+template<typename T, unsigned int N>
 Matrix<T, N> Inverse(const Matrix<T, N>& matrix);
 template<typename T, unsigned int N>
 void MultiplyRow(Matrix<T, N>* matrix, int row, T factor);

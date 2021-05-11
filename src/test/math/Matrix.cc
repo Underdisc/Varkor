@@ -1,4 +1,6 @@
 #include "math/Matrix.h"
+#include "math/Constants.h"
+#include "math/Matrix4.h"
 #include "math/Vector.h"
 
 #include <iostream>
@@ -122,6 +124,19 @@ void Inverse()
   std::cout << "identity" << std::endl << identity << std::endl;
 }
 
+void HomogeneousOrthogonalInverse()
+{
+  std::cout << "<= HomogeneousOrthogonalInverse =>" << std::endl;
+  Quat rotation;
+  rotation.AngleAxis(Math::nPi / 4.0f, {1.0f, 1.0f, 1.0f});
+  Mat4 translate, rotate;
+  Math::Translate(&translate, {1.0f, 2.0f, 3.0f});
+  Math::Rotate(&rotate, rotation);
+  Mat4 matrix = translate * rotate;
+  Mat4 inverseMatrix = Math::HomogeneousOrthogonalInverse(matrix);
+  std::cout << inverseMatrix * matrix << std::endl;
+}
+
 void MultiplyRow()
 {
   std::cout << "<= MultiplyRow =>" << std::endl;
@@ -214,6 +229,7 @@ int main(void)
   Translate();
   ApplyToPointVector();
   Inverse();
+  HomogeneousOrthogonalInverse();
   MultiplyRow();
   AddRowMultiple();
   SwapRows();

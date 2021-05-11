@@ -163,6 +163,27 @@ Vector<T, N - 1> ApplyToVector(
 }
 
 template<typename T, unsigned int N>
+Matrix<T, N> HomogeneousOrthogonalInverse(const Matrix<T, N>& matrix)
+{
+  Matrix<T, N> result;
+  for (int r = 0; r < N - 1; ++r)
+  {
+    result[r][N - 1] = (T)0;
+    for (int c = 0; c < N - 1; ++c)
+    {
+      result[r][c] = matrix[c][r];
+      result[r][N - 1] += result[r][c] * -matrix[c][N - 1];
+    }
+  }
+  for (int c = 0; c < N - 1; ++c)
+  {
+    result[N - 1][c] = (T)0;
+  }
+  result[N - 1][N - 1] = (T)1;
+  return result;
+}
+
+template<typename T, unsigned int N>
 Matrix<T, N> Inverse(const Matrix<T, N>& matrix)
 {
   // We find the inverse using Gauss-Jordan elimination. That is, we augment
