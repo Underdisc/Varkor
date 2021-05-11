@@ -263,11 +263,7 @@ void DisplayMember(World::Space& space, World::MemberId memberId)
   // Select the member if it is clicked.
   if (ImGui::IsItemClicked())
   {
-    if (selected)
-    {
-      nSelectedObject.Invalidate();
-      Hook::EndAllGizmos();
-    } else
+    if (!selected)
     {
       nSelectedObject.mSpace = nSelectedSpace;
       nSelectedObject.mMember = memberId;
