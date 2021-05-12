@@ -8,11 +8,16 @@
 
 namespace Input {
 
-void MouseCallback(GLFWwindow* window, int button, int action, int mods);
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void KeyCallback(
   GLFWwindow* window, int key, int scancode, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xPos, double yPos);
 void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+
+GLFWmousebuttonfun nLastMouseButtonCallback;
+GLFWkeyfun nLastKeyCallback;
+GLFWcursorposfun nLastCursorPosCallback;
+GLFWscrollfun nLastScrollCallback;
 
 Vec2 nMousePosition;
 Vec2 nMouseMotion;
@@ -29,10 +34,13 @@ void Init()
   nMouseFocus = true;
   nKeyboardFocus = true;
 
-  glfwSetMouseButtonCallback(Viewport::Window(), MouseCallback);
-  glfwSetKeyCallback(Viewport::Window(), KeyCallback);
-  glfwSetCursorPosCallback(Viewport::Window(), CursorPosCallback);
-  glfwSetScrollCallback(Viewport::Window(), ScrollCallback);
+  nLastMouseButtonCallback =
+    glfwSetMouseButtonCallback(Viewport::Window(), MouseButtonCallback);
+  nLastKeyCallback = glfwSetKeyCallback(Viewport::Window(), KeyCallback);
+  nLastCursorPosCallback =
+    glfwSetCursorPosCallback(Viewport::Window(), CursorPosCallback);
+  nLastScrollCallback =
+    glfwSetScrollCallback(Viewport::Window(), ScrollCallback);
 }
 
 void Update()
@@ -113,7 +121,7 @@ bool KeyDown(Key key)
     GLFW_PRESS == glfwGetKey(Viewport::Window(), (int)key);
 }
 
-void MouseCallback(GLFWwindow* window, int button, int action, int mods)
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
   if (window != Viewport::Window())
   {
@@ -126,6 +134,10 @@ void MouseCallback(GLFWwindow* window, int button, int action, int mods)
   } else
   {
     nMouseReleased.Push(button);
+  }
+  if (nLastMouseButtonCallback != nullptr)
+  {
+    nLastMouseButtonCallback(window, button, action, mods);
   }
 }
 
@@ -144,6 +156,10 @@ void KeyCallback(
   {
     nKeyReleased.Push(key);
   }
+  if (nLastKeyCallback != nullptr)
+  {
+    nLastKeyCallback(window, key, scancode, action, mods);
+  }
 }
 
 void CursorPosCallback(GLFWwindow* window, double xPos, double yPos)
@@ -154,6 +170,10 @@ void CursorPosCallback(GLFWwindow* window, double xPos, double yPos)
   Vec2& oldPos = nMousePosition;
   nMouseMotion = newPos - oldPos;
   nMousePosition = newPos;
+  if (nLastCursorPosCallback != nullptr)
+  {
+    nLastCursorPosCallback(window, xPos, yPos);
+  }
 }
 
 void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
@@ -166,6 +186,10 @@ void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
   }
   nMouseScroll[0] = 0.0f;
   nMouseScroll[1] = 0.0f;
+  if (nLastScrollCallback != nullptr)
+  {
+    nLastScrollCallback(window, xOffset, yOffset);
+  }
 }
 
 } // namespace Input
