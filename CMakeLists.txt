@@ -22,7 +22,7 @@ endif ()
 function(AddVarkorTarget)
   add_subdirectory(src ${varkorTarget}Src)
   add_subdirectory(ext ${varkorTarget}Ext)
-  target_include_directories(${varkorTarget} PUBLIC "src" "ext/local" "ext/sub")
+  target_include_directories(${varkorTarget} PUBLIC "src")
   target_link_libraries(${varkorTarget} ${assimp} ${glfw} ${OPENGL_gl_LIBRARY})
 endfunction()
 

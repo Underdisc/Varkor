@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string>
 
+#include <StackWalker.h>
 #include <glad/glad.h>
 
 #include "Error.h"
@@ -51,7 +52,7 @@ void Log(const char* file, int line, const char* reason)
 {
   std::stringstream ss;
   std::string fileName = FormatFileName(file);
-  ss << "Error|" << fileName << "|" << line << "> " << reason;
+  ss << "Error|" << fileName << "(" << line << ")> " << reason;
   LogString(ss.str().c_str());
 }
 
@@ -94,8 +95,9 @@ void Abort(const char* file, int line, const char* reason)
 {
   std::stringstream ss;
   std::string fileName = FormatFileName(file);
-  ss << "Abort|" << fileName << "|" << line << "> " << reason;
+  ss << "Abort|" << fileName << "(" << line << ")> " << reason;
   LogString(ss.str().c_str());
+  StackTrace();
   abort();
 }
 
@@ -104,6 +106,7 @@ void Abort(const char* reason)
   std::stringstream ss;
   ss << "Abort> " << reason;
   LogString(ss.str().c_str());
+  StackTrace();
   abort();
 }
 
@@ -111,7 +114,31 @@ void Abort()
 {
   std::string str("Abort");
   LogString(str.c_str());
+  StackTrace();
   abort();
+}
+
+class CustomStackWalker: public StackWalker
+{
+public:
+  CustomStackWalker(): StackWalker() {}
+
+private:
+  virtual void OnCallstackEntry(CallstackEntryType type, CallstackEntry& entry)
+  {
+    std::stringstream ss;
+    ss << entry.undFullName << " => " << entry.lineFileName << "("
+       << entry.lineNumber << ")";
+    LogString(ss.str().c_str());
+  }
+};
+
+void StackTrace()
+{
+  LogString("///// CallStack /////");
+  CustomStackWalker stackWalker;
+  stackWalker.ShowCallstack();
+  LogString("/////////////////////");
 }
 
 void LogString(const char* string)
@@ -145,13 +172,13 @@ void SignalHandler(int signal)
 {
   switch (signal)
   {
-  case SIGABRT: LogString("SIGABRT: Abort\n"); break;
-  case SIGFPE: LogString("SIGFPE: Floating-Point Exception\n"); break;
-  case SIGILL: LogString("SIGILL: Illegal Instruction\n"); break;
-  case SIGINT: LogString("SIGINT: Interrupt\n"); break;
-  case SIGSEGV: LogString("SIGSEGV: Segfault\n"); break;
-  case SIGTERM: LogString("SIGTERM: Terminate\n"); break;
-  default: LogString("Unknown Signal\n"); break;
+  case SIGABRT: LogString("SIGABRT: Abort"); break;
+  case SIGFPE: LogString("SIGFPE: Floating-Point Exception"); break;
+  case SIGILL: LogString("SIGILL: Illegal Instruction"); break;
+  case SIGINT: LogString("SIGINT: Interrupt"); break;
+  case SIGSEGV: LogString("SIGSEGV: Segfault"); break;
+  case SIGTERM: LogString("SIGTERM: Terminate"); break;
+  default: LogString("Unknown Signal"); break;
   }
   exit(signal);
 }

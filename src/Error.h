@@ -11,6 +11,7 @@ void LogGlStatus();
 void Abort(const char* file, int line, const char* reason);
 void Abort(const char* reason);
 void Abort();
+void StackTrace();
 
 extern bool nUseCout;
 
