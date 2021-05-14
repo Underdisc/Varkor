@@ -92,10 +92,11 @@ Mat4 GetTransformation(const World::Space& space, World::MemberId memberId)
 
 void RenderModel(const Shader& shader, const Comp::Model& modelComp)
 {
-  const Gfx::Model* model = AssetLibrary::GetModel(modelComp.mAsset);
-  if (model != nullptr)
+  const AssetLibrary::ModelAsset* modelAsset =
+    AssetLibrary::GetModel(modelComp.mModelId);
+  if (modelAsset != nullptr)
   {
-    model->Draw(shader);
+    modelAsset->mModel.Draw(shader);
   }
 }
 
@@ -153,7 +154,7 @@ void RenderModels(const World::Space& space, const Mat4& view)
   {
     // Find the shader that will be used to draw the model.
     const Comp::Model& modelComp = visitor.CurrentComponent();
-    const AssetLibrary::Shader* shaderAsset =
+    const AssetLibrary::ShaderAsset* shaderAsset =
       AssetLibrary::GetShader(modelComp.mShaderId);
     const Shader* drawShader;
     if (shaderAsset != nullptr && shaderAsset->mShader.Live())

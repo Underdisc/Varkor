@@ -9,60 +9,51 @@
 
 namespace AssetLibrary {
 
-// Stores all of the shaders that have been added.
-Ds::Map<ShaderId, Shader> nShaders;
-// Used to hand out shader ids and is incremented after a shader is created.
-ShaderId nShaderIdHandout = 0;
+Ds::Map<AssetId, ShaderAsset> nShaders;
+Ds::Map<AssetId, ModelAsset> nModels;
+AssetId nShaderIdHandout = 0;
+AssetId nModelIdHandout = 0;
 
 void CreateEmptyShader()
 {
   std::stringstream name;
   name << "Shader " << nShaderIdHandout;
-  Shader shaderAsset;
+  ShaderAsset shaderAsset;
   shaderAsset.mName = name.str();
   nShaders.Insert(nShaderIdHandout, shaderAsset);
   ++nShaderIdHandout;
 }
 
-const Shader* GetShader(ShaderId shaderId)
+const ShaderAsset* GetShader(AssetId shaderId)
 {
   return nShaders.Find(shaderId);
 }
 
-// Stores all of the models that have been added.
-Ds::Map<std::string, Gfx::Model> nModels;
-
-AddResult AddModel(const std::string& path)
+void CreateEmptyModel()
 {
-  // Check to make sure the model hasn't already been added.
-  const Gfx::Model* model = nModels.Find(path);
-  AddResult result;
-  if (model != nullptr)
-  {
-    result.mSuccess = true;
-    return result;
-  }
-
-  // Load the requested model and add it to the loaded models if it loaded
-  // successfully.
-  Gfx::Model newModel(path, &result.mSuccess, &result.mError);
-  if (!result.mSuccess)
-  {
-    return result;
-  }
-  nModels.Insert(path, Util::Move(newModel));
-  return result;
+  std::stringstream name;
+  name << "Model " << nModelIdHandout;
+  ModelAsset modelAsset;
+  modelAsset.mName = name.str();
+  nModels.Insert(nModelIdHandout++, Util::Move(modelAsset));
 }
 
-const Gfx::Model* GetModel(const std::string& path)
+const ModelAsset* GetModel(AssetId modelId)
 {
-  return nModels.Find(path);
+  return nModels.Find(modelId);
 }
 
-void AddRequiredModel(const std::string& path)
+AssetId AddRequiredModel(const std::string& path)
 {
-  AddResult result = AddModel(path);
+  std::stringstream name;
+  name << "Required Model" << std::endl;
+  ModelAsset modelAsset;
+  modelAsset.mName = name.str();
+  modelAsset.mPath = path;
+  Gfx::Model::InitResult result = modelAsset.mModel.Init(path);
   LogAbortIf(!result.mSuccess, result.mError.c_str());
+  nModels.Insert(nModelIdHandout, Util::Move(modelAsset));
+  return nModelIdHandout++;
 }
 
 } // namespace AssetLibrary

@@ -51,6 +51,13 @@ void Edit(Comp::Transform* transform)
   ImGui::PopItemWidth();
 }
 
+bool Gizmo<Comp::Transform>::smRequiredAssetsLoaded = false;
+AssetLibrary::AssetId Gizmo<Comp::Transform>::smArrowId;
+AssetLibrary::AssetId Gizmo<Comp::Transform>::smCubeId;
+AssetLibrary::AssetId Gizmo<Comp::Transform>::smScaleId;
+AssetLibrary::AssetId Gizmo<Comp::Transform>::smSphereId;
+AssetLibrary::AssetId Gizmo<Comp::Transform>::smTorusId;
+
 Gizmo<Comp::Transform>::Gizmo():
   mDrawbuffer(GL_RGBA, GL_UNSIGNED_BYTE),
   mReferenceFrame(ReferenceFrame::World),
@@ -60,11 +67,15 @@ Gizmo<Comp::Transform>::Gizmo():
   mRotationSnapDenominator(4),
   mOperation(Operation::None)
 {
-  AssetLibrary::AddRequiredModel(arrowPath);
-  AssetLibrary::AddRequiredModel(cubePath);
-  AssetLibrary::AddRequiredModel(scalePath);
-  AssetLibrary::AddRequiredModel(spherePath);
-  AssetLibrary::AddRequiredModel(torusPath);
+  if (!smRequiredAssetsLoaded)
+  {
+    smArrowId = AssetLibrary::AddRequiredModel("vres/model/arrow.fbx");
+    smCubeId = AssetLibrary::AddRequiredModel("vres/model/cube.obj");
+    smScaleId = AssetLibrary::AddRequiredModel("vres/model/scale.fbx");
+    smSphereId = AssetLibrary::AddRequiredModel("vres/model/sphere.fbx");
+    smTorusId = AssetLibrary::AddRequiredModel("vres/model/torus.fbx");
+    smRequiredAssetsLoaded = true;
+  }
 
   mParent = mSpace.CreateMember();
   mX = mSpace.CreateChildMember(mParent);
@@ -110,13 +121,13 @@ Gizmo<Comp::Transform>::Gizmo():
   yzT.SetTranslation({0.0f, 0.5f, 0.5f});
   yzT.SetScale({0.01f, 0.15f, 0.15f});
   xyzT.SetUniformScale(0.13f);
-  xM.mAsset = arrowPath;
-  yM.mAsset = arrowPath;
-  zM.mAsset = arrowPath;
-  xyM.mAsset = cubePath;
-  xzM.mAsset = cubePath;
-  yzM.mAsset = cubePath;
-  xyzM.mAsset = spherePath;
+  xM.mModelId = smArrowId;
+  yM.mModelId = smArrowId;
+  zM.mModelId = smArrowId;
+  xyM.mModelId = smCubeId;
+  xzM.mModelId = smCubeId;
+  yzM.mModelId = smCubeId;
+  xyzM.mModelId = smSphereId;
 }
 
 bool Gizmo<Comp::Transform>::Run(
@@ -529,30 +540,30 @@ void Gizmo<Comp::Transform>::SwitchMode(Mode newMode)
     yT->SetTranslation({0.0f, 0.5f, 0.0f});
     zT->SetTranslation({0.0f, 0.0f, 0.5f});
     xyzT->SetUniformScale(0.13f);
-    xM->mAsset = arrowPath;
-    yM->mAsset = arrowPath;
-    zM->mAsset = arrowPath;
-    xyzM->mAsset = spherePath;
+    xM->mModelId = smArrowId;
+    yM->mModelId = smArrowId;
+    zM->mModelId = smArrowId;
+    xyzM->mModelId = smSphereId;
     break;
   case Mode::Scale:
     xT->SetTranslation({0.5f, 0.0f, 0.0f});
     yT->SetTranslation({0.0f, 0.5f, 0.0f});
     zT->SetTranslation({0.0f, 0.0f, 0.5f});
     xyzT->SetUniformScale(1.1f);
-    xM->mAsset = scalePath;
-    yM->mAsset = scalePath;
-    zM->mAsset = scalePath;
-    xyzM->mAsset = torusPath;
+    xM->mModelId = smScaleId;
+    yM->mModelId = smScaleId;
+    zM->mModelId = smScaleId;
+    xyzM->mModelId = smTorusId;
     break;
   case Mode::Rotate:
     xT->SetTranslation({0.0f, 0.0f, 0.0f});
     yT->SetTranslation({0.0f, 0.0f, 0.0f});
     zT->SetTranslation({0.0f, 0.0f, 0.0f});
     xyzT->SetUniformScale(0.8f);
-    xM->mAsset = torusPath;
-    yM->mAsset = torusPath;
-    zM->mAsset = torusPath;
-    xyzM->mAsset = spherePath;
+    xM->mModelId = smTorusId;
+    yM->mModelId = smTorusId;
+    zM->mModelId = smTorusId;
+    xyzM->mModelId = smSphereId;
   }
 }
 

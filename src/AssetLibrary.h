@@ -9,30 +9,30 @@
 
 namespace AssetLibrary {
 
-struct Shader
+typedef int AssetId;
+constexpr AssetId nInvalidAssetId = -1;
+
+struct ShaderAsset
 {
   std::string mName;
   std::string mVertexFile;
   std::string mFragmentFile;
   Gfx::Shader mShader;
 };
-typedef int ShaderId;
-constexpr ShaderId nInvalidShaderId = -1;
-extern Ds::Map<ShaderId, Shader> nShaders;
-
+extern Ds::Map<AssetId, ShaderAsset> nShaders;
 void CreateEmptyShader();
-const Shader* GetShader(ShaderId shaderId);
+const ShaderAsset* GetShader(AssetId shaderId);
 
-// Used for recording and checking whether an asset was successfully added to
-// the asset library.
-struct AddResult
+struct ModelAsset
 {
-  bool mSuccess;
-  std::string mError;
+  std::string mName;
+  std::string mPath;
+  Gfx::Model mModel;
 };
-AddResult AddModel(const std::string& path);
-void AddRequiredModel(const std::string& path);
-const Gfx::Model* GetModel(const std::string& path);
+extern Ds::Map<AssetId, ModelAsset> nModels;
+AssetId AddRequiredModel(const std::string& path);
+void CreateEmptyModel();
+const ModelAsset* GetModel(AssetId modelId);
 
 } // namespace AssetLibrary
 

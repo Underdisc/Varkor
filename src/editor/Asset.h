@@ -5,8 +5,9 @@
 
 namespace Editor {
 
-typedef void (*ShaderSelectCallback)(AssetLibrary::ShaderId, void*);
-void StartShaderSelection(ShaderSelectCallback callback, void* data = nullptr);
+typedef void (*AssetSelectCallback)(AssetLibrary::AssetId, void*);
+void StartShaderSelection(AssetSelectCallback callback, void* data = nullptr);
+void StartModelSelection(AssetSelectCallback callback, void* data = nullptr);
 
 extern bool nShowAssetWindow;
 void ShowAssetWindows();

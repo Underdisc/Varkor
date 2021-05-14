@@ -13,11 +13,16 @@ namespace Gfx {
 
 struct Model
 {
-  Model(
-    const std::string& file,
-    bool* success = nullptr,
-    std::string* error = nullptr);
+public:
+  struct InitResult
+  {
+    bool mSuccess;
+    std::string mError;
+  };
+
+  Model();
   Model(Model&& other);
+  InitResult Init(const std::string& file);
   void Draw(const Shader& shader) const;
 
 private:

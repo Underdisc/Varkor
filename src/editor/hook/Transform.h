@@ -1,6 +1,7 @@
 #ifndef editor_hook_Transform_h
 #define editor_hook_Transform_h
 
+#include "AssetLibrary.h"
 #include "Hook.h"
 #include "comp/Transform.h"
 #include "gfx/Framebuffer.h"
@@ -105,11 +106,12 @@ private:
   Quat mStartWorldRotation;
   Vec3 mTranslateOffset;
 
-  const char* arrowPath = "vres/model/arrow.fbx";
-  const char* cubePath = "vres/model/cube.obj";
-  const char* scalePath = "vres/model/scale.fbx";
-  const char* spherePath = "vres/model/sphere.fbx";
-  const char* torusPath = "vres/model/torus.fbx";
+  static bool smRequiredAssetsLoaded;
+  static AssetLibrary::AssetId smArrowId;
+  static AssetLibrary::AssetId smCubeId;
+  static AssetLibrary::AssetId smScaleId;
+  static AssetLibrary::AssetId smSphereId;
+  static AssetLibrary::AssetId smTorusId;
 };
 
 } // namespace Hook

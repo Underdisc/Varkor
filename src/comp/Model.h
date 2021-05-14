@@ -12,8 +12,8 @@ struct Model
 {
   Model();
 
-  AssetLibrary::ShaderId mShaderId;
-  std::string mAsset;
+  AssetLibrary::AssetId mShaderId;
+  AssetLibrary::AssetId mModelId;
 };
 #pragma pack(pop)
 

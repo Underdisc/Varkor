@@ -10,15 +10,25 @@
 
 namespace Gfx {
 
-Model::Model(const std::string& file, bool* success, std::string* error):
-  mDirectory(file.substr(0, file.find_last_of('/') + 1))
+Model::Model() {}
+
+Model::Model(Model&& other):
+  mDirectory(Util::Move(other.mDirectory)),
+  mMeshes(Util::Move(other.mMeshes)),
+  mLoadedTextures(Util::Move(other.mLoadedTextures))
+{}
+
+Model::InitResult Model::Init(const std::string& file)
 {
-  // Import the model file.
+  // Clear or replace the old data.
+  mDirectory = file.substr(0, file.find_last_of('/') + 1);
+  mMeshes.Clear();
+  mLoadedTextures.Clear();
+
+  // Import the model and record any errors.
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(
     file, aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_FlipUVs);
-
-  // Record any errors that may have occurred while importing the file.
   bool sceneCreated = scene != nullptr && scene->mRootNode != nullptr;
   std::stringstream errorStream;
   if (!sceneCreated || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE)
@@ -31,27 +41,18 @@ Model::Model(const std::string& file, bool* success, std::string* error):
   }
 
   // Avoid processing the imported data if any errors occured.
+  InitResult result;
   if (!errorStream.str().empty())
   {
-    LogAbortIf(
-      success == nullptr || error == nullptr, errorStream.str().c_str());
-    *success = false;
-    *error = errorStream.str();
-    return;
-  }
-
-  ProcessNode(scene->mRootNode, scene);
-  if (success != nullptr)
+    result.mSuccess = false;
+    result.mError = errorStream.str();
+  } else
   {
-    *success = true;
+    ProcessNode(scene->mRootNode, scene);
+    result.mSuccess = true;
   }
+  return result;
 }
-
-Model::Model(Model&& other):
-  mDirectory(Util::Move(other.mDirectory)),
-  mMeshes(Util::Move(other.mMeshes)),
-  mLoadedTextures(Util::Move(other.mLoadedTextures))
-{}
 
 void Model::Draw(const Shader& shader) const
 {

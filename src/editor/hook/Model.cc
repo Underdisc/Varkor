@@ -10,20 +10,13 @@
 namespace Editor {
 namespace Hook {
 
-void ChangeAssetCallback(const std::string& path, void* data)
+void ChangeModelCallback(AssetLibrary::AssetId modelId, void* data)
 {
   Comp::Model* model = (Comp::Model*)data;
-  AssetLibrary::AddResult result = AssetLibrary::AddModel(path);
-  if (result.mSuccess)
-  {
-    model->mAsset = path;
-  } else
-  {
-    Editor::OpenPopup("Model Import Failed", result.mError.c_str());
-  }
+  model->mModelId = modelId;
 }
 
-void ChangeShaderCallback(AssetLibrary::ShaderId shaderId, void* data)
+void ChangeShaderCallback(AssetLibrary::AssetId shaderId, void* data)
 {
   Comp::Model* model = (Comp::Model*)data;
   model->mShaderId = shaderId;
@@ -34,21 +27,23 @@ void Edit(Comp::Model* model)
 {
   std::stringstream buttonLabel;
   buttonLabel << "Model: ";
-  if (model->mAsset.empty())
+  const AssetLibrary::ModelAsset* modelAsset =
+    AssetLibrary::GetModel(model->mModelId);
+  if (modelAsset == nullptr)
   {
     buttonLabel << "None";
   } else
   {
-    buttonLabel << model->mAsset;
+    buttonLabel << modelAsset->mName;
   }
   if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f)))
   {
-    Editor::StartFileSelection(ChangeAssetCallback, (void*)model);
+    Editor::StartModelSelection(ChangeModelCallback, (void*)model);
   }
 
   buttonLabel.str("");
   buttonLabel << "Shader: ";
-  const AssetLibrary::Shader* shaderAsset =
+  const AssetLibrary::ShaderAsset* shaderAsset =
     AssetLibrary::GetShader(model->mShaderId);
   if (shaderAsset == nullptr)
   {
