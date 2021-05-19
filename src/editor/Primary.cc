@@ -194,14 +194,12 @@ void EditorWindow()
     World::CreateSpace();
   }
   ImGui::BeginChild("Spaces", ImVec2(0, 0), true);
-  int iteration = 0;
   for (World::SpaceVisitor visitor; !visitor.End(); visitor.Next())
   {
     World::Space& space = visitor.CurrentSpace();
     bool selected = nSelectedSpace == visitor.CurrentSpaceId();
-    std::stringstream label;
-    label << iteration << ": " << space.mName;
-    if (ImGui::Selectable(label.str().c_str(), selected))
+    ImGui::PushID(visitor.CurrentSpaceId());
+    if (ImGui::Selectable(space.mName.c_str(), selected))
     {
       if (selected)
       {
@@ -217,7 +215,7 @@ void EditorWindow()
       Hook::EndAllGizmos();
       nShowAddComponentWindow = false;
     }
-    ++iteration;
+    ImGui::PopID();
   }
   ImGui::EndChild();
   ImGui::End();
@@ -238,15 +236,15 @@ void DisplayMember(World::Space& space, World::MemberId memberId)
   {
     flags |= ImGuiTreeNodeFlags_Leaf;
   }
-  std::stringstream label;
-  label << memberId << ": " << member.mName;
-  bool memberOpened = ImGui::TreeNodeEx(label.str().c_str(), flags);
+  ImGui::PushID(memberId);
+  bool memberOpened = ImGui::TreeNodeEx(member.mName.c_str(), flags);
+  ImGui::PopID();
 
   // Make the node a source and target for parenting drag drop operations.
   if (ImGui::BeginDragDropSource())
   {
     ImGui::SetDragDropPayload("MemberId", &memberId, sizeof(World::MemberId));
-    ImGui::Text(label.str().c_str());
+    ImGui::Text(member.mName.c_str());
     ImGui::EndDragDropSource();
   }
   if (ImGui::BeginDragDropTarget())

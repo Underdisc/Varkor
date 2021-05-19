@@ -156,19 +156,21 @@ void ShowShaders()
   }
 
   // Display all of the shaders within the asset library.
-  ImGui::BeginChild("Shaders", ImVec2(-1.0f, 0.0f), true);
+  ImGui::BeginChild("Shaders", ImVec2(-1.0f, 100.0f), true);
   auto it = AssetLibrary::nShaders.Begin();
   auto itE = AssetLibrary::nShaders.End();
   while (it != itE)
   {
     AssetLibrary::ShaderAsset& shaderAsset = it->mValue;
-    std::stringstream label;
-    label << it->Key() << ": " << shaderAsset.mName;
-    if (ImGui::Button(label.str().c_str(), ImVec2(-65.0f, 0.0f)))
+    bool selected = it->Key() == nSelectedShader;
+    ImGui::PushID(it->Key());
+    if (ImGui::Selectable(shaderAsset.mName.c_str(), selected))
     {
       nSelectedShader = it->Key();
     }
+    ImGui::PopID();
     ImGui::SameLine();
+    ImGui::PushItemWidth(-1);
     if (shaderAsset.mShader.Live())
     {
       ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);
@@ -178,6 +180,7 @@ void ShowShaders()
       ImVec4 red(1.0f, 0.0f, 0.0f, 1.0f);
       ImGui::TextColored(red, "Not Live");
     }
+    ImGui::PopItemWidth();
     ++it;
   }
   ImGui::EndChild();
@@ -237,18 +240,19 @@ void ShowModels()
   }
 
   // Display all of the asset library's models.
-  ImGui::BeginChild("Models", ImVec2(-1.0f, 0.0f), true);
+  ImGui::BeginChild("Models", ImVec2(-1.0f, 300.0f), true);
   auto it = AssetLibrary::nModels.Begin();
   auto itE = AssetLibrary::nModels.End();
   while (it != itE)
   {
     AssetLibrary::ModelAsset& modelAsset = it->mValue;
-    std::stringstream label;
-    label << it->Key() << ": " << modelAsset.mName;
-    if (ImGui::Button(label.str().c_str(), ImVec2(-1.0f, 0.0f)))
+    bool selected = it->Key() == nSelectedModel;
+    ImGui::PushID(it->Key());
+    if (ImGui::Selectable(modelAsset.mName.c_str(), selected))
     {
       nSelectedModel = it->Key();
     }
+    ImGui::PopID();
     ++it;
   }
   ImGui::EndChild();
