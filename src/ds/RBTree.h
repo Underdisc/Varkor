@@ -68,7 +68,7 @@ public:
   void Emplace(Args&&... args);
   void Remove(const T& value);
   void Clear();
-  bool Contains(const T& value);
+  bool Contains(const T& value) const;
 
   const Node* GetHead() const;
   bool HasConsistentBlackHeight();
@@ -78,7 +78,7 @@ protected:
   // CT is a type that is comparable to the type stored in the tree. In other
   // words, T can be compared to CT with the > and < operators.
   template<typename CT>
-  Node* FindNode(const CT& value);
+  Node* FindNode(const CT& value) const;
   void RemoveNode(Node* node);
 
 private:

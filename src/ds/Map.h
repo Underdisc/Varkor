@@ -40,8 +40,8 @@ public:
   void Insert(const K& key, const V& value);
   void Insert(const K& key, V&& value);
   void Remove(const K& key);
-  V* Find(const K& key);
-  bool Contains(const K& key);
+  V* Find(const K& key) const;
+  bool Contains(const K& key) const;
 };
 
 } // namespace Ds

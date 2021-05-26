@@ -288,7 +288,7 @@ void RbTree<T>::Clear()
 }
 
 template<typename T>
-bool RbTree<T>::Contains(const T& value)
+bool RbTree<T>::Contains(const T& value) const
 {
   Node* node = FindNode<T>(value);
   return node != nullptr;
@@ -328,7 +328,7 @@ const typename RbTree<T>::Node* RbTree<T>::GetHead() const
 
 template<typename T>
 template<typename CT>
-typename RbTree<T>::Node* RbTree<T>::FindNode(const CT& value)
+typename RbTree<T>::Node* RbTree<T>::FindNode(const CT& value) const
 {
   Node* node = mHead;
   while (node != nullptr)

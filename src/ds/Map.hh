@@ -73,7 +73,7 @@ void Map<K, V>::Remove(const K& key)
 }
 
 template<typename K, typename V>
-V* Map<K, V>::Find(const K& key)
+V* Map<K, V>::Find(const K& key) const
 {
   Node* node = FindNode<K>(key);
   if (node == nullptr)
@@ -84,7 +84,7 @@ V* Map<K, V>::Find(const K& key)
 }
 
 template<typename K, typename V>
-bool Map<K, V>::Contains(const K& key)
+bool Map<K, V>::Contains(const K& key) const
 {
   return FindNode<K>(key) != nullptr;
 }
