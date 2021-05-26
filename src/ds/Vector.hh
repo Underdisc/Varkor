@@ -156,6 +156,7 @@ void Vector<T>::LazyRemove(int index)
     Pop();
     return;
   }
+  mData[index].~T();
   mData[index] = Util::Move(mData[mSize - 1]);
   --mSize;
 }

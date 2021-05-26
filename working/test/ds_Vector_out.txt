@@ -74,7 +74,7 @@ DestructorCount: 5
 <= LazyRemove =>
 [[5, 5], [1, 1], [9, 9], [3, 3], [7, 7]]
 []
-DestructorCount: 1
+DestructorCount: 10
 MoveAssignmentCount: 9
 
 <= IndexOperator =>

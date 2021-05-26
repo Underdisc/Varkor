@@ -177,8 +177,6 @@ void LazyRemove()
     testVector.Emplace(i, (float)i);
   }
 
-  // Lazy remove all of the elements to test the usage of move assignment and
-  // the destruction of the last element.
   TestType::ResetCounts();
   for (int i = 8; i >= 0; i -= 2)
   {
