@@ -1,8 +1,6 @@
 #ifndef comp_Model_h
 #define comp_Model_h
 
-#include <string>
-
 #include "AssetLibrary.h"
 
 namespace Comp {
