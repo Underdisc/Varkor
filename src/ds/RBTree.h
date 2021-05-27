@@ -47,8 +47,8 @@ public:
     const T& operator*();
     const T* operator->();
   };
-  CIter CBegin();
-  CIter CEnd();
+  CIter CBegin() const;
+  CIter CEnd() const;
 
 protected:
   struct Iter: IterBase
@@ -56,8 +56,8 @@ protected:
     T& operator*();
     T* operator->();
   };
-  Iter Begin();
-  Iter End();
+  Iter Begin() const;
+  Iter End() const;
 
 public:
   RbTree();
@@ -88,7 +88,7 @@ private:
   void RotateLeft(Node* oldRoot);
   void RotateRight(Node* oldRoot);
   void Delete(Node* node);
-  Node* LeftmostNode();
+  Node* LeftmostNode() const;
 
   bool HasBlackHeight(Node* node, int currentBh, int expectedBh);
   bool HasDoubleRed(Node* node);

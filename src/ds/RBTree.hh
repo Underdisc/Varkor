@@ -125,7 +125,7 @@ T* RbTree<T>::Iter::operator->()
 }
 
 template<typename T>
-typename RbTree<T>::CIter RbTree<T>::CBegin()
+typename RbTree<T>::CIter RbTree<T>::CBegin() const
 {
   CIter begin;
   begin.mCurrent = LeftmostNode();
@@ -133,7 +133,7 @@ typename RbTree<T>::CIter RbTree<T>::CBegin()
 }
 
 template<typename T>
-typename RbTree<T>::CIter RbTree<T>::CEnd()
+typename RbTree<T>::CIter RbTree<T>::CEnd() const
 {
   CIter end;
   end.mCurrent = nullptr;
@@ -141,7 +141,7 @@ typename RbTree<T>::CIter RbTree<T>::CEnd()
 }
 
 template<typename T>
-typename RbTree<T>::Iter RbTree<T>::Begin()
+typename RbTree<T>::Iter RbTree<T>::Begin() const
 {
   Iter begin;
   begin.mCurrent = LeftmostNode();
@@ -149,7 +149,7 @@ typename RbTree<T>::Iter RbTree<T>::Begin()
 }
 
 template<typename T>
-typename RbTree<T>::Iter RbTree<T>::End()
+typename RbTree<T>::Iter RbTree<T>::End() const
 {
   Iter end;
   end.mCurrent = nullptr;
@@ -626,7 +626,7 @@ void RbTree<T>::Delete(Node* node)
 }
 
 template<typename T>
-typename RbTree<T>::Node* RbTree<T>::LeftmostNode()
+typename RbTree<T>::Node* RbTree<T>::LeftmostNode() const
 {
   if (mHead == nullptr)
   {
