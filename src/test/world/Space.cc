@@ -3,6 +3,7 @@
 #include "debug/MemLeak.h"
 #include "test/world/Print.h"
 #include "world/Space.h"
+#include "world/Types.h"
 
 #pragma pack(push, 1)
 struct Comp0
@@ -103,6 +104,14 @@ struct Comp3
 };
 int Comp3::smInitValue = 3;
 #pragma pack(pop)
+
+void RegisterComponentTypes()
+{
+  World::ComponentType<Comp0>::Register();
+  World::ComponentType<Comp1>::Register();
+  World::ComponentType<Comp2>::Register();
+  World::ComponentType<Comp3>::Register();
+}
 
 template<typename T>
 void PrintComponentData(const World::Space& space, int componentCount)
@@ -362,7 +371,6 @@ void HasComponent()
 
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
-  PrintSpaceTableLookup(space);
   std::cout << space.HasComponent<Comp0>(mem0)
             << space.HasComponent<Comp1>(mem0)
             << space.HasComponent<Comp2>(mem0)
@@ -378,6 +386,8 @@ void HasComponent()
 int main(void)
 {
   InitMemLeakOutput();
+  RegisterComponentTypes();
+
   CreateMember();
   DeleteMember();
   ParentChildMembers();

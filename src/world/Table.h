@@ -43,9 +43,9 @@ public:
   template<typename T>
   Visitor<T> CreateVisitor() const;
 
-  // For determining the size of the memory allocation used for the table.
   static constexpr int smStartCapacity = 10;
   static constexpr float smGrowthFactor = 2.0f;
+  static constexpr int smInvalidIndex = -1;
 
 private:
   char* mData;

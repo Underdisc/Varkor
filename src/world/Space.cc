@@ -8,18 +8,18 @@ namespace World {
 
 void ComponentAddress::EndUse()
 {
-  mTable = nInvalidTableId;
+  mComponentId = nInvalidComponentId;
 }
 
 bool ComponentAddress::InUse() const
 {
-  return mTable != nInvalidTableId;
+  return mComponentId != nInvalidComponentId;
 }
 
 void Member::StartUse(int addressIndex, const std::string& name)
 {
   mAddressIndex = addressIndex;
-  mCount = 0;
+  mComponentCount = 0;
   mParent = nInvalidMemberId;
   mName = name;
 }
@@ -47,12 +47,12 @@ bool Member::InUseRootMember() const
 
 int Member::EndAddress() const
 {
-  return mAddressIndex + mCount;
+  return mAddressIndex + mComponentCount;
 }
 
 int Member::LastAddress() const
 {
-  return mAddressIndex + mCount - 1;
+  return mAddressIndex + mComponentCount - 1;
 }
 
 int Member::AddressIndex() const
@@ -60,9 +60,9 @@ int Member::AddressIndex() const
   return mAddressIndex;
 }
 
-ObjSizeT Member::Count() const
+int Member::ComponentCount() const
 {
-  return mCount;
+  return mComponentCount;
 }
 
 MemberId Member::Parent() const
@@ -120,15 +120,6 @@ Space::Space(): mName("DefaultName"), mCameraId(nInvalidMemberId) {}
 Space::Space(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
 {}
 
-TableId Space::RegisterComponentType(int componentId, int size)
-{
-  TableId table = mTables.Size();
-  Table newTable(size);
-  mTables.Push(newTable);
-  mTableLookup[componentId] = table;
-  return table;
-}
-
 Space::MemberVisitor Space::CreateMemberVisitor()
 {
   return MemberVisitor(*this);
@@ -172,22 +163,21 @@ MemberId Space::CreateChildMember(MemberId parentId)
 
 void Space::DeleteMember(MemberId memberId)
 {
-  // Verify the existance of the member.
-  VerifyMember(memberId);
+  // Delete all of the member's children.
+  VerifyMemberId(memberId);
   Member& member = mMembers[memberId];
-
-  // Delete all of the children of the member to be deleted.
   for (MemberId childId : member.mChildren)
   {
     DeleteMember(childId);
   }
 
-  // Remove all of the member's components and end use of the member's memory.
+  // Remove all of the member's components and end its use.
   int addrIndex = member.mAddressIndex;
   for (; addrIndex < member.EndAddress(); ++addrIndex)
   {
-    ComponentAddress& compAddr = mAddressBin[addrIndex];
-    mTables[compAddr.mTable].Rem(compAddr.mIndex);
+    ComponentAddress& address = mAddressBin[addrIndex];
+    Table* table = mTables.Find(address.mComponentId);
+    table->Rem(address.mTableIndex);
     mAddressBin[addrIndex].EndUse();
   }
   member.EndUse();
@@ -197,8 +187,8 @@ void Space::DeleteMember(MemberId memberId)
 void Space::MakeParent(MemberId parentId, MemberId childId)
 {
   // Verify the existance of the parent and child members.
-  VerifyMember(parentId);
-  VerifyMember(childId);
+  VerifyMemberId(parentId);
+  VerifyMemberId(childId);
   Member& parentMember = mMembers[parentId];
   Member& childMember = mMembers[childId];
 
@@ -215,7 +205,7 @@ void Space::MakeParent(MemberId parentId, MemberId childId)
 void Space::RemoveParent(MemberId childId)
 {
   // Verify that the child exists and has a parent.
-  VerifyMember(childId);
+  VerifyMemberId(childId);
   Member& childMember = mMembers[childId];
   LogAbortIf(!childMember.HasParent(), "This member has no parent.");
 
@@ -235,146 +225,132 @@ void Space::RemoveParent(MemberId childId)
 
 Member& Space::GetMember(MemberId id)
 {
-  VerifyMember(id);
+  VerifyMemberId(id);
   return mMembers[id];
 }
 
 const Member& Space::GetConstMember(MemberId id) const
 {
-  VerifyMember(id);
+  VerifyMemberId(id);
   return mMembers[id];
 }
 
-void* Space::AddComponent(int componentId, MemberId member)
+void* Space::AddComponent(ComponentId componentId, MemberId memberId)
 {
-  // Verify that the component table exists, the member exist, and the member
-  // doesn't already have the component being added.
-  VerifyTable(componentId);
-  VerifyMember(member);
+  // Create the component table if necessary and make sure the member doesn't
+  // already have the component.
+  Table* table = mTables.Find(componentId);
+  if (table == nullptr)
+  {
+    ComponentData* data = nComponentTypeData.Find(componentId);
+    LogAbortIf(data == nullptr, "This component type has not been registered.");
+    Table newTable(data->mSize);
+    mTables.Insert(componentId, newTable);
+    table = mTables.Find(componentId);
+  }
+  VerifyMemberId(memberId);
   LogAbortIf(
-    HasComponent(componentId, member),
-    "This member already has this type of component.");
+    HasComponent(componentId, memberId),
+    "The member already has this component type.");
 
-  // Allocate data for the new component and save a pointer to the component
-  // data so it can be used as the return value.
-  TableId table = mTableLookup[componentId];
+  // Create the component, add its address to the address bin, and make that
+  // address part of the member.
   ComponentAddress newAddress;
-  newAddress.mTable = table;
-  newAddress.mIndex = mTables[table].Add(member);
-  void* componentData = mTables[table].GetData(newAddress.mIndex);
-
-  // Add the component's address to the address bin, and make that address part
-  // of the member.
-  Member& selected = mMembers[member];
-  int nextAddressIndex = selected.EndAddress();
+  newAddress.mComponentId = componentId;
+  newAddress.mTableIndex = table->Add(memberId);
+  Member& member = mMembers[memberId];
+  int nextAddressIndex = member.EndAddress();
   if (nextAddressIndex >= mAddressBin.Size())
   {
     mAddressBin.Push(newAddress);
-    ++selected.mCount;
-    return componentData;
+    ++member.mComponentCount;
+    return table->GetData(newAddress.mTableIndex);
   }
   const ComponentAddress& compAddr = mAddressBin[nextAddressIndex];
   if (!compAddr.InUse())
   {
     mAddressBin[nextAddressIndex] = newAddress;
-    ++selected.mCount;
-    return componentData;
+    ++member.mComponentCount;
+    return table->GetData(newAddress.mTableIndex);
   }
-  for (int i = 0; i < selected.mCount; ++i)
+  for (int i = 0; i < member.mComponentCount; ++i)
   {
-    int copyAddrIndex = selected.mAddressIndex + i;
-    ComponentAddress copyAddr = mAddressBin[copyAddrIndex];
-    mAddressBin.Push(copyAddr);
-    mAddressBin[copyAddrIndex].EndUse();
+    int copyAddressIndex = member.mAddressIndex + i;
+    ComponentAddress copyAddress = mAddressBin[copyAddressIndex];
+    mAddressBin.Push(copyAddress);
+    mAddressBin[copyAddressIndex].EndUse();
   }
   mAddressBin.Push(newAddress);
-  ++selected.mCount;
-  selected.mAddressIndex = mAddressBin.Size() - selected.mCount;
-  return componentData;
+  ++member.mComponentCount;
+  member.mAddressIndex = mAddressBin.Size() - member.mComponentCount;
+  return table->GetData(newAddress.mTableIndex);
 }
 
-void Space::RemComponent(int componentId, MemberId member)
+void Space::RemComponent(ComponentId componentId, MemberId memberId)
 {
-  // Verify that the component table and the member both exist.
-  VerifyTable(componentId);
-  VerifyMember(member);
-
-  // Verify that the member has the component while finding the index of the
-  // component address.
-  bool foundComponentType = false;
-  TableId table = mTableLookup[componentId];
-  Member& selected = mMembers[member];
-  int compAddrIndex = selected.mAddressIndex;
-  int endAddr = selected.EndAddress();
-  for (; compAddrIndex < endAddr; ++compAddrIndex)
+  // Find the address index for the member's component.
+  VerifyMemberId(memberId);
+  Member& member = mMembers[memberId];
+  int addressIndex = member.mAddressIndex;
+  int endIndex = member.EndAddress();
+  while (addressIndex < endIndex)
   {
-    if (mAddressBin[compAddrIndex].mTable == table)
+    if (mAddressBin[addressIndex].mComponentId == componentId)
     {
-      foundComponentType = true;
       break;
     }
+    ++addressIndex;
   }
   LogAbortIf(
-    !foundComponentType,
-    "The member did not have the component type to be removed.");
+    addressIndex == endIndex, "The member does not have the component type.");
 
   // Remove the old component address from the member's address list.
-  ComponentAddress& compAddr = mAddressBin[compAddrIndex];
-  mTables[table].Rem(compAddr.mIndex);
-  if (compAddrIndex == selected.LastAddress())
+  ComponentAddress& address = mAddressBin[addressIndex];
+  Table* table = GetTable(componentId);
+  table->Rem(address.mTableIndex);
+  if (addressIndex == member.LastAddress())
   {
-    compAddr.EndUse();
+    address.EndUse();
   } else
   {
-    ComponentAddress& lastCompAddr = mAddressBin[selected.LastAddress()];
-    compAddr = lastCompAddr;
-    lastCompAddr.EndUse();
+    ComponentAddress& lastAddress = mAddressBin[member.LastAddress()];
+    address = lastAddress;
+    lastAddress.EndUse();
   }
-  --selected.mCount;
+  --member.mComponentCount;
 }
 
-void* Space::GetComponent(int componentId, MemberId member) const
+void* Space::GetComponent(ComponentId componentId, MemberId memberId) const
 {
-  // Make sure the component table and member exist.
-  if (!ValidTable(componentId) || !ValidMember(member))
+  if (!ValidMemberId(memberId))
   {
     return nullptr;
   }
-
-  // Find the requested component by going through the member's component
-  // references.
-  TableId table = mTableLookup[componentId];
-  const Member& selected = mMembers[member];
-  for (int i = 0; i < selected.mCount; ++i)
+  int tableIndex = GetTableIndex(componentId, memberId);
+  if (tableIndex == Table::smInvalidIndex)
   {
-    const ComponentAddress& address = mAddressBin[selected.mAddressIndex + i];
-    if (address.mTable == table)
-    {
-      return mTables[address.mTable].GetData(address.mIndex);
-    }
+    return nullptr;
   }
-  return nullptr;
+  Table* table = GetTable(componentId);
+  return table->GetData(tableIndex);
 }
 
-bool Space::HasComponent(int componentId, MemberId member) const
+bool Space::HasComponent(ComponentId componentId, MemberId memberId) const
 {
-  const void* comp = GetComponent(componentId, member);
-  return comp != nullptr;
+  if (!ValidMemberId(memberId))
+  {
+    return false;
+  }
+  int tableIndex = GetTableIndex(componentId, memberId);
+  return tableIndex != Table::smInvalidIndex;
 }
 
-const void* Space::GetComponentData(int componentId) const
+const void* Space::GetComponentData(ComponentId component) const
 {
-  VerifyTable(componentId);
-  TableId table = mTableLookup[componentId];
-  return mTables[table].Data();
+  return GetTable(component)->Data();
 }
 
-const Ds::Vector<TableId>& Space::TableLookup() const
-{
-  return mTableLookup;
-}
-
-const Ds::Vector<Table>& Space::Tables() const
+const Ds::Map<ComponentId, Table>& Space::Tables() const
 {
   return mTables;
 }
@@ -394,32 +370,36 @@ const Ds::Vector<ComponentAddress> Space::AddressBin() const
   return mAddressBin;
 }
 
-bool Space::ValidTable(int componentId) const
+Table* Space::GetTable(ComponentId component) const
 {
-  // Make sure the table lookup is large enough to treat the component id as an
-  // index, the component type has been initialized, and the table lookup has a
-  // valid table id for the component id.
-  return componentId < mTableLookup.Size() && componentId >= 0 &&
-    mTableLookup[componentId] != nInvalidTableId;
+  Table* table = mTables.Find(component);
+  LogAbortIf(table == nullptr, "There is no table for this component type.");
+  return table;
 }
 
-bool Space::ValidMember(MemberId id) const
+int Space::GetTableIndex(ComponentId componentId, MemberId memberId) const
 {
-  return id >= 0 && id < mMembers.Size() && mMembers[id].InUse();
+  const Member& member = mMembers[memberId];
+  for (int i = 0; i < member.mComponentCount; ++i)
+  {
+    const ComponentAddress& address = mAddressBin[member.mAddressIndex + i];
+    if (address.mComponentId == componentId)
+    {
+      return address.mTableIndex;
+    }
+  }
+  return Table::smInvalidIndex;
 }
 
-void Space::VerifyTable(int componentId) const
+bool Space::ValidMemberId(MemberId memberId) const
 {
-  // Make sure that a table exists for the component type.
-  LogAbortIf(
-    !ValidTable(componentId), "There is no table for this component type.");
+  return memberId >= 0 && memberId < mMembers.Size() &&
+    mMembers[memberId].InUse();
 }
 
-void Space::VerifyMember(MemberId member) const
+void Space::VerifyMemberId(MemberId memberId) const
 {
-  // Make sure the member both exists and is valid.
-  LogAbortIf(
-    !ValidMember(member), "The member under this reference does not exist.");
+  LogAbortIf(!ValidMemberId(memberId), "This member does not exist.");
 }
 
 } // namespace World

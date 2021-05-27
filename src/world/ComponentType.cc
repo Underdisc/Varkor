@@ -1,6 +1,8 @@
-#include "Types.h"
+#include "ComponentType.h"
 
 namespace World {
+
+Ds::Map<ComponentId, ComponentData> nComponentTypeData;
 
 int CreateId()
 {

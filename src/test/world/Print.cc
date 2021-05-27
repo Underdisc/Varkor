@@ -34,41 +34,35 @@ void PrintTableOwners(const World::Table& table)
 void PrintSpace(const World::Space& space)
 {
   PrintSpaceTables(space);
-  PrintSpaceTableLookup(space);
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
 }
 
 void PrintSpaceTables(const World::Space& space)
 {
-  const Ds::Vector<World::Table>& tables = space.Tables();
-  for (int i = 0; i < tables.Size(); ++i)
+  const Ds::Map<World::ComponentId, World::Table>& tables = space.Tables();
+  auto it = tables.Begin();
+  auto itE = tables.End();
+  while (it != itE)
   {
-    std::cout << i << " {" << std::endl;
-    PrintTableStats(tables[i]);
-    PrintTableOwners(tables[i]);
+    std::cout << it->Key() << " {" << std::endl;
+    PrintTableStats(it->mValue);
+    PrintTableOwners(it->mValue);
     std::cout << "}" << std::endl;
+    ++it;
   }
-}
-
-void PrintSpaceTableLookup(const World::Space& space)
-{
-  const Ds::Vector<World::TableId>& lookup = space.TableLookup();
-  std::cout << "TableLookup: [ComponentId, Table]";
-  for (int i = 0; i < lookup.Size(); ++i)
-  {
-    std::cout << ", [" << i << ", " << lookup[i] << "]";
-  }
-  std::cout << std::endl;
 }
 
 void PrintSpaceTablesOwners(const World::Space& space)
 {
-  const Ds::Vector<World::Table>& tables = space.Tables();
-  for (int i = 0; i < tables.Size(); ++i)
+  const Ds::Map<World::ComponentId, World::Table>& tables = space.Tables();
+  auto it = tables.Begin();
+  auto itE = tables.End();
+  while (it != itE)
   {
-    std::cout << "Table " << i << " ";
-    PrintTableOwners(tables[i]);
+    std::cout << "Table " << it->Key() << " ";
+    PrintTableOwners(it->mValue);
+    ++it;
   }
 }
 
@@ -79,7 +73,7 @@ void PrintSpaceMember(
 {
   const World::Member& member = space.Members()[memberId];
   std::cout << indent << "[" << memberId << ", " << member.AddressIndex()
-            << ", " << member.Count() << "]" << std::endl;
+            << ", " << member.ComponentCount() << "]" << std::endl;
   for (World::MemberId childId : member.Children())
   {
     PrintSpaceMember(space, childId, indent + "| ");
@@ -112,7 +106,7 @@ void PrintSpaceAddressBin(const World::Space& space)
       std::cout << "[inv]";
       continue;
     }
-    std::cout << "[" << addr.mTable << ", " << addr.mIndex << "]";
+    std::cout << "[" << addr.mComponentId << ", " << addr.mTableIndex << "]";
   }
   std::cout << std::endl;
 }

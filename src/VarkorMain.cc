@@ -2,6 +2,7 @@
 #include "Framer.h"
 #include "Input.h"
 #include "Viewport.h"
+#include "comp/Registrar.h"
 #include "debug/Draw.h"
 #include "editor/Primary.h"
 #include "gfx/Renderer.h"
@@ -13,6 +14,7 @@ void VarkorInit(const char* windowName)
   Viewport::Init(windowName);
   Editor::Init();
   Framer::Init();
+  Comp::RegisterTypes();
 }
 
 void VarkorEngine()

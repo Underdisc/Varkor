@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "ds/Map.h"
 #include "ds/Vector.h"
 #include "world/Table.h"
 #include "world/Types.h"
@@ -17,11 +18,8 @@ struct ComponentAddress
 {
   void EndUse();
   bool InUse() const;
-
-  // The table the component is stored in.
-  TableId mTable;
-  // The offset of the component data within the table.
-  int mIndex;
+  ComponentId mComponentId;
+  int mTableIndex;
 };
 
 struct Member
@@ -30,18 +28,18 @@ public:
   std::string mName;
 
   int AddressIndex() const;
-  ObjSizeT Count() const;
+  int ComponentCount() const;
   MemberId Parent() const;
   const Ds::Vector<MemberId>& Children() const;
   bool HasParent() const;
   bool InUseRootMember() const;
 
 private:
-  // The index of the first component address within a space address bin.
+  // The index of the first component within the address bin.
   int mAddressIndex;
   static constexpr int smInvalidAddressIndex = -1;
   // The number of component addresses used by the member.
-  ObjSizeT mCount;
+  int mComponentCount;
   // These are values for tracking parent child relationships.
   MemberId mParent;
   Ds::Vector<MemberId> mChildren;
@@ -55,16 +53,10 @@ private:
   friend Space;
 };
 
-// todo: Space's should keep a copy of their id.
 struct Space
 {
   Space();
   Space(const std::string& name);
-
-  // Component Registration.
-  TableId RegisterComponentType(int componentId, int size);
-  template<typename T>
-  void RegisterComponentType();
 
   // Member modification.
   MemberId CreateMember();
@@ -76,18 +68,19 @@ struct Space
   const Member& GetConstMember(MemberId id) const;
 
   // Component creation, deletion, and access.
-  void* AddComponent(int componentId, MemberId member);
-  void RemComponent(int componentId, MemberId member);
-  void* GetComponent(int componentId, MemberId member) const;
-  bool HasComponent(int compnentId, MemberId member) const;
   template<typename T>
-  T& AddComponent(MemberId member);
+  T& AddComponent(MemberId memberId);
   template<typename T>
-  void RemComponent(MemberId member);
+  void RemComponent(MemberId memberId);
   template<typename T>
-  T* GetComponent(MemberId member) const;
+  T* GetComponent(MemberId memberId) const;
   template<typename T>
-  bool HasComponent(MemberId member) const;
+  bool HasComponent(MemberId memberId) const;
+
+  void* AddComponent(ComponentId componentId, MemberId memberId);
+  void RemComponent(ComponentId componentId, MemberId memberId);
+  void* GetComponent(ComponentId componentId, MemberId memberId) const;
+  bool HasComponent(ComponentId componentId, MemberId memberId) const;
 
   // Get the pointer to the beginning of a component table.
   const void* GetComponentData(int componentId) const;
@@ -117,8 +110,7 @@ struct Space
   MemberVisitor CreateMemberVisitor();
 
   // Private member access.
-  const Ds::Vector<TableId>& TableLookup() const;
-  const Ds::Vector<Table>& Tables() const;
+  const Ds::Map<ComponentId, Table>& Tables() const;
   const Ds::Vector<Member>& Members() const;
   const Ds::Vector<MemberId>& UnusedMemberIds() const;
   const Ds::Vector<ComponentAddress> AddressBin() const;
@@ -128,16 +120,15 @@ public:
   MemberId mCameraId;
 
 private:
-  Ds::Vector<TableId> mTableLookup;
-  Ds::Vector<Table> mTables;
+  Ds::Map<ComponentId, Table> mTables;
   Ds::Vector<Member> mMembers;
   Ds::Vector<MemberId> mUnusedMemberIds;
   Ds::Vector<ComponentAddress> mAddressBin;
 
-  bool ValidTable(int componentId) const;
-  bool ValidMember(MemberId id) const;
-  void VerifyTable(int componentId) const;
-  void VerifyMember(MemberId member) const;
+  Table* GetTable(ComponentId component) const;
+  int GetTableIndex(ComponentId componentId, MemberId memberId) const;
+  bool ValidMemberId(MemberId memberId) const;
+  void VerifyMemberId(MemberId memberId) const;
 
   friend World::Object;
 };

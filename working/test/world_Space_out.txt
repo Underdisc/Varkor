@@ -99,7 +99,6 @@ Capacity: 10
 CapacityInBytes: 180
 Owners: [2, 1, 0]
 }
-TableLookup: [ComponentId, Table], [0, 0], [1, 1], [2, 2], [3, 3]
 -[MemberId, Address, Count]-
 [0, 0, 4]
 [1, 8, 4]
@@ -239,7 +238,6 @@ Capacity: 10
 CapacityInBytes: 180
 Owners: [0]
 }
-TableLookup: [ComponentId, Table], [0, 0], [1, 1], [2, 2], [3, 3]
 -[MemberId, Address, Count]-
 [0, 0, 4]
 [1, 4, 3]
@@ -253,7 +251,6 @@ AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 
 -[MemberId, Address, Count]-
 [0, 4, 3]
 [1, 2, 2]
-AddressBin: [Table, Index], [inv], [inv], [2, 0], [3, 0], [0, 0], [1, 0], [3, 1]
-TableLookup: [ComponentId, Table], [0, 2], [1, 0], [2, 1], [3, 3]
+AddressBin: [Table, Index], [inv], [inv], [0, 0], [3, 0], [1, 0], [2, 0], [3, 1]
 011110010
 

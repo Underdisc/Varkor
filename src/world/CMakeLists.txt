@@ -1,6 +1,6 @@
 target_sources(${varkorTarget} PRIVATE
+  ComponentType.cc
   Object.cc
   Space.cc
   Table.cc
-  Types.cc
   World.cc)
