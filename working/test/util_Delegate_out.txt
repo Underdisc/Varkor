@@ -1,0 +1,11 @@
+<= FreeFunction =>
+1
+Free
+
+<= MemberFunction =>
+1
+Member 5
+
+<= NullFunction =>
+0
+
