@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Print.h"
+#include "comp/Type.h"
 
 void PrintTableStats(const World::Table& table)
 {
@@ -40,7 +41,7 @@ void PrintSpace(const World::Space& space)
 
 void PrintSpaceTables(const World::Space& space)
 {
-  const Ds::Map<World::ComponentId, World::Table>& tables = space.Tables();
+  const Ds::Map<Comp::TypeId, World::Table>& tables = space.Tables();
   auto it = tables.Begin();
   auto itE = tables.End();
   while (it != itE)
@@ -55,7 +56,7 @@ void PrintSpaceTables(const World::Space& space)
 
 void PrintSpaceTablesOwners(const World::Space& space)
 {
-  const Ds::Map<World::ComponentId, World::Table>& tables = space.Tables();
+  const Ds::Map<Comp::TypeId, World::Table>& tables = space.Tables();
   auto it = tables.Begin();
   auto itE = tables.End();
   while (it != itE)
@@ -98,15 +99,15 @@ void PrintSpaceAddressBin(const World::Space& space)
 {
   const Ds::Vector<World::ComponentAddress>& addressBin = space.AddressBin();
   std::cout << "AddressBin: [Table, Index]";
-  for (const World::ComponentAddress& addr : addressBin)
+  for (const World::ComponentAddress& address : addressBin)
   {
     std::cout << ", ";
-    if (!addr.InUse())
+    if (!address.InUse())
     {
       std::cout << "[inv]";
       continue;
     }
-    std::cout << "[" << addr.mComponentId << ", " << addr.mTableIndex << "]";
+    std::cout << "[" << address.mTypeId << ", " << address.mTableIndex << "]";
   }
   std::cout << std::endl;
 }

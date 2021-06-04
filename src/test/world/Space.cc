@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "comp/Type.h"
 #include "debug/MemLeak.h"
 #include "test/world/Print.h"
 #include "world/Space.h"
@@ -12,8 +13,9 @@ struct Comp0
   float m0;
   float m1;
 
-  Comp0(): m0((float)smInitValue), m1((float)smInitValue)
+  void VInit()
   {
+    SetData(smInitValue);
     ++smInitValue;
   }
   void SetData(int value)
@@ -34,8 +36,9 @@ struct Comp1
   double m0;
   double m1;
 
-  Comp1(): m0((double)smInitValue), m1((double)smInitValue)
+  void VInit()
   {
+    SetData(smInitValue);
     ++smInitValue;
   }
   void SetData(int value)
@@ -57,8 +60,9 @@ struct Comp2
   double m1;
   float m2;
 
-  Comp2(): m0(smInitValue), m1((double)smInitValue), m2((float)smInitValue)
+  void VInit()
   {
+    SetData(smInitValue);
     ++smInitValue;
   }
   void SetData(int value)
@@ -82,12 +86,9 @@ struct Comp3
   float m2;
   int m3;
 
-  Comp3():
-    m0((short)smInitValue),
-    m1((double)smInitValue),
-    m2((float)smInitValue),
-    m3(smInitValue)
+  void VInit()
   {
+    SetData(smInitValue);
     ++smInitValue;
   }
   void SetData(int value)
@@ -107,10 +108,10 @@ int Comp3::smInitValue = 3;
 
 void RegisterComponentTypes()
 {
-  World::ComponentType<Comp0>::Register();
-  World::ComponentType<Comp1>::Register();
-  World::ComponentType<Comp2>::Register();
-  World::ComponentType<Comp3>::Register();
+  Comp::Type<Comp0>::Register();
+  Comp::Type<Comp1>::Register();
+  Comp::Type<Comp2>::Register();
+  Comp::Type<Comp3>::Register();
 }
 
 template<typename T>
