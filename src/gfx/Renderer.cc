@@ -108,17 +108,14 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
 
   // Render every model in the space and use the model owner's MemberId as the
   // color value.
-  World::Table::Visitor<Comp::Model> visitor =
-    space.CreateTableVisitor<Comp::Model>();
-  while (!visitor.End())
-  {
-    Mat4 model = GetTransformation(space, visitor.CurrentOwner());
-    nMemberIdShader.SetMat4("uModel", model.CData());
-    nMemberIdShader.SetInt("uMemberId", visitor.CurrentOwner());
-    const Comp::Model& modelComp = visitor.CurrentComponent();
-    RenderModel(nMemberIdShader, modelComp);
-    visitor.Next();
-  }
+  space.VisitTable<Comp::Model>(
+    [&space](World::MemberId owner, const Comp::Model& modelComp)
+    {
+      Mat4 model = GetTransformation(space, owner);
+      nMemberIdShader.SetMat4("uModel", model.CData());
+      nMemberIdShader.SetInt("uMemberId", owner);
+      RenderModel(nMemberIdShader, modelComp);
+    });
 }
 
 World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view)
@@ -147,33 +144,29 @@ World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view)
 
 void RenderModels(const World::Space& space, const Mat4& view)
 {
-  // Visit all of the model components within the space.
-  World::Table::Visitor<Comp::Model> visitor =
-    space.CreateTableVisitor<Comp::Model>();
-  while (!visitor.End())
-  {
-    // Find the shader that will be used to draw the model.
-    const Comp::Model& modelComp = visitor.CurrentComponent();
-    const AssetLibrary::ShaderAsset* shaderAsset =
-      AssetLibrary::GetShader(modelComp.mShaderId);
-    const Shader* drawShader;
-    if (shaderAsset != nullptr && shaderAsset->mShader.Live())
+  space.VisitTable<Comp::Model>(
+    [&space, &view](World::MemberId owner, const Comp::Model& modelComp)
     {
-      drawShader = &shaderAsset->mShader;
-    } else
-    {
-      drawShader = &nDefaultShader;
-    }
+      // Find the shader that will be used to draw the model.
+      const AssetLibrary::ShaderAsset* shaderAsset =
+        AssetLibrary::GetShader(modelComp.mShaderId);
+      const Shader* drawShader;
+      if (shaderAsset != nullptr && shaderAsset->mShader.Live())
+      {
+        drawShader = &shaderAsset->mShader;
+      } else
+      {
+        drawShader = &nDefaultShader;
+      }
 
-    // Draw the model.
-    drawShader->Use();
-    Mat4 model = GetTransformation(space, visitor.CurrentOwner());
-    drawShader->SetMat4("uModel", model.CData());
-    drawShader->SetMat4("uView", view.CData());
-    drawShader->SetMat4("uProj", Viewport::Perspective().CData());
-    RenderModel(*drawShader, modelComp);
-    visitor.Next();
-  }
+      // Draw the model.
+      drawShader->Use();
+      Mat4 model = GetTransformation(space, owner);
+      drawShader->SetMat4("uModel", model.CData());
+      drawShader->SetMat4("uView", view.CData());
+      drawShader->SetMat4("uProj", Viewport::Perspective().CData());
+      RenderModel(*drawShader, modelComp);
+    });
 }
 
 void RenderSpace(const World::Space& space, const Mat4& view)

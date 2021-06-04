@@ -27,22 +27,6 @@ public:
   int Size() const;
   int Capacity() const;
 
-  // Visit all of the components in a table by creating a table visitor.
-  template<typename T>
-  struct Visitor
-  {
-    Visitor(const Table* table);
-    MemberId CurrentOwner();
-    T& CurrentComponent();
-    void Next();
-    bool End();
-    void ReachValidComponent();
-    const Table* mTable;
-    int mCurrentIndex;
-  };
-  template<typename T>
-  Visitor<T> CreateVisitor() const;
-
   static constexpr int smStartCapacity = 10;
   static constexpr float smGrowthFactor = 2.0f;
   static constexpr int smInvalidIndex = -1;
@@ -59,7 +43,5 @@ private:
 };
 
 } // namespace World
-
-#include "Table.hh"
 
 #endif

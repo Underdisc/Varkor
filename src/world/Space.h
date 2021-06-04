@@ -84,19 +84,17 @@ struct Space
   void* GetComponent(Comp::TypeId typeId, MemberId memberId) const;
   bool HasComponent(Comp::TypeId typeId, MemberId memberId) const;
 
-  // Get the pointer to the beginning of a component table.
-  const void* GetComponentData(Comp::TypeId typeId) const;
-  template<typename T>
-  const T* GetComponentData() const;
-
-  // Create a visitor for visiting all of the components in a table.
-  template<typename T>
-  Table::Visitor<T> CreateTableVisitor() const;
-
+  template<typename T, typename F>
+  void VisitTable(F visit) const;
   template<typename F>
   void VisitActiveMemberIds(F visit) const;
   template<typename F>
   void VisitMemberComponentTypeIds(MemberId memberId, F visit) const;
+
+  // Get the pointer to the beginning of a component table.
+  template<typename T>
+  const T* GetComponentData() const;
+  const void* GetComponentData(Comp::TypeId typeId) const;
 
   // Private member access.
   const Ds::Map<Comp::TypeId, Table>& Tables() const;

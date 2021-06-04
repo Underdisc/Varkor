@@ -27,21 +27,23 @@ bool Space::HasComponent(MemberId memberId) const
   return HasComponent(Comp::Type<T>::smId, memberId);
 }
 
-template<typename T>
-const T* Space::GetComponentData() const
-{
-  return (T*)GetComponentData(Comp::Type<T>::smId);
-}
-
-template<typename T>
-Table::Visitor<T> Space::CreateTableVisitor() const
+template<typename T, typename F>
+void Space::VisitTable(F visit) const
 {
   Table* table = mTables.Find(Comp::Type<T>::smId);
   if (table == nullptr)
   {
-    return Table::Visitor<T>(nullptr);
+    return;
   }
-  return table->CreateVisitor<T>();
+  for (int i = 0; i < table->Size(); ++i)
+  {
+    MemberId owner = table->GetOwner(i);
+    if (owner == nInvalidMemberId)
+    {
+      continue;
+    }
+    visit(owner, *(T*)table->GetData(i));
+  }
 }
 
 template<typename F>
@@ -69,6 +71,12 @@ void Space::VisitMemberComponentTypeIds(MemberId memberId, F visit) const
     visit(address.mTypeId);
     ++currentAddressIndex;
   }
+}
+
+template<typename T>
+const T* Space::GetComponentData() const
+{
+  return (T*)GetComponentData(Comp::Type<T>::smId);
 }
 
 } // namespace World
