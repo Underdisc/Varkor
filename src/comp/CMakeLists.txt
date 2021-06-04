@@ -4,4 +4,5 @@ target_sources(${varkorTarget} PRIVATE
   PointLight.cc
   Registrar.cc
   SpotLight.cc
-  Transform.cc)
+  Transform.cc
+  Type.cc)

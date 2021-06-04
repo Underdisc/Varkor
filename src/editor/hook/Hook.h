@@ -1,20 +1,16 @@
 #ifndef editor_hook_Hook_h
 #define editor_hook_Hook_h
 
+#include "comp/Type.h"
 #include "world/Object.h"
 
 namespace Editor {
 namespace Hook {
 
 template<typename T>
-T* InspectComponent(const World::Object& object);
-template<typename T>
-T* InspectGizmoComponent(const World::Object& object);
-template<typename T>
-void MakeComponentAvailable(const World::Object& object);
-
-template<typename T>
 void Edit(T* component);
+template<typename T>
+void CastEdit(void* component);
 
 struct GizmoBase
 {
@@ -23,10 +19,17 @@ struct GizmoBase
 template<typename T>
 struct Gizmo: public GizmoBase
 {
+  static void Start();
   Gizmo();
   bool Run(T* component, const World::Object& object);
 };
+template<typename T>
+static void GizmoStart();
+template<typename T>
+bool GizmoRun(void* component, const World::Object& object);
 void EndAllGizmos();
+
+void InspectComponent(Comp::TypeId typeId, const World::Object& object);
 
 } // namespace Hook
 } // namespace Editor

@@ -1,8 +1,8 @@
 #ifndef world_World_h
 #define world_World_h
 
-#include "ds/Vector.h"
 #include "world/Space.h"
+#include "world/Types.h"
 
 namespace World {
 
@@ -20,18 +20,10 @@ private:
   SpaceId mCurrentSpace;
 };
 
-extern void (*CentralUpdate)();
-extern void (*SpaceUpdate)(const Space& space, SpaceId spaceId);
-
 SpaceId CreateSpace();
 Space& GetSpace(SpaceId id);
 void Update();
 
-template<typename T>
-void UpdateComponentType(const Space& space, SpaceId spaceId);
-
 } // namespace World
-
-#include "World.hh"
 
 #endif

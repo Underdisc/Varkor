@@ -15,7 +15,8 @@ namespace Comp {
 #pragma pack(push, 1)
 struct Transform
 {
-  Transform();
+  void VInit();
+
   const Vec3& GetScale() const;
   const Quat& GetRotation() const;
   const Vec3& GetTranslation() const;

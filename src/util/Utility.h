@@ -35,6 +35,16 @@ std::string GetLastName()
   return fullName;
 }
 
+template<bool, class T = void>
+struct EnableIf
+{};
+
+template<class T>
+struct EnableIf<true, T>
+{
+  typedef T Type;
+};
+
 } // namespace Util
 
 #endif

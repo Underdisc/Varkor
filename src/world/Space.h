@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "comp/Type.h"
 #include "ds/Map.h"
 #include "ds/Vector.h"
 #include "world/Table.h"
@@ -18,7 +19,7 @@ struct ComponentAddress
 {
   void EndUse();
   bool InUse() const;
-  ComponentId mComponentId;
+  Comp::TypeId mTypeId;
   int mTableIndex;
 };
 
@@ -57,6 +58,7 @@ struct Space
 {
   Space();
   Space(const std::string& name);
+  void Update();
 
   // Member modification.
   MemberId CreateMember();
@@ -77,13 +79,13 @@ struct Space
   template<typename T>
   bool HasComponent(MemberId memberId) const;
 
-  void* AddComponent(ComponentId componentId, MemberId memberId);
-  void RemComponent(ComponentId componentId, MemberId memberId);
-  void* GetComponent(ComponentId componentId, MemberId memberId) const;
-  bool HasComponent(ComponentId componentId, MemberId memberId) const;
+  void* AddComponent(Comp::TypeId typeId, MemberId memberId);
+  void RemComponent(Comp::TypeId typeId, MemberId memberId);
+  void* GetComponent(Comp::TypeId typeId, MemberId memberId) const;
+  bool HasComponent(Comp::TypeId typeId, MemberId memberId) const;
 
   // Get the pointer to the beginning of a component table.
-  const void* GetComponentData(int componentId) const;
+  const void* GetComponentData(Comp::TypeId typeId) const;
   template<typename T>
   const T* GetComponentData() const;
 
@@ -109,8 +111,11 @@ struct Space
   };
   MemberVisitor CreateMemberVisitor();
 
+  void VisitMemberComponentTypes(
+    MemberId memberId, void (*visit)(Comp::TypeId typeId)) const;
+
   // Private member access.
-  const Ds::Map<ComponentId, Table>& Tables() const;
+  const Ds::Map<Comp::TypeId, Table>& Tables() const;
   const Ds::Vector<Member>& Members() const;
   const Ds::Vector<MemberId>& UnusedMemberIds() const;
   const Ds::Vector<ComponentAddress> AddressBin() const;
@@ -120,13 +125,13 @@ public:
   MemberId mCameraId;
 
 private:
-  Ds::Map<ComponentId, Table> mTables;
+  Ds::Map<Comp::TypeId, Table> mTables;
   Ds::Vector<Member> mMembers;
   Ds::Vector<MemberId> mUnusedMemberIds;
   Ds::Vector<ComponentAddress> mAddressBin;
 
-  Table* GetTable(ComponentId component) const;
-  int GetTableIndex(ComponentId componentId, MemberId memberId) const;
+  Table* GetTable(Comp::TypeId typeId) const;
+  int GetTableIndex(Comp::TypeId typeId, MemberId memberId) const;
   bool ValidMemberId(MemberId memberId) const;
   void VerifyMemberId(MemberId memberId) const;
 

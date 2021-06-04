@@ -8,12 +8,12 @@
 #include "Input.h"
 #include "Temporal.h"
 #include "Viewport.h"
+#include "comp/Type.h"
 #include "debug/Draw.h"
 #include "editor/Asset.h"
 #include "editor/Camera.h"
 #include "editor/Util.h"
-#include "editor/hook/Model.h"
-#include "editor/hook/Transform.h"
+#include "editor/hook/Hook.h"
 #include "gfx/Framebuffer.h"
 #include "gfx/Renderer.h"
 #include "world/Types.h"
@@ -22,9 +22,6 @@
 #include "Primary.h"
 
 namespace Editor {
-
-void (*InspectComponents)(const World::Object& selected) = nullptr;
-void (*AvailableComponents)(const World::Object& selected) = nullptr;
 
 Camera nCamera;
 World::SpaceId nSelectedSpace = World::nInvalidSpaceId;
@@ -356,12 +353,13 @@ void InspectorWindow()
   {
     nShowAddComponentWindow = !nShowAddComponentWindow;
   }
-  Hook::InspectComponent<Comp::Model>(nSelectedObject);
-  Hook::InspectGizmoComponent<Comp::Transform>(nSelectedObject);
-  if (InspectComponents != nullptr)
-  {
-    InspectComponents(nSelectedObject);
-  }
+  const World::Space& selectedSpace = World::GetSpace(nSelectedSpace);
+  selectedSpace.VisitMemberComponentTypes(
+    nSelectedObject.mMember,
+    [](Comp::TypeId typeId)
+    {
+      Hook::InspectComponent(typeId, nSelectedObject);
+    });
   ImGui::End();
 
   // Display the add component window.
@@ -370,11 +368,17 @@ void InspectorWindow()
     return;
   }
   ImGui::Begin("Add Components", &nShowAddComponentWindow);
-  Hook::MakeComponentAvailable<Comp::Model>(nSelectedObject);
-  Hook::MakeComponentAvailable<Comp::Transform>(nSelectedObject);
-  if (AvailableComponents != nullptr)
+  for (Comp::TypeId typeId = 0; typeId < Comp::nTypeData.Size(); ++typeId)
   {
-    AvailableComponents(nSelectedObject);
+    const Comp::TypeData& typeData = Comp::nTypeData[typeId];
+    if (nSelectedObject.HasComponent(typeId))
+    {
+      continue;
+    }
+    if (ImGui::Button(typeData.mName.c_str(), ImVec2(-1, 0)))
+    {
+      nSelectedObject.AddComponent(typeId);
+    }
   }
   ImGui::End();
 }

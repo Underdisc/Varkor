@@ -1,6 +1,8 @@
 #include <sstream>
 
-#include "World.h"
+#include "ds/Vector.h"
+#include "world/Space.h"
+#include "world/World.h"
 
 namespace World {
 
@@ -57,18 +59,9 @@ Space& GetSpace(SpaceId id)
 
 void Update()
 {
-  // Call the project update functions to give them control of processing.
   for (int i = 0; i < nSpaces.Size(); ++i)
   {
-    SpaceId spaceId = i;
-    if (SpaceUpdate != nullptr)
-    {
-      SpaceUpdate(nSpaces[i], spaceId);
-    }
-  }
-  if (CentralUpdate != nullptr)
-  {
-    CentralUpdate();
+    nSpaces[i].Update();
   }
 }
 

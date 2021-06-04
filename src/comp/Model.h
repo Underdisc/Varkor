@@ -8,7 +8,7 @@ namespace Comp {
 #pragma pack(push, 1)
 struct Model
 {
-  Model();
+  void VInit();
 
   AssetLibrary::AssetId mShaderId;
   AssetLibrary::AssetId mModelId;

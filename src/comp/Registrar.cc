@@ -1,14 +1,16 @@
 #include "comp/Model.h"
 #include "comp/Transform.h"
-#include "world/ComponentType.h"
-#include "world/Types.h"
+#include "comp/Type.h"
 
 namespace Comp {
 
 void RegisterTypes()
 {
-  World::ComponentType<Model>::Register();
-  World::ComponentType<Transform>::Register();
+  Type<Model>::Register();
+  Type<Model>::RegisterEditHook();
+  Type<Transform>::Register();
+  Type<Transform>::RegisterEditHook();
+  Type<Transform>::RegisterGizmo();
 }
 
 } // namespace Comp

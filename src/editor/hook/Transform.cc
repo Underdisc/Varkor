@@ -5,6 +5,7 @@
 #include "Viewport.h"
 #include "comp/Model.h"
 #include "comp/Transform.h"
+#include "editor/Primary.h"
 #include "editor/Util.h"
 #include "editor/hook/Transform.h"
 #include "gfx/Renderer.h"
@@ -12,6 +13,7 @@
 #include "math/Geometry.h"
 #include "math/Matrix4.h"
 #include "math/Utility.h"
+#include "world/World.h"
 
 namespace Editor {
 namespace Hook {
@@ -57,6 +59,11 @@ AssetLibrary::AssetId Gizmo<Comp::Transform>::smCubeId;
 AssetLibrary::AssetId Gizmo<Comp::Transform>::smScaleId;
 AssetLibrary::AssetId Gizmo<Comp::Transform>::smSphereId;
 AssetLibrary::AssetId Gizmo<Comp::Transform>::smTorusId;
+
+void Gizmo<Comp::Transform>::Start()
+{
+  GizmoStart<Comp::Transform>();
+}
 
 Gizmo<Comp::Transform>::Gizmo():
   mDrawbuffer(GL_RGBA, GL_UNSIGNED_BYTE),

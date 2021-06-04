@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "comp/Type.h"
 #include "world/Types.h"
 
 namespace World {
@@ -23,6 +24,11 @@ struct Object
   T* GetComponent() const;
   template<typename T>
   bool HasComponent() const;
+
+  void AddComponent(Comp::TypeId typeId) const;
+  void RemComponent(Comp::TypeId typeId) const;
+  void* GetComponent(Comp::TypeId typeId) const;
+  bool HasComponent(Comp::TypeId typeId) const;
 
   std::string& GetName() const;
   bool HasParent() const;

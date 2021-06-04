@@ -2,8 +2,8 @@
 #define editor_hook_Transform_h
 
 #include "AssetLibrary.h"
-#include "Hook.h"
 #include "comp/Transform.h"
+#include "editor/hook/Hook.h"
 #include "gfx/Framebuffer.h"
 #include "gfx/Texture.h"
 #include "math/Geometry.h"
@@ -18,6 +18,7 @@ template<>
 struct Gizmo<Comp::Transform>: public GizmoBase
 {
 public:
+  static void Start();
   Gizmo();
   bool Run(Comp::Transform* transform, const World::Object& object);
 

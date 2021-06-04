@@ -1,33 +1,29 @@
-#include "world/World.h"
+#include "comp/Type.h"
 
 namespace World {
 
 template<typename T>
 void Object::AddComponent() const
 {
-  Space& space = GetSpace(mSpace);
-  space.AddComponent<T>(mMember);
+  AddComponent(Comp::Type<T>::smId);
 }
 
 template<typename T>
 void Object::RemComponent() const
 {
-  Space& space = GetSpace(mSpace);
-  space.RemComponent<T>(mMember);
+  RemComponent(Comp::Type<T>::smId);
 }
 
 template<typename T>
 T* Object::GetComponent() const
 {
-  Space& space = GetSpace(mSpace);
-  return space.GetComponent<T>(mMember);
+  return (T*)GetComponent(Comp::Type<T>::smId);
 }
 
 template<typename T>
 bool Object::HasComponent() const
 {
-  Space& space = GetSpace(mSpace);
-  return space.HasComponent<T>(mMember);
+  return HasComponent(Comp::Type<T>::smId);
 }
 
 } // namespace World
