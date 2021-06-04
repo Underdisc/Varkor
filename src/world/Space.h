@@ -93,26 +93,10 @@ struct Space
   template<typename T>
   Table::Visitor<T> CreateTableVisitor() const;
 
-  // Create a visitor for visiting all of the members in a space.
-  struct MemberVisitor
-  {
-    Member& CurrentMember() const;
-    MemberId CurrentMemberId() const;
-    void Next();
-    bool End() const;
-
-  private:
-    Space& mSpace;
-    MemberId mCurrentMember;
-    MemberVisitor(Space& space);
-    void ReachValidMember();
-
-    friend Space;
-  };
-  MemberVisitor CreateMemberVisitor();
-
-  void VisitMemberComponentTypes(
-    MemberId memberId, void (*visit)(Comp::TypeId typeId)) const;
+  template<typename F>
+  void VisitActiveMemberIds(F visit) const;
+  template<typename F>
+  void VisitMemberComponentTypeIds(MemberId memberId, F visit) const;
 
   // Private member access.
   const Ds::Map<Comp::TypeId, Table>& Tables() const;

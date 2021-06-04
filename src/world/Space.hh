@@ -44,4 +44,31 @@ Table::Visitor<T> Space::CreateTableVisitor() const
   return table->CreateVisitor<T>();
 }
 
+template<typename F>
+void Space::VisitActiveMemberIds(F visit) const
+{
+  for (MemberId i = 0; i < mMembers.Size(); ++i)
+  {
+    const Member& member = mMembers[i];
+    if (member.InUseRootMember())
+    {
+      visit(i);
+    }
+  }
+}
+
+template<typename F>
+void Space::VisitMemberComponentTypeIds(MemberId memberId, F visit) const
+{
+  VerifyMemberId(memberId);
+  const Member& member = mMembers[memberId];
+  int currentAddressIndex = member.mAddressIndex;
+  while (currentAddressIndex < member.EndAddress())
+  {
+    const ComponentAddress& address = mAddressBin[currentAddressIndex];
+    visit(address.mTypeId);
+    ++currentAddressIndex;
+  }
+}
+
 } // namespace World

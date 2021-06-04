@@ -140,8 +140,8 @@ void Show()
   // Render the selected space.
   if (nEditorMode && nSelectedSpace != World::nInvalidSpaceId)
   {
-    const World::Space& space = World::GetSpace(nSelectedSpace);
-    Gfx::Renderer::RenderSpace(space, nCamera.WorldToCamera());
+    const World::Space& selectedSpace = World::GetSpace(nSelectedSpace);
+    Gfx::Renderer::RenderSpace(selectedSpace, nCamera.WorldToCamera());
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(nCamera.WorldToCamera(), Viewport::Perspective());
 
@@ -149,7 +149,7 @@ void Show()
     if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left))
     {
       nSelectedObject.mMember =
-        Gfx::Renderer::HoveredMemberId(space, nCamera.WorldToCamera());
+        Gfx::Renderer::HoveredMemberId(selectedSpace, nCamera.WorldToCamera());
     }
     nSuppressObjectPicking = false;
   }
@@ -282,18 +282,19 @@ void OverviewWindow()
   // Display the text box for changing the space's name and display a button for
   // adding new members to the space.
   ImGui::Begin("Overview");
-  World::Space& space = World::GetSpace(nSelectedSpace);
+  World::Space& selectedSpace = World::GetSpace(nSelectedSpace);
   ImGui::PushItemWidth(-1);
-  InputText("Name", &space.mName);
+  InputText("Name", &selectedSpace.mName);
   ImGui::PopItemWidth();
 
   // Allow the user to change the camera used for the space by dragging a member
   // onto the camera widget.
   std::stringstream cameraLabel;
   cameraLabel << "Camera: ";
-  if (space.mCameraId != World::nInvalidMemberId)
+  if (selectedSpace.mCameraId != World::nInvalidMemberId)
   {
-    const World::Member& camera = space.GetMember(space.mCameraId);
+    const World::Member& camera =
+      selectedSpace.GetMember(selectedSpace.mCameraId);
     cameraLabel << camera.mName;
   } else
   {
@@ -305,23 +306,22 @@ void OverviewWindow()
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
     if (payload != nullptr)
     {
-      space.mCameraId = *(const World::MemberId*)payload->Data;
+      selectedSpace.mCameraId = *(const World::MemberId*)payload->Data;
     }
   }
 
   if (ImGui::Button("Create Member", ImVec2(-1, 0)))
   {
-    space.CreateMember();
+    selectedSpace.CreateMember();
   }
 
   // Display a selectable list of all members in the space.
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
-  World::Space::MemberVisitor visitor = space.CreateMemberVisitor();
-  while (!visitor.End())
-  {
-    DisplayMember(space, visitor.CurrentMemberId());
-    visitor.Next();
-  }
+  selectedSpace.VisitActiveMemberIds(
+    [&selectedSpace](World::MemberId memberId)
+    {
+      DisplayMember(selectedSpace, memberId);
+    });
   ImGui::EndChild();
 
   // Make the member window a drag drop target for ending parent relationships.
@@ -331,10 +331,10 @@ void OverviewWindow()
     if (payload != nullptr)
     {
       World::MemberId childId = *(const World::MemberId*)payload->Data;
-      World::Member& member = space.GetMember(childId);
+      World::Member& member = selectedSpace.GetMember(childId);
       if (member.HasParent())
       {
-        space.RemoveParent(childId);
+        selectedSpace.RemoveParent(childId);
       }
     }
     ImGui::EndDragDropTarget();
@@ -354,7 +354,7 @@ void InspectorWindow()
     nShowAddComponentWindow = !nShowAddComponentWindow;
   }
   const World::Space& selectedSpace = World::GetSpace(nSelectedSpace);
-  selectedSpace.VisitMemberComponentTypes(
+  selectedSpace.VisitMemberComponentTypeIds(
     nSelectedObject.mMember,
     [](Comp::TypeId typeId)
     {

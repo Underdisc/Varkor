@@ -75,46 +75,6 @@ const Ds::Vector<MemberId>& Member::Children() const
   return mChildren;
 }
 
-Space::MemberVisitor::MemberVisitor(Space& space):
-  mSpace(space), mCurrentMember(0)
-{
-  ReachValidMember();
-}
-
-Member& Space::MemberVisitor::CurrentMember() const
-{
-  return mSpace.mMembers[mCurrentMember];
-}
-
-MemberId Space::MemberVisitor::CurrentMemberId() const
-{
-  return mCurrentMember;
-}
-
-void Space::MemberVisitor::Next()
-{
-  ++mCurrentMember;
-  ReachValidMember();
-}
-
-bool Space::MemberVisitor::End() const
-{
-  return mCurrentMember >= mSpace.mMembers.Size();
-}
-
-void Space::MemberVisitor::ReachValidMember()
-{
-  while (mCurrentMember < mSpace.mMembers.Size())
-  {
-    Member& member = mSpace.mMembers[mCurrentMember];
-    if (member.InUseRootMember())
-    {
-      break;
-    }
-    ++mCurrentMember;
-  }
-}
-
 Space::Space(): mName("DefaultName"), mCameraId(nInvalidMemberId) {}
 
 Space::Space(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
@@ -138,25 +98,6 @@ void Space::Update()
         typeData.mVUpdate.Invoke(table.GetData(i));
       }
     }
-  }
-}
-
-Space::MemberVisitor Space::CreateMemberVisitor()
-{
-  return MemberVisitor(*this);
-}
-
-void Space::VisitMemberComponentTypes(
-  MemberId memberId, void (*visit)(Comp::TypeId typeId)) const
-{
-  VerifyMemberId(memberId);
-  const Member& member = mMembers[memberId];
-  int currentAddressIndex = member.mAddressIndex;
-  while (currentAddressIndex < member.EndAddress())
-  {
-    const ComponentAddress& address = mAddressBin[currentAddressIndex];
-    visit(address.mTypeId);
-    ++currentAddressIndex;
   }
 }
 
