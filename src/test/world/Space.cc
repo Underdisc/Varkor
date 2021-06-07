@@ -2,132 +2,10 @@
 
 #include "comp/Type.h"
 #include "debug/MemLeak.h"
-#include "ds/Vector.h"
-#include "test/ds/Print.h"
 #include "test/world/Print.h"
+#include "test/world/TestTypes.h"
 #include "world/Space.h"
 #include "world/Types.h"
-
-#pragma pack(push, 1)
-struct Comp0
-{
-  float m0;
-  float m1;
-
-  Comp0()
-  {
-    SetData(Comp::Type<Comp0>::smId);
-  }
-  Comp0(int value)
-  {
-    SetData(value);
-  }
-  void SetData(int value)
-  {
-    m0 = (float)value;
-    m1 = (float)value;
-  }
-  void PrintData() const
-  {
-    std::cout << "[" << m0 << ", " << m1 << "]";
-  }
-};
-
-struct Comp1
-{
-  double m0;
-  int m1;
-
-  Comp1()
-  {
-    SetData(Comp::Type<Comp1>::smId);
-  }
-  Comp1(int value)
-  {
-    SetData(value);
-  }
-  void SetData(int value)
-  {
-    m0 = (double)value;
-    m1 = value;
-  }
-  void PrintData() const
-  {
-    std::cout << "[" << m0 << ", " << m1 << "]";
-  }
-};
-
-struct Comp2
-{
-  int* m0;
-  double m1;
-  float m2;
-
-  Comp2(): m0(nullptr)
-  {
-    SetData(Comp::Type<Comp2>::smId);
-  }
-  Comp2(int value): m0(nullptr)
-  {
-    SetData(value);
-  }
-  Comp2(const Comp2& other): m0(nullptr)
-  {
-    SetData(*other.m0);
-  }
-  ~Comp2()
-  {
-    delete m0;
-  }
-  void SetData(int value)
-  {
-    if (m0 == nullptr)
-    {
-      m0 = alloc int;
-    }
-    *m0 = value;
-    m1 = (double)value;
-    m2 = (float)value;
-  }
-  void PrintData() const
-  {
-    std::cout << "[" << *m0 << ", " << m1 << ", " << m2 << "]";
-  }
-};
-
-struct Comp3
-{
-  Ds::Vector<int> mVector;
-
-  Comp3()
-  {
-    SetData(Comp::Type<Comp3>::smId);
-  }
-  Comp3(int value)
-  {
-    SetData(value);
-  }
-  void SetData(int value)
-  {
-    for (int i = 0; i < value; ++i)
-    {
-      mVector.Push(value + i);
-    }
-  }
-  void PrintData() const
-  {
-    std::cout << mVector;
-  }
-};
-#pragma pack(pop)
-
-void RegisterComponentTypes()
-{
-  Comp::Type<Comp0>::Register();
-  Comp::Type<Comp1>::Register();
-  Comp::Type<Comp2>::Register();
-  Comp::Type<Comp3>::Register();
-}
 
 template<typename T>
 void PrintComponentData(const World::Space& space)
@@ -210,29 +88,29 @@ void AddComponent()
   std::cout << "<= AddComponent =>" << std::endl;
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
-  space.AddComponent<Comp0>(mem0);
-  space.AddComponent<Comp1>(mem0);
-  space.AddComponent<Comp2>(mem0);
+  space.AddComponent<Simple0>(mem0);
+  space.AddComponent<Simple1>(mem0);
+  space.AddComponent<Dynamic>(mem0);
   World::MemberId mem1 = space.CreateMember();
-  space.AddComponent<Comp0>(mem1);
-  space.AddComponent<Comp1>(mem1);
-  space.AddComponent<Comp2>(mem1);
+  space.AddComponent<Simple0>(mem1);
+  space.AddComponent<Simple1>(mem1);
+  space.AddComponent<Dynamic>(mem1);
   World::MemberId mem2 = space.CreateMember();
-  space.AddComponent<Comp0>(mem2);
-  space.AddComponent<Comp3>(mem2, 5);
+  space.AddComponent<Simple0>(mem2);
+  space.AddComponent<Container>(mem2, 5);
 
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
 
-  space.AddComponent<Comp3>(mem1, 4);
-  space.AddComponent<Comp3>(mem0, 3);
-  space.AddComponent<Comp2>(mem2);
+  space.AddComponent<Container>(mem1, 4);
+  space.AddComponent<Container>(mem0, 3);
+  space.AddComponent<Dynamic>(mem2);
 
   PrintSpace(space);
-  PrintComponentData<Comp0>(space);
-  PrintComponentData<Comp1>(space);
-  PrintComponentData<Comp2>(space);
-  PrintComponentData<Comp3>(space);
+  PrintComponentData<Simple0>(space);
+  PrintComponentData<Simple1>(space);
+  PrintComponentData<Dynamic>(space);
+  PrintComponentData<Container>(space);
   std::cout << std::endl;
 }
 
@@ -241,35 +119,35 @@ void RemComponent()
   std::cout << "<= RemComponent =>" << std::endl;
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
-  space.AddComponent<Comp0>(mem0);
-  space.AddComponent<Comp1>(mem0);
-  space.AddComponent<Comp2>(mem0);
-  space.AddComponent<Comp3>(mem0);
+  space.AddComponent<Simple0>(mem0);
+  space.AddComponent<Simple1>(mem0);
+  space.AddComponent<Dynamic>(mem0);
+  space.AddComponent<Container>(mem0);
   World::MemberId mem1 = space.CreateMember();
-  space.AddComponent<Comp0>(mem1);
-  space.AddComponent<Comp1>(mem1);
-  space.AddComponent<Comp2>(mem1);
+  space.AddComponent<Simple0>(mem1);
+  space.AddComponent<Simple1>(mem1);
+  space.AddComponent<Dynamic>(mem1);
   World::MemberId mem2 = space.CreateMember();
-  space.AddComponent<Comp1>(mem2);
-  space.AddComponent<Comp3>(mem2);
-  space.AddComponent<Comp2>(mem2);
+  space.AddComponent<Simple1>(mem2);
+  space.AddComponent<Container>(mem2);
+  space.AddComponent<Dynamic>(mem2);
   World::MemberId mem3 = space.CreateMember();
-  space.AddComponent<Comp3>(mem3);
-  space.AddComponent<Comp2>(mem3);
-  space.AddComponent<Comp0>(mem3);
+  space.AddComponent<Container>(mem3);
+  space.AddComponent<Dynamic>(mem3);
+  space.AddComponent<Simple0>(mem3);
 
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
 
-  space.RemComponent<Comp2>(mem2);
-  space.RemComponent<Comp0>(mem1);
-  space.RemComponent<Comp1>(mem2);
-  space.RemComponent<Comp1>(mem0);
+  space.RemComponent<Dynamic>(mem2);
+  space.RemComponent<Simple0>(mem1);
+  space.RemComponent<Simple1>(mem2);
+  space.RemComponent<Simple1>(mem0);
 
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
 
-  space.AddComponent<Comp0>(mem2);
+  space.AddComponent<Simple0>(mem2);
 
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
@@ -285,18 +163,18 @@ void DeleteMembersWithComponents()
   for (int i = 0; i < 8; ++i)
   {
     memberIds[i] = space.CreateMember();
-    space.AddComponent<Comp0>(memberIds[i]);
+    space.AddComponent<Simple0>(memberIds[i]);
     if (i % 2 == 0)
     {
-      space.AddComponent<Comp1>(memberIds[i]);
+      space.AddComponent<Simple1>(memberIds[i]);
     }
     if (i % 3 == 0)
     {
-      space.AddComponent<Comp2>(memberIds[i]);
+      space.AddComponent<Dynamic>(memberIds[i]);
     }
     if (i % 5 == 0)
     {
-      space.AddComponent<Comp3>(memberIds[i]);
+      space.AddComponent<Container>(memberIds[i]);
     }
   }
   std::cout << "Members and Components Created" << std::endl;
@@ -317,12 +195,12 @@ void DeleteMembersWithComponents()
   PrintSpaceTablesOwners(space);
 
   World::MemberId newMemberId = space.CreateMember();
-  space.AddComponent<Comp0>(newMemberId);
-  space.AddComponent<Comp1>(newMemberId);
-  space.AddComponent<Comp2>(newMemberId);
+  space.AddComponent<Simple0>(newMemberId);
+  space.AddComponent<Simple1>(newMemberId);
+  space.AddComponent<Dynamic>(newMemberId);
   newMemberId = space.CreateMember();
-  space.AddComponent<Comp3>(newMemberId);
-  space.AddComponent<Comp1>(newMemberId);
+  space.AddComponent<Container>(newMemberId);
+  space.AddComponent<Simple1>(newMemberId);
   std::cout << "-----" << std::endl
             << "New Members and Components" << std::endl;
   PrintSpaceMembers(space);
@@ -337,35 +215,35 @@ void GetComponent()
   std::cout << "<= GetComponent =>" << std::endl;
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
-  space.AddComponent<Comp0>(mem0);
-  space.AddComponent<Comp1>(mem0);
-  space.AddComponent<Comp2>(mem0);
-  space.AddComponent<Comp3>(mem0);
+  space.AddComponent<Simple0>(mem0);
+  space.AddComponent<Simple1>(mem0);
+  space.AddComponent<Dynamic>(mem0);
+  space.AddComponent<Container>(mem0);
   World::MemberId mem1 = space.CreateMember();
-  space.AddComponent<Comp0>(mem1);
-  space.AddComponent<Comp1>(mem1);
-  space.AddComponent<Comp2>(mem1);
+  space.AddComponent<Simple0>(mem1);
+  space.AddComponent<Simple1>(mem1);
+  space.AddComponent<Dynamic>(mem1);
 
-  Comp0* mem0comp0 = space.GetComponent<Comp0>(mem0);
+  Simple0* mem0comp0 = space.GetComponent<Simple0>(mem0);
   mem0comp0->SetData(0);
-  Comp1* mem0comp1 = space.GetComponent<Comp1>(mem0);
+  Simple1* mem0comp1 = space.GetComponent<Simple1>(mem0);
   mem0comp1->SetData(1);
-  Comp2* mem0comp2 = space.GetComponent<Comp2>(mem0);
+  Dynamic* mem0comp2 = space.GetComponent<Dynamic>(mem0);
   mem0comp2->SetData(2);
-  Comp3* mem0comp3 = space.GetComponent<Comp3>(mem0);
+  Container* mem0comp3 = space.GetComponent<Container>(mem0);
   mem0comp3->SetData(3);
-  Comp0* mem1comp0 = space.GetComponent<Comp0>(mem1);
+  Simple0* mem1comp0 = space.GetComponent<Simple0>(mem1);
   mem1comp0->SetData(1);
-  Comp1* mem1comp1 = space.GetComponent<Comp1>(mem1);
+  Simple1* mem1comp1 = space.GetComponent<Simple1>(mem1);
   mem1comp1->SetData(2);
-  Comp2* mem1comp2 = space.GetComponent<Comp2>(mem1);
+  Dynamic* mem1comp2 = space.GetComponent<Dynamic>(mem1);
   mem1comp2->SetData(3);
 
   PrintSpace(space);
-  PrintComponentData<Comp0>(space);
-  PrintComponentData<Comp1>(space);
-  PrintComponentData<Comp2>(space);
-  PrintComponentData<Comp3>(space);
+  PrintComponentData<Simple0>(space);
+  PrintComponentData<Simple1>(space);
+  PrintComponentData<Dynamic>(space);
+  PrintComponentData<Container>(space);
   std::cout << std::endl;
 }
 
@@ -374,24 +252,24 @@ void HasComponent()
   std::cout << "<= HasComponent =>" << std::endl;
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
-  space.AddComponent<Comp1>(mem0);
-  space.AddComponent<Comp2>(mem0);
+  space.AddComponent<Simple1>(mem0);
+  space.AddComponent<Dynamic>(mem0);
   World::MemberId mem1 = space.CreateMember();
-  space.AddComponent<Comp0>(mem1);
-  space.AddComponent<Comp3>(mem1);
-  space.AddComponent<Comp3>(mem0);
+  space.AddComponent<Simple0>(mem1);
+  space.AddComponent<Container>(mem1);
+  space.AddComponent<Container>(mem0);
 
   PrintSpaceMembers(space);
   PrintSpaceAddressBin(space);
-  std::cout << space.HasComponent<Comp0>(mem0)
-            << space.HasComponent<Comp1>(mem0)
-            << space.HasComponent<Comp2>(mem0)
-            << space.HasComponent<Comp3>(mem0)
-            << space.HasComponent<Comp0>(mem1)
-            << space.HasComponent<Comp1>(mem1)
-            << space.HasComponent<Comp2>(mem1)
-            << space.HasComponent<Comp3>(mem1)
-            << space.HasComponent<Comp0>(World::nInvalidMemberId) << std::endl
+  std::cout << space.HasComponent<Simple0>(mem0)
+            << space.HasComponent<Simple1>(mem0)
+            << space.HasComponent<Dynamic>(mem0)
+            << space.HasComponent<Container>(mem0)
+            << space.HasComponent<Simple0>(mem1)
+            << space.HasComponent<Simple1>(mem1)
+            << space.HasComponent<Dynamic>(mem1)
+            << space.HasComponent<Container>(mem1)
+            << space.HasComponent<Simple0>(World::nInvalidMemberId) << std::endl
             << std::endl;
 }
 
@@ -402,40 +280,40 @@ void Duplicate()
 
   // A lone member.
   World::MemberId testId = space.CreateMember();
-  space.AddComponent<Comp0>(testId, 0);
-  space.AddComponent<Comp1>(testId, 0);
+  space.AddComponent<Simple0>(testId, 0);
+  space.AddComponent<Simple1>(testId, 0);
   space.Duplicate(testId);
 
   // A member with children.
   testId = space.CreateMember();
-  space.AddComponent<Comp0>(testId, 1);
-  space.AddComponent<Comp1>(testId, 1);
+  space.AddComponent<Simple0>(testId, 1);
+  space.AddComponent<Simple1>(testId, 1);
   World::MemberId childId = space.CreateChildMember(testId);
-  space.AddComponent<Comp2>(childId, 1);
-  space.AddComponent<Comp3>(childId, 1);
+  space.AddComponent<Dynamic>(childId, 1);
+  space.AddComponent<Container>(childId, 1);
   childId = space.CreateChildMember(testId);
-  space.AddComponent<Comp2>(childId, 1);
+  space.AddComponent<Dynamic>(childId, 1);
   space.Duplicate(testId);
 
   // A member with a parent and children.
   World::MemberId parentId = space.CreateMember();
   testId = space.CreateChildMember(parentId);
-  space.AddComponent<Comp0>(testId, 2);
-  space.AddComponent<Comp2>(testId, 2);
+  space.AddComponent<Simple0>(testId, 2);
+  space.AddComponent<Dynamic>(testId, 2);
   childId = space.CreateChildMember(testId);
-  space.AddComponent<Comp0>(childId, 2);
-  space.AddComponent<Comp3>(childId, 2);
+  space.AddComponent<Simple0>(childId, 2);
+  space.AddComponent<Container>(childId, 2);
   childId = space.CreateChildMember(testId);
-  space.AddComponent<Comp1>(childId, 2);
-  space.AddComponent<Comp3>(childId, 2);
+  space.AddComponent<Simple1>(childId, 2);
+  space.AddComponent<Container>(childId, 2);
   space.Duplicate(testId);
 
   PrintSpaceMembers(space);
   std::cout << "-Tables-" << std::endl;
-  PrintComponentData<Comp0>(space);
-  PrintComponentData<Comp1>(space);
-  PrintComponentData<Comp2>(space);
-  PrintComponentData<Comp3>(space);
+  PrintComponentData<Simple0>(space);
+  PrintComponentData<Simple1>(space);
+  PrintComponentData<Dynamic>(space);
+  PrintComponentData<Container>(space);
 }
 
 int main(void)
