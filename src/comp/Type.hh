@@ -43,6 +43,24 @@ Bindable_Type_Function_(Update);
 template<typename T>
 TypeId Type<T>::smId = nInvalidTypeId;
 
+template<typename T>
+void DefaultConstruct(void* data)
+{
+  new (data) T;
+}
+
+template<typename T>
+void CopyConstruct(void* from, void* to)
+{
+  new (to) T(*(T*)from);
+}
+
+template<typename T>
+void Destruct(void* data)
+{
+  (*(T*)data).~T();
+}
+
 int CreateId();
 template<typename T>
 void Type<T>::Register()
@@ -54,7 +72,10 @@ void Type<T>::Register()
   data.mName = Util::GetLastName<T>();
   data.mSize = sizeof(T);
 
-  BindVInit<T>(&data.mVInit);
+  data.mDefaultConstruct = &DefaultConstruct<T>;
+  data.mCopyConstruct = &CopyConstruct<T>;
+  data.mDestruct = &Destruct<T>;
+
   BindVUpdate<T>(&data.mVUpdate);
 
   data.mEditHook = nullptr;

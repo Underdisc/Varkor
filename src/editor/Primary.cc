@@ -112,14 +112,23 @@ void Start()
   Input::SetKeyboardFocus(!io.WantCaptureKeyboard);
 }
 
-void Show()
+void Run()
 {
-  // Update the camera while in editor mode.
+  // Handle duplication, camera movement, and then display the editor.
+  if (nSelectedObject.Valid() && Input::KeyPressed(Input::Key::R))
+  {
+    World::Space& space = World::GetSpace(nSelectedObject.mSpace);
+    nSelectedObject.mMember = space.Duplicate(nSelectedObject.mMember);
+  }
   if (nEditorMode)
   {
     nCamera.Update(Temporal::DeltaTime());
   }
+  Show();
+}
 
+void Show()
+{
   // Show all of the opened editor windows.
   EditorWindow();
   if (nSelectedSpace != World::nInvalidSpaceId)
@@ -317,7 +326,7 @@ void OverviewWindow()
 
   // Display a selectable list of all members in the space.
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
-  selectedSpace.VisitActiveMemberIds(
+  selectedSpace.VisitRootMemberIds(
     [&selectedSpace](World::MemberId memberId)
     {
       DisplayMember(selectedSpace, memberId);
@@ -354,9 +363,9 @@ void InspectorWindow()
     nShowAddComponentWindow = !nShowAddComponentWindow;
   }
   const World::Space& selectedSpace = World::GetSpace(nSelectedSpace);
-  selectedSpace.VisitMemberComponentTypeIds(
+  selectedSpace.VisitMemberComponents(
     nSelectedObject.mMember,
-    [](Comp::TypeId typeId)
+    [](Comp::TypeId typeId, int tableIndex)
     {
       Hook::InspectComponent(typeId, nSelectedObject);
     });

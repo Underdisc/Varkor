@@ -30,7 +30,7 @@ void VarkorEngine()
     Editor::Start();
     Gfx::Renderer::Clear();
 
-    Editor::Show();
+    Editor::Run();
     World::Update();
     if (!Editor::EditorMode())
     {

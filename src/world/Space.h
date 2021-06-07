@@ -1,6 +1,7 @@
 #ifndef world_Space_h
 #define world_Space_h
 
+#include <functional>
 #include <string>
 
 #include "comp/Type.h"
@@ -64,6 +65,7 @@ struct Space
   MemberId CreateMember();
   MemberId CreateChildMember(MemberId parentId);
   void DeleteMember(MemberId member);
+  MemberId Duplicate(MemberId memberId, bool duplicationRoot = true);
   void MakeParent(MemberId parent, MemberId child);
   void RemoveParent(MemberId childId);
   Member& GetMember(MemberId id);
@@ -72,6 +74,8 @@ struct Space
   // Component creation, deletion, and access.
   template<typename T>
   T& AddComponent(MemberId memberId);
+  template<typename T, typename... Args>
+  T& AddComponent(MemberId memberId, const Args&... args);
   template<typename T>
   void RemComponent(MemberId memberId);
   template<typename T>
@@ -79,22 +83,18 @@ struct Space
   template<typename T>
   bool HasComponent(MemberId memberId) const;
 
-  void* AddComponent(Comp::TypeId typeId, MemberId memberId);
+  void* AddComponent(
+    Comp::TypeId typeId, MemberId memberId, bool construct = true);
   void RemComponent(Comp::TypeId typeId, MemberId memberId);
   void* GetComponent(Comp::TypeId typeId, MemberId memberId) const;
   bool HasComponent(Comp::TypeId typeId, MemberId memberId) const;
 
-  template<typename T, typename F>
-  void VisitTable(F visit) const;
-  template<typename F>
-  void VisitActiveMemberIds(F visit) const;
-  template<typename F>
-  void VisitMemberComponentTypeIds(MemberId memberId, F visit) const;
-
-  // Get the pointer to the beginning of a component table.
   template<typename T>
-  const T* GetComponentData() const;
-  const void* GetComponentData(Comp::TypeId typeId) const;
+  void VisitTableComponents(
+    std::function<void(World::MemberId, T&)> visit) const;
+  void VisitRootMemberIds(std::function<void(World::MemberId)> visit) const;
+  void VisitMemberComponents(
+    MemberId memberId, std::function<void(Comp::TypeId, int)> visit) const;
 
   // Private member access.
   const Ds::Map<Comp::TypeId, Table>& Tables() const;
@@ -112,7 +112,7 @@ private:
   Ds::Vector<MemberId> mUnusedMemberIds;
   Ds::Vector<ComponentAddress> mAddressBin;
 
-  Table* GetTable(Comp::TypeId typeId) const;
+  void AddAddressToMember(MemberId memberId, const ComponentAddress& address);
   int GetTableIndex(Comp::TypeId typeId, MemberId memberId) const;
   bool ValidMemberId(MemberId memberId) const;
   void VerifyMemberId(MemberId memberId) const;

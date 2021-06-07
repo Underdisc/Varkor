@@ -73,8 +73,18 @@ void PrintSpaceMember(
   const std::string& indent = "")
 {
   const World::Member& member = space.Members()[memberId];
-  std::cout << indent << "[" << memberId << ", " << member.AddressIndex()
-            << ", " << member.ComponentCount() << "]" << std::endl;
+  std::cout << indent << "{" << memberId << "}";
+  if (member.ComponentCount() > 0)
+  {
+    std::cout << "->";
+  }
+  space.VisitMemberComponents(
+    memberId,
+    [](Comp::TypeId typeId, int tableIndex)
+    {
+      std::cout << "[" << typeId << ", " << tableIndex << "]";
+    });
+  std::cout << std::endl;
   for (World::MemberId childId : member.Children())
   {
     PrintSpaceMember(space, childId, indent + "| ");
@@ -83,7 +93,7 @@ void PrintSpaceMember(
 
 void PrintSpaceMembers(const World::Space& space)
 {
-  std::cout << "-[MemberId, Address, Count]-" << std::endl;
+  std::cout << "-Members {MemberId}->[TypeId, TableIndex]...-" << std::endl;
   const Ds::Vector<World::Member>& members = space.Members();
   for (World::MemberId memberId = 0; memberId < members.Size(); ++memberId)
   {

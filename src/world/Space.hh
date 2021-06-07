@@ -9,6 +9,14 @@ T& Space::AddComponent(MemberId memberId)
   return *(T*)AddComponent(Comp::Type<T>::smId, memberId);
 }
 
+template<typename T, typename... Args>
+T& Space::AddComponent(MemberId memberId, const Args&... args)
+{
+  T* component = (T*)AddComponent(Comp::Type<T>::smId, memberId, false);
+  new (component) T(args...);
+  return *component;
+}
+
 template<typename T>
 void Space::RemComponent(MemberId memberId)
 {
@@ -27,56 +35,21 @@ bool Space::HasComponent(MemberId memberId) const
   return HasComponent(Comp::Type<T>::smId, memberId);
 }
 
-template<typename T, typename F>
-void Space::VisitTable(F visit) const
+template<typename T>
+void Space::VisitTableComponents(
+  std::function<void(World::MemberId, T&)> visit) const
 {
   Table* table = mTables.Find(Comp::Type<T>::smId);
   if (table == nullptr)
   {
     return;
   }
-  for (int i = 0; i < table->Size(); ++i)
-  {
-    MemberId owner = table->GetOwner(i);
-    if (owner == nInvalidMemberId)
+  table->VisitActiveIndices(
+    [&table, &visit](int index)
     {
-      continue;
-    }
-    visit(owner, *(T*)table->GetData(i));
-  }
-}
-
-template<typename F>
-void Space::VisitActiveMemberIds(F visit) const
-{
-  for (MemberId i = 0; i < mMembers.Size(); ++i)
-  {
-    const Member& member = mMembers[i];
-    if (member.InUseRootMember())
-    {
-      visit(i);
-    }
-  }
-}
-
-template<typename F>
-void Space::VisitMemberComponentTypeIds(MemberId memberId, F visit) const
-{
-  VerifyMemberId(memberId);
-  const Member& member = mMembers[memberId];
-  int currentAddressIndex = member.mAddressIndex;
-  while (currentAddressIndex < member.EndAddress())
-  {
-    const ComponentAddress& address = mAddressBin[currentAddressIndex];
-    visit(address.mTypeId);
-    ++currentAddressIndex;
-  }
-}
-
-template<typename T>
-const T* Space::GetComponentData() const
-{
-  return (T*)GetComponentData(Comp::Type<T>::smId);
+      MemberId owner = table->GetOwner(index);
+      visit(owner, *(T*)table->GetComponent(index));
+    });
 }
 
 } // namespace World

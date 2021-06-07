@@ -2,10 +2,9 @@
 
 namespace Comp {
 
-void Model::VInit()
-{
-  mShaderId = AssetLibrary::nInvalidAssetId;
-  mModelId = AssetLibrary::nInvalidAssetId;
-}
+Model::Model():
+  mShaderId(AssetLibrary::nInvalidAssetId),
+  mModelId(AssetLibrary::nInvalidAssetId)
+{}
 
 } // namespace Comp

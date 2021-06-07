@@ -84,20 +84,7 @@ void Space::Update()
 {
   for (auto it = mTables.Begin(); it != mTables.End(); ++it)
   {
-    Comp::TypeData& typeData = Comp::nTypeData[it->Key()];
-    if (!typeData.mVUpdate.Open())
-    {
-      continue;
-    }
-
-    const Table& table = it->mValue;
-    for (int i = 0; i < table.Size(); ++i)
-    {
-      if (table.GetOwner(i) != nInvalidMemberId)
-      {
-        typeData.mVUpdate.Invoke(table.GetData(i));
-      }
-    }
+    it->mValue.UpdateComponents();
   }
 }
 
@@ -130,6 +117,38 @@ MemberId Space::CreateMember()
   return newMemberId;
 }
 
+MemberId Space::Duplicate(MemberId ogMemberId, bool duplicationRoot)
+{
+  // Duplicate all of the components from the original member.
+  VerifyMemberId(ogMemberId);
+  MemberId newMemberId = CreateMember();
+  const Member& ogMember = mMembers[ogMemberId];
+  int addressIndex = ogMember.mAddressIndex;
+  while (addressIndex < ogMember.EndAddress())
+  {
+    ComponentAddress newAddress;
+    const ComponentAddress& address = mAddressBin[addressIndex];
+    newAddress.mTypeId = address.mTypeId;
+    Table& table = mTables.Get(address.mTypeId);
+    newAddress.mTableIndex = table.Duplicate(address.mTableIndex, newMemberId);
+    AddAddressToMember(newMemberId, newAddress);
+    ++addressIndex;
+  }
+
+  // Make the new member a child if we are duplicating a child and duplicate all
+  // of the member's children.
+  if (duplicationRoot && ogMember.HasParent())
+  {
+    MakeParent(ogMember.Parent(), newMemberId);
+  }
+  for (MemberId childId : ogMember.mChildren)
+  {
+    MemberId newChildId = Duplicate(childId, false);
+    MakeParent(newMemberId, newChildId);
+  }
+  return newMemberId;
+}
+
 MemberId Space::CreateChildMember(MemberId parentId)
 {
   MemberId childId = CreateMember();
@@ -152,8 +171,8 @@ void Space::DeleteMember(MemberId memberId)
   for (; addrIndex < member.EndAddress(); ++addrIndex)
   {
     ComponentAddress& address = mAddressBin[addrIndex];
-    Table* table = mTables.Find(address.mTypeId);
-    table->Rem(address.mTableIndex);
+    Table& table = mTables.Get(address.mTypeId);
+    table.Rem(address.mTableIndex);
     mAddressBin[addrIndex].EndUse();
   }
   member.EndUse();
@@ -211,15 +230,15 @@ const Member& Space::GetConstMember(MemberId id) const
   return mMembers[id];
 }
 
-void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId)
+void* Space::AddComponent(
+  Comp::TypeId typeId, MemberId memberId, bool construct)
 {
   // Create the component table if necessary and make sure the member doesn't
   // already have the component.
-  Comp::TypeData& typeData = Comp::nTypeData[typeId];
   Table* table = mTables.Find(typeId);
   if (table == nullptr)
   {
-    Table newTable(typeData.mSize);
+    Table newTable(typeId);
     mTables.Insert(typeId, newTable);
     table = mTables.Find(typeId);
   }
@@ -228,31 +247,37 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId)
     HasComponent(typeId, memberId),
     "The member already has this component type.");
 
-  // Create the component, add its address to the address bin, and make that
-  // address part of the member.
+  // Create the component and make it part of the member
   ComponentAddress newAddress;
   newAddress.mTypeId = typeId;
-  newAddress.mTableIndex = table->Add(memberId);
-  void* component = table->GetData(newAddress.mTableIndex);
-  if (typeData.mVInit.Open())
+  if (construct)
   {
-    typeData.mVInit.Invoke(component);
+    newAddress.mTableIndex = table->Add(memberId);
+  } else
+  {
+    newAddress.mTableIndex = table->AllocateComponent(memberId);
   }
+  AddAddressToMember(memberId, newAddress);
+  return table->GetComponent(newAddress.mTableIndex);
+}
 
+void Space::AddAddressToMember(
+  MemberId memberId, const ComponentAddress& address)
+{
   Member& member = mMembers[memberId];
   int nextAddressIndex = member.EndAddress();
   if (nextAddressIndex >= mAddressBin.Size())
   {
-    mAddressBin.Push(newAddress);
+    mAddressBin.Push(address);
     ++member.mComponentCount;
-    return table->GetData(newAddress.mTableIndex);
+    return;
   }
   const ComponentAddress& compAddr = mAddressBin[nextAddressIndex];
   if (!compAddr.InUse())
   {
-    mAddressBin[nextAddressIndex] = newAddress;
+    mAddressBin[nextAddressIndex] = address;
     ++member.mComponentCount;
-    return table->GetData(newAddress.mTableIndex);
+    return;
   }
   for (int i = 0; i < member.mComponentCount; ++i)
   {
@@ -261,10 +286,9 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId)
     mAddressBin.Push(copyAddress);
     mAddressBin[copyAddressIndex].EndUse();
   }
-  mAddressBin.Push(newAddress);
+  mAddressBin.Push(address);
   ++member.mComponentCount;
   member.mAddressIndex = mAddressBin.Size() - member.mComponentCount;
-  return table->GetData(newAddress.mTableIndex);
 }
 
 void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
@@ -287,8 +311,8 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
 
   // Remove the old component address from the member's address list.
   ComponentAddress& address = mAddressBin[addressIndex];
-  Table* table = GetTable(typeId);
-  table->Rem(address.mTableIndex);
+  Table& table = mTables.Get(typeId);
+  table.Rem(address.mTableIndex);
   if (addressIndex == member.LastAddress())
   {
     address.EndUse();
@@ -312,8 +336,8 @@ void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
   {
     return nullptr;
   }
-  Table* table = GetTable(typeId);
-  return table->GetData(tableIndex);
+  Table& table = mTables.Get(typeId);
+  return table.GetComponent(tableIndex);
 }
 
 bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
@@ -326,9 +350,30 @@ bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
   return tableIndex != Table::smInvalidIndex;
 }
 
-const void* Space::GetComponentData(Comp::TypeId typeId) const
+void Space::VisitRootMemberIds(std::function<void(World::MemberId)> visit) const
 {
-  return GetTable(typeId)->Data();
+  for (MemberId i = 0; i < mMembers.Size(); ++i)
+  {
+    const Member& member = mMembers[i];
+    if (member.InUseRootMember())
+    {
+      visit(i);
+    }
+  }
+}
+
+void Space::VisitMemberComponents(
+  MemberId memberId, std::function<void(Comp::TypeId, int)> visit) const
+{
+  VerifyMemberId(memberId);
+  const Member& member = mMembers[memberId];
+  int currentAddressIndex = member.mAddressIndex;
+  while (currentAddressIndex < member.EndAddress())
+  {
+    const ComponentAddress& address = mAddressBin[currentAddressIndex];
+    visit(address.mTypeId, address.mTableIndex);
+    ++currentAddressIndex;
+  }
 }
 
 const Ds::Map<Comp::TypeId, Table>& Space::Tables() const
@@ -349,13 +394,6 @@ const Ds::Vector<MemberId>& Space::UnusedMemberIds() const
 const Ds::Vector<ComponentAddress> Space::AddressBin() const
 {
   return mAddressBin;
-}
-
-Table* Space::GetTable(Comp::TypeId component) const
-{
-  Table* table = mTables.Find(component);
-  LogAbortIf(table == nullptr, "There is no table for this component type.");
-  return table;
 }
 
 int Space::GetTableIndex(Comp::TypeId typeId, MemberId memberId) const

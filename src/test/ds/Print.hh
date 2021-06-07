@@ -6,17 +6,24 @@ void PrintVector(const Ds::Vector<T>& vector, bool stats)
     std::cout << "Size: " << vector.Size() << std::endl;
     std::cout << "Capactiy: " << vector.Capacity() << std::endl;
   }
+  std::cout << vector << std::endl;
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector)
+{
   if (vector.Size() == 0)
   {
-    std::cout << "[]" << std::endl;
-    return;
+    os << "[]";
+    return os;
   }
-  std::cout << "[";
+  os << "[";
   for (int i = 0; i < vector.Size() - 1; ++i)
   {
-    std::cout << vector[i] << ", ";
+    os << vector[i] << ", ";
   }
-  std::cout << vector[vector.Size() - 1] << "]" << std::endl;
+  os << vector[vector.Size() - 1] << "]";
+  return os;
 }
 
 struct BTreeIndenter

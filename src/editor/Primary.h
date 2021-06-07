@@ -12,6 +12,7 @@ extern void (*AvailableComponents)(const World::Object& selected);
 void Init();
 void Purge();
 void Start();
+void Run();
 void Show();
 void End();
 bool EditorMode();

@@ -26,10 +26,13 @@ struct Type
 
 struct TypeData
 {
-  int mSize;
   std::string mName;
+  int mSize;
 
-  Util::Delegate mVInit;
+  void (*mDefaultConstruct)(void* data);
+  void (*mCopyConstruct)(void* from, void* to);
+  void (*mDestruct)(void* data);
+
   Util::Delegate mVUpdate;
 
   void (*mEditHook)(void* component);

@@ -2,13 +2,12 @@
 
 namespace Comp {
 
-void Transform::VInit()
-{
-  mScale = {1.0f, 1.0f, 1.0f};
-  mRotation = {1.0f, 0.0f, 0.0f, 0.0f};
-  mTranslation = {0.0f, 0.0f, 0.0f};
-  mUpdated = false;
-}
+Transform::Transform():
+  mScale({1.0f, 1.0f, 1.0f}),
+  mRotation({1.0f, 0.0f, 0.0f, 0.0f}),
+  mTranslation({0.0f, 0.0f, 0.0f}),
+  mUpdated(false)
+{}
 
 const Vec3& Transform::GetScale() const
 {

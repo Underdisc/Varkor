@@ -108,7 +108,7 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
 
   // Render every model in the space and use the model owner's MemberId as the
   // color value.
-  space.VisitTable<Comp::Model>(
+  space.VisitTableComponents<Comp::Model>(
     [&space](World::MemberId owner, const Comp::Model& modelComp)
     {
       Mat4 model = GetTransformation(space, owner);
@@ -144,7 +144,7 @@ World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view)
 
 void RenderModels(const World::Space& space, const Mat4& view)
 {
-  space.VisitTable<Comp::Model>(
+  space.VisitTableComponents<Comp::Model>(
     [&space, &view](World::MemberId owner, const Comp::Model& modelComp)
     {
       // Find the shader that will be used to draw the model.
