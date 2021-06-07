@@ -84,6 +84,14 @@ V* Map<K, V>::Find(const K& key) const
 }
 
 template<typename K, typename V>
+V& Map<K, V>::Get(const K& key) const
+{
+  V* value = Find(key);
+  LogAbortIf(value == nullptr, "The Map did not contain the given key.");
+  return *value;
+}
+
+template<typename K, typename V>
 bool Map<K, V>::Contains(const K& key) const
 {
   return FindNode<K>(key) != nullptr;

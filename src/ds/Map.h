@@ -41,6 +41,7 @@ public:
   void Insert(const K& key, V&& value);
   void Remove(const K& key);
   V* Find(const K& key) const;
+  V& Get(const K& key) const;
   bool Contains(const K& key) const;
 };
 
