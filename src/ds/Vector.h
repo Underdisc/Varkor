@@ -49,7 +49,7 @@ private:
   int mCapacity;
 
 private:
-  void VerifyIndex(int index);
+  void VerifyIndex(int index) const;
   void Grow();
   void Grow(int newCapacity);
   T* CreateAllocation(int capacity);

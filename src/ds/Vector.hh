@@ -106,9 +106,7 @@ void Vector<T>::Emplace(const Args&... args)
 template<typename T>
 void Vector<T>::Insert(int index, const T& value)
 {
-  LogAbortIf(
-    index > mSize || index < 0,
-    "The provided index is outside of the range of insertable positions.");
+  VerifyIndex(index);
   if (index == mSize)
   {
     Push(value);
@@ -242,12 +240,14 @@ T& Vector<T>::Top() const
 template<typename T>
 const T& Vector<T>::operator[](int index) const
 {
+  VerifyIndex(index);
   return mData[index];
 }
 
 template<typename T>
 T& Vector<T>::operator[](int index)
 {
+  VerifyIndex(index);
   return mData[index];
 }
 
@@ -316,7 +316,7 @@ const T* Vector<T>::end() const
 }
 
 template<typename T>
-void Vector<T>::VerifyIndex(int index)
+void Vector<T>::VerifyIndex(int index) const
 {
   LogAbortIf(index < 0 || index >= mSize, "An invalid index was provided.");
 }
