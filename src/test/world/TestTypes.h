@@ -5,6 +5,53 @@
 #include "test/ds/Print.h"
 
 #pragma pack(push, 1)
+struct CallCounter
+{
+  CallCounter()
+  {
+    ++smDefaultConstructorCount;
+  }
+  CallCounter(const CallCounter& other)
+  {
+    ++smCopyConstructorCount;
+  }
+  CallCounter(CallCounter&& other)
+  {
+    ++smMoveConstructorCount;
+  }
+  ~CallCounter()
+  {
+    ++smDestructorCount;
+  }
+  static void Reset()
+  {
+    smDefaultConstructorCount = 0;
+    smCopyConstructorCount = 0;
+    smMoveConstructorCount = 0;
+    smDestructorCount = 0;
+  }
+  static void Print()
+  {
+    std::cout << "-Call Counts-" << std::endl
+              << "Default Constructor Count: " << smDefaultConstructorCount
+              << std::endl
+              << "Copy Constructor Count: " << smCopyConstructorCount
+              << std::endl
+              << "Move Constructor Count: " << smMoveConstructorCount
+              << std::endl
+              << "Destructor Count: " << smDestructorCount << std::endl;
+  }
+  int mData;
+  static int smDefaultConstructorCount;
+  static int smCopyConstructorCount;
+  static int smMoveConstructorCount;
+  static int smDestructorCount;
+};
+int CallCounter::smDefaultConstructorCount;
+int CallCounter::smCopyConstructorCount;
+int CallCounter::smMoveConstructorCount;
+int CallCounter::smDestructorCount;
+
 struct Simple0
 {
   float m0;
@@ -71,6 +118,12 @@ struct Dynamic
   {
     SetData(*other.m0);
   }
+  Dynamic(Dynamic&& other): m0(other.m0), m1(other.m1), m2(other.m2)
+  {
+    other.m0 = nullptr;
+    other.m1 = 0.0;
+    other.m2 = 0.0f;
+  }
   ~Dynamic()
   {
     delete m0;
@@ -105,7 +158,8 @@ struct Container
   }
   void SetData(int value)
   {
-    for (int i = 0; i < value; ++i)
+    mVector.Clear();
+    for (int i = 0; i < value / 2; ++i)
     {
       mVector.Push(value + i);
     }
@@ -119,6 +173,7 @@ struct Container
 
 void RegisterComponentTypes()
 {
+  Comp::Type<CallCounter>::Register();
   Comp::Type<Simple0>::Register();
   Comp::Type<Simple1>::Register();
   Comp::Type<Dynamic>::Register();

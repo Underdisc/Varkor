@@ -23,6 +23,7 @@ public:
   void UpdateComponents() const;
 
   // Access component data and the owner of that component data.
+  void* operator[](int index) const;
   void* GetComponent(int index) const;
   MemberId GetOwner(int index) const;
 

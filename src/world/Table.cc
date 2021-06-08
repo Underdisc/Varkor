@@ -48,8 +48,8 @@ int Table::AllocateComponent(MemberId member)
 int Table::Duplicate(int ogIndex, MemberId duplicateId)
 {
   VerifyIndex(ogIndex);
-  void* ogComponent = GetComponent(ogIndex);
   int newIndex = AllocateComponent(duplicateId);
+  void* ogComponent = GetComponent(ogIndex);
   void* newComponent = GetComponent(newIndex);
   Comp::TypeData& typeData = Comp::nTypeData[mTypeId];
   typeData.mCopyConstruct(ogComponent, newComponent);
@@ -63,6 +63,11 @@ void Table::Rem(int index)
   void* component = GetComponent(index);
   Comp::TypeData& typeData = Comp::nTypeData[mTypeId];
   typeData.mDestruct(component);
+}
+
+void* Table::operator[](int index) const
+{
+  return GetComponent(index);
 }
 
 void* Table::GetComponent(int index) const
@@ -144,7 +149,14 @@ void Table::Grow()
     char* oldData = mData;
     mCapacity = (int)((float)mCapacity * smGrowthFactor);
     char* newData = alloc char[mCapacity * typeData.mSize];
-    Util::Copy<char>(oldData, newData, mSize * typeData.mSize);
+    VisitActiveIndices(
+      [&](int index)
+      {
+        void* oldComponent = (void*)(oldData + index * typeData.mSize);
+        void* newComponent = (void*)(newData + index * typeData.mSize);
+        typeData.mMoveConstruct(oldComponent, newComponent);
+        typeData.mDestruct(oldComponent);
+      });
     mData = newData;
     delete[] oldData;
   }

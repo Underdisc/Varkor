@@ -31,6 +31,7 @@ struct TypeData
 
   void (*mDefaultConstruct)(void* data);
   void (*mCopyConstruct)(void* from, void* to);
+  void (*mMoveConstruct)(void* from, void* to);
   void (*mDestruct)(void* data);
 
   Util::Delegate mVUpdate;

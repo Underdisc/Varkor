@@ -56,6 +56,12 @@ void CopyConstruct(void* from, void* to)
 }
 
 template<typename T>
+void MoveConstruct(void* from, void* to)
+{
+  new (to) T(Util::Move(*(T*)from));
+}
+
+template<typename T>
 void Destruct(void* data)
 {
   (*(T*)data).~T();
@@ -74,6 +80,7 @@ void Type<T>::Register()
 
   data.mDefaultConstruct = &DefaultConstruct<T>;
   data.mCopyConstruct = &CopyConstruct<T>;
+  data.mMoveConstruct = &MoveConstruct<T>;
   data.mDestruct = &Destruct<T>;
 
   BindVUpdate<T>(&data.mVUpdate);
