@@ -106,12 +106,12 @@ void Vector<T>::Emplace(const Args&... args)
 template<typename T>
 void Vector<T>::Insert(int index, const T& value)
 {
-  VerifyIndex(index);
   if (index == mSize)
   {
     Push(value);
     return;
   }
+  VerifyIndex(index);
 
   if (mSize >= mCapacity)
   {
