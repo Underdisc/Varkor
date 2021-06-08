@@ -63,216 +63,216 @@ UnusedMemberIds: 0, 2, 4, 6, 8
 
 <= AddComponent =>
 -Members {MemberId}->[TypeId, TableIndex]...-
-{0}->[0, 0][1, 0][2, 0]
-{1}->[0, 1][1, 1][2, 1]
-{2}->[0, 2][3, 0]
-AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1], [0, 2], [3, 0]
-0 {
+{0}->[1, 0][2, 0][3, 0]
+{1}->[1, 1][2, 1][3, 1]
+{2}->[1, 2][4, 0]
+AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [1, 1], [2, 1], [3, 1], [1, 2], [4, 0]
+1 {
 Stride: 8
 Size: 3
 SizeInBytes: 24
 Capacity: 10
 CapacityInBytes: 80
-Owners: [0, 1, 2]
+Owners: [0, 1, 2, ]
 }
-1 {
+2 {
 Stride: 12
 Size: 2
 SizeInBytes: 24
 Capacity: 10
 CapacityInBytes: 120
-Owners: [0, 1]
+Owners: [0, 1, ]
 }
-2 {
+3 {
 Stride: 20
 Size: 3
 SizeInBytes: 60
 Capacity: 10
 CapacityInBytes: 200
-Owners: [0, 1, 2]
+Owners: [0, 1, 2, ]
 }
-3 {
+4 {
 Stride: 16
 Size: 3
 SizeInBytes: 48
 Capacity: 10
 CapacityInBytes: 160
-Owners: [2, 1, 0]
+Owners: [2, 1, 0, ]
 }
 -Members {MemberId}->[TypeId, TableIndex]...-
-{0}->[0, 0][1, 0][2, 0][3, 2]
-{1}->[0, 1][1, 1][2, 1][3, 1]
-{2}->[0, 2][3, 0][2, 2]
-AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 2], [inv], [inv], [inv], [inv], [0, 1], [1, 1], [2, 1], [3, 1], [0, 2], [3, 0], [2, 2]
-0: [0, 0][0, 0][0, 0]
-1: [1, 1][1, 1]
-2: [2, 2, 2][2, 2, 2][2, 2, 2]
-3: [5, 6, 7, 8, 9][4, 5, 6, 7][3, 4, 5]
+{0}->[1, 0][2, 0][3, 0][4, 2]
+{1}->[1, 1][2, 1][3, 1][4, 1]
+{2}->[1, 2][4, 0][3, 2]
+AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 2], [inv], [inv], [inv], [inv], [1, 1], [2, 1], [3, 1], [4, 1], [1, 2], [4, 0], [3, 2]
+1: [1, 1][1, 1][1, 1]
+2: [2, 2][2, 2]
+3: [3, 3, 3][3, 3, 3][3, 3, 3]
+4: [5, 6][4, 5][3]
 
 <= RemComponent =>
 -Members {MemberId}->[TypeId, TableIndex]...-
-{0}->[0, 0][1, 0][2, 0][3, 0]
-{1}->[0, 1][1, 1][2, 1]
-{2}->[1, 2][3, 1][2, 2]
-{3}->[3, 2][2, 3][0, 2]
-AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1], [1, 2], [3, 1], [2, 2], [3, 2], [2, 3], [0, 2]
+{0}->[1, 0][2, 0][3, 0][4, 0]
+{1}->[1, 1][2, 1][3, 1]
+{2}->[2, 2][4, 1][3, 2]
+{3}->[4, 2][3, 3][1, 2]
+AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1], [2, 1], [3, 1], [2, 2], [4, 1], [3, 2], [4, 2], [3, 3], [1, 2]
 -Members {MemberId}->[TypeId, TableIndex]...-
-{0}->[0, 0][3, 0][2, 0]
-{1}->[2, 1][1, 1]
-{2}->[3, 1]
-{3}->[3, 2][2, 3][0, 2]
-AddressBin: [Table, Index], [0, 0], [3, 0], [2, 0], [inv], [2, 1], [1, 1], [inv], [3, 1], [inv], [inv], [3, 2], [2, 3], [0, 2]
+{0}->[1, 0][4, 0][3, 0]
+{1}->[3, 1][2, 1]
+{2}->[4, 1]
+{3}->[4, 2][3, 3][1, 2]
+AddressBin: [Table, Index], [1, 0], [4, 0], [3, 0], [inv], [3, 1], [2, 1], [inv], [4, 1], [inv], [inv], [4, 2], [3, 3], [1, 2]
 -Members {MemberId}->[TypeId, TableIndex]...-
-{0}->[0, 0][3, 0][2, 0]
-{1}->[2, 1][1, 1]
-{2}->[3, 1][0, 3]
-{3}->[3, 2][2, 3][0, 2]
-AddressBin: [Table, Index], [0, 0], [3, 0], [2, 0], [inv], [2, 1], [1, 1], [inv], [3, 1], [0, 3], [inv], [3, 2], [2, 3], [0, 2]
-0 {
+{0}->[1, 0][4, 0][3, 0]
+{1}->[3, 1][2, 1]
+{2}->[4, 1][1, 3]
+{3}->[4, 2][3, 3][1, 2]
+AddressBin: [Table, Index], [1, 0], [4, 0], [3, 0], [inv], [3, 1], [2, 1], [inv], [4, 1], [1, 3], [inv], [4, 2], [3, 3], [1, 2]
+1 {
 Stride: 8
 Size: 4
 SizeInBytes: 32
 Capacity: 10
 CapacityInBytes: 80
-Owners: [0, -1, 3, 2]
+Owners: [0, 3, 2, ]
 }
-1 {
+2 {
 Stride: 12
 Size: 3
 SizeInBytes: 36
 Capacity: 10
 CapacityInBytes: 120
-Owners: [-1, 1, -1]
+Owners: [1, ]
 }
-2 {
+3 {
 Stride: 20
 Size: 4
 SizeInBytes: 80
 Capacity: 10
 CapacityInBytes: 200
-Owners: [0, 1, -1, 3]
+Owners: [0, 1, 3, ]
 }
-3 {
+4 {
 Stride: 16
 Size: 3
 SizeInBytes: 48
 Capacity: 10
 CapacityInBytes: 160
-Owners: [0, 2, 3]
+Owners: [0, 2, 3, ]
 }
 
 <= DeleteMembersWithComponents =>
 Members and Components Created
 -Members {MemberId}->[TypeId, TableIndex]...-
-{0}->[0, 0][1, 0][2, 0][3, 0]
-{1}->[0, 1]
-{2}->[0, 2][1, 1]
-{3}->[0, 3][2, 1]
-{4}->[0, 4][1, 2]
-{5}->[0, 5][3, 1]
-{6}->[0, 6][1, 3][2, 2]
-{7}->[0, 7]
-AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [0, 2], [1, 1], [0, 3], [2, 1], [0, 4], [1, 2], [0, 5], [3, 1], [0, 6], [1, 3], [2, 2], [0, 7]
+{0}->[1, 0][2, 0][3, 0][4, 0]
+{1}->[1, 1]
+{2}->[1, 2][2, 1]
+{3}->[1, 3][3, 1]
+{4}->[1, 4][2, 2]
+{5}->[1, 5][4, 1]
+{6}->[1, 6][2, 3][3, 2]
+{7}->[1, 7]
+AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1], [1, 2], [2, 1], [1, 3], [3, 1], [1, 4], [2, 2], [1, 5], [4, 1], [1, 6], [2, 3], [3, 2], [1, 7]
 UnusedMemberIds: None
-Table 0 Owners: [0, 1, 2, 3, 4, 5, 6, 7]
-Table 1 Owners: [0, 2, 4, 6]
-Table 2 Owners: [0, 3, 6]
-Table 3 Owners: [0, 5]
+Table 1 Owners: [0, 1, 2, 3, 4, 5, 6, 7, ]
+Table 2 Owners: [0, 2, 4, 6, ]
+Table 3 Owners: [0, 3, 6, ]
+Table 4 Owners: [0, 5, ]
 -----
 Members Removed
 -Members {MemberId}->[TypeId, TableIndex]...-
-{1}->[0, 1]
-{2}->[0, 2][1, 1]
-{5}->[0, 5][3, 1]
-AddressBin: [Table, Index], [inv], [inv], [inv], [inv], [0, 1], [0, 2], [1, 1], [inv], [inv], [inv], [inv], [0, 5], [3, 1], [inv], [inv], [inv], [inv]
+{1}->[1, 1]
+{2}->[1, 2][2, 1]
+{5}->[1, 5][4, 1]
+AddressBin: [Table, Index], [inv], [inv], [inv], [inv], [1, 1], [1, 2], [2, 1], [inv], [inv], [inv], [inv], [1, 5], [4, 1], [inv], [inv], [inv], [inv]
 UnusedMemberIds: 0, 3, 4, 6, 7
-Table 0 Owners: [-1, 1, 2, -1, -1, 5, -1, -1]
-Table 1 Owners: [-1, 2, -1, -1]
-Table 2 Owners: [-1, -1, -1]
-Table 3 Owners: [-1, 5]
+Table 1 Owners: [1, 2, 5, ]
+Table 2 Owners: [2, ]
+Table 3 Owners: []
+Table 4 Owners: [5, ]
 -----
 New Members and Components
 -Members {MemberId}->[TypeId, TableIndex]...-
-{1}->[0, 1]
-{2}->[0, 2][1, 1]
-{5}->[0, 5][3, 1]
-{6}->[3, 2][1, 5]
-{7}->[0, 8][1, 4][2, 3]
-AddressBin: [Table, Index], [inv], [inv], [inv], [inv], [0, 1], [0, 2], [1, 1], [inv], [inv], [inv], [inv], [0, 5], [3, 1], [inv], [inv], [inv], [inv], [0, 8], [1, 4], [2, 3], [3, 2], [1, 5]
+{1}->[1, 1]
+{2}->[1, 2][2, 1]
+{5}->[1, 5][4, 1]
+{6}->[4, 2][2, 5]
+{7}->[1, 8][2, 4][3, 3]
+AddressBin: [Table, Index], [inv], [inv], [inv], [inv], [1, 1], [1, 2], [2, 1], [inv], [inv], [inv], [inv], [1, 5], [4, 1], [inv], [inv], [inv], [inv], [1, 8], [2, 4], [3, 3], [4, 2], [2, 5]
 UnusedMemberIds: 0, 3, 4
-Table 0 Owners: [-1, 1, 2, -1, -1, 5, -1, -1, 7]
-Table 1 Owners: [-1, 2, -1, -1, 7, 6]
-Table 2 Owners: [-1, -1, -1, 7]
-Table 3 Owners: [-1, 5, 6]
+Table 1 Owners: [1, 2, 5, 7, ]
+Table 2 Owners: [2, 7, 6, ]
+Table 3 Owners: [7, ]
+Table 4 Owners: [5, 6, ]
 
 <= GetComponent =>
-0 {
+1 {
 Stride: 8
 Size: 2
 SizeInBytes: 16
 Capacity: 10
 CapacityInBytes: 80
-Owners: [0, 1]
+Owners: [0, 1, ]
 }
-1 {
+2 {
 Stride: 12
 Size: 2
 SizeInBytes: 24
 Capacity: 10
 CapacityInBytes: 120
-Owners: [0, 1]
+Owners: [0, 1, ]
 }
-2 {
+3 {
 Stride: 20
 Size: 2
 SizeInBytes: 40
 Capacity: 10
 CapacityInBytes: 200
-Owners: [0, 1]
+Owners: [0, 1, ]
 }
-3 {
+4 {
 Stride: 16
 Size: 1
 SizeInBytes: 16
 Capacity: 10
 CapacityInBytes: 160
-Owners: [0]
+Owners: [0, ]
 }
 -Members {MemberId}->[TypeId, TableIndex]...-
-{0}->[0, 0][1, 0][2, 0][3, 0]
-{1}->[0, 1][1, 1][2, 1]
-AddressBin: [Table, Index], [0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [1, 1], [2, 1]
-0: [0, 0][1, 1]
-1: [1, 1][2, 2]
-2: [2, 2, 2][3, 3, 3]
-3: [3, 4, 5, 3, 4, 5]
+{0}->[1, 0][2, 0][3, 0][4, 0]
+{1}->[1, 1][2, 1][3, 1]
+AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1], [2, 1], [3, 1]
+1: [0, 0][1, 1]
+2: [1, 1][2, 2]
+3: [2, 2, 2][3, 3, 3]
+4: [3]
 
 <= HasComponent =>
 -Members {MemberId}->[TypeId, TableIndex]...-
-{0}->[1, 0][2, 0][3, 1]
-{1}->[0, 0][3, 0]
-AddressBin: [Table, Index], [inv], [inv], [0, 0], [3, 0], [1, 0], [2, 0], [3, 1]
+{0}->[2, 0][3, 0][4, 1]
+{1}->[1, 0][4, 0]
+AddressBin: [Table, Index], [inv], [inv], [1, 0], [4, 0], [2, 0], [3, 0], [4, 1]
 011110010
 
 <= Duplicate =>
 -Members {MemberId}->[TypeId, TableIndex]...-
-{0}->[0, 0][1, 0]
-{1}->[0, 1][1, 1]
-{2}->[0, 2][1, 2]
-| {3}->[2, 0][3, 0]
-| {4}->[2, 1]
-{5}->[0, 3][1, 3]
-| {6}->[2, 2][3, 1]
-| {7}->[2, 3]
+{0}->[1, 0][2, 0]
+{1}->[1, 1][2, 1]
+{2}->[1, 2][2, 2]
+| {3}->[3, 0][4, 0]
+| {4}->[3, 1]
+{5}->[1, 3][2, 3]
+| {6}->[3, 2][4, 1]
+| {7}->[3, 3]
 {8}
-| {9}->[0, 4][2, 4]
-| | {10}->[0, 5][3, 2]
-| | {11}->[1, 4][3, 3]
-| {12}->[0, 6][2, 5]
-| | {13}->[0, 7][3, 4]
-| | {14}->[1, 5][3, 5]
+| {9}->[1, 4][3, 4]
+| | {10}->[1, 5][4, 2]
+| | {11}->[2, 4][4, 3]
+| {12}->[1, 6][3, 5]
+| | {13}->[1, 7][4, 4]
+| | {14}->[2, 5][4, 5]
 -Tables-
-0: [0, 0][0, 0][1, 1][1, 1][2, 2][2, 2][2, 2][2, 2]
-1: [0, 0][0, 0][1, 1][1, 1][2, 2][2, 2]
-2: [1, 1, 1][1, 1, 1][1, 1, 1][1, 1, 1][2, 2, 2][2, 2, 2]
-3: [1][1][2, 3][2, 3][2, 3][2, 3]
+1: [0, 0][0, 0][1, 1][1, 1][2, 2][2, 2][2, 2][2, 2]
+2: [0, 0][0, 0][1, 1][1, 1][2, 2][2, 2]
+3: [1, 1, 1][1, 1, 1][1, 1, 1][1, 1, 1][2, 2, 2][2, 2, 2]
+4: [][][2][2][2][2]
