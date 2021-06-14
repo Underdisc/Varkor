@@ -3,50 +3,56 @@
 
 namespace Util {
 
+template<typename R, typename... Args>
 struct Delegate
 {
 public:
-  template<void (*Function)()>
-  void Bind();
-  template<typename T, void (T::*Function)()>
-  void Bind();
-  void BindNull();
+  // Empty delegate.
+  void BindNull()
+  {
+    mFunction = nullptr;
+  }
+  bool Open()
+  {
+    return mFunction != nullptr;
+  }
 
-  void Invoke();
-  void Invoke(void* instance);
-  bool Open();
+  // Free function delegate.
+  template<R (*Function)(Args... args)>
+  void Bind()
+  {
+    mFunction = &InternalFreeDelegate<Function>;
+  }
+  R Invoke(Args... args)
+  {
+    return mFunction(nullptr, args...);
+  }
+
+  // Member function delegate.
+  template<typename T, R (T::*Function)(Args... args)>
+  void Bind()
+  {
+    mFunction = &InternalMemberDelegate<T, Function>;
+  }
+  R Invoke(void* instance, Args... args)
+  {
+    return mFunction(instance, args...);
+  }
 
 private:
-  template<void (*Function)()>
-  static void InternalFreeFunction(void* instance);
-  template<typename T, void (T::*Function)()>
-  static void InternalMemberFunction(void* instance);
-  void (*mDelegateFunction)(void*);
+  R (*mFunction)(void*, Args... args);
+
+  template<R (*Function)(Args... args)>
+  static R InternalFreeDelegate(void* instance, Args... args)
+  {
+    return Function(args...);
+  }
+  template<typename T, R (T::*Function)(Args... args)>
+  static R InternalMemberDelegate(void* instance, Args... args)
+  {
+    return (((T*)instance)->*Function)(args...);
+  }
 };
-
-template<void (*Function)()>
-static void Delegate::InternalFreeFunction(void* instance)
-{
-  Function();
-}
-
-template<typename T, void (T::*Function)()>
-static void Delegate::InternalMemberFunction(void* instance)
-{
-  (((T*)instance)->*Function)();
-}
-
-template<void (*Function)()>
-void Delegate::Bind()
-{
-  mDelegateFunction = InternalFreeFunction<Function>;
-}
-
-template<typename T, void (T::*Function)()>
-void Delegate::Bind()
-{
-  mDelegateFunction = InternalMemberFunction<T, Function>;
-}
 
 } // namespace Util
 

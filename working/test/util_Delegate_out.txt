@@ -1,11 +1,15 @@
 <= FreeFunction =>
-1
-Free
+Basic
+Args 1 2
+ReturnAndArgs 1 2 3
+Open: 111
 
 <= MemberFunction =>
-1
-Member 5
+1 Basic
+2 Args 1 2
+3 ReturnAndArgs 1 2 3
+Open: 111
 
 <= NullFunction =>
-0
+Open: 0
 

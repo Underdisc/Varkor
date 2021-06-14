@@ -2,49 +2,88 @@
 
 #include "util/Delegate.h"
 
-void DelegateFree()
+void Basic()
 {
-  std::cout << "Free" << std::endl;
+  std::cout << "Basic" << std::endl;
 }
 
-struct Object
+void Args(int i, float f)
 {
-  int mValue;
-  void DelegateMember()
-  {
-    std::cout << "Member " << mValue << std::endl;
-  }
-};
+  std::cout << "Args " << i << " " << f << std::endl;
+}
+
+int ReturnAndArgs(int i, float f)
+{
+  std::cout << "ReturnAndArgs " << i << " " << f;
+  return i + 2;
+}
 
 void FreeFunction()
 {
   std::cout << "<= FreeFunction =>" << std::endl;
-  Util::Delegate test;
-  test.Bind<DelegateFree>();
-  std::cout << test.Open() << std::endl;
-  test.Invoke();
-  std::cout << std::endl;
+  Util::Delegate<void> basic;
+  basic.Bind<Basic>();
+  basic.Invoke();
+
+  Util::Delegate<void, int, float> args;
+  args.Bind<Args>();
+  args.Invoke(1, 2);
+
+  Util::Delegate<int, int, float> returnAndArgs;
+  returnAndArgs.Bind<ReturnAndArgs>();
+  std::cout << " " << returnAndArgs.Invoke(1, 2) << std::endl
+            << "Open: " << basic.Open() << args.Open() << returnAndArgs.Open()
+            << std::endl
+            << std::endl;
 }
 
 void MemberFunction()
 {
   std::cout << "<= MemberFunction =>" << std::endl;
-  Util::Delegate test;
-  test.Bind<Object, &Object::DelegateMember>();
-  std::cout << test.Open() << std::endl;
-
+  struct Object
+  {
+    int mValue;
+    Object(): mValue(0) {}
+    void Basic()
+    {
+      ++mValue;
+      std::cout << mValue << " Basic" << std::endl;
+    }
+    void Args(int i, float f)
+    {
+      ++mValue;
+      std::cout << mValue << " Args " << i << " " << f << std::endl;
+    }
+    int ReturnAndArgs(int i, float f)
+    {
+      ++mValue;
+      std::cout << mValue << " ReturnAndArgs " << i << " " << f;
+      return i + 2;
+    }
+  };
   Object object;
-  object.mValue = 5;
-  test.Invoke((void*)&object);
-  std::cout << std::endl;
+  Util::Delegate<void> basic;
+  basic.Bind<Object, &Object::Basic>();
+  basic.Invoke((void*)&object);
+
+  Util::Delegate<void, int, float> args;
+  args.Bind<Object, &Object::Args>();
+  args.Invoke((void*)&object, 1, 2);
+
+  Util::Delegate<int, int, float> returnAndArgs;
+  returnAndArgs.Bind<Object, &Object::ReturnAndArgs>();
+  std::cout << " " << returnAndArgs.Invoke((void*)&object, 1, 2) << std::endl
+            << "Open: " << basic.Open() << args.Open() << returnAndArgs.Open()
+            << std::endl
+            << std::endl;
 }
 
 void NullFunction()
 {
   std::cout << "<= NullFunction =>" << std::endl;
-  Util::Delegate test;
+  Util::Delegate<void> test;
   test.BindNull();
-  std::cout << test.Open() << std::endl << std::endl;
+  std::cout << "Open: " << test.Open() << std::endl << std::endl;
 }
 
 int main(void)
