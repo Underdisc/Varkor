@@ -3,21 +3,21 @@
 #include <ostream>
 #include <string>
 
-#include "lang/Tokenizer.h"
+#include "vlk/Tokenizer.h"
 
-std::ostream& operator<<(std::ostream& os, Lang::Token::Type tokenType)
+std::ostream& operator<<(std::ostream& os, Vlk::Token::Type tokenType)
 {
   switch (tokenType)
   {
-  case Lang::Token::Type::Invalid: os << "Invalid"; break;
-  case Lang::Token::Type::Key: os << "Key"; break;
-  case Lang::Token::Type::Value: os << "Value"; break;
-  case Lang::Token::Type::Whitespace: os << "Whitespace"; break;
-  case Lang::Token::Type::Colon: os << "Colon"; break;
-  case Lang::Token::Type::OpenBracket: os << "OpenBracket"; break;
-  case Lang::Token::Type::CloseBracket: os << "CloseBracket"; break;
-  case Lang::Token::Type::OpenBrace: os << "OpenBrace"; break;
-  case Lang::Token::Type::CloseBrace: os << "CloseBrace"; break;
+  case Vlk::Token::Type::Invalid: os << "Invalid"; break;
+  case Vlk::Token::Type::Key: os << "Key"; break;
+  case Vlk::Token::Type::Value: os << "Value"; break;
+  case Vlk::Token::Type::Whitespace: os << "Whitespace"; break;
+  case Vlk::Token::Type::Colon: os << "Colon"; break;
+  case Vlk::Token::Type::OpenBracket: os << "OpenBracket"; break;
+  case Vlk::Token::Type::CloseBracket: os << "CloseBracket"; break;
+  case Vlk::Token::Type::OpenBrace: os << "OpenBrace"; break;
+  case Vlk::Token::Type::CloseBrace: os << "CloseBrace"; break;
   }
   return os;
 }
@@ -25,14 +25,14 @@ std::ostream& operator<<(std::ostream& os, Lang::Token::Type tokenType)
 void PrintTokens(const char* text)
 {
   // Tokenize the text and print the results.
-  Lang::Tokenizer tokenizer;
-  Lang::Tokenizer::Result result = tokenizer.Tokenize(text);
+  Vlk::Tokenizer tokenizer;
+  Vlk::Tokenizer::Result result = tokenizer.Tokenize(text);
   if (result.mError.size() > 0)
   {
     std::cout << result.mError << std::endl;
     return;
   }
-  for (const Lang::Tokenizer::Token& token : result.mTokens)
+  for (const Vlk::Tokenizer::Token& token : result.mTokens)
   {
     std::string tokenText(token.mText, token.mLength);
     std::cout << token.mType << ": " << tokenText << std::endl;
@@ -79,7 +79,13 @@ void Writer()
   constexpr int buffSize = 1024;
   char rawLine[buffSize];
   std::string text;
-  std::ifstream fileStream("lang_Writer_out.txt");
+  const char* filename = "vlk_Writer_out.txt";
+  std::ifstream fileStream(filename);
+  if (!fileStream.is_open())
+  {
+    std::cout << filename << " not found." << std::endl << std::endl;
+    return;
+  }
 
   while (!fileStream.eof())
   {

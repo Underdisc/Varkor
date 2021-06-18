@@ -1,8 +1,8 @@
 #include "Error.h"
 
-#include "lang/Writer.h"
+#include "vlk/Writer.h"
 
-namespace Lang {
+namespace Vlk {
 
 Writer::Writer():
   mExpectingKey(false),
@@ -167,4 +167,4 @@ void Writer::EArray()
   mBuffer << mIndent << "}\n";
 }
 
-} // namespace Lang
+} // namespace Vlk

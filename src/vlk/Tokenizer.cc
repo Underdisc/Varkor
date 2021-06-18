@@ -1,6 +1,6 @@
-#include "lang/Tokenizer.h"
+#include "vlk/Tokenizer.h"
 
-namespace Lang {
+namespace Vlk {
 
 // Qualifier ///////////////////////////////////////////////////////////////////
 Qualifier::Range::Range(char start, char end): mStart(start), mEnd(end) {}
@@ -200,4 +200,4 @@ Tokenizer::Token Tokenizer::ReadNextToken(const char* text)
   return token;
 }
 
-} // namespace Lang
+} // namespace Vlk

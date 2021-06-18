@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "lang/Writer.h"
+#include "vlk/Writer.h"
 
 void Value()
 {
   std::cout << "<= Value =>" << std::endl;
-  Lang::Writer writer;
+  Vlk::Writer writer;
   // clang-format off
   writer << Request::Value << "Integer" << 10;
   writer << Request::Value << "Float" << 10.5f;
@@ -18,7 +18,7 @@ void Value()
 void ValueArray()
 {
   std::cout << "<= ValueArray =>" << std::endl;
-  Lang::Writer writer;
+  Vlk::Writer writer;
 
   writer << Request::ValueArray << "Integers";
   for (int i = 0; i < 5; ++i)
@@ -60,7 +60,7 @@ void ValueArray()
 void Array()
 {
   std::cout << "<= Array =>" << std::endl;
-  Lang::Writer writer;
+  Vlk::Writer writer;
   writer << Request::Value << "Integer" << 5;
   writer << Request::Array << "Array1";
   writer << Request::Value << "Float" << 5.5f;
@@ -81,7 +81,7 @@ void Array()
 void Errors()
 {
   std::cout << "<= Errors =>" << std::endl;
-  Lang::Writer writer;
+  Vlk::Writer writer;
   int errorNumber = 0;
 
   // Each of the incorrect sequences below will cause a crash.

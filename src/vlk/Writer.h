@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-namespace Lang {
+namespace Vlk {
 
 struct Writer
 {
@@ -54,8 +54,8 @@ Writer& Writer::operator<<(const T& value)
   return *this;
 }
 
-} // namespace Lang
+} // namespace Vlk
 
-typedef Lang::Writer::Request Request;
+typedef Vlk::Writer::Request Request;
 
 #endif

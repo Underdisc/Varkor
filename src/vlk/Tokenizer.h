@@ -1,11 +1,11 @@
-#ifndef lang_Tokenizer_h
-#define lang_Tokenizer_h
+#ifndef vlk_Tokenizer_h
+#define vlk_Tokenizer_h
 
 #include <string>
 
 #include "ds/Vector.h"
 
-namespace Lang {
+namespace Vlk {
 
 struct Qualifier
 {
@@ -91,6 +91,6 @@ private:
 
 typedef Tokenizer::Token Token;
 
-} // namespace Lang
+} // namespace Vlk
 
 #endif
