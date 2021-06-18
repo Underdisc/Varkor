@@ -1,0 +1,124 @@
+<= Key =>
+Key: a_key
+Key: a_key_with_1234
+Key: _a_key_with_a_starting_underscore
+Key: A_KEY_WITH_CAPS
+Key: _a_key_with_SOME_CAPS
+
+<= Value =>
+Value: 1
+Value: 143
+Value: 1.0
+Value: 123.456
+Value: "AStringValue"
+Value: "Another_?+-!"
+
+<= Characters =>
+Colon: :
+OpenBracket: [
+CloseBracket: ]
+OpenBrace: {
+CloseBrace: }
+
+<= Writer =>
+<- Value ->
+Key: Integer
+Colon: :
+Value: 10
+Key: Float
+Colon: :
+Value: 10.5
+Key: String
+Colon: :
+Value: "10"
+
+<- ValueArray ->
+Key: Integers
+Colon: :
+OpenBracket: [
+Value: 0
+Value: 1
+Value: 2
+Value: 3
+Value: 4
+CloseBracket: ]
+Key: Floats
+Colon: :
+OpenBracket: [
+OpenBracket: [
+Value: 0
+Value: 0.1
+Value: 0.2
+Value: 0.3
+Value: 0.4
+CloseBracket: ]
+OpenBracket: [
+Value: 1
+Value: 1.1
+Value: 1.2
+Value: 1.3
+Value: 1.4
+CloseBracket: ]
+OpenBracket: [
+Value: 2
+Value: 2.1
+Value: 2.2
+Value: 2.3
+Value: 2.4
+CloseBracket: ]
+OpenBracket: [
+Value: 3
+Value: 3.1
+Value: 3.2
+Value: 3.3
+Value: 3.4
+CloseBracket: ]
+CloseBracket: ]
+Key: Strings
+Colon: :
+OpenBracket: [
+OpenBracket: [
+CloseBracket: ]
+OpenBracket: [
+Value: "string 1 0"
+CloseBracket: ]
+OpenBracket: [
+Value: "string 2 0"
+Value: "string 2 1"
+CloseBracket: ]
+OpenBracket: [
+Value: "string 3 0"
+Value: "string 3 1"
+Value: "string 3 2"
+CloseBracket: ]
+CloseBracket: ]
+
+<- Array ->
+Key: Integer
+Colon: :
+Value: 5
+Key: Array1
+Colon: :
+OpenBrace: {
+Key: Float
+Colon: :
+Value: 5.5
+Key: Array2
+Colon: :
+OpenBrace: {
+Key: Strings
+Colon: :
+OpenBracket: [
+Value: "string 0"
+Value: "string 1"
+Value: "string 2"
+Value: "string 3"
+Value: "string 4"
+CloseBracket: ]
+CloseBrace: }
+CloseBrace: }
+
+<= InvalidToken =>
+Invalid token: "+"
+Invalid token: ""an incomplete string"
+Invalid token: "1."
