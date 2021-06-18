@@ -9,7 +9,7 @@ std::ostream& operator<<(std::ostream& os, Lang::Token::Type tokenType)
 {
   switch (tokenType)
   {
-  case Lang::Token::Type::None: os << "None"; break;
+  case Lang::Token::Type::Invalid: os << "Invalid"; break;
   case Lang::Token::Type::Key: os << "Key"; break;
   case Lang::Token::Type::Value: os << "Value"; break;
   case Lang::Token::Type::Whitespace: os << "Whitespace"; break;

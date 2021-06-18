@@ -34,7 +34,7 @@ public:
   {
     enum class Type
     {
-      None,
+      Invalid,
       Key,
       Value,
       Whitespace,

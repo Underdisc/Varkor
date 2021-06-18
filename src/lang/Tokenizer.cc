@@ -76,7 +76,7 @@ Tokenizer::StateIndex Tokenizer::State::NextState(char c)
 Tokenizer::Tokenizer()
 {
   // Add all of the states and edges needed for the Tokenizer's DFA.
-  mRoot = AddState(Token::Type::None);
+  mRoot = AddState(Token::Type::Invalid);
   {
     // Key
     StateIndex accept = AddState(Token::Type::Key);
@@ -92,8 +92,8 @@ Tokenizer::Tokenizer()
     // Value
     StateIndex accept0 = AddState(Token::Type::Value);
     StateIndex accept1 = AddState(Token::Type::Value);
-    StateIndex noAccept0 = AddState(Token::Type::None);
-    StateIndex noAccept1 = AddState(Token::Type::None);
+    StateIndex noAccept0 = AddState(Token::Type::Invalid);
+    StateIndex noAccept1 = AddState(Token::Type::Invalid);
     Qualifier q;
     q.WhitelistRange('0', '9');
     AddEdge(mRoot, accept0, q);
@@ -165,7 +165,7 @@ Tokenizer::Result Tokenizer::Tokenize(const char* text)
     Token token = ReadNextToken(text);
     switch (token.mType)
     {
-    case Token::Type::None:
+    case Token::Type::Invalid:
       result.mError += "Invalid token: \"";
       result.mError.append(token.mText, token.mLength);
       result.mError += "\"";
@@ -193,7 +193,7 @@ Tokenizer::Token Tokenizer::ReadNextToken(const char* text)
   // it is an invalid Token consisting of one character.
   if (last == mRoot)
   {
-    Token token = {text, 1, Token::Type::None};
+    Token token = {text, 1, Token::Type::Invalid};
     return token;
   }
   Token token = {text, lastLength, mStates[last].mTokenType};
