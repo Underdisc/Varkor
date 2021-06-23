@@ -16,25 +16,29 @@ void ResizeCallback(GLFWwindow* window, int width, int height);
 GLFWwindow* nWindow;
 bool nActive = true;
 float nFov = Math::nPi / 2.0f;
-int nWidth = 800;
-int nHeight = 800;
+int nWidth;
+int nHeight;
 float nNear = 0.1f;
 float nFar = 1000000.0f;
 Mat4 nPerspective;
 
 void Init(const char* windowName, bool visible)
 {
-  // Create the window and opengl context.
+  // Create a maximized window and an opengl context.
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
   if (!visible)
   {
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
   }
-  nWindow = glfwCreateWindow(nWidth, nHeight, windowName, NULL, NULL);
+  // We use 1 for the starting window width and height because it will be
+  // maximized to fill the whole monitor.
+  nWindow = glfwCreateWindow(1, 1, windowName, NULL, NULL);
   LogAbortIf(!nWindow, "glfw window creation failed.");
+  glfwGetWindowSize(nWindow, &nWidth, &nHeight);
   glfwMakeContextCurrent(nWindow);
 
   bool gladLoaded = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
