@@ -7,5 +7,6 @@ build/
 working/buildSpecs.bat
 working/imgui.ini
 working/res/
+working/test/*_coverage
 working/test/*_out_diff.txt
 working/test/testNames.txt

@@ -1,6 +1,6 @@
 @echo off
 
-REM Usage: btest.bat (all [t])|({target} [r|c|d|t])
+REM Usage: btest.bat (all [t|c])|({target} [r|d|a|t|c])
 
 REM Required Environment Variables to be set in buildSpecs.bat.
 REM buildDir - The path to the build directory relative to buildSpecs.bat.
@@ -12,14 +12,18 @@ REM {target} - Build only the provided target.
 
 REM Optional Arguments
 REM r - Runs the target executable if successfully built.
-REM c - Creates a file containing the output of the target executable named
-REM   {target}_out.txt. The file will be overwritten if it already exists.
 REM d - Creates a file containing the output of the target executable named
-REM   {target}_out_diff.txt and diffs it against {target}_out.txt.
+REM   {target}_out_diff.txt and git diffs it against {target}_out.txt.
+REM a - Creates a file containing the output of the target executable named
+REM   {target}_out.txt. The file will be overwritten if it already exists.
 REM t - Does the same as the d option, but only prints out "{target}: Passed"
 REM   or "{target}: Failed" depending on the result of the diff. When this
 REM   option is used with the all argument, every existing test will be executed
 REM   and dispalyed with "{target}: Passed" or {target}: Failed".
+REM c - Creates a directory named {target}_coverage that contains a code
+REM   coverage report. This makes finding the code that a unit test did and did
+REM   not run easy. A build of OpenCppCoverage needs to be in your path. It can
+REM   be found here (https://github.com/OpenCppCoverage/OpenCppCoverage).
 
 REM Ensure that the build specifications exist.
 pushd "../"
@@ -55,8 +59,12 @@ if "%1" == "all" (
     for /f %%t in (testNames.txt) do call :PerformTest %%t
     exit /b 0
   )
+  if "%2" == "c" (
+    for /f %%t in (testNames.txt) do call :GenerateCoverage %%t
+    exit /b 0
+  )
   if not "%2" == "" (
-    echo Error: %2 is not a valid argument. Only t is valid.
+    echo Error: %2 is not a valid argument. Look inside btest.bat for details.
     exit /b 1
   )
   exit /b 0
@@ -67,21 +75,25 @@ if "%2" == "r" (
   %1.exe
   exit /b 0
 )
-if "%2" == "c" (
-  %1.exe > %1_out.txt
-  exit /b 0
-)
 if "%2" == "d" (
   %1.exe > %1_out_diff.txt
   git diff --no-index %1_out.txt %1_out_diff.txt
+  exit /b 0
+)
+if "%2" == "a" (
+  %1.exe > %1_out.txt
   exit /b 0
 )
 if "%2" == "t" (
   call :PerformTest %1
   exit /b 0
 )
+if "%2" == "c" (
+  call :GenerateCoverage %1
+  exit /b 0
+)
 if not "%2" == "" (
-  echo Error: %2 is not a valid argument. Only r, c, d, or t are valid.
+  echo Error: %2 is not a valid argument. Look inside btest.bat for details.
   exit /b 1
 )
 exit /b 0
@@ -94,4 +106,15 @@ exit /b 0
   ) else (
     echo %1: [32mPassed[0m
   )
+exit /b 0
+
+:GenerateCoverage
+  setlocal ENABLEDELAYEDEXPANSION
+  pushd "../../"
+  OpenCppCoverage ^
+    --sources !cd!\src\* --export_type html:working\test\%1_coverage -q -- ^
+    working\test\%1.exe > LastCoverageResults.log
+  del LastCoverageResults.log
+  popd
+  endlocal
 exit /b 0
