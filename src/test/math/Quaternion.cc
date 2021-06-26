@@ -4,6 +4,13 @@
 #include "math/Constants.h"
 #include "math/Quaternion.h"
 
+std::ostream& operator<<(std::ostream& os, const Quat& quat)
+{
+  os << quat.mA << " + i(" << quat.mB << ") + j(" << quat.mC << ") + k("
+     << quat.mD << ")";
+  return os;
+}
+
 void AngleAxis()
 {
   std::cout << "<= AngleAxis =>" << std::endl;

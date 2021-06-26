@@ -6,12 +6,14 @@
 
 namespace Math {
 
+Quaternion::Quaternion() {}
+
+Quaternion::Quaternion(float a, float b, float c, float d): mVec({a, b, c, d})
+{}
+
 void Quaternion::Identity()
 {
-  mA = 1.0f;
-  mB = 0.0f;
-  mC = 0.0f;
-  mD = 0.0f;
+  mVec = {1.0f, 0.0, 0.0f, 0.0f};
 }
 
 void Quaternion::AngleAxis(float angle, Vec3 axis)
@@ -45,18 +47,12 @@ void Quaternion::FromTo(Vec3 from, Vec3 to)
 
 void Quaternion::Normalize()
 {
-  float magnitude = Magnitude();
-  LogAbortIf(
-    magnitude == 0.0f, "Quaternion with a magnitude of 0 can't be normalized.");
-  mA /= magnitude;
-  mB /= magnitude;
-  mC /= magnitude;
-  mD /= magnitude;
+  mVec = Math::Normalize(mVec);
 }
 
 Quaternion Quaternion::Conjugate() const
 {
-  Quaternion result = {mA, -mB, -mC, -mD};
+  Quaternion result(mA, -mB, -mC, -mD);
   return result;
 }
 
@@ -66,9 +62,19 @@ Quaternion& Quaternion::operator*=(const Quaternion& other)
   return *this;
 }
 
+const float& Quaternion::operator[](int index) const
+{
+  return mVec[index];
+}
+
+float& Quaternion::operator[](int index)
+{
+  return mVec[index];
+}
+
 float Quaternion::Magnitude() const
 {
-  return std::sqrtf(mA * mA + mB * mB + mC * mC + mD * mD);
+  return Math::Magnitude(mVec);
 }
 
 Vec3 Quaternion::Axis() const
@@ -115,13 +121,6 @@ Quaternion operator*(const Quaternion& a, const Quaternion& b)
   result.mC = a.mA * b.mC - a.mB * b.mD + a.mC * b.mA + a.mD * b.mB;
   result.mD = a.mA * b.mD + a.mB * b.mC - a.mC * b.mB + a.mD * b.mA;
   return result;
-}
-
-std::ostream& operator<<(std::ostream& os, const Quaternion& quat)
-{
-  os << quat.mA << " + i(" << quat.mB << ") + j(" << quat.mC << ") + k("
-     << quat.mD << ")";
-  return os;
 }
 
 } // namespace Math

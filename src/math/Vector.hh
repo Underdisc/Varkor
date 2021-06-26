@@ -18,7 +18,7 @@ const T* Vector<T, N>::CData() const
 }
 
 template<typename T, unsigned int N>
-T Vector<T, N>::operator[](int index) const
+const T& Vector<T, N>::operator[](int index) const
 {
   return mD[index];
 }

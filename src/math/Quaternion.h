@@ -1,16 +1,22 @@
 #ifndef math_Quaternion_h
 #define math_Quaternion_h
 
-#include <iostream>
-
 #include "math/Vector.h"
 
 namespace Math {
 
 struct Quaternion
 {
-  float mA, mB, mC, mD;
-
+  union
+  {
+    struct
+    {
+      float mA, mB, mC, mD;
+    };
+    Vec4 mVec;
+  };
+  Quaternion();
+  Quaternion(float a, float b, float c, float d);
   void Identity();
   void AngleAxis(float angle, Vec3 axis);
   void FromTo(Vec3 from, Vec3 to);
@@ -24,10 +30,11 @@ struct Quaternion
   Vec3 Rotate(const Vec3& point) const;
 
   Quaternion& operator*=(const Quaternion& other);
+  const float& operator[](int index) const;
+  float& operator[](int index);
 };
 
 Quaternion operator*(const Quaternion& a, const Quaternion& b);
-std::ostream& operator<<(std::ostream& os, const Quaternion& quat);
 
 } // namespace Math
 

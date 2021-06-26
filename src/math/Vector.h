@@ -12,7 +12,7 @@ struct Vector
 
   T* Data();
   const T* CData() const;
-  T operator[](int index) const;
+  const T& operator[](int index) const;
   T& operator[](int index);
   template<unsigned int M>
   operator Vector<T, M>() const;
