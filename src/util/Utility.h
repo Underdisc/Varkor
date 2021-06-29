@@ -45,6 +45,26 @@ struct EnableIf<true, T>
   typedef T Type;
 };
 
+struct Result
+{
+private:
+  std::string mError;
+
+public:
+  Result(): mError("") {}
+  Result(Result&& other): mError(Util::Move(other.mError)) {}
+  Result(std::string&& error): mError(Util::Move(error)) {}
+  Result(const char* error): mError(error) {}
+  bool Success()
+  {
+    return mError.size() == 0;
+  }
+  const std::string& Error()
+  {
+    return mError;
+  }
+};
+
 } // namespace Util
 
 #endif
