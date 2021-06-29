@@ -1,5 +1,3 @@
-#include <new>
-
 #include "Error.h"
 #include "debug/MemLeak.h"
 #include "util/Memory.h"
@@ -160,18 +158,25 @@ void Vector<T>::LazyRemove(int index)
 }
 
 template<typename T>
+void Vector<T>::Resize(int newSize)
+{
+  HandleNewSize(newSize);
+  for (int i = mSize; i < newSize; ++i)
+  {
+    new (mData + i) T();
+  }
+  mSize = newSize;
+}
+
+template<typename T>
 void Vector<T>::Resize(int newSize, const T& value)
 {
-  if (newSize > mCapacity)
-  {
-    T* oldData = mData;
-    mData = CreateAllocation(newSize);
-    Util::MoveData<T>(oldData, mData, mSize);
-    DeleteAllocation(oldData);
-    mCapacity = newSize;
-  }
+  HandleNewSize(newSize);
   int sizeDifference = newSize - mSize;
-  Util::Fill<T>(mData + mSize, value, sizeDifference);
+  for (int i = 0; i < sizeDifference; ++i)
+  {
+    new (mData + mSize + i) T(value);
+  }
   mSize = newSize;
 }
 
@@ -346,12 +351,25 @@ void Vector<T>::Grow(int newCapacity)
   T* newData = CreateAllocation(newCapacity);
   for (int i = 0; i < mSize; ++i)
   {
-    new (newData + i) T(std::move(mData[i]));
+    new (newData + i) T(Util::Move(mData[i]));
     mData[i].~T();
   }
   mCapacity = newCapacity;
   DeleteAllocation(mData);
   mData = newData;
+}
+
+template<typename T>
+void Vector<T>::HandleNewSize(int newSize)
+{
+  for (int i = newSize; i < mSize; ++i)
+  {
+    mData[i].~T();
+  }
+  if (newSize > mCapacity)
+  {
+    Grow(newSize);
+  }
 }
 
 template<typename T>

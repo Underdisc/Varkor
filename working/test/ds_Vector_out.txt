@@ -116,11 +116,13 @@ Capactiy: 10
 Size: 20
 Capactiy: 20
 [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1]]
-Size: 15
+Size: 10
 Capactiy: 20
-[[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1]]
-CopyAssignmentCount: 20
-MoveAssignmentCount: 10
+[[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+DefaultConstructorCount: 10
+CopyConstructorCount: 20
+MoveConstructorCount: 10
+DestructorCount: 23
 
 <= Reserve =>
 Size: 0

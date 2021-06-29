@@ -293,13 +293,18 @@ void Resize()
   PrintVector(test);
 
   // This time the vector's capacity should remain the same since it has enough
-  // available space for the new size.
+  // available space for the new sizes.
   test.Resize(15, TestType(2, 2));
+  test.Resize(10);
   PrintVector(test);
-  std::cout << "CopyAssignmentCount: " << TestType::smCopyAssignmentCount
+  test.Resize(20);
+  std::cout << "DefaultConstructorCount: "
+            << TestType::smDefaultConstructorCount << std::endl
+            << "CopyConstructorCount: " << TestType::smCopyConstructorCount
             << std::endl
-            << "MoveAssignmentCount: " << TestType::smMoveAssignmentCount
+            << "MoveConstructorCount: " << TestType::smMoveConstructorCount
             << std::endl
+            << "DestructorCount: " << TestType::smDestructorCount << std::endl
             << std::endl;
 }
 

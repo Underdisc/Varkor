@@ -20,6 +20,7 @@ public:
   void Pop();
   void Clear();
   void LazyRemove(int index);
+  void Resize(int newSize);
   void Resize(int newSize, const T& fill);
   void Reserve(int newCapacity);
   void Shrink();
@@ -52,6 +53,7 @@ private:
   void VerifyIndex(int index) const;
   void Grow();
   void Grow(int newCapacity);
+  void HandleNewSize(int newSize);
   T* CreateAllocation(int capacity);
   void DeleteAllocation(T* allocation);
 };
