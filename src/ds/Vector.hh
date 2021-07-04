@@ -91,7 +91,7 @@ void Vector<T>::Push(const T& value, int count)
 
 template<typename T>
 template<typename... Args>
-void Vector<T>::Emplace(const Args&... args)
+void Vector<T>::Emplace(Args&&... args)
 {
   if (mSize >= mCapacity)
   {
@@ -158,24 +158,20 @@ void Vector<T>::LazyRemove(int index)
 }
 
 template<typename T>
-void Vector<T>::Resize(int newSize)
+template<typename... Args>
+void Vector<T>::Resize(int newSize, Args&&... args)
 {
-  HandleNewSize(newSize);
+  for (int i = newSize; i < mSize; ++i)
+  {
+    mData[i].~T();
+  }
+  if (newSize > mCapacity)
+  {
+    Grow(newSize);
+  }
   for (int i = mSize; i < newSize; ++i)
   {
-    new (mData + i) T();
-  }
-  mSize = newSize;
-}
-
-template<typename T>
-void Vector<T>::Resize(int newSize, const T& value)
-{
-  HandleNewSize(newSize);
-  int sizeDifference = newSize - mSize;
-  for (int i = 0; i < sizeDifference; ++i)
-  {
-    new (mData + mSize + i) T(value);
+    new (mData + i) T(args...);
   }
   mSize = newSize;
 }
@@ -222,6 +218,12 @@ template<typename T>
 int Vector<T>::Size() const
 {
   return mSize;
+}
+
+template<typename T>
+bool Vector<T>::Empty() const
+{
+  return mSize == 0;
 }
 
 template<typename T>
@@ -357,19 +359,6 @@ void Vector<T>::Grow(int newCapacity)
   mCapacity = newCapacity;
   DeleteAllocation(mData);
   mData = newData;
-}
-
-template<typename T>
-void Vector<T>::HandleNewSize(int newSize)
-{
-  for (int i = newSize; i < mSize; ++i)
-  {
-    mData[i].~T();
-  }
-  if (newSize > mCapacity)
-  {
-    Grow(newSize);
-  }
 }
 
 template<typename T>

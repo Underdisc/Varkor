@@ -15,18 +15,19 @@ public:
   void Push(T&& value);
   void Push(const T& value, int count);
   template<typename... Args>
-  void Emplace(const Args&... args);
+  void Emplace(Args&&... args);
   void Insert(int index, const T& value);
   void Pop();
   void Clear();
   void LazyRemove(int index);
-  void Resize(int newSize);
-  void Resize(int newSize, const T& fill);
+  template<typename... Args>
+  void Resize(int newSize, Args&&... args);
   void Reserve(int newCapacity);
   void Shrink();
 
   bool Contains(const T& value) const;
   int Size() const;
+  bool Empty() const;
   int Capacity() const;
   const T* CData() const;
   T& Top() const;
@@ -53,7 +54,6 @@ private:
   void VerifyIndex(int index) const;
   void Grow();
   void Grow(int newCapacity);
-  void HandleNewSize(int newSize);
   T* CreateAllocation(int capacity);
   void DeleteAllocation(T* allocation);
 };

@@ -280,9 +280,9 @@ void Contains()
   std::cout << std::endl;
 }
 
-void Resize()
+void ResizeAndShrink()
 {
-  std::cout << "<= Resize =>" << std::endl;
+  std::cout << "<= ResizeAndShrink =>" << std::endl;
   TestType::ResetCounts();
   // Make sure the vector grows in the next two Resize calls since the new size
   // is greater than the capacity in both instances.
@@ -292,12 +292,14 @@ void Resize()
   test.Resize(20, TestType(1, 1));
   PrintVector(test);
 
-  // This time the vector's capacity should remain the same since it has enough
-  // available space for the new sizes.
-  test.Resize(15, TestType(2, 2));
+  // This time the vector's capacity should remain the same after resizing and
+  // we shrink to minimize the capacity.
+  test.Resize(15, 2, 2.0f);
   test.Resize(10);
   PrintVector(test);
+  test.Shrink();
   test.Resize(20);
+  test.Shrink();
   std::cout << "DefaultConstructorCount: "
             << TestType::smDefaultConstructorCount << std::endl
             << "CopyConstructorCount: " << TestType::smCopyConstructorCount
@@ -446,7 +448,17 @@ void ConstructionDestructionCounts()
             << "MoveConstructorCount: " << TestType::smMoveConstructorCount
             << std::endl
             << "ConstructorCount: " << TestType::smConstructorCount << std::endl
-            << "DestructorCount: " << TestType::smDestructorCount << std::endl;
+            << "DestructorCount: " << TestType::smDestructorCount << std::endl
+            << std::endl;
+}
+
+void Empty()
+{
+  // Copy an empty vector and make sure both vectors are empty.
+  std::cout << "<= Empty =>" << std::endl;
+  Ds::Vector<TestType> empty;
+  Ds::Vector<TestType> notEmpty(empty);
+  std::cout << "Empty: " << (empty.Empty() && notEmpty.Empty()) << std::endl;
 }
 
 int main(void)
@@ -466,11 +478,12 @@ int main(void)
   CopyAssignment();
   MoveAssignment();
   Contains();
-  Resize();
+  ResizeAndShrink();
   Reserve();
   CData();
   Top();
   InnerVector();
   BigInnerVector();
   ConstructionDestructionCounts();
+  Empty();
 }
