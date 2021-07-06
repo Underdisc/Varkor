@@ -56,11 +56,11 @@ if errorlevel %buildError% (
 REM Run all of the test targets if requested.
 if "%1" == "all" (
   if "%2" == "t" (
-    for /f %%t in (testNames.txt) do call :PerformTest %%t
+    for /d %%d in (*) do call :PerformTest %%d
     exit /b 0
   )
   if "%2" == "c" (
-    for /f %%t in (testNames.txt) do call :GenerateCoverage %%t
+    for /d %%d in (*) do call :GenerateCoverage %%d
     exit /b 0
   )
   if not "%2" == "" (
@@ -72,16 +72,22 @@ if "%1" == "all" (
 
 REM Run a single target with the desired output if requested.
 if "%2" == "r" (
-  %1.exe
+  pushd %1
+  test.exe
+  popd
   exit /b 0
 )
 if "%2" == "d" (
-  %1.exe > %1_out_diff.txt
-  git diff --no-index %1_out.txt %1_out_diff.txt
+  pushd %1
+  test.exe > out_diff.txt
+  git diff --no-index out.txt out_diff.txt
+  popd
   exit /b 0
 )
 if "%2" == "a" (
-  %1.exe > %1_out.txt
+  pushd %1
+  test.exe > out.txt
+  popd
   exit /b 0
 )
 if "%2" == "t" (
@@ -99,21 +105,23 @@ if not "%2" == "" (
 exit /b 0
 
 :PerformTest
-  %1.exe > %1_out_diff.txt
-  git diff --no-index --no-patch --exit-code %1_out.txt %1_out_diff.txt
+  pushd %1
+  test.exe > out_diff.txt
+  git diff --no-index --no-patch --exit-code out.txt out_diff.txt
   if errorlevel 1 (
     echo %1: [31mFailed[0m
   ) else (
     echo %1: [32mPassed[0m
   )
+  popd
 exit /b 0
 
 :GenerateCoverage
   setlocal ENABLEDELAYEDEXPANSION
   pushd "../../"
   OpenCppCoverage ^
-    --sources !cd!\src\* --export_type html:working\test\%1_coverage -q -- ^
-    working\test\%1.exe > LastCoverageResults.log
+    --sources !cd!\src\* --export_type html:working\test\%1\coverage -q -- ^
+    working\test\%1\test.exe > LastCoverageResults.log
   del LastCoverageResults.log
   popd
   endlocal

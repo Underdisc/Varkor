@@ -41,4 +41,3 @@ AddVarkorTarget()
 
 # Create all of the test targets.
 add_subdirectory(src/test)
-file(WRITE working/test/testNames.txt ${testNames})

@@ -2,18 +2,13 @@ add_custom_target(tests)
 
 function(AddTest target)
   add_executable(${target})
+  add_dependencies(tests ${target})
   target_sources(${target} PRIVATE ${ARGN})
   target_include_directories(${target} PRIVATE "../" "../../ext/local")
   target_link_libraries(${target} varkorLibrary ${glfw} ${OPENGL_gl_LIBRARY})
-  set_property(TARGET ${target} PROPERTY RUNTIME_OUTPUT_DIRECTORY
-    "${CMAKE_SOURCE_DIR}/working/test")
-  add_dependencies(tests ${target})
-
-  if("${testNames}" STREQUAL "")
-    set(testNames "${target}" PARENT_SCOPE)
-  else()
-    set(testNames "${testNames}\n${target}" PARENT_SCOPE)
-  endif()
+  set_target_properties(${target} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working/test/${target}"
+    OUTPUT_NAME "test")
 endfunction()
 
 Addtest(ds_Map ds/Map.cc ds/TestType.cc)
@@ -31,5 +26,3 @@ AddTest(vlk_Pair vlk/Pair.cc)
 AddTest(vlk_Tokenizer vlk/Tokenizer.cc)
 AddTest(world_Space world/Space.cc)
 AddTest(world_Table world/Table.cc)
-
-set(testNames "${testNames}" PARENT_SCOPE)
