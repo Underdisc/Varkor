@@ -150,7 +150,8 @@ void Show()
   if (nEditorMode && nSelectedSpace != World::nInvalidSpaceId)
   {
     const World::Space& selectedSpace = World::GetSpace(nSelectedSpace);
-    Gfx::Renderer::RenderSpace(selectedSpace, nCamera.WorldToCamera());
+    Gfx::Renderer::RenderModels(
+      selectedSpace, nCamera.WorldToCamera(), nCamera.Position());
     Debug::Draw::CartesianAxes();
     Debug::Draw::Render(nCamera.WorldToCamera(), Viewport::Perspective());
 

@@ -12,7 +12,8 @@ void Clear();
 void RenderModel(const Shader& shader, const Comp::Model& modelComp);
 void RenderMemberIds(const World::Space& space, const Mat4& view);
 World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view);
-void RenderSpace(const World::Space& space, const Mat4& view);
+void RenderModels(
+  const World::Space& space, const Mat4& view, const Vec3& viewPos);
 void RenderWorld();
 void RenderFullscreenTexture(unsigned int tbo);
 void RenderQueuedFullscreenFramebuffers();

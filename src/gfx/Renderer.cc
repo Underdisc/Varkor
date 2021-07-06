@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 
 #include "AssetLibrary.h"
+#include "Framer.h"
 #include "Input.h"
 #include "Viewport.h"
 #include "comp/Model.h"
@@ -74,7 +75,7 @@ void Init()
 
 void Clear()
 {
-  glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -142,10 +143,11 @@ World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view)
   return memberId;
 }
 
-void RenderModels(const World::Space& space, const Mat4& view)
+void RenderModels(
+  const World::Space& space, const Mat4& view, const Vec3& viewPos)
 {
   space.VisitTableComponents<Comp::Model>(
-    [&space, &view](World::MemberId owner, const Comp::Model& modelComp)
+    [&](World::MemberId owner, const Comp::Model& modelComp)
     {
       // Find the shader that will be used to draw the model.
       const AssetLibrary::ShaderAsset* shaderAsset =
@@ -165,13 +167,10 @@ void RenderModels(const World::Space& space, const Mat4& view)
       drawShader->SetMat4("uModel", model.CData());
       drawShader->SetMat4("uView", view.CData());
       drawShader->SetMat4("uProj", Viewport::Perspective().CData());
+      drawShader->SetVec3("uViewPos", viewPos.CData());
+      drawShader->SetFloat("uTime", Framer::TotalTime());
       RenderModel(*drawShader, modelComp);
     });
-}
-
-void RenderSpace(const World::Space& space, const Mat4& view)
-{
-  RenderModels(space, view);
 }
 
 void RenderSpace(const World::Space& space)
@@ -183,15 +182,17 @@ void RenderSpace(const World::Space& space)
     cameraTransform = space.GetComponent<Comp::Transform>(space.mCameraId);
   }
   Mat4 view;
+  Vec3 viewPos;
   if (cameraTransform == nullptr)
   {
     Math::Identity(&view);
+    viewPos = {0.0, 0.0f, 0.0f};
   } else
   {
-    view = cameraTransform->GetWorldMatrix(space, space.mCameraId);
-    view = Math::Inverse(view);
+    view = cameraTransform->GetInverseWorldMatrix(space, space.mCameraId);
+    viewPos = cameraTransform->GetWorldTranslation(space, space.mCameraId);
   }
-  RenderModels(space, view);
+  RenderModels(space, view, viewPos);
 }
 
 void RenderWorld()
