@@ -36,6 +36,7 @@ public:
 private:
   unsigned int mProgram;
 
+  static bool smLogMissingUniforms;
   static constexpr int smInvalidLocation = -1;
 
   struct SourceChunk

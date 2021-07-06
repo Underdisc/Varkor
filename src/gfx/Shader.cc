@@ -10,6 +10,8 @@
 
 namespace Gfx {
 
+bool Shader::smLogMissingUniforms = false;
+
 Shader::Shader(): mProgram(0) {}
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile): mProgram(0)
@@ -87,12 +89,11 @@ bool Shader::Live() const
 int Shader::UniformLocation(const char* name) const
 {
   int loc = glGetUniformLocation(mProgram, name);
-  bool valid = loc != smInvalidLocation;
-  if (!valid)
+  if (smLogMissingUniforms && loc == smInvalidLocation)
   {
-    std::stringstream reason;
-    reason << name << " uniform not found";
-    LogError(reason.str().c_str());
+    std::stringstream error;
+    error << name << " uniform not found";
+    LogError(error.str().c_str());
   }
   return loc;
 }
