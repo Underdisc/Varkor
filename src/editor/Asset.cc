@@ -90,16 +90,12 @@ void ChangeShaderCallback(const std::string& path, void* data)
   }
 }
 
-void EditShaderWindow()
+void EditShader(AssetId assetId)
 {
-  // Make sure that the selected shader exists.
-  AssetLibrary::ShaderAsset* shaderAsset =
-    AssetLibrary::nShaders.Find(nSelectedShader);
-  LogAbortIf(shaderAsset == nullptr, "The selected shader asset must exist");
+  AssetLibrary::ShaderAsset* shaderAsset = AssetLibrary::nShaders.Find(assetId);
+  LogAbortIf(shaderAsset == nullptr, "Shader asset does not exist.");
 
-  // Begin the window and display the name text box and the refresh button.
-  bool showWindow = true;
-  ImGui::Begin("Edit Shader", &showWindow);
+  // Display the name text box and the refresh button.
   ImGui::PushItemWidth(-1);
   InputText("Name", &shaderAsset->mName);
   if (ImGui::Button("Refresh", ImVec2(-1.0f, 0.0f)))
@@ -139,13 +135,6 @@ void EditShaderWindow()
   {
     StartFileSelection(ChangeShaderCallback, (void*)GL_FRAGMENT_SHADER);
   }
-  ImGui::End();
-
-  // Deselect the shader asset if the edit shader window was closed.
-  if (!showWindow)
-  {
-    nSelectedShader = AssetLibrary::nInvalidAssetId;
-  }
 }
 
 void ShowShaders()
@@ -156,33 +145,46 @@ void ShowShaders()
   }
 
   // Display all of the shaders within the asset library.
-  ImGui::BeginChild("Shaders", ImVec2(-1.0f, 100.0f), true);
+  ImGui::BeginChild("ShaderList", ImVec2(-1, -1), true);
   auto it = AssetLibrary::nShaders.Begin();
   auto itE = AssetLibrary::nShaders.End();
+  AssetId nextShader = nSelectedShader;
   while (it != itE)
   {
     AssetLibrary::ShaderAsset& shaderAsset = it->mValue;
-    bool selected = it->Key() == nSelectedShader;
-    ImGui::PushID(it->Key());
-    if (ImGui::Selectable(shaderAsset.mName.c_str(), selected))
-    {
-      nSelectedShader = it->Key();
-    }
-    ImGui::PopID();
-    ImGui::SameLine();
     ImGui::PushItemWidth(-1);
     if (shaderAsset.mShader.Live())
     {
       ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);
-      ImGui::TextColored(green, "Live");
+      ImGui::TextColored(green, "+");
     } else
     {
       ImVec4 red(1.0f, 0.0f, 0.0f, 1.0f);
-      ImGui::TextColored(red, "Not Live");
+      ImGui::TextColored(red, "-");
     }
     ImGui::PopItemWidth();
+    ImGui::SameLine();
+
+    bool selected = it->Key() == nSelectedShader;
+    ImGui::PushID(it->Key());
+    if (ImGui::Selectable(shaderAsset.mName.c_str(), selected))
+    {
+      if (nSelectedShader == it->Key())
+      {
+        nextShader = AssetLibrary::nInvalidAssetId;
+      } else
+      {
+        nextShader = it->Key();
+      }
+    }
+    ImGui::PopID();
+    if (selected)
+    {
+      EditShader(nSelectedShader);
+    }
     ++it;
   }
+  nSelectedShader = nextShader;
   ImGui::EndChild();
 }
 
@@ -201,14 +203,11 @@ void ChangeModelAssetCallback(const std::string& path, void* data)
   modelAsset->mPath = path;
 }
 
-void EditModelWindow()
+void EditModel(AssetId assetId)
 {
-  AssetLibrary::ModelAsset* modelAsset =
-    AssetLibrary::nModels.Find(nSelectedModel);
-  LogAbortIf(modelAsset == nullptr, "The selected model asset must exist.");
+  AssetLibrary::ModelAsset* modelAsset = AssetLibrary::nModels.Find(assetId);
+  LogAbortIf(modelAsset == nullptr, "Model asset does not exist.");
 
-  bool showWindow = true;
-  ImGui::Begin("Edit Model", &showWindow);
   ImGui::PushItemWidth(-1);
   InputText("Name", &modelAsset->mName);
   std::stringstream buttonLabel;
@@ -224,12 +223,6 @@ void EditModelWindow()
   {
     StartFileSelection(ChangeModelAssetCallback);
   }
-  ImGui::End();
-
-  if (!showWindow)
-  {
-    nSelectedModel = AssetLibrary::nInvalidAssetId;
-  }
 }
 
 void ShowModels()
@@ -240,9 +233,10 @@ void ShowModels()
   }
 
   // Display all of the asset library's models.
-  ImGui::BeginChild("Models", ImVec2(-1.0f, 300.0f), true);
+  ImGui::BeginChild("ModelList", ImVec2(-1, -1), true);
   auto it = AssetLibrary::nModels.Begin();
   auto itE = AssetLibrary::nModels.End();
+  AssetId nextModel = nSelectedModel;
   while (it != itE)
   {
     AssetLibrary::ModelAsset& modelAsset = it->mValue;
@@ -250,11 +244,22 @@ void ShowModels()
     ImGui::PushID(it->Key());
     if (ImGui::Selectable(modelAsset.mName.c_str(), selected))
     {
-      nSelectedModel = it->Key();
+      if (nSelectedModel == it->Key())
+      {
+        nextModel = AssetLibrary::nInvalidAssetId;
+      } else
+      {
+        nextModel = it->Key();
+      }
     }
     ImGui::PopID();
+    if (selected)
+    {
+      EditModel(nSelectedModel);
+    }
     ++it;
   }
+  nSelectedModel = nextModel;
   ImGui::EndChild();
 }
 
@@ -264,24 +269,15 @@ void ShowAssetWindows()
   if (nShowAssetWindow)
   {
     ImGui::Begin("Asset", &nShowAssetWindow);
-    if (ImGui::CollapsingHeader("Shaders"))
-    {
-      ShowShaders();
-    }
-    if (ImGui::CollapsingHeader("Models"))
-    {
-      ShowModels();
-    }
+    ImVec2 childSize(ImGui::GetWindowContentRegionWidth() * 0.5f, -1);
+    ImGui::BeginChild("Shader", childSize, true);
+    ShowShaders();
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("Model", childSize, true);
+    ShowModels();
+    ImGui::EndChild();
     ImGui::End();
-
-    if (nSelectedShader != AssetLibrary::nInvalidAssetId)
-    {
-      EditShaderWindow();
-    }
-    if (nSelectedModel != AssetLibrary::nInvalidAssetId)
-    {
-      EditModelWindow();
-    }
   }
 
   if (nShowShaderSelectWindow)

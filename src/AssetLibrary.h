@@ -36,4 +36,6 @@ const ModelAsset* GetModel(AssetId modelId);
 
 } // namespace AssetLibrary
 
+typedef AssetLibrary::AssetId AssetId;
+
 #endif
