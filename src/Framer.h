@@ -20,6 +20,7 @@ bool VSyncEnabled();
 bool FramerateUncapped();
 
 float DeltaTime();
+float TotalTime();
 float GetAverageFrameUsage();
 float GetAverageFps();
 int GetFramerate();
