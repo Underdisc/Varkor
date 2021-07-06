@@ -34,7 +34,7 @@ struct TypeData
   void (*mMoveConstruct)(void* from, void* to);
   void (*mDestruct)(void* data);
 
-  Util::Delegate mVUpdate;
+  Util::Delegate<void> mVUpdate;
 
   void (*mEditHook)(void* component);
   void (*mGizmoStart)();

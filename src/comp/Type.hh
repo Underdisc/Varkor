@@ -9,7 +9,7 @@ namespace Comp {
 // will bind its delegate parameter to that member function. If it does not, its
 // delegate prameter will be bound to null.
 // clang-format off
-#define Bindable_Type_Function_(name)                                           \
+#define Bindable_Type_Function_(name, ...)                                      \
   template<typename T>                                                          \
   struct HasV##name                                                             \
   {                                                                             \
@@ -25,20 +25,19 @@ namespace Comp {
                                                                                 \
   template<typename T, typename Util::EnableIf<                                 \
     HasV##name<T>::smValue, decltype(&T::V##name)>::Type Function = &T::V##name>\
-  void BindV##name(Util::Delegate* delegate)                                    \
+  void BindV##name(Util::Delegate<__VA_ARGS__>* delegate)                       \
   {                                                                             \
     delegate->Bind<T, &T::V##name>();                                           \
   }                                                                             \
                                                                                 \
   template<typename T, typename Util::EnableIf<                                 \
     !HasV##name<T>::smValue, void*>::Type NoFunction = nullptr>                 \
-  void BindV##name(Util::Delegate* delegate)                                    \
+  void BindV##name(Util::Delegate<__VA_ARGS__>* delegate)                       \
   {                                                                             \
     delegate->BindNull();                                                       \
   }
 // clang-format on
-Bindable_Type_Function_(Init);
-Bindable_Type_Function_(Update);
+Bindable_Type_Function_(Update, void);
 
 template<typename T>
 TypeId Type<T>::smId = nInvalidTypeId;
