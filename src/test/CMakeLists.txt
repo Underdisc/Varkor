@@ -29,7 +29,6 @@ AddTest(math_Vector math/Vector.cc)
 AddTest(util_Delegate util/Delegate.cc)
 AddTest(vlk_Pair vlk/Pair.cc)
 AddTest(vlk_Tokenizer vlk/Tokenizer.cc)
-AddTest(vlk_Writer vlk/Writer.cc)
 AddTest(world_Space world/Space.cc)
 AddTest(world_Table world/Table.cc)
 
