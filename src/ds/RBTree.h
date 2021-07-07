@@ -79,10 +79,10 @@ protected:
   // words, T can be compared to CT with the > and < operators.
   template<typename CT>
   Node* FindNode(const CT& value) const;
+  void InsertNode(Node* newNode);
   void RemoveNode(Node* node);
 
 private:
-  void InsertNode(Node* newNode);
   void BalanceInsertion(Node* child);
   void BalanceRemoval(Node* node);
   void RotateLeft(Node* oldRoot);

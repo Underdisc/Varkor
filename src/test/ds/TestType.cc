@@ -13,6 +13,12 @@ TestType::TestType()
   ++smDefaultConstructorCount;
 }
 
+TestType::TestType(int value)
+{
+  ++smConstructorCount;
+  Set(value);
+}
+
 TestType::TestType(int a, float b): mA(a), mB(b)
 {
   ++smConstructorCount;
@@ -31,6 +37,12 @@ TestType::TestType(TestType&& other): mA(other.mA), mB(other.mB)
 TestType::~TestType()
 {
   ++smDestructorCount;
+}
+
+void TestType::Set(int value)
+{
+  mA = value;
+  mB = (float)value;
 }
 
 TestType& TestType::operator=(const TestType& other)

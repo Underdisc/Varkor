@@ -12,6 +12,11 @@ KvPair<K, V>::KvPair(const K& key, V&& value):
 {}
 
 template<typename K, typename V>
+template<typename... Args>
+KvPair<K, V>::KvPair(const K& key, Args&&... args): mKey(key), mValue(args...)
+{}
+
+template<typename K, typename V>
 bool KvPair<K, V>::operator>(const KvPair& other) const
 {
   return mKey > other.mKey;
@@ -54,15 +59,28 @@ typename Map<K, V>::Iter Map<K, V>::End() const
 }
 
 template<typename K, typename V>
-void Map<K, V>::Insert(const K& key, const V& value)
+V& Map<K, V>::Insert(const K& key, const V& value)
 {
-  Emplace(key, value);
+  Node* newNode = alloc Node(key, value);
+  InsertNode(newNode);
+  return newNode->mValue.mValue;
 }
 
 template<typename K, typename V>
-void Map<K, V>::Insert(const K& key, V&& value)
+V& Map<K, V>::Insert(const K& key, V&& value)
 {
-  Emplace(key, Util::Forward(value));
+  Node* newNode = alloc Node(key, Util::Forward(value));
+  InsertNode(newNode);
+  return newNode->mValue.mValue;
+}
+
+template<typename K, typename V>
+template<typename... Args>
+V& Map<K, V>::Emplace(const K& key, Args&&... args)
+{
+  Node* newNode = alloc Node(key, args...);
+  InsertNode(newNode);
+  return newNode->mValue.mValue;
 }
 
 template<typename K, typename V>

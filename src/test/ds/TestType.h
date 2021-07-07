@@ -6,10 +6,12 @@
 struct TestType
 {
   TestType();
+  TestType(int value);
   TestType(int a, float b);
   TestType(const TestType& other);
   TestType(TestType&& other);
   ~TestType();
+  void Set(int value);
   TestType& operator=(const TestType& other);
   TestType& operator=(TestType&& other);
   bool operator>(const TestType& other);

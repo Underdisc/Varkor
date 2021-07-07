@@ -19,6 +19,8 @@ private:
 
   KvPair(const K& key, const V& value);
   KvPair(const K& key, V&& value);
+  template<typename... Args>
+  KvPair(const K& key, Args&&... args);
   bool operator>(const KvPair& other) const;
   bool operator<(const KvPair& other) const;
   bool operator>(const K& otherKey) const;
@@ -37,8 +39,10 @@ public:
   Iter End() const;
 
 public:
-  void Insert(const K& key, const V& value);
-  void Insert(const K& key, V&& value);
+  V& Insert(const K& key, const V& value);
+  V& Insert(const K& key, V&& value);
+  template<typename... Args>
+  V& Emplace(const K& key, Args&&... args);
   void Remove(const K& key);
   V* Find(const K& key) const;
   V& Get(const K& key) const;

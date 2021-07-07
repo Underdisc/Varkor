@@ -99,21 +99,32 @@ void StringMap()
   std::cout << std::endl;
 }
 
-void MoveInsert()
+void InsertEmplace()
 {
-  std::cout << "<= MoveInsert =>" << std::endl;
+  std::cout << "<= InsertEmplace =>" << std::endl;
+  // This will test the usage of move, copy, and special constructors when
+  // inserting or emplacing. It will also test writing to newly added elements.
   Ds::Map<int, TestType> map;
-  // We perfom ten insertions using move and ten without the use of move to make
-  // sure the correct constructor types are called.
   for (int i = 0; i < 10; ++i)
   {
-    TestType newTestType(i, (float)i);
-    map.Insert(i, Util::Move(newTestType));
+    TestType& newTestType = map.Insert(i, TestType(0));
+    newTestType.Set(i);
   }
-  for (int i = 10; i < 20; ++i)
+  for (int i = 10; i < 15; ++i)
   {
-    TestType newTestType(i, (float)i);
-    map.Insert(i, newTestType);
+    TestType toInsert(0);
+    TestType& newTestType = map.Insert(i, toInsert);
+    newTestType.Set(i);
+  }
+  for (int i = 15; i < 20; ++i)
+  {
+    TestType toEmplace(0);
+    TestType& newTestType = map.Emplace(i, toEmplace);
+    newTestType.Set(i);
+  }
+  for (int i = 20; i < 30; ++i)
+  {
+    map.Emplace(i, i, (float)i);
   }
   PrintMap(map);
   map.Clear();
@@ -175,6 +186,6 @@ int main()
   InitMemLeakOutput();
   InsertRemoveFind();
   StringMap();
-  MoveInsert();
+  InsertEmplace();
   Iterator();
 }
