@@ -8,21 +8,21 @@
 #include "gfx/Mesh.h"
 #include "gfx/Shader.h"
 #include "gfx/Texture.h"
+#include "util/Utility.h"
 
 namespace Gfx {
 
 struct Model
 {
 public:
-  struct InitResult
-  {
-    bool mSuccess;
-    std::string mError;
-  };
+  static constexpr int smInitPathCount = 1;
+  Util::Result Init(std::string paths[smInitPathCount]);
+  void Purge();
+  bool Live() const;
 
   Model();
   Model(Model&& other);
-  InitResult Init(const std::string& file);
+  Util::Result Init(const std::string& file);
   void Draw(const Shader& shader) const;
 
 private:

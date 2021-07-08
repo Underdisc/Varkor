@@ -31,18 +31,18 @@ Ds::Vector<unsigned int> nQueuedFullscreenFramebuffers;
 void Init()
 {
   // Initialize all of the expected shader types.
-  Shader::InitResult result =
+  Util::Result result =
     nColorShader.Init("vres/shader/Default.vs", "vres/shader/Color.fs");
-  LogAbortIf(!result.mSuccess, result.mError.c_str());
+  LogAbortIf(!result.Success(), result.mError.c_str());
   result =
     nDefaultShader.Init("vres/shader/Default.vs", "vres/shader/Default.fs");
-  LogAbortIf(!result.mSuccess, result.mError.c_str());
+  LogAbortIf(!result.Success(), result.mError.c_str());
   result = nFramebufferShader.Init(
     "vres/shader/Fullscreen.vs", "vres/shader/Fullscreen.fs");
-  LogAbortIf(!result.mSuccess, result.mError.c_str());
+  LogAbortIf(!result.Success(), result.mError.c_str());
   result =
     nMemberIdShader.Init("vres/shader/Default.vs", "vres/shader/MemberId.fs");
-  LogAbortIf(!result.mSuccess, result.mError.c_str());
+  LogAbortIf(!result.Success(), result.mError.c_str());
 
   // Initialize the fullscreen quad vertex array that will be used for drawing
   // fullscreen framebuffers.

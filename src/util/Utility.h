@@ -53,9 +53,24 @@ struct Result
   Result(std::string&& error): mError(Util::Move(error)) {}
   Result(std::string& error): mError(error) {}
   Result(const char* error): mError(error) {}
+  Result(bool success)
+  {
+    if (success)
+    {
+      mError = "";
+    } else
+    {
+      mError = "Failed";
+    }
+  }
   bool Success()
   {
     return mError.size() == 0;
+  }
+  Result& operator=(Result&& other)
+  {
+    mError = Util::Move(other.mError);
+    return *this;
   }
 };
 

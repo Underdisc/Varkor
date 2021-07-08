@@ -24,9 +24,9 @@ Gfx::Shader nShader;
 
 void Init()
 {
-  Gfx::Shader::InitResult result =
+  Util::Result result =
     nShader.Init("vres/shader/DebugLine.vs", "vres/shader/Color.fs");
-  LogAbortIf(!result.mSuccess, result.mError.c_str());
+  LogAbortIf(!result.Success(), result.mError.c_str());
 
   glPointSize(12.0f);
   glLineWidth(3.0f);

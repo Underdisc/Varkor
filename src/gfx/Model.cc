@@ -10,6 +10,23 @@
 
 namespace Gfx {
 
+Util::Result Model::Init(std::string paths[smInitPathCount])
+{
+  return Init(paths[0]);
+}
+
+void Model::Purge()
+{
+  mDirectory = "";
+  mMeshes.Clear();
+  mLoadedTextures.Clear();
+}
+
+bool Model::Live() const
+{
+  return mMeshes.Size() != 0;
+}
+
 Model::Model() {}
 
 Model::Model(Model&& other):
@@ -18,13 +35,10 @@ Model::Model(Model&& other):
   mLoadedTextures(Util::Move(other.mLoadedTextures))
 {}
 
-Model::InitResult Model::Init(const std::string& file)
+Util::Result Model::Init(const std::string& file)
 {
-  // Clear or replace the old data.
+  Purge();
   mDirectory = file.substr(0, file.find_last_of('/') + 1);
-  mMeshes.Clear();
-  mLoadedTextures.Clear();
-
   // Import the model and record any errors.
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(
@@ -41,17 +55,12 @@ Model::InitResult Model::Init(const std::string& file)
   }
 
   // Avoid processing the imported data if any errors occured.
-  InitResult result;
   if (!errorStream.str().empty())
   {
-    result.mSuccess = false;
-    result.mError = errorStream.str();
-  } else
-  {
-    ProcessNode(scene->mRootNode, scene);
-    result.mSuccess = true;
+    return Util::Result(errorStream.str());
   }
-  return result;
+  ProcessNode(scene->mRootNode, scene);
+  return Util::Result(true);
 }
 
 void Model::Draw(const Shader& shader) const

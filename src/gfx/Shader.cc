@@ -12,47 +12,53 @@ namespace Gfx {
 
 bool Shader::smLogMissingUniforms = false;
 
+Util::Result Shader::Init(std::string paths[smInitPathCount])
+{
+  return Init(paths[0].c_str(), paths[1].c_str());
+}
+
+void Shader::Purge()
+{
+  glDeleteProgram(mProgram);
+  mProgram = 0;
+}
+
+bool Shader::Live() const
+{
+  return mProgram != 0;
+}
+
 Shader::Shader(): mProgram(0) {}
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile): mProgram(0)
 {
-  InitResult result = Init(vertexFile, fragmentFile);
-  if (!result.mSuccess)
-  {
-    LogAbort(result.mError.c_str());
-  }
+  Util::Result result = Init(vertexFile, fragmentFile);
+  LogAbortIf(!result.Success(), result.mError.c_str());
 }
 
-Shader::InitResult Shader::Init(
-  const char* vertexFile, const char* fragmentFile)
+Util::Result Shader::Init(const char* vertexFile, const char* fragmentFile)
 {
-  // Delete the current shader program if it exists.
-  if (mProgram != 0)
-  {
-    glDeleteProgram(mProgram);
-    mProgram = 0;
-  }
-
+  Purge();
   // Compile the provided shader files.
-  unsigned int vertId, fragId;
-  InitResult result = Compile(vertexFile, GL_VERTEX_SHADER, &vertId);
-  if (!result.mSuccess)
+  unsigned int vertexId, fragmentId;
+  Util::Result result = Compile(vertexFile, GL_VERTEX_SHADER, &vertexId);
+  if (!result.Success())
   {
     return result;
   }
-  result = Compile(fragmentFile, GL_FRAGMENT_SHADER, &fragId);
-  if (!result.mSuccess)
+  result = Compile(fragmentFile, GL_FRAGMENT_SHADER, &fragmentId);
+  if (!result.Success())
   {
     return result;
   }
 
   // Link the compiled shaders.
   mProgram = glCreateProgram();
-  glAttachShader(mProgram, vertId);
-  glAttachShader(mProgram, fragId);
+  glAttachShader(mProgram, vertexId);
+  glAttachShader(mProgram, fragmentId);
   glLinkProgram(mProgram);
-  glDeleteShader(vertId);
-  glDeleteShader(fragId);
+  glDeleteShader(vertexId);
+  glDeleteShader(fragmentId);
   int linked;
   glGetProgramiv(mProgram, GL_LINK_STATUS, &linked);
   if (!linked)
@@ -64,7 +70,6 @@ Shader::InitResult Shader::Init(
     reason << " shader files " << vertexFile << " and " << fragmentFile
            << " failed to link." << std::endl
            << errorLog;
-    result.mSuccess = false;
     result.mError = reason.str();
     mProgram = 0;
   }
@@ -79,11 +84,6 @@ void Shader::Use() const
 unsigned int Shader::Id() const
 {
   return mProgram;
-}
-
-bool Shader::Live() const
-{
-  return mProgram != 0;
 }
 
 int Shader::UniformLocation(const char* name) const
@@ -242,7 +242,7 @@ Shader::IncludeResult Shader::HandleIncludes(
   return result;
 }
 
-Shader::InitResult Shader::Compile(
+Util::Result Shader::Compile(
   const char* shaderFile, int shaderType, unsigned int* shaderId)
 {
   // Read the content of the provided file.
@@ -252,10 +252,7 @@ Shader::InitResult Shader::Compile(
   {
     std::stringstream reason;
     reason << "Failed to open " << shaderFile;
-    InitResult result;
-    result.mSuccess = false;
-    result.mError = reason.str();
-    return result;
+    return Util::Result(reason.str());
   }
   std::stringstream fileContentStream;
   fileContentStream << file.rdbuf();
@@ -265,13 +262,10 @@ Shader::InitResult Shader::Compile(
   IncludeResult includeResult = HandleIncludes(shaderFile, fileContentStr);
   if (!includeResult.mSuccess)
   {
-    InitResult result;
-    result.mSuccess = false;
     std::stringstream reason;
     reason << "Failed to compile " << shaderFile << "." << std::endl
            << includeResult.mError;
-    result.mError = reason.str();
-    return result;
+    return Util::Result(reason.str());
   }
 
   // Compile the source read from the file.
@@ -283,9 +277,7 @@ Shader::InitResult Shader::Compile(
   glGetShaderiv(*shaderId, GL_COMPILE_STATUS, &success);
   if (success)
   {
-    InitResult result;
-    result.mSuccess = true;
-    return result;
+    return Util::Result(true);
   }
 
   // The shader failed to compile and we need to retrieve the errors.
@@ -319,11 +311,7 @@ Shader::InitResult Shader::Compile(
     mItE = match[0].second;
   }
   error << logStr.substr(mItE - logStr.cbegin());
-
-  InitResult result;
-  result.mSuccess = false;
-  result.mError = error.str();
-  return result;
+  return Util::Result(error.str());
 }
 
 } // namespace Gfx

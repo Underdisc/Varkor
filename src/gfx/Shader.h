@@ -4,25 +4,23 @@
 #include <string>
 
 #include "ds/Vector.h"
+#include "util/Utility.h"
 
 namespace Gfx {
 
 class Shader
 {
 public:
-  struct InitResult
-  {
-    bool mSuccess;
-    std::string mError;
-  };
+  static constexpr int smInitPathCount = 2;
+  Util::Result Init(std::string paths[smInitPathCount]);
+  void Purge();
+  bool Live() const;
 
-public:
   Shader();
   Shader(const char* vertexFile, const char* fragmentFile);
-  InitResult Init(const char* vertexFile, const char* fragmentFile);
+  Util::Result Init(const char* vertexFile, const char* fragmentFile);
   void Use() const;
   unsigned int Id() const;
-  bool Live() const;
   int UniformLocation(const char* name) const;
   void SetInt(const char* name, int value) const;
   void SetFloat(const char* name, float value) const;
@@ -59,7 +57,7 @@ private:
   };
   Shader::IncludeResult HandleIncludes(
     const char* shaderFile, std::string& content);
-  InitResult Compile(
+  Util::Result Compile(
     const char* shaderSource, int shaderType, unsigned int* shaderId);
 };
 
