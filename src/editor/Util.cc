@@ -1,5 +1,6 @@
 #include <cstring>
 #include <dirent/dirent.h>
+#include <functional>
 #include <imgui/imgui.h>
 #include <string>
 
@@ -27,81 +28,85 @@ bool InputText(const char* label, std::string* str)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-const char* nPopupName = nullptr;
+std::string nPopupName;
 std::string nPopupText;
-bool nInitPopupWindow = false;
-bool nShowPopupWindow = false;
+bool nPopupInitialized = false;
 
-void OpenPopup(const char* name, const char* text)
+void OpenPopup(const std::string& name, const std::string& text)
 {
   nPopupName = name;
   nPopupText = text;
-  nInitPopupWindow = true;
-  nShowPopupWindow = true;
+  nPopupInitialized = false;
 }
 
 void PopupWindow()
 {
-  if (nInitPopupWindow)
+  if (nPopupName.empty())
   {
-    ImGui::OpenPopup(nPopupName);
-    nInitPopupWindow = false;
+    return;
   }
+  if (!nPopupInitialized)
+  {
+    ImGui::OpenPopup(nPopupName.c_str());
+    nPopupInitialized = true;
+  }
+  bool continuePopupWindow;
   bool popupOpen = ImGui::BeginPopupModal(
-    nPopupName, &nShowPopupWindow, ImGuiWindowFlags_AlwaysAutoResize);
+    nPopupName.c_str(),
+    &continuePopupWindow,
+    ImGuiWindowFlags_AlwaysAutoResize);
   if (popupOpen)
   {
     ImGui::Text(nPopupText.c_str());
     if (ImGui::Button("OK", ImVec2(-1, 0)))
     {
-      nShowPopupWindow = false;
+      continuePopupWindow = false;
     }
     ImGui::EndPopup();
   }
-  if (!nShowPopupWindow)
+  if (!continuePopupWindow)
   {
     ImGui::CloseCurrentPopup();
+    nPopupName = "";
+    nPopupText = "";
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void (*nFileSelectCallback)(const std::string& file, void* data) = nullptr;
-std::string nFileSelectPath;
-void* nFileSelectData = nullptr;
-bool nShowFileSelectWindow = false;
+std::function<void(const std::string&)> nFileSelectCallback = nullptr;
+std::string nCurrentPath = ".";
 
-void StartFileSelection(
-  void (*callback)(const std::string& path, void* data), void* data)
+void StartFileSelection(std::function<void(const std::string&)> callback)
 {
-  nShowFileSelectWindow = true;
-  nFileSelectData = data;
-  nFileSelectPath = "";
   nFileSelectCallback = callback;
 }
 
 void FileSelectWindow()
 {
-  LogAbortIf(
-    nFileSelectCallback == nullptr,
-    "The file selection callback must be set before calling this function.");
-
-  ImGui::Begin("Select File", &nShowFileSelectWindow);
-  ImGui::Text("Current Directory: %s", nFileSelectPath.c_str());
-
-  // Open the currently selected directory.
-  DIR* directory;
-  if (nFileSelectPath.empty())
+  if (nFileSelectCallback == nullptr)
   {
-    directory = opendir(".");
-    // We iterate over a directory entry to avoid going up a level when we are
-    // still in the executable's working directory.
-    readdir(directory);
-  } else
-  {
-    directory = opendir(nFileSelectPath.c_str());
+    return;
   }
-  // We iterate over the first entry since it will always be '.'.
+  bool continueFileSelectWindow = true;
+  ImGui::Begin("Select File", &continueFileSelectWindow);
+  ImGui::Text("Current Directory: %s", nCurrentPath.c_str());
+
+  // Open the currently selected directory. We unroll the path to handle cases
+  // where directories may have been deleted or renamed.
+  DIR* directory = opendir(nCurrentPath.c_str());
+  while (directory == nullptr)
+  {
+    nCurrentPath.erase(nCurrentPath.find_last_of('/'));
+    directory = opendir(nCurrentPath.c_str());
+  }
+
+  // This will prevent "." from showing up as an option and ".." when the
+  // current path is ".".
   readdir(directory);
+  if (nCurrentPath.size() == 1)
+  {
+    readdir(directory);
+  }
 
   // List all of the directories and files in the directory.
   ImGui::BeginChild("Files", ImVec2(0, 0), true);
@@ -122,35 +127,30 @@ void FileSelectWindow()
     // Reaching this point means that the entry was selected.
     if (isFile)
     {
-      nFileSelectPath += entry->d_name;
-      std::string selectedFile(nFileSelectPath);
-      nFileSelectCallback(selectedFile, nFileSelectData);
-      nShowFileSelectWindow = false;
-      continue;
-    }
-
-    // Whenever we go up a level, we remove a directory from the current path.
-    if (strcmp(entry->d_name, "..") == 0)
-    {
-      std::string::size_type loc = nFileSelectPath.find_last_of('/');
-      loc = nFileSelectPath.find_last_of('/', loc - 1);
-      if (loc == std::string::npos)
+      if (nCurrentPath.size() == 1)
       {
-        nFileSelectPath.clear();
+        nFileSelectCallback(entry->d_name);
       } else
       {
-        nFileSelectPath.erase(loc + 1);
+        nFileSelectCallback(nCurrentPath.substr(2) + "/" + entry->d_name);
       }
+      nFileSelectCallback = nullptr;
       continue;
     }
-    nFileSelectPath += entry->d_name;
-    nFileSelectPath += '/';
+    if (strcmp(entry->d_name, "..") == 0)
+    {
+      // When going up a level, we remove a directory from the current path.
+      nCurrentPath.erase(nCurrentPath.find_last_of('/'));
+      continue;
+    }
+    nCurrentPath += '/';
+    nCurrentPath += entry->d_name;
   }
   closedir(directory);
   ImGui::EndChild();
   ImGui::End();
 
-  if (!nShowFileSelectWindow)
+  if (!continueFileSelectWindow)
   {
     nFileSelectCallback = nullptr;
   }
@@ -172,14 +172,8 @@ void HelpMarker(const char* text)
 ////////////////////////////////////////////////////////////////////////////////
 void ShowUtilWindows()
 {
-  if (nShowFileSelectWindow)
-  {
-    FileSelectWindow();
-  }
-  if (nShowPopupWindow)
-  {
-    PopupWindow();
-  }
+  PopupWindow();
+  FileSelectWindow();
 }
 
 } // namespace Editor
