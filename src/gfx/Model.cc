@@ -29,12 +29,6 @@ bool Model::Live() const
 
 Model::Model() {}
 
-Model::Model(Model&& other):
-  mDirectory(Util::Move(other.mDirectory)),
-  mMeshes(Util::Move(other.mMeshes)),
-  mLoadedTextures(Util::Move(other.mLoadedTextures))
-{}
-
 Util::Result Model::Init(const std::string& file)
 {
   Purge();

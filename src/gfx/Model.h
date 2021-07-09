@@ -21,7 +21,6 @@ public:
   bool Live() const;
 
   Model();
-  Model(Model&& other);
   Util::Result Init(const std::string& file);
   void Draw(const Shader& shader) const;
 
