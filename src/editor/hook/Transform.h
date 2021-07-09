@@ -5,7 +5,6 @@
 #include "comp/Transform.h"
 #include "editor/hook/Hook.h"
 #include "gfx/Framebuffer.h"
-#include "gfx/Texture.h"
 #include "math/Geometry.h"
 
 namespace Editor {
@@ -108,11 +107,11 @@ private:
   Vec3 mTranslateOffset;
 
   static bool smRequiredAssetsLoaded;
-  static AssetLibrary::AssetId smArrowId;
-  static AssetLibrary::AssetId smCubeId;
-  static AssetLibrary::AssetId smScaleId;
-  static AssetLibrary::AssetId smSphereId;
-  static AssetLibrary::AssetId smTorusId;
+  static AssetId smArrowId;
+  static AssetId smCubeId;
+  static AssetId smScaleId;
+  static AssetId smSphereId;
+  static AssetId smTorusId;
 };
 
 } // namespace Hook

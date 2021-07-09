@@ -1,5 +1,4 @@
 target_sources(${varkorTarget} PRIVATE
-  AssetLibrary.cc
   Error.cc
   Framer.cc
   Input.cc

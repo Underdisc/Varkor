@@ -8,6 +8,8 @@
 #include "comp/Transform.h"
 #include "ds/Vector.h"
 #include "gfx/Framebuffer.h"
+#include "gfx/Model.h"
+#include "gfx/Shader.h"
 #include "math/Vector.h"
 #include "world/Object.h"
 #include "world/Space.h"
@@ -93,11 +95,10 @@ Mat4 GetTransformation(const World::Space& space, World::MemberId memberId)
 
 void RenderModel(const Shader& shader, const Comp::Model& modelComp)
 {
-  const AssetLibrary::ModelAsset* modelAsset =
-    AssetLibrary::GetModel(modelComp.mModelId);
-  if (modelAsset != nullptr)
+  Gfx::Model* model = AssLib::TryGet<Gfx::Model>(modelComp.mModelId);
+  if (model != nullptr)
   {
-    modelAsset->mModel.Draw(shader);
+    model->Draw(shader);
   }
 }
 
@@ -150,12 +151,11 @@ void RenderModels(
     [&](World::MemberId owner, const Comp::Model& modelComp)
     {
       // Find the shader that will be used to draw the model.
-      const AssetLibrary::ShaderAsset* shaderAsset =
-        AssetLibrary::GetShader(modelComp.mShaderId);
+      Gfx::Shader* shader = AssLib::TryGet<Gfx::Shader>(modelComp.mShaderId);
       const Shader* drawShader;
-      if (shaderAsset != nullptr && shaderAsset->mShader.Live())
+      if (shader != nullptr && shader->Live())
       {
-        drawShader = &shaderAsset->mShader;
+        drawShader = shader;
       } else
       {
         drawShader = &nDefaultShader;

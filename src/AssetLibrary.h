@@ -4,38 +4,71 @@
 #include <string>
 
 #include "ds/Map.h"
-#include "gfx/Model.h"
-#include "gfx/Shader.h"
+#include "util/Utility.h"
 
 namespace AssetLibrary {
+
+// Types can be used as Assets if they provide specific members. These types are
+// asset resources. Compiler errors will highlight the necessary members if an
+// incompatible type is used.
+template<typename T>
+struct Asset
+{
+public:
+  std::string mName;
+  T mResource;
+  Asset(const char* name, bool required);
+  Util::Result Init();
+  bool Required() const;
+  void SetPath(int index, const std::string& newPath);
+  const std::string& GetPath(int index) const;
+
+private:
+  bool mRequired;
+  std::string mPaths[T::smInitPathCount];
+};
 
 typedef int AssetId;
 constexpr AssetId nInvalidAssetId = -1;
 
-struct ShaderAsset
-{
-  std::string mName;
-  std::string mVertexFile;
-  std::string mFragmentFile;
-  Gfx::Shader mShader;
-};
-extern Ds::Map<AssetId, ShaderAsset> nShaders;
-void CreateEmptyShader();
-const ShaderAsset* GetShader(AssetId shaderId);
+// These are the functions that should be used when interacting with the
+// AssetLibrary.
+template<typename T>
+AssetId Create(const std::string& name, bool includeId = false);
+template<typename T>
+void Remove(AssetId id);
+template<typename T, typename... Args>
+AssetId Require(Args&&... args);
+template<typename T>
+T& Get(AssetId id);
+template<typename T>
+T* TryGet(AssetId id);
+template<typename T>
+Asset<T>& GetAsset(AssetId id);
+template<typename T>
+Asset<T>* TryGetAsset(AssetId id);
 
-struct ModelAsset
+// Every Asset type has a bin that stores all Assets of that type.
+template<typename T>
+struct AssetBin
 {
-  std::string mName;
-  std::string mPath;
-  Gfx::Model mModel;
+  static AssetId smIdHandout;
+  static Ds::Map<AssetId, Asset<T>> smAssets;
+  static AssetId NextId()
+  {
+    return smIdHandout++;
+  }
 };
-extern Ds::Map<AssetId, ModelAsset> nModels;
-AssetId AddRequiredModel(const std::string& path);
-void CreateEmptyModel();
-const ModelAsset* GetModel(AssetId modelId);
+template<typename T>
+AssetId AssetBin<T>::smIdHandout = 0;
+template<typename T>
+Ds::Map<AssetId, Asset<T>> AssetBin<T>::smAssets;
 
 } // namespace AssetLibrary
 
+namespace AssLib = AssetLibrary;
 typedef AssetLibrary::AssetId AssetId;
+
+#include "AssetLibrary.hh"
 
 #endif

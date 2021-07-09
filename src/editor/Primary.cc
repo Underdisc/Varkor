@@ -143,7 +143,7 @@ void Show()
   {
     FramerWindow();
   }
-  ShowAssetWindows();
+  AssetWindows();
   ShowUtilWindows();
 
   // Render the selected space.

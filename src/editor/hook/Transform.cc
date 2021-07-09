@@ -8,7 +8,9 @@
 #include "editor/Primary.h"
 #include "editor/Util.h"
 #include "editor/hook/Transform.h"
+#include "gfx/Model.h"
 #include "gfx/Renderer.h"
+#include "gfx/Shader.h"
 #include "math/Constants.h"
 #include "math/Geometry.h"
 #include "math/Matrix4.h"
@@ -54,11 +56,11 @@ void Edit(Comp::Transform* transform)
 }
 
 bool Gizmo<Comp::Transform>::smRequiredAssetsLoaded = false;
-AssetLibrary::AssetId Gizmo<Comp::Transform>::smArrowId;
-AssetLibrary::AssetId Gizmo<Comp::Transform>::smCubeId;
-AssetLibrary::AssetId Gizmo<Comp::Transform>::smScaleId;
-AssetLibrary::AssetId Gizmo<Comp::Transform>::smSphereId;
-AssetLibrary::AssetId Gizmo<Comp::Transform>::smTorusId;
+AssetId Gizmo<Comp::Transform>::smArrowId;
+AssetId Gizmo<Comp::Transform>::smCubeId;
+AssetId Gizmo<Comp::Transform>::smScaleId;
+AssetId Gizmo<Comp::Transform>::smSphereId;
+AssetId Gizmo<Comp::Transform>::smTorusId;
 
 void Gizmo<Comp::Transform>::Start()
 {
@@ -76,11 +78,11 @@ Gizmo<Comp::Transform>::Gizmo():
 {
   if (!smRequiredAssetsLoaded)
   {
-    smArrowId = AssetLibrary::AddRequiredModel("vres/model/arrow.fbx");
-    smCubeId = AssetLibrary::AddRequiredModel("vres/model/cube.obj");
-    smScaleId = AssetLibrary::AddRequiredModel("vres/model/scale.fbx");
-    smSphereId = AssetLibrary::AddRequiredModel("vres/model/sphere.fbx");
-    smTorusId = AssetLibrary::AddRequiredModel("vres/model/torus.fbx");
+    smArrowId = AssLib::Require<Gfx::Model>("vres/model/arrow.fbx");
+    smCubeId = AssLib::Require<Gfx::Model>("vres/model/cube.obj");
+    smScaleId = AssLib::Require<Gfx::Model>("vres/model/scale.fbx");
+    smSphereId = AssLib::Require<Gfx::Model>("vres/model/sphere.fbx");
+    smTorusId = AssLib::Require<Gfx::Model>("vres/model/torus.fbx");
     smRequiredAssetsLoaded = true;
   }
 

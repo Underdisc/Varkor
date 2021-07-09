@@ -4,31 +4,20 @@
 #include "AssetLibrary.h"
 #include "editor/Asset.h"
 #include "editor/Util.h"
-
-#include "Model.h"
+#include "editor/hook/Model.h"
+#include "gfx/Model.h"
+#include "gfx/Shader.h"
 
 namespace Editor {
 namespace Hook {
-
-void ChangeModelCallback(AssetLibrary::AssetId modelId, void* data)
-{
-  Comp::Model* model = (Comp::Model*)data;
-  model->mModelId = modelId;
-}
-
-void ChangeShaderCallback(AssetLibrary::AssetId shaderId, void* data)
-{
-  Comp::Model* model = (Comp::Model*)data;
-  model->mShaderId = shaderId;
-}
 
 template<>
 void Edit(Comp::Model* model)
 {
   std::stringstream buttonLabel;
   buttonLabel << "Model: ";
-  const AssetLibrary::ModelAsset* modelAsset =
-    AssetLibrary::GetModel(model->mModelId);
+  AssLib::Asset<Gfx::Model>* modelAsset =
+    AssLib::TryGetAsset<Gfx::Model>(model->mModelId);
   if (modelAsset == nullptr)
   {
     buttonLabel << "None";
@@ -38,13 +27,17 @@ void Edit(Comp::Model* model)
   }
   if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f)))
   {
-    Editor::StartModelSelection(ChangeModelCallback, (void*)model);
+    Editor::SelectAsset<Gfx::Model>(
+      [model](AssetId newModelId)
+      {
+        model->mModelId = newModelId;
+      });
   }
 
   buttonLabel.str("");
   buttonLabel << "Shader: ";
-  const AssetLibrary::ShaderAsset* shaderAsset =
-    AssetLibrary::GetShader(model->mShaderId);
+  AssLib::Asset<Gfx::Shader>* shaderAsset =
+    AssLib::TryGetAsset<Gfx::Shader>(model->mShaderId);
   if (shaderAsset == nullptr)
   {
     buttonLabel << "None";
@@ -54,7 +47,11 @@ void Edit(Comp::Model* model)
   }
   if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f)))
   {
-    Editor::StartShaderSelection(ChangeShaderCallback, (void*)model);
+    Editor::SelectAsset<Gfx::Shader>(
+      [model](AssetId newShaderId)
+      {
+        model->mShaderId = newShaderId;
+      });
   }
 }
 
