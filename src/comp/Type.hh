@@ -74,7 +74,7 @@ void Type<T>::Register()
   smId = CreateId();
 
   TypeData data;
-  data.mName = Util::GetLastName<T>();
+  data.mName = Util::GetShortTypename<T>();
   data.mSize = sizeof(T);
 
   data.mDefaultConstruct = &DefaultConstruct<T>;

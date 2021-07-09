@@ -18,21 +18,15 @@ constexpr T&& Forward(T& arg)
 }
 
 template<typename T>
-std::string GetFullName()
+std::string GetShortTypename()
 {
   std::string fullName(typeid(T).name());
-  std::string::size_type loc = fullName.find_last_of(" ");
-  fullName.erase(0, loc + 1);
-  return fullName;
-}
-
-template<typename T>
-std::string GetLastName()
-{
-  std::string fullName(typeid(T).name());
-  std::string::size_type loc = fullName.find_last_of(" :");
-  fullName.erase(0, loc + 1);
-  return fullName;
+  std::string::size_type start = fullName.find_last_of(" :");
+  if (start == std::string::npos)
+  {
+    return fullName;
+  }
+  return fullName.substr(start + 1);
 }
 
 template<bool, class T = void>
