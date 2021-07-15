@@ -158,8 +158,8 @@ void Iterator()
   PrintMap(map);
 
   // Change the value of all the key value pairs using an iterator.
-  Ds::Map<int, int>::Iter it = map.Begin();
-  Ds::Map<int, int>::Iter itE = map.End();
+  auto it = map.begin();
+  auto itE = map.end();
   int iterationCount = 0;
   while (it != itE)
   {
@@ -172,11 +172,11 @@ void Iterator()
 
   // Print out all the keys using a const iterator.
   std::cout << "--- 1 ---" << std::endl;
-  Ds::Map<int, int>::CIter cIt = map.CBegin();
-  Ds::Map<int, int>::CIter cItE = map.CEnd();
+  auto cIt = map.cbegin();
+  auto cItE = map.cend();
   while (cIt != cItE)
   {
-    std::cout << *cIt << std::endl;
+    std::cout << cIt->Key() << ": " << *cIt << std::endl;
     ++cIt;
   }
 }

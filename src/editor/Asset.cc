@@ -95,13 +95,12 @@ void ShowAssets()
 
   // Display a list of all existing Assets.
   ImGui::BeginChild("List", ImVec2(-1, -1), true);
-  auto it = AssLib::AssetBin<T>::smAssets.Begin();
-  auto itE = AssLib::AssetBin<T>::smAssets.End();
   AssetId removeAssetId = AssLib::nInvalidAssetId;
   AssetId nextAssetId = AssetInfo<T>::smSelectionId;
-  for (; it != itE; ++it)
+  for (auto& assetPair : AssLib::AssetBin<T>::smAssets)
   {
-    AssLib::Asset<T>& asset = it->mValue;
+    AssetId id = assetPair.Key();
+    AssLib::Asset<T>& asset = assetPair.mValue;
     if (asset.Required())
     {
       continue;
@@ -110,8 +109,8 @@ void ShowAssets()
     // Display an entry in the Asset list.
     ShowStatus(asset);
     ImGui::SameLine();
-    bool selected = it->Key() == AssetInfo<T>::smSelectionId;
-    ImGui::PushID(it->Key());
+    bool selected = id == AssetInfo<T>::smSelectionId;
+    ImGui::PushID(id);
     if (ImGui::Selectable(asset.mName.c_str(), selected))
     {
       if (selected)
@@ -119,7 +118,7 @@ void ShowAssets()
         nextAssetId = AssLib::nInvalidAssetId;
       } else
       {
-        nextAssetId = it->Key();
+        nextAssetId = id;
       }
     }
     ImGui::PopID();
@@ -127,7 +126,7 @@ void ShowAssets()
     {
       if (ImGui::Selectable("Remove"))
       {
-        removeAssetId = it->Key();
+        removeAssetId = id;
       }
       ImGui::EndPopup();
     }
@@ -163,17 +162,15 @@ void SelectAssetWindow()
   std::string windowName = "Select ";
   windowName += Util::GetShortTypename<T>();
   ImGui::Begin(windowName.c_str(), &continueWindow);
-  auto it = AssLib::AssetBin<T>::smAssets.Begin();
-  auto itE = AssLib::AssetBin<T>::smAssets.End();
-  for (; it != itE; ++it)
+  for (const auto& assetPair : AssLib::AssetBin<T>::smAssets)
   {
-    if (it->mValue.Required())
+    if (assetPair.mValue.Required())
     {
       continue;
     }
-    if (ImGui::Selectable(it->mValue.mName.c_str()))
+    if (ImGui::Selectable(assetPair.mValue.mName.c_str()))
     {
-      AssetInfo<T>::smCallback(it->Key());
+      AssetInfo<T>::smCallback(assetPair.Key());
       continueWindow = false;
     }
   }

@@ -14,12 +14,9 @@ GizmoBase::~GizmoBase() {}
 
 void EndAllGizmos()
 {
-  auto it = nGizmos.Begin();
-  auto itE = nGizmos.End();
-  while (it != itE)
+  for (const Ds::KvPair<Comp::TypeId, GizmoBase*>& gizmoPair : nGizmos)
   {
-    delete it->mValue;
-    ++it;
+    delete gizmoPair.mValue;
   }
   nGizmos.Clear();
 }

@@ -41,23 +41,23 @@ private:
     friend RbTree<T>;
   };
 
-public:
-  struct CIter: IterBase
-  {
-    const T& operator*();
-    const T* operator->();
-  };
-  CIter CBegin() const;
-  CIter CEnd() const;
-
 protected:
   struct Iter: IterBase
   {
     T& operator*();
     T* operator->();
   };
-  Iter Begin() const;
-  Iter End() const;
+  Iter begin() const;
+  Iter end() const;
+
+public:
+  struct CIter: IterBase
+  {
+    const T& operator*();
+    const T* operator->();
+  };
+  CIter cbegin() const;
+  CIter cend() const;
 
 public:
   RbTree();

@@ -82,9 +82,9 @@ Space::Space(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
 
 void Space::Update()
 {
-  for (auto it = mTables.Begin(); it != mTables.End(); ++it)
+  for (const Ds::KvPair<Comp::TypeId, Table>& tablePair : mTables)
   {
-    it->mValue.UpdateComponents();
+    tablePair.mValue.UpdateComponents();
   }
 }
 

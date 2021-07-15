@@ -47,15 +47,27 @@ const K& KvPair<K, V>::Key() const
 }
 
 template<typename K, typename V>
-typename Map<K, V>::Iter Map<K, V>::Begin() const
+typename Map<K, V>::Iter Map<K, V>::begin() const
 {
-  return RbTree<KvPair<K, V>>::Begin();
+  return RbTree<KvPair<K, V>>::begin();
 }
 
 template<typename K, typename V>
-typename Map<K, V>::Iter Map<K, V>::End() const
+typename Map<K, V>::Iter Map<K, V>::end() const
 {
-  return RbTree<KvPair<K, V>>::End();
+  return RbTree<KvPair<K, V>>::end();
+}
+
+template<typename K, typename V>
+typename Map<K, V>::CIter Map<K, V>::cbegin() const
+{
+  return RbTree<KvPair<K, V>>::cbegin();
+}
+
+template<typename K, typename V>
+typename Map<K, V>::CIter Map<K, V>::cend() const
+{
+  return RbTree<KvPair<K, V>>::cend();
 }
 
 template<typename K, typename V>

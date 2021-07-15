@@ -35,8 +35,11 @@ class Map: public RbTree<KvPair<K, V>>
 {
 public:
   typedef RbTree<KvPair<K, V>>::Iter Iter;
-  Iter Begin() const;
-  Iter End() const;
+  typedef RbTree<KvPair<K, V>>::CIter CIter;
+  Iter begin() const;
+  Iter end() const;
+  CIter cbegin() const;
+  CIter cend() const;
 
 public:
   V& Insert(const K& key, const V& value);

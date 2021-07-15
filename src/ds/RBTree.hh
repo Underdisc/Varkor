@@ -101,18 +101,6 @@ bool RbTree<T>::IterBase::operator!=(const IterBase& other)
 }
 
 template<typename T>
-const T& RbTree<T>::CIter::operator*()
-{
-  return mCurrent->mValue;
-}
-
-template<typename T>
-const T* RbTree<T>::CIter::operator->()
-{
-  return &mCurrent->mValue;
-}
-
-template<typename T>
 T& RbTree<T>::Iter::operator*()
 {
   return mCurrent->mValue;
@@ -125,23 +113,19 @@ T* RbTree<T>::Iter::operator->()
 }
 
 template<typename T>
-typename RbTree<T>::CIter RbTree<T>::CBegin() const
+const T& RbTree<T>::CIter::operator*()
 {
-  CIter begin;
-  begin.mCurrent = LeftmostNode();
-  return begin;
+  return mCurrent->mValue;
 }
 
 template<typename T>
-typename RbTree<T>::CIter RbTree<T>::CEnd() const
+const T* RbTree<T>::CIter::operator->()
 {
-  CIter end;
-  end.mCurrent = nullptr;
-  return end;
+  return &mCurrent->mValue;
 }
 
 template<typename T>
-typename RbTree<T>::Iter RbTree<T>::Begin() const
+typename RbTree<T>::Iter RbTree<T>::begin() const
 {
   Iter begin;
   begin.mCurrent = LeftmostNode();
@@ -149,9 +133,25 @@ typename RbTree<T>::Iter RbTree<T>::Begin() const
 }
 
 template<typename T>
-typename RbTree<T>::Iter RbTree<T>::End() const
+typename RbTree<T>::Iter RbTree<T>::end() const
 {
   Iter end;
+  end.mCurrent = nullptr;
+  return end;
+}
+
+template<typename T>
+typename RbTree<T>::CIter RbTree<T>::cbegin() const
+{
+  CIter begin;
+  begin.mCurrent = LeftmostNode();
+  return begin;
+}
+
+template<typename T>
+typename RbTree<T>::CIter RbTree<T>::cend() const
+{
+  CIter end;
   end.mCurrent = nullptr;
   return end;
 }
@@ -208,16 +208,10 @@ void RbTree<T>::RemoveNode(Node* node)
 {
   // Find out if there is a node that will take the place of the node to be
   // removed.
-  Node* replace = nullptr;
-  if (node->mLeft == nullptr)
+  Node* replace = node->FindPredecessor();
+  if (replace == nullptr)
   {
     replace = node->mRight;
-  } else if (node->mRight == nullptr)
-  {
-    replace = node->mLeft;
-  } else
-  {
-    replace = node->FindPredecessor();
   }
   if (replace != nullptr)
   {
