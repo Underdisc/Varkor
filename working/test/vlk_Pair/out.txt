@@ -141,7 +141,6 @@
 }
 
 <= SerializeDeserialize =>
-Integer Value: 5
 Integer: 5
 Floats: 
   1
@@ -158,8 +157,6 @@ PairArray:
   Key1: 1
   Key2: 2
   Key3: 3
-DereferenceMe: 10.51
-
 <= Move =>
 :Value: 5
 :PairArray: {

@@ -1,17 +1,18 @@
 #include <iostream>
 #include <string>
 
+#include "Error.h"
 #include "vlk/Pair.h"
 #include "vlk/Parser.h"
 
 // Valkor Grammar
 // Root = Pair | PairArray
+// Pair = <Key> (ValueSingle | PairArray | ValueArray)
+// ValueSingle = <Value>
 // PairArray = <OpenBrace> Pair* <CloseBrace>
-// Pair = <Key> (PairArray | ValueArray | ValueSingle)
 // ValueArray = <OpenBracket> (ValueSingleList | ValueArrayList)? <CloseBracket>
 // ValueSingleList = ValueSingle (<Comma> ValueSingle)* <Comma>?
 // ValueArrayList = ValueArray (<Comma> ValueArray)* <Comma>?
-// ValueSingle = <Value>
 
 // There is a distinction between the ValueSingle grammar rule and the <Value>
 // token because a ValueSingle function is part of the Parser. This makes it
@@ -55,7 +56,7 @@ const Token& Parser::LastToken()
   return mTokens[mCurrentToken - 1];
 }
 
-Util::Result Parser::Parse(const char* text, Pair* rootPair)
+Util::Result Parser::Parse(const char* text, Value* root)
 {
   mCurrentToken = 0;
   TokenizeResult result = Tokenize(text);
@@ -67,11 +68,11 @@ Util::Result Parser::Parse(const char* text, Pair* rootPair)
   const char* errorText = "";
   try
   {
-    if (!ParseRoot(rootPair))
+    if (!ParseRoot(root))
     {
       return Util::Result("Expected PairArray or Pair.");
     }
-    return Util::Result();
+    return Util::Result(true);
   }
   catch (const char* error)
   {
@@ -80,49 +81,49 @@ Util::Result Parser::Parse(const char* text, Pair* rootPair)
   return Util::Result(errorText);
 }
 
-bool Parser::ParseRoot(Pair* rootPair)
+bool Parser::ParseRoot(Value* root)
 {
-  return ParsePair(rootPair) || ParsePairArray(rootPair);
+  return ParsePair(root) || ParsePairArray(root);
 }
 
-bool Parser::ParsePairArray(Pair* rootPair)
+bool Parser::ParsePairArray(Value* root)
 {
   if (!Accept(Token::Type::OpenBrace))
   {
     return false;
   }
-  if (rootPair != nullptr)
+  if (root != nullptr)
   {
-    mPairStack.Push(rootPair);
+    mValueStack.Push(root);
   }
-  mPairStack.Top()->mValue.Init(Pair::Value::Type::PairArray);
+  mValueStack.Top()->Init(Value::Type::PairArray);
   while (ParsePair())
   {}
   Expect(Token::Type::CloseBrace, "Expected } or Pair.");
   return true;
 }
 
-bool Parser::ParsePair(Pair* rootPair)
+bool Parser::ParsePair(Value* root)
 {
   if (!Accept(Token::Type::Key))
   {
     return false;
   }
-  if (rootPair != nullptr)
+  if (root != nullptr)
   {
-    mPairStack.Push(rootPair);
+    mValueStack.Push(root);
   } else
   {
-    Pair& upPair = *mPairStack.Top();
-    upPair.mValue.mPairArray.Emplace();
-    mPairStack.Push(&upPair.mValue.mPairArray.Top());
+    mValueStack.Top()->mPairArray.Emplace();
+    mValueStack.Push(&mValueStack.Top()->mPairArray.Top());
   }
   const Token& keyToken = LastToken();
-  mPairStack.Top()->mKey.insert(0, keyToken.mText + 1, keyToken.mLength - 2);
+  Pair& pair = *(Pair*)mValueStack.Top();
+  pair.mKey.insert(0, keyToken.mText + 1, keyToken.mLength - 2);
   Expect(
     ParsePairArray() || ParseValueArray() || ParseValueSingle(),
     "Expected ValueSingle, PairArray, or ValueArray.");
-  mPairStack.Pop();
+  mValueStack.Pop();
   return true;
 }
 
@@ -132,19 +133,16 @@ bool Parser::ParseValueArray()
   {
     return false;
   }
-  Pair::Value* newValue = nullptr;
-  if (mValueStack.Size() == 0)
+  if (mValueStack.Top()->mType == Value::Type::Invalid)
   {
-    Pair& pair = *mPairStack.Top();
-    pair.mValue.Init(Pair::Value::Type::ValueArray);
-    newValue = &pair.mValue;
+    mValueStack.Top()->Init(Value::Type::ValueArray);
+    mValueStack.Push(mValueStack.Top());
   } else
   {
-    Pair::Value& upValue = *mValueStack.Top();
-    upValue.mValueArray.Emplace(Pair::Value::Type::ValueArray);
-    newValue = &upValue.mValueArray.Top();
+    mValueStack.Top()->HardExpectType(Value::Type::ValueArray);
+    mValueStack.Top()->mValueArray.Emplace(Value::Type::ValueArray);
+    mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
   }
-  mValueStack.Push(newValue);
   ParseValueSingleList() || ParseValueArrayList();
   mValueStack.Pop();
   Expect(Token::Type::CloseBracket, "Expected ].");
@@ -180,19 +178,18 @@ bool Parser::ParseValueSingle()
     return false;
   }
   const Token& valueToken = LastToken();
-  Pair::Value* newValue = nullptr;
-  if (mValueStack.Size() == 0)
+  if (mValueStack.Top()->mType == Value::Type::Invalid)
   {
-    Pair& pair = *mPairStack.Top();
-    pair.mValue.Init(Pair::Value::Type::ValueSingle);
-    newValue = &pair.mValue;
+    mValueStack.Top()->Init(Value::Type::String);
+    mValueStack.Push(mValueStack.Top());
   } else
   {
-    Pair::Value& upValue = *mValueStack.Top();
-    upValue.mValueArray.Emplace(Pair::Value::Type::ValueSingle);
-    newValue = &upValue.mValueArray.Top();
+    mValueStack.Top()->HardExpectType(Value::Type::ValueArray);
+    mValueStack.Top()->mValueArray.Emplace(Value::Type::String);
+    mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
   }
-  newValue->mValueSingle.insert(0, valueToken.mText, valueToken.mLength);
+  mValueStack.Top()->mString.insert(0, valueToken.mText, valueToken.mLength);
+  mValueStack.Pop();
   return true;
 }
 

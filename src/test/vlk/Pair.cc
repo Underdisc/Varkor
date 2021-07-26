@@ -9,14 +9,14 @@ void PrintParsePrint(const Vlk::Pair& root)
   std::stringstream rootText;
   rootText << root;
   Vlk::Pair rootCopy;
-  rootText.str().c_str() >> rootCopy;
+  rootCopy.Parse(rootText.str().c_str());
   std::cout << rootCopy << std::endl;
 }
 
 void PrintParseError(const char* text)
 {
   Vlk::Pair root;
-  Util::Result result = text >> root;
+  Util::Result result = root.Parse(text);
   std::cout << result.mError << std::endl;
 }
 
@@ -127,8 +127,7 @@ void SerializeDeserialize()
   {
     Vlk::Pair root;
     Vlk::Pair& integer = root("Integer");
-    *integer = 5;
-    std::cout << integer.mKey << " Value: " << integer->AsFloat() << std::endl;
+    integer = 5;
     Vlk::Pair& floats = root("Floats");
     floats[{3}];
     floats[0] = 1;
@@ -139,10 +138,10 @@ void SerializeDeserialize()
     strings[{3}];
     strings[0][{2}];
     strings[0][0] = "oh";
-    strings[0][1] = "look";
+    strings[0][1] = std::string("look");
     strings[1][{2}];
     strings[1][0] = "a";
-    strings[1][1] = "stringy";
+    strings[1][1] = std::string("stringy");
     strings[2][{1}];
     strings[2][0] = "thingy";
     Vlk::Pair& pairArray = root("PairArray");
@@ -150,57 +149,39 @@ void SerializeDeserialize()
     pairArray("Key1") = 1;
     pairArray("Key2") = 2;
     pairArray("Key3") = 3;
-    root("DereferenceMe") = 10.51f;
-    std::ofstream outFileStream(filename);
-    if (!outFileStream.is_open())
-    {
-      std::stringstream ss;
-      ss << "Failed to open \"" << filename << "\"";
-      LogAbort(ss.str().c_str());
-    }
-    outFileStream << root;
-    outFileStream.close();
+    Util::Result result = root.Write(filename);
+    LogAbortIf(!result.Success(), result.mError.c_str());
   }
   // Deserialization
   {
-    std::ifstream inFileStream(filename);
-    if (!inFileStream.is_open())
-    {
-      std::stringstream ss;
-      ss << "Failed to open \"" << filename << "\"";
-      LogAbort(ss.str().c_str());
-    }
     Vlk::Pair root;
-    inFileStream >> root;
-    inFileStream.close();
-    const Vlk::Pair& constRoot = root;
-    const Vlk::Pair& integer = constRoot(std::string("Integer"));
-    std::cout << integer.mKey << ": " << integer->AsInt() << std::endl;
-    const Vlk::Pair& floats = constRoot(std::string("Floats"));
-    std::cout << floats.mKey << ": " << std::endl;
+    Util::Result result = root.Read(filename);
+    LogAbortIf(!result.Success(), result.mError.c_str());
+    const Vlk::Pair& integer = *root.TryGetPair("Integer");
+    std::cout << integer.Key() << ": " << integer.As<int>() << std::endl;
+    const Vlk::Pair& floats = *root.TryGetPair("Floats");
+    std::cout << floats.Key() << ": " << std::endl;
     for (int i = 0; i < floats.Size(); ++i)
     {
-      std::cout << "  " << floats[i].AsFloat() << std::endl;
+      std::cout << "  " << floats.TryGetValue(i)->As<float>() << std::endl;
     }
-    const Vlk::Pair& strings = constRoot("Container")("Strings");
-    std::cout << strings.mKey << ": " << std::endl;
+    const Vlk::Pair& strings =
+      *root.TryGetPair("Container")->TryGetPair("Strings");
+    std::cout << strings.Key() << ": " << std::endl;
     for (int i = 0; i < strings.Size(); ++i)
     {
       for (int j = 0; j < strings[i].Size(); ++j)
       {
-        std::cout << "  " << strings[i][j].AsString() << std::endl;
+        std::cout << "  " << strings[i][j].As<std::string>() << std::endl;
       }
     }
-    const Vlk::Pair& pairArray = constRoot(std::string("PairArray"));
-    std::cout << pairArray.mKey << ": " << std::endl;
+    const Vlk::Pair& pairArray = *root.TryGetPair("PairArray");
+    std::cout << pairArray.Key() << ": " << std::endl;
     for (int i = 0; i < pairArray.Size(); ++i)
     {
-      std::cout << "  " << pairArray(i).mKey << ": " << pairArray(i)->AsInt()
-                << std::endl;
+      std::cout << "  " << pairArray.TryGetPair(i)->Key() << ": "
+                << pairArray(i).As<int>() << std::endl;
     }
-    std::cout << "DereferenceMe: " << (*constRoot("DereferenceMe")).AsFloat()
-              << std::endl
-              << std::endl;
   }
 }
 

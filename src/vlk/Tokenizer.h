@@ -2,6 +2,7 @@
 #define vlk_Tokenizer_h
 
 #include "ds/Vector.h"
+#include "util/Utility.h"
 
 namespace Vlk {
 
