@@ -13,14 +13,14 @@ REM {target} - Build only the provided target.
 REM Optional Arguments
 REM r - Runs the target executable if successfully built.
 REM d - Creates a file containing the output of the target executable named
-REM   {target}_out_diff.txt and git diffs it against {target}_out.txt.
+REM   {target}/out_diff.txt and git diffs it against {target}/out.txt.
 REM a - Creates a file containing the output of the target executable named
-REM   {target}_out.txt. The file will be overwritten if it already exists.
+REM   {target}/out.txt. The file will be overwritten if it already exists.
 REM t - Does the same as the d option, but only prints out "{target}: Passed"
 REM   or "{target}: Failed" depending on the result of the diff. When this
 REM   option is used with the all argument, every existing test will be executed
 REM   and dispalyed with "{target}: Passed" or {target}: Failed".
-REM c - Creates a directory named {target}_coverage that contains a code
+REM c - Creates a directory named {target}/coverage that contains a code
 REM   coverage report. This makes finding the code that a unit test did and did
 REM   not run easy. A build of OpenCppCoverage needs to be in your path. It can
 REM   be found here (https://github.com/OpenCppCoverage/OpenCppCoverage).
@@ -119,9 +119,11 @@ exit /b 0
 :GenerateCoverage
   setlocal ENABLEDELAYEDEXPANSION
   pushd "../../"
-  OpenCppCoverage ^
-    --sources !cd!\src\* --export_type html:working\test\%1\coverage -q -- ^
-    working\test\%1\test.exe > LastCoverageResults.log
+  OpenCppCoverage -q ^
+    --sources !cd!\src\* ^
+    --working_dir working\test\%1 ^
+    --export_type html:working\test\%1\coverage ^
+    -- working\test\%1\test.exe > LastCoverageResults.log
   del LastCoverageResults.log
   popd
   endlocal
