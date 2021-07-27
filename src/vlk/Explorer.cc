@@ -5,8 +5,8 @@
 
 namespace Vlk {
 
-Explorer::Explorer(const Pair* root):
-  mParent(nullptr), mValue(root), mValueIndex(smInvalidValueIndex)
+Explorer::Explorer(const Pair& root):
+  mParent(nullptr), mValue(&root), mValueIndex(smInvalidValueIndex)
 {}
 
 Explorer::Explorer(const Explorer* parent):

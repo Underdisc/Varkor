@@ -8,6 +8,9 @@
 
 namespace AssetLibrary {
 
+void LoadAssets();
+void SaveAssets();
+
 // Types can be used as Assets if they provide specific members. These types are
 // asset resources. Compiler errors will highlight the necessary members if an
 // incompatible type is used.
@@ -17,7 +20,7 @@ struct Asset
 public:
   std::string mName;
   T mResource;
-  Asset(const char* name, bool required);
+  Asset(const std::string& name, bool required);
   Util::Result Init();
   bool Required() const;
   void SetPath(int index, const std::string& newPath);

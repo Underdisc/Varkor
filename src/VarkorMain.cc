@@ -1,3 +1,4 @@
+#include "AssetLibrary.h"
 #include "Error.h"
 #include "Framer.h"
 #include "Input.h"
@@ -15,6 +16,7 @@ void VarkorInit(const char* windowName)
   Editor::Init();
   Framer::Init();
   Comp::RegisterTypes();
+  AssetLibrary::LoadAssets();
 }
 
 void VarkorEngine()
@@ -47,6 +49,7 @@ void VarkorEngine()
 
 void VarkorPurge()
 {
+  AssetLibrary::SaveAssets();
   Framer::Purge();
   Editor::Purge();
   Viewport::Purge();

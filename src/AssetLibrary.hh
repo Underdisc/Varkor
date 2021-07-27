@@ -1,7 +1,7 @@
 namespace AssetLibrary {
 
 template<typename T>
-Asset<T>::Asset(const char* name, bool required):
+Asset<T>::Asset(const std::string& name, bool required):
   mName(name), mRequired(required)
 {}
 

@@ -8,7 +8,7 @@ void Basic()
   std::cout << "<= Basic =>\n";
   Vlk::Pair root;
   root.Read("../vlk_Pair/SerializeDeserialize.vlk");
-  Vlk::Explorer rootEx(&root);
+  Vlk::Explorer rootEx(root);
   Vlk::Explorer stringsEx = rootEx("Container")("Strings");
 
   // Test access of pairs and values that do not exist.
