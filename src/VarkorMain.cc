@@ -15,8 +15,8 @@ void VarkorInit(const char* windowName)
   Viewport::Init(windowName);
   Editor::Init();
   Framer::Init();
-  Comp::RegisterTypes();
   AssetLibrary::LoadAssets();
+  Comp::Init();
 }
 
 void VarkorEngine()

@@ -3,8 +3,9 @@
 
 namespace Comp {
 
-void RegisterTypes();
+void Init();
+void SaveComponents();
 
-}
+} // namespace Comp
 
 #endif

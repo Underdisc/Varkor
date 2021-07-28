@@ -4,10 +4,12 @@
 #include <imgui/imgui_impl_opengl3.h>
 #include <sstream>
 
+#include "AssetLibrary.h"
 #include "Framer.h"
 #include "Input.h"
 #include "Temporal.h"
 #include "Viewport.h"
+#include "comp/Registrar.h"
 #include "comp/Type.h"
 #include "debug/Draw.h"
 #include "editor/Asset.h"
@@ -186,6 +188,18 @@ void EditorWindow()
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar;
   ImGui::Begin("Editor", &nShowEditorWindow, windowFlags);
   ImGui::BeginMenuBar();
+  if (ImGui::BeginMenu("File"))
+  {
+    if (ImGui::MenuItem("Save Assets File"))
+    {
+      AssetLibrary::SaveAssets();
+    }
+    if (ImGui::MenuItem("Save Components File"))
+    {
+      Comp::SaveComponents();
+    }
+    ImGui::EndMenu();
+  }
   if (ImGui::BeginMenu("View"))
   {
     ImGui::MenuItem("Framer", NULL, &nShowFramerWindow);

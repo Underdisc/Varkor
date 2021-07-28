@@ -181,7 +181,7 @@ void SelectAssetWindow()
   }
 }
 
-bool nShowAssetWindow = false;
+bool nShowAssetWindow = true;
 void AssetWindows()
 {
   if (nShowAssetWindow)
