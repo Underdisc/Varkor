@@ -28,7 +28,7 @@ void InspectComponent(Comp::TypeId typeId, const World::Object& object)
   {
     return;
   }
-  Comp::TypeData& typeData = Comp::nTypeData[typeId];
+  const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
   bool inspecting = ImGui::CollapsingHeader(typeData.mName.c_str());
   if (ImGui::BeginPopupContextItem())
   {

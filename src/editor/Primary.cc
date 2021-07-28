@@ -392,9 +392,9 @@ void InspectorWindow()
     return;
   }
   ImGui::Begin("Add Components", &nShowAddComponentWindow);
-  for (Comp::TypeId typeId = 0; typeId < Comp::nTypeData.Size(); ++typeId)
+  for (Comp::TypeId typeId = 0; typeId < Comp::TypeDataCount(); ++typeId)
   {
-    const Comp::TypeData& typeData = Comp::nTypeData[typeId];
+    const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
     if (nSelectedObject.HasComponent(typeId))
     {
       continue;

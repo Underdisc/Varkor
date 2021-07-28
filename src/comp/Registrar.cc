@@ -46,7 +46,7 @@ void AssessComponentsFile()
   nVersion = versionEx.As<int>();
 
   // Display errors that show missing information or any changes to components.
-  for (TypeId id = 0; id < nTypeData.Size(); ++id)
+  for (TypeId id = 0; id < TypeDataCount(); ++id)
   {
     const TypeData& typeData = GetTypeData(id);
     Vlk::Explorer componentEx = componentsEx(id);
@@ -92,7 +92,7 @@ void SaveComponents()
   Vlk::Pair rootVlk;
   rootVlk("Version") = nVersion + 1;
   Vlk::Pair& componentsVlk = rootVlk("Components");
-  for (TypeId id = 0; id < nTypeData.Size(); ++id)
+  for (TypeId id = 0; id < TypeDataCount(); ++id)
   {
     const TypeData& typeData = GetTypeData(id);
     Vlk::Pair& typeDataVlk = componentsVlk(typeData.mName);

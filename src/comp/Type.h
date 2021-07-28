@@ -41,10 +41,10 @@ struct TypeData
   bool (*mGizmoRun)(void* component, const World::Object& object);
 };
 
-extern Ds::Vector<TypeData> nTypeData;
 template<typename T>
 const TypeData& GetTypeData();
 const TypeData& GetTypeData(TypeId id);
+int TypeDataCount();
 
 } // namespace Comp
 

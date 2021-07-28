@@ -9,9 +9,15 @@ int CreateId()
 }
 
 Ds::Vector<TypeData> nTypeData;
+
 const TypeData& GetTypeData(TypeId id)
 {
   return nTypeData[id];
+}
+
+int TypeDataCount()
+{
+  return nTypeData.Size();
 }
 
 } // namespace Comp

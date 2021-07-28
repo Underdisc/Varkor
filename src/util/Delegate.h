@@ -12,7 +12,7 @@ public:
   {
     mFunction = nullptr;
   }
-  bool Open()
+  bool Open() const
   {
     return mFunction != nullptr;
   }
@@ -34,7 +34,7 @@ public:
   {
     mFunction = &InternalMemberDelegate<T, Function>;
   }
-  R Invoke(void* instance, Args... args)
+  R Invoke(void* instance, Args... args) const
   {
     return mFunction(instance, args...);
   }

@@ -67,6 +67,8 @@ void Destruct(void* data)
 }
 
 int CreateId();
+extern Ds::Vector<TypeData> nTypeData;
+
 template<typename T>
 void Type<T>::Register()
 {

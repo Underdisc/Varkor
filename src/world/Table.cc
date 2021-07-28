@@ -11,7 +11,7 @@ Table::Table(Comp::TypeId typeId):
 
 Table::~Table()
 {
-  Comp::TypeData& typeData = Comp::nTypeData[mTypeId];
+  const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   VisitComponents(
     [&typeData](void* component)
     {
@@ -30,7 +30,7 @@ int Table::Add(MemberId memberId)
 {
   int index = AllocateComponent(memberId);
   void* component = GetComponent(index);
-  Comp::TypeData& typeData = Comp::nTypeData[mTypeId];
+  const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   typeData.mDefaultConstruct(component);
   return index;
 }
@@ -51,7 +51,7 @@ int Table::Duplicate(int ogIndex, MemberId duplicateId)
   int newIndex = AllocateComponent(duplicateId);
   void* ogComponent = GetComponent(ogIndex);
   void* newComponent = GetComponent(newIndex);
-  Comp::TypeData& typeData = Comp::nTypeData[mTypeId];
+  const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   typeData.mCopyConstruct(ogComponent, newComponent);
   return newIndex;
 }
@@ -61,7 +61,7 @@ void Table::Rem(int index)
   VerifyIndex(index);
   mOwners[index] = nInvalidMemberId;
   void* component = GetComponent(index);
-  Comp::TypeData& typeData = Comp::nTypeData[mTypeId];
+  const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   typeData.mDestruct(component);
 }
 
@@ -73,7 +73,7 @@ void* Table::operator[](int index) const
 void* Table::GetComponent(int index) const
 {
   VerifyIndex(index);
-  Comp::TypeData& typeData = Comp::nTypeData[mTypeId];
+  const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   return (void*)(mData + typeData.mSize * index);
 }
 
@@ -89,7 +89,7 @@ const void* Table::Data() const
 
 int Table::Stride() const
 {
-  Comp::TypeData& typeData = Comp::nTypeData[mTypeId];
+  const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   return typeData.mSize;
 }
 
@@ -105,7 +105,7 @@ int Table::Capacity() const
 
 void Table::UpdateComponents() const
 {
-  Comp::TypeData& typeData = Comp::nTypeData[mTypeId];
+  const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   if (!typeData.mVUpdate.Open())
   {
     return;
@@ -139,7 +139,7 @@ void Table::VisitActiveIndices(std::function<void(int)> visit) const
 
 void Table::Grow()
 {
-  Comp::TypeData& typeData = Comp::nTypeData[mTypeId];
+  const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   if (mData == nullptr)
   {
     mData = alloc char[smStartCapacity * typeData.mSize];
