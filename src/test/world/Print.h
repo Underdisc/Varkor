@@ -57,29 +57,21 @@ void PrintTableStats(const World::Table& table)
 // Space Functions /////////////////////////////////////////////////////////////
 void PrintSpaceTables(const World::Space& space)
 {
-  const Ds::Map<Comp::TypeId, World::Table>& tables = space.Tables();
-  auto it = tables.Begin();
-  auto itE = tables.End();
-  while (it != itE)
+  for (const auto& tablePair : space.Tables())
   {
-    std::cout << it->Key() << " {" << std::endl;
-    PrintTableStats(it->mValue);
-    PrintTableOwners(it->mValue);
+    std::cout << tablePair.Key() << " {" << std::endl;
+    PrintTableStats(tablePair.mValue);
+    PrintTableOwners(tablePair.mValue);
     std::cout << "}" << std::endl;
-    ++it;
   }
 }
 
 void PrintSpaceTablesOwners(const World::Space& space)
 {
-  const Ds::Map<Comp::TypeId, World::Table>& tables = space.Tables();
-  auto it = tables.Begin();
-  auto itE = tables.End();
-  while (it != itE)
+  for (const auto& tablePair : space.Tables())
   {
-    std::cout << "Table " << it->Key() << " ";
-    PrintTableOwners(it->mValue);
-    ++it;
+    std::cout << "Table " << tablePair.Key() << " ";
+    PrintTableOwners(tablePair.mValue);
   }
 }
 
