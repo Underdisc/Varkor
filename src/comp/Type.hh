@@ -108,4 +108,10 @@ void Type<T>::RegisterGizmo()
   data.mGizmoRun = &Editor::Hook::GizmoRun<T>;
 }
 
+template<typename T>
+const TypeData& GetTypeData()
+{
+  return nTypeData[Type<T>::smId];
+}
+
 } // namespace Comp

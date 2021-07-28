@@ -42,6 +42,9 @@ struct TypeData
 };
 
 extern Ds::Vector<TypeData> nTypeData;
+template<typename T>
+const TypeData& GetTypeData();
+const TypeData& GetTypeData(TypeId id);
 
 } // namespace Comp
 
