@@ -48,11 +48,12 @@ void Purge()
   }
 }
 
-void Log(const char* file, int line, const char* reason)
+void Log(const char* file, int line, const char* function, const char* reason)
 {
   std::stringstream ss;
-  std::string fileName = FormatFileName(file);
-  ss << "Error|" << fileName << "(" << line << ")> " << reason;
+  std::string filename = FormatFileName(file);
+  ss << "Error|" << filename << "(" << line << ")|" << function << "| "
+     << reason;
   LogString(ss.str().c_str());
 }
 
@@ -91,11 +92,12 @@ void LogGlStatus()
   LogString(ss.str().c_str());
 }
 
-void Abort(const char* file, int line, const char* reason)
+void Abort(const char* file, int line, const char* function, const char* reason)
 {
   std::stringstream ss;
-  std::string fileName = FormatFileName(file);
-  ss << "Abort|" << fileName << "(" << line << ")> " << reason;
+  std::string filename = FormatFileName(file);
+  ss << "Abort|" << filename << "(" << line << ")|" << function << "| "
+     << reason;
   LogString(ss.str().c_str());
   StackTrace();
   abort();
@@ -155,17 +157,17 @@ void LogString(const char* string)
 
 std::string FormatFileName(const char* file)
 {
-  std::string fileName(file);
-  size_t index = fileName.find("src");
-  fileName = fileName.substr(index);
-  for (unsigned int i = 0; i < fileName.size(); ++i)
+  std::string filename(file);
+  size_t index = filename.find("src");
+  filename = filename.substr(index);
+  for (unsigned int i = 0; i < filename.size(); ++i)
   {
-    if (fileName[i] == '\\')
+    if (filename[i] == '\\')
     {
-      fileName[i] = '/';
+      filename[i] = '/';
     }
   }
-  return fileName;
+  return filename;
 }
 
 void SignalHandler(int signal)
