@@ -40,7 +40,7 @@ SpaceId CreateSpace()
 {
   SpaceId newSpace = (SpaceId)nSpaces.Size();
   std::stringstream defaultName;
-  defaultName << "Space " << newSpace;
+  defaultName << "Space" << newSpace;
   nSpaces.Emplace(defaultName.str());
   return newSpace;
 }

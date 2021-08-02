@@ -18,6 +18,8 @@
 #include "editor/hook/Hook.h"
 #include "gfx/Framebuffer.h"
 #include "gfx/Renderer.h"
+#include "vlk/Explorer.h"
+#include "vlk/Pair.h"
 #include "world/Types.h"
 #include "world/World.h"
 
@@ -183,23 +185,66 @@ const Camera& GetCamera()
   return nCamera;
 }
 
+void FileMenu()
+{
+  if (!ImGui::BeginMenu("File"))
+  {
+    return;
+  }
+  if (ImGui::MenuItem("Load Space"))
+  {
+    SelectFile(
+      [](const std::string& filename)
+      {
+        Vlk::Pair rootVlk;
+        Util::Result result = rootVlk.Read(filename.c_str());
+        if (!result.Success())
+        {
+          OpenPopup("Load Space Failed", result.mError);
+          LogError(result.mError.c_str());
+          return;
+        }
+        World::SpaceId newSpaceId = World::CreateSpace();
+        World::Space& newSpace = World::GetSpace(newSpaceId);
+        newSpace.Deserialize(rootVlk);
+        nSelectedSpace = newSpaceId;
+      });
+  }
+  bool spaceSelected = nSelectedSpace != World::nInvalidSpaceId;
+  if (ImGui::MenuItem("Save Selected Space", nullptr, false, spaceSelected))
+  {
+    const World::Space& selectedSpace = World::GetSpace(nSelectedSpace);
+    SaveFile(
+      selectedSpace.mName + ".vlk",
+      [&selectedSpace](const std::string& filename)
+      {
+        Vlk::Pair rootVlk(selectedSpace.mName);
+        selectedSpace.Serialize(rootVlk);
+        Util::Result result = rootVlk.Write(filename.c_str());
+        if (!result.Success())
+        {
+          OpenPopup("Save Space Failed", result.mError);
+          LogError(result.mError.c_str());
+        }
+      });
+  }
+  if (ImGui::MenuItem("Save Assets File"))
+  {
+    AssetLibrary::SaveAssets();
+  }
+  if (ImGui::MenuItem("Save Components File"))
+  {
+    Comp::SaveComponents();
+  }
+  ImGui::EndMenu();
+}
+
 void EditorWindow()
 {
   ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar;
   ImGui::Begin("Editor", &nShowEditorWindow, windowFlags);
   ImGui::BeginMenuBar();
-  if (ImGui::BeginMenu("File"))
-  {
-    if (ImGui::MenuItem("Save Assets File"))
-    {
-      AssetLibrary::SaveAssets();
-    }
-    if (ImGui::MenuItem("Save Components File"))
-    {
-      Comp::SaveComponents();
-    }
-    ImGui::EndMenu();
-  }
+  FileMenu();
   if (ImGui::BeginMenu("View"))
   {
     ImGui::MenuItem("Framer", NULL, &nShowFramerWindow);

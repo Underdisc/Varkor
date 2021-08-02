@@ -9,7 +9,10 @@ namespace Editor {
 // being modified rather than c style character buffers.
 bool InputText(const char* label, std::string* str);
 void OpenPopup(const std::string& name, const std::string& text);
-void StartFileSelection(std::function<void(const std::string&)> callback);
+void SelectFile(std::function<void(const std::string&)> callback);
+void SaveFile(
+  const std::string& defaultFilename,
+  std::function<void(const std::string&)> callback);
 void HelpMarker(const char* text);
 
 // This function is only intended to be called by the main function driving the

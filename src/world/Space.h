@@ -12,7 +12,6 @@
 
 namespace World {
 
-// Pre-declaration
 struct Object;
 struct Space;
 
@@ -29,6 +28,7 @@ struct Member
 public:
   std::string mName;
 
+  Member();
   int AddressIndex() const;
   int ComponentCount() const;
   MemberId Parent() const;
@@ -101,6 +101,9 @@ struct Space
   const Ds::Vector<Member>& Members() const;
   const Ds::Vector<MemberId>& UnusedMemberIds() const;
   const Ds::Vector<ComponentAddress> AddressBin() const;
+
+  void Serialize(Vlk::Pair& spaceVlk) const;
+  void Deserialize(const Vlk::Explorer& spaceEx);
 
 public:
   std::string mName;

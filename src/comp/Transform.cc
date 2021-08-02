@@ -1,4 +1,6 @@
-#include "Transform.h"
+#include "comp/Transform.h"
+#include "vlk/Explorer.h"
+#include "vlk/Pair.h"
 
 namespace Comp {
 
@@ -8,6 +10,35 @@ Transform::Transform():
   mTranslation({0.0f, 0.0f, 0.0f}),
   mUpdated(false)
 {}
+
+void Transform::VSerialize(Vlk::Pair& transformVlk)
+{
+  Vlk::Value& scaleVlk = transformVlk("Scale")[{3}];
+  Vlk::Value& rotationVlk = transformVlk("Rotation")[{4}];
+  Vlk::Value& translationVlk = transformVlk("Translation")[{3}];
+  for (int i = 0; i < 3; ++i)
+  {
+    scaleVlk[i] = mScale[i];
+    rotationVlk[i] = mRotation[i];
+    translationVlk[i] = mTranslation[i];
+  }
+  rotationVlk[3] = mRotation[3];
+}
+
+void Transform::VDeserialize(const Vlk::Explorer& transformEx)
+{
+  Vlk::Explorer scaleEx = transformEx("Scale");
+  Vlk::Explorer rotationEx = transformEx("Rotation");
+  Vlk::Explorer translationEx = transformEx("Translation");
+  mRotation[0] = rotationEx[0].As<float>(1.0f);
+  for (int i = 0; i < 3; ++i)
+  {
+    mScale[i] = scaleEx[i].As<float>(1.0f);
+    mRotation[i + 1] = rotationEx[i + 1].As<float>(0.0f);
+    mTranslation[i] = translationEx[i].As<float>(0.0f);
+  }
+  mUpdated = false;
+}
 
 const Vec3& Transform::GetScale() const
 {

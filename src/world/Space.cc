@@ -1,8 +1,9 @@
 #include <sstream>
 
 #include "Error.h"
-
-#include "Space.h"
+#include "vlk/Explorer.h"
+#include "vlk/Pair.h"
+#include "world/Space.h"
 
 namespace World {
 
@@ -15,6 +16,8 @@ bool ComponentAddress::InUse() const
 {
   return mTypeId != Comp::nInvalidTypeId;
 }
+
+Member::Member(): mAddressIndex(smInvalidAddressIndex) {}
 
 void Member::StartUse(int addressIndex, const std::string& name)
 {
@@ -104,14 +107,14 @@ MemberId Space::CreateMember()
   {
     MemberId newMemberId = mUnusedMemberIds.Top();
     Member& newMember = mMembers[newMemberId];
-    name << "Member " << newMemberId;
+    name << "Member" << newMemberId;
     newMember.StartUse(addressIndex, name.str());
     mUnusedMemberIds.Pop();
     return newMemberId;
   }
   Member newMember;
   MemberId newMemberId = mMembers.Size();
-  name << "Member " << newMemberId;
+  name << "Member" << newMemberId;
   newMember.StartUse(addressIndex, name.str());
   mMembers.Push(Util::Move(newMember));
   return newMemberId;
@@ -394,6 +397,87 @@ const Ds::Vector<MemberId>& Space::UnusedMemberIds() const
 const Ds::Vector<ComponentAddress> Space::AddressBin() const
 {
   return mAddressBin;
+}
+
+void Space::Serialize(Vlk::Pair& spaceVlk) const
+{
+  spaceVlk("CameraId") = mCameraId;
+  Vlk::Pair& membersVlk = spaceVlk("Members");
+  for (MemberId memberId = 0; memberId < mMembers.Size(); ++memberId)
+  {
+    // We only handle members that are in use.
+    const Member& member = mMembers[memberId];
+    if (!member.InUse())
+    {
+      continue;
+    }
+
+    // Serialize all of the member's data.
+    Vlk::Pair& memberVlk = membersVlk(member.mName.c_str());
+    memberVlk("Id") = memberId;
+    memberVlk("Parent") = member.mParent;
+    Vlk::Value& childrenVlk = memberVlk("Children")[{member.mChildren.Size()}];
+    for (int i = 0; i < member.mChildren.Size(); ++i)
+    {
+      childrenVlk[i] = member.mChildren[i];
+    }
+    Vlk::Pair& componentsVlk = memberVlk("Components");
+    VisitMemberComponents(
+      memberId,
+      [&](Comp::TypeId typeId, int tableIndex)
+      {
+        Comp::TypeData& typeData = Comp::nTypeData[typeId];
+        Vlk::Pair& componentVlk = componentsVlk(typeData.mName);
+        Table& table = mTables.Get(typeId);
+        typeData.mVSerialize.Invoke(table[tableIndex], componentVlk);
+      });
+  }
+}
+
+void Space::Deserialize(const Vlk::Explorer& spaceEx)
+{
+  mName = spaceEx.Key();
+  mCameraId = spaceEx("CameraId").As<int>(nInvalidMemberId);
+  Vlk::Explorer membersEx = spaceEx("Members");
+  if (!membersEx.Valid())
+  {
+    LogError("Spaces should have a list of Members.");
+    return;
+  }
+  for (int i = 0; i < membersEx.Size(); ++i)
+  {
+    // Ensure that the current member is valid.
+    Vlk::Explorer memberEx = membersEx(i);
+    MemberId memberId = memberEx("Id").As<int>(nInvalidMemberId);
+    if (memberId == nInvalidMemberId)
+    {
+      LogError("A Member should have a valid Id.");
+      continue;
+    }
+
+    // Deserialize the member's data.
+    if (memberId >= mMembers.Size())
+    {
+      mMembers.Resize(memberId + 1);
+    }
+    Member& member = mMembers[memberId];
+    member.StartUse(mAddressBin.Size(), memberEx.Key());
+    member.mParent = memberEx("Parent").As<int>(nInvalidMemberId);
+    Vlk::Explorer childrenEx = memberEx("Children");
+    for (int i = 0; i < childrenEx.Size(); ++i)
+    {
+      member.mChildren.Push(childrenEx[i].As<int>());
+    }
+    Vlk::Explorer componentsEx = memberEx("Components");
+    for (int i = 0; i < componentsEx.Size(); ++i)
+    {
+      Vlk::Explorer componentEx = componentsEx(i);
+      Comp::TypeId typeId = Comp::GetTypeId(componentEx.Key());
+      const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
+      void* component = AddComponent(typeId, memberId, false);
+      typeData.mVDeserialize.Invoke(component, componentEx);
+    }
+  }
 }
 
 int Space::GetTableIndex(Comp::TypeId typeId, MemberId memberId) const

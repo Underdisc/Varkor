@@ -55,7 +55,7 @@ void EditAssetPath(int pathIndex, const char* preLabel, AssetId id)
   }
   if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f)))
   {
-    StartFileSelection(
+    SelectFile(
       [id, pathIndex](const std::string& newPath)
       {
         AssLib::Asset<T>* asset = AssLib::TryGetAsset<T>(id);

@@ -9,7 +9,7 @@ namespace Comp {
 // will bind its delegate parameter to that member function. If it does not, its
 // delegate prameter will be bound to null.
 // clang-format off
-#define Bindable_Type_Function_(name, ...)                                      \
+#define BindableTypeFunction(name, ...)                                         \
   template<typename T>                                                          \
   struct HasV##name                                                             \
   {                                                                             \
@@ -37,7 +37,9 @@ namespace Comp {
     delegate->BindNull();                                                       \
   }
 // clang-format on
-Bindable_Type_Function_(Update, void);
+BindableTypeFunction(Update, void);
+BindableTypeFunction(Serialize, void, Vlk::Pair&);
+BindableTypeFunction(Deserialize, void, const Vlk::Explorer&);
 
 template<typename T>
 TypeId Type<T>::smId = nInvalidTypeId;
@@ -85,6 +87,8 @@ void Type<T>::Register()
   data.mDestruct = &Destruct<T>;
 
   BindVUpdate<T>(&data.mVUpdate);
+  BindVSerialize<T>(&data.mVSerialize);
+  BindVDeserialize<T>(&data.mVDeserialize);
 
   data.mEditHook = nullptr;
   data.mGizmoStart = nullptr;

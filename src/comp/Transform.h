@@ -1,6 +1,11 @@
 #ifndef comp_Transform_h
 #define comp_Transform_h
 
+namespace Vlk {
+struct Pair;
+struct Explorer;
+} // namespace Vlk
+
 namespace World {
 struct Object;
 }
@@ -16,6 +21,8 @@ namespace Comp {
 struct Transform
 {
   Transform();
+  void VSerialize(Vlk::Pair& transformVlk);
+  void VDeserialize(const Vlk::Explorer& transformEx);
 
   const Vec3& GetScale() const;
   const Quat& GetRotation() const;
