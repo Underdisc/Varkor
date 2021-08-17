@@ -19,6 +19,7 @@ public:
   void Insert(int index, const T& value);
   void Pop();
   void Clear();
+  void Remove(int index);
   void LazyRemove(int index);
   template<typename... Args>
   void Resize(int newSize, Args&&... args);

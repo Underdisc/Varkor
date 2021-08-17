@@ -168,6 +168,33 @@ void Clear()
             << std::endl;
 }
 
+void Remove()
+{
+  std::cout << "<= Remove =>" << std::endl;
+  TestType::ResetCounts();
+  Ds::Vector<TestType> testVector;
+  for (int i = 0; i < 10; ++i)
+  {
+    testVector.Emplace(i, (float)i);
+  }
+  PrintVector(testVector, false);
+  for (int i = 8; i >= 0; i -= 2)
+  {
+    testVector.Remove(i);
+  }
+  PrintVector(testVector, false);
+  for (int i = 4; i >= 0; --i)
+  {
+    testVector.Remove(i);
+  }
+  PrintVector(testVector, false);
+  std::cout << "ConstructorCount: " << TestType::smConstructorCount << std::endl
+            << "DestructorCount: " << TestType::smDestructorCount << std::endl
+            << "MoveAssignmentCount: " << TestType::smMoveAssignmentCount
+            << std::endl
+            << std::endl;
+}
+
 void LazyRemove()
 {
   std::cout << "<= LazyRemove =>" << std::endl;
@@ -473,6 +500,7 @@ int main(void)
   Insert();
   Pop();
   Clear();
+  Remove();
   LazyRemove();
   IndexOperator();
   CopyAssignment();

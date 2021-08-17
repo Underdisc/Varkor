@@ -144,6 +144,18 @@ void Vector<T>::Clear()
 }
 
 template<typename T>
+void Vector<T>::Remove(int index)
+{
+  VerifyIndex(index);
+  mData[index].~T();
+  for (int i = index + 1; i < mSize; ++i)
+  {
+    mData[i - 1] = Util::Move(mData[i]);
+  }
+  --mSize;
+}
+
+template<typename T>
 void Vector<T>::LazyRemove(int index)
 {
   VerifyIndex(index);
