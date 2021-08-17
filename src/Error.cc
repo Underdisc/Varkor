@@ -182,6 +182,7 @@ void SignalHandler(int signal)
   case SIGTERM: LogString("SIGTERM: Terminate"); break;
   default: LogString("Unknown Signal"); break;
   }
+  StackTrace();
   exit(signal);
 }
 
