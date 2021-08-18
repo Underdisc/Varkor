@@ -87,6 +87,9 @@ private:
   void BalanceRemoval(Node* node);
   void RotateLeft(Node* oldRoot);
   void RotateRight(Node* oldRoot);
+  void SwapNodes(Node* a, Node* b);
+  void SwapAttachedNodePointers(Node* above, Node* below);
+  void SwapDetachedNodePointers(Node* a, Node* b);
   void Delete(Node* node);
   Node* LeftmostNode() const;
 

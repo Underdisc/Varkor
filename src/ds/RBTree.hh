@@ -608,6 +608,127 @@ void RbTree<T>::RotateRight(Node* oldRoot)
 }
 
 template<typename T>
+void RbTree<T>::SwapNodes(Node* a, Node* b)
+{
+  // Update all of the pointers on the nodes being swapped and the pointers on
+  // nodes connected to them.
+  if (b->mParent == a)
+  {
+    SwapAttachedNodePointers(a, b);
+  } else if (a->mParent == b)
+  {
+    SwapAttachedNodePointers(b, a);
+  } else
+  {
+    SwapDetachedNodePointers(a, b);
+  }
+
+  Node::Color aColor = a->mColor;
+  a->mColor = b->mColor;
+  b->mColor = aColor;
+  if (a == mHead)
+  {
+    mHead = b;
+  } else if (b == mHead)
+  {
+    mHead = a;
+  }
+}
+
+template<typename T>
+void RbTree<T>::SwapAttachedNodePointers(Node* above, Node* below)
+{
+  // Handle above's Parent.
+  if (above->mParent != nullptr)
+  {
+    if (above->mParent->mLeft == above)
+    {
+      above->mParent->mLeft = below;
+    } else
+    {
+      above->mParent->mRight = below;
+    }
+  }
+
+  // Handle above's child that is not the below node.
+  if (above->mLeft != nullptr && above->mLeft != below)
+  {
+    above->mLeft->mParent = below;
+  }
+  if (above->mRight != nullptr && above->mRight != below)
+  {
+    above->mRight->mParent = below;
+  }
+
+  // Handle below's children.
+  if (below->mLeft != nullptr)
+  {
+    below->mLeft->mParent = above;
+  }
+  if (below->mRight != nullptr)
+  {
+    below->mRight->mParent = above;
+  }
+
+  // Handle above's and below's pointers.
+  Node* belowLeft = below->mLeft;
+  Node* belowRight = below->mRight;
+  below->mParent = above->mParent;
+  if (below == above->mLeft)
+  {
+    below->mLeft = above;
+    below->mRight = above->mRight;
+  } else
+  {
+    below->mRight = above;
+    below->mLeft = above->mLeft;
+  }
+  above->mParent = below;
+  above->mLeft = belowLeft;
+  above->mRight = belowRight;
+}
+
+template<typename T>
+void RbTree<T>::SwapDetachedNodePointers(Node* a, Node* b)
+{
+  // This will change all pointers that point to leaving to point to taking.
+  auto takePlace = [](Node* taking, Node* leaving)
+  {
+    if (leaving->mParent != nullptr)
+    {
+      if (leaving->mParent->mLeft == leaving)
+      {
+        leaving->mParent->mLeft = taking;
+      } else
+      {
+        leaving->mParent->mRight = taking;
+      }
+    }
+    if (leaving->mLeft != nullptr)
+    {
+      leaving->mLeft->mParent = taking;
+    }
+    if (leaving->mRight != nullptr)
+    {
+      leaving->mRight->mParent = taking;
+    }
+  };
+  takePlace(a, b);
+  takePlace(b, a);
+
+  // Swap the pointers on the nodes being swapped.
+  Node* aParent = a->mParent;
+  Node* aLeft = a->mLeft;
+  Node* aRight = a->mRight;
+  a->mParent = b->mParent;
+  a->mLeft = b->mLeft;
+  a->mRight = b->mRight;
+  b->mParent = aParent;
+  b->mLeft = aLeft;
+  b->mRight = aRight;
+}
+
+template<typename T>
 void RbTree<T>::Delete(Node* node)
 {
   if (node == nullptr)
