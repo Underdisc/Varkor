@@ -502,7 +502,13 @@ bool Space::ValidMemberId(MemberId memberId) const
 
 void Space::VerifyMemberId(MemberId memberId) const
 {
-  LogAbortIf(!ValidMemberId(memberId), "This member does not exist.");
+  if (ValidMemberId(memberId))
+  {
+    return;
+  }
+  std::stringstream error;
+  error << "There is no member with id " << memberId;
+  LogAbort(error.str().c_str());
 }
 
 } // namespace World
