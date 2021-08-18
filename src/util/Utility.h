@@ -2,6 +2,7 @@
 #define util_Utility_h
 
 #include <string>
+#include <typeinfo>
 
 namespace Util {
 
@@ -15,6 +16,13 @@ template<typename T>
 constexpr T&& Forward(T& arg)
 {
   return static_cast<T&&>(arg);
+}
+
+template<typename T>
+std::string GetFullTypename()
+{
+  std::string fullName(typeid(T).name());
+  return fullName;
 }
 
 template<typename T>
