@@ -1,25 +1,19 @@
 #ifndef editor_hook_Transform_h
 #define editor_hook_Transform_h
 
-#include "AssetLibrary.h"
 #include "comp/Transform.h"
-#include "editor/hook/Hook.h"
+#include "editor/HookInterface.h"
 #include "gfx/Framebuffer.h"
 #include "math/Geometry.h"
 
 namespace Editor {
-namespace Hook {
 
 template<>
-void Edit(Comp::Transform* transform);
-
-template<>
-struct Gizmo<Comp::Transform>: public GizmoBase
+struct Hook<Comp::Transform>: public HookInterface
 {
 public:
-  static void Start();
-  Gizmo();
-  bool Run(Comp::Transform* transform, const World::Object& object);
+  Hook();
+  bool Edit(const World::Object& object);
 
 private:
   enum class Mode
@@ -46,6 +40,8 @@ private:
     Relative,
   };
 
+private:
+  bool Gizmo(Comp::Transform* transform, const World::Object& object);
   void DisplayOptionsWindow();
   void TryStartOperation(
     Comp::Transform* transform,
@@ -89,9 +85,10 @@ private:
     const World::Space& space,
     World::MemberId ownerId);
 
+private:
   World::Space mSpace;
-  World::MemberId mParent, mX, mY, mZ, mXy, mXz, mYz, mXyz;
   Gfx::Framebuffer mDrawbuffer;
+  World::MemberId mParent, mX, mY, mZ, mXy, mXz, mYz, mXyz;
 
   Mode mMode;
   ReferenceFrame mReferenceFrame;
@@ -114,7 +111,6 @@ private:
   static AssetId smTorusId;
 };
 
-} // namespace Hook
 } // namespace Editor
 
 #endif

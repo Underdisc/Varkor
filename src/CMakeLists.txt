@@ -4,6 +4,7 @@ target_sources(${varkorTarget} PRIVATE
   Framer.cc
   Input.cc
   Profiler.cc
+  Registrar.cc
   Temporal.cc
   VarkorMain.cc
   Viewport.cc)

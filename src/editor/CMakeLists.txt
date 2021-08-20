@@ -1,6 +1,13 @@
 target_sources(${varkorTarget} PRIVATE
-  Asset.cc
   Camera.cc
-  Primary.cc
-  Util.cc)
+  CoreInterface.cc
+  Editor.cc
+  FileInterface.cc
+  FramerInterface.cc
+  HookInterface.cc
+  InspectorInterface.cc
+  Interface.cc
+  OverviewInterface.cc
+  Utility.cc
+  WindowInterface.cc)
 add_subdirectory(hook)

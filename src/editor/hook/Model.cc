@@ -2,18 +2,16 @@
 #include <sstream>
 
 #include "AssetLibrary.h"
-#include "editor/Asset.h"
-#include "editor/Util.h"
+#include "editor/AssetInterfaces.h"
 #include "editor/hook/Model.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
 
 namespace Editor {
-namespace Hook {
 
-template<>
-void Edit(Comp::Model* model)
+bool Hook<Comp::Model>::Edit(const World::Object& object)
 {
+  Comp::Model* model = object.GetComponent<Comp::Model>();
   std::stringstream buttonLabel;
   buttonLabel << "Model: ";
   AssLib::Asset<Gfx::Model>* modelAsset =
@@ -27,7 +25,7 @@ void Edit(Comp::Model* model)
   }
   if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f)))
   {
-    Editor::SelectAsset<Gfx::Model>(
+    OpenInterface<SelectAssetInterface<Gfx::Model>>(
       [model](AssetId newModelId)
       {
         model->mModelId = newModelId;
@@ -47,13 +45,13 @@ void Edit(Comp::Model* model)
   }
   if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f)))
   {
-    Editor::SelectAsset<Gfx::Shader>(
+    OpenInterface<SelectAssetInterface<Gfx::Shader>>(
       [model](AssetId newShaderId)
       {
         model->mShaderId = newShaderId;
       });
   }
+  return false;
 }
 
-} // namespace Hook
 } // namespace Editor

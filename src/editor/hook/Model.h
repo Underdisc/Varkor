@@ -1,16 +1,17 @@
 #ifndef editor_hook_Model_h
 #define editor_hook_Model_h
 
-#include "Hook.h"
 #include "comp/Model.h"
+#include "editor/HookInterface.h"
 
 namespace Editor {
-namespace Hook {
 
 template<>
-void Edit(Comp::Model* model);
+struct Hook<Comp::Model>: public HookInterface
+{
+  bool Edit(const World::Object& object);
+};
 
-} // namespace Hook
 } // namespace Editor
 
 #endif

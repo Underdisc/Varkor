@@ -1,4 +1,3 @@
-#include "editor/hook/Hook.h"
 #include "util/Utility.h"
 
 namespace Comp {
@@ -80,38 +79,14 @@ void Type<T>::Register()
   TypeData data;
   data.mName = Util::GetShortTypename<T>();
   data.mSize = sizeof(T);
-
   data.mDefaultConstruct = &DefaultConstruct<T>;
   data.mCopyConstruct = &CopyConstruct<T>;
   data.mMoveConstruct = &MoveConstruct<T>;
   data.mDestruct = &Destruct<T>;
-
   BindVUpdate<T>(&data.mVUpdate);
   BindVSerialize<T>(&data.mVSerialize);
   BindVDeserialize<T>(&data.mVDeserialize);
-
-  data.mEditHook = nullptr;
-  data.mGizmoStart = nullptr;
-  data.mGizmoRun = nullptr;
-
   nTypeData.Push(data);
-}
-
-template<typename T>
-void Type<T>::RegisterEditHook()
-{
-  LogAbortIf(smId == nInvalidTypeId, "Type has not been registered.");
-  TypeData& data = nTypeData[Type<T>::smId];
-  data.mEditHook = &Editor::Hook::CastEdit<T>;
-}
-
-template<typename T>
-void Type<T>::RegisterGizmo()
-{
-  LogAbortIf(smId == nInvalidTypeId, "Type has not been registered.");
-  TypeData& data = nTypeData[Type<T>::smId];
-  data.mGizmoStart = &Editor::Hook::Gizmo<T>::Start;
-  data.mGizmoRun = &Editor::Hook::GizmoRun<T>;
 }
 
 template<typename T>

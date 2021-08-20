@@ -16,6 +16,7 @@ struct Model
 {
 public:
   static constexpr int smInitPathCount = 1;
+  static constexpr const char* smPathNames[smInitPathCount] = {"Model"};
   Util::Result Init(std::string paths[smInitPathCount]);
   void Purge();
   bool Live() const;

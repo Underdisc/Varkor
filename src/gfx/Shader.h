@@ -12,6 +12,8 @@ class Shader
 {
 public:
   static constexpr int smInitPathCount = 2;
+  static constexpr const char* smPathNames[smInitPathCount] = {
+    "Vertex", "Fragment"};
   Util::Result Init(std::string paths[smInitPathCount]);
   void Purge();
   bool Live() const;

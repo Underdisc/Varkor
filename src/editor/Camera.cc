@@ -26,6 +26,12 @@ Camera::Camera()
 
 void Camera::Update(float dt)
 {
+  // LeftControl disables camera motion because it's the editor's modifier key.
+  if (Input::KeyDown(Input::Key::LeftControl))
+  {
+    return;
+  }
+
   // Change the camera speed using scroll wheel input.
   const Vec2& scroll = Input::MouseScroll();
   constexpr float scrollSensitivity = 0.1f;

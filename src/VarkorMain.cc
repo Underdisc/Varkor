@@ -2,10 +2,11 @@
 #include "Error.h"
 #include "Framer.h"
 #include "Input.h"
+#include "Registrar.h"
 #include "Viewport.h"
-#include "comp/Registrar.h"
 #include "debug/Draw.h"
-#include "editor/Primary.h"
+#include "debug/MemLeak.h"
+#include "editor/Editor.h"
 #include "gfx/Renderer.h"
 #include "world/World.h"
 
@@ -16,7 +17,7 @@ void VarkorInit(const char* windowName)
   Editor::Init();
   Framer::Init();
   AssetLibrary::LoadAssets();
-  Comp::Init();
+  Registrar::Init();
 }
 
 void VarkorEngine()
@@ -29,18 +30,16 @@ void VarkorEngine()
   {
     Framer::Start();
     Input::Update();
-    Editor::Start();
     Gfx::Renderer::Clear();
 
     Editor::Run();
     World::Update();
-    if (!Editor::EditorMode())
+    if (!Editor::nEditorMode)
     {
       Gfx::Renderer::RenderWorld();
     }
-
     Gfx::Renderer::RenderQueuedFullscreenFramebuffers();
-    Editor::End();
+    Editor::Render();
     Viewport::SwapBuffers();
     Viewport::Update();
     Framer::End();
@@ -59,6 +58,7 @@ void VarkorPurge()
 #ifdef VarkorStandalone
 int main(void)
 {
+  InitMemLeakOutput();
   VarkorInit("Varkor");
   VarkorEngine();
   VarkorPurge();

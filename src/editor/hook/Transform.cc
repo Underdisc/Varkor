@@ -4,70 +4,25 @@
 #include "Input.h"
 #include "Viewport.h"
 #include "comp/Model.h"
-#include "comp/Transform.h"
-#include "editor/Primary.h"
-#include "editor/Util.h"
+#include "editor/Editor.h"
+#include "editor/Utility.h"
 #include "editor/hook/Transform.h"
 #include "gfx/Model.h"
 #include "gfx/Renderer.h"
-#include "gfx/Shader.h"
 #include "math/Constants.h"
 #include "math/Geometry.h"
-#include "math/Matrix4.h"
-#include "math/Utility.h"
 #include "world/World.h"
 
 namespace Editor {
-namespace Hook {
 
-template<>
-void Edit(Comp::Transform* transform)
-{
-  Vec3 translation = transform->GetTranslation();
-  ImGui::PushItemWidth(-60.0f);
-  ImGui::DragFloat3("Position", translation.mD, 0.01f);
-  transform->SetTranslation(translation);
+bool Hook<Comp::Transform>::smRequiredAssetsLoaded = false;
+AssetId Hook<Comp::Transform>::smArrowId;
+AssetId Hook<Comp::Transform>::smCubeId;
+AssetId Hook<Comp::Transform>::smScaleId;
+AssetId Hook<Comp::Transform>::smSphereId;
+AssetId Hook<Comp::Transform>::smTorusId;
 
-  Vec3 scale = transform->GetScale();
-  ImGui::DragFloat3("Scale", scale.mD, 0.01f);
-  transform->SetScale(scale);
-
-  Quat rotation = transform->GetRotation();
-  Vec3 eulerAngles = rotation.EulerAngles();
-  Vec3 newAngles = eulerAngles;
-  bool rotationDragged = ImGui::DragFloat3(
-    "Rotation",
-    newAngles.mD,
-    0.01f,
-    0.0f,
-    0.0f,
-    "%.3f",
-    ImGuiSliderFlags_NoInput);
-  if (rotationDragged)
-  {
-    Vec3 delta = newAngles - eulerAngles;
-    Math::Quaternion xDelta, yDelta, zDelta;
-    xDelta.AngleAxis(delta[0], {1.0f, 0.0f, 0.0f});
-    yDelta.AngleAxis(delta[1], {0.0f, 1.0f, 0.0f});
-    zDelta.AngleAxis(delta[2], {0.0f, 0.0f, 1.0f});
-    transform->SetRotation(zDelta * yDelta * xDelta * rotation);
-  }
-  ImGui::PopItemWidth();
-}
-
-bool Gizmo<Comp::Transform>::smRequiredAssetsLoaded = false;
-AssetId Gizmo<Comp::Transform>::smArrowId;
-AssetId Gizmo<Comp::Transform>::smCubeId;
-AssetId Gizmo<Comp::Transform>::smScaleId;
-AssetId Gizmo<Comp::Transform>::smSphereId;
-AssetId Gizmo<Comp::Transform>::smTorusId;
-
-void Gizmo<Comp::Transform>::Start()
-{
-  GizmoStart<Comp::Transform>();
-}
-
-Gizmo<Comp::Transform>::Gizmo():
+Hook<Comp::Transform>::Hook():
   mDrawbuffer(GL_RGBA, GL_UNSIGNED_BYTE),
   mReferenceFrame(ReferenceFrame::World),
   mSnapping(false),
@@ -139,7 +94,43 @@ Gizmo<Comp::Transform>::Gizmo():
   xyzM.mModelId = smSphereId;
 }
 
-bool Gizmo<Comp::Transform>::Run(
+bool Hook<Comp::Transform>::Edit(const World::Object& object)
+{
+  Comp::Transform* transform = object.GetComponent<Comp::Transform>();
+  Vec3 translation = transform->GetTranslation();
+  ImGui::PushItemWidth(-60.0f);
+  ImGui::DragFloat3("Position", translation.mD, 0.01f);
+  transform->SetTranslation(translation);
+
+  Vec3 scale = transform->GetScale();
+  ImGui::DragFloat3("Scale", scale.mD, 0.01f);
+  transform->SetScale(scale);
+
+  Quat rotation = transform->GetRotation();
+  Vec3 eulerAngles = rotation.EulerAngles();
+  Vec3 newAngles = eulerAngles;
+  bool rotationDragged = ImGui::DragFloat3(
+    "Rotation",
+    newAngles.mD,
+    0.01f,
+    0.0f,
+    0.0f,
+    "%.3f",
+    ImGuiSliderFlags_NoInput);
+  if (rotationDragged)
+  {
+    Vec3 delta = newAngles - eulerAngles;
+    Math::Quaternion xDelta, yDelta, zDelta;
+    xDelta.AngleAxis(delta[0], {1.0f, 0.0f, 0.0f});
+    yDelta.AngleAxis(delta[1], {0.0f, 1.0f, 0.0f});
+    zDelta.AngleAxis(delta[2], {0.0f, 0.0f, 1.0f});
+    transform->SetRotation(zDelta * yDelta * xDelta * rotation);
+  }
+  ImGui::PopItemWidth();
+  return Gizmo(transform, object);
+}
+
+bool Hook<Comp::Transform>::Gizmo(
   Comp::Transform* transform, const World::Object& object)
 {
   if (Input::KeyDown(Input::Key::LeftControl))
@@ -171,8 +162,8 @@ bool Gizmo<Comp::Transform>::Run(
 
   // Find the world ray represented by the mouse and camera positions.
   Vec3 worldPosition = Viewport::MouseToWorldPosition(
-    Input::StandardMousePosition(), GetCamera().CameraToWorld());
-  const Vec3& cameraPosition = GetCamera().Position();
+    Input::StandardMousePosition(), nCamera.CameraToWorld());
+  const Vec3& cameraPosition = nCamera.Position();
   Math::Ray mouseRay;
   mouseRay.StartDirection(cameraPosition, worldPosition - cameraPosition);
   const World::Space& space = World::GetSpace(object.mSpace);
@@ -188,24 +179,24 @@ bool Gizmo<Comp::Transform>::Run(
   }
 
   // Perform the current operation and render the gizmo's handles.
-  bool editing = false;
+  bool noObjectPicking = false;
   switch (mMode)
   {
   case Mode::Translate:
-    editing = Translate(transform, space, object.mMember, mouseRay);
+    noObjectPicking = Translate(transform, space, object.mMember, mouseRay);
     break;
   case Mode::Scale:
-    editing = Scale(transform, space, object.mMember, mouseRay);
+    noObjectPicking = Scale(transform, space, object.mMember, mouseRay);
     break;
   case Mode::Rotate:
-    editing = Rotate(transform, space, object.mMember, mouseRay);
+    noObjectPicking = Rotate(transform, space, object.mMember, mouseRay);
     break;
   }
   RenderHandles(transform, space, object.mMember);
-  return editing;
+  return noObjectPicking;
 }
 
-void Gizmo<Comp::Transform>::DisplayOptionsWindow()
+void Hook<Comp::Transform>::DisplayOptionsWindow()
 {
   ImGui::Begin("Transform Gizmo Options");
   ImGui::PushItemWidth(-110.0f);
@@ -238,7 +229,7 @@ void Gizmo<Comp::Transform>::DisplayOptionsWindow()
   ImGui::End();
 }
 
-void Gizmo<Comp::Transform>::TryStartOperation(
+void Hook<Comp::Transform>::TryStartOperation(
   Comp::Transform* transform,
   const World::Space& space,
   World::MemberId ownerId,
@@ -246,7 +237,7 @@ void Gizmo<Comp::Transform>::TryStartOperation(
 {
   // Determine if the user began an operation.
   World::MemberId handleId =
-    Gfx::Renderer::HoveredMemberId(mSpace, GetCamera().WorldToCamera());
+    Gfx::Renderer::HoveredMemberId(mSpace, nCamera.WorldToCamera());
   mOperation = GetHandleOperation(handleId);
   if (mOperation == Operation::None)
   {
@@ -294,7 +285,7 @@ void Gizmo<Comp::Transform>::TryStartOperation(
   }
 }
 
-bool Gizmo<Comp::Transform>::Translate(
+bool Hook<Comp::Transform>::Translate(
   Comp::Transform* transform,
   const World::Space& space,
   World::MemberId ownerId,
@@ -381,7 +372,7 @@ bool Gizmo<Comp::Transform>::Translate(
   return false;
 }
 
-bool Gizmo<Comp::Transform>::Scale(
+bool Hook<Comp::Transform>::Scale(
   Comp::Transform* transform,
   const World::Space& space,
   World::MemberId ownerId,
@@ -455,7 +446,7 @@ bool Gizmo<Comp::Transform>::Scale(
   return false;
 }
 
-bool Gizmo<Comp::Transform>::Rotate(
+bool Hook<Comp::Transform>::Rotate(
   Comp::Transform* transform,
   const World::Space& space,
   World::MemberId ownerId,
@@ -513,8 +504,8 @@ bool Gizmo<Comp::Transform>::Rotate(
     Math::Quaternion horizontalRotation, verticalRotation;
     Math::Quaternion parentRotation =
       transform->GetParentWorldRotation(space, ownerId);
-    Vec3 up = parentRotation.Conjugate().Rotate(GetCamera().Up());
-    Vec3 right = parentRotation.Conjugate().Rotate(GetCamera().Right());
+    Vec3 up = parentRotation.Conjugate().Rotate(nCamera.Up());
+    Vec3 right = parentRotation.Conjugate().Rotate(nCamera.Right());
     horizontalRotation.AngleAxis(mouseMotion[0], up);
     verticalRotation.AngleAxis(mouseMotion[1], right);
     transform->SetRotation(
@@ -531,7 +522,7 @@ bool Gizmo<Comp::Transform>::Rotate(
   return false;
 }
 
-void Gizmo<Comp::Transform>::SwitchMode(Mode newMode)
+void Hook<Comp::Transform>::SwitchMode(Mode newMode)
 {
   Comp::Transform* xT = mSpace.GetComponent<Comp::Transform>(mX);
   Comp::Transform* yT = mSpace.GetComponent<Comp::Transform>(mY);
@@ -576,7 +567,7 @@ void Gizmo<Comp::Transform>::SwitchMode(Mode newMode)
   }
 }
 
-Gizmo<Comp::Transform>::Operation Gizmo<Comp::Transform>::GetHandleOperation(
+Hook<Comp::Transform>::Operation Hook<Comp::Transform>::GetHandleOperation(
   World::MemberId handleId) const
 {
   // clang-format off
@@ -591,7 +582,7 @@ Gizmo<Comp::Transform>::Operation Gizmo<Comp::Transform>::GetHandleOperation(
   // clang-format on
 }
 
-void Gizmo<Comp::Transform>::PrepareGizmoRepresentation(
+void Hook<Comp::Transform>::PrepareGizmoRepresentation(
   Comp::Transform* transform,
   const World::Space& space,
   World::MemberId ownerId,
@@ -630,7 +621,7 @@ void Gizmo<Comp::Transform>::PrepareGizmoRepresentation(
     case Operation::Xy: gizmoPlane->Normal(z); break;
     case Operation::Xz: gizmoPlane->Normal(y); break;
     case Operation::Yz: gizmoPlane->Normal(x); break;
-    case Operation::Xyz: gizmoPlane->Normal(GetCamera().Forward()); break;
+    case Operation::Xyz: gizmoPlane->Normal(nCamera.Forward()); break;
     }
     break;
   case Mode::Rotate:
@@ -655,7 +646,7 @@ void Gizmo<Comp::Transform>::PrepareGizmoRepresentation(
   }
 }
 
-Quat Gizmo<Comp::Transform>::ReferenceFrameRotation(
+Quat Hook<Comp::Transform>::ReferenceFrameRotation(
   Comp::Transform* transform,
   const World::Space& space,
   World::MemberId ownerId) const
@@ -679,7 +670,7 @@ Quat Gizmo<Comp::Transform>::ReferenceFrameRotation(
   return rotation;
 }
 
-Vec3 Gizmo<Comp::Transform>::ScaleToInterval(Vec3 vector, float interval)
+Vec3 Hook<Comp::Transform>::ScaleToInterval(Vec3 vector, float interval)
 {
   float length = Math::Magnitude(vector);
   if (Math::Near(length, 0.0f))
@@ -691,7 +682,7 @@ Vec3 Gizmo<Comp::Transform>::ScaleToInterval(Vec3 vector, float interval)
   return vector * newLength;
 }
 
-void Gizmo<Comp::Transform>::RenderHandle(
+void Hook<Comp::Transform>::RenderHandle(
   World::MemberId handleId, const Vec4& color)
 {
   Comp::Transform& transform = *mSpace.GetComponent<Comp::Transform>(handleId);
@@ -703,7 +694,7 @@ void Gizmo<Comp::Transform>::RenderHandle(
   Gfx::Renderer::RenderModel(colorShader, model);
 }
 
-void Gizmo<Comp::Transform>::RenderHandles(
+void Hook<Comp::Transform>::RenderHandles(
   Comp::Transform* transform,
   const World::Space& space,
   World::MemberId ownerId)
@@ -711,9 +702,9 @@ void Gizmo<Comp::Transform>::RenderHandles(
   // Set the handles' translation to the transform's position, the rotation to
   // the frame rotation and scale depending on the distance from the camera.
   Vec3 worldTranslation = transform->GetWorldTranslation(space, ownerId);
-  const Vec3& cameraTranslation = GetCamera().Position();
+  const Vec3& cameraTranslation = nCamera.Position();
   Math::Ray cameraRay;
-  cameraRay.StartDirection(cameraTranslation, GetCamera().Forward());
+  cameraRay.StartDirection(cameraTranslation, nCamera.Forward());
   Vec3 projection = cameraRay.ClosestPointTo(worldTranslation);
   Vec3 projectedDistance = projection - cameraTranslation;
   Comp::Transform& parentT = *mSpace.GetComponent<Comp::Transform>(mParent);
@@ -759,7 +750,7 @@ void Gizmo<Comp::Transform>::RenderHandles(
   // Render the handles to a framebuffer for the renderer to use later.
   glBindFramebuffer(GL_FRAMEBUFFER, mDrawbuffer.Fbo());
   const Gfx::Shader& colorShader = Gfx::Renderer::ColorShader();
-  colorShader.SetMat4("uView", GetCamera().WorldToCamera().CData());
+  colorShader.SetMat4("uView", nCamera.WorldToCamera().CData());
   colorShader.SetMat4("uProj", Viewport::Perspective().CData());
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -777,5 +768,4 @@ void Gizmo<Comp::Transform>::RenderHandles(
   Gfx::Renderer::QueueFullscreenFramebuffer(mDrawbuffer);
 }
 
-} // namespace Hook
 } // namespace Editor
