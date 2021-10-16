@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "vlk/Tokenizer.h"
 
 namespace Vlk {
@@ -61,7 +63,7 @@ public:
 // the States are stored in a vector. State pointers become invalid when the
 // vector grows.
 typedef int StateIndex;
-static constexpr StateIndex smInvalidStateIndex = -1;
+static constexpr StateIndex nInvalidTerminal = -1;
 
 struct State
 {
@@ -75,7 +77,7 @@ struct State
   Token::Type mTokenType;
 
   State(Token::Type tokenType):
-    mDefault(smInvalidStateIndex), mTokenType(tokenType)
+    mDefault(nInvalidTerminal), mTokenType(tokenType)
   {}
 
   void AddEdge(StateIndex to, const Qualifier& q)
@@ -95,7 +97,7 @@ struct State
     }
     if (c == '\0')
     {
-      return smInvalidStateIndex;
+      return nInvalidTerminal;
     }
     return mDefault;
   }
@@ -105,10 +107,13 @@ struct State
 Ds::Vector<State> nStates;
 StateIndex nRoot;
 
-StateIndex AddState(Token::Type tokenType)
+StateIndex AddStates(Token::Type tokenType, int amount)
 {
-  nStates.Emplace(tokenType);
-  return nStates.Size() - 1;
+  for (size_t i = 0; i < amount; ++i)
+  {
+    nStates.Emplace(tokenType);
+  }
+  return nStates.Size() - amount;
 }
 
 void AddEdge(StateIndex from, StateIndex to, const Qualifier& q)
@@ -123,67 +128,75 @@ void AddDefault(StateIndex from, StateIndex to)
 
 void AddLoneState(Token::Type tokenType, char c)
 {
-  StateIndex accept = AddState(tokenType);
+  StateIndex valid = AddStates(tokenType, 1);
   Qualifier q;
   q.WhitelistChar(c);
-  AddEdge(nRoot, accept, q);
+  AddEdge(nRoot, valid, q);
 }
 
 void InitTokenizer()
 {
   // Add all of the states and edges needed for the Tokenizer's DFA.
-  nRoot = AddState(Token::Type::Invalid);
+  nRoot = AddStates(Token::Type::Invalid, 1);
+
   // Key
   {
-    StateIndex accept = AddState(Token::Type::Key);
-    StateIndex noAccept = AddState(Token::Type::Invalid);
+    StateIndex valid = AddStates(Token::Type::Key, 1);
+    StateIndex invalid = AddStates(Token::Type::Invalid, 1);
+
     Qualifier q;
     q.WhitelistChar(':');
-    AddEdge(nRoot, noAccept, q);
-    AddEdge(noAccept, accept, q);
-    AddDefault(noAccept, noAccept);
+    AddEdge(nRoot, invalid, q);
+    AddEdge(invalid, valid, q);
+    AddDefault(invalid, invalid);
+
+    q.Clear();
+    q.WhitelistChar('\n');
+    AddEdge(invalid, nInvalidTerminal, q);
   }
   // Value
   {
-    StateIndex accept0 = AddState(Token::Type::Value);
-    StateIndex accept1 = AddState(Token::Type::Value);
-    StateIndex noAccept0 = AddState(Token::Type::Invalid);
-    StateIndex noAccept1 = AddState(Token::Type::Invalid);
-    StateIndex noAccept2 = AddState(Token::Type::Invalid);
+    StateIndex valid = AddStates(Token::Type::Value, 2);
+    StateIndex invalid = AddStates(Token::Type::Invalid, 3);
+
     Qualifier q;
     q.WhitelistChar('-');
-    AddEdge(nRoot, noAccept2, q);
+    AddEdge(nRoot, invalid + 2, q);
 
     q.Clear();
     q.WhitelistRange('0', '9');
-    AddEdge(nRoot, accept0, q);
-    AddEdge(accept0, accept0, q);
-    AddEdge(noAccept2, accept0, q);
+    AddEdge(nRoot, valid, q);
+    AddEdge(valid, valid, q);
+    AddEdge(invalid + 2, valid, q);
 
     q.Clear();
     q.WhitelistChar('.');
-    AddEdge(accept0, noAccept1, q);
+    AddEdge(valid, invalid + 1, q);
 
     q.Clear();
     q.WhitelistRange('0', '9');
-    AddEdge(noAccept1, accept1, q);
-    AddEdge(accept1, accept1, q);
+    AddEdge(invalid + 1, valid + 1, q);
+    AddEdge(valid + 1, valid + 1, q);
 
     q.Clear();
     q.WhitelistChar('"');
-    AddEdge(nRoot, noAccept0, q);
-    AddDefault(noAccept0, noAccept0);
-    AddEdge(noAccept0, accept0, q);
+    AddEdge(nRoot, invalid, q);
+    AddDefault(invalid, invalid);
+    AddEdge(invalid, valid, q);
+
+    q.Clear();
+    q.WhitelistChar('\n');
+    AddEdge(invalid, nInvalidTerminal, q);
   }
   // Whitespace
   {
-    StateIndex accept = AddState(Token::Type::Whitespace);
-
+    StateIndex valid = AddStates(Token::Type::Whitespace, 1);
     Qualifier q;
     q.WhitelistChar(' ');
+    q.WhitelistChar('\t');
     q.WhitelistChar('\n');
-    AddEdge(nRoot, accept, q);
-    AddEdge(accept, accept, q);
+    AddEdge(nRoot, valid, q);
+    AddEdge(valid, valid, q);
   }
   // Lone Characters
   AddLoneState(Token::Type::OpenBracket, '[');
@@ -193,26 +206,42 @@ void InitTokenizer()
   AddLoneState(Token::Type::Comma, ',');
 }
 
-Token ReadNextToken(const char* text)
+size_t CountNewLines(const char* start, const char* end)
 {
-  int lastLength = -1;
-  StateIndex last;
-  StateIndex current = nRoot;
-  while (current != smInvalidStateIndex)
+  size_t newLineCount = 0;
+  const char* currentChar = start;
+  while (currentChar < end)
   {
-    ++lastLength;
-    last = current;
-    current = nStates[current].NextState(text[lastLength]);
+    if (*currentChar == '\n')
+    {
+      ++newLineCount;
+    }
+    ++currentChar;
+  }
+  return newLineCount;
+}
+
+Token ReadNextToken(const char** text)
+{
+  const char* start = *text;
+  StateIndex currentState = nRoot;
+  StateIndex nextState = nStates[nRoot].NextState(**text);
+  while (nextState != nInvalidTerminal)
+  {
+    ++(*text);
+    currentState = nextState;
+    nextState = nStates[currentState].NextState(**text);
   }
 
   // When first character does not qualify for any edges leading from the root,
   // it is an invalid Token consisting of one character.
-  if (last == nRoot)
+  if (currentState == nRoot)
   {
-    Token token = {text, 1, Token::Type::Invalid};
+    ++(*text);
+    Token token = {start, Token::Type::Invalid};
     return token;
   }
-  Token token = {text, lastLength, nStates[last].mTokenType};
+  Token token = {start, nStates[currentState].mTokenType};
   return token;
 }
 
@@ -223,22 +252,27 @@ TokenizeResult Tokenize(const char* text)
   {
     InitTokenizer();
   }
-  // Tokenize the text and remove all whitespace Tokens.
+
+  // Tokenize the text.
+  size_t lineNumber = 1;
+  std::stringstream error;
   TokenizeResult result;
   while (*text != '\0')
   {
-    Token token = ReadNextToken(text);
+    Token token = ReadNextToken(&text);
     switch (token.mType)
     {
     case Token::Type::Invalid:
-      result.mError += "Invalid token: \"";
-      result.mError.append(token.mText, token.mLength);
-      result.mError += "\"";
+      error << "[" << lineNumber << "] Invalid token: "
+            << std::string(token.mText, text - token.mText);
+      result.mError = error.str();
       return result;
-    case Token::Type::Whitespace: text += token.mLength; break;
-    default: result.mTokens.Push(token); text = text + token.mLength;
+    case Token::Type::Whitespace:
+      lineNumber += CountNewLines(token.mText, text);
+    default: result.mTokens.Push(token);
     }
   }
+  result.mTokens.Push({text, Token::Type::Terminator});
   return result;
 }
 

@@ -11,17 +11,17 @@ struct Token
   enum class Type
   {
     Invalid,
+    Whitespace,
     Key,
     Value,
-    Whitespace,
     OpenBracket,
     CloseBracket,
     OpenBrace,
     CloseBrace,
     Comma,
+    Terminator,
   };
   const char* mText;
-  int mLength;
   Type mType;
 };
 

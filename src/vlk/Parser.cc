@@ -56,6 +56,12 @@ const Token& Parser::LastToken()
   return mTokens[mCurrentToken - 1];
 }
 
+size_t Parser::LastTokenLength()
+{
+  const Token& lastToken = LastToken();
+  return mTokens[mCurrentToken].mText - lastToken.mText;
+}
+
 Util::Result Parser::Parse(const char* text, Value* root)
 {
   mCurrentToken = 0;
@@ -118,8 +124,10 @@ bool Parser::ParsePair(Value* root)
     mValueStack.Push(&mValueStack.Top()->mPairArray.Top());
   }
   const Token& keyToken = LastToken();
+  // We subtract 2 because text is wrapped with two colons.
+  size_t keyLength = LastTokenLength() - 2;
   Pair& pair = *(Pair*)mValueStack.Top();
-  pair.mKey.insert(0, keyToken.mText + 1, keyToken.mLength - 2);
+  pair.mKey.insert(0, keyToken.mText + 1, keyLength);
   Expect(
     ParsePairArray() || ParseValueArray() || ParseValueSingle(),
     "Expected ValueSingle, PairArray, or ValueArray.");
@@ -177,7 +185,6 @@ bool Parser::ParseValueSingle()
   {
     return false;
   }
-  const Token& valueToken = LastToken();
   if (mValueStack.Top()->mType == Value::Type::Invalid)
   {
     mValueStack.Top()->Init(Value::Type::String);
@@ -188,7 +195,8 @@ bool Parser::ParseValueSingle()
     mValueStack.Top()->mValueArray.Emplace(Value::Type::String);
     mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
   }
-  mValueStack.Top()->mString.insert(0, valueToken.mText, valueToken.mLength);
+  const Token& valueToken = LastToken();
+  mValueStack.Top()->mString.insert(0, valueToken.mText, LastTokenLength());
   mValueStack.Pop();
   return true;
 }

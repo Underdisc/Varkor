@@ -22,6 +22,7 @@ private:
   bool Expect(Token::Type tokenType, const char* error);
   bool Expect(bool success, const char* error);
   const Token& LastToken();
+  size_t LastTokenLength();
 
   bool ParseRoot(Value* root);
   bool ParsePairArray(Value* root = nullptr);

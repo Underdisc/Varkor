@@ -8,10 +8,8 @@ std::ostream& operator<<(std::ostream& os, Vlk::Token::Type tokenType)
 {
   switch (tokenType)
   {
-  case Vlk::Token::Type::Invalid: os << "Invalid"; break;
   case Vlk::Token::Type::Key: os << "Key"; break;
   case Vlk::Token::Type::Value: os << "Value"; break;
-  case Vlk::Token::Type::Whitespace: os << "Whitespace"; break;
   case Vlk::Token::Type::OpenBracket: os << "OpenBracket"; break;
   case Vlk::Token::Type::CloseBracket: os << "CloseBracket"; break;
   case Vlk::Token::Type::OpenBrace: os << "OpenBrace"; break;
@@ -30,10 +28,18 @@ void PrintTokens(const char* text)
     std::cout << result.mError << std::endl;
     return;
   }
-  for (const Vlk::Token& token : result.mTokens)
+  size_t tokenIndex = 0;
+  while (result.mTokens[(int)tokenIndex].mType != Vlk::Token::Type::Terminator)
   {
-    std::string tokenText(token.mText, token.mLength);
-    std::cout << token.mType << ": " << tokenText << std::endl;
+    const Vlk::Token& currentToken = result.mTokens[(int)tokenIndex];
+    if (currentToken.mType != Vlk::Token::Type::Whitespace)
+    {
+      const Vlk::Token& nextToken = result.mTokens[(int)tokenIndex + 1];
+      size_t tokenLength = nextToken.mText - currentToken.mText;
+      std::string tokenText(currentToken.mText, tokenLength);
+      std::cout << currentToken.mType << ": " << tokenText << std::endl;
+    }
+    ++tokenIndex;
   }
 }
 
@@ -74,7 +80,15 @@ void InvalidToken()
   std::cout << "<= InvalidToken =>" << std::endl;
   PrintTokens("+");
   PrintTokens("\"an incomplete string");
+  PrintTokens("\"an incomplete string with a newline\n");
   PrintTokens(":an incomplete key");
+  PrintTokens(":an incomplete key with a newline\n");
+  PrintTokens(
+    ":this: [\n"
+    "  \"is\"\n"
+    "  \"testing\"\n"
+    "  \"line\n"
+    "  \"information\"\n");
 }
 
 int main()

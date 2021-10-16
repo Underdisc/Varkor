@@ -21,6 +21,9 @@ CloseBrace: }
 Comma: ,
 
 <= InvalidToken =>
-Invalid token: "+"
-Invalid token: ""an incomplete string"
-Invalid token: ":an incomplete key"
+[1] Invalid token: +
+[1] Invalid token: "an incomplete string
+[1] Invalid token: "an incomplete string with a newline
+[1] Invalid token: :an incomplete key
+[1] Invalid token: :an incomplete key with a newline
+[4] Invalid token: "line
