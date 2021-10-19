@@ -75,7 +75,7 @@ void Value::HardExpectType(Type type) const
   }
 }
 
-void Value::AddDimension(int size, bool leaf)
+void Value::AddDimension(size_t size, bool leaf)
 {
   ExpectType(Type::ValueArray);
   if (mValueArray.Size() == 0)
@@ -97,18 +97,18 @@ void Value::AddDimension(int size, bool leaf)
 
 bool Value::BelowPackThreshold() const
 {
-  int elementCount = 0;
+  size_t elementCount = 0;
   return !ReachedThreshold(elementCount);
 }
 
-bool Value::ReachedThreshold(int& elementCount) const
+bool Value::ReachedThreshold(size_t& elementCount) const
 {
   HardExpectType(Type::ValueArray);
   if (mValueArray.Empty())
   {
     return false;
   }
-  const int countThreshold = 5;
+  const size_t countThreshold = 5;
   if (mValueArray[0].mType == Type::String)
   {
     elementCount += mValueArray.Size();
@@ -147,7 +147,7 @@ void Value::PrintValueArray(std::ostream& os, std::string& indent) const
     }
     os << "[";
     mValueArray[0].PrintValue(os, indent);
-    for (int i = 1; i < mValueArray.Size(); ++i)
+    for (size_t i = 1; i < mValueArray.Size(); ++i)
     {
       os << ", ";
       mValueArray[i].PrintValue(os, indent);
@@ -205,7 +205,7 @@ std::string Value::As<std::string>() const
   return mString.substr(1, mString.size() - 2);
 }
 
-int Value::Size() const
+size_t Value::Size() const
 {
   if (mType != Type::ValueArray && mType != Type::PairArray)
   {
@@ -234,7 +234,7 @@ const Pair* Value::TryGetPair(const std::string& key) const
   return nullptr;
 }
 
-const Pair* Value::TryGetPair(int index) const
+const Pair* Value::TryGetPair(size_t index) const
 {
   HardExpectType(Type::PairArray);
   if (index < 0 || mPairArray.Size() <= index)
@@ -244,7 +244,7 @@ const Pair* Value::TryGetPair(int index) const
   return &mPairArray[index];
 }
 
-const Value* Value::TryGetValue(int index) const
+const Value* Value::TryGetValue(size_t index) const
 {
   HardExpectType(Type::ValueArray);
   if (index < 0 || mValueArray.Size() <= index)
@@ -267,13 +267,13 @@ Pair& Value::operator()(const std::string& key)
   return (*this)(key.c_str());
 }
 
-const Pair& Value::operator()(int index) const
+const Pair& Value::operator()(size_t index) const
 {
   HardExpectType(Type::PairArray);
   return mPairArray[index];
 }
 
-Value& Value::operator[](std::initializer_list<int> sizes)
+Value& Value::operator[](std::initializer_list<size_t> sizes)
 {
   auto it = sizes.begin();
   auto itE = sizes.end();
@@ -286,13 +286,13 @@ Value& Value::operator[](std::initializer_list<int> sizes)
   return *this;
 }
 
-Value& Value::operator[](int index)
+Value& Value::operator[](size_t index)
 {
   HardExpectType(Type::ValueArray);
   return mValueArray[index];
 }
 
-const Value& Value::operator[](int index) const
+const Value& Value::operator[](size_t index) const
 {
   HardExpectType(Type::ValueArray);
   return mValueArray[index];

@@ -36,25 +36,25 @@ void ValueArray()
   std::cout << "<= ValueArray =>" << std::endl;
   Vlk::Pair root;
   Vlk::Value& intergerArray = root("Integers")[{5}];
-  for (int i = 0; i < 5; ++i)
+  for (size_t i = 0; i < 5; ++i)
   {
     intergerArray[i] = i;
   }
 
   Vlk::Value& floatArrays = root("Floats")[{4, 5}];
-  for (int i = 0; i < 4; ++i)
+  for (size_t i = 0; i < 4; ++i)
   {
-    for (int j = 0; j < 5; ++j)
+    for (size_t j = 0; j < 5; ++j)
     {
       floatArrays[i][j] = (float)i + (float)j * 0.1f;
     }
   }
 
   Vlk::Value& stringArrays = root("Strings")[{8}];
-  for (int i = 0; i < 8; ++i)
+  for (size_t i = 0; i < 8; ++i)
   {
     stringArrays[i][{i}];
-    for (int j = 0; j < i; ++j)
+    for (size_t j = 0; j < i; ++j)
     {
       std::stringstream ss;
       ss << "string " << i << " " << j;
@@ -74,7 +74,7 @@ void PairArray()
   array1("Float") = 5.5f;
   Vlk::Pair& array2 = array1("Array2");
   Vlk::Value& stringArray = array2("Strings")[{5}];
-  for (int i = 0; i < 5; ++i)
+  for (size_t i = 0; i < 5; ++i)
   {
     std::stringstream ss;
     ss << "string " << i;
@@ -91,25 +91,25 @@ void MultidimensionalArrays()
   Vlk::Pair root;
   Vlk::Pair& valueArrays = root("ValueArrays");
   Vlk::Value& float1D = valueArrays("Float1D")[{4}];
-  for (int i = 0; i < 4; ++i)
+  for (size_t i = 0; i < 4; ++i)
   {
     float1D[i] = (float)i;
   }
   Vlk::Value& float2D = valueArrays("Float2D")[{4}];
-  for (int i = 0; i < 4; ++i)
+  for (size_t i = 0; i < 4; ++i)
   {
     float2D[i][{i + 5}];
-    for (int j = 0; j < i + 5; ++j)
+    for (size_t j = 0; j < i + 5; ++j)
     {
       float2D[i][j] = (float)(j);
     }
   }
   Vlk::Value& float3D = valueArrays("Float3D")[{4, 10, 3}];
-  for (int i = 0; i < 4; ++i)
+  for (size_t i = 0; i < 4; ++i)
   {
-    for (int j = 0; j < 10; ++j)
+    for (size_t j = 0; j < 10; ++j)
     {
-      for (int k = 0; k < 3; ++k)
+      for (size_t k = 0; k < 3; ++k)
       {
         float3D[i][j][k] = (float)(i + j + k);
       }
@@ -161,23 +161,23 @@ void SerializeDeserialize()
     std::cout << integer.Key() << ": " << integer.As<int>() << std::endl;
     const Vlk::Pair& floats = *root.TryGetPair("Floats");
     std::cout << floats.Key() << ": " << std::endl;
-    for (int i = 0; i < floats.Size(); ++i)
+    for (size_t i = 0; i < floats.Size(); ++i)
     {
       std::cout << "  " << floats.TryGetValue(i)->As<float>() << std::endl;
     }
     const Vlk::Pair& strings =
       *root.TryGetPair("Container")->TryGetPair("Strings");
     std::cout << strings.Key() << ": " << std::endl;
-    for (int i = 0; i < strings.Size(); ++i)
+    for (size_t i = 0; i < strings.Size(); ++i)
     {
-      for (int j = 0; j < strings[i].Size(); ++j)
+      for (size_t j = 0; j < strings[i].Size(); ++j)
       {
         std::cout << "  " << strings[i][j].As<std::string>() << std::endl;
       }
     }
     const Vlk::Pair& pairArray = *root.TryGetPair("PairArray");
     std::cout << pairArray.Key() << ": " << std::endl;
-    for (int i = 0; i < pairArray.Size(); ++i)
+    for (size_t i = 0; i < pairArray.Size(); ++i)
     {
       std::cout << "  " << pairArray.TryGetPair(i)->Key() << ": "
                 << pairArray(i).As<int>() << std::endl;
@@ -202,7 +202,7 @@ void Move()
   // PairArray
   {
     Vlk::Pair root("PairArray");
-    for (int i = 0; i < 10; ++i)
+    for (size_t i = 0; i < 10; ++i)
     {
       std::stringstream ss;
       ss << "Key" << i;
@@ -214,7 +214,7 @@ void Move()
   {
     Vlk::Pair root("ValueArray");
     root[{10}];
-    for (int i = 0; i < 10; ++i)
+    for (size_t i = 0; i < 10; ++i)
     {
       root[i] = i;
     }

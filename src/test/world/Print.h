@@ -13,7 +13,7 @@ void PrintTable(const World::Table& table)
 {
   std::cout << "{Owner: [Data]}" << std::endl;
   table.VisitActiveIndices(
-    [&table](int i)
+    [&table](size_t i)
     {
       std::cout << "{" << table.GetOwner(i) << ": ";
       (*(T*)table[i]).PrintData();
@@ -35,7 +35,7 @@ void PrintTableOwners(const World::Table& table)
 {
   std::cout << "Owners: [";
   table.VisitActiveIndices(
-    [&](int i)
+    [&](size_t i)
     {
       std::cout << table.GetOwner(i) << ", ";
     });
@@ -44,9 +44,9 @@ void PrintTableOwners(const World::Table& table)
 
 void PrintTableStats(const World::Table& table)
 {
-  int stride = table.Stride();
-  int size = table.Size();
-  int capacity = table.Capacity();
+  size_t stride = table.Stride();
+  size_t size = table.Size();
+  size_t capacity = table.Capacity();
   std::cout << "Stride: " << stride << std::endl
             << "Size: " << size << std::endl
             << "SizeInBytes: " << size * stride << std::endl
@@ -82,13 +82,13 @@ void PrintSpaceMember(
 {
   const World::Member& member = space.Members()[memberId];
   std::cout << indent << "{" << memberId << "}";
-  if (member.ComponentCount() > 0)
+  if (member.DescriptorCount() > 0)
   {
     std::cout << "->";
   }
   space.VisitMemberComponents(
     memberId,
-    [](Comp::TypeId typeId, int tableIndex)
+    [](Comp::TypeId typeId, size_t tableIndex)
     {
       std::cout << "[" << typeId << ", " << tableIndex << "]";
     });
@@ -113,19 +113,20 @@ void PrintSpaceMembers(const World::Space& space)
   }
 }
 
-void PrintSpaceAddressBin(const World::Space& space)
+void PrintSpaceDescriptorBin(const World::Space& space)
 {
-  const Ds::Vector<World::ComponentAddress>& addressBin = space.AddressBin();
-  std::cout << "AddressBin: [Table, Index]";
-  for (const World::ComponentAddress& address : addressBin)
+  const Ds::Vector<World::ComponentDescriptor>& descriptorBin =
+    space.DescriptorBin();
+  std::cout << "DescriptorBin: [Table, Index]";
+  for (const World::ComponentDescriptor& desc : descriptorBin)
   {
     std::cout << ", ";
-    if (!address.InUse())
+    if (!desc.InUse())
     {
       std::cout << "[inv]";
       continue;
     }
-    std::cout << "[" << address.mTypeId << ", " << address.mTableIndex << "]";
+    std::cout << "[" << desc.mTypeId << ", " << desc.mTableIndex << "]";
   }
   std::cout << std::endl;
 }
@@ -140,7 +141,7 @@ void PrintSpaceUnusedMemberIds(const World::Space& space)
     return;
   }
   std::cout << unusedMemberIds[0];
-  for (int i = 1; i < unusedMemberIds.Size(); ++i)
+  for (size_t i = 1; i < unusedMemberIds.Size(); ++i)
   {
     std::cout << ", " << unusedMemberIds[i];
   }
@@ -151,7 +152,7 @@ void PrintSpace(const World::Space& space)
 {
   PrintSpaceTables(space);
   PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
+  PrintSpaceDescriptorBin(space);
 }
 
 #endif

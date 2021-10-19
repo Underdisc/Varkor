@@ -15,12 +15,12 @@ namespace World {
 struct Object;
 struct Space;
 
-struct ComponentAddress
+struct ComponentDescriptor
 {
   void EndUse();
   bool InUse() const;
   Comp::TypeId mTypeId;
-  int mTableIndex;
+  size_t mTableIndex;
 };
 
 struct Member
@@ -29,28 +29,26 @@ public:
   std::string mName;
 
   Member();
-  int AddressIndex() const;
-  int ComponentCount() const;
+  DescriptorId FirstDescriptorId() const;
+  DescriptorId DescriptorCount() const;
   MemberId Parent() const;
   const Ds::Vector<MemberId>& Children() const;
   bool HasParent() const;
   bool InUseRootMember() const;
 
 private:
-  // The index of the first component within the address bin.
-  int mAddressIndex;
-  static constexpr int smInvalidAddressIndex = -1;
-  // The number of component addresses used by the member.
-  int mComponentCount;
+  // The first DescriptorId and the number of ComponentDescriptors.
+  DescriptorId mFirstDescriptorId;
+  DescriptorId mDescriptorCount;
   // These are values for tracking parent child relationships.
   MemberId mParent;
   Ds::Vector<MemberId> mChildren;
 
-  void StartUse(int addressIndex, const std::string& name);
+  void StartUse(DescriptorId firstDescId, const std::string& name);
   void EndUse();
   bool InUse() const;
-  int EndAddress() const;
-  int LastAddress() const;
+  DescriptorId EndDescriptorId() const;
+  DescriptorId LastDescriptorId() const;
 
   friend Space;
 };
@@ -94,13 +92,13 @@ struct Space
     std::function<void(World::MemberId, T&)> visit) const;
   void VisitRootMemberIds(std::function<void(World::MemberId)> visit) const;
   void VisitMemberComponents(
-    MemberId memberId, std::function<void(Comp::TypeId, int)> visit) const;
+    MemberId memberId, std::function<void(Comp::TypeId, size_t)> visit) const;
 
   // Private member access.
   const Ds::Map<Comp::TypeId, Table>& Tables() const;
   const Ds::Vector<Member>& Members() const;
   const Ds::Vector<MemberId>& UnusedMemberIds() const;
-  const Ds::Vector<ComponentAddress> AddressBin() const;
+  const Ds::Vector<ComponentDescriptor> DescriptorBin() const;
 
   void Serialize(Vlk::Pair& spaceVlk) const;
   void Deserialize(const Vlk::Explorer& spaceEx);
@@ -113,10 +111,10 @@ private:
   Ds::Map<Comp::TypeId, Table> mTables;
   Ds::Vector<Member> mMembers;
   Ds::Vector<MemberId> mUnusedMemberIds;
-  Ds::Vector<ComponentAddress> mAddressBin;
+  Ds::Vector<ComponentDescriptor> mDescriptorBin;
 
-  void AddAddressToMember(MemberId memberId, const ComponentAddress& address);
-  int GetTableIndex(Comp::TypeId typeId, MemberId memberId) const;
+  void AddDescriptorToMember(
+    MemberId memberId, const ComponentDescriptor& desc);
   bool ValidMemberId(MemberId memberId) const;
   void VerifyMemberId(MemberId memberId) const;
 

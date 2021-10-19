@@ -26,16 +26,16 @@ Table::~Table()
 // This function will allow adding the same member id to the table multiple
 // times. The Table is not responsible for managing the owner member ids it
 // stores besides setting the member ids when components are added or removed.
-int Table::Add(MemberId memberId)
+size_t Table::Add(MemberId memberId)
 {
-  int index = AllocateComponent(memberId);
+  size_t index = AllocateComponent(memberId);
   void* component = GetComponent(index);
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   typeData.mDefaultConstruct(component);
   return index;
 }
 
-int Table::AllocateComponent(MemberId member)
+size_t Table::AllocateComponent(MemberId member)
 {
   mOwners.Push(member);
   if (mSize >= mCapacity)
@@ -45,10 +45,10 @@ int Table::AllocateComponent(MemberId member)
   return mSize++;
 }
 
-int Table::Duplicate(int ogIndex, MemberId duplicateId)
+size_t Table::Duplicate(size_t ogIndex, MemberId duplicateId)
 {
   VerifyIndex(ogIndex);
-  int newIndex = AllocateComponent(duplicateId);
+  size_t newIndex = AllocateComponent(duplicateId);
   void* ogComponent = GetComponent(ogIndex);
   void* newComponent = GetComponent(newIndex);
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
@@ -56,7 +56,7 @@ int Table::Duplicate(int ogIndex, MemberId duplicateId)
   return newIndex;
 }
 
-void Table::Rem(int index)
+void Table::Rem(size_t index)
 {
   VerifyIndex(index);
   mOwners[index] = nInvalidMemberId;
@@ -65,19 +65,19 @@ void Table::Rem(int index)
   typeData.mDestruct(component);
 }
 
-void* Table::operator[](int index) const
+void* Table::operator[](size_t index) const
 {
   return GetComponent(index);
 }
 
-void* Table::GetComponent(int index) const
+void* Table::GetComponent(size_t index) const
 {
   VerifyIndex(index);
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   return (void*)(mData + typeData.mSize * index);
 }
 
-MemberId Table::GetOwner(int index) const
+MemberId Table::GetOwner(size_t index) const
 {
   return mOwners[index];
 }
@@ -87,18 +87,18 @@ const void* Table::Data() const
   return (void*)mData;
 }
 
-int Table::Stride() const
+size_t Table::Stride() const
 {
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   return typeData.mSize;
 }
 
-int Table::Size() const
+size_t Table::Size() const
 {
   return mSize;
 }
 
-int Table::Capacity() const
+size_t Table::Capacity() const
 {
   return mCapacity;
 }
@@ -120,15 +120,15 @@ void Table::UpdateComponents() const
 void Table::VisitComponents(std::function<void(void*)> visit) const
 {
   VisitActiveIndices(
-    [&](int index)
+    [&](size_t index)
     {
       visit(GetComponent(index));
     });
 }
 
-void Table::VisitActiveIndices(std::function<void(int)> visit) const
+void Table::VisitActiveIndices(std::function<void(size_t)> visit) const
 {
-  for (int i = 0; i < mSize; ++i)
+  for (size_t i = 0; i < mSize; ++i)
   {
     if (GetOwner(i) != nInvalidMemberId)
     {
@@ -147,10 +147,10 @@ void Table::Grow()
   } else
   {
     char* oldData = mData;
-    mCapacity = (int)((float)mCapacity * smGrowthFactor);
+    mCapacity = (size_t)((float)mCapacity * smGrowthFactor);
     char* newData = alloc char[mCapacity * typeData.mSize];
     VisitActiveIndices(
-      [&](int index)
+      [&](size_t index)
       {
         void* oldComponent = (void*)(oldData + index * typeData.mSize);
         void* newComponent = (void*)(newData + index * typeData.mSize);
@@ -162,7 +162,7 @@ void Table::Grow()
   }
 }
 
-void Table::VerifyIndex(int index) const
+void Table::VerifyIndex(size_t index) const
 {
   LogAbortIf(
     index >= mSize || index < 0, "Provided Table index is out of range.");

@@ -30,7 +30,7 @@ struct Type
 struct TypeData
 {
   std::string mName;
-  int mSize;
+  size_t mSize;
   void (*mDefaultConstruct)(void* data);
   void (*mCopyConstruct)(void* from, void* to);
   void (*mMoveConstruct)(void* from, void* to);
@@ -43,7 +43,7 @@ struct TypeData
 template<typename T>
 const TypeData& GetTypeData();
 const TypeData& GetTypeData(TypeId id);
-int TypeDataCount();
+size_t TypeDataCount();
 TypeId GetTypeId(const std::string& typeName);
 
 void ReadComponentsFile();

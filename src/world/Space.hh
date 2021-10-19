@@ -45,7 +45,7 @@ void Space::VisitTableComponents(
     return;
   }
   table->VisitActiveIndices(
-    [&table, &visit](int index)
+    [&table, &visit](size_t index)
     {
       MemberId owner = table->GetOwner(index);
       visit(owner, *(T*)table->GetComponent(index));

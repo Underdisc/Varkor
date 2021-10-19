@@ -97,7 +97,7 @@ void Mesh::Upload(
   // Upload the mesh data.
   glGenBuffers(1, &mVbo);
   glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-  unsigned int vertexDataSize = sizeof(Vertex) * vertices.Size();
+  size_t vertexDataSize = sizeof(Vertex) * vertices.Size();
   glBufferData(
     GL_ARRAY_BUFFER, vertexDataSize, vertices.CData(), GL_STATIC_DRAW);
   UploadIndices(indices);
@@ -154,7 +154,7 @@ void Mesh::Draw(const Shader& shader) const
 
   // Render the mesh.
   glBindVertexArray(mVao);
-  glDrawElements(GL_TRIANGLES, mIndexCount, GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, (GLsizei)mIndexCount, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 }
 

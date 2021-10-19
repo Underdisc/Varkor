@@ -7,35 +7,35 @@
 
 namespace World {
 
-void ComponentAddress::EndUse()
+void ComponentDescriptor::EndUse()
 {
   mTypeId = Comp::nInvalidTypeId;
 }
 
-bool ComponentAddress::InUse() const
+bool ComponentDescriptor::InUse() const
 {
   return mTypeId != Comp::nInvalidTypeId;
 }
 
-Member::Member(): mAddressIndex(smInvalidAddressIndex) {}
+Member::Member(): mFirstDescriptorId(nInvalidDescriptorId) {}
 
-void Member::StartUse(int addressIndex, const std::string& name)
+void Member::StartUse(DescriptorId firstDescId, const std::string& name)
 {
-  mAddressIndex = addressIndex;
-  mComponentCount = 0;
+  mFirstDescriptorId = firstDescId;
+  mDescriptorCount = 0;
   mParent = nInvalidMemberId;
   mName = name;
 }
 
 void Member::EndUse()
 {
-  mAddressIndex = smInvalidAddressIndex;
+  mFirstDescriptorId = nInvalidDescriptorId;
   mChildren.Clear();
 }
 
 bool Member::InUse() const
 {
-  return mAddressIndex != smInvalidAddressIndex;
+  return mFirstDescriptorId != nInvalidDescriptorId;
 }
 
 bool Member::HasParent() const
@@ -48,24 +48,24 @@ bool Member::InUseRootMember() const
   return InUse() && !HasParent();
 }
 
-int Member::EndAddress() const
+DescriptorId Member::EndDescriptorId() const
 {
-  return mAddressIndex + mComponentCount;
+  return mFirstDescriptorId + mDescriptorCount;
 }
 
-int Member::LastAddress() const
+DescriptorId Member::LastDescriptorId() const
 {
-  return mAddressIndex + mComponentCount - 1;
+  return mFirstDescriptorId + mDescriptorCount - 1;
 }
 
-int Member::AddressIndex() const
+DescriptorId Member::FirstDescriptorId() const
 {
-  return mAddressIndex;
+  return mFirstDescriptorId;
 }
 
-int Member::ComponentCount() const
+DescriptorId Member::DescriptorCount() const
 {
-  return mComponentCount;
+  return mDescriptorCount;
 }
 
 MemberId Member::Parent() const
@@ -93,12 +93,12 @@ void Space::Update()
 
 MemberId Space::CreateMember()
 {
-  // todo: The starting index of the component address used for new members is
-  // always the end of the address bin. This ignores unused address memory, and
-  // without garbage collection, will result in a perpetually increasing memory
-  // overhead. We should be more smart about what address we hand out for a new
-  // member in the future.
-  int addressIndex = mAddressBin.Size();
+  // todo: The new ComponentDescriptor is always at the end of the descriptor
+  // bin. This ignores unused memory within the descriptor bin. Without garbage
+  // collection, this will result in a perpetually increasing memory overhead.
+  // We should be more smart about what descriptor we hand out for a new member
+  // in the future.
+  DescriptorId newDescId = (DescriptorId)mDescriptorBin.Size();
   std::stringstream name;
 
   // If we have unused member ids, we use those for the new member before using
@@ -108,14 +108,14 @@ MemberId Space::CreateMember()
     MemberId newMemberId = mUnusedMemberIds.Top();
     Member& newMember = mMembers[newMemberId];
     name << "Member" << newMemberId;
-    newMember.StartUse(addressIndex, name.str());
+    newMember.StartUse(newDescId, name.str());
     mUnusedMemberIds.Pop();
     return newMemberId;
   }
   Member newMember;
-  MemberId newMemberId = mMembers.Size();
+  MemberId newMemberId = (MemberId)mMembers.Size();
   name << "Member" << newMemberId;
-  newMember.StartUse(addressIndex, name.str());
+  newMember.StartUse(newDescId, name.str());
   mMembers.Push(Util::Move(newMember));
   return newMemberId;
 }
@@ -126,16 +126,16 @@ MemberId Space::Duplicate(MemberId ogMemberId, bool duplicationRoot)
   VerifyMemberId(ogMemberId);
   MemberId newMemberId = CreateMember();
   const Member& ogMember = mMembers[ogMemberId];
-  int addressIndex = ogMember.mAddressIndex;
-  while (addressIndex < ogMember.EndAddress())
+  DescriptorId ogDescId = ogMember.mFirstDescriptorId;
+  while (ogDescId < ogMember.EndDescriptorId())
   {
-    ComponentAddress newAddress;
-    const ComponentAddress& address = mAddressBin[addressIndex];
-    newAddress.mTypeId = address.mTypeId;
-    Table& table = mTables.Get(address.mTypeId);
-    newAddress.mTableIndex = table.Duplicate(address.mTableIndex, newMemberId);
-    AddAddressToMember(newMemberId, newAddress);
-    ++addressIndex;
+    ComponentDescriptor newDesc;
+    const ComponentDescriptor& ogDesc = mDescriptorBin[ogDescId];
+    newDesc.mTypeId = ogDesc.mTypeId;
+    Table& table = mTables.Get(ogDesc.mTypeId);
+    newDesc.mTableIndex = table.Duplicate(ogDesc.mTableIndex, newMemberId);
+    AddDescriptorToMember(newMemberId, newDesc);
+    ++ogDescId;
   }
 
   // Make the new member a child if we are duplicating a child and duplicate all
@@ -170,13 +170,14 @@ void Space::DeleteMember(MemberId memberId)
   }
 
   // Remove all of the member's components and end its use.
-  int addrIndex = member.mAddressIndex;
-  for (; addrIndex < member.EndAddress(); ++addrIndex)
+  DescriptorId descId = member.mFirstDescriptorId;
+  while (descId < member.EndDescriptorId())
   {
-    ComponentAddress& address = mAddressBin[addrIndex];
-    Table& table = mTables.Get(address.mTypeId);
-    table.Rem(address.mTableIndex);
-    mAddressBin[addrIndex].EndUse();
+    ComponentDescriptor& desc = mDescriptorBin[descId];
+    Table& table = mTables.Get(desc.mTypeId);
+    table.Rem(desc.mTableIndex);
+    desc.EndUse();
+    ++descId;
   }
   member.EndUse();
   mUnusedMemberIds.Push(memberId);
@@ -209,12 +210,12 @@ void Space::RemoveParent(MemberId childId)
 
   // End the relationship by removing the child from the parent's children and
   // removing the parent from the child.
-  Member& childParent = mMembers[childMember.mParent];
-  for (int i = 0; i < childParent.mChildren.Size(); ++i)
+  Member& parent = mMembers[childMember.mParent];
+  for (size_t i = 0; i < parent.mChildren.Size(); ++i)
   {
-    if (childParent.mChildren[i] == childId)
+    if (parent.mChildren[i] == childId)
     {
-      childParent.mChildren.LazyRemove(i);
+      parent.mChildren.LazyRemove(i);
       break;
     }
   }
@@ -251,81 +252,81 @@ void* Space::AddComponent(
     "The member already has this component type.");
 
   // Create the component and make it part of the member
-  ComponentAddress newAddress;
-  newAddress.mTypeId = typeId;
+  ComponentDescriptor newDesc;
+  newDesc.mTypeId = typeId;
   if (construct)
   {
-    newAddress.mTableIndex = table->Add(memberId);
+    newDesc.mTableIndex = table->Add(memberId);
   } else
   {
-    newAddress.mTableIndex = table->AllocateComponent(memberId);
+    newDesc.mTableIndex = table->AllocateComponent(memberId);
   }
-  AddAddressToMember(memberId, newAddress);
-  return table->GetComponent(newAddress.mTableIndex);
+  AddDescriptorToMember(memberId, newDesc);
+  return table->GetComponent(newDesc.mTableIndex);
 }
 
-void Space::AddAddressToMember(
-  MemberId memberId, const ComponentAddress& address)
+void Space::AddDescriptorToMember(
+  MemberId memberId, const ComponentDescriptor& descriptor)
 {
   Member& member = mMembers[memberId];
-  int nextAddressIndex = member.EndAddress();
-  if (nextAddressIndex >= mAddressBin.Size())
+  DescriptorId nextDescId = member.EndDescriptorId();
+  if (nextDescId >= mDescriptorBin.Size())
   {
-    mAddressBin.Push(address);
-    ++member.mComponentCount;
+    mDescriptorBin.Push(descriptor);
+    ++member.mDescriptorCount;
     return;
   }
-  const ComponentAddress& compAddr = mAddressBin[nextAddressIndex];
-  if (!compAddr.InUse())
+  if (!mDescriptorBin[nextDescId].InUse())
   {
-    mAddressBin[nextAddressIndex] = address;
-    ++member.mComponentCount;
+    mDescriptorBin[nextDescId] = descriptor;
+    ++member.mDescriptorCount;
     return;
   }
-  for (int i = 0; i < member.mComponentCount; ++i)
+  for (size_t i = 0; i < member.mDescriptorCount; ++i)
   {
-    int copyAddressIndex = member.mAddressIndex + i;
-    ComponentAddress copyAddress = mAddressBin[copyAddressIndex];
-    mAddressBin.Push(copyAddress);
-    mAddressBin[copyAddressIndex].EndUse();
+    DescriptorId ogDescId = member.mFirstDescriptorId + (DescriptorId)i;
+    ComponentDescriptor ogDesc = mDescriptorBin[ogDescId];
+    mDescriptorBin.Push(ogDesc);
+    mDescriptorBin[ogDescId].EndUse();
   }
-  mAddressBin.Push(address);
-  ++member.mComponentCount;
-  member.mAddressIndex = mAddressBin.Size() - member.mComponentCount;
+  mDescriptorBin.Push(descriptor);
+  ++member.mDescriptorCount;
+  member.mFirstDescriptorId =
+    (DescriptorId)mDescriptorBin.Size() - member.mDescriptorCount;
 }
 
 void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
 {
-  // Find the address index for the member's component.
+  // Find the ComponentDescriptor for the member's component.
   VerifyMemberId(memberId);
   Member& member = mMembers[memberId];
-  int addressIndex = member.mAddressIndex;
-  int endIndex = member.EndAddress();
-  while (addressIndex < endIndex)
+  DescriptorId descId = member.mFirstDescriptorId;
+  DescriptorId endDescId = member.EndDescriptorId();
+  while (descId < endDescId)
   {
-    if (mAddressBin[addressIndex].mTypeId == typeId)
+    if (mDescriptorBin[descId].mTypeId == typeId)
     {
       break;
     }
-    ++addressIndex;
+    ++descId;
   }
   LogAbortIf(
-    addressIndex == endIndex, "The member does not have the component type.");
+    descId == endDescId, "The member does not have the component type.");
+  ComponentDescriptor& desc = mDescriptorBin[descId];
 
-  // Remove the old component address from the member's address list.
-  ComponentAddress& address = mAddressBin[addressIndex];
+  // Remove the old ComponentDescriptor from the member.
   Table& table = mTables.Get(typeId);
-  table.Rem(address.mTableIndex);
-  if (addressIndex == member.LastAddress())
+  table.Rem(desc.mTableIndex);
+  if (descId == member.LastDescriptorId())
   {
-    address.EndUse();
+    desc.EndUse();
   } else
   {
-    ComponentAddress& lastAddress = mAddressBin[member.LastAddress()];
-    address = lastAddress;
-    lastAddress.EndUse();
+    ComponentDescriptor& lastDesc = mDescriptorBin[member.LastDescriptorId()];
+    desc = lastDesc;
+    lastDesc.EndUse();
   }
-  --member.mComponentCount;
+  --member.mDescriptorCount;
 }
 
 void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
@@ -334,13 +335,18 @@ void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
   {
     return nullptr;
   }
-  int tableIndex = GetTableIndex(typeId, memberId);
-  if (tableIndex == Table::smInvalidIndex)
+  const Member& member = mMembers[memberId];
+  for (size_t i = 0; i < member.mDescriptorCount; ++i)
   {
-    return nullptr;
+    const ComponentDescriptor& desc =
+      mDescriptorBin[member.mFirstDescriptorId + i];
+    if (desc.mTypeId == typeId)
+    {
+      Table& table = mTables.Get(typeId);
+      return table.GetComponent(desc.mTableIndex);
+    }
   }
-  Table& table = mTables.Get(typeId);
-  return table.GetComponent(tableIndex);
+  return nullptr;
 }
 
 bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
@@ -349,8 +355,8 @@ bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
   {
     return false;
   }
-  int tableIndex = GetTableIndex(typeId, memberId);
-  return tableIndex != Table::smInvalidIndex;
+  void* component = GetComponent(typeId, memberId);
+  return component != nullptr;
 }
 
 void Space::VisitRootMemberIds(std::function<void(World::MemberId)> visit) const
@@ -366,16 +372,16 @@ void Space::VisitRootMemberIds(std::function<void(World::MemberId)> visit) const
 }
 
 void Space::VisitMemberComponents(
-  MemberId memberId, std::function<void(Comp::TypeId, int)> visit) const
+  MemberId memberId, std::function<void(Comp::TypeId, size_t)> visit) const
 {
   VerifyMemberId(memberId);
   const Member& member = mMembers[memberId];
-  int currentAddressIndex = member.mAddressIndex;
-  while (currentAddressIndex < member.EndAddress())
+  DescriptorId descId = member.mFirstDescriptorId;
+  while (descId < member.EndDescriptorId())
   {
-    const ComponentAddress& address = mAddressBin[currentAddressIndex];
-    visit(address.mTypeId, address.mTableIndex);
-    ++currentAddressIndex;
+    const ComponentDescriptor& desc = mDescriptorBin[descId];
+    visit(desc.mTypeId, desc.mTableIndex);
+    ++descId;
   }
 }
 
@@ -394,9 +400,9 @@ const Ds::Vector<MemberId>& Space::UnusedMemberIds() const
   return mUnusedMemberIds;
 }
 
-const Ds::Vector<ComponentAddress> Space::AddressBin() const
+const Ds::Vector<ComponentDescriptor> Space::DescriptorBin() const
 {
-  return mAddressBin;
+  return mDescriptorBin;
 }
 
 void Space::Serialize(Vlk::Pair& spaceVlk) const
@@ -417,14 +423,14 @@ void Space::Serialize(Vlk::Pair& spaceVlk) const
     memberVlk("Id") = memberId;
     memberVlk("Parent") = member.mParent;
     Vlk::Value& childrenVlk = memberVlk("Children")[{member.mChildren.Size()}];
-    for (int i = 0; i < member.mChildren.Size(); ++i)
+    for (size_t i = 0; i < member.mChildren.Size(); ++i)
     {
       childrenVlk[i] = member.mChildren[i];
     }
     Vlk::Pair& componentsVlk = memberVlk("Components");
     VisitMemberComponents(
       memberId,
-      [&](Comp::TypeId typeId, int tableIndex)
+      [&](Comp::TypeId typeId, size_t tableIndex)
       {
         Comp::TypeData& typeData = Comp::nTypeData[typeId];
         Vlk::Pair& componentVlk = componentsVlk(typeData.mName);
@@ -444,7 +450,7 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
     LogError("Spaces should have a list of Members.");
     return;
   }
-  for (int i = 0; i < membersEx.Size(); ++i)
+  for (size_t i = 0; i < membersEx.Size(); ++i)
   {
     // Ensure that the current member is valid.
     Vlk::Explorer memberEx = membersEx(i);
@@ -461,15 +467,15 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
       mMembers.Resize(memberId + 1);
     }
     Member& member = mMembers[memberId];
-    member.StartUse(mAddressBin.Size(), memberEx.Key());
+    member.StartUse((DescriptorId)mDescriptorBin.Size(), memberEx.Key());
     member.mParent = memberEx("Parent").As<int>(nInvalidMemberId);
     Vlk::Explorer childrenEx = memberEx("Children");
-    for (int i = 0; i < childrenEx.Size(); ++i)
+    for (size_t i = 0; i < childrenEx.Size(); ++i)
     {
       member.mChildren.Push(childrenEx[i].As<int>());
     }
     Vlk::Explorer componentsEx = memberEx("Components");
-    for (int i = 0; i < componentsEx.Size(); ++i)
+    for (size_t i = 0; i < componentsEx.Size(); ++i)
     {
       Vlk::Explorer componentEx = componentsEx(i);
       Comp::TypeId typeId = Comp::GetTypeId(componentEx.Key());
@@ -478,20 +484,6 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
       typeData.mVDeserialize.Invoke(component, componentEx);
     }
   }
-}
-
-int Space::GetTableIndex(Comp::TypeId typeId, MemberId memberId) const
-{
-  const Member& member = mMembers[memberId];
-  for (int i = 0; i < member.mComponentCount; ++i)
-  {
-    const ComponentAddress& address = mAddressBin[member.mAddressIndex + i];
-    if (address.mTypeId == typeId)
-    {
-      return address.mTableIndex;
-    }
-  }
-  return Table::smInvalidIndex;
 }
 
 bool Space::ValidMemberId(MemberId memberId) const

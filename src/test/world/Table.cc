@@ -15,7 +15,7 @@ void Add()
     World::Table simple(Comp::Type<Simple0>::smId);
     World::Table dynamic(Comp::Type<Dynamic>::smId);
     World::Table container(Comp::Type<Container>::smId);
-    for (int i = 0; i < 15; ++i)
+    for (World::MemberId i = 0; i < 15; ++i)
     {
       counter.Add(i);
       simple.Add(i);
@@ -46,18 +46,18 @@ void Rem()
       Comp::Type<Simple0>::smId,
       Comp::Type<Dynamic>::smId,
       Comp::Type<Container>::smId};
-    for (int currentTable = 0; currentTable < 4; ++currentTable)
+    for (size_t currentTable = 0; currentTable < 4; ++currentTable)
     {
       World::Table& table = tables[currentTable];
-      for (int i = 0; i < 10; ++i)
+      for (World::MemberId i = 0; i < 10; ++i)
       {
         table.Add(i);
       }
-      for (int i = 0; i < 10; i += 2)
+      for (World::MemberId i = 0; i < 10; i += 2)
       {
         table.Rem(i);
       }
-      for (int i = 10; i < 15; ++i)
+      for (World::MemberId i = 10; i < 15; ++i)
       {
         table.Add(i);
       }
@@ -81,24 +81,24 @@ void Duplicate()
     World::Table counterTable(Comp::Type<CallCounter>::smId);
     World::Table dynamicTable(Comp::Type<Dynamic>::smId);
     World::Table containerTable(Comp::Type<Container>::smId);
-    for (int i = 0; i < 10; ++i)
+    for (World::MemberId i = 0; i < 10; ++i)
     {
       counterTable.Add(i);
-      int dynamicIndex = dynamicTable.Add(i);
+      size_t dynamicIndex = dynamicTable.Add(i);
       Dynamic* dynamicComponent = (Dynamic*)dynamicTable[dynamicIndex];
       dynamicComponent->SetData(i);
-      int containerIndex = containerTable.Add(i);
+      size_t containerIndex = containerTable.Add(i);
       Container* containerComponent =
         (Container*)containerTable[containerIndex];
       containerComponent->SetData(i);
     }
-    for (int i = 0; i < 10; ++i)
+    for (World::MemberId i = 0; i < 10; ++i)
     {
       counterTable.Duplicate(i, i + 10);
       dynamicTable.Duplicate(i, i + 10);
       containerTable.Duplicate(i, i + 10);
     }
-    for (int i = 0; i < 10; ++i)
+    for (size_t i = 0; i < 10; ++i)
     {
       Dynamic* ogDynamic = (Dynamic*)dynamicTable[i];
       Dynamic* cpDynamic = (Dynamic*)dynamicTable[i + 10];
@@ -123,19 +123,19 @@ void GetComponent()
   // data to ensure that data is copied when the tables grow.
   World::Table dynamic(Comp::Type<Dynamic>::smId);
   World::Table container(Comp::Type<Container>::smId);
-  for (int i = 0; i < World::Table::smStartCapacity; ++i)
+  for (World::MemberId i = 0; i < World::Table::smStartCapacity; ++i)
   {
     dynamic.Add(i);
     container.Add(i);
   }
-  for (int i = 0; i < 4; ++i)
+  for (size_t i = 0; i < 4; ++i)
   {
     Dynamic* dynamicComponent = (Dynamic*)dynamic.GetComponent(i);
-    dynamicComponent->SetData(i);
+    dynamicComponent->SetData((int)i);
     Container* containerComponent = (Container*)container.GetComponent(i);
-    containerComponent->SetData(i);
+    containerComponent->SetData((int)i);
   }
-  for (int i = World::Table::smStartCapacity; i < 15; ++i)
+  for (World::MemberId i = World::Table::smStartCapacity; i < 15; ++i)
   {
     dynamic.Add(i);
     container.Add(i);

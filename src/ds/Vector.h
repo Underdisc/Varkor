@@ -13,28 +13,28 @@ public:
   ~Vector();
   void Push(const T& value);
   void Push(T&& value);
-  void Push(const T& value, int count);
+  void Push(const T& value, size_t count);
   template<typename... Args>
   void Emplace(Args&&... args);
-  void Insert(int index, const T& value);
+  void Insert(size_t index, const T& value);
   void Pop();
   void Clear();
-  void Remove(int index);
-  void LazyRemove(int index);
+  void Remove(size_t index);
+  void LazyRemove(size_t index);
   template<typename... Args>
-  void Resize(int newSize, Args&&... args);
-  void Reserve(int newCapacity);
+  void Resize(size_t newSize, Args&&... args);
+  void Reserve(size_t newCapacity);
   void Shrink();
 
   bool Contains(const T& value) const;
-  int Size() const;
+  size_t Size() const;
   bool Empty() const;
-  int Capacity() const;
+  size_t Capacity() const;
   const T* CData() const;
   T& Top() const;
 
-  const T& operator[](int index) const;
-  T& operator[](int index);
+  const T& operator[](size_t index) const;
+  T& operator[](size_t index);
   Vector<T>& operator=(const Vector<T>& other);
   Vector<T>& operator=(Vector<T>&& other);
 
@@ -43,19 +43,19 @@ public:
   const T* begin() const;
   const T* end() const;
 
-  const static int smStartCapacity;
+  const static size_t smStartCapacity;
   const static float smGrowthFactor;
 
 private:
   T* mData;
-  int mSize;
-  int mCapacity;
+  size_t mSize;
+  size_t mCapacity;
 
 private:
-  void VerifyIndex(int index) const;
+  void VerifyIndex(size_t index) const;
   void Grow();
-  void Grow(int newCapacity);
-  T* CreateAllocation(int capacity);
+  void Grow(size_t newCapacity);
+  T* CreateAllocation(size_t capacity);
   void DeleteAllocation(T* allocation);
 };
 

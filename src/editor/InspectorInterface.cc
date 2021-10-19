@@ -34,7 +34,7 @@ void InspectorInterface::Show()
   World::Member& member = space.GetMember(mObject.mMember);
   space.VisitMemberComponents(
     mObject.mMember,
-    [this](Comp::TypeId typeId, int tableIndex)
+    [this](Comp::TypeId typeId, size_t tableIndex)
     {
       const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
       const HookFunctions& hookFunctions = GetHookFunctions(typeId);

@@ -6,19 +6,19 @@
 namespace Vlk {
 
 Explorer::Explorer(const Pair& root):
-  mParent(nullptr), mValue(&root), mValueIndex(smInvalidValueIndex)
+  mParent(nullptr), mValue(&root), mIsPair(true)
 {}
 
 Explorer::Explorer(const Explorer* parent):
-  mParent(parent), mValue(nullptr), mValueIndex(smInvalidValueIndex)
+  mParent(parent), mValue(nullptr), mIsPair(false)
 {}
 
 Explorer::Explorer(const Explorer* parent, const Pair* pair):
-  mParent(parent), mValue(pair), mValueIndex(smInvalidValueIndex)
+  mParent(parent), mValue(pair), mIsPair(true)
 {}
 
-Explorer::Explorer(const Explorer* parent, const Value* value, int valueIndex):
-  mParent(parent), mValue(value), mValueIndex(valueIndex)
+Explorer::Explorer(const Explorer* parent, const Value* value, size_t index):
+  mParent(parent), mValue(value), mIsPair(false), mIndex(index)
 {}
 
 std::string Explorer::Path() const
@@ -37,31 +37,35 @@ std::string Explorer::Path() const
 
   // Create the path by traversing this Explorer's lineage.
   std::stringstream path;
-  for (int i = ancestors.Size() - 1; i >= 0; --i)
+  while (!ancestors.Empty())
   {
-    const Explorer& ancestor = *ancestors[i];
-    if (ancestor.mValueIndex == smInvalidValueIndex)
+    const Explorer& ancestor = *ancestors.Top();
+    if (ancestor.mIsPair)
     {
       const Pair* pair = (Pair*)ancestor.mValue;
-      path << ":" << pair->Key();
+      path << "(" << pair->Key() << ")";
     } else
     {
-      path << "[" << ancestor.mValueIndex << "]";
+      path << "[" << ancestor.mIndex << "]";
     }
+    ancestors.Pop();
   }
   return path.str();
 }
 
 const std::string& Explorer::Key() const
 {
-  LogAbortIf(
-    mValueIndex != smInvalidValueIndex,
-    "A key can only be retrieved from a Pair.");
+  if (!mIsPair)
+  {
+    std::stringstream error;
+    error << Path() << " is not a Pair.";
+    LogAbort(error.str().c_str());
+  }
   const Pair& pair = *(Pair*)mValue;
   return pair.Key();
 }
 
-int Explorer::Size() const
+size_t Explorer::Size() const
 {
   if (!Valid())
   {
@@ -92,7 +96,7 @@ Explorer Explorer::operator()(const std::string& key) const
   return Explorer(this, pair);
 }
 
-Explorer Explorer::operator()(int index) const
+Explorer Explorer::operator()(size_t index) const
 {
   if (!Valid())
   {
@@ -109,7 +113,7 @@ Explorer Explorer::operator()(int index) const
   return Explorer(this, pair);
 }
 
-Explorer Explorer::operator[](int index) const
+Explorer Explorer::operator[](size_t index) const
 {
   if (!Valid())
   {

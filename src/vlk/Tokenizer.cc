@@ -107,13 +107,13 @@ struct State
 Ds::Vector<State> nStates;
 StateIndex nRoot;
 
-StateIndex AddStates(Token::Type tokenType, int amount)
+StateIndex AddStates(Token::Type tokenType, size_t amount)
 {
   for (size_t i = 0; i < amount; ++i)
   {
     nStates.Emplace(tokenType);
   }
-  return nStates.Size() - amount;
+  return (StateIndex)(nStates.Size() - amount);
 }
 
 void AddEdge(StateIndex from, StateIndex to, const Qualifier& q)

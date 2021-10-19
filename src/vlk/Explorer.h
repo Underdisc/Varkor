@@ -27,22 +27,22 @@ struct Explorer
 
   std::string Path() const;
   const std::string& Key() const;
-  int Size() const;
+  size_t Size() const;
   bool Valid() const;
 
   Explorer operator()(const std::string& key) const;
-  Explorer operator()(int index) const;
-  Explorer operator[](int index) const;
+  Explorer operator()(size_t index) const;
+  Explorer operator[](size_t index) const;
 
 private:
   Explorer(const Explorer* parent);
   Explorer(const Explorer* parent, const Pair* pair);
-  Explorer(const Explorer* parent, const Value* value, int index);
+  Explorer(const Explorer* parent, const Value* value, size_t index);
 
   const Explorer* mParent;
   const Value* mValue;
-  int mValueIndex;
-  constexpr static int smInvalidValueIndex = -1;
+  size_t mIndex;
+  bool mIsPair;
 };
 
 template<typename T>

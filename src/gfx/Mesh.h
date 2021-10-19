@@ -40,7 +40,7 @@ private:
 
   Ds::Vector<Texture> mTextures;
   unsigned int mVao, mVbo, mEbo;
-  unsigned int mIndexCount;
+  size_t mIndexCount;
 };
 
 } // namespace Gfx

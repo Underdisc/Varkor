@@ -25,19 +25,19 @@ struct Value
 public:
   template<typename T>
   T As() const;
-  int Size() const;
+  size_t Size() const;
 
   const Pair* TryGetPair(const std::string& key) const;
-  const Pair* TryGetPair(int index) const;
-  const Value* TryGetValue(int index) const;
+  const Pair* TryGetPair(size_t index) const;
+  const Value* TryGetValue(size_t index) const;
 
   Pair& operator()(const char* key);
   Pair& operator()(const std::string& key);
-  const Pair& operator()(int index) const;
+  const Pair& operator()(size_t index) const;
 
-  Value& operator[](std::initializer_list<int> sizes);
-  Value& operator[](int index);
-  const Value& operator[](int index) const;
+  Value& operator[](std::initializer_list<size_t> sizes);
+  Value& operator[](size_t index);
+  const Value& operator[](size_t index) const;
 
   template<typename T>
   void operator=(const T& value);
@@ -69,9 +69,9 @@ protected:
   void Init(Type type);
   void ExpectType(Type type);
   void HardExpectType(Type type) const;
-  void AddDimension(int size, bool leaf);
+  void AddDimension(size_t size, bool leaf);
   bool BelowPackThreshold() const;
-  bool ReachedThreshold(int& elementCount) const;
+  bool ReachedThreshold(size_t& elementCount) const;
   void PrintValue(std::ostream& os, std::string& indent) const;
   void PrintValueArray(std::ostream& os, std::string& indent) const;
   void PrintPairArray(std::ostream& os, std::string& indent) const;
@@ -81,6 +81,22 @@ protected:
   friend std::ostream& operator<<(std::ostream& os, Type valueType);
   friend std::ostream& operator<<(std::ostream& os, const Pair& pair);
 };
+
+template<typename T>
+T Value::As() const
+{
+  HardExpectType(Type::String);
+  std::stringstream ss(mString);
+  T value;
+  ss >> value;
+  return value;
+}
+template<>
+int Value::As<int>() const;
+template<>
+float Value::As<float>() const;
+template<>
+std::string Value::As<std::string>() const;
 
 template<typename T>
 void Value::operator=(const T& value)

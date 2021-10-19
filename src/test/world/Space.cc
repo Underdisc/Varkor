@@ -23,7 +23,7 @@ void CreateMember()
 {
   std::cout << "<= CreateMember =>" << std::endl;
   World::Space space;
-  for (int i = 0; i < 20; ++i)
+  for (size_t i = 0; i < 20; ++i)
   {
     space.CreateMember();
   }
@@ -36,12 +36,12 @@ void DeleteMember()
   std::cout << "<= DeleteMember =>" << std::endl;
   World::Space space;
   World::MemberId memberIds[10];
-  for (int i = 0; i < 10; ++i)
+  for (size_t i = 0; i < 10; ++i)
   {
     memberIds[i] = space.CreateMember();
   }
 
-  for (int i = 0; i < 10; i += 2)
+  for (size_t i = 0; i < 10; i += 2)
   {
     space.DeleteMember(memberIds[i]);
   }
@@ -55,7 +55,7 @@ void ParentChildMembers()
   std::cout << "<= ParentChildMembers =>" << std::endl;
   World::Space space;
   World::MemberId memberIds[10];
-  for (int i = 0; i < 10; ++i)
+  for (size_t i = 0; i < 10; ++i)
   {
     memberIds[i] = space.CreateMember();
   }
@@ -75,7 +75,7 @@ void ParentChildMembers()
   // Delete the member with children and create members that take the MemberIds
   // that were once used by the children.
   space.DeleteMember(memberIds[0]);
-  for (int i = 0; i < 11; ++i)
+  for (size_t i = 0; i < 11; ++i)
   {
     space.CreateMember();
   }
@@ -100,7 +100,7 @@ void AddComponent()
   space.AddComponent<Container>(mem2, 5);
 
   PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
+  PrintSpaceDescriptorBin(space);
 
   space.AddComponent<Container>(mem1, 4);
   space.AddComponent<Container>(mem0, 3);
@@ -137,7 +137,7 @@ void RemComponent()
   space.AddComponent<Simple0>(mem3);
 
   PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
+  PrintSpaceDescriptorBin(space);
 
   space.RemComponent<Dynamic>(mem2);
   space.RemComponent<Simple0>(mem1);
@@ -145,12 +145,12 @@ void RemComponent()
   space.RemComponent<Simple1>(mem0);
 
   PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
+  PrintSpaceDescriptorBin(space);
 
   space.AddComponent<Simple0>(mem2);
 
   PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
+  PrintSpaceDescriptorBin(space);
   PrintSpaceTables(space);
   std::cout << std::endl;
 }
@@ -160,7 +160,7 @@ void DeleteMembersWithComponents()
   std::cout << "<= DeleteMembersWithComponents =>" << std::endl;
   World::Space space;
   World::MemberId memberIds[8];
-  for (int i = 0; i < 8; ++i)
+  for (size_t i = 0; i < 8; ++i)
   {
     memberIds[i] = space.CreateMember();
     space.AddComponent<Simple0>(memberIds[i]);
@@ -179,7 +179,7 @@ void DeleteMembersWithComponents()
   }
   std::cout << "Members and Components Created" << std::endl;
   PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
+  PrintSpaceDescriptorBin(space);
   PrintSpaceUnusedMemberIds(space);
   PrintSpaceTablesOwners(space);
 
@@ -190,7 +190,7 @@ void DeleteMembersWithComponents()
   space.DeleteMember(memberIds[7]);
   std::cout << "-----" << std::endl << "Members Removed" << std::endl;
   PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
+  PrintSpaceDescriptorBin(space);
   PrintSpaceUnusedMemberIds(space);
   PrintSpaceTablesOwners(space);
 
@@ -204,7 +204,7 @@ void DeleteMembersWithComponents()
   std::cout << "-----" << std::endl
             << "New Members and Components" << std::endl;
   PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
+  PrintSpaceDescriptorBin(space);
   PrintSpaceUnusedMemberIds(space);
   PrintSpaceTablesOwners(space);
   std::cout << std::endl;
@@ -260,7 +260,7 @@ void HasComponent()
   space.AddComponent<Container>(mem0);
 
   PrintSpaceMembers(space);
-  PrintSpaceAddressBin(space);
+  PrintSpaceDescriptorBin(space);
   std::cout << space.HasComponent<Simple0>(mem0)
             << space.HasComponent<Simple1>(mem0)
             << space.HasComponent<Dynamic>(mem0)

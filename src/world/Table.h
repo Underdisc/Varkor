@@ -16,39 +16,38 @@ public:
   ~Table();
 
   // Add, remove, and act on components.
-  int Add(MemberId member);
-  int AllocateComponent(MemberId member);
-  int Duplicate(int index, MemberId duplicateId);
-  void Rem(int index);
+  size_t Add(MemberId member);
+  size_t AllocateComponent(MemberId member);
+  size_t Duplicate(size_t index, MemberId duplicateId);
+  void Rem(size_t index);
   void UpdateComponents() const;
 
   // Access component data and the owner of that component data.
-  void* operator[](int index) const;
-  void* GetComponent(int index) const;
-  MemberId GetOwner(int index) const;
+  void* operator[](size_t index) const;
+  void* GetComponent(size_t index) const;
+  MemberId GetOwner(size_t index) const;
 
   // Access private members that allow the component table to function.
   const void* Data() const;
-  int Stride() const;
-  int Size() const;
-  int Capacity() const;
+  size_t Stride() const;
+  size_t Size() const;
+  size_t Capacity() const;
 
   void VisitComponents(std::function<void(void*)> visit) const;
-  void VisitActiveIndices(std::function<void(int)> visit) const;
+  void VisitActiveIndices(std::function<void(size_t)> visit) const;
 
-  static constexpr int smStartCapacity = 10;
+  static constexpr size_t smStartCapacity = 10;
   static constexpr float smGrowthFactor = 2.0f;
-  static constexpr int smInvalidIndex = -1;
 
 private:
   char* mData;
   Comp::TypeId mTypeId;
-  int mSize;
-  int mCapacity;
+  size_t mSize;
+  size_t mCapacity;
   Ds::Vector<MemberId> mOwners;
 
   void Grow();
-  void VerifyIndex(int index) const;
+  void VerifyIndex(size_t index) const;
 };
 
 } // namespace World

@@ -66,7 +66,7 @@ UnusedMemberIds: 0, 2, 4, 6, 8
 {0}->[1, 0][2, 0][3, 0]
 {1}->[1, 1][2, 1][3, 1]
 {2}->[1, 2][4, 0]
-AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [1, 1], [2, 1], [3, 1], [1, 2], [4, 0]
+DescriptorBin: [Table, Index], [1, 0], [2, 0], [3, 0], [1, 1], [2, 1], [3, 1], [1, 2], [4, 0]
 1 {
 Stride: 8
 Size: 3
@@ -92,18 +92,18 @@ CapacityInBytes: 200
 Owners: [0, 1, 2, ]
 }
 4 {
-Stride: 16
+Stride: 24
 Size: 3
-SizeInBytes: 48
+SizeInBytes: 72
 Capacity: 10
-CapacityInBytes: 160
+CapacityInBytes: 240
 Owners: [2, 1, 0, ]
 }
 -Members {MemberId}->[TypeId, TableIndex]...-
 {0}->[1, 0][2, 0][3, 0][4, 2]
 {1}->[1, 1][2, 1][3, 1][4, 1]
 {2}->[1, 2][4, 0][3, 2]
-AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 2], [inv], [inv], [inv], [inv], [1, 1], [2, 1], [3, 1], [4, 1], [1, 2], [4, 0], [3, 2]
+DescriptorBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 2], [inv], [inv], [inv], [inv], [1, 1], [2, 1], [3, 1], [4, 1], [1, 2], [4, 0], [3, 2]
 1: [1, 1][1, 1][1, 1]
 2: [2, 2][2, 2]
 3: [3, 3, 3][3, 3, 3][3, 3, 3]
@@ -115,19 +115,19 @@ AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 2], [inv], [inv], [inv],
 {1}->[1, 1][2, 1][3, 1]
 {2}->[2, 2][4, 1][3, 2]
 {3}->[4, 2][3, 3][1, 2]
-AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1], [2, 1], [3, 1], [2, 2], [4, 1], [3, 2], [4, 2], [3, 3], [1, 2]
+DescriptorBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1], [2, 1], [3, 1], [2, 2], [4, 1], [3, 2], [4, 2], [3, 3], [1, 2]
 -Members {MemberId}->[TypeId, TableIndex]...-
 {0}->[1, 0][4, 0][3, 0]
 {1}->[3, 1][2, 1]
 {2}->[4, 1]
 {3}->[4, 2][3, 3][1, 2]
-AddressBin: [Table, Index], [1, 0], [4, 0], [3, 0], [inv], [3, 1], [2, 1], [inv], [4, 1], [inv], [inv], [4, 2], [3, 3], [1, 2]
+DescriptorBin: [Table, Index], [1, 0], [4, 0], [3, 0], [inv], [3, 1], [2, 1], [inv], [4, 1], [inv], [inv], [4, 2], [3, 3], [1, 2]
 -Members {MemberId}->[TypeId, TableIndex]...-
 {0}->[1, 0][4, 0][3, 0]
 {1}->[3, 1][2, 1]
 {2}->[4, 1][1, 3]
 {3}->[4, 2][3, 3][1, 2]
-AddressBin: [Table, Index], [1, 0], [4, 0], [3, 0], [inv], [3, 1], [2, 1], [inv], [4, 1], [1, 3], [inv], [4, 2], [3, 3], [1, 2]
+DescriptorBin: [Table, Index], [1, 0], [4, 0], [3, 0], [inv], [3, 1], [2, 1], [inv], [4, 1], [1, 3], [inv], [4, 2], [3, 3], [1, 2]
 1 {
 Stride: 8
 Size: 4
@@ -153,11 +153,11 @@ CapacityInBytes: 200
 Owners: [0, 1, 3, ]
 }
 4 {
-Stride: 16
+Stride: 24
 Size: 3
-SizeInBytes: 48
+SizeInBytes: 72
 Capacity: 10
-CapacityInBytes: 160
+CapacityInBytes: 240
 Owners: [0, 2, 3, ]
 }
 
@@ -172,7 +172,7 @@ Members and Components Created
 {5}->[1, 5][4, 1]
 {6}->[1, 6][2, 3][3, 2]
 {7}->[1, 7]
-AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1], [1, 2], [2, 1], [1, 3], [3, 1], [1, 4], [2, 2], [1, 5], [4, 1], [1, 6], [2, 3], [3, 2], [1, 7]
+DescriptorBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1], [1, 2], [2, 1], [1, 3], [3, 1], [1, 4], [2, 2], [1, 5], [4, 1], [1, 6], [2, 3], [3, 2], [1, 7]
 UnusedMemberIds: None
 Table 1 Owners: [0, 1, 2, 3, 4, 5, 6, 7, ]
 Table 2 Owners: [0, 2, 4, 6, ]
@@ -184,7 +184,7 @@ Members Removed
 {1}->[1, 1]
 {2}->[1, 2][2, 1]
 {5}->[1, 5][4, 1]
-AddressBin: [Table, Index], [inv], [inv], [inv], [inv], [1, 1], [1, 2], [2, 1], [inv], [inv], [inv], [inv], [1, 5], [4, 1], [inv], [inv], [inv], [inv]
+DescriptorBin: [Table, Index], [inv], [inv], [inv], [inv], [1, 1], [1, 2], [2, 1], [inv], [inv], [inv], [inv], [1, 5], [4, 1], [inv], [inv], [inv], [inv]
 UnusedMemberIds: 0, 3, 4, 6, 7
 Table 1 Owners: [1, 2, 5, ]
 Table 2 Owners: [2, ]
@@ -198,7 +198,7 @@ New Members and Components
 {5}->[1, 5][4, 1]
 {6}->[4, 2][2, 5]
 {7}->[1, 8][2, 4][3, 3]
-AddressBin: [Table, Index], [inv], [inv], [inv], [inv], [1, 1], [1, 2], [2, 1], [inv], [inv], [inv], [inv], [1, 5], [4, 1], [inv], [inv], [inv], [inv], [1, 8], [2, 4], [3, 3], [4, 2], [2, 5]
+DescriptorBin: [Table, Index], [inv], [inv], [inv], [inv], [1, 1], [1, 2], [2, 1], [inv], [inv], [inv], [inv], [1, 5], [4, 1], [inv], [inv], [inv], [inv], [1, 8], [2, 4], [3, 3], [4, 2], [2, 5]
 UnusedMemberIds: 0, 3, 4
 Table 1 Owners: [1, 2, 5, 7, ]
 Table 2 Owners: [2, 7, 6, ]
@@ -231,17 +231,17 @@ CapacityInBytes: 200
 Owners: [0, 1, ]
 }
 4 {
-Stride: 16
+Stride: 24
 Size: 1
-SizeInBytes: 16
+SizeInBytes: 24
 Capacity: 10
-CapacityInBytes: 160
+CapacityInBytes: 240
 Owners: [0, ]
 }
 -Members {MemberId}->[TypeId, TableIndex]...-
 {0}->[1, 0][2, 0][3, 0][4, 0]
 {1}->[1, 1][2, 1][3, 1]
-AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1], [2, 1], [3, 1]
+DescriptorBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1], [2, 1], [3, 1]
 1: [0, 0][1, 1]
 2: [1, 1][2, 2]
 3: [2, 2, 2][3, 3, 3]
@@ -251,7 +251,7 @@ AddressBin: [Table, Index], [1, 0], [2, 0], [3, 0], [4, 0], [1, 1], [2, 1], [3, 
 -Members {MemberId}->[TypeId, TableIndex]...-
 {0}->[2, 0][3, 0][4, 1]
 {1}->[1, 0][4, 0]
-AddressBin: [Table, Index], [inv], [inv], [1, 0], [4, 0], [2, 0], [3, 0], [4, 1]
+DescriptorBin: [Table, Index], [inv], [inv], [1, 0], [4, 0], [2, 0], [3, 0], [4, 1]
 011110010
 
 <= Duplicate =>

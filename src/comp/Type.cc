@@ -19,7 +19,7 @@ const TypeData& GetTypeData(TypeId id)
   return nTypeData[id];
 }
 
-int TypeDataCount()
+size_t TypeDataCount()
 {
   return nTypeData.Size();
 }
@@ -91,7 +91,7 @@ void ReadComponentsFile()
       LogError(error.str().c_str());
       continue;
     }
-    int size = sizeEx.As<int>();
+    size_t size = sizeEx.As<size_t>();
     if (size != typeData.mSize)
     {
       std::stringstream error;
