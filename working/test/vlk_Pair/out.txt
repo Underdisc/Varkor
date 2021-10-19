@@ -185,11 +185,11 @@ PairArray:
 ]
 
 <= Errors =>
-Invalid token: "."
+[1] Invalid token: .
 Expected PairArray or Pair.
 Expected } or Pair.
 Expected ValueSingle, PairArray, or ValueArray.
 Expected } or Pair.
 Expected } or Pair.
-Invalid token: ":TokenError"
-Invalid token: ""Invalid:Token"
+[1] Invalid token: :TokenError
+[1] Invalid token: "Invalid:Token
