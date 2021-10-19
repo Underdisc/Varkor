@@ -347,7 +347,7 @@ Util::Result Pair::Read(const char* filename)
   if (!result.Success())
   {
     std::stringstream error;
-    error << filename << " failed parsing: " << result.mError;
+    error << filename << result.mError;
     return Util::Result(error.str());
   }
   return result;

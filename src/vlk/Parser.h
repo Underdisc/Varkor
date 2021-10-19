@@ -14,7 +14,8 @@ public:
   Util::Result Parse(const char* text, Value* root);
 
 private:
-  int mCurrentToken;
+  size_t mCurrentToken;
+  size_t mCurrentLine;
   Ds::Vector<Value*> mValueStack;
   Ds::Vector<Token> mTokens;
 
@@ -28,9 +29,9 @@ private:
   bool ParsePairArray(Value* root = nullptr);
   bool ParsePair(Value* root = nullptr);
   bool ParseValueArray();
-  bool ParseValueSingleList();
+  bool ParseValueList();
   bool ParseValueArrayList();
-  bool ParseValueSingle();
+  bool ParseValue();
 };
 
 } // namespace Vlk

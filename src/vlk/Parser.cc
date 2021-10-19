@@ -7,24 +7,31 @@
 
 // Valkor Grammar
 // Root = Pair | PairArray
-// Pair = <Key> (ValueSingle | PairArray | ValueArray)
-// ValueSingle = <Value>
+// Pair = <Key> (Value | PairArray | ValueArray)
+// Value = <Value>
 // PairArray = <OpenBrace> Pair* <CloseBrace>
-// ValueArray = <OpenBracket> (ValueSingleList | ValueArrayList)? <CloseBracket>
-// ValueSingleList = ValueSingle (<Comma> ValueSingle)* <Comma>?
+// ValueArray = <OpenBracket> (ValueList | ValueArrayList)? <CloseBracket>
+// ValueList = Value (<Comma> Value)* <Comma>?
 // ValueArrayList = ValueArray (<Comma> ValueArray)* <Comma>?
 
-// There is a distinction between the ValueSingle grammar rule and the <Value>
-// token because a ValueSingle function is part of the Parser. This makes it
-// easier to deserialize a Value token into a Pair::Value.
+// There is a distinction between the Value grammar rule and the <Value>
+// token because a Value function is part of the Parser. This makes it
+// easier to deserialize a Value token into a Vlk::Value.
 
 namespace Vlk {
 
 bool Parser::Accept(Token::Type tokenType)
 {
-  if (mCurrentToken >= mTokens.Size())
+  if (mTokens[mCurrentToken].mType == Token::Type::Terminator)
   {
     return false;
+  }
+  while (mTokens[mCurrentToken].mType == Token::Type::Whitespace)
+  {
+    const Token& currentToken = mTokens[mCurrentToken];
+    const Token& nextToken = mTokens[mCurrentToken + 1];
+    mCurrentLine += CountNewLines(currentToken.mText, nextToken.mText);
+    ++mCurrentToken;
   }
   if (mTokens[mCurrentToken].mType == tokenType)
   {
@@ -65,26 +72,24 @@ size_t Parser::LastTokenLength()
 Util::Result Parser::Parse(const char* text, Value* root)
 {
   mCurrentToken = 0;
+  mCurrentLine = 1;
   TokenizeResult result = Tokenize(text);
   if (!result.Success())
   {
     return Util::Result(result.mError);
   }
   mTokens = Util::Move(result.mTokens);
-  const char* errorText = "";
   try
   {
-    if (!ParseRoot(root))
-    {
-      return Util::Result("Expected PairArray or Pair.");
-    }
-    return Util::Result(true);
+    Expect(ParseRoot(root), "Expected PairArray or Pair.");
   }
   catch (const char* error)
   {
-    errorText = error;
+    std::stringstream errorStream;
+    errorStream << "[" << mCurrentLine << "] Parse Error: " << error;
+    return Util::Result(errorStream.str());
   }
-  return Util::Result(errorText);
+  return Util::Result(true);
 }
 
 bool Parser::ParseRoot(Value* root)
@@ -129,8 +134,8 @@ bool Parser::ParsePair(Value* root)
   Pair& pair = *(Pair*)mValueStack.Top();
   pair.mKey.insert(0, keyToken.mText + 1, keyLength);
   Expect(
-    ParsePairArray() || ParseValueArray() || ParseValueSingle(),
-    "Expected ValueSingle, PairArray, or ValueArray.");
+    ParsePairArray() || ParseValueArray() || ParseValue(),
+    "Expected Value, PairArray, or ValueArray.");
   mValueStack.Pop();
   return true;
 }
@@ -151,19 +156,19 @@ bool Parser::ParseValueArray()
     mValueStack.Top()->mValueArray.Emplace(Value::Type::ValueArray);
     mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
   }
-  ParseValueSingleList() || ParseValueArrayList();
+  ParseValueList() || ParseValueArrayList();
   mValueStack.Pop();
   Expect(Token::Type::CloseBracket, "Expected ].");
   return true;
 }
 
-bool Parser::ParseValueSingleList()
+bool Parser::ParseValueList()
 {
-  if (!ParseValueSingle())
+  if (!ParseValue())
   {
     return false;
   }
-  while (Accept(Token::Type::Comma) && ParseValueSingle())
+  while (Accept(Token::Type::Comma) && ParseValue())
   {}
   return true;
 }
@@ -179,7 +184,7 @@ bool Parser::ParseValueArrayList()
   return true;
 }
 
-bool Parser::ParseValueSingle()
+bool Parser::ParseValue()
 {
   if (!Accept(Token::Type::Value))
   {

@@ -31,6 +31,8 @@ struct TokenizeResult: Util::Result
 };
 TokenizeResult Tokenize(const char* text);
 
+size_t CountNewLines(const char* start, const char* end);
+
 } // namespace Vlk
 
 #endif

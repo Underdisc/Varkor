@@ -234,6 +234,11 @@ void Errors()
   PrintParseError("{:ValueArray:[]{}}");
   PrintParseError("{:TokenError");
   PrintParseError("{:ValidToken:\"Invalid:Token");
+
+  // This tests line number information for parser errors.
+  Vlk::Pair root;
+  Util::Result result = root.Read("ParserError.vlk");
+  std::cout << result.mError << std::endl;
 }
 
 int main()

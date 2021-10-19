@@ -206,21 +206,6 @@ void InitTokenizer()
   AddLoneState(Token::Type::Comma, ',');
 }
 
-size_t CountNewLines(const char* start, const char* end)
-{
-  size_t newLineCount = 0;
-  const char* currentChar = start;
-  while (currentChar < end)
-  {
-    if (*currentChar == '\n')
-    {
-      ++newLineCount;
-    }
-    ++currentChar;
-  }
-  return newLineCount;
-}
-
 Token ReadNextToken(const char** text)
 {
   const char* start = *text;
@@ -274,6 +259,21 @@ TokenizeResult Tokenize(const char* text)
   }
   result.mTokens.Push({text, Token::Type::Terminator});
   return result;
+}
+
+size_t CountNewLines(const char* start, const char* end)
+{
+  size_t newLineCount = 0;
+  const char* currentChar = start;
+  while (currentChar < end)
+  {
+    if (*currentChar == '\n')
+    {
+      ++newLineCount;
+    }
+    ++currentChar;
+  }
+  return newLineCount;
 }
 
 } // namespace Vlk
