@@ -1,13 +1,13 @@
 #include <iostream>
 
 #include "vlk/Explorer.h"
-#include "vlk/Pair.h"
+#include "vlk/Value.h"
 
 void Basic()
 {
   std::cout << "<= Basic =>\n";
   Vlk::Value rootVal;
-  rootVal.Read("../vlk_Pair/SerializeDeserialize.vlk");
+  rootVal.Read("../vlk_Value/SerializeDeserialize.vlk");
   Vlk::Explorer rootEx(rootVal);
   Vlk::Explorer stringsEx = rootEx("Container")("Strings");
 

@@ -1,5 +1,5 @@
-#ifndef vlk_Pair_h
-#define vlk_Pair_h
+#ifndef vlk_Value_h
+#define vlk_Value_h
 
 #include <initializer_list>
 #include <ostream>

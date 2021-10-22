@@ -1,6 +1,6 @@
 target_sources(${varkorTarget} PRIVATE
   Explorer.cc
-  Pair.cc
+  Value.cc
   Parser.cc
   Tokenizer.cc)
 

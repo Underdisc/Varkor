@@ -2,8 +2,8 @@
 #include <string>
 
 #include "Error.h"
-#include "vlk/Pair.h"
 #include "vlk/Parser.h"
+#include "vlk/Value.h"
 
 // Valkor Grammar
 // Value = PairArray | ValueArray | <Value>
