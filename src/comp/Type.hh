@@ -37,7 +37,7 @@ namespace Comp {
   }
 // clang-format on
 BindableTypeFunction(Update, void);
-BindableTypeFunction(Serialize, void, Vlk::Pair&);
+BindableTypeFunction(Serialize, void, Vlk::Value&);
 BindableTypeFunction(Deserialize, void, const Vlk::Explorer&);
 
 template<typename T>

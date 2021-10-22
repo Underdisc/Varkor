@@ -23,6 +23,14 @@ struct Parser;
 struct Value
 {
 public:
+  Value();
+  Value(Value&& other);
+  ~Value();
+
+  Util::Result Read(const char* filename);
+  Util::Result Write(const char* filename);
+  Util::Result Parse(const char* text);
+
   template<typename T>
   T As() const;
   size_t Size() const;
@@ -31,8 +39,8 @@ public:
   const Pair* TryGetPair(size_t index) const;
   const Value* TryGetValue(size_t index) const;
 
-  Pair& operator()(const char* key);
-  Pair& operator()(const std::string& key);
+  Value& operator()(const char* key);
+  Value& operator()(const std::string& key);
   const Pair& operator()(size_t index) const;
 
   Value& operator[](std::initializer_list<size_t> sizes);
@@ -44,7 +52,7 @@ public:
   void operator=(const char* value);
   void operator=(const std::string& value);
 
-protected:
+private:
   enum class Type
   {
     Invalid,
@@ -61,10 +69,7 @@ protected:
     Ds::Vector<Pair> mPairArray;
   };
 
-  Value();
   Value(Value::Type type);
-  Value(Value&& other);
-  ~Value();
 
   void Init(Type type);
   void ExpectType(Type type);
@@ -72,14 +77,16 @@ protected:
   void AddDimension(size_t size, bool leaf);
   bool BelowPackThreshold() const;
   bool ReachedThreshold(size_t& elementCount) const;
+
+  friend std::ostream& operator<<(std::ostream& os, Type valueType);
+  friend std::ostream& operator<<(std::ostream& os, const Value& value);
   void PrintValue(std::ostream& os, std::string& indent) const;
   void PrintValueArray(std::ostream& os, std::string& indent) const;
   void PrintPairArray(std::ostream& os, std::string& indent) const;
 
-  friend Ds::Vector<Value>;
+  friend Pair;
   friend Parser;
-  friend std::ostream& operator<<(std::ostream& os, Type valueType);
-  friend std::ostream& operator<<(std::ostream& os, const Pair& pair);
+  friend Ds::Vector<Value>;
 };
 
 template<typename T>
@@ -109,32 +116,21 @@ void Value::operator=(const T& value)
 
 struct Pair: public Value
 {
-  Pair();
-  Pair(const char* key);
-  Pair(const std::string& key);
-
-  Util::Result Read(const char* filename);
-  Util::Result Write(const char* filename);
-  Util::Result Parse(const char* text);
-
   const std::string& Key() const;
-
-  template<typename T>
-  void operator=(const T& value);
 
 private:
   std::string mKey;
 
-  friend Parser;
-  friend std::ostream& operator<<(std::ostream& os, const Pair& pair);
-};
+  Pair();
+  Pair(const char* key);
+  Pair(const std::string& key);
 
-template<typename T>
-void Pair::operator=(const T& value)
-{
-  Value& base = *this;
-  base = value;
-}
+  void PrintPair(std::ostream& os, std::string& indent) const;
+
+  friend Value;
+  friend Parser;
+  friend Ds::Vector<Pair>;
+};
 
 } // namespace Vlk
 

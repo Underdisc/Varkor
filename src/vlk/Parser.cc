@@ -6,17 +6,12 @@
 #include "vlk/Parser.h"
 
 // Valkor Grammar
-// Root = Pair | PairArray
-// Pair = <Key> (Value | PairArray | ValueArray)
-// Value = <Value>
+// Value = PairArray | ValueArray | <Value>
 // PairArray = <OpenBrace> Pair* <CloseBrace>
 // ValueArray = <OpenBracket> (ValueList | ValueArrayList)? <CloseBracket>
+// Pair = <Key> (Value)
 // ValueList = Value (<Comma> Value)* <Comma>?
 // ValueArrayList = ValueArray (<Comma> ValueArray)* <Comma>?
-
-// There is a distinction between the Value grammar rule and the <Value>
-// token because a Value function is part of the Parser. This makes it
-// easier to deserialize a Value token into a Vlk::Value.
 
 namespace Vlk {
 
@@ -58,7 +53,7 @@ bool Parser::Expect(bool success, const char* error)
 const Token& Parser::LastToken()
 {
   LogAbortIf(
-    mCurrentToken <= 0,
+    mCurrentToken == 0,
     "LastToken can only be used after tokens have been accepted.");
   return mTokens[mCurrentToken - 1];
 }
@@ -71,17 +66,18 @@ size_t Parser::LastTokenLength()
 
 Util::Result Parser::Parse(const char* text, Value* root)
 {
-  mCurrentToken = 0;
-  mCurrentLine = 1;
   TokenizeResult result = Tokenize(text);
   if (!result.Success())
   {
     return Util::Result(result.mError);
   }
+  mCurrentToken = 0;
+  mCurrentLine = 1;
+  mValueStack.Push(root);
   mTokens = Util::Move(result.mTokens);
   try
   {
-    Expect(ParseRoot(root), "Expected PairArray or Pair.");
+    Expect(ParseValue(), "Expected Value.");
   }
   catch (const char* error)
   {
@@ -92,51 +88,38 @@ Util::Result Parser::Parse(const char* text, Value* root)
   return Util::Result(true);
 }
 
-bool Parser::ParseRoot(Value* root)
+bool Parser::ParseValue()
 {
-  return ParsePair(root) || ParsePairArray(root);
+  if (!Accept(Token::Type::Value))
+  {
+    return ParsePairArray() || ParseValueArray();
+  }
+  if (mValueStack.Top()->mType == Value::Type::Invalid)
+  {
+    mValueStack.Top()->Init(Value::Type::String);
+    mValueStack.Push(mValueStack.Top());
+  } else
+  {
+    mValueStack.Top()->HardExpectType(Value::Type::ValueArray);
+    mValueStack.Top()->mValueArray.Emplace(Value::Type::String);
+    mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
+  }
+  const Token& valueToken = LastToken();
+  mValueStack.Top()->mString.insert(0, valueToken.mText, LastTokenLength());
+  mValueStack.Pop();
+  return true;
 }
 
-bool Parser::ParsePairArray(Value* root)
+bool Parser::ParsePairArray()
 {
   if (!Accept(Token::Type::OpenBrace))
   {
     return false;
   }
-  if (root != nullptr)
-  {
-    mValueStack.Push(root);
-  }
   mValueStack.Top()->Init(Value::Type::PairArray);
   while (ParsePair())
   {}
   Expect(Token::Type::CloseBrace, "Expected } or Pair.");
-  return true;
-}
-
-bool Parser::ParsePair(Value* root)
-{
-  if (!Accept(Token::Type::Key))
-  {
-    return false;
-  }
-  if (root != nullptr)
-  {
-    mValueStack.Push(root);
-  } else
-  {
-    mValueStack.Top()->mPairArray.Emplace();
-    mValueStack.Push(&mValueStack.Top()->mPairArray.Top());
-  }
-  const Token& keyToken = LastToken();
-  // We subtract 2 because text is wrapped with two colons.
-  size_t keyLength = LastTokenLength() - 2;
-  Pair& pair = *(Pair*)mValueStack.Top();
-  pair.mKey.insert(0, keyToken.mText + 1, keyLength);
-  Expect(
-    ParsePairArray() || ParseValueArray() || ParseValue(),
-    "Expected Value, PairArray, or ValueArray.");
-  mValueStack.Pop();
   return true;
 }
 
@@ -162,6 +145,25 @@ bool Parser::ParseValueArray()
   return true;
 }
 
+bool Parser::ParsePair()
+{
+  if (!Accept(Token::Type::Key))
+  {
+    return false;
+  }
+  mValueStack.Top()->HardExpectType(Value::Type::PairArray);
+  mValueStack.Top()->mPairArray.Emplace();
+  mValueStack.Push(&mValueStack.Top()->mPairArray.Top());
+  const Token& keyToken = LastToken();
+  // We subtract 2 because text is wrapped with two colons.
+  size_t keyLength = LastTokenLength() - 2;
+  Pair& pair = *(Pair*)mValueStack.Top();
+  pair.mKey.insert(0, keyToken.mText + 1, keyLength);
+  Expect(ParseValue(), "Expected Value.");
+  mValueStack.Pop();
+  return true;
+}
+
 bool Parser::ParseValueList()
 {
   if (!ParseValue())
@@ -181,28 +183,6 @@ bool Parser::ParseValueArrayList()
   }
   while (Accept(Token::Type::Comma) && ParseValueArray())
   {}
-  return true;
-}
-
-bool Parser::ParseValue()
-{
-  if (!Accept(Token::Type::Value))
-  {
-    return false;
-  }
-  if (mValueStack.Top()->mType == Value::Type::Invalid)
-  {
-    mValueStack.Top()->Init(Value::Type::String);
-    mValueStack.Push(mValueStack.Top());
-  } else
-  {
-    mValueStack.Top()->HardExpectType(Value::Type::ValueArray);
-    mValueStack.Top()->mValueArray.Emplace(Value::Type::String);
-    mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
-  }
-  const Token& valueToken = LastToken();
-  mValueStack.Top()->mString.insert(0, valueToken.mText, LastTokenLength());
-  mValueStack.Pop();
   return true;
 }
 

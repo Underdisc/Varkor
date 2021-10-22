@@ -4,7 +4,7 @@
 #include "AssetLibrary.h"
 
 namespace Vlk {
-struct Pair;
+struct Value;
 struct Explorer;
 } // namespace Vlk
 
@@ -14,7 +14,7 @@ namespace Comp {
 struct Model
 {
   Model();
-  void VSerialize(Vlk::Pair& modelVlk);
+  void VSerialize(Vlk::Value& modelVal);
   void VDeserialize(const Vlk::Explorer& modelEx);
 
   AssetLibrary::AssetId mShaderId;

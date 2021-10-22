@@ -18,7 +18,7 @@ namespace Vlk {
 
 struct Explorer
 {
-  Explorer(const Pair& root);
+  Explorer(const Value& rootVal);
 
   template<typename T>
   T As() const;

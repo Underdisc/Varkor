@@ -43,20 +43,20 @@ void ReadComponentsFile()
 {
   // Ensure that the components file contains the required information and
   // initialize the version.
-  Vlk::Pair rootVlk;
-  Util::Result result = rootVlk.Read(nComponentsFilename);
+  Vlk::Value rootVal;
+  Util::Result result = rootVal.Read(nComponentsFilename);
   if (!result.Success())
   {
     LogError(result.mError.c_str());
     return;
   }
-  Vlk::Explorer rootEx(rootVlk);
+  Vlk::Explorer rootEx(rootVal);
   Vlk::Explorer versionEx = rootEx("Version");
   Vlk::Explorer componentsEx = rootEx("Components");
   if (!versionEx.Valid() || !componentsEx.Valid())
   {
     std::stringstream error;
-    error << "The root Pair must contain a :Version: and a :Components: Pair.";
+    error << "The root Value must contain a :Version: and a :Components: Pair.";
     LogAbort(error.str().c_str());
   }
   nVersion = versionEx.As<int>();
@@ -105,16 +105,16 @@ void ReadComponentsFile()
 
 void SaveComponentsFile()
 {
-  Vlk::Pair rootVlk;
-  rootVlk("Version") = nVersion + 1;
-  Vlk::Pair& componentsVlk = rootVlk("Components");
+  Vlk::Value rootVal;
+  rootVal("Version") = nVersion + 1;
+  Vlk::Value& componentsVal = rootVal("Components");
   for (TypeId id = 0; id < TypeDataCount(); ++id)
   {
     const TypeData& typeData = GetTypeData(id);
-    Vlk::Pair& typeDataVlk = componentsVlk(typeData.mName);
-    typeDataVlk("Size") = typeData.mSize;
+    Vlk::Value& typeDataVal = componentsVal(typeData.mName);
+    typeDataVal("Size") = typeData.mSize;
   }
-  Util::Result result = rootVlk.Write(nComponentsFilename);
+  Util::Result result = rootVal.Write(nComponentsFilename);
   LogErrorIf(!result.Success(), result.mError.c_str());
 }
 

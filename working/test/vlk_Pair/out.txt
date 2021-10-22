@@ -1,5 +1,5 @@
 <= String =>
-:RootKey: {
+{
   :Integer: 10
   :Float: 10.5
   :String: "10"
@@ -157,9 +157,10 @@ PairArray:
   Key1: 1
   Key2: 2
   Key3: 3
+
 <= Move =>
-:Value: 5
-:PairArray: {
+5
+{
   :Key0: 0
   :Key1: 1
   :Key2: 2
@@ -171,7 +172,7 @@ PairArray:
   :Key8: 8
   :Key9: 9
 }
-:ValueArray: [
+[
   0,
   1,
   2,
@@ -186,11 +187,11 @@ PairArray:
 
 <= Errors =>
 [1] Invalid token: .
-[1] Parse Error: Expected PairArray or Pair.
+[1] Parse Error: Expected Value.
 [1] Parse Error: Expected } or Pair.
-[1] Parse Error: Expected Value, PairArray, or ValueArray.
+[1] Parse Error: Expected Value.
 [1] Parse Error: Expected } or Pair.
 [1] Parse Error: Expected } or Pair.
 [1] Invalid token: :TokenError
 [1] Invalid token: "Invalid:Token
-ParserError.vlk[6] Parse Error: Expected Value, PairArray, or ValueArray.
+ParserError.vlk[6] Parse Error: Expected Value.

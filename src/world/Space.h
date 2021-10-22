@@ -100,7 +100,7 @@ struct Space
   const Ds::Vector<MemberId>& UnusedMemberIds() const;
   const Ds::Vector<ComponentDescriptor> DescriptorBin() const;
 
-  void Serialize(Vlk::Pair& spaceVlk) const;
+  void Serialize(Vlk::Value& spaceVal) const;
   void Deserialize(const Vlk::Explorer& spaceEx);
 
 public:

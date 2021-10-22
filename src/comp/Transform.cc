@@ -11,18 +11,18 @@ Transform::Transform():
   mUpdated(false)
 {}
 
-void Transform::VSerialize(Vlk::Pair& transformVlk)
+void Transform::VSerialize(Vlk::Value& transformVal)
 {
-  Vlk::Value& scaleVlk = transformVlk("Scale")[{3}];
-  Vlk::Value& rotationVlk = transformVlk("Rotation")[{4}];
-  Vlk::Value& translationVlk = transformVlk("Translation")[{3}];
+  Vlk::Value& scaleVal = transformVal("Scale")[{3}];
+  Vlk::Value& rotationVal = transformVal("Rotation")[{4}];
+  Vlk::Value& translationVal = transformVal("Translation")[{3}];
   for (int i = 0; i < 3; ++i)
   {
-    scaleVlk[i] = mScale[i];
-    rotationVlk[i] = mRotation[i];
-    translationVlk[i] = mTranslation[i];
+    scaleVal[i] = mScale[i];
+    rotationVal[i] = mRotation[i];
+    translationVal[i] = mTranslation[i];
   }
-  rotationVlk[3] = mRotation[3];
+  rotationVal[3] = mRotation[3];
 }
 
 void Transform::VDeserialize(const Vlk::Explorer& transformEx)

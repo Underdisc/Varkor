@@ -8,10 +8,10 @@ Model::Model():
   mShaderId(AssLib::nInvalidAssetId), mModelId(AssLib::nInvalidAssetId)
 {}
 
-void Model::VSerialize(Vlk::Pair& modelVlk)
+void Model::VSerialize(Vlk::Value& modelVal)
 {
-  modelVlk("ShaderId") = mShaderId;
-  modelVlk("ModelId") = mModelId;
+  modelVal("ShaderId") = mShaderId;
+  modelVal("ModelId") = mModelId;
 }
 
 void Model::VDeserialize(const Vlk::Explorer& modelEx)

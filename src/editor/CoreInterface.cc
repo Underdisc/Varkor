@@ -84,8 +84,8 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [this](const std::string& filename)
       {
-        Vlk::Pair rootVlk;
-        Util::Result result = rootVlk.Read(filename.c_str());
+        Vlk::Value rootVal;
+        Util::Result result = rootVal.Read(filename.c_str());
         if (!result.Success())
         {
           OpenInterface<PopupInterface>("Load Space Failed", result.mError);
@@ -94,7 +94,8 @@ void CoreInterface::FileMenu()
         }
         World::SpaceId newSpaceId = World::CreateSpace();
         World::Space& newSpace = World::GetSpace(newSpaceId);
-        newSpace.Deserialize(rootVlk);
+        Vlk::Explorer rootEx(rootVal);
+        newSpace.Deserialize(rootEx);
         OpenInterface<OverviewInterface>(newSpaceId);
       },
       FileInterface::AccessType::Select);
@@ -113,9 +114,9 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [this, &space](const std::string& filename)
       {
-        Vlk::Pair rootVlk(space.mName);
-        space.Serialize(rootVlk);
-        Util::Result result = rootVlk.Write(filename.c_str());
+        Vlk::Value rootVal;
+        space.Serialize(rootVal);
+        Util::Result result = rootVal.Write(filename.c_str());
         if (!result.Success())
         {
           OpenInterface<PopupInterface>("Save Space Failed", result.mError);

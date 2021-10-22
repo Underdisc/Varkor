@@ -405,10 +405,11 @@ const Ds::Vector<ComponentDescriptor> Space::DescriptorBin() const
   return mDescriptorBin;
 }
 
-void Space::Serialize(Vlk::Pair& spaceVlk) const
+void Space::Serialize(Vlk::Value& spaceVal) const
 {
-  spaceVlk("CameraId") = mCameraId;
-  Vlk::Pair& membersVlk = spaceVlk("Members");
+  spaceVal("Name") = mName;
+  spaceVal("CameraId") = mCameraId;
+  Vlk::Value& membersVal = spaceVal("Members");
   for (MemberId memberId = 0; memberId < mMembers.Size(); ++memberId)
   {
     // We only handle members that are in use.
@@ -419,30 +420,30 @@ void Space::Serialize(Vlk::Pair& spaceVlk) const
     }
 
     // Serialize all of the member's data.
-    Vlk::Pair& memberVlk = membersVlk(member.mName.c_str());
-    memberVlk("Id") = memberId;
-    memberVlk("Parent") = member.mParent;
-    Vlk::Value& childrenVlk = memberVlk("Children")[{member.mChildren.Size()}];
+    Vlk::Value& memberVal = membersVal(member.mName.c_str());
+    memberVal("Id") = memberId;
+    memberVal("Parent") = member.mParent;
+    Vlk::Value& childrenVal = memberVal("Children")[{member.mChildren.Size()}];
     for (size_t i = 0; i < member.mChildren.Size(); ++i)
     {
-      childrenVlk[i] = member.mChildren[i];
+      childrenVal[i] = member.mChildren[i];
     }
-    Vlk::Pair& componentsVlk = memberVlk("Components");
+    Vlk::Value& componentsVal = memberVal("Components");
     VisitMemberComponents(
       memberId,
       [&](Comp::TypeId typeId, size_t tableIndex)
       {
         Comp::TypeData& typeData = Comp::nTypeData[typeId];
-        Vlk::Pair& componentVlk = componentsVlk(typeData.mName);
+        Vlk::Value& componentVal = componentsVal(typeData.mName);
         Table& table = mTables.Get(typeId);
-        typeData.mVSerialize.Invoke(table[tableIndex], componentVlk);
+        typeData.mVSerialize.Invoke(table[tableIndex], componentVal);
       });
   }
 }
 
 void Space::Deserialize(const Vlk::Explorer& spaceEx)
 {
-  mName = spaceEx.Key();
+  mName = spaceEx("Name").As<std::string>("DefaultName");
   mCameraId = spaceEx("CameraId").As<int>(nInvalidMemberId);
   Vlk::Explorer membersEx = spaceEx("Members");
   if (!membersEx.Valid())

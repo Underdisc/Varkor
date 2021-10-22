@@ -7,7 +7,7 @@
 #include "util/Delegate.h"
 
 namespace Vlk {
-struct Pair;
+struct Value;
 struct Explorer;
 } // namespace Vlk
 
@@ -36,7 +36,7 @@ struct TypeData
   void (*mMoveConstruct)(void* from, void* to);
   void (*mDestruct)(void* data);
   Util::Delegate<void> mVUpdate;
-  Util::Delegate<void, Vlk::Pair&> mVSerialize;
+  Util::Delegate<void, Vlk::Value&> mVSerialize;
   Util::Delegate<void, const Vlk::Explorer&> mVDeserialize;
 };
 

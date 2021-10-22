@@ -10,22 +10,22 @@
 namespace AssetLibrary {
 
 template<typename T>
-void SerializeAssets(Vlk::Pair& rootVlk)
+void SerializeAssets(Vlk::Value& rootVal)
 {
   std::string resourceTypeName = Util::GetShortTypename<T>();
-  Vlk::Pair& assetsVlk = rootVlk(resourceTypeName);
+  Vlk::Value& assetsVal = rootVal(resourceTypeName);
   for (const auto& idAssetPair : AssetBin<T>::smAssets)
   {
     if (idAssetPair.mValue.Required())
     {
       continue;
     }
-    Vlk::Pair& assetVlk = assetsVlk(idAssetPair.mValue.mName);
-    assetVlk("Id") = idAssetPair.Key();
-    Vlk::Value& pathsVlk = assetVlk("Paths")[{T::smInitPathCount}];
+    Vlk::Value& assetVal = assetsVal(idAssetPair.mValue.mName);
+    assetVal("Id") = idAssetPair.Key();
+    Vlk::Value& pathsVal = assetVal("Paths")[{T::smInitPathCount}];
     for (int i = 0; i < T::smInitPathCount; ++i)
     {
-      pathsVlk[i] = idAssetPair.mValue.GetPath(i);
+      pathsVal[i] = idAssetPair.mValue.GetPath(i);
     }
   }
 }
@@ -83,24 +83,24 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
 const char* nAssetFile = "assets.vlk";
 void LoadAssets()
 {
-  Vlk::Pair rootVlk;
-  Util::Result result = rootVlk.Read(nAssetFile);
+  Vlk::Value rootVal;
+  Util::Result result = rootVal.Read(nAssetFile);
   if (!result.Success())
   {
     LogError(result.mError.c_str());
     return;
   }
-  Vlk::Explorer rootEx(rootVlk);
+  Vlk::Explorer rootEx(rootVal);
   DeserializeAssets<Gfx::Shader>(rootEx);
   DeserializeAssets<Gfx::Model>(rootEx);
 }
 
 void SaveAssets()
 {
-  Vlk::Pair rootVlk("Assets");
-  SerializeAssets<Gfx::Shader>(rootVlk);
-  SerializeAssets<Gfx::Model>(rootVlk);
-  Util::Result result = rootVlk.Write(nAssetFile);
+  Vlk::Value rootVal;
+  SerializeAssets<Gfx::Shader>(rootVal);
+  SerializeAssets<Gfx::Model>(rootVal);
+  Util::Result result = rootVal.Write(nAssetFile);
   LogErrorIf(!result.Success(), result.mError.c_str());
 }
 

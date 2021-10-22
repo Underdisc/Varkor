@@ -25,13 +25,12 @@ private:
   const Token& LastToken();
   size_t LastTokenLength();
 
-  bool ParseRoot(Value* root);
-  bool ParsePairArray(Value* root = nullptr);
-  bool ParsePair(Value* root = nullptr);
+  bool ParseValue();
+  bool ParsePairArray();
   bool ParseValueArray();
+  bool ParsePair();
   bool ParseValueList();
   bool ParseValueArrayList();
-  bool ParseValue();
 };
 
 } // namespace Vlk

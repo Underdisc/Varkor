@@ -2,7 +2,7 @@
 #define comp_Transform_h
 
 namespace Vlk {
-struct Pair;
+struct Value;
 struct Explorer;
 } // namespace Vlk
 
@@ -21,7 +21,7 @@ namespace Comp {
 struct Transform
 {
   Transform();
-  void VSerialize(Vlk::Pair& transformVlk);
+  void VSerialize(Vlk::Value& transformVal);
   void VDeserialize(const Vlk::Explorer& transformEx);
 
   const Vec3& GetScale() const;

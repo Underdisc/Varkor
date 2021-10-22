@@ -6,7 +6,6 @@
 
 namespace Vlk {
 
-// Value ///////////////////////////////////////////////////////////////////////
 Value::Value(): mType(Type::Invalid) {}
 
 Value::Value(Value::Type type): mType(Type::Invalid)
@@ -124,64 +123,51 @@ bool Value::ReachedThreshold(size_t& elementCount) const
   return false;
 }
 
-void Value::PrintValue(std::ostream& os, std::string& indent) const
+Util::Result Value::Read(const char* filename)
 {
-  // Invalid values will always become empty pair arrays.
-  switch (mType)
+  // Read the file's content.
+  std::ifstream stream(filename, std::ifstream::in);
+  if (!stream.is_open())
   {
-  case Type::Invalid: os << "{}"; break;
-  case Type::String: os << mString; break;
-  case Type::ValueArray: PrintValueArray(os, indent); break;
-  case Type::PairArray: PrintPairArray(os, indent); break;
+    std::stringstream error;
+    error << filename << " failed to open while reading.";
+    return Util::Result(error.str());
   }
+  std::stringstream content;
+  content << stream.rdbuf();
+  stream.close();
+
+  // Parse the content.
+  Util::Result result = Parse(content.str().c_str());
+  if (!result.Success())
+  {
+    std::stringstream error;
+    error << filename << result.mError;
+    return Util::Result(error.str());
+  }
+  return result;
 }
 
-void Value::PrintValueArray(std::ostream& os, std::string& indent) const
+Util::Result Value::Write(const char* filename)
 {
-  if (BelowPackThreshold())
+  std::ofstream stream(filename, std::ofstream::out);
+  if (!stream.is_open())
   {
-    if (mValueArray.Empty())
-    {
-      os << "[]";
-      return;
-    }
-    os << "[";
-    mValueArray[0].PrintValue(os, indent);
-    for (size_t i = 1; i < mValueArray.Size(); ++i)
-    {
-      os << ", ";
-      mValueArray[i].PrintValue(os, indent);
-    }
-    os << "]";
-    return;
+    std::stringstream error;
+    error << filename << " failed to open while writing.";
+    return Util::Result(error.str());
   }
-  os << "[";
-  indent += "  ";
-  for (const Value& value : mValueArray)
-  {
-    os << "\n" << indent;
-    value.PrintValue(os, indent);
-    os << ",";
-  }
-  indent.erase(indent.size() - 2);
-  os << "\n" << indent << "]";
+  stream << *this;
+  return Util::Result(true);
 }
 
-void Value::PrintPairArray(std::ostream& os, std::string& indent) const
+Util::Result Value::Parse(const char* text)
 {
-  if (mPairArray.Empty())
-  {
-    os << "{}";
-    return;
-  }
-  os << "{\n";
-  indent += "  ";
-  for (const Pair& pair : mPairArray)
-  {
-    os << indent << pair << "\n";
-  }
-  indent.erase(indent.size() - 2);
-  os << indent << "}";
+  LogAbortIf(
+    mType != Value::Type::Invalid,
+    "Parse can only be used on an uninitialized Value.");
+  Parser parser;
+  return parser.Parse(text, this);
 }
 
 template<>
@@ -254,7 +240,7 @@ const Value* Value::TryGetValue(size_t index) const
   return &mValueArray[index];
 }
 
-Pair& Value::operator()(const char* key)
+Value& Value::operator()(const char* key)
 {
   ExpectType(Type::PairArray);
   LogAbortIf(key[0] == '\0', "Key cannot be an empty string.");
@@ -262,7 +248,7 @@ Pair& Value::operator()(const char* key)
   return mPairArray.Top();
 }
 
-Pair& Value::operator()(const std::string& key)
+Value& Value::operator()(const std::string& key)
 {
   return (*this)(key.c_str());
 }
@@ -323,72 +309,87 @@ std::ostream& operator<<(std::ostream& os, Value::Type valueType)
   return os;
 }
 
-// Pair ////////////////////////////////////////////////////////////////////////
+std::ostream& operator<<(std::ostream& os, const Value& value)
+{
+  static std::string indent = "";
+  value.PrintValue(os, indent);
+  return os;
+}
+
+void Value::PrintValue(std::ostream& os, std::string& indent) const
+{
+  // Invalid values will always become empty pair arrays.
+  switch (mType)
+  {
+  case Type::Invalid: os << "{}"; break;
+  case Type::String: os << mString; break;
+  case Type::ValueArray: PrintValueArray(os, indent); break;
+  case Type::PairArray: PrintPairArray(os, indent); break;
+  }
+}
+
+void Value::PrintValueArray(std::ostream& os, std::string& indent) const
+{
+  if (BelowPackThreshold())
+  {
+    if (mValueArray.Empty())
+    {
+      os << "[]";
+      return;
+    }
+    os << "[";
+    mValueArray[0].PrintValue(os, indent);
+    for (size_t i = 1; i < mValueArray.Size(); ++i)
+    {
+      os << ", ";
+      mValueArray[i].PrintValue(os, indent);
+    }
+    os << "]";
+    return;
+  }
+  os << "[";
+  indent += "  ";
+  for (const Value& value : mValueArray)
+  {
+    os << "\n" << indent;
+    value.PrintValue(os, indent);
+    os << ",";
+  }
+  indent.erase(indent.size() - 2);
+  os << "\n" << indent << "]";
+}
+
+void Value::PrintPairArray(std::ostream& os, std::string& indent) const
+{
+  if (mPairArray.Empty())
+  {
+    os << "{}";
+    return;
+  }
+  os << "{\n";
+  indent += "  ";
+  for (const Pair& pair : mPairArray)
+  {
+    pair.PrintPair(os, indent);
+  }
+  indent.erase(indent.size() - 2);
+  os << indent << "}";
+}
+
 Pair::Pair() {}
 Pair::Pair(const char* key): mKey(key) {}
 Pair::Pair(const std::string& key): mKey(key) {}
-
-Util::Result Pair::Read(const char* filename)
-{
-  // Read the file's content.
-  std::ifstream stream(filename, std::ifstream::in);
-  if (!stream.is_open())
-  {
-    std::stringstream error;
-    error << filename << " failed to open while reading.";
-    return Util::Result(error.str());
-  }
-  std::stringstream content;
-  content << stream.rdbuf();
-  stream.close();
-
-  // Parse the content.
-  Util::Result result = Parse(content.str().c_str());
-  if (!result.Success())
-  {
-    std::stringstream error;
-    error << filename << result.mError;
-    return Util::Result(error.str());
-  }
-  return result;
-}
-
-Util::Result Pair::Write(const char* filename)
-{
-  std::ofstream stream(filename, std::ofstream::out);
-  if (!stream.is_open())
-  {
-    std::stringstream error;
-    error << filename << " failed to open while writing.";
-    return Util::Result(error.str());
-  }
-  stream << *this;
-  return Util::Result(true);
-}
-
-Util::Result Pair::Parse(const char* text)
-{
-  LogAbortIf(
-    mKey != "" || mType != Value::Type::Invalid,
-    "Parse can only be used on a completely uninitialized Pair.");
-  Parser parser;
-  return parser.Parse(text, this);
-}
 
 const std::string& Pair::Key() const
 {
   return mKey;
 }
 
-std::ostream& operator<<(std::ostream& os, const Pair& pair)
+void Pair::PrintPair(std::ostream& os, std::string& indent) const
 {
-  if (!pair.mKey.empty())
-  {
-    os << ':' << pair.mKey << ": ";
-  }
-  static std::string indent = "";
-  pair.PrintValue(os, indent);
-  return os;
+  os << indent << ':' << mKey << ": ";
+  PrintValue(os, indent);
+  os << '\n';
 }
 
 } // namespace Vlk

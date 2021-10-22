@@ -5,13 +5,11 @@
 
 namespace Vlk {
 
-Explorer::Explorer(const Pair& root):
-  mParent(nullptr), mValue(&root), mIsPair(true)
+Explorer::Explorer(const Value& rootVal):
+  mParent(nullptr), mValue(&rootVal), mIsPair(false)
 {}
 
-Explorer::Explorer(const Explorer* parent):
-  mParent(parent), mValue(nullptr), mIsPair(false)
-{}
+Explorer::Explorer(const Explorer* parent): mParent(parent), mValue(nullptr) {}
 
 Explorer::Explorer(const Explorer* parent, const Pair* pair):
   mParent(parent), mValue(pair), mIsPair(true)
@@ -23,13 +21,13 @@ Explorer::Explorer(const Explorer* parent, const Value* value, size_t index):
 
 std::string Explorer::Path() const
 {
-  LogAbortIf(!Valid(), "Path of an invalid value cannot be obtained");
+  LogAbortIf(!Valid(), "Path of an invalid Explorer cannot be obtained.");
 
   // We collect all the ancestors in a vector so this Explorer's lineage can be
   // visited starting at the root. This Explorer is also considered an ancestor.
   Ds::Vector<const Explorer*> ancestors;
   const Explorer* current = this;
-  while (current != nullptr)
+  while (current->mParent != nullptr)
   {
     ancestors.Push(current);
     current = current->mParent;
@@ -37,6 +35,7 @@ std::string Explorer::Path() const
 
   // Create the path by traversing this Explorer's lineage.
   std::stringstream path;
+  path << "()";
   while (!ancestors.Empty())
   {
     const Explorer& ancestor = *ancestors.Top();
@@ -55,6 +54,7 @@ std::string Explorer::Path() const
 
 const std::string& Explorer::Key() const
 {
+  LogAbortIf(!Valid(), "Key of an invalid Explorer cannot be optained.");
   if (!mIsPair)
   {
     std::stringstream error;
