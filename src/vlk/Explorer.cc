@@ -35,14 +35,14 @@ std::string Explorer::Path() const
 
   // Create the path by traversing this Explorer's lineage.
   std::stringstream path;
-  path << "()";
+  path << "{}";
   while (!ancestors.Empty())
   {
     const Explorer& ancestor = *ancestors.Top();
     if (ancestor.mIsPair)
     {
       const Pair* pair = (Pair*)ancestor.mValue;
-      path << "(" << pair->Key() << ")";
+      path << "{" << pair->Key() << "}";
     } else
     {
       path << "[" << ancestor.mIndex << "]";
