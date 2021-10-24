@@ -6,7 +6,7 @@
 #include "vlk/Value.h"
 
 // Valkor Grammar
-// Value = PairArray | ValueArray | <Value>
+// Value = PairArray | ValueArray | <TrueValue>
 // PairArray = <OpenBrace> Pair* <CloseBrace>
 // ValueArray = <OpenBracket> (ValueList | ValueArrayList)? <CloseBracket>
 // Pair = <Key> (Value)
@@ -90,22 +90,22 @@ Util::Result Parser::Parse(const char* text, Value* root)
 
 bool Parser::ParseValue()
 {
-  if (!Accept(Token::Type::Value))
+  if (!Accept(Token::Type::TrueValue))
   {
     return ParsePairArray() || ParseValueArray();
   }
   if (mValueStack.Top()->mType == Value::Type::Invalid)
   {
-    mValueStack.Top()->Init(Value::Type::String);
+    mValueStack.Top()->Init(Value::Type::TrueValue);
     mValueStack.Push(mValueStack.Top());
   } else
   {
     mValueStack.Top()->HardExpectType(Value::Type::ValueArray);
-    mValueStack.Top()->mValueArray.Emplace(Value::Type::String);
+    mValueStack.Top()->mValueArray.Emplace(Value::Type::TrueValue);
     mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
   }
   const Token& valueToken = LastToken();
-  mValueStack.Top()->mString.insert(0, valueToken.mText, LastTokenLength());
+  mValueStack.Top()->mTrueValue.insert(0, valueToken.mText, LastTokenLength());
   mValueStack.Pop();
   return true;
 }

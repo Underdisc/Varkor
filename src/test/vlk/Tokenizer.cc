@@ -9,7 +9,7 @@ std::ostream& operator<<(std::ostream& os, Vlk::Token::Type tokenType)
   switch (tokenType)
   {
   case Vlk::Token::Type::Key: os << "Key"; break;
-  case Vlk::Token::Type::Value: os << "Value"; break;
+  case Vlk::Token::Type::TrueValue: os << "TrueValue"; break;
   case Vlk::Token::Type::OpenBracket: os << "OpenBracket"; break;
   case Vlk::Token::Type::CloseBracket: os << "CloseBracket"; break;
   case Vlk::Token::Type::OpenBrace: os << "OpenBrace"; break;
@@ -55,15 +55,15 @@ void Key()
   std::cout << std::endl;
 }
 
-void Value()
+void TrueValue()
 {
-  std::cout << "<= Value =>" << std::endl;
+  std::cout << "<= TrueValue =>" << std::endl;
   PrintTokens(
     "1\n"
     "143\n"
     "1.0\n"
     "123.456\n"
-    "\"AStringValue\"\n"
+    "\"ATrueStringValue\"\n"
     "\"Another_?+-!\"\n");
   std::cout << std::endl;
 }
@@ -95,7 +95,7 @@ int main()
 {
   InitMemLeakOutput();
   Key();
-  Value();
+  TrueValue();
   Characters();
   InvalidToken();
 }

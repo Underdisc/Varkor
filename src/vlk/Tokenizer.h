@@ -13,7 +13,7 @@ struct Token
     Invalid,
     Whitespace,
     Key,
-    Value,
+    TrueValue,
     OpenBracket,
     CloseBracket,
     OpenBrace,

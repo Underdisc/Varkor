@@ -56,7 +56,7 @@ private:
   enum class Type
   {
     Invalid,
-    String,
+    TrueValue,
     ValueArray,
     PairArray,
   };
@@ -64,7 +64,7 @@ private:
   Type mType;
   union
   {
-    std::string mString;
+    std::string mTrueValue;
     Ds::Vector<Value> mValueArray;
     Ds::Vector<Pair> mPairArray;
   };
@@ -92,8 +92,8 @@ private:
 template<typename T>
 T Value::As() const
 {
-  HardExpectType(Type::String);
-  std::stringstream ss(mString);
+  HardExpectType(Type::TrueValue);
+  std::stringstream ss(mTrueValue);
   T value;
   ss >> value;
   return value;
@@ -108,10 +108,10 @@ std::string Value::As<std::string>() const;
 template<typename T>
 void Value::operator=(const T& value)
 {
-  ExpectType(Type::String);
+  ExpectType(Type::TrueValue);
   std::stringstream ss;
   ss << value;
-  mString = ss.str();
+  mTrueValue = ss.str();
 }
 
 struct Pair: public Value

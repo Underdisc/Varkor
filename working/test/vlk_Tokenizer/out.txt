@@ -5,13 +5,13 @@ Key: :_a_key_with_a_starting_underscore:
 Key: :A_KEY_WITH_CAPS:
 Key: :_a_key_with_SOME_CAPS:
 
-<= Value =>
-Value: 1
-Value: 143
-Value: 1.0
-Value: 123.456
-Value: "AStringValue"
-Value: "Another_?+-!"
+<= TrueValue =>
+TrueValue: 1
+TrueValue: 143
+TrueValue: 1.0
+TrueValue: 123.456
+TrueValue: "ATrueStringValue"
+TrueValue: "Another_?+-!"
 
 <= Characters =>
 OpenBracket: [

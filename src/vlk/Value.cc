@@ -1,8 +1,8 @@
 #include <fstream>
 
 #include "Error.h"
-#include "vlk/Value.h"
 #include "vlk/Parser.h"
+#include "vlk/Value.h"
 
 namespace Vlk {
 
@@ -19,8 +19,8 @@ Value::Value(Value&& other): mType(other.mType)
 {
   switch (other.mType)
   {
-  case Type::String:
-    new (&mString) std::string(Util::Move(other.mString));
+  case Type::TrueValue:
+    new (&mTrueValue) std::string(Util::Move(other.mTrueValue));
     break;
   case Type::ValueArray:
     new (&mValueArray) Ds::Vector<Value>(Util::Move(other.mValueArray));
@@ -35,7 +35,7 @@ Value::~Value()
 {
   switch (mType)
   {
-  case Type::String: mString.~basic_string(); break;
+  case Type::TrueValue: mTrueValue.~basic_string(); break;
   case Type::ValueArray: mValueArray.~Vector(); break;
   case Type::PairArray: mPairArray.~Vector(); break;
   }
@@ -48,7 +48,7 @@ void Value::Init(Type type)
   mType = type;
   switch (mType)
   {
-  case Type::String: new (&mString) std::string(); break;
+  case Type::TrueValue: new (&mTrueValue) std::string(); break;
   case Type::ValueArray: new (&mValueArray) Ds::Vector<Value>(); break;
   case Type::PairArray: new (&mPairArray) Ds::Vector<Pair>(); break;
   }
@@ -108,7 +108,7 @@ bool Value::ReachedThreshold(size_t& elementCount) const
     return false;
   }
   const size_t countThreshold = 5;
-  if (mValueArray[0].mType == Type::String)
+  if (mValueArray[0].mType == Type::TrueValue)
   {
     elementCount += mValueArray.Size();
     return elementCount > countThreshold;
@@ -173,22 +173,22 @@ Util::Result Value::Parse(const char* text)
 template<>
 int Value::As<int>() const
 {
-  HardExpectType(Type::String);
-  return std::stoi(mString);
+  HardExpectType(Type::TrueValue);
+  return std::stoi(mTrueValue);
 }
 
 template<>
 float Value::As<float>() const
 {
-  HardExpectType(Type::String);
-  return std::stof(mString);
+  HardExpectType(Type::TrueValue);
+  return std::stof(mTrueValue);
 }
 
 template<>
 std::string Value::As<std::string>() const
 {
-  HardExpectType(Type::String);
-  return mString.substr(1, mString.size() - 2);
+  HardExpectType(Type::TrueValue);
+  return mTrueValue.substr(1, mTrueValue.size() - 2);
 }
 
 size_t Value::Size() const
@@ -286,10 +286,10 @@ const Value& Value::operator[](size_t index) const
 
 void Value::operator=(const char* value)
 {
-  ExpectType(Type::String);
+  ExpectType(Type::TrueValue);
   std::stringstream ss;
   ss << "\"" << value << "\"";
-  mString = ss.str();
+  mTrueValue = ss.str();
 }
 
 void Value::operator=(const std::string& value)
@@ -302,7 +302,7 @@ std::ostream& operator<<(std::ostream& os, Value::Type valueType)
   switch (valueType)
   {
   case Value::Type::Invalid: os << "Invalid"; break;
-  case Value::Type::String: os << "String"; break;
+  case Value::Type::TrueValue: os << "TrueValue"; break;
   case Value::Type::ValueArray: os << "ValueArray"; break;
   case Value::Type::PairArray: os << "PairArray"; break;
   }
@@ -322,7 +322,7 @@ void Value::PrintValue(std::ostream& os, std::string& indent) const
   switch (mType)
   {
   case Type::Invalid: os << "{}"; break;
-  case Type::String: os << mString; break;
+  case Type::TrueValue: os << mTrueValue; break;
   case Type::ValueArray: PrintValueArray(os, indent); break;
   case Type::PairArray: PrintPairArray(os, indent); break;
   }

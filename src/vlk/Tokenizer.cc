@@ -154,9 +154,9 @@ void InitTokenizer()
     q.WhitelistChar('\n');
     AddEdge(invalid, nInvalidTerminal, q);
   }
-  // Value
+  // TrueValue
   {
-    StateIndex valid = AddStates(Token::Type::Value, 2);
+    StateIndex valid = AddStates(Token::Type::TrueValue, 2);
     StateIndex invalid = AddStates(Token::Type::Invalid, 3);
 
     Qualifier q;
