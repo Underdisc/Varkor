@@ -5,9 +5,11 @@
 #include "Input.h"
 #include "Viewport.h"
 #include "comp/Model.h"
+#include "comp/Sprite.h"
 #include "comp/Transform.h"
 #include "ds/Vector.h"
 #include "gfx/Framebuffer.h"
+#include "gfx/Image.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
 #include "math/Vector.h"
@@ -20,14 +22,18 @@
 namespace Gfx {
 namespace Renderer {
 
-Shader nColorShader;
-Shader nDefaultShader;
-Shader nFramebufferShader;
-Shader nMemberIdShader;
+Gfx::Shader nColorShader;
+Gfx::Shader nDefaultShader;
+Gfx::Shader nFramebufferShader;
+Gfx::Shader nMemberIdShader;
+Gfx::Image nDefaultImage;
 
-constexpr unsigned int nFullscreenVertexCount = 12;
-unsigned int nFullscreenVao;
-unsigned int nFullscreenVbo;
+constexpr size_t nQuadVertexArraySize = 12;
+GLuint nFullscreenVao;
+GLuint nFullscreenVbo;
+GLuint nSpriteVao;
+GLuint nSpriteVbo;
+
 Ds::Vector<unsigned int> nQueuedFullscreenFramebuffers;
 
 void Init()
@@ -45,28 +51,43 @@ void Init()
   result =
     nMemberIdShader.Init("vres/shader/Default.vs", "vres/shader/MemberId.fs");
   LogAbortIf(!result.Success(), result.mError.c_str());
+  result = nDefaultImage.Init("vres/image/Default.png");
+  LogAbortIf(!result.Success(), result.mError.c_str());
 
-  // Initialize the fullscreen quad vertex array that will be used for drawing
-  // fullscreen framebuffers.
+  // Initialize the fullscreen and sprite vertex arrays.
   // clang-format off
-  float fullscreenVerts[nFullscreenVertexCount] =
+  float fullscreenVertices[nQuadVertexArraySize] =
     {-1.0f,  1.0f,
      -1.0f, -1.0f,
       1.0f,  1.0f,
       1.0f, -1.0f,
       1.0f,  1.0f,
      -1.0f, -1.0f};
+  float spriteVertices[nQuadVertexArraySize] =
+    {-0.5f,  0.5f,
+     -0.5f, -0.5f,
+      0.5f,  0.5f,
+      0.5f, -0.5f,
+      0.5f,  0.5f,
+     -0.5f, -0.5f};
   // clang-format on
-  glGenVertexArrays(1, &nFullscreenVao);
-  glBindVertexArray(nFullscreenVao);
-  glGenBuffers(1, &nFullscreenVbo);
-  glBindBuffer(GL_ARRAY_BUFFER, nFullscreenVbo);
-  unsigned int size = sizeof(float) * nFullscreenVertexCount;
-  glBufferData(GL_ARRAY_BUFFER, size, fullscreenVerts, GL_STATIC_DRAW);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  auto uploadQuadVertexArray =
+    [](float vertices[nQuadVertexArraySize], GLuint* vao, GLuint* vbo)
+  {
+    glGenVertexArrays(1, vao);
+    glBindVertexArray(*vao);
+    glGenBuffers(1, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+    GLuint size = sizeof(float) * nQuadVertexArraySize;
+    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(
+      0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+  };
+  uploadQuadVertexArray(fullscreenVertices, &nFullscreenVao, &nFullscreenVbo);
+  uploadQuadVertexArray(spriteVertices, &nSpriteVao, &nSpriteVbo);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -93,6 +114,36 @@ Mat4 GetTransformation(const World::Space& space, World::MemberId memberId)
   return transform->GetWorldMatrix(space, memberId);
 }
 
+Mat4 GetImageTransformation(
+  const World::Space& space, World::MemberId memberId, const Gfx::Image& image)
+{
+  Mat4 transformation = GetTransformation(space, memberId);
+  Mat4 aspectScale;
+  Math::Scale(&aspectScale, {image.Aspect(), 1.0f, 1.0f});
+  transformation *= aspectScale;
+  return transformation;
+}
+
+const Gfx::Shader& GetShader(AssetId shaderId)
+{
+  Gfx::Shader* shader = AssLib::TryGet<Gfx::Shader>(shaderId);
+  if (shader != nullptr && shader->Live())
+  {
+    return *shader;
+  }
+  return nDefaultShader;
+}
+
+const Gfx::Image& GetImage(AssetId imageId)
+{
+  Gfx::Image* image = AssLib::TryGet<Gfx::Image>(imageId);
+  if (image != nullptr && image->Live())
+  {
+    return *image;
+  }
+  return nDefaultImage;
+}
+
 void RenderModel(const Shader& shader, const Comp::Model& modelComp)
 {
   Gfx::Model* model = AssLib::TryGet<Gfx::Model>(modelComp.mModelId);
@@ -102,22 +153,43 @@ void RenderModel(const Shader& shader, const Comp::Model& modelComp)
   }
 }
 
+void RenderQuad(GLuint vao)
+{
+  glBindVertexArray(vao);
+  glDrawArrays(GL_TRIANGLES, 0, nQuadVertexArraySize / 2);
+  glBindVertexArray(0);
+}
+
 void RenderMemberIds(const World::Space& space, const Mat4& view)
 {
   nMemberIdShader.Use();
   nMemberIdShader.SetMat4("uView", view.CData());
   nMemberIdShader.SetMat4("uProj", Viewport::Perspective().CData());
 
-  // Render every model in the space and use the model owner's MemberId as the
-  // color value.
+  // Render MemberIds for every model.
   space.VisitTableComponents<Comp::Model>(
     [&space](World::MemberId owner, const Comp::Model& modelComp)
     {
       Mat4 model = GetTransformation(space, owner);
+      nMemberIdShader.Use();
       nMemberIdShader.SetMat4("uModel", model.CData());
       nMemberIdShader.SetInt("uMemberId", owner);
       RenderModel(nMemberIdShader, modelComp);
     });
+
+  // Render MemberIds for every sprite.
+  glDisable(GL_CULL_FACE);
+  space.VisitTableComponents<Comp::Sprite>(
+    [&space](World::MemberId owner, const Comp::Sprite& spriteComp)
+    {
+      const Gfx::Image& image = GetImage(spriteComp.mImageId);
+      Mat4 model = GetImageTransformation(space, owner, image);
+      nMemberIdShader.Use();
+      nMemberIdShader.SetMat4("uModel", model.CData());
+      nMemberIdShader.SetInt("uMemberId", owner);
+      RenderQuad(nSpriteVao);
+    });
+  glEnable(GL_CULL_FACE);
 }
 
 World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view)
@@ -144,35 +216,6 @@ World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view)
   return memberId;
 }
 
-void RenderModels(
-  const World::Space& space, const Mat4& view, const Vec3& viewPos)
-{
-  space.VisitTableComponents<Comp::Model>(
-    [&](World::MemberId owner, const Comp::Model& modelComp)
-    {
-      // Find the shader that will be used to draw the model.
-      Gfx::Shader* shader = AssLib::TryGet<Gfx::Shader>(modelComp.mShaderId);
-      const Shader* drawShader;
-      if (shader != nullptr && shader->Live())
-      {
-        drawShader = shader;
-      } else
-      {
-        drawShader = &nDefaultShader;
-      }
-
-      // Draw the model.
-      drawShader->Use();
-      Mat4 model = GetTransformation(space, owner);
-      drawShader->SetMat4("uModel", model.CData());
-      drawShader->SetMat4("uView", view.CData());
-      drawShader->SetMat4("uProj", Viewport::Perspective().CData());
-      drawShader->SetVec3("uViewPos", viewPos.CData());
-      drawShader->SetFloat("uTime", Framer::TotalTime());
-      RenderModel(*drawShader, modelComp);
-    });
-}
-
 void RenderSpace(const World::Space& space)
 {
   // Find the view matrix using the space's camera and render the space.
@@ -192,7 +235,46 @@ void RenderSpace(const World::Space& space)
     view = cameraTransform->GetInverseWorldMatrix(space, space.mCameraId);
     viewPos = cameraTransform->GetWorldTranslation(space, space.mCameraId);
   }
-  RenderModels(space, view, viewPos);
+  RenderSpace(space, view, viewPos);
+}
+
+void RenderSpace(
+  const World::Space& space, const Mat4& view, const Vec3& viewPos)
+{
+  // Render all of the Model components.
+  space.VisitTableComponents<Comp::Model>(
+    [&](World::MemberId owner, const Comp::Model& modelComp)
+    {
+      const Gfx::Shader& shader = GetShader(modelComp.mShaderId);
+      Mat4 model = GetTransformation(space, owner);
+      shader.Use();
+      shader.SetMat4("uModel", model.CData());
+      shader.SetMat4("uView", view.CData());
+      shader.SetMat4("uProj", Viewport::Perspective().CData());
+      shader.SetVec3("uViewPos", viewPos.CData());
+      shader.SetFloat("uTime", Framer::TotalTime());
+      RenderModel(shader, modelComp);
+    });
+
+  // Render all of the Sprite components.
+  glDisable(GL_CULL_FACE);
+  space.VisitTableComponents<Comp::Sprite>(
+    [&](World::MemberId owner, const Comp::Sprite& spriteComp)
+    {
+      const Gfx::Shader& shader = GetShader(spriteComp.mShaderId);
+      const Gfx::Image& image = GetImage(spriteComp.mImageId);
+      Mat4 model = GetImageTransformation(space, owner, image);
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, image.Id());
+      shader.Use();
+      shader.SetMat4("uModel", model.CData());
+      shader.SetMat4("uView", view.CData());
+      shader.SetMat4("uProj", Viewport::Perspective().CData());
+      shader.SetInt("uTexture", 0);
+      RenderQuad(nSpriteVao);
+      glBindTexture(GL_TEXTURE_2D, 0);
+    });
+  glEnable(GL_CULL_FACE);
 }
 
 void RenderWorld()
@@ -205,25 +287,18 @@ void RenderWorld()
   }
 }
 
-void RenderFullscreenTexture(unsigned int tbo)
-{
-  glDisable(GL_DEPTH_TEST);
-  nFramebufferShader.Use();
-  glBindVertexArray(nFullscreenVao);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, tbo);
-  nFramebufferShader.SetInt("uTexture", 0);
-  glDrawArrays(GL_TRIANGLES, 0, nFullscreenVertexCount / 2);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glBindVertexArray(0);
-  glEnable(GL_DEPTH_TEST);
-}
-
 void RenderQueuedFullscreenFramebuffers()
 {
   for (unsigned int tbo : nQueuedFullscreenFramebuffers)
   {
-    RenderFullscreenTexture(tbo);
+    glDisable(GL_DEPTH_TEST);
+    nFramebufferShader.Use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tbo);
+    nFramebufferShader.SetInt("uTexture", 0);
+    RenderQuad(nFullscreenVao);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glEnable(GL_DEPTH_TEST);
   }
   nQueuedFullscreenFramebuffers.Clear();
 }

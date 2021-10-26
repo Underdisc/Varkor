@@ -1,11 +1,14 @@
 {
-  :Version: 0
+  :Version: 1
   :Components: {
     :Model: {
       :Size: 8
     }
     :Transform: {
       :Size: 105
+    }
+    :Sprite: {
+      :Size: 8
     }
   }
 }

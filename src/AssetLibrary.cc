@@ -1,6 +1,7 @@
 #include <fstream>
 
 #include "AssetLibrary.h"
+#include "gfx/Image.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
 #include "util/Utility.h"
@@ -91,15 +92,17 @@ void LoadAssets()
     return;
   }
   Vlk::Explorer rootEx(rootVal);
-  DeserializeAssets<Gfx::Shader>(rootEx);
+  DeserializeAssets<Gfx::Image>(rootEx);
   DeserializeAssets<Gfx::Model>(rootEx);
+  DeserializeAssets<Gfx::Shader>(rootEx);
 }
 
 void SaveAssets()
 {
   Vlk::Value rootVal;
-  SerializeAssets<Gfx::Shader>(rootVal);
+  SerializeAssets<Gfx::Image>(rootVal);
   SerializeAssets<Gfx::Model>(rootVal);
+  SerializeAssets<Gfx::Shader>(rootVal);
   Util::Result result = rootVal.Write(nAssetFile);
   LogErrorIf(!result.Success(), result.mError.c_str());
 }

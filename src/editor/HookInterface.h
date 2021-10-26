@@ -1,6 +1,7 @@
 #ifndef editor_HookInterface_h
 #define editor_HookInterface_h
 
+#include "AssetLibrary.h"
 #include "editor/Interface.h"
 #include "world/Object.h"
 
@@ -18,6 +19,10 @@ public:
   static void CloseHookInterface(Interface* interface);
   template<typename T>
   static HookInterface* FindHookInterface(Interface* interface);
+
+protected:
+  template<typename AssetT>
+  void SelectAssetWidget(AssetId* id);
 };
 
 typedef HookInterface* (*HookOpener)(Interface*);

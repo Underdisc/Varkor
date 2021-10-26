@@ -19,7 +19,7 @@ void OverviewInterface::Show()
   World::Space& space = World::GetSpace(mSpaceId);
   if (nEditorMode)
   {
-    Gfx::Renderer::RenderModels(
+    Gfx::Renderer::RenderSpace(
       space, nCamera.WorldToCamera(), nCamera.Position());
     bool picking = true;
     if (inspector != nullptr && inspector->SuppressObjectPicking())

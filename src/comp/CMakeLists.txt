@@ -3,5 +3,6 @@ target_sources(${varkorTarget} PRIVATE
   Model.cc
   PointLight.cc
   SpotLight.cc
+  Sprite.cc
   Transform.cc
   Type.cc)

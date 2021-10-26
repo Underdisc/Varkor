@@ -1,3 +1,10 @@
+#include <imgui/imgui.h>
+#include <sstream>
+
+#include "AssetLibrary.h"
+#include "editor/AssetInterfaces.h"
+#include "util/Utility.h"
+
 namespace Editor {
 
 template<typename T>
@@ -16,6 +23,29 @@ template<typename T>
 HookInterface* HookInterface::FindHookInterface(Interface* interface)
 {
   return (HookInterface*)interface->FindInterface<Hook<T>>();
+}
+
+template<typename AssetT>
+void HookInterface::SelectAssetWidget(AssetId* currentId)
+{
+  std::stringstream buttonLabel;
+  buttonLabel << Util::GetShortTypename<AssetT>() << ": ";
+  AssLib::Asset<AssetT>* asset = AssLib::TryGetAsset<AssetT>(*currentId);
+  if (asset == nullptr)
+  {
+    buttonLabel << "None";
+  } else
+  {
+    buttonLabel << asset->mName;
+  }
+  if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f)))
+  {
+    OpenInterface<SelectAssetInterface<AssetT>>(
+      [currentId](AssetId selectedId)
+      {
+        *currentId = selectedId;
+      });
+  }
 }
 
 extern Ds::Vector<HookFunctions> nHookFunctions;

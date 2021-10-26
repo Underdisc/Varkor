@@ -8,6 +8,7 @@
 #include "editor/FramerInterface.h"
 #include "editor/OverviewInterface.h"
 #include "editor/Utility.h"
+#include "gfx/Image.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
 #include "vlk/Explorer.h"
@@ -18,8 +19,9 @@ namespace Editor {
 
 CoreInterface::CoreInterface()
 {
-  OpenInterface<AssetInterface<Gfx::Shader>>();
+  OpenInterface<AssetInterface<Gfx::Image>>();
   OpenInterface<AssetInterface<Gfx::Model>>();
+  OpenInterface<AssetInterface<Gfx::Shader>>();
 }
 
 void CoreInterface::Show()
@@ -151,13 +153,17 @@ void CoreInterface::ViewMenu()
   }
   if (ImGui::BeginMenu("Assets"))
   {
-    if (ImGui::MenuItem("Shaders"))
+    if (ImGui::MenuItem("Images"))
     {
-      OpenInterface<AssetInterface<Gfx::Shader>>();
+      OpenInterface<AssetInterface<Gfx::Image>>();
     }
     if (ImGui::MenuItem("Models"))
     {
       OpenInterface<AssetInterface<Gfx::Model>>();
+    }
+    if (ImGui::MenuItem("Shaders"))
+    {
+      OpenInterface<AssetInterface<Gfx::Shader>>();
     }
     ImGui::EndMenu();
   }
