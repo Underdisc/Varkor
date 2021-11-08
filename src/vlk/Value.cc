@@ -188,7 +188,7 @@ template<>
 std::string Value::As<std::string>() const
 {
   HardExpectType(Type::TrueValue);
-  return mTrueValue.substr(1, mTrueValue.size() - 2);
+  return mTrueValue;
 }
 
 size_t Value::Size() const
@@ -288,7 +288,7 @@ void Value::operator=(const char* value)
 {
   ExpectType(Type::TrueValue);
   std::stringstream ss;
-  ss << "\"" << value << "\"";
+  ss << value;
   mTrueValue = ss.str();
 }
 
@@ -322,10 +322,27 @@ void Value::PrintValue(std::ostream& os, std::string& indent) const
   switch (mType)
   {
   case Type::Invalid: os << "{}"; break;
-  case Type::TrueValue: os << mTrueValue; break;
+  case Type::TrueValue: PrintTrueValue(os); break;
   case Type::ValueArray: PrintValueArray(os, indent); break;
   case Type::PairArray: PrintPairArray(os, indent); break;
   }
+}
+
+void Value::PrintTrueValue(std::ostream& os) const
+{
+  std::string trueText;
+  trueText.push_back('\'');
+  for (size_t i = 0; i < mTrueValue.size(); ++i)
+  {
+    switch (mTrueValue[i])
+    {
+    case '\'': trueText.append("\\\'"); break;
+    case '\\': trueText.append("\\\\"); break;
+    default: trueText.push_back(mTrueValue[i]);
+    }
+  }
+  trueText.push_back('\'');
+  os << trueText;
 }
 
 void Value::PrintValueArray(std::ostream& os, std::string& indent) const

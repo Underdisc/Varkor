@@ -59,12 +59,12 @@ void TrueValue()
 {
   std::cout << "<= TrueValue =>" << std::endl;
   PrintTokens(
-    "1\n"
-    "143\n"
-    "1.0\n"
-    "123.456\n"
-    "\"ATrueStringValue\"\n"
-    "\"Another_?+-!\"\n");
+    "\'1\'\n"
+    "\'143\'\n"
+    "\'1.0\'\n"
+    "\'123.456\'\n"
+    "\'ATrueStringValue\'\n"
+    "\'WithEscape\\\'Characters\\\\\'\n");
   std::cout << std::endl;
 }
 
@@ -79,16 +79,15 @@ void InvalidToken()
 {
   std::cout << "<= InvalidToken =>" << std::endl;
   PrintTokens("+");
-  PrintTokens("\"an incomplete string");
-  PrintTokens("\"an incomplete string with a newline\n");
+  PrintTokens("\'an incomplete string");
   PrintTokens(":an incomplete key");
   PrintTokens(":an incomplete key with a newline\n");
   PrintTokens(
     ":this: [\n"
-    "  \"is\"\n"
-    "  \"testing\"\n"
-    "  \"line\n"
-    "  \"information\"\n");
+    "  \'is\'\n"
+    "  \'testing\'\n"
+    "  \'line\n"
+    "  \'information\'\n");
 }
 
 int main()

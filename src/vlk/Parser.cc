@@ -105,7 +105,18 @@ bool Parser::ParseValue()
     mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
   }
   const Token& valueToken = LastToken();
-  mValueStack.Top()->mTrueValue.insert(0, valueToken.mText, LastTokenLength());
+  std::string& trueValue = mValueStack.Top()->mTrueValue;
+  size_t trueValueEnd = LastTokenLength() - 1;
+  for (size_t i = 1; i < trueValueEnd; ++i)
+  {
+    if (valueToken.mText[i] == '\\')
+    {
+      trueValue.push_back(valueToken.mText[i + 1]);
+      ++i;
+      continue;
+    }
+    trueValue.push_back(valueToken.mText[i]);
+  }
   mValueStack.Pop();
   return true;
 }

@@ -20,13 +20,13 @@ void PrintParseError(const char* text)
   std::cout << result.mError << std::endl;
 }
 
-void String()
+void TrueValue()
 {
-  std::cout << "<= String =>" << std::endl;
+  std::cout << "<= TrueValue =>" << std::endl;
   Vlk::Value rootVal;
   rootVal(std::string("Integer")) = 10;
   rootVal(std::string("Float")) = 10.5f;
-  rootVal(std::string("String")) = "10";
+  rootVal(std::string("String")) = "oooweee";
   PrintParsePrint(rootVal);
   std::cout << std::endl;
 }
@@ -231,7 +231,7 @@ void Errors()
   PrintParseError("{:ValueArray:[]]");
   PrintParseError("{:ValueArray:[]{}}");
   PrintParseError("{:TokenError");
-  PrintParseError("{:ValidToken:\"Invalid:Token");
+  PrintParseError("{:ValidToken:\'Invalid:Token");
 
   // This tests line number information for parser errors.
   Vlk::Value rootVal;
@@ -242,7 +242,7 @@ void Errors()
 int main()
 {
   InitMemLeakOutput();
-  String();
+  TrueValue();
   ValueArray();
   PairArray();
   MultidimensionalArrays();

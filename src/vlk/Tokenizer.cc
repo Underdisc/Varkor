@@ -156,37 +156,22 @@ void InitTokenizer()
   }
   // TrueValue
   {
-    StateIndex valid = AddStates(Token::Type::TrueValue, 2);
-    StateIndex invalid = AddStates(Token::Type::Invalid, 3);
+    StateIndex valid = AddStates(Token::Type::TrueValue, 1);
+    StateIndex invalid = AddStates(Token::Type::Invalid, 2);
 
     Qualifier q;
-    q.WhitelistChar('-');
-    AddEdge(nRoot, invalid + 2, q);
-
-    q.Clear();
-    q.WhitelistRange('0', '9');
-    AddEdge(nRoot, valid, q);
-    AddEdge(valid, valid, q);
-    AddEdge(invalid + 2, valid, q);
-
-    q.Clear();
-    q.WhitelistChar('.');
-    AddEdge(valid, invalid + 1, q);
-
-    q.Clear();
-    q.WhitelistRange('0', '9');
-    AddEdge(invalid + 1, valid + 1, q);
-    AddEdge(valid + 1, valid + 1, q);
-
-    q.Clear();
-    q.WhitelistChar('"');
+    q.WhitelistChar('\'');
     AddEdge(nRoot, invalid, q);
     AddDefault(invalid, invalid);
     AddEdge(invalid, valid, q);
 
     q.Clear();
-    q.WhitelistChar('\n');
-    AddEdge(invalid, nInvalidTerminal, q);
+    q.WhitelistChar('\\');
+    AddEdge(invalid, invalid + 1, q);
+    q.Clear();
+    q.WhitelistChar('\'');
+    q.WhitelistChar('\\');
+    AddEdge(invalid + 1, invalid, q);
   }
   // Whitespace
   {

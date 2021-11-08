@@ -6,12 +6,12 @@ Key: :A_KEY_WITH_CAPS:
 Key: :_a_key_with_SOME_CAPS:
 
 <= TrueValue =>
-TrueValue: 1
-TrueValue: 143
-TrueValue: 1.0
-TrueValue: 123.456
-TrueValue: "ATrueStringValue"
-TrueValue: "Another_?+-!"
+TrueValue: '1'
+TrueValue: '143'
+TrueValue: '1.0'
+TrueValue: '123.456'
+TrueValue: 'ATrueStringValue'
+TrueValue: 'WithEscape\'Characters\\'
 
 <= Characters =>
 OpenBracket: [
@@ -22,8 +22,7 @@ Comma: ,
 
 <= InvalidToken =>
 [1] Invalid token: +
-[1] Invalid token: "an incomplete string
-[1] Invalid token: "an incomplete string with a newline
+[1] Invalid token: 'an incomplete string
 [1] Invalid token: :an incomplete key
 [1] Invalid token: :an incomplete key with a newline
-[4] Invalid token: "line
+[4] Invalid token: i

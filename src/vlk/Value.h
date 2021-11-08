@@ -81,6 +81,7 @@ private:
   friend std::ostream& operator<<(std::ostream& os, Type valueType);
   friend std::ostream& operator<<(std::ostream& os, const Value& value);
   void PrintValue(std::ostream& os, std::string& indent) const;
+  void PrintTrueValue(std::ostream& os) const;
   void PrintValueArray(std::ostream& os, std::string& indent) const;
   void PrintPairArray(std::ostream& os, std::string& indent) const;
 
