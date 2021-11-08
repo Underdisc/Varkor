@@ -8,6 +8,7 @@
 
 namespace AssetLibrary {
 
+void Init();
 void LoadAssets();
 void SaveAssets();
 
@@ -22,6 +23,7 @@ public:
   T mResource;
   Asset(const std::string& name, bool required);
   Util::Result Init();
+  Util::Result Init(const std::string paths[T::smInitPathCount]);
   bool Required() const;
   void SetPath(int index, const std::string& newPath);
   const std::string& GetPath(int index) const;
@@ -45,9 +47,9 @@ AssetId Require(Args&&... args);
 template<typename T>
 T& Get(AssetId id);
 template<typename T>
-T* TryGet(AssetId id);
-template<typename T>
 Asset<T>& GetAsset(AssetId id);
+template<typename T>
+T* TryGet(AssetId id);
 template<typename T>
 Asset<T>* TryGetAsset(AssetId id);
 
@@ -55,17 +57,19 @@ Asset<T>* TryGetAsset(AssetId id);
 template<typename T>
 struct AssetBin
 {
-  static AssetId smIdHandout;
   static Ds::Map<AssetId, Asset<T>> smAssets;
-  static AssetId NextId()
-  {
-    return smIdHandout++;
-  }
+  static Asset<T> smDefault;
+  static AssetId smIdHandout;
+
+  static void InitDefault(const std::string paths[T::smInitPathCount]);
+  static AssetId NextId();
 };
 template<typename T>
-AssetId AssetBin<T>::smIdHandout = 0;
-template<typename T>
 Ds::Map<AssetId, Asset<T>> AssetBin<T>::smAssets;
+template<typename T>
+Asset<T> AssetBin<T>::smDefault("Default", true);
+template<typename T>
+AssetId AssetBin<T>::smIdHandout = 0;
 
 } // namespace AssetLibrary
 

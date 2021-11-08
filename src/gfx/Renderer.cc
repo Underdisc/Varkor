@@ -124,35 +124,6 @@ Mat4 GetImageTransformation(
   return transformation;
 }
 
-const Gfx::Shader& GetShader(AssetId shaderId)
-{
-  Gfx::Shader* shader = AssLib::TryGet<Gfx::Shader>(shaderId);
-  if (shader != nullptr && shader->Live())
-  {
-    return *shader;
-  }
-  return nDefaultShader;
-}
-
-const Gfx::Image& GetImage(AssetId imageId)
-{
-  Gfx::Image* image = AssLib::TryGet<Gfx::Image>(imageId);
-  if (image != nullptr && image->Live())
-  {
-    return *image;
-  }
-  return nDefaultImage;
-}
-
-void RenderModel(const Shader& shader, const Comp::Model& modelComp)
-{
-  Gfx::Model* model = AssLib::TryGet<Gfx::Model>(modelComp.mModelId);
-  if (model != nullptr)
-  {
-    model->Draw(shader);
-  }
-}
-
 void RenderQuad(GLuint vao)
 {
   glBindVertexArray(vao);
@@ -170,11 +141,12 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
   space.VisitTableComponents<Comp::Model>(
     [&space](World::MemberId owner, const Comp::Model& modelComp)
     {
-      Mat4 model = GetTransformation(space, owner);
+      Mat4 transformation = GetTransformation(space, owner);
       nMemberIdShader.Use();
-      nMemberIdShader.SetMat4("uModel", model.CData());
+      nMemberIdShader.SetMat4("uModel", transformation.CData());
       nMemberIdShader.SetInt("uMemberId", owner);
-      RenderModel(nMemberIdShader, modelComp);
+      Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
+      model.Draw(nMemberIdShader);
     });
 
   // Render MemberIds for every sprite.
@@ -182,10 +154,10 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
   space.VisitTableComponents<Comp::Sprite>(
     [&space](World::MemberId owner, const Comp::Sprite& spriteComp)
     {
-      const Gfx::Image& image = GetImage(spriteComp.mImageId);
-      Mat4 model = GetImageTransformation(space, owner, image);
+      const Gfx::Image& image = AssLib::Get<Gfx::Image>(spriteComp.mImageId);
+      Mat4 transformation = GetImageTransformation(space, owner, image);
       nMemberIdShader.Use();
-      nMemberIdShader.SetMat4("uModel", model.CData());
+      nMemberIdShader.SetMat4("uModel", transformation.CData());
       nMemberIdShader.SetInt("uMemberId", owner);
       RenderQuad(nSpriteVao);
     });
@@ -245,15 +217,16 @@ void RenderSpace(
   space.VisitTableComponents<Comp::Model>(
     [&](World::MemberId owner, const Comp::Model& modelComp)
     {
-      const Gfx::Shader& shader = GetShader(modelComp.mShaderId);
-      Mat4 model = GetTransformation(space, owner);
+      const Gfx::Shader& shader = AssLib::Get<Gfx::Shader>(modelComp.mShaderId);
+      Mat4 transformation = GetTransformation(space, owner);
       shader.Use();
-      shader.SetMat4("uModel", model.CData());
+      shader.SetMat4("uModel", transformation.CData());
       shader.SetMat4("uView", view.CData());
       shader.SetMat4("uProj", Viewport::Perspective().CData());
       shader.SetVec3("uViewPos", viewPos.CData());
       shader.SetFloat("uTime", Framer::TotalTime());
-      RenderModel(shader, modelComp);
+      const Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
+      model.Draw(shader);
     });
 
   // Render all of the Sprite components.
@@ -261,13 +234,14 @@ void RenderSpace(
   space.VisitTableComponents<Comp::Sprite>(
     [&](World::MemberId owner, const Comp::Sprite& spriteComp)
     {
-      const Gfx::Shader& shader = GetShader(spriteComp.mShaderId);
-      const Gfx::Image& image = GetImage(spriteComp.mImageId);
-      Mat4 model = GetImageTransformation(space, owner, image);
+      const Gfx::Shader& shader =
+        AssLib::Get<Gfx::Shader>(spriteComp.mShaderId);
+      const Gfx::Image& image = AssLib::Get<Gfx::Image>(spriteComp.mImageId);
+      Mat4 transformation = GetImageTransformation(space, owner, image);
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, image.Id());
       shader.Use();
-      shader.SetMat4("uModel", model.CData());
+      shader.SetMat4("uModel", transformation.CData());
       shader.SetMat4("uView", view.CData());
       shader.SetMat4("uProj", Viewport::Perspective().CData());
       shader.SetInt("uTexture", 0);

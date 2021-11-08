@@ -12,6 +12,16 @@ Util::Result Asset<T>::Init()
 }
 
 template<typename T>
+Util::Result Asset<T>::Init(const std::string paths[T::smInitPathCount])
+{
+  for (size_t i = 0; i < T::smInitPathCount; ++i)
+  {
+    mPaths[i] = paths[i];
+  }
+  return Init();
+}
+
+template<typename T>
 bool Asset<T>::Required() const
 {
   return mRequired;
@@ -63,6 +73,17 @@ T& Get(AssetId id)
 }
 
 template<typename T>
+Asset<T>& GetAsset(AssetId id)
+{
+  Asset<T>* asset = AssetBin<T>::smAssets.Find(id);
+  if (asset == nullptr)
+  {
+    return AssetBin<T>::smDefault;
+  }
+  return *asset;
+}
+
+template<typename T>
 T* TryGet(AssetId id)
 {
   Asset<T>* asset = TryGetAsset<T>(id);
@@ -74,22 +95,22 @@ T* TryGet(AssetId id)
 }
 
 template<typename T>
-Asset<T>& GetAsset(AssetId id)
-{
-  Asset<T>* asset = AssetBin<T>::smAssets.Find(id);
-  if (asset == nullptr)
-  {
-    std::stringstream error;
-    error << "No Asset<" << Util::GetShortTypename<T>() << "> with id: " << id;
-    LogAbort(error.str().c_str());
-  }
-  return *asset;
-}
-
-template<typename T>
 Asset<T>* TryGetAsset(AssetId id)
 {
   return AssetBin<T>::smAssets.Find(id);
+}
+
+template<typename T>
+void AssetBin<T>::InitDefault(const std::string paths[T::smInitPathCount])
+{
+  Util::Result result = AssetBin<T>::smDefault.Init(paths);
+  LogAbortIf(!result.Success(), result.mError.c_str());
+}
+
+template<typename T>
+AssetId AssetBin<T>::NextId()
+{
+  return smIdHandout++;
 }
 
 } // namespace AssetLibrary

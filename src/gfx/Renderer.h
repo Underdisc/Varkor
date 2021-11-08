@@ -9,7 +9,6 @@ namespace Renderer {
 
 void Init();
 void Clear();
-void RenderModel(const Shader& shader, const Comp::Model& modelComp);
 void RenderMemberIds(const World::Space& space, const Mat4& view);
 World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view);
 void RenderSpace(

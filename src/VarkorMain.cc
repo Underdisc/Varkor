@@ -16,7 +16,7 @@ void VarkorInit(const char* windowName)
   Viewport::Init(windowName);
   Editor::Init();
   Framer::Init();
-  AssetLibrary::LoadAssets();
+  AssetLibrary::Init();
   Registrar::Init();
 }
 
@@ -48,7 +48,6 @@ void VarkorEngine()
 
 void VarkorPurge()
 {
-  AssetLibrary::SaveAssets();
   Framer::Purge();
   Editor::Purge();
   Viewport::Purge();

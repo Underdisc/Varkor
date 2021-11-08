@@ -81,6 +81,20 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
   }
 }
 
+void Init()
+{
+  std::string defaultImagePaths[Gfx::Image::smInitPathCount] = {
+    "vres/image/Default.png"};
+  std::string defaultModelPaths[Gfx::Model::smInitPathCount] = {
+    "vres/model/Default.obj"};
+  std::string defaultShaderPaths[Gfx::Shader::smInitPathCount] = {
+    "vres/shader/Default.vs", "vres/shader/Default.fs"};
+  AssetBin<Gfx::Image>::InitDefault(defaultImagePaths);
+  AssetBin<Gfx::Model>::InitDefault(defaultModelPaths);
+  AssetBin<Gfx::Shader>::InitDefault(defaultShaderPaths);
+  LoadAssets();
+}
+
 const char* nAssetFile = "assets.vlk";
 void LoadAssets()
 {

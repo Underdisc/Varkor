@@ -691,7 +691,9 @@ void Hook<Comp::Transform>::RenderHandle(
   colorShader.SetMat4(
     "uModel", transform.GetWorldMatrix(mSpace, handleId).CData());
   colorShader.SetVec4("uColor", color.CData());
-  Gfx::Renderer::RenderModel(colorShader, model);
+  Comp::Model& modelComp = *mSpace.GetComponent<Comp::Model>(handleId);
+  const Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
+  model.Draw(colorShader);
 }
 
 void Hook<Comp::Transform>::RenderHandles(
