@@ -5,7 +5,7 @@
 namespace Comp {
 
 Model::Model():
-  mShaderId(AssLib::nInvalidAssetId), mModelId(AssLib::nInvalidAssetId)
+  mShaderId(AssLib::nDefaultAssetId), mModelId(AssLib::nDefaultAssetId)
 {}
 
 void Model::VSerialize(Vlk::Value& modelVal)
@@ -16,8 +16,8 @@ void Model::VSerialize(Vlk::Value& modelVal)
 
 void Model::VDeserialize(const Vlk::Explorer& modelEx)
 {
-  mShaderId = modelEx("ShaderId").As<int>(AssLib::nInvalidAssetId);
-  mModelId = modelEx("ModelId").As<int>(AssLib::nInvalidAssetId);
+  mShaderId = modelEx("ShaderId").As<int>(AssLib::nDefaultAssetId);
+  mModelId = modelEx("ModelId").As<int>(AssLib::nDefaultAssetId);
 }
 
 } // namespace Comp

@@ -33,11 +33,11 @@ Hook<Comp::Transform>::Hook():
 {
   if (!smRequiredAssetsLoaded)
   {
-    smArrowId = AssLib::Require<Gfx::Model>("vres/model/arrow.fbx");
-    smCubeId = AssLib::Require<Gfx::Model>("vres/model/cube.obj");
-    smScaleId = AssLib::Require<Gfx::Model>("vres/model/scale.fbx");
-    smSphereId = AssLib::Require<Gfx::Model>("vres/model/sphere.fbx");
-    smTorusId = AssLib::Require<Gfx::Model>("vres/model/torus.fbx");
+    smArrowId = AssLib::Require<Gfx::Model>("Arrow", "vres/model/arrow.fbx");
+    smCubeId = AssLib::Require<Gfx::Model>("Cube", "vres/model/cube.obj");
+    smScaleId = AssLib::Require<Gfx::Model>("Scale", "vres/model/scale.fbx");
+    smSphereId = AssLib::Require<Gfx::Model>("Sphere", "vres/model/sphere.fbx");
+    smTorusId = AssLib::Require<Gfx::Model>("Torus", "vres/model/torus.fbx");
     smRequiredAssetsLoaded = true;
   }
 

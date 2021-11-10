@@ -1,8 +1,7 @@
 namespace AssetLibrary {
 
 template<typename T>
-Asset<T>::Asset(const std::string& name, bool required):
-  mName(name), mRequired(required)
+Asset<T>::Asset(const std::string& name): mName(name)
 {}
 
 template<typename T>
@@ -19,12 +18,6 @@ Util::Result Asset<T>::Init(const std::string paths[T::smInitPathCount])
     mPaths[i] = paths[i];
   }
   return Init();
-}
-
-template<typename T>
-bool Asset<T>::Required() const
-{
-  return mRequired;
 }
 
 template<typename T>
@@ -45,8 +38,12 @@ AssetId Create(const std::string& name, bool includeId)
 {
   AssetId id = AssetBin<T>::NextId();
   std::stringstream ss;
-  ss << name << id;
-  AssetBin<T>::smAssets.Emplace(id, ss.str().c_str(), false);
+  ss << name;
+  if (includeId)
+  {
+    ss << id;
+  }
+  AssetBin<T>::smAssets.Emplace(id, ss.str());
   return id;
 }
 
@@ -57,10 +54,10 @@ void Remove(AssetId id)
 }
 
 template<typename T, typename... Args>
-AssetId Require(Args&&... args)
+AssetId Require(const std::string& name, Args&&... args)
 {
-  AssetId id = AssetBin<T>::NextId();
-  Asset<T>& newAsset = AssetBin<T>::smAssets.Emplace(id, "vres", true);
+  AssetId id = AssetBin<T>::NextRequiredId();
+  Asset<T>& newAsset = AssetBin<T>::smAssets.Emplace(id, name);
   Util::Result result = newAsset.mResource.Init(args...);
   LogAbortIf(!result.Success(), result.mError.c_str());
   return id;
@@ -97,13 +94,17 @@ T* TryGet(AssetId id)
 template<typename T>
 Asset<T>* TryGetAsset(AssetId id)
 {
+  if (id == 0)
+  {
+    return &AssetBin<T>::smDefault;
+  }
   return AssetBin<T>::smAssets.Find(id);
 }
 
 template<typename T>
 void AssetBin<T>::InitDefault(const std::string paths[T::smInitPathCount])
 {
-  Util::Result result = AssetBin<T>::smDefault.Init(paths);
+  Util::Result result = smDefault.Init(paths);
   LogAbortIf(!result.Success(), result.mError.c_str());
 }
 
@@ -111,6 +112,12 @@ template<typename T>
 AssetId AssetBin<T>::NextId()
 {
   return smIdHandout++;
+}
+
+template<typename T>
+AssetId AssetBin<T>::NextRequiredId()
+{
+  return smRequiredIdHandout--;
 }
 
 } // namespace AssetLibrary

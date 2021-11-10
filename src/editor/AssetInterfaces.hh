@@ -3,7 +3,7 @@
 namespace Editor {
 
 template<typename T>
-AssetInterface<T>::AssetInterface(): mSelectedId(AssLib::nInvalidAssetId)
+AssetInterface<T>::AssetInterface(): mSelectedId(AssLib::nDefaultAssetId)
 {}
 
 template<typename T>
@@ -24,18 +24,19 @@ void AssetInterface<T>::Show()
 
   // Display a list of all existing Assets.
   ImGui::BeginChild("List", ImVec2(-1, -1), true);
-  AssetId removeAssetId = AssLib::nInvalidAssetId;
+  AssetId removeAssetId = AssLib::nDefaultAssetId;
   AssetId nextAssetId = mSelectedId;
   for (auto& assetPair : AssLib::AssetBin<T>::smAssets)
   {
+    // Ensure we are not on a required Asset.
     AssetId id = assetPair.Key();
-    AssLib::Asset<T>& asset = assetPair.mValue;
-    if (asset.Required())
+    if (AssLib::IsRequiredId(id))
     {
       continue;
     }
 
     // Display an entry in the Asset list.
+    AssLib::Asset<T>& asset = assetPair.mValue;
     ShowStatus(asset);
     ImGui::SameLine();
     bool selected = id == mSelectedId;
@@ -44,7 +45,7 @@ void AssetInterface<T>::Show()
     {
       if (selected)
       {
-        nextAssetId = AssLib::nInvalidAssetId;
+        nextAssetId = AssLib::nDefaultAssetId;
       } else
       {
         nextAssetId = id;
@@ -73,7 +74,7 @@ void AssetInterface<T>::Show()
 
   // Update the selected AssetId and remove an Asset if requested.
   mSelectedId = nextAssetId;
-  if (removeAssetId != AssLib::nInvalidAssetId)
+  if (removeAssetId != AssLib::nDefaultAssetId)
   {
     AssLib::Remove<T>(removeAssetId);
   }
@@ -159,14 +160,14 @@ void SelectAssetInterface<T>::Show()
   ImGui::Begin(windowName.c_str(), &mOpen);
   for (const auto& assetPair : AssLib::AssetBin<T>::smAssets)
   {
-    if (assetPair.mValue.Required())
-    {
-      continue;
-    }
     if (ImGui::Selectable(assetPair.mValue.mName.c_str()))
     {
       mCallback(assetPair.Key());
     }
+  }
+  if (ImGui::Selectable("Default"))
+  {
+    mCallback(AssLib::nDefaultAssetId);
   }
   ImGui::End();
 }

@@ -21,29 +21,30 @@ struct Asset
 public:
   std::string mName;
   T mResource;
-  Asset(const std::string& name, bool required);
+  Asset(const std::string& name);
   Util::Result Init();
   Util::Result Init(const std::string paths[T::smInitPathCount]);
-  bool Required() const;
   void SetPath(int index, const std::string& newPath);
   const std::string& GetPath(int index) const;
 
 private:
-  bool mRequired;
   std::string mPaths[T::smInitPathCount];
 };
 
+// AssetIds refer to an Asset within an AssetBin. Positive AssetIds refer to
+// typical user Assets. Negative AssetIds and 0 refer to required Assets. If any
+// required Asset fails initialization, an abort will occur.
 typedef int AssetId;
-constexpr AssetId nInvalidAssetId = -1;
+constexpr AssetId nDefaultAssetId = 0;
+bool IsRequiredId(AssetId id);
 
-// These are the functions that should be used when interacting with the
-// AssetLibrary.
+// These functions serve as the primary interface for the AssetLibrary.
 template<typename T>
 AssetId Create(const std::string& name, bool includeId = false);
 template<typename T>
 void Remove(AssetId id);
 template<typename T, typename... Args>
-AssetId Require(Args&&... args);
+AssetId Require(const std::string& name, Args&&... args);
 template<typename T>
 T& Get(AssetId id);
 template<typename T>
@@ -60,16 +61,20 @@ struct AssetBin
   static Ds::Map<AssetId, Asset<T>> smAssets;
   static Asset<T> smDefault;
   static AssetId smIdHandout;
+  static AssetId smRequiredIdHandout;
 
   static void InitDefault(const std::string paths[T::smInitPathCount]);
   static AssetId NextId();
+  static AssetId NextRequiredId();
 };
 template<typename T>
 Ds::Map<AssetId, Asset<T>> AssetBin<T>::smAssets;
 template<typename T>
-Asset<T> AssetBin<T>::smDefault("Default", true);
+Asset<T> AssetBin<T>::smDefault("Default");
 template<typename T>
-AssetId AssetBin<T>::smIdHandout = 0;
+AssetId AssetBin<T>::smIdHandout = 1;
+template<typename T>
+AssetId AssetBin<T>::smRequiredIdHandout = -1;
 
 } // namespace AssetLibrary
 

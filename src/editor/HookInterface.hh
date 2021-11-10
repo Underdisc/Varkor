@@ -33,7 +33,7 @@ void HookInterface::SelectAssetWidget(AssetId* currentId)
   AssLib::Asset<AssetT>* asset = AssLib::TryGetAsset<AssetT>(*currentId);
   if (asset == nullptr)
   {
-    buttonLabel << "None";
+    buttonLabel << "Invalid";
   } else
   {
     buttonLabel << asset->mName;

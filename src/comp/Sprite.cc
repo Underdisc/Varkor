@@ -3,7 +3,7 @@
 namespace Comp {
 
 Sprite::Sprite():
-  mImageId(AssLib::nInvalidAssetId), mShaderId(AssLib::nInvalidAssetId)
+  mImageId(AssLib::nDefaultAssetId), mShaderId(AssLib::nDefaultAssetId)
 {}
 
 void Sprite::VSerialize(Vlk::Value& spriteVal)
@@ -14,8 +14,8 @@ void Sprite::VSerialize(Vlk::Value& spriteVal)
 
 void Sprite::VDeserialize(const Vlk::Explorer& spriteEx)
 {
-  mImageId = spriteEx("ImageId").As<AssetId>(AssLib::nInvalidAssetId);
-  mShaderId = spriteEx("ShaderId").As<AssetId>(AssLib::nInvalidAssetId);
+  mImageId = spriteEx("ImageId").As<AssetId>(AssLib::nDefaultAssetId);
+  mShaderId = spriteEx("ShaderId").As<AssetId>(AssLib::nDefaultAssetId);
 }
 
 } // namespace Comp

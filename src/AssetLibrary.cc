@@ -17,7 +17,7 @@ void SerializeAssets(Vlk::Value& rootVal)
   Vlk::Value& assetsVal = rootVal(resourceTypeName);
   for (const auto& idAssetPair : AssetBin<T>::smAssets)
   {
-    if (idAssetPair.mValue.Required())
+    if (IsRequiredId(idAssetPair.Key()))
     {
       continue;
     }
@@ -44,12 +44,11 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
   {
     // Ensure we have a valid Id so the new asset can be added to the bin.
     Vlk::Explorer assetEx = assetArrayEx(i);
-    AssetId id = assetEx("Id").As<int>(AssLib::nInvalidAssetId);
-    if (id == AssLib::nInvalidAssetId)
+    AssetId id = assetEx("Id").As<int>(AssLib::nDefaultAssetId);
+    if (IsRequiredId(id))
     {
       std::stringstream error;
-      error << assetEx.Path()
-            << " asset omitted because it does not have a valid Id.";
+      error << assetEx.Path() << " asset omitted because it has a required Id.";
       LogError(error.str().c_str());
       continue;
     }
@@ -64,7 +63,7 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
     }
 
     // Add the asset to the bin.
-    Asset<T>& asset = AssetBin<T>::smAssets.Emplace(id, assetEx.Key(), false);
+    Asset<T>& asset = AssetBin<T>::smAssets.Emplace(id, assetEx.Key());
     if (id >= AssetBin<T>::smIdHandout)
     {
       AssetBin<T>::smIdHandout = id + 1;
@@ -119,6 +118,11 @@ void SaveAssets()
   SerializeAssets<Gfx::Shader>(rootVal);
   Util::Result result = rootVal.Write(nAssetFile);
   LogErrorIf(!result.Success(), result.mError.c_str());
+}
+
+bool IsRequiredId(AssetId id)
+{
+  return id < 1;
 }
 
 } // namespace AssetLibrary

@@ -11,22 +11,19 @@
 #include "gfx/Framebuffer.h"
 #include "gfx/Image.h"
 #include "gfx/Model.h"
+#include "gfx/Renderer.h"
 #include "gfx/Shader.h"
 #include "math/Vector.h"
 #include "world/Object.h"
 #include "world/Space.h"
 #include "world/World.h"
 
-#include "gfx/Renderer.h"
-
 namespace Gfx {
 namespace Renderer {
 
 Gfx::Shader nColorShader;
-Gfx::Shader nDefaultShader;
 Gfx::Shader nFramebufferShader;
 Gfx::Shader nMemberIdShader;
-Gfx::Image nDefaultImage;
 
 constexpr size_t nQuadVertexArraySize = 12;
 GLuint nFullscreenVao;
@@ -42,16 +39,11 @@ void Init()
   Util::Result result =
     nColorShader.Init("vres/shader/Default.vs", "vres/shader/Color.fs");
   LogAbortIf(!result.Success(), result.mError.c_str());
-  result =
-    nDefaultShader.Init("vres/shader/Default.vs", "vres/shader/Default.fs");
-  LogAbortIf(!result.Success(), result.mError.c_str());
   result = nFramebufferShader.Init(
     "vres/shader/Fullscreen.vs", "vres/shader/Fullscreen.fs");
   LogAbortIf(!result.Success(), result.mError.c_str());
   result =
     nMemberIdShader.Init("vres/shader/Default.vs", "vres/shader/MemberId.fs");
-  LogAbortIf(!result.Success(), result.mError.c_str());
-  result = nDefaultImage.Init("vres/image/Default.png");
   LogAbortIf(!result.Success(), result.mError.c_str());
 
   // Initialize the fullscreen and sprite vertex arrays.
