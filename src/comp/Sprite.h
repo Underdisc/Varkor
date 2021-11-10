@@ -10,7 +10,7 @@ namespace Comp {
 #pragma pack(push, 1)
 struct Sprite
 {
-  Sprite();
+  void VInit();
   void VSerialize(Vlk::Value& spriteVal);
   void VDeserialize(const Vlk::Explorer& spriteEx);
 

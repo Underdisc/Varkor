@@ -13,12 +13,12 @@ namespace Comp {
 #pragma pack(push, 1)
 struct Model
 {
-  Model();
+  void VInit();
   void VSerialize(Vlk::Value& modelVal);
   void VDeserialize(const Vlk::Explorer& modelEx);
 
-  AssetLibrary::AssetId mShaderId;
   AssetLibrary::AssetId mModelId;
+  AssetLibrary::AssetId mShaderId;
 };
 #pragma pack(pop)
 

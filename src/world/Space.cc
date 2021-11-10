@@ -482,6 +482,7 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
       Comp::TypeId typeId = Comp::GetTypeId(componentEx.Key());
       const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
       void* component = AddComponent(typeId, memberId, false);
+      typeData.mDefaultConstruct(component);
       typeData.mVDeserialize.Invoke(component, componentEx);
     }
   }

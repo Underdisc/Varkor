@@ -20,7 +20,7 @@ namespace Comp {
 #pragma pack(push, 1)
 struct Transform
 {
-  Transform();
+  void VInit();
   void VSerialize(Vlk::Value& transformVal);
   void VDeserialize(const Vlk::Explorer& transformEx);
 

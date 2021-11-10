@@ -32,6 +32,7 @@ size_t Table::Add(MemberId memberId)
   void* component = GetComponent(index);
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   typeData.mDefaultConstruct(component);
+  typeData.mVInit.Invoke(component);
   return index;
 }
 

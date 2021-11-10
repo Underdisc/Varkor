@@ -2,9 +2,11 @@
 
 namespace Comp {
 
-Sprite::Sprite():
-  mImageId(AssLib::nDefaultAssetId), mShaderId(AssLib::nDefaultAssetId)
-{}
+void Sprite::VInit()
+{
+  mImageId = AssLib::nDefaultAssetId;
+  mShaderId = AssLib::nDefaultAssetId;
+}
 
 void Sprite::VSerialize(Vlk::Value& spriteVal)
 {

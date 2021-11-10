@@ -36,6 +36,7 @@ namespace Comp {
     delegate->BindNull();                                                       \
   }
 // clang-format on
+BindableTypeFunction(Init, void);
 BindableTypeFunction(Update, void);
 BindableTypeFunction(Serialize, void, Vlk::Value&);
 BindableTypeFunction(Deserialize, void, const Vlk::Explorer&);
@@ -84,6 +85,7 @@ void Type<T>::Register()
   data.mMoveConstruct = &MoveConstruct<T>;
   data.mDestruct = &Destruct<T>;
   BindVUpdate<T>(&data.mVUpdate);
+  BindVInit<T>(&data.mVInit);
   BindVSerialize<T>(&data.mVSerialize);
   BindVDeserialize<T>(&data.mVDeserialize);
   nTypeData.Push(data);

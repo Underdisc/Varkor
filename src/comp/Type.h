@@ -36,6 +36,7 @@ struct TypeData
   void (*mMoveConstruct)(void* from, void* to);
   void (*mDestruct)(void* data);
   Util::Delegate<void> mVUpdate;
+  Util::Delegate<void> mVInit;
   Util::Delegate<void, Vlk::Value&> mVSerialize;
   Util::Delegate<void, const Vlk::Explorer&> mVDeserialize;
 };

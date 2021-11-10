@@ -4,9 +4,11 @@
 
 namespace Comp {
 
-Model::Model():
-  mShaderId(AssLib::nDefaultAssetId), mModelId(AssLib::nDefaultAssetId)
-{}
+void Model::VInit()
+{
+  mModelId = AssLib::nDefaultAssetId;
+  mShaderId = AssLib::nDefaultAssetId;
+}
 
 void Model::VSerialize(Vlk::Value& modelVal)
 {
