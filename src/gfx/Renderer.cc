@@ -6,6 +6,7 @@
 #include "Viewport.h"
 #include "comp/Model.h"
 #include "comp/Sprite.h"
+#include "comp/Text.h"
 #include "comp/Transform.h"
 #include "ds/Vector.h"
 #include "gfx/Framebuffer.h"
@@ -24,6 +25,7 @@ namespace Renderer {
 Gfx::Shader nColorShader;
 Gfx::Shader nFramebufferShader;
 Gfx::Shader nMemberIdShader;
+AssetId nTextShaderId;
 
 constexpr size_t nQuadVertexArraySize = 12;
 GLuint nFullscreenVao;
@@ -45,6 +47,8 @@ void Init()
   result =
     nMemberIdShader.Init("vres/shader/Default.vs", "vres/shader/MemberId.fs");
   LogAbortIf(!result.Success(), result.mError.c_str());
+  nTextShaderId = AssLib::Require<Gfx::Shader>(
+    "DefaultText", "vres/shader/Text.vs", "vres/shader/Text.fs");
 
   // Initialize the fullscreen and sprite vertex arrays.
   // clang-format off
@@ -153,6 +157,21 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
       nMemberIdShader.SetInt("uMemberId", owner);
       RenderQuad(nSpriteVao);
     });
+
+  // Render MemberIds for every text component.
+  space.VisitTableComponents<Comp::Text>(
+    [&space](World::MemberId owner, const Comp::Text& textComp)
+    {
+      Mat4 baseTransformation = GetTransformation(space, owner);
+      Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
+      for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo)
+      {
+        Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
+        nMemberIdShader.SetMat4("uModel", glyphTransformation.CData());
+        nMemberIdShader.SetInt("uMemberId", owner);
+        RenderQuad(nSpriteVao);
+      }
+    });
   glEnable(GL_CULL_FACE);
 }
 
@@ -221,8 +240,8 @@ void RenderSpace(
       model.Draw(shader);
     });
 
-  // Render all of the Sprite components.
   glDisable(GL_CULL_FACE);
+  // Render all of the Sprite components.
   space.VisitTableComponents<Comp::Sprite>(
     [&](World::MemberId owner, const Comp::Sprite& spriteComp)
     {
@@ -239,6 +258,33 @@ void RenderSpace(
       shader.SetInt("uTexture", 0);
       RenderQuad(nSpriteVao);
       glBindTexture(GL_TEXTURE_2D, 0);
+    });
+
+  // Render all of the Text components.
+  space.VisitTableComponents<Comp::Text>(
+    [&](World::MemberId owner, Comp::Text& textComp)
+    {
+      const Gfx::Shader* shader =
+        AssLib::TryGet<Gfx::Shader>(textComp.mShaderId);
+      if (shader == nullptr)
+      {
+        shader = &AssLib::Get<Gfx::Shader>(nTextShaderId);
+      }
+      shader->Use();
+      shader->SetMat4("uView", view.CData());
+      shader->SetMat4("uProj", Viewport::Perspective().CData());
+      shader->SetInt("uTexture", 0);
+
+      Mat4 baseTransformation = GetTransformation(space, owner);
+      Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
+      for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo)
+      {
+        Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
+        shader->SetMat4("uModel", glyphTransformation.CData());
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, drawInfo.mId);
+        RenderQuad(nSpriteVao);
+      }
     });
   glEnable(GL_CULL_FACE);
 }

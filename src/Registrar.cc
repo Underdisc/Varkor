@@ -19,10 +19,12 @@
 #include "comp/Model.h"
 #include "comp/Transform.h"
 #include "comp/Sprite.h"
+#include "comp/Text.h"
 
 #include "editor/hook/Model.h"
 #include "editor/hook/Transform.h"
 #include "editor/hook/Sprite.h"
+#include "editor/hook/Text.h"
 // clang-format on
 
 namespace Registrar {
@@ -39,6 +41,7 @@ void RegisterTypes()
   Register<Comp::Model>();
   Register<Comp::Transform>();
   Register<Comp::Sprite>();
+  Register<Comp::Text>();
 }
 
 void Init()

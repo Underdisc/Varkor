@@ -8,6 +8,7 @@
 #include "editor/FramerInterface.h"
 #include "editor/OverviewInterface.h"
 #include "editor/Utility.h"
+#include "gfx/Font.h"
 #include "gfx/Image.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
@@ -19,6 +20,7 @@ namespace Editor {
 
 CoreInterface::CoreInterface()
 {
+  OpenInterface<AssetInterface<Gfx::Font>>();
   OpenInterface<AssetInterface<Gfx::Image>>();
   OpenInterface<AssetInterface<Gfx::Model>>();
   OpenInterface<AssetInterface<Gfx::Shader>>();
@@ -153,6 +155,10 @@ void CoreInterface::ViewMenu()
   }
   if (ImGui::BeginMenu("Assets"))
   {
+    if (ImGui::MenuItem("Fonts"))
+    {
+      OpenInterface<AssetInterface<Gfx::Font>>();
+    }
     if (ImGui::MenuItem("Images"))
     {
       OpenInterface<AssetInterface<Gfx::Image>>();

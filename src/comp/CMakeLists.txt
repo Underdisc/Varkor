@@ -4,5 +4,6 @@ target_sources(${varkorTarget} PRIVATE
   PointLight.cc
   SpotLight.cc
   Sprite.cc
+  Text.cc
   Transform.cc
   Type.cc)

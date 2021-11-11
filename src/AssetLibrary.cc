@@ -1,6 +1,7 @@
 #include <fstream>
 
 #include "AssetLibrary.h"
+#include "gfx/Font.h"
 #include "gfx/Image.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
@@ -82,12 +83,15 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
 
 void Init()
 {
+  std::string defaultFontPaths[Gfx::Font::smInitPathCount] = {
+    "vres/font/NovaMono/font.ttf"};
   std::string defaultImagePaths[Gfx::Image::smInitPathCount] = {
     "vres/image/Default.png"};
   std::string defaultModelPaths[Gfx::Model::smInitPathCount] = {
     "vres/model/Default.obj"};
   std::string defaultShaderPaths[Gfx::Shader::smInitPathCount] = {
     "vres/shader/Default.vs", "vres/shader/Default.fs"};
+  AssetBin<Gfx::Font>::InitDefault(defaultFontPaths);
   AssetBin<Gfx::Image>::InitDefault(defaultImagePaths);
   AssetBin<Gfx::Model>::InitDefault(defaultModelPaths);
   AssetBin<Gfx::Shader>::InitDefault(defaultShaderPaths);
@@ -105,6 +109,7 @@ void LoadAssets()
     return;
   }
   Vlk::Explorer rootEx(rootVal);
+  DeserializeAssets<Gfx::Font>(rootEx);
   DeserializeAssets<Gfx::Image>(rootEx);
   DeserializeAssets<Gfx::Model>(rootEx);
   DeserializeAssets<Gfx::Shader>(rootEx);
@@ -113,6 +118,7 @@ void LoadAssets()
 void SaveAssets()
 {
   Vlk::Value rootVal;
+  SerializeAssets<Gfx::Font>(rootVal);
   SerializeAssets<Gfx::Image>(rootVal);
   SerializeAssets<Gfx::Model>(rootVal);
   SerializeAssets<Gfx::Shader>(rootVal);

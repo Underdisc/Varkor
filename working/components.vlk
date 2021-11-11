@@ -1,5 +1,5 @@
 {
-  :Version: '2'
+  :Version: '3'
   :Components: {
     :Model: {
       :Size: '8'
@@ -9,6 +9,9 @@
     }
     :Sprite: {
       :Size: '8'
+    }
+    :Text: {
+      :Size: '60'
     }
   }
 }

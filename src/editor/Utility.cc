@@ -50,6 +50,18 @@ bool InputText(const char* label, std::string* str)
     str);
 }
 
+bool InputTextMultiline(const char* label, const ImVec2& size, std::string* str)
+{
+  return ImGui::InputTextMultiline(
+    label,
+    (char*)str->data(),
+    str->capacity(),
+    size,
+    ImGuiInputTextFlags_CallbackResize,
+    InputTextCallback,
+    str);
+}
+
 void HelpMarker(const char* text)
 {
   ImGui::SameLine();
