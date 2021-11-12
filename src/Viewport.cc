@@ -30,6 +30,7 @@ void Init(const char* windowName, bool visible)
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+  glfwWindowHint(GLFW_SAMPLES, 4);
   if (!visible)
   {
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -43,6 +44,7 @@ void Init(const char* windowName, bool visible)
 
   bool gladLoaded = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
   LogAbortIf(!gladLoaded, "glad initialization failed.");
+  glEnable(GL_MULTISAMPLE);
 
   ResizeCallback(nWindow, nWidth, nHeight);
   glfwSetFramebufferSizeCallback(nWindow, ResizeCallback);
