@@ -36,6 +36,7 @@ void InspectorInterface::Show()
     mObject.mMember,
     [this](Comp::TypeId typeId, size_t tableIndex)
     {
+      bool removeComponent = false;
       const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
       const HookFunctions& hookFunctions = GetHookFunctions(typeId);
       bool inspecting = ImGui::CollapsingHeader(typeData.mName.c_str());
@@ -43,11 +44,7 @@ void InspectorInterface::Show()
       {
         if (ImGui::Selectable("Remove"))
         {
-          if (inspecting)
-          {
-            hookFunctions.mCloser(this);
-          }
-          mObject.RemComponent(typeId);
+          removeComponent = true;
         }
         ImGui::EndPopup();
       }
@@ -62,6 +59,11 @@ void InspectorInterface::Show()
       } else if (hook != nullptr)
       {
         hookFunctions.mCloser(this);
+      }
+      if (removeComponent == true)
+      {
+        hookFunctions.mCloser(this);
+        mObject.RemComponent(typeId);
       }
     });
   ImGui::End();
