@@ -25,13 +25,13 @@ void InitRequiredAssets()
 {
   // Initialize all defaults.
   std::string defaultFontPaths[Gfx::Font::smInitPathCount] = {
-    "vres/font/NovaMono/font.ttf"};
+    "vres/font/novaMono/font.ttf"};
   std::string defaultImagePaths[Gfx::Image::smInitPathCount] = {
-    "vres/image/Default.png"};
+    "vres/image/questionmarkSquare.png"};
   std::string defaultModelPaths[Gfx::Model::smInitPathCount] = {
-    "vres/model/Default.obj"};
+    "vres/model/questionmarkCube.obj"};
   std::string defaultShaderPaths[Gfx::Shader::smInitPathCount] = {
-    "vres/shader/Default.vs", "vres/shader/Default.fs"};
+    "vres/shader/default.vs", "vres/shader/default.fs"};
   AssetBin<Gfx::Font>::InitDefault(defaultFontPaths);
   AssetBin<Gfx::Image>::InitDefault(defaultImagePaths);
   AssetBin<Gfx::Model>::InitDefault(defaultModelPaths);
@@ -39,13 +39,13 @@ void InitRequiredAssets()
 
   // All other required assets.
   nColorShaderId = Require<Gfx::Shader>(
-    "Color", "vres/shader/Default.vs", "vres/shader/Color.fs");
+    "Color", "vres/shader/default.vs", "vres/shader/color.fs");
   nDefaultTextShaderId = Require<Gfx::Shader>(
-    "DefaultText", "vres/shader/Text.vs", "vres/shader/Text.fs");
+    "DefaultText", "vres/shader/text.vs", "vres/shader/text.fs");
   nFramebufferShaderId = Require<Gfx::Shader>(
-    "Framebuffer", "vres/shader/Fullscreen.vs", "vres/shader/Fullscreen.fs");
+    "Framebuffer", "vres/shader/fullscreen.vs", "vres/shader/fullscreen.fs");
   nMemberIdShaderId = Require<Gfx::Shader>(
-    "MemberId", "vres/shader/Default.vs", "vres/shader/MemberId.fs");
+    "MemberId", "vres/shader/default.vs", "vres/shader/memberId.fs");
   nArrowModelId = Require<Gfx::Model>("Arrow", "vres/model/arrow.fbx");
   nCubeModelId = Require<Gfx::Model>("Cube", "vres/model/cube.obj");
   nScaleModelId = Require<Gfx::Model>("Scale", "vres/model/scale.fbx");
