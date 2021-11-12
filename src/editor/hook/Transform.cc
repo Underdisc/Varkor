@@ -15,13 +15,6 @@
 
 namespace Editor {
 
-bool Hook<Comp::Transform>::smRequiredAssetsLoaded = false;
-AssetId Hook<Comp::Transform>::smArrowId;
-AssetId Hook<Comp::Transform>::smCubeId;
-AssetId Hook<Comp::Transform>::smScaleId;
-AssetId Hook<Comp::Transform>::smSphereId;
-AssetId Hook<Comp::Transform>::smTorusId;
-
 Hook<Comp::Transform>::Hook():
   mDrawbuffer(GL_RGBA, GL_UNSIGNED_BYTE),
   mReferenceFrame(ReferenceFrame::World),
@@ -31,16 +24,6 @@ Hook<Comp::Transform>::Hook():
   mRotationSnapDenominator(4),
   mOperation(Operation::None)
 {
-  if (!smRequiredAssetsLoaded)
-  {
-    smArrowId = AssLib::Require<Gfx::Model>("Arrow", "vres/model/arrow.fbx");
-    smCubeId = AssLib::Require<Gfx::Model>("Cube", "vres/model/cube.obj");
-    smScaleId = AssLib::Require<Gfx::Model>("Scale", "vres/model/scale.fbx");
-    smSphereId = AssLib::Require<Gfx::Model>("Sphere", "vres/model/sphere.fbx");
-    smTorusId = AssLib::Require<Gfx::Model>("Torus", "vres/model/torus.fbx");
-    smRequiredAssetsLoaded = true;
-  }
-
   mParent = mSpace.CreateMember();
   mX = mSpace.CreateChildMember(mParent);
   mY = mSpace.CreateChildMember(mParent);
@@ -85,13 +68,13 @@ Hook<Comp::Transform>::Hook():
   yzT.SetTranslation({0.0f, 0.5f, 0.5f});
   yzT.SetScale({0.01f, 0.15f, 0.15f});
   xyzT.SetUniformScale(0.13f);
-  xM.mModelId = smArrowId;
-  yM.mModelId = smArrowId;
-  zM.mModelId = smArrowId;
-  xyM.mModelId = smCubeId;
-  xzM.mModelId = smCubeId;
-  yzM.mModelId = smCubeId;
-  xyzM.mModelId = smSphereId;
+  xM.mModelId = AssLib::nArrowModelId;
+  yM.mModelId = AssLib::nArrowModelId;
+  zM.mModelId = AssLib::nArrowModelId;
+  xyM.mModelId = AssLib::nCubeModelId;
+  xzM.mModelId = AssLib::nCubeModelId;
+  yzM.mModelId = AssLib::nCubeModelId;
+  xyzM.mModelId = AssLib::nSphereModelId;
 }
 
 bool Hook<Comp::Transform>::Edit(const World::Object& object)
@@ -540,30 +523,30 @@ void Hook<Comp::Transform>::SwitchMode(Mode newMode)
     yT->SetTranslation({0.0f, 0.5f, 0.0f});
     zT->SetTranslation({0.0f, 0.0f, 0.5f});
     xyzT->SetUniformScale(0.13f);
-    xM->mModelId = smArrowId;
-    yM->mModelId = smArrowId;
-    zM->mModelId = smArrowId;
-    xyzM->mModelId = smSphereId;
+    xM->mModelId = AssLib::nArrowModelId;
+    yM->mModelId = AssLib::nArrowModelId;
+    zM->mModelId = AssLib::nArrowModelId;
+    xyzM->mModelId = AssLib::nSphereModelId;
     break;
   case Mode::Scale:
     xT->SetTranslation({0.5f, 0.0f, 0.0f});
     yT->SetTranslation({0.0f, 0.5f, 0.0f});
     zT->SetTranslation({0.0f, 0.0f, 0.5f});
     xyzT->SetUniformScale(1.1f);
-    xM->mModelId = smScaleId;
-    yM->mModelId = smScaleId;
-    zM->mModelId = smScaleId;
-    xyzM->mModelId = smTorusId;
+    xM->mModelId = AssLib::nScaleModelId;
+    yM->mModelId = AssLib::nScaleModelId;
+    zM->mModelId = AssLib::nScaleModelId;
+    xyzM->mModelId = AssLib::nTorusModelId;
     break;
   case Mode::Rotate:
     xT->SetTranslation({0.0f, 0.0f, 0.0f});
     yT->SetTranslation({0.0f, 0.0f, 0.0f});
     zT->SetTranslation({0.0f, 0.0f, 0.0f});
     xyzT->SetUniformScale(0.8f);
-    xM->mModelId = smTorusId;
-    yM->mModelId = smTorusId;
-    zM->mModelId = smTorusId;
-    xyzM->mModelId = smSphereId;
+    xM->mModelId = AssLib::nTorusModelId;
+    yM->mModelId = AssLib::nTorusModelId;
+    zM->mModelId = AssLib::nTorusModelId;
+    xyzM->mModelId = AssLib::nSphereModelId;
   }
 }
 
@@ -686,7 +669,8 @@ void Hook<Comp::Transform>::RenderHandle(
   World::MemberId handleId, const Vec4& color)
 {
   Comp::Transform& transform = *mSpace.GetComponent<Comp::Transform>(handleId);
-  const Gfx::Shader& colorShader = Gfx::Renderer::ColorShader();
+  const Gfx::Shader& colorShader =
+    AssLib::Get<Gfx::Shader>(AssLib::nColorShaderId);
   colorShader.SetMat4(
     "uModel", transform.GetWorldMatrix(mSpace, handleId).CData());
   colorShader.SetVec4("uColor", color.CData());
@@ -750,7 +734,8 @@ void Hook<Comp::Transform>::RenderHandles(
 
   // Render the handles to a framebuffer for the renderer to use later.
   glBindFramebuffer(GL_FRAMEBUFFER, mDrawbuffer.Fbo());
-  const Gfx::Shader& colorShader = Gfx::Renderer::ColorShader();
+  const Gfx::Shader& colorShader =
+    AssLib::Get<Gfx::Shader>(AssLib::nColorShaderId);
   colorShader.SetMat4("uView", nCamera.WorldToCamera().CData());
   colorShader.SetMat4("uProj", Viewport::Perspective().CData());
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

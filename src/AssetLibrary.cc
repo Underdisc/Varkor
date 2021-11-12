@@ -11,6 +11,48 @@
 
 namespace AssetLibrary {
 
+AssetId nColorShaderId;
+AssetId nDefaultTextShaderId;
+AssetId nFramebufferShaderId;
+AssetId nMemberIdShaderId;
+AssetId nArrowModelId;
+AssetId nCubeModelId;
+AssetId nScaleModelId;
+AssetId nSphereModelId;
+AssetId nTorusModelId;
+
+void InitRequiredAssets()
+{
+  // Initialize all defaults.
+  std::string defaultFontPaths[Gfx::Font::smInitPathCount] = {
+    "vres/font/NovaMono/font.ttf"};
+  std::string defaultImagePaths[Gfx::Image::smInitPathCount] = {
+    "vres/image/Default.png"};
+  std::string defaultModelPaths[Gfx::Model::smInitPathCount] = {
+    "vres/model/Default.obj"};
+  std::string defaultShaderPaths[Gfx::Shader::smInitPathCount] = {
+    "vres/shader/Default.vs", "vres/shader/Default.fs"};
+  AssetBin<Gfx::Font>::InitDefault(defaultFontPaths);
+  AssetBin<Gfx::Image>::InitDefault(defaultImagePaths);
+  AssetBin<Gfx::Model>::InitDefault(defaultModelPaths);
+  AssetBin<Gfx::Shader>::InitDefault(defaultShaderPaths);
+
+  // All other required assets.
+  nColorShaderId = Require<Gfx::Shader>(
+    "Color", "vres/shader/Default.vs", "vres/shader/Color.fs");
+  nDefaultTextShaderId = Require<Gfx::Shader>(
+    "DefaultText", "vres/shader/Text.vs", "vres/shader/Text.fs");
+  nFramebufferShaderId = Require<Gfx::Shader>(
+    "Framebuffer", "vres/shader/Fullscreen.vs", "vres/shader/Fullscreen.fs");
+  nMemberIdShaderId = Require<Gfx::Shader>(
+    "MemberId", "vres/shader/Default.vs", "vres/shader/MemberId.fs");
+  nArrowModelId = Require<Gfx::Model>("Arrow", "vres/model/arrow.fbx");
+  nCubeModelId = Require<Gfx::Model>("Cube", "vres/model/cube.obj");
+  nScaleModelId = Require<Gfx::Model>("Scale", "vres/model/scale.fbx");
+  nSphereModelId = Require<Gfx::Model>("Sphere", "vres/model/sphere.fbx");
+  nTorusModelId = Require<Gfx::Model>("Torus", "vres/model/torus.fbx");
+}
+
 template<typename T>
 void SerializeAssets(Vlk::Value& rootVal)
 {
@@ -83,18 +125,7 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
 
 void Init()
 {
-  std::string defaultFontPaths[Gfx::Font::smInitPathCount] = {
-    "vres/font/NovaMono/font.ttf"};
-  std::string defaultImagePaths[Gfx::Image::smInitPathCount] = {
-    "vres/image/Default.png"};
-  std::string defaultModelPaths[Gfx::Model::smInitPathCount] = {
-    "vres/model/Default.obj"};
-  std::string defaultShaderPaths[Gfx::Shader::smInitPathCount] = {
-    "vres/shader/Default.vs", "vres/shader/Default.fs"};
-  AssetBin<Gfx::Font>::InitDefault(defaultFontPaths);
-  AssetBin<Gfx::Image>::InitDefault(defaultImagePaths);
-  AssetBin<Gfx::Model>::InitDefault(defaultModelPaths);
-  AssetBin<Gfx::Shader>::InitDefault(defaultShaderPaths);
+  InitRequiredAssets();
   LoadAssets();
 }
 

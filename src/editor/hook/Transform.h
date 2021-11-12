@@ -102,13 +102,6 @@ private:
   Quat mStartRotation;
   Quat mStartWorldRotation;
   Vec3 mTranslateOffset;
-
-  static bool smRequiredAssetsLoaded;
-  static AssetId smArrowId;
-  static AssetId smCubeId;
-  static AssetId smScaleId;
-  static AssetId smSphereId;
-  static AssetId smTorusId;
 };
 
 } // namespace Editor

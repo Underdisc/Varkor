@@ -22,11 +22,6 @@
 namespace Gfx {
 namespace Renderer {
 
-Gfx::Shader nColorShader;
-Gfx::Shader nFramebufferShader;
-Gfx::Shader nMemberIdShader;
-AssetId nTextShaderId;
-
 constexpr size_t nQuadVertexArraySize = 12;
 GLuint nFullscreenVao;
 GLuint nFullscreenVbo;
@@ -37,19 +32,6 @@ Ds::Vector<unsigned int> nQueuedFullscreenFramebuffers;
 
 void Init()
 {
-  // Initialize all of the expected shader types.
-  Util::Result result =
-    nColorShader.Init("vres/shader/Default.vs", "vres/shader/Color.fs");
-  LogAbortIf(!result.Success(), result.mError.c_str());
-  result = nFramebufferShader.Init(
-    "vres/shader/Fullscreen.vs", "vres/shader/Fullscreen.fs");
-  LogAbortIf(!result.Success(), result.mError.c_str());
-  result =
-    nMemberIdShader.Init("vres/shader/Default.vs", "vres/shader/MemberId.fs");
-  LogAbortIf(!result.Success(), result.mError.c_str());
-  nTextShaderId = AssLib::Require<Gfx::Shader>(
-    "DefaultText", "vres/shader/Text.vs", "vres/shader/Text.fs");
-
   // Initialize the fullscreen and sprite vertex arrays.
   // clang-format off
   float fullscreenVertices[nQuadVertexArraySize] =
@@ -129,46 +111,48 @@ void RenderQuad(GLuint vao)
 
 void RenderMemberIds(const World::Space& space, const Mat4& view)
 {
-  nMemberIdShader.Use();
-  nMemberIdShader.SetMat4("uView", view.CData());
-  nMemberIdShader.SetMat4("uProj", Viewport::Perspective().CData());
+  const Gfx::Shader& memberIdShader =
+    AssLib::Get<Gfx::Shader>(AssLib::nMemberIdShaderId);
+  memberIdShader.Use();
+  memberIdShader.SetMat4("uView", view.CData());
+  memberIdShader.SetMat4("uProj", Viewport::Perspective().CData());
 
   // Render MemberIds for every model.
   space.VisitTableComponents<Comp::Model>(
-    [&space](World::MemberId owner, const Comp::Model& modelComp)
+    [&](World::MemberId owner, const Comp::Model& modelComp)
     {
       Mat4 transformation = GetTransformation(space, owner);
-      nMemberIdShader.Use();
-      nMemberIdShader.SetMat4("uModel", transformation.CData());
-      nMemberIdShader.SetInt("uMemberId", owner);
-      Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
-      model.Draw(nMemberIdShader);
+      memberIdShader.Use();
+      memberIdShader.SetMat4("uModel", transformation.CData());
+      memberIdShader.SetInt("uMemberId", owner);
+      const Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
+      model.Draw(memberIdShader);
     });
 
   // Render MemberIds for every sprite.
   glDisable(GL_CULL_FACE);
   space.VisitTableComponents<Comp::Sprite>(
-    [&space](World::MemberId owner, const Comp::Sprite& spriteComp)
+    [&](World::MemberId owner, const Comp::Sprite& spriteComp)
     {
       const Gfx::Image& image = AssLib::Get<Gfx::Image>(spriteComp.mImageId);
       Mat4 transformation = GetImageTransformation(space, owner, image);
-      nMemberIdShader.Use();
-      nMemberIdShader.SetMat4("uModel", transformation.CData());
-      nMemberIdShader.SetInt("uMemberId", owner);
+      memberIdShader.Use();
+      memberIdShader.SetMat4("uModel", transformation.CData());
+      memberIdShader.SetInt("uMemberId", owner);
       RenderQuad(nSpriteVao);
     });
 
   // Render MemberIds for every text component.
   space.VisitTableComponents<Comp::Text>(
-    [&space](World::MemberId owner, const Comp::Text& textComp)
+    [&](World::MemberId owner, const Comp::Text& textComp)
     {
       Mat4 baseTransformation = GetTransformation(space, owner);
       Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
       for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo)
       {
         Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
-        nMemberIdShader.SetMat4("uModel", glyphTransformation.CData());
-        nMemberIdShader.SetInt("uMemberId", owner);
+        memberIdShader.SetMat4("uModel", glyphTransformation.CData());
+        memberIdShader.SetInt("uMemberId", owner);
         RenderQuad(nSpriteVao);
       }
     });
@@ -264,23 +248,19 @@ void RenderSpace(
   space.VisitTableComponents<Comp::Text>(
     [&](World::MemberId owner, Comp::Text& textComp)
     {
-      const Gfx::Shader* shader =
-        AssLib::TryGet<Gfx::Shader>(textComp.mShaderId);
-      if (shader == nullptr)
-      {
-        shader = &AssLib::Get<Gfx::Shader>(nTextShaderId);
-      }
-      shader->Use();
-      shader->SetMat4("uView", view.CData());
-      shader->SetMat4("uProj", Viewport::Perspective().CData());
-      shader->SetInt("uTexture", 0);
+      const Gfx::Shader& shader = AssLib::Get<Gfx::Shader>(
+        textComp.mShaderId, AssLib::nDefaultTextShaderId);
+      shader.Use();
+      shader.SetMat4("uView", view.CData());
+      shader.SetMat4("uProj", Viewport::Perspective().CData());
+      shader.SetInt("uTexture", 0);
 
       Mat4 baseTransformation = GetTransformation(space, owner);
       Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
       for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo)
       {
         Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
-        shader->SetMat4("uModel", glyphTransformation.CData());
+        shader.SetMat4("uModel", glyphTransformation.CData());
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, drawInfo.mId);
         RenderQuad(nSpriteVao);
@@ -301,13 +281,15 @@ void RenderWorld()
 
 void RenderQueuedFullscreenFramebuffers()
 {
+  const Gfx::Shader& framebufferShader =
+    AssLib::Get<Gfx::Shader>(AssLib::nFramebufferShaderId);
   for (unsigned int tbo : nQueuedFullscreenFramebuffers)
   {
     glDisable(GL_DEPTH_TEST);
-    nFramebufferShader.Use();
+    framebufferShader.Use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tbo);
-    nFramebufferShader.SetInt("uTexture", 0);
+    framebufferShader.SetInt("uTexture", 0);
     RenderQuad(nFullscreenVao);
     glBindTexture(GL_TEXTURE_2D, 0);
     glEnable(GL_DEPTH_TEST);
@@ -318,11 +300,6 @@ void RenderQueuedFullscreenFramebuffers()
 void QueueFullscreenFramebuffer(const Framebuffer& framebuffer)
 {
   nQueuedFullscreenFramebuffers.Push(framebuffer.ColorTbo());
-}
-
-const Shader& ColorShader()
-{
-  return nColorShader;
 }
 
 } // namespace Renderer

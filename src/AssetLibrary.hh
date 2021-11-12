@@ -64,18 +64,22 @@ AssetId Require(const std::string& name, Args&&... args)
 }
 
 template<typename T>
-T& Get(AssetId id)
+T& Get(AssetId id, AssetId defaultId)
 {
-  return GetAsset<T>(id).mResource;
+  return GetAsset<T>(id, defaultId).mResource;
 }
 
 template<typename T>
-Asset<T>& GetAsset(AssetId id)
+Asset<T>& GetAsset(AssetId id, AssetId defaultId)
 {
   Asset<T>* asset = AssetBin<T>::smAssets.Find(id);
   if (asset == nullptr)
   {
-    return AssetBin<T>::smDefault;
+    if (defaultId == nDefaultAssetId)
+    {
+      return AssetBin<T>::smDefault;
+    }
+    return AssetBin<T>::smAssets.Get(defaultId);
   }
   return *asset;
 }

@@ -46,9 +46,9 @@ void Remove(AssetId id);
 template<typename T, typename... Args>
 AssetId Require(const std::string& name, Args&&... args);
 template<typename T>
-T& Get(AssetId id);
+T& Get(AssetId id, AssetId defaultId = nDefaultAssetId);
 template<typename T>
-Asset<T>& GetAsset(AssetId id);
+Asset<T>& GetAsset(AssetId id, AssetId defaultId = nDefaultAssetId);
 template<typename T>
 T* TryGet(AssetId id);
 template<typename T>
@@ -75,6 +75,19 @@ template<typename T>
 AssetId AssetBin<T>::smIdHandout = 1;
 template<typename T>
 AssetId AssetBin<T>::smRequiredIdHandout = -1;
+
+// All required AssetIds
+// Shader
+extern AssetId nColorShaderId;
+extern AssetId nDefaultTextShaderId;
+extern AssetId nFramebufferShaderId;
+extern AssetId nMemberIdShaderId;
+// Model
+extern AssetId nArrowModelId;
+extern AssetId nCubeModelId;
+extern AssetId nScaleModelId;
+extern AssetId nSphereModelId;
+extern AssetId nTorusModelId;
 
 } // namespace AssetLibrary
 

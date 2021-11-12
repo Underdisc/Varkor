@@ -17,7 +17,5 @@ void RenderWorld();
 void RenderQueuedFullscreenFramebuffers();
 void QueueFullscreenFramebuffer(const Framebuffer& framebuffer);
 
-const Shader& ColorShader();
-
 } // namespace Renderer
 } // namespace Gfx
