@@ -37,8 +37,6 @@ struct Text
 
   AssetId mFontId;
   AssetId mShaderId;
-  static constexpr int smDefaultPixelHeight = 24;
-  int mPixelHeight;
   std::string mText;
 
   enum class Alignment
@@ -49,6 +47,7 @@ struct Text
   };
   Alignment mAlign;
   float mWidth;
+  Vec3 mColor;
 };
 #pragma pack(pop)
 

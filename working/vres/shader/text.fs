@@ -1,17 +1,15 @@
 #version 330 core
 
+#include "text.glsl"
+
 in vec2 iTextureCoords;
 out vec4 iFinalColor;
 
 uniform sampler2D uTexture;
+uniform vec3 uColor;
 
 void main()
 {
-  float red = texture(uTexture, iTextureCoords).r;
-  const float discardThreshold = 0.1;
-  if (red < discardThreshold)
-  {
-    discard;
-  }
-  iFinalColor = vec4(red, red, red, red);
+  float value = texture(uTexture, iTextureCoords).r;
+  iFinalColor = BasicText(value, uColor);
 }

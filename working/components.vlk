@@ -1,5 +1,5 @@
 {
-  :Version: '3'
+  :Version: '4'
   :Components: {
     :Model: {
       :Size: '8'
@@ -11,7 +11,7 @@
       :Size: '8'
     }
     :Text: {
-      :Size: '60'
+      :Size: '68'
     }
   }
 }

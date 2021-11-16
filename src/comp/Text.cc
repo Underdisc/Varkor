@@ -12,30 +12,38 @@ void Text::VInit()
 {
   mFontId = AssLib::nDefaultAssetId;
   mShaderId = AssLib::nDefaultAssetId;
-  mPixelHeight = smDefaultPixelHeight;
-  mAlign = Alignment::Left;
   mText = "";
+  mAlign = Alignment::Left;
   mWidth = 10.0f;
+  mColor = {1.0f, 1.0f, 1.0f};
 }
 
 void Text::VSerialize(Vlk::Value& textVal)
 {
   textVal("FontId") = mFontId;
   textVal("ShaderId") = mShaderId;
-  textVal("PixelHeight") = mPixelHeight;
-  textVal("Alignment") = mAlign;
   textVal("Text") = mText;
+  textVal("Alignment") = mAlign;
   textVal("Width") = mWidth;
+  Vlk::Value& colorVal = textVal("Color")[{3}];
+  for (int i = 0; i < 3; ++i)
+  {
+    colorVal[i] = mColor[i];
+  }
 }
 
 void Text::VDeserialize(const Vlk::Explorer& textEx)
 {
   mFontId = textEx("FontId").As<AssetId>(AssLib::nDefaultAssetId);
   mShaderId = textEx("ShaderId").As<AssetId>(AssLib::nDefaultAssetId);
-  mPixelHeight = textEx("PixelHeight").As<int>(smDefaultPixelHeight);
-  mAlign = textEx("Alignment").As<Alignment>(Alignment::Left);
   mText = textEx("Text").As<std::string>("");
+  mAlign = textEx("Alignment").As<Alignment>(Alignment::Left);
   mWidth = textEx("Width").As<float>(10.0f);
+  const Vlk::Explorer& colorEx = textEx("Color");
+  for (int i = 0; i < 3; ++i)
+  {
+    mColor[i] = colorEx[i].As<float>(1.0f);
+  }
 }
 
 Ds::Vector<Text::Line> Text::GetLines() const
@@ -46,7 +54,6 @@ Ds::Vector<Text::Line> Text::GetLines() const
   };
   Ds::Vector<Line> lines;
   Gfx::Font& font = AssLib::Get<Gfx::Font>(mFontId);
-  const Gfx::Font::GlyphBitmapIds& bitmapIds = font.GetBitmapIds(mPixelHeight);
   constexpr int invalidLoc = -1;
   int prevWordEnd = invalidLoc;
   int wordStart = invalidLoc;
@@ -124,7 +131,6 @@ Ds::Vector<Text::DrawInfo> Text::GetAllDrawInfo() const
 {
   Ds::Vector<DrawInfo> drawInfo;
   Gfx::Font& font = AssLib::Get<Gfx::Font>(mFontId);
-  const Gfx::Font::GlyphBitmapIds& bitmapIds = font.GetBitmapIds(mPixelHeight);
   Vec2 baselineOffset = {0.0f, 0.0f};
   float halfWidth = mWidth / 2.0f;
   Ds::Vector<Line> lines = GetLines();
@@ -147,7 +153,8 @@ Ds::Vector<Text::DrawInfo> Text::GetAllDrawInfo() const
       Vec2 centerOffset = (glyphM.mStartOffset + glyphM.mEndOffset) / 2.0f;
       Vec2 fullOffset = baselineOffset + centerOffset;
       Math::Translate(&translate, {fullOffset[0], fullOffset[1], 0.0f});
-      drawInfo.Push({bitmapIds[mText[i]], translate * scale});
+      GLuint textureId = font.GetTextureId(mText[i]);
+      drawInfo.Push({textureId, translate * scale});
       baselineOffset[0] += glyphM.mAdvance;
     }
     baselineOffset[1] -= font.NewlineOffset();

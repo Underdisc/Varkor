@@ -254,6 +254,7 @@ void RenderSpace(
       shader.SetMat4("uView", view.CData());
       shader.SetMat4("uProj", Viewport::Perspective().CData());
       shader.SetInt("uTexture", 0);
+      shader.SetVec3("uColor", textComp.mColor.CData());
 
       Mat4 baseTransformation = GetTransformation(space, owner);
       Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
