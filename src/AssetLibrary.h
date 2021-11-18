@@ -59,18 +59,16 @@ template<typename T>
 struct AssetBin
 {
   static Ds::Map<AssetId, Asset<T>> smAssets;
-  static Asset<T> smDefault;
   static AssetId smIdHandout;
   static AssetId smRequiredIdHandout;
 
-  static void InitDefault(const std::string paths[T::smInitPathCount]);
+  template<typename... Args>
+  static void InitDefault(Args&&... args);
   static AssetId NextId();
   static AssetId NextRequiredId();
 };
 template<typename T>
 Ds::Map<AssetId, Asset<T>> AssetBin<T>::smAssets;
-template<typename T>
-Asset<T> AssetBin<T>::smDefault("Default");
 template<typename T>
 AssetId AssetBin<T>::smIdHandout = 1;
 template<typename T>

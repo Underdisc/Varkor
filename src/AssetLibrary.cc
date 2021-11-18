@@ -24,18 +24,11 @@ AssetId nTorusModelId;
 void InitRequiredAssets()
 {
   // Initialize all defaults.
-  std::string defaultFontPaths[Gfx::Font::smInitPathCount] = {
-    "vres/font/novaMono/font.ttf"};
-  std::string defaultImagePaths[Gfx::Image::smInitPathCount] = {
-    "vres/image/questionmarkSquare.png"};
-  std::string defaultModelPaths[Gfx::Model::smInitPathCount] = {
-    "vres/model/questionmarkCube.obj"};
-  std::string defaultShaderPaths[Gfx::Shader::smInitPathCount] = {
-    "vres/shader/default.vs", "vres/shader/default.fs"};
-  AssetBin<Gfx::Font>::InitDefault(defaultFontPaths);
-  AssetBin<Gfx::Image>::InitDefault(defaultImagePaths);
-  AssetBin<Gfx::Model>::InitDefault(defaultModelPaths);
-  AssetBin<Gfx::Shader>::InitDefault(defaultShaderPaths);
+  AssetBin<Gfx::Font>::InitDefault("vres/font/novaMono/font.ttf");
+  AssetBin<Gfx::Image>::InitDefault("vres/image/questionmarkSquare.png");
+  AssetBin<Gfx::Model>::InitDefault("vres/model/questionmarkCube.obj");
+  AssetBin<Gfx::Shader>::InitDefault(
+    "vres/shader/default.vs", "vres/shader/default.fs");
 
   // All other required assets.
   nColorShaderId = Require<Gfx::Shader>(

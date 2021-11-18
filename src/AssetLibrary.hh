@@ -75,10 +75,6 @@ Asset<T>& GetAsset(AssetId id, AssetId defaultId)
   Asset<T>* asset = AssetBin<T>::smAssets.Find(id);
   if (asset == nullptr)
   {
-    if (defaultId == nDefaultAssetId)
-    {
-      return AssetBin<T>::smDefault;
-    }
     return AssetBin<T>::smAssets.Get(defaultId);
   }
   return *asset;
@@ -98,17 +94,16 @@ T* TryGet(AssetId id)
 template<typename T>
 Asset<T>* TryGetAsset(AssetId id)
 {
-  if (id == 0)
-  {
-    return &AssetBin<T>::smDefault;
-  }
   return AssetBin<T>::smAssets.Find(id);
 }
 
 template<typename T>
-void AssetBin<T>::InitDefault(const std::string paths[T::smInitPathCount])
+template<typename... Args>
+void AssetBin<T>::InitDefault(Args&&... args)
 {
-  Util::Result result = smDefault.Init(paths);
+  Asset<T>& defaultAsset =
+    AssetBin<T>::smAssets.Emplace(nDefaultAssetId, "Default");
+  Util::Result result = defaultAsset.mResource.Init(args...);
   LogAbortIf(!result.Success(), result.mError.c_str());
 }
 
