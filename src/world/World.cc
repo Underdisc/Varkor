@@ -1,6 +1,9 @@
 #include <sstream>
 
 #include "ds/Vector.h"
+#include "util/Utility.h"
+#include "vlk/Explorer.h"
+#include "vlk/Value.h"
 #include "world/Space.h"
 #include "world/World.h"
 
@@ -43,6 +46,21 @@ SpaceId CreateSpace()
   defaultName << "Space" << newSpace;
   nSpaces.Emplace(defaultName.str());
   return newSpace;
+}
+
+Util::ValuedResult<SpaceId> LoadSpace(const char* filename)
+{
+  Vlk::Value rootVal;
+  Util::Result result = rootVal.Read(filename);
+  if (!result.Success())
+  {
+    return Util::ValuedResult<SpaceId>(Util::Move(result), nInvalidSpaceId);
+  }
+  SpaceId newSpaceId = World::CreateSpace();
+  World::Space& newSpace = World::GetSpace(newSpaceId);
+  Vlk::Explorer rootEx(rootVal);
+  newSpace.Deserialize(rootEx);
+  return Util::ValuedResult<SpaceId>(newSpaceId);
 }
 
 void VerifySpace(SpaceId space)

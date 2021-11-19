@@ -8,12 +8,12 @@ T* Interface::OpenInterface(Args&&... args)
   // If an instance of the interface exists, we make it known that it's no
   // longer needed and stage a new instance.
   T* interface = FindInterface<T>();
-  std::string interfaceName = Util::GetFullTypename<T>();
   if (interface != nullptr)
   {
     interface->mOpen = false;
   }
   interface = alloc T(args...);
+  std::string interfaceName = Util::GetFullTypename<T>();
   mStagedInterfaces.Push({interfaceName, interface});
   return interface;
 }

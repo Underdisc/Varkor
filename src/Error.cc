@@ -9,6 +9,7 @@
 #include <glad/glad.h>
 
 #include "Error.h"
+#include "debug/MemLeak.h"
 
 namespace Error {
 
@@ -21,6 +22,8 @@ bool nUseCout = true;
 
 void Init(const char* logFile)
 {
+  EnableLeakOutput();
+
   signal(SIGABRT, SignalHandler);
   signal(SIGFPE, SignalHandler);
   signal(SIGILL, SignalHandler);
@@ -52,7 +55,7 @@ void Log(const char* file, int line, const char* function, const char* reason)
 {
   std::stringstream ss;
   std::string filename = FormatFileName(file);
-  ss << "Error|" << filename << "(" << line << ")|" << function << "| "
+  ss << "Error|" << filename << "(" << line << ")|" << function << ": "
      << reason;
   LogString(ss.str().c_str());
 }
@@ -60,7 +63,7 @@ void Log(const char* file, int line, const char* function, const char* reason)
 void Log(const char* reason)
 {
   std::stringstream ss;
-  ss << "Error> " << reason;
+  ss << "Error: " << reason;
   LogString(ss.str().c_str());
 }
 
@@ -92,32 +95,33 @@ void LogGlStatus()
   LogString(ss.str().c_str());
 }
 
+void AbortInternal(const char* string)
+{
+  LogString(string);
+  DisableLeakOutput();
+  abort();
+}
+
 void Abort(const char* file, int line, const char* function, const char* reason)
 {
   std::stringstream ss;
   std::string filename = FormatFileName(file);
-  ss << "Abort|" << filename << "(" << line << ")|" << function << "| "
+  ss << "Abort|" << filename << "(" << line << ")|" << function << ": "
      << reason;
-  LogString(ss.str().c_str());
-  StackTrace();
-  abort();
+  AbortInternal(ss.str().c_str());
 }
 
 void Abort(const char* reason)
 {
   std::stringstream ss;
-  ss << "Abort> " << reason;
-  LogString(ss.str().c_str());
-  StackTrace();
-  abort();
+  ss << "Abort: " << reason;
+  AbortInternal(ss.str().c_str());
 }
 
 void Abort()
 {
   std::string str("Abort");
-  LogString(str.c_str());
-  StackTrace();
-  abort();
+  AbortInternal(str.c_str());
 }
 
 class CustomStackWalker: public StackWalker
@@ -137,7 +141,7 @@ private:
 
 void StackTrace()
 {
-  LogString("///// CallStack /////");
+  LogString("/////////////////////");
   CustomStackWalker stackWalker;
   stackWalker.ShowCallstack();
   LogString("/////////////////////");

@@ -25,13 +25,22 @@ if errorlevel %buildFailed% (
   exit /b 1
 )
 
-REM Run Varkor if requested.
+REM If requested, run Varkor with the remaining arguments.
 if "%1" == "r" (
-  varkor.exe
+  setlocal ENABLEDELAYEDEXPANSION
+  set "varkorArgs=%2"
+  :NextArg
+  if "%3" == "" goto AllArgsCollected
+  set "varkorArgs=!varkorArgs! %3"
+  shift
+  goto NextArg
+  :AllArgsCollected
+  varkor.exe %varkorArgs%
+  endlocal
   exit /b 0
 )
 if not "%1" == "" (
-  echo Error: %2 is not a valid argument. Only r is valid.
+  echo Error: %1 is not a valid argument. Only r is valid.
   exit /b 1
 )
 exit /b 0

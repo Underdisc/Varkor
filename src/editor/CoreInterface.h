@@ -8,7 +8,7 @@ namespace Editor {
 struct CoreInterface: public WindowInterface
 {
 public:
-  CoreInterface();
+  void Init();
   void Show();
 
 private:

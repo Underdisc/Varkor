@@ -21,6 +21,7 @@ private:
 };
 
 SpaceId CreateSpace();
+Util::ValuedResult<SpaceId> LoadSpace(const char* filename);
 Space& GetSpace(SpaceId id);
 void Update();
 

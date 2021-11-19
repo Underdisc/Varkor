@@ -2,30 +2,34 @@
 #include "Error.h"
 #include "Framer.h"
 #include "Input.h"
+#include "Options.h"
 #include "Registrar.h"
 #include "Viewport.h"
 #include "debug/Draw.h"
-#include "debug/MemLeak.h"
 #include "editor/Editor.h"
 #include "gfx/Renderer.h"
+#include "util/Utility.h"
 #include "world/World.h"
 
-void VarkorInit(const char* windowName)
+void VarkorMain(const char* windowName, int argc, char* argv[])
 {
+  // Perform all of the necessary initialization.
   Error::Init("log.err");
+  Util::Result result = Options::Init(argc, argv);
+  if (!result.Success())
+  {
+    return;
+  }
   Viewport::Init(windowName);
+  Registrar::Init();
   Editor::Init();
   Framer::Init();
   AssetLibrary::Init();
-  Registrar::Init();
-}
-
-void VarkorEngine()
-{
   Input::Init();
   Gfx::Renderer::Init();
   Debug::Draw::Init();
 
+  // Run the engine.
   while (Viewport::Active())
   {
     Framer::Start();
@@ -44,10 +48,8 @@ void VarkorEngine()
     Viewport::Update();
     Framer::End();
   }
-}
 
-void VarkorPurge()
-{
+  // Perform all of the necessary purging.
   Framer::Purge();
   Editor::Purge();
   Viewport::Purge();
@@ -55,12 +57,9 @@ void VarkorPurge()
 }
 
 #ifdef VarkorStandalone
-int main(void)
+int main(int argc, char* argv[])
 {
-  InitMemLeakOutput();
-  VarkorInit("Varkor");
-  VarkorEngine();
-  VarkorPurge();
+  VarkorMain("Varkor", argc, argv);
   return 0;
 }
 #endif

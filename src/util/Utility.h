@@ -76,6 +76,16 @@ struct Result
   }
 };
 
+template<typename T>
+struct ValuedResult: public Result
+{
+  T mValue;
+  ValuedResult(Result&& result, const T& value):
+    Result(Util::Move(result)), mValue(value)
+  {}
+  ValuedResult(const T& value): Result(), mValue(value) {}
+};
+
 } // namespace Util
 
 #endif

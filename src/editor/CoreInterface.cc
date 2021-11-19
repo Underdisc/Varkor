@@ -18,7 +18,7 @@
 
 namespace Editor {
 
-CoreInterface::CoreInterface()
+void CoreInterface::Init()
 {
   OpenInterface<AssetInterface<Gfx::Font>>();
   OpenInterface<AssetInterface<Gfx::Image>>();
@@ -88,19 +88,15 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [this](const std::string& filename)
       {
-        Vlk::Value rootVal;
-        Util::Result result = rootVal.Read(filename.c_str());
+        Util::ValuedResult<World::SpaceId> result =
+          World::LoadSpace(filename.c_str());
         if (!result.Success())
         {
           OpenInterface<PopupInterface>("Load Space Failed", result.mError);
           LogError(result.mError.c_str());
           return;
         }
-        World::SpaceId newSpaceId = World::CreateSpace();
-        World::Space& newSpace = World::GetSpace(newSpaceId);
-        Vlk::Explorer rootEx(rootVal);
-        newSpace.Deserialize(rootEx);
-        OpenInterface<OverviewInterface>(newSpaceId);
+        OpenInterface<OverviewInterface>(result.mValue);
       },
       FileInterface::AccessType::Select);
   }

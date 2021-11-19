@@ -3,10 +3,13 @@
 #include <imgui/imgui_impl_opengl3.h>
 
 #include "Input.h"
+#include "Options.h"
 #include "Temporal.h"
 #include "Viewport.h"
 #include "editor/Camera.h"
 #include "editor/CoreInterface.h"
+#include "editor/OverviewInterface.h"
+#include "world/World.h"
 
 namespace Editor {
 
@@ -71,6 +74,20 @@ void Init()
   colors[ImGuiCol_TabActive] = ImVec4(0.00f, 0.39f, 0.00f, 1.00f);
   colors[ImGuiCol_PlotHistogram] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
   colors[ImGuiCol_DragDropTarget] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
+
+  nCoreInterface.Init();
+  if (!Options::nLoadSpace.empty())
+  {
+    Util::ValuedResult<World::SpaceId> result =
+      World::LoadSpace(Options::nLoadSpace.c_str());
+    if (result.Success())
+    {
+      nCoreInterface.OpenInterface<OverviewInterface>(result.mValue);
+    } else
+    {
+      LogError(result.mError.c_str());
+    }
+  }
 }
 
 void Purge()

@@ -17,16 +17,16 @@ public:
   Interface();
   virtual ~Interface();
 
-protected:
-  // This will track when an interface is no longer needed.
-  bool mOpen;
-
   template<typename T, typename... Args>
   T* OpenInterface(Args&&... args);
   template<typename T>
   void CloseInterface();
   template<typename T>
   T* FindInterface();
+
+protected:
+  // This will track when an interface is no longer needed.
+  bool mOpen;
 
 private:
   virtual void HandleInterfaces();

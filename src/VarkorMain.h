@@ -1,8 +1,6 @@
 #ifndef VarkorMain_h
 #define VarkorMain_h
 
-void VarkorInit(const char* windowName);
-void VarkorEngine();
-void VarkorPurge();
+void VarkorMain(const char* windowName, int argc, char* argv[]);
 
 #endif

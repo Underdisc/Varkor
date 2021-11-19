@@ -19,6 +19,7 @@
   #define alloc new
 #endif
 
-void InitMemLeakOutput();
+void EnableLeakOutput();
+void DisableLeakOutput();
 
 #endif

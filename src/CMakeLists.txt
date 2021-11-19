@@ -3,6 +3,7 @@ target_sources(${varkorTarget} PRIVATE
   Error.cc
   Framer.cc
   Input.cc
+  Options.cc
   Profiler.cc
   Registrar.cc
   Temporal.cc
