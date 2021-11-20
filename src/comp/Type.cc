@@ -1,6 +1,5 @@
 #include "Type.h"
-#include "vlk/Explorer.h"
-#include "vlk/Value.h"
+#include "vlk/Valkor.h"
 
 namespace Comp {
 

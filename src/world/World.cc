@@ -2,8 +2,7 @@
 
 #include "ds/Vector.h"
 #include "util/Utility.h"
-#include "vlk/Explorer.h"
-#include "vlk/Value.h"
+#include "vlk/Valkor.h"
 #include "world/Space.h"
 #include "world/World.h"
 

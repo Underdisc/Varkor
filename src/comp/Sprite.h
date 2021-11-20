@@ -2,8 +2,7 @@
 #define comp_Sprite_h
 
 #include "AssetLibrary.h"
-#include "vlk/Explorer.h"
-#include "vlk/Value.h"
+#include "vlk/Valkor.h"
 
 namespace Comp {
 

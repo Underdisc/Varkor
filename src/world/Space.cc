@@ -1,8 +1,7 @@
 #include <sstream>
 
 #include "Error.h"
-#include "vlk/Explorer.h"
-#include "vlk/Value.h"
+#include "vlk/Valkor.h"
 #include "world/Space.h"
 
 namespace World {

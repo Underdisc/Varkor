@@ -7,8 +7,7 @@
 #include "AssetLibrary.h"
 #include "ds/Vector.h"
 #include "math/Matrix4.h"
-#include "vlk/Explorer.h"
-#include "vlk/Value.h"
+#include "vlk/Valkor.h"
 
 namespace Comp {
 

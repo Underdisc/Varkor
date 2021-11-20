@@ -1,6 +1,5 @@
 #include "comp/Transform.h"
-#include "vlk/Explorer.h"
-#include "vlk/Value.h"
+#include "vlk/Valkor.h"
 
 namespace Comp {
 
