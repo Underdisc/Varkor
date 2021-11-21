@@ -5,8 +5,8 @@
 #include <ostream>
 #include <sstream>
 
+#include "Result.h"
 #include "ds/Vector.h"
-#include "util/Utility.h"
 
 namespace Vlk {
 
@@ -27,9 +27,9 @@ public:
   Value(Value&& other);
   ~Value();
 
-  Util::Result Read(const char* filename);
-  Util::Result Write(const char* filename);
-  Util::Result Parse(const char* text);
+  Result Read(const char* filename);
+  Result Write(const char* filename);
+  Result Parse(const char* text);
 
   template<typename T>
   T As() const;

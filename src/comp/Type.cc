@@ -43,7 +43,7 @@ void ReadComponentsFile()
   // Ensure that the components file contains the required information and
   // initialize the version.
   Vlk::Value rootVal;
-  Util::Result result = rootVal.Read(nComponentsFilename);
+  Result result = rootVal.Read(nComponentsFilename);
   if (!result.Success())
   {
     LogError(result.mError.c_str());
@@ -113,7 +113,7 @@ void SaveComponentsFile()
     Vlk::Value& typeDataVal = componentsVal(typeData.mName);
     typeDataVal("Size") = typeData.mSize;
   }
-  Util::Result result = rootVal.Write(nComponentsFilename);
+  Result result = rootVal.Write(nComponentsFilename);
   LogErrorIf(!result.Success(), result.mError.c_str());
 }
 

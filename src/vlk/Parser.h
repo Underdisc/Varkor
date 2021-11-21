@@ -1,8 +1,8 @@
 #ifndef vlk_Parser_h
 #define vlk_Parser_h
 
+#include "Result.h"
 #include "ds/Vector.h"
-#include "util/Utility.h"
 #include "vlk/Tokenizer.h"
 #include "vlk/Value.h"
 
@@ -11,7 +11,7 @@ namespace Vlk {
 struct Parser
 {
 public:
-  Util::Result Parse(const char* text, Value* root);
+  Result Parse(const char* text, Value* root);
 
 private:
   size_t mCurrentToken;

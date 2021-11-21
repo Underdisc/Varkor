@@ -4,11 +4,11 @@
 #include <assimp/scene.h>
 #include <string>
 
+#include "Result.h"
 #include "ds/Vector.h"
 #include "gfx/Mesh.h"
 #include "gfx/Shader.h"
 #include "gfx/Texture.h"
-#include "util/Utility.h"
 
 namespace Gfx {
 
@@ -17,12 +17,12 @@ struct Model
 public:
   static constexpr int smInitPathCount = 1;
   static constexpr const char* smPathNames[smInitPathCount] = {"Model"};
-  Util::Result Init(std::string paths[smInitPathCount]);
+  Result Init(std::string paths[smInitPathCount]);
   void Purge();
   bool Live() const;
 
   Model();
-  Util::Result Init(const std::string& file);
+  Result Init(const std::string& file);
   void Draw(const Shader& shader) const;
 
 private:

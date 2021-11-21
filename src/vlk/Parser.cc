@@ -64,17 +64,17 @@ size_t Parser::LastTokenLength()
   return mTokens[mCurrentToken].mText - lastToken.mText;
 }
 
-Util::Result Parser::Parse(const char* text, Value* root)
+Result Parser::Parse(const char* text, Value* root)
 {
-  TokenizeResult result = Tokenize(text);
+  ValueResult<Ds::Vector<Token>> result = Tokenize(text);
   if (!result.Success())
   {
-    return Util::Result(result.mError);
+    return Result(result.mError);
   }
   mCurrentToken = 0;
   mCurrentLine = 1;
   mValueStack.Push(root);
-  mTokens = Util::Move(result.mTokens);
+  mTokens = Util::Move(result.mValue);
   try
   {
     Expect(ParseValue(), "Expected Value.");
@@ -83,9 +83,9 @@ Util::Result Parser::Parse(const char* text, Value* root)
   {
     std::stringstream errorStream;
     errorStream << "[" << mCurrentLine << "] Parse Error: " << error;
-    return Util::Result(errorStream.str());
+    return Result(errorStream.str());
   }
-  return Util::Result(true);
+  return Result();
 }
 
 bool Parser::ParseValue()

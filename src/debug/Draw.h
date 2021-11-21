@@ -2,6 +2,7 @@
 #define debug_Draw_h
 
 #include "math/Geometry.h"
+#include "math/Matrix4.h"
 
 namespace Debug {
 namespace Draw {

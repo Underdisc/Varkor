@@ -123,7 +123,7 @@ bool Value::ReachedThreshold(size_t& elementCount) const
   return false;
 }
 
-Util::Result Value::Read(const char* filename)
+Result Value::Read(const char* filename)
 {
   // Read the file's content.
   std::ifstream stream(filename, std::ifstream::in);
@@ -131,37 +131,37 @@ Util::Result Value::Read(const char* filename)
   {
     std::stringstream error;
     error << filename << " failed to open while reading.";
-    return Util::Result(error.str());
+    return Result(error.str());
   }
   std::stringstream content;
   content << stream.rdbuf();
   stream.close();
 
   // Parse the content.
-  Util::Result result = Parse(content.str().c_str());
+  Result result = Parse(content.str().c_str());
   if (!result.Success())
   {
     std::stringstream error;
     error << filename << result.mError;
-    return Util::Result(error.str());
+    return Result(error.str());
   }
   return result;
 }
 
-Util::Result Value::Write(const char* filename)
+Result Value::Write(const char* filename)
 {
   std::ofstream stream(filename, std::ofstream::out);
   if (!stream.is_open())
   {
     std::stringstream error;
     error << filename << " failed to open while writing.";
-    return Util::Result(error.str());
+    return Result(error.str());
   }
   stream << *this;
-  return Util::Result(true);
+  return Result();
 }
 
-Util::Result Value::Parse(const char* text)
+Result Value::Parse(const char* text)
 {
   LogAbortIf(
     mType != Value::Type::Invalid,

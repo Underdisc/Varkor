@@ -215,7 +215,7 @@ Token ReadNextToken(const char** text)
   return token;
 }
 
-TokenizeResult Tokenize(const char* text)
+ValueResult<Ds::Vector<Token>> Tokenize(const char* text)
 {
   // Initialize the Tokenizer if it hasn't been.
   if (nStates.Empty())
@@ -226,7 +226,7 @@ TokenizeResult Tokenize(const char* text)
   // Tokenize the text.
   size_t lineNumber = 1;
   std::stringstream error;
-  TokenizeResult result;
+  Ds::Vector<Token> tokens;
   while (*text != '\0')
   {
     Token token = ReadNextToken(&text);
@@ -235,15 +235,14 @@ TokenizeResult Tokenize(const char* text)
     case Token::Type::Invalid:
       error << "[" << lineNumber << "] Invalid token: "
             << std::string(token.mText, text - token.mText);
-      result.mError = error.str();
-      return result;
+      return ValueResult<Ds::Vector<Token>>(error.str(), Util::Move(tokens));
     case Token::Type::Whitespace:
       lineNumber += CountNewLines(token.mText, text);
-    default: result.mTokens.Push(token);
+    default: tokens.Push(token);
     }
   }
-  result.mTokens.Push({text, Token::Type::Terminator});
-  return result;
+  tokens.Push({text, Token::Type::Terminator});
+  return ValueResult<Ds::Vector<Token>>(Util::Move(tokens));
 }
 
 size_t CountNewLines(const char* start, const char* end)

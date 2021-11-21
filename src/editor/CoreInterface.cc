@@ -87,8 +87,7 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [this](const std::string& filename)
       {
-        Util::ValuedResult<World::SpaceId> result =
-          World::LoadSpace(filename.c_str());
+        ValueResult<World::SpaceId> result = World::LoadSpace(filename.c_str());
         if (!result.Success())
         {
           OpenInterface<PopupInterface>("Load Space Failed", result.mError);
@@ -115,7 +114,7 @@ void CoreInterface::FileMenu()
       {
         Vlk::Value rootVal;
         space.Serialize(rootVal);
-        Util::Result result = rootVal.Write(filename.c_str());
+        Result result = rootVal.Write(filename.c_str());
         if (!result.Success())
         {
           OpenInterface<PopupInterface>("Save Space Failed", result.mError);

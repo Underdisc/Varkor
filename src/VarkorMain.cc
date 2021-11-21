@@ -8,14 +8,13 @@
 #include "debug/Draw.h"
 #include "editor/Editor.h"
 #include "gfx/Renderer.h"
-#include "util/Utility.h"
 #include "world/World.h"
 
 void VarkorMain(const char* windowName, int argc, char* argv[])
 {
   // Perform all of the necessary initialization.
   Error::Init("log.err");
-  Util::Result result = Options::Init(argc, argv);
+  Result result = Options::Init(argc, argv);
   if (!result.Success())
   {
     return;

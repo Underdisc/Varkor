@@ -5,12 +5,12 @@
 #include "gfx/Image.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
-#include "util/Utility.h"
 #include "vlk/Valkor.h"
 
 namespace AssetLibrary {
 
 AssetId nColorShaderId;
+AssetId nDebugDrawShaderId;
 AssetId nDefaultTextShaderId;
 AssetId nFramebufferShaderId;
 AssetId nMemberIdShaderId;
@@ -32,6 +32,8 @@ void InitRequiredAssets()
   // All other required assets.
   nColorShaderId = Require<Gfx::Shader>(
     "Color", "vres/shader/default.vs", "vres/shader/color.fs");
+  nDebugDrawShaderId = Require<Gfx::Shader>(
+    "DebugDraw", "vres/shader/debugLine.vs", "vres/shader/color.fs");
   nDefaultTextShaderId = Require<Gfx::Shader>(
     "DefaultText", "vres/shader/text.vs", "vres/shader/text.fs");
   nFramebufferShaderId = Require<Gfx::Shader>(
@@ -125,7 +127,7 @@ const char* nAssetFile = "assets.vlk";
 void LoadAssets()
 {
   Vlk::Value rootVal;
-  Util::Result result = rootVal.Read(nAssetFile);
+  Result result = rootVal.Read(nAssetFile);
   if (!result.Success())
   {
     LogError(result.mError.c_str());
@@ -145,7 +147,7 @@ void SaveAssets()
   SerializeAssets<Gfx::Image>(rootVal);
   SerializeAssets<Gfx::Model>(rootVal);
   SerializeAssets<Gfx::Shader>(rootVal);
-  Util::Result result = rootVal.Write(nAssetFile);
+  Result result = rootVal.Write(nAssetFile);
   LogErrorIf(!result.Success(), result.mError.c_str());
 }
 

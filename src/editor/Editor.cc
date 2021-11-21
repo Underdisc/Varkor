@@ -78,7 +78,7 @@ void Init()
   nCoreInterface.Init();
   if (!Options::nLoadSpace.empty())
   {
-    Util::ValuedResult<World::SpaceId> result =
+    ValueResult<World::SpaceId> result =
       World::LoadSpace(Options::nLoadSpace.c_str());
     if (result.Success())
     {

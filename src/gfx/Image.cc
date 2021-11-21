@@ -5,7 +5,7 @@
 
 namespace Gfx {
 
-Util::Result Image::Init(std::string paths[smInitPathCount])
+Result Image::Init(std::string paths[smInitPathCount])
 {
   return Image::Init(paths[0]);
 }
@@ -28,7 +28,7 @@ Image::~Image()
   Purge();
 }
 
-Util::Result Image::Init(const std::string& file)
+Result Image::Init(const std::string& file)
 {
   stbi_set_flip_vertically_on_load(true);
   int channels;
@@ -38,7 +38,7 @@ Util::Result Image::Init(const std::string& file)
   {
     std::stringstream error;
     error << file << " loading failed: " << stbi_failure_reason();
-    return Util::Result(error.str());
+    return Result(error.str());
   }
 
   glGenTextures(1, &mId);
@@ -68,7 +68,7 @@ Util::Result Image::Init(const std::string& file)
     data);
   glGenerateMipmap(GL_TEXTURE_2D);
   stbi_image_free(data);
-  return Util::Result(true);
+  return Result();
 }
 
 GLuint Image::Id() const

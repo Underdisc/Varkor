@@ -3,13 +3,13 @@
 
 #include <string>
 
-#include "util/Utility.h"
+#include "Result.h"
 
 namespace Options {
 
 extern std::string nLoadSpace;
 
-Util::Result Init(int argc, char* argv[]);
+Result Init(int argc, char* argv[]);
 
 } // namespace Options
 

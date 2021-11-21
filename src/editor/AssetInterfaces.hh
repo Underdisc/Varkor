@@ -103,7 +103,7 @@ void AssetInterface<T>::EditAssetHeader(AssLib::Asset<T>* asset)
   InputText("Name", &asset->mName);
   if (ImGui::Button("Init", ImVec2(-1.0f, 0.0f)))
   {
-    Util::Result result = asset->Init();
+    Result result = asset->Init();
     if (!result.Success())
     {
       std::string assetTypename = Util::GetShortTypename<T>();

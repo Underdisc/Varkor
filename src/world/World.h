@@ -1,6 +1,7 @@
 #ifndef world_World_h
 #define world_World_h
 
+#include "Result.h"
 #include "world/Space.h"
 #include "world/Types.h"
 
@@ -21,7 +22,7 @@ private:
 };
 
 SpaceId CreateSpace();
-Util::ValuedResult<SpaceId> LoadSpace(const char* filename);
+ValueResult<SpaceId> LoadSpace(const char* filename);
 Space& GetSpace(SpaceId id);
 void Update();
 

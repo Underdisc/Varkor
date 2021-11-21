@@ -3,8 +3,8 @@
 
 #include <string>
 
+#include "Result.h"
 #include "ds/Map.h"
-#include "util/Utility.h"
 
 namespace AssetLibrary {
 
@@ -22,8 +22,8 @@ public:
   std::string mName;
   T mResource;
   Asset(const std::string& name);
-  Util::Result Init();
-  Util::Result Init(const std::string paths[T::smInitPathCount]);
+  Result Init();
+  Result Init(const std::string paths[T::smInitPathCount]);
   void SetPath(int index, const std::string& newPath);
   const std::string& GetPath(int index) const;
 
@@ -77,6 +77,7 @@ AssetId AssetBin<T>::smRequiredIdHandout = -1;
 // All required AssetIds
 // Shader
 extern AssetId nColorShaderId;
+extern AssetId nDebugDrawShaderId;
 extern AssetId nDefaultTextShaderId;
 extern AssetId nFramebufferShaderId;
 extern AssetId nMemberIdShaderId;

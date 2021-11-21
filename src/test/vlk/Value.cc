@@ -16,7 +16,7 @@ void PrintParsePrint(const Vlk::Value& rootVal)
 void PrintParseError(const char* text)
 {
   Vlk::Value rootVal;
-  Util::Result result = rootVal.Parse(text);
+  Result result = rootVal.Parse(text);
   std::cout << result.mError << std::endl;
 }
 
@@ -146,13 +146,13 @@ void SerializeDeserialize()
     pairArrayVal("Key1") = 1;
     pairArrayVal("Key2") = 2;
     pairArrayVal("Key3") = 3;
-    Util::Result result = rootVal.Write(filename);
+    Result result = rootVal.Write(filename);
     LogAbortIf(!result.Success(), result.mError.c_str());
   }
   // Deserialization
   {
     Vlk::Value rootVal;
-    Util::Result result = rootVal.Read(filename);
+    Result result = rootVal.Read(filename);
     LogAbortIf(!result.Success(), result.mError.c_str());
     const Vlk::Pair& integer = *rootVal.TryGetPair("Integer");
     std::cout << integer.Key() << ": " << integer.As<int>() << std::endl;
@@ -235,7 +235,7 @@ void Errors()
 
   // This tests line number information for parser errors.
   Vlk::Value rootVal;
-  Util::Result result = rootVal.Read("ParserError.vlk");
+  Result result = rootVal.Read("ParserError.vlk");
   std::cout << result.mError << std::endl;
 }
 

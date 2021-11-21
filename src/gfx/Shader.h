@@ -3,8 +3,8 @@
 
 #include <string>
 
+#include "Result.h"
 #include "ds/Vector.h"
-#include "util/Utility.h"
 
 namespace Gfx {
 
@@ -14,13 +14,13 @@ public:
   static constexpr int smInitPathCount = 2;
   static constexpr const char* smPathNames[smInitPathCount] = {
     "Vertex", "Fragment"};
-  Util::Result Init(std::string paths[smInitPathCount]);
+  Result Init(std::string paths[smInitPathCount]);
   void Purge();
   bool Live() const;
 
   Shader();
   Shader(const char* vertexFile, const char* fragmentFile);
-  Util::Result Init(const char* vertexFile, const char* fragmentFile);
+  Result Init(const char* vertexFile, const char* fragmentFile);
   void Use() const;
   unsigned int Id() const;
   int UniformLocation(const char* name) const;
@@ -59,7 +59,7 @@ private:
   };
   Shader::IncludeResult HandleIncludes(
     const char* shaderFile, std::string& content);
-  Util::Result Compile(
+  Result Compile(
     const char* shaderSource, int shaderType, unsigned int* shaderId);
 };
 

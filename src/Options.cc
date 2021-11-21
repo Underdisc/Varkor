@@ -16,7 +16,7 @@ void ShowHelp()
        "and select the space saved within the given file.\n";
 }
 
-Util::Result Init(int argc, char* argv[])
+Result Init(int argc, char* argv[])
 {
   const char* getoptString = "hs:";
   option allOptions[] = {
@@ -29,12 +29,12 @@ Util::Result Init(int argc, char* argv[])
     currentOp = getopt_long(argc, argv, getoptString, allOptions, NULL);
     switch (currentOp)
     {
-    case 'h': ShowHelp(); return Util::Result("Help requested.");
+    case 'h': ShowHelp(); return Result("Help requested.");
     case 's': nLoadSpace = optarg; break;
-    case '?': return Util::Result("Invalid command line arguments.");
+    case '?': return Result("Invalid command line arguments.");
     }
   }
-  return Util::Result();
+  return Result();
 }
 
 } // namespace Options

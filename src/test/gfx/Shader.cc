@@ -4,12 +4,11 @@
 #include "Viewport.h"
 #include "debug/MemLeak.h"
 #include "gfx/Shader.h"
-#include "util/Utility.h"
 
 void PrintShaderInitResults(const char* vertex, const char* fragment)
 {
   Gfx::Shader shader;
-  Util::Result result = shader.Init(vertex, fragment);
+  Result result = shader.Init(vertex, fragment);
   std::cout << "Success: " << result.Success() << std::endl;
   std::cout << result.mError << std::endl;
 }

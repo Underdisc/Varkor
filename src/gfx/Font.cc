@@ -8,7 +8,7 @@
 
 namespace Gfx {
 
-Util::Result Font::Init(std::string paths[smInitPathCount])
+Result Font::Init(std::string paths[smInitPathCount])
 {
   return Init(paths[0]);
 }
@@ -39,7 +39,7 @@ Font::~Font()
   Purge();
 }
 
-Util::Result Font::Init(const std::string& file)
+Result Font::Init(const std::string& file)
 {
   // Read the font file into a buffer.
   std::ifstream stream;
@@ -48,7 +48,7 @@ Util::Result Font::Init(const std::string& file)
   {
     std::stringstream error;
     error << file << " could not be opened.";
-    return Util::Result(error.str());
+    return Result(error.str());
   }
   std::filebuf* fileBuffer = stream.rdbuf();
   size_t bufferSize = fileBuffer->pubseekoff(0, stream.end, stream.in);
@@ -64,10 +64,10 @@ Util::Result Font::Init(const std::string& file)
     std::stringstream error;
     error << "Font within " << file << " could not be initialized.";
     Purge();
-    return Util::Result(error.str());
+    return Result(error.str());
   }
   InitGlyphs();
-  return Util::Result(true);
+  return Result();
 }
 
 void Font::InitGlyphs()

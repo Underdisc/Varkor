@@ -4,8 +4,8 @@
 #include <glad/glad.h>
 #include <stb_truetype.h>
 
+#include "Result.h"
 #include "math/Vector.h"
-#include "util/Utility.h"
 
 namespace Gfx {
 
@@ -14,13 +14,13 @@ struct Font
 public:
   static constexpr size_t smInitPathCount = 1;
   static constexpr const char* smPathNames[smInitPathCount] = {"Font"};
-  Util::Result Init(std::string paths[smInitPathCount]);
+  Result Init(std::string paths[smInitPathCount]);
   void Purge();
   bool Live() const;
 
   Font();
   ~Font();
-  Util::Result Init(const std::string& file);
+  Result Init(const std::string& file);
 
   struct GlyphMetrics
   {

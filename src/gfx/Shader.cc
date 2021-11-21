@@ -4,15 +4,13 @@
 #include <sstream>
 
 #include "Error.h"
-#include "Util/Utility.h"
-
 #include "Shader.h"
 
 namespace Gfx {
 
 bool Shader::smLogMissingUniforms = false;
 
-Util::Result Shader::Init(std::string paths[smInitPathCount])
+Result Shader::Init(std::string paths[smInitPathCount])
 {
   return Init(paths[0].c_str(), paths[1].c_str());
 }
@@ -32,16 +30,16 @@ Shader::Shader(): mProgram(0) {}
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile): mProgram(0)
 {
-  Util::Result result = Init(vertexFile, fragmentFile);
+  Result result = Init(vertexFile, fragmentFile);
   LogAbortIf(!result.Success(), result.mError.c_str());
 }
 
-Util::Result Shader::Init(const char* vertexFile, const char* fragmentFile)
+Result Shader::Init(const char* vertexFile, const char* fragmentFile)
 {
   Purge();
   // Compile the provided shader files.
   unsigned int vertexId, fragmentId;
-  Util::Result result = Compile(vertexFile, GL_VERTEX_SHADER, &vertexId);
+  Result result = Compile(vertexFile, GL_VERTEX_SHADER, &vertexId);
   if (!result.Success())
   {
     return result;
@@ -242,7 +240,7 @@ Shader::IncludeResult Shader::HandleIncludes(
   return result;
 }
 
-Util::Result Shader::Compile(
+Result Shader::Compile(
   const char* shaderFile, int shaderType, unsigned int* shaderId)
 {
   // Read the content of the provided file.
@@ -252,7 +250,7 @@ Util::Result Shader::Compile(
   {
     std::stringstream reason;
     reason << "Failed to open " << shaderFile;
-    return Util::Result(reason.str());
+    return Result(reason.str());
   }
   std::stringstream fileContentStream;
   fileContentStream << file.rdbuf();
@@ -265,7 +263,7 @@ Util::Result Shader::Compile(
     std::stringstream reason;
     reason << "Failed to compile " << shaderFile << "." << std::endl
            << includeResult.mError;
-    return Util::Result(reason.str());
+    return Result(reason.str());
   }
 
   // Compile the source read from the file.
@@ -277,7 +275,7 @@ Util::Result Shader::Compile(
   glGetShaderiv(*shaderId, GL_COMPILE_STATUS, &success);
   if (success)
   {
-    return Util::Result(true);
+    return Result();
   }
 
   // The shader failed to compile and we need to retrieve the errors.
@@ -311,7 +309,7 @@ Util::Result Shader::Compile(
     mItE = match[0].second;
   }
   error << logStr.substr(mItE - logStr.cbegin());
-  return Util::Result(error.str());
+  return Result(error.str());
 }
 
 } // namespace Gfx

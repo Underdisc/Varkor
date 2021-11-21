@@ -4,13 +4,11 @@
 #include <sstream>
 
 #include "Error.h"
-#include "util/Utility.h"
-
 #include "Model.h"
 
 namespace Gfx {
 
-Util::Result Model::Init(std::string paths[smInitPathCount])
+Result Model::Init(std::string paths[smInitPathCount])
 {
   return Init(paths[0]);
 }
@@ -29,7 +27,7 @@ bool Model::Live() const
 
 Model::Model() {}
 
-Util::Result Model::Init(const std::string& file)
+Result Model::Init(const std::string& file)
 {
   Purge();
   mDirectory = file.substr(0, file.find_last_of('/') + 1);
@@ -51,10 +49,10 @@ Util::Result Model::Init(const std::string& file)
   // Avoid processing the imported data if any errors occured.
   if (!errorStream.str().empty())
   {
-    return Util::Result(errorStream.str());
+    return Result(errorStream.str());
   }
   ProcessNode(scene->mRootNode, scene);
-  return Util::Result(true);
+  return Result();
 }
 
 void Model::Draw(const Shader& shader) const

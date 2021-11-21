@@ -5,13 +5,13 @@ Asset<T>::Asset(const std::string& name): mName(name)
 {}
 
 template<typename T>
-Util::Result Asset<T>::Init()
+Result Asset<T>::Init()
 {
   return mResource.Init(mPaths);
 }
 
 template<typename T>
-Util::Result Asset<T>::Init(const std::string paths[T::smInitPathCount])
+Result Asset<T>::Init(const std::string paths[T::smInitPathCount])
 {
   for (size_t i = 0; i < T::smInitPathCount; ++i)
   {
@@ -58,7 +58,7 @@ AssetId Require(const std::string& name, Args&&... args)
 {
   AssetId id = AssetBin<T>::NextRequiredId();
   Asset<T>& newAsset = AssetBin<T>::smAssets.Emplace(id, name);
-  Util::Result result = newAsset.mResource.Init(args...);
+  Result result = newAsset.mResource.Init(args...);
   LogAbortIf(!result.Success(), result.mError.c_str());
   return id;
 }
@@ -103,7 +103,7 @@ void AssetBin<T>::InitDefault(Args&&... args)
 {
   Asset<T>& defaultAsset =
     AssetBin<T>::smAssets.Emplace(nDefaultAssetId, "Default");
-  Util::Result result = defaultAsset.mResource.Init(args...);
+  Result result = defaultAsset.mResource.Init(args...);
   LogAbortIf(!result.Success(), result.mError.c_str());
 }
 

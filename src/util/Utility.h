@@ -47,45 +47,6 @@ struct EnableIf<true, T>
   typedef T Type;
 };
 
-struct Result
-{
-  std::string mError;
-  Result(): mError("") {}
-  Result(Result&& other): mError(Util::Move(other.mError)) {}
-  Result(std::string&& error): mError(Util::Move(error)) {}
-  Result(std::string& error): mError(error) {}
-  Result(const char* error): mError(error) {}
-  Result(bool success)
-  {
-    if (success)
-    {
-      mError = "";
-    } else
-    {
-      mError = "Failed";
-    }
-  }
-  bool Success()
-  {
-    return mError.size() == 0;
-  }
-  Result& operator=(Result&& other)
-  {
-    mError = Util::Move(other.mError);
-    return *this;
-  }
-};
-
-template<typename T>
-struct ValuedResult: public Result
-{
-  T mValue;
-  ValuedResult(Result&& result, const T& value):
-    Result(Util::Move(result)), mValue(value)
-  {}
-  ValuedResult(const T& value): Result(), mValue(value) {}
-};
-
 } // namespace Util
 
 #endif

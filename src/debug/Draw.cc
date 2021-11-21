@@ -1,12 +1,12 @@
 #include <glad/glad.h>
 
+#include "AssetLibrary.h"
 #include "Error.h"
+#include "debug/Draw.h"
 #include "ds/Vector.h"
 #include "gfx/Shader.h"
 #include "math/Geometry.h"
 #include "math/Matrix4.h"
-
-#include "debug/Draw.h"
 
 namespace Debug {
 namespace Draw {
@@ -18,16 +18,10 @@ struct Renderable
   unsigned int mCount;
   Vec3 mColor;
 };
-
 Ds::Vector<Renderable> nRenderables;
-Gfx::Shader nShader;
 
 void Init()
 {
-  Util::Result result =
-    nShader.Init("vres/shader/DebugLine.vs", "vres/shader/Color.fs");
-  LogAbortIf(!result.Success(), result.mError.c_str());
-
   glPointSize(12.0f);
   glLineWidth(3.0f);
 }
@@ -101,14 +95,15 @@ void CartesianAxes()
 void Render(const Mat4& view, const Mat4& projection)
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  nShader.SetMat4("uView", view.CData(), true);
-  nShader.SetMat4("uProj", projection.CData(), true);
+  Gfx::Shader& shader = AssLib::Get<Gfx::Shader>(AssLib::nDebugDrawShaderId);
+  shader.SetMat4("uView", view.CData(), true);
+  shader.SetMat4("uProj", projection.CData(), true);
   for (int i = 0; i < nRenderables.Size(); ++i)
   {
     const Renderable& renderable = nRenderables[i];
     Vec4 fullColor = (Vec4)renderable.mColor;
     fullColor[3] = 1.0f;
-    nShader.SetVec4("uColor", fullColor.CData());
+    shader.SetVec4("uColor", fullColor.CData());
     glBindVertexArray(renderable.mVao);
     if (renderable.mCount == 1)
     {
