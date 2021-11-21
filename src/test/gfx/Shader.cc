@@ -42,7 +42,7 @@ void CompilerErrors()
 
 int main()
 {
-  InitMemLeakOutput();
+  EnableLeakOutput();
   Viewport::Init("gfx_Shader", false);
   FailedIncludeBasic();
   FailedInclude();

@@ -318,7 +318,7 @@ void Duplicate()
 
 int main(void)
 {
-  InitMemLeakOutput();
+  EnableLeakOutput();
   RegisterComponentTypes();
 
   CreateMember();

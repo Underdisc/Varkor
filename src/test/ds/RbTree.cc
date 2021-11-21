@@ -251,7 +251,7 @@ void ExtensiveModification()
 
 int main()
 {
-  InitMemLeakOutput();
+  EnableLeakOutput();
   LeftInsert();
   RightInsert();
   ExplicitInsert();

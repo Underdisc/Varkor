@@ -241,7 +241,7 @@ void Errors()
 
 int main()
 {
-  InitMemLeakOutput();
+  EnableLeakOutput();
   TrueValue();
   ValueArray();
   PairArray();

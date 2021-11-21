@@ -92,7 +92,7 @@ void InvalidToken()
 
 int main()
 {
-  InitMemLeakOutput();
+  EnableLeakOutput();
   Key();
   TrueValue();
   Characters();

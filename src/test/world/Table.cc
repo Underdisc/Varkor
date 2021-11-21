@@ -149,7 +149,7 @@ void GetComponent()
 
 int main(void)
 {
-  InitMemLeakOutput();
+  EnableLeakOutput();
   RegisterComponentTypes();
 
   Add();

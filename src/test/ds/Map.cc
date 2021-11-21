@@ -183,7 +183,7 @@ void Iterator()
 
 int main()
 {
-  InitMemLeakOutput();
+  EnableLeakOutput();
   InsertRemoveFind();
   StringMap();
   InsertEmplace();
