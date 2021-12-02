@@ -121,12 +121,20 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
   space.VisitTableComponents<Comp::Model>(
     [&](World::MemberId owner, const Comp::Model& modelComp)
     {
-      Mat4 transformation = GetTransformation(space, owner);
       memberIdShader.Use();
-      memberIdShader.SetMat4("uModel", transformation.CData());
       memberIdShader.SetInt("uMemberId", owner);
+      Mat4 memberTransformation = GetTransformation(space, owner);
       const Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
-      model.Draw(memberIdShader);
+      for (const Gfx::Model::DrawInfo& drawInfo : model.GetAllDrawInfo())
+      {
+        Mat4 transformation = memberTransformation * drawInfo.mTransformation;
+        memberIdShader.SetMat4("uModel", transformation.CData());
+        const Gfx::Mesh& mesh = model.GetMesh(drawInfo.mMeshIndex);
+        glBindVertexArray(mesh.Vao());
+        glDrawElements(
+          GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+      }
     });
 
   // Render MemberIds for every sprite.
@@ -213,15 +221,38 @@ void RenderSpace(
     [&](World::MemberId owner, const Comp::Model& modelComp)
     {
       const Gfx::Shader& shader = AssLib::Get<Gfx::Shader>(modelComp.mShaderId);
-      Mat4 transformation = GetTransformation(space, owner);
       shader.Use();
-      shader.SetMat4("uModel", transformation.CData());
       shader.SetMat4("uView", view.CData());
       shader.SetMat4("uProj", Viewport::Perspective().CData());
       shader.SetVec3("uViewPos", viewPos.CData());
       shader.SetFloat("uTime", Framer::TotalTime());
+
+      Mat4 memberTransformation = GetTransformation(space, owner);
       const Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
-      model.Draw(shader);
+      for (const Gfx::Model::DrawInfo& drawInfo : model.GetAllDrawInfo())
+      {
+        // Prepare all of the textures.
+        const Material& material = model.GetMaterial(drawInfo.mMaterialIndex);
+        material.VisitTextures(
+          [&shader](
+            const Material::Texture& texture,
+            const std::string& uniformName,
+            int index)
+          {
+            glActiveTexture(GL_TEXTURE0 + index);
+            glBindTexture(GL_TEXTURE_2D, texture.mImage.Id());
+            shader.SetSampler(uniformName.c_str(), index);
+          });
+
+        // Render the mesh.
+        Mat4 transformation = memberTransformation * drawInfo.mTransformation;
+        shader.SetMat4("uModel", transformation.CData());
+        const Mesh& mesh = model.GetMesh(drawInfo.mMeshIndex);
+        glBindVertexArray(mesh.Vao());
+        glDrawElements(
+          GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+      }
     });
 
   glDisable(GL_CULL_FACE);

@@ -1,45 +1,37 @@
 #ifndef gfx_Mesh_h
 #define gfx_Mesh_h
 
+#include <glad/glad.h>
+
 #include "ds/Vector.h"
-#include "gfx/Shader.h"
-#include "gfx/Texture.h"
-#include "math/Vector.h"
 
 namespace Gfx {
 
+enum Attribute : unsigned int
+{
+  Position = 1 << 0,
+  Normal = 1 << 1,
+  TexCoord = 1 << 2,
+};
+size_t AttributeSize(unsigned int attribute);
+
 struct Mesh
 {
-  struct Vertex
-  {
-    Vec3 mPosition;
-    Vec3 mNormal;
-    Vec2 mTexCoord;
-  };
-
-  Mesh();
   Mesh(
-    const Ds::Vector<Vertex>& vertices,
-    const Ds::Vector<unsigned int>& indices,
-    Ds::Vector<Texture>&& textures);
+    unsigned int attributes,
+    size_t vertexByteCount,
+    const Ds::Vector<char>& vertexBuffer,
+    const Ds::Vector<unsigned int>& elementBuffer);
   Mesh(Mesh&& other);
   ~Mesh();
 
   Mesh& operator=(Mesh&& other);
 
-  void Upload(
-    const Ds::Vector<Vec3>& vertices, const Ds::Vector<unsigned int>& indices);
-  void Upload(
-    const Ds::Vector<Vertex>& vertices,
-    const Ds::Vector<unsigned int>& indices);
-  void Draw(const Shader& shader) const;
+  GLuint Vao() const;
+  size_t IndexCount() const;
 
 private:
-  void UploadIndices(const Ds::Vector<unsigned int> indices);
-  void DeleteBuffers();
-
-  Ds::Vector<Texture> mTextures;
-  unsigned int mVao, mVbo, mEbo;
+  GLuint mVao, mVbo, mEbo;
   size_t mIndexCount;
 };
 

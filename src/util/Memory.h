@@ -4,7 +4,7 @@
 namespace Util {
 
 template<typename T>
-void Copy(T* from, T* to, size_t amount)
+void Copy(const T* from, T* to, size_t amount)
 {
   for (size_t i = 0; i < amount; ++i)
   {

@@ -64,7 +64,7 @@ void Vector<T>::Push(T&& value)
   {
     Grow();
   }
-  new (mData + mSize) T(Util::Move(value));
+  new (mData + mSize) T(Util::Forward(value));
   ++mSize;
 }
 
@@ -97,7 +97,7 @@ void Vector<T>::Emplace(Args&&... args)
   {
     Grow();
   }
-  new (mData + mSize) T(args...);
+  new (mData + mSize) T(Util::Forward(args)...);
   ++mSize;
 }
 

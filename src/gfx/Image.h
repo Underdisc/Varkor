@@ -17,7 +17,10 @@ public:
   bool Live() const;
 
   Image();
+  Image(Image&& other);
+  Image& operator=(Image&& other);
   ~Image();
+
   Result Init(const std::string& file);
   GLuint Id() const;
   float Aspect() const;

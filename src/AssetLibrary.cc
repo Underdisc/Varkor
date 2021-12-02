@@ -40,11 +40,11 @@ void InitRequiredAssets()
     "Framebuffer", "vres/shader/fullscreen.vs", "vres/shader/fullscreen.fs");
   nMemberIdShaderId = Require<Gfx::Shader>(
     "MemberId", "vres/shader/default.vs", "vres/shader/memberId.fs");
-  nArrowModelId = Require<Gfx::Model>("Arrow", "vres/model/arrow.fbx");
+  nArrowModelId = Require<Gfx::Model>("Arrow", "vres/model/arrow.obj");
   nCubeModelId = Require<Gfx::Model>("Cube", "vres/model/cube.obj");
-  nScaleModelId = Require<Gfx::Model>("Scale", "vres/model/scale.fbx");
-  nSphereModelId = Require<Gfx::Model>("Sphere", "vres/model/sphere.fbx");
-  nTorusModelId = Require<Gfx::Model>("Torus", "vres/model/torus.fbx");
+  nScaleModelId = Require<Gfx::Model>("Scale", "vres/model/scale.obj");
+  nSphereModelId = Require<Gfx::Model>("Sphere", "vres/model/sphere.obj");
+  nTorusModelId = Require<Gfx::Model>("Torus", "vres/model/torus.obj");
 }
 
 template<typename T>
@@ -113,7 +113,8 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
 
     // todo: This will only be here temporarily. Assets should initialized in a
     // different thread upon request when they are needed.
-    asset.Init();
+    Result result = asset.Init();
+    LogErrorIf(!result.Success(), result.mError.c_str());
   }
 }
 

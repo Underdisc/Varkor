@@ -15,12 +15,12 @@ Result Font::Init(std::string paths[smInitPathCount])
 
 void Font::Purge()
 {
-  if (mTtfBuffer == nullptr)
+  if (mFontInfo.data == nullptr)
   {
     return;
   }
-  delete[] mTtfBuffer;
-  mTtfBuffer = nullptr;
+  delete[] mFontInfo.data;
+  mFontInfo.data = nullptr;
   for (size_t i = 0; i < smGlyphCount; ++i)
   {
     glDeleteTextures(1, &mTextureIds[i]);
@@ -29,10 +29,33 @@ void Font::Purge()
 
 bool Font::Live() const
 {
-  return mTtfBuffer != nullptr;
+  return mFontInfo.data != nullptr;
 }
 
-Font::Font(): mTtfBuffer(nullptr) {}
+Font::Font()
+{
+  mFontInfo.data = nullptr;
+}
+
+Font::Font(Font&& other)
+{
+  *this = Util::Forward(other);
+}
+
+Font& Font::operator=(Font&& other)
+{
+  mFontInfo.data = other.mFontInfo.data;
+  mNewlineOffset = other.mNewlineOffset;
+  for (size_t i = 0; i < smGlyphCount; ++i)
+  {
+    mAllGlyphMetrics[i] = other.mAllGlyphMetrics[i];
+    mTextureIds[i] = other.mTextureIds[i];
+  }
+
+  other.mFontInfo.data = nullptr;
+
+  return *this;
+}
 
 Font::~Font()
 {
@@ -53,12 +76,12 @@ Result Font::Init(const std::string& file)
   std::filebuf* fileBuffer = stream.rdbuf();
   size_t bufferSize = fileBuffer->pubseekoff(0, stream.end, stream.in);
   fileBuffer->pubseekpos(0, stream.in);
-  mTtfBuffer = new char[bufferSize];
-  fileBuffer->sgetn(mTtfBuffer, bufferSize);
+  char* data = new char[bufferSize];
+  fileBuffer->sgetn(data, bufferSize);
   stream.close();
 
   // Initialize the font with the buffer and initialize the glyphs.
-  int initResult = stbtt_InitFont(&mFontInfo, (unsigned char*)mTtfBuffer, 0);
+  int initResult = stbtt_InitFont(&mFontInfo, (unsigned char*)data, 0);
   if (initResult == 0)
   {
     std::stringstream error;

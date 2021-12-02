@@ -1,4 +1,7 @@
 #include <sstream>
+
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_FAILURE_USERMSG
 #include <stb_image.h>
 
 #include "gfx/Image.h"
@@ -23,6 +26,22 @@ bool Image::Live() const
 
 Image::Image(): mId(0) {}
 
+Image::Image(Image&& other)
+{
+  *this = Util::Forward(other);
+}
+
+Image& Image::operator=(Image&& other)
+{
+  mWidth = other.mWidth;
+  mHeight = other.mHeight;
+  mId = other.mId;
+
+  other.mId = 0;
+
+  return *this;
+}
+
 Image::~Image()
 {
   Purge();
@@ -37,7 +56,7 @@ Result Image::Init(const std::string& file)
   if (!data)
   {
     std::stringstream error;
-    error << file << " loading failed: " << stbi_failure_reason();
+    error << "Failed to load " << file << ": " << stbi_failure_reason() << ".";
     return Result(error.str());
   }
 

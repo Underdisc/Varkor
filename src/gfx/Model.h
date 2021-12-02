@@ -5,10 +5,9 @@
 #include <string>
 
 #include "Result.h"
-#include "ds/Vector.h"
+#include "gfx/Material.h"
 #include "gfx/Mesh.h"
-#include "gfx/Shader.h"
-#include "gfx/Texture.h"
+#include "math/Matrix4.h"
 
 namespace Gfx {
 
@@ -22,20 +21,33 @@ public:
   bool Live() const;
 
   Model();
+  Model(Model&& other);
+  Model& operator=(Model&& other);
+  ~Model();
+
   Result Init(const std::string& file);
-  void Draw(const Shader& shader) const;
+  struct DrawInfo
+  {
+    Mat4 mTransformation;
+    unsigned int mMeshIndex;
+    unsigned int mMaterialIndex;
+  };
+  const Ds::Vector<DrawInfo>& GetAllDrawInfo() const;
+  const Mesh& GetMesh(unsigned int index) const;
+  const Material& GetMaterial(unsigned int index) const;
 
 private:
-  void ProcessNode(const aiNode* node, const aiScene* scene);
-  Mesh ProcessMesh(const aiMesh* mesh, const aiScene* scene);
-  void CollectMaterialTextures(
-    Ds::Vector<Texture>* textures,
-    const aiMaterial* material,
-    TextureType type);
+  void RegisterMesh(const aiMesh& assimpMesh);
+  Result RegisterMaterial(
+    const aiMaterial& assimpMat, const std::string& fileDir);
+  void RegisterNode(
+    const aiScene& assimpScene,
+    const aiNode& assimpNode,
+    const Mat4& parentTransformation);
 
-  std::string mDirectory;
+  Ds::Vector<DrawInfo> mAllDrawInfo;
   Ds::Vector<Mesh> mMeshes;
-  Ds::Vector<Texture> mLoadedTextures;
+  Ds::Vector<Material> mMaterials;
 };
 
 } // namespace Gfx

@@ -5,6 +5,8 @@
 
 #include "Error.h"
 #include "Model.h"
+#include "util/Memory.h"
+#include "util/Utility.h"
 
 namespace Gfx {
 
@@ -15,9 +17,9 @@ Result Model::Init(std::string paths[smInitPathCount])
 
 void Model::Purge()
 {
-  mDirectory = "";
+  mAllDrawInfo.Clear();
   mMeshes.Clear();
-  mLoadedTextures.Clear();
+  mMaterials.Clear();
 }
 
 bool Model::Live() const
@@ -27,157 +29,265 @@ bool Model::Live() const
 
 Model::Model() {}
 
+Model::Model(Model&& other)
+{
+  *this = Util::Forward(other);
+}
+
+Model& Model::operator=(Model&& other)
+{
+  mAllDrawInfo = Util::Move(other.mAllDrawInfo);
+  mMeshes = Util::Move(other.mMeshes);
+  mMaterials = Util::Move(other.mMaterials);
+  return *this;
+}
+
+Model::~Model()
+{
+  Purge();
+}
+
 Result Model::Init(const std::string& file)
 {
   Purge();
-  mDirectory = file.substr(0, file.find_last_of('/') + 1);
+
   // Import the model and record any errors.
   Assimp::Importer importer;
-  const aiScene* scene = importer.ReadFile(
-    file, aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_FlipUVs);
+  unsigned int flags = aiProcess_GenNormals | aiProcess_Triangulate |
+    aiProcess_FlipUVs | aiProcess_SortByPType;
+  const aiScene* scene = importer.ReadFile(file, flags);
   bool sceneCreated = scene != nullptr && scene->mRootNode != nullptr;
-  std::stringstream errorStream;
   if (!sceneCreated || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE)
   {
-    errorStream << "Assimp failed to load " << file << "." << std::endl;
-    errorStream << importer.GetErrorString();
+    std::stringstream error;
+    error << "Failed to load " << file << ":" << importer.GetErrorString();
+    return Result(error.str());
   } else if (scene->mNumMeshes == 0)
   {
-    errorStream << "There was no model data in " << file << ".";
+    std::stringstream error;
+    error << "Failed to load " << file << ": There was no model data.";
+    return Result(error.str());
   }
 
-  // Avoid processing the imported data if any errors occured.
-  if (!errorStream.str().empty())
+  // Register all of the model's meshes.
+  for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
   {
-    return Result(errorStream.str());
+    const aiMesh& assimpMesh = *scene->mMeshes[meshIndex];
+    if (assimpMesh.mPrimitiveTypes == (unsigned int)aiPrimitiveType_TRIANGLE)
+    {
+      RegisterMesh(assimpMesh);
+    }
   }
-  ProcessNode(scene->mRootNode, scene);
+
+  // Register all of the model's materials.
+  std::string fileDir = file.substr(0, file.find_last_of('/') + 1);
+  for (unsigned int m = 0; m < scene->mNumMaterials; ++m)
+  {
+    Result result = RegisterMaterial(*scene->mMaterials[m], fileDir);
+    if (!result.Success())
+    {
+      Purge();
+      std::stringstream error;
+      error << "Failed to load " << file << ": " << result.mError;
+      return Result(error.str());
+    }
+  }
+
+  // Register all of the nodes in the scene.
+  Mat4 parentTransformation;
+  Math::Identity(&parentTransformation);
+  RegisterNode(*scene, *scene->mRootNode, parentTransformation);
+
   return Result();
 }
 
-void Model::Draw(const Shader& shader) const
+const Ds::Vector<Model::DrawInfo>& Model::GetAllDrawInfo() const
 {
-  for (const Mesh& mesh : mMeshes)
-  {
-    mesh.Draw(shader);
-  }
+  return mAllDrawInfo;
 }
 
-void Model::ProcessNode(const aiNode* node, const aiScene* scene)
+const Mesh& Model::GetMesh(unsigned int index) const
 {
-  // Add all of the meshes in this node to the Mesh array.
-  for (unsigned int i = 0; i < node->mNumMeshes; ++i)
-  {
-    // With all of the models I have tested, mesh indicies are not repeated. I
-    // have yet to see a model where the same mesh index is used multiple times.
-    // That's why we aren't checking for already loaded meshes here.
-    unsigned int meshIndex = node->mMeshes[i];
-    const aiMesh* mesh = scene->mMeshes[meshIndex];
-    mMeshes.Push(ProcessMesh(mesh, scene));
-  }
-
-  for (unsigned int i = 0; i < node->mNumChildren; ++i)
-  {
-    ProcessNode(node->mChildren[i], scene);
-  }
+  return mMeshes[index];
 }
 
-Mesh Model::ProcessMesh(const aiMesh* mesh, const aiScene* scene)
+const Material& Model::GetMaterial(unsigned int index) const
 {
-  // Collect all of the vertex data from assimp.
-  Ds::Vector<Mesh::Vertex> vertices;
-  vertices.Reserve(mesh->mNumVertices);
-  for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+  return mMaterials[index];
+}
+
+void Model::RegisterMesh(const aiMesh& assimpMesh)
+{
+  // Find the size of a single vertex and all of its attributes.
+  unsigned int attributes = Attribute::Position;
+  size_t vertexByteCount = AttributeSize(Attribute::Position);
+  if (assimpMesh.mNormals != nullptr)
   {
-    Vec3 position;
-    position[0] = mesh->mVertices[i].x;
-    position[1] = mesh->mVertices[i].y;
-    position[2] = mesh->mVertices[i].z;
+    attributes = attributes | Attribute::Normal;
+    vertexByteCount += AttributeSize(Attribute::Normal);
+  }
+  size_t texCoordCount = 0;
+  while (assimpMesh.mTextureCoords[texCoordCount] != nullptr)
+  {
+    attributes = attributes | Attribute::TexCoord;
+    ++texCoordCount;
+    vertexByteCount += AttributeSize(Attribute::TexCoord);
+  }
 
-    Vec3 normal;
-    normal[0] = mesh->mNormals[i].x;
-    normal[1] = mesh->mNormals[i].y;
-    normal[2] = mesh->mNormals[i].z;
-
-    // We only use the texture coordinates of the mesh if they exist. If the
-    // mesh doesn't have any texture coordinates, we use [0, 0] as a default for
-    // the texture coordinates.
-    Vec2 texCoord;
-    if (mesh->mTextureCoords[0])
+  // Create the vertex buffer.
+  // The order of the vertex data and Attribute enum values are the same.
+  Ds::Vector<char> vertexBuffer;
+  vertexBuffer.Resize(vertexByteCount * assimpMesh.mNumVertices);
+  size_t byteOffset = 0;
+  size_t currentByte = byteOffset;
+  // Add positions.
+  for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v)
+  {
+    const aiVector3D& assimpVertex = assimpMesh.mVertices[v];
+    Vec3* vertex = (Vec3*)&vertexBuffer[currentByte];
+    (*vertex)[0] = assimpVertex.x;
+    (*vertex)[1] = assimpVertex.y;
+    (*vertex)[2] = assimpVertex.z;
+    currentByte += vertexByteCount;
+  }
+  byteOffset += AttributeSize(Attribute::Position);
+  // Add normals.
+  if (attributes & Attribute::Normal)
+  {
+    currentByte = byteOffset;
+    for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v)
     {
-      texCoord[0] = mesh->mTextureCoords[0][i].x;
-      texCoord[1] = mesh->mTextureCoords[0][i].y;
-    } else
-    {
-      texCoord[0] = 0.0f;
-      texCoord[1] = 0.0f;
+      const aiVector3D& assimpNormal = assimpMesh.mNormals[v];
+      Vec3* normal = (Vec3*)&vertexBuffer[currentByte];
+      (*normal)[0] = assimpNormal.x;
+      (*normal)[1] = assimpNormal.y;
+      (*normal)[2] = assimpNormal.z;
+      currentByte += vertexByteCount;
     }
-    Mesh::Vertex vertex = {position, normal, texCoord};
-    vertices.Push(vertex);
+    byteOffset += AttributeSize(Attribute::Position);
   }
-
-  // Collect all of the index data from assimp.
-  Ds::Vector<unsigned int> indices;
-  for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+  // Add texture coordinates.
+  if (attributes & Attribute::TexCoord)
   {
-    const aiFace& face = mesh->mFaces[i];
-    for (unsigned int j = 0; j < face.mNumIndices; ++j)
+    for (size_t t = 0; t < texCoordCount; ++t)
     {
-      indices.Push(face.mIndices[j]);
-    }
-  }
-
-  // Collect all the textures and return the new Mesh.
-  Ds::Vector<Texture> textures;
-  if (mesh->mMaterialIndex >= 0)
-  {
-    const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-    CollectMaterialTextures(&textures, material, TextureType::Diffuse);
-    CollectMaterialTextures(&textures, material, TextureType::Specular);
-  }
-  return Mesh(vertices, indices, Util::Move(textures));
-}
-
-void Model::CollectMaterialTextures(
-  Ds::Vector<Texture>* textures, const aiMaterial* material, TextureType type)
-{
-  aiTextureType aiType;
-  switch (type)
-  {
-  case TextureType::Diffuse: aiType = aiTextureType_DIFFUSE; break;
-  case TextureType::Specular: aiType = aiTextureType_SPECULAR; break;
-  }
-
-  // Collect all the textures of the given type and add them to the textures
-  // vector.
-  unsigned int count = material->GetTextureCount(aiType);
-  for (unsigned int i = 0; i < count; ++i)
-  {
-    aiString aiTextureFile;
-    material->GetTexture(aiType, i, &aiTextureFile);
-    std::stringstream textureFile;
-    textureFile << mDirectory << aiTextureFile.C_Str();
-
-    // Before loading a texture, we check to see if mLoadedTextures already
-    // contains the texture we need to avoid duplicate texture loads.
-    // todo: An asset loading manager should be taking care of this rather than
-    // baking a solution to this problem into the Model implementation.
-    bool loaded = false;
-    for (int j = 0; j < mLoadedTextures.Size(); ++j)
-    {
-      if (textureFile.str() == mLoadedTextures[j].mFile)
+      currentByte = byteOffset + AttributeSize(Attribute::TexCoord) * t;
+      for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v)
       {
-        textures->Push(mLoadedTextures[j]);
-        loaded = true;
-        break;
+        const aiVector3D& assimpTexCoord = assimpMesh.mTextureCoords[t][v];
+        Vec2* texCoord = (Vec2*)&vertexBuffer[currentByte];
+        (*texCoord)[0] = assimpTexCoord.x;
+        (*texCoord)[1] = assimpTexCoord.y;
+        currentByte += vertexByteCount;
       }
     }
-    if (!loaded)
+    byteOffset += AttributeSize(Attribute::TexCoord) * texCoordCount;
+  }
+
+  // Create the index buffer.
+  const unsigned int indicesPerFace = 3;
+  unsigned int indexCount = assimpMesh.mNumFaces * indicesPerFace;
+  Ds::Vector<unsigned int> elementBuffer;
+  elementBuffer.Resize(indexCount);
+  size_t currentIndex = 0;
+  for (size_t f = 0; f < assimpMesh.mNumFaces; ++f)
+  {
+    const aiFace& assimpFace = assimpMesh.mFaces[f];
+    for (size_t i = 0; i < indicesPerFace; ++i)
     {
-      Texture newTexture(textureFile.str().c_str(), type);
-      textures->Push(newTexture);
-      mLoadedTextures.Push(newTexture);
+      elementBuffer[currentIndex] = assimpFace.mIndices[i];
+      ++currentIndex;
     }
+  }
+
+  // Create the new mesh.
+  mMeshes.Emplace(attributes, vertexByteCount, vertexBuffer, elementBuffer);
+}
+
+Material::TextureType ConvertAiTextureType(const aiTextureType& type)
+{
+  switch (type)
+  {
+  case aiTextureType_DIFFUSE: return Material::TextureType::Diffuse;
+  case aiTextureType_SPECULAR: return Material::TextureType::Specular;
+  }
+  return Material::TextureType::None;
+}
+
+Result Model::RegisterMaterial(
+  const aiMaterial& assimpMat, const std::string& fileDir)
+{
+  Ds::Vector<Material::Texture> textures;
+  // This is a helper function for adding all textures of a certain type.
+  auto addTextures = [&](aiTextureType type) -> Result
+  {
+    unsigned int count = assimpMat.GetTextureCount(type);
+    for (unsigned int i = 0; i < count; ++i)
+    {
+      aiString filename;
+      if (assimpMat.Get(AI_MATKEY_TEXTURE(type, i), filename) != AI_SUCCESS)
+      {
+        std::stringstream error;
+        error << "Failed to get the filename of texture "
+              << TextureTypeToString(type) << "[" << i << "].";
+        return Result(error.str());
+      }
+      std::stringstream fullPath;
+      fullPath << fileDir << filename.C_Str();
+      textures.Emplace();
+      Material::Texture& texture = textures.Top();
+      texture.mTextureType = ConvertAiTextureType(type);
+      Result result = texture.mImage.Init(fullPath.str());
+      if (!result.Success())
+      {
+        std::stringstream error;
+        error << "Failed to initiazlize a texture: " << result.mError;
+        return Result(error.str());
+      }
+    }
+    return Result();
+  };
+
+  // Add all of the material's textures and create the material.
+  Result result = addTextures(aiTextureType_DIFFUSE);
+  if (!result.Success())
+  {
+    return result;
+  }
+  result = addTextures(aiTextureType_SPECULAR);
+  if (!result.Success())
+  {
+    return result;
+  }
+  mMaterials.Emplace(Util::Move(textures));
+  return Result();
+}
+
+void Model::RegisterNode(
+  const aiScene& assimpScene,
+  const aiNode& assimpNode,
+  const Mat4& parentTransformation)
+{
+  // Create all of the DrawInfo instances needed to represent the current node.
+  Mat4 nodeTransformation;
+  float* assimpTransformStart = (float*)&assimpNode.mTransformation.a1;
+  float* nodeTransformStart = nodeTransformation[0];
+  constexpr size_t elementCount = sizeof(Mat4) / sizeof(float);
+  Util::Copy<float>(assimpTransformStart, nodeTransformStart, elementCount);
+  nodeTransformation = parentTransformation * nodeTransformation;
+  for (unsigned int i = 0; i < assimpNode.mNumMeshes; ++i)
+  {
+    DrawInfo newDrawInfo;
+    newDrawInfo.mTransformation = nodeTransformation;
+    newDrawInfo.mMeshIndex = assimpNode.mMeshes[i];
+    const aiMesh& assimpMesh = *assimpScene.mMeshes[newDrawInfo.mMeshIndex];
+    newDrawInfo.mMaterialIndex = assimpMesh.mMaterialIndex;
+    mAllDrawInfo.Push(newDrawInfo);
+  }
+
+  for (unsigned int i = 0; i < assimpNode.mNumChildren; ++i)
+  {
+    RegisterNode(assimpScene, *assimpNode.mChildren[i], nodeTransformation);
   }
 }
 

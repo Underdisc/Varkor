@@ -67,7 +67,7 @@ Hook<Comp::Transform>::Hook():
   xzT.SetScale({0.15f, 0.01f, 0.15f});
   yzT.SetTranslation({0.0f, 0.5f, 0.5f});
   yzT.SetScale({0.01f, 0.15f, 0.15f});
-  xyzT.SetUniformScale(0.13f);
+  xyzT.SetUniformScale(0.15f);
   xM.mModelId = AssLib::nArrowModelId;
   yM.mModelId = AssLib::nArrowModelId;
   zM.mModelId = AssLib::nArrowModelId;
@@ -522,7 +522,7 @@ void Hook<Comp::Transform>::SwitchMode(Mode newMode)
     xT->SetTranslation({0.5f, 0.0f, 0.0f});
     yT->SetTranslation({0.0f, 0.5f, 0.0f});
     zT->SetTranslation({0.0f, 0.0f, 0.5f});
-    xyzT->SetUniformScale(0.13f);
+    xyzT->SetUniformScale(0.15f);
     xM->mModelId = AssLib::nArrowModelId;
     yM->mModelId = AssLib::nArrowModelId;
     zM->mModelId = AssLib::nArrowModelId;
@@ -668,15 +668,25 @@ Vec3 Hook<Comp::Transform>::ScaleToInterval(Vec3 vector, float interval)
 void Hook<Comp::Transform>::RenderHandle(
   World::MemberId handleId, const Vec4& color)
 {
-  Comp::Transform& transform = *mSpace.GetComponent<Comp::Transform>(handleId);
   const Gfx::Shader& colorShader =
     AssLib::Get<Gfx::Shader>(AssLib::nColorShaderId);
-  colorShader.SetMat4(
-    "uModel", transform.GetWorldMatrix(mSpace, handleId).CData());
   colorShader.SetVec4("uColor", color.CData());
+
+  Comp::Transform& transform = *mSpace.GetComponent<Comp::Transform>(handleId);
+  Mat4 memberTransformation = transform.GetWorldMatrix(mSpace, handleId);
   Comp::Model& modelComp = *mSpace.GetComponent<Comp::Model>(handleId);
   const Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
-  model.Draw(colorShader);
+  const Ds::Vector<Gfx::Model::DrawInfo>& allDrawInfo = model.GetAllDrawInfo();
+  for (const Gfx::Model::DrawInfo& drawInfo : allDrawInfo)
+  {
+    Mat4 transformation = memberTransformation * drawInfo.mTransformation;
+    colorShader.SetMat4("uModel", transformation.CData());
+    const Gfx::Mesh& mesh = model.GetMesh(drawInfo.mMeshIndex);
+    glBindVertexArray(mesh.Vao());
+    glDrawElements(
+      GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+  }
 }
 
 void Hook<Comp::Transform>::RenderHandles(

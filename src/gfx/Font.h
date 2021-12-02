@@ -19,9 +19,11 @@ public:
   bool Live() const;
 
   Font();
+  Font(Font&& other);
+  Font& operator=(Font&& other);
   ~Font();
-  Result Init(const std::string& file);
 
+  Result Init(const std::string& file);
   struct GlyphMetrics
   {
     Vec2 mStartOffset, mEndOffset;
@@ -35,10 +37,9 @@ private:
   void InitGlyphs();
   static constexpr size_t smGlyphCount = 256;
 
-  char* mTtfBuffer;
   stbtt_fontinfo mFontInfo;
-  GlyphMetrics mAllGlyphMetrics[smGlyphCount];
   float mNewlineOffset;
+  GlyphMetrics mAllGlyphMetrics[smGlyphCount];
   GLuint mTextureIds[smGlyphCount];
 };
 

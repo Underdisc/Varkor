@@ -5,6 +5,7 @@
 
 #include "Error.h"
 #include "Shader.h"
+#include "util/Utility.h"
 
 namespace Gfx {
 
@@ -27,6 +28,23 @@ bool Shader::Live() const
 }
 
 Shader::Shader(): mProgram(0) {}
+
+Shader::Shader(Shader&& other)
+{
+  *this = Util::Forward(other);
+}
+
+Shader& Shader::operator=(Shader&& other)
+{
+  mProgram = other.mProgram;
+  other.mProgram = 0;
+  return *this;
+}
+
+Shader::~Shader()
+{
+  Purge();
+}
 
 Shader::Shader(const char* vertexFile, const char* fragmentFile): mProgram(0)
 {
