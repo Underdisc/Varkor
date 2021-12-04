@@ -104,12 +104,7 @@ void AssetInterface<T>::EditAssetHeader(AssLib::Asset<T>* asset)
   if (ImGui::Button("Init", ImVec2(-1.0f, 0.0f)))
   {
     Result result = asset->Init();
-    if (!result.Success())
-    {
-      std::string assetTypename = Util::GetShortTypename<T>();
-      OpenInterface<PopupInterface>(
-        assetTypename + " Init Error", result.mError.c_str());
-    }
+    LogErrorIf(!result.Success(), result.mError.c_str());
   }
 }
 

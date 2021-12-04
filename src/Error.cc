@@ -17,7 +17,8 @@ void LogString(const char* string);
 std::string FormatFileName(const char* file);
 void SignalHandler(int signal);
 
-std::ofstream nErrorFile;
+std::string nLog;
+std::ofstream nFile;
 bool nUseCout = true;
 
 void Init(const char* logFile)
@@ -35,8 +36,8 @@ void Init(const char* logFile)
   {
     return;
   }
-  nErrorFile.open(logFile);
-  if (!nErrorFile.is_open())
+  nFile.open(logFile);
+  if (!nFile.is_open())
   {
     std::cout << "Error log file " << logFile << " failed to open."
               << std::endl;
@@ -45,9 +46,9 @@ void Init(const char* logFile)
 
 void Purge()
 {
-  if (nErrorFile.is_open())
+  if (nFile.is_open())
   {
-    nErrorFile.close();
+    nFile.close();
   }
 }
 
@@ -149,13 +150,16 @@ void StackTrace()
 
 void LogString(const char* string)
 {
+  std::stringstream logStream;
+  logStream << string << '\n';
+  nLog += logStream.str();
+  if (nFile.is_open())
+  {
+    nFile << logStream.str();
+  }
   if (nUseCout)
   {
-    std::cout << string << std::endl;
-  }
-  if (nErrorFile.is_open())
-  {
-    nErrorFile << string << std::endl;
+    std::cout << logStream.str();
   }
 }
 

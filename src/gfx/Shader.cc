@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <regex>
 #include <sstream>
+#include <string.h>
 
 #include "Error.h"
 #include "Shader.h"
@@ -297,12 +298,14 @@ Result Shader::Compile(
   }
 
   // The shader failed to compile and we need to retrieve the errors.
-  const int logLen = 512;
-  char log[logLen];
-  glGetShaderInfoLog(*shaderId, logLen, NULL, log);
-  std::string logStr(log);
+  const int bufferSize = 512;
+  char log[bufferSize];
+  glGetShaderInfoLog(*shaderId, bufferSize, NULL, log);
+  size_t logLength = strlen(log);
+  // Subtracting 1 removes the last newline character.
+  std::string logStr(log, logLength - 1);
   std::stringstream error;
-  error << "Failed to compile " << shaderFile << "." << std::endl;
+  error << "Failed to compile " << shaderFile << ".\n";
 
   // We need to modify the retrieved error log so it has proper line numbers.
   std::regex expression("0\\(([0-9]+)\\)");

@@ -4,6 +4,7 @@
 #include "editor/AssetInterfaces.h"
 #include "editor/CoreInterface.h"
 #include "editor/Editor.h"
+#include "editor/ErrorInterface.h"
 #include "editor/FileInterface.h"
 #include "editor/FramerInterface.h"
 #include "editor/OverviewInterface.h"
@@ -19,6 +20,7 @@ namespace Editor {
 
 void CoreInterface::Init()
 {
+  OpenInterface<ErrorInterface>();
   OpenInterface<AssetInterface<Gfx::Font>>();
   OpenInterface<AssetInterface<Gfx::Image>>();
   OpenInterface<AssetInterface<Gfx::Model>>();
@@ -90,7 +92,6 @@ void CoreInterface::FileMenu()
         ValueResult<World::SpaceId> result = World::LoadSpace(filename.c_str());
         if (!result.Success())
         {
-          OpenInterface<PopupInterface>("Load Space Failed", result.mError);
           LogError(result.mError.c_str());
           return;
         }
@@ -115,11 +116,7 @@ void CoreInterface::FileMenu()
         Vlk::Value rootVal;
         space.Serialize(rootVal);
         Result result = rootVal.Write(filename.c_str());
-        if (!result.Success())
-        {
-          OpenInterface<PopupInterface>("Save Space Failed", result.mError);
-          LogError(result.mError.c_str());
-        }
+        LogErrorIf(!result.Success(), result.mError.c_str());
       },
       FileInterface::AccessType::Save,
       space.mName + ".vlk");
@@ -143,6 +140,10 @@ void CoreInterface::ViewMenu()
     return;
   }
 
+  if (ImGui::MenuItem("Error"))
+  {
+    OpenInterface<ErrorInterface>();
+  }
   if (ImGui::MenuItem("Framer"))
   {
     OpenInterface<FramerInterface>();

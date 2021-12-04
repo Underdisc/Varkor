@@ -1,6 +1,8 @@
 #ifndef Error_h
 #define Error_h
 
+#include <string>
+
 namespace Error {
 
 void Init(const char* logFile = nullptr);
@@ -14,6 +16,7 @@ void Abort(const char* reason);
 void Abort();
 void StackTrace();
 
+extern std::string nLog;
 extern bool nUseCout;
 
 } // namespace Error
