@@ -31,7 +31,7 @@ Block::Block(const char* name, const Clock::time_point& timestamp):
 Ds::Vector<Block*> nBlockChain;
 Ds::Vector<Block> nBlocks;
 
-void StartBlock(const char* name)
+void Start(const char* name)
 {
   if (nBlockChain.Size() == 0)
   {
@@ -43,7 +43,13 @@ void StartBlock(const char* name)
   nBlockChain.Push(&nBlockChain.Top()->mSubBlocks.Top());
 }
 
-void EndBlock()
+void EndStart(const char* name)
+{
+  End();
+  Start(name);
+}
+
+void End()
 {
   LogAbortIf(
     nBlockChain.Size() == 0,
@@ -92,7 +98,7 @@ void ShowBlock(const Block& block, const std::string& indent)
   std::cout << indent << "}" << std::endl;
 }
 
-void ShowBlocks()
+void Show()
 {
   LogAbortIf(
     nBlockChain.Size() != 0,
@@ -103,7 +109,7 @@ void ShowBlocks()
   }
 }
 
-void ClearBlocks()
+void Clear()
 {
   nBlocks.Clear();
 }
