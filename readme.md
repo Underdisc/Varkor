@@ -6,6 +6,13 @@ Varkor is a custom game engine project that will also do other cool things that 
 
 *Disclaimer*: This is how I build the project. Feel free to use your own method if you are inclined. No promises that you won't encounter some bumps though.
 
+*Before You Build*: Make sure you initialize the submodules that Varkor uses. From anywhere in the repo, run the following to pull them.
+
+```
+git submodule init
+git submodule update
+```
+
 *Once You Build*: After you build the project, you'll find `varkor.exe` in `{repo_root}/working/`. This directory contains all the files that varkor may access at runtime. This is why the Varkor binary is placed here.
 
 At the moment, Varkor only builds under Windows, but will be expanded in the near future for building under Linux as well. On Windows, Varkor can be built under MSVC. To build Varkor, you are going to want a build of CMake and Ninja. I build everything on command line. If you don't already have it, I highly recommend Cygwin as well.
