@@ -80,7 +80,7 @@ if "%2" == "r" (
 if "%2" == "d" (
   pushd %1
   test.exe > out_diff.txt
-  git diff --no-index out.txt out_diff.txt
+  git -c core.fileMode=false diff --no-index out.txt out_diff.txt
   popd
   exit /b 0
 )
@@ -107,7 +107,7 @@ exit /b 0
 :PerformTest
   pushd %1
   test.exe > out_diff.txt
-  git diff --no-index --no-patch --exit-code out.txt out_diff.txt
+  git -c core.fileMode=false diff --no-index --no-patch --exit-code out.txt out_diff.txt
   if errorlevel 1 (
     echo %1: [31mFailed[0m
   ) else (
