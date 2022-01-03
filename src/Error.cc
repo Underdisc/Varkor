@@ -99,7 +99,6 @@ void LogGlStatus()
 void AbortInternal(const char* string)
 {
   LogString(string);
-  DisableLeakOutput();
   abort();
 }
 
@@ -191,6 +190,7 @@ void SignalHandler(int signal)
   default: LogString("Unknown Signal"); break;
   }
   StackTrace();
+  DisableLeakOutput();
   exit(signal);
 }
 
