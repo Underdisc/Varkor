@@ -1,13 +1,17 @@
 #include <fstream>
 
 #include "AssetLibrary.h"
+#include "Viewport.h"
 #include "gfx/Font.h"
 #include "gfx/Image.h"
+#include "gfx/Mesh.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
 #include "vlk/Valkor.h"
 
 namespace AssetLibrary {
+
+const int ModelFInfo::smInvalidMeshIndex = -1;
 
 AssetId nColorShaderId;
 AssetId nDebugDrawShaderId;
@@ -20,6 +24,13 @@ AssetId nScaleModelId;
 AssetId nSphereModelId;
 AssetId nTorusModelId;
 
+std::thread* nInitThread = nullptr;
+bool nStopInitThread = false;
+size_t nRemainingInits;
+std::mutex nInitQueueMutex;
+std::mutex nModelFInfoMutex;
+Ds::Vector<ModelFInfo> nAllModelFInfo;
+
 void InitRequiredAssets()
 {
   // Initialize all defaults.
@@ -30,21 +41,25 @@ void InitRequiredAssets()
     "vres/shader/default.vs", "vres/shader/default.fs");
 
   // All other required assets.
-  nColorShaderId = Require<Gfx::Shader>(
+  nColorShaderId = AssetBin<Gfx::Shader>::Require(
     "Color", "vres/shader/default.vs", "vres/shader/color.fs");
-  nDebugDrawShaderId = Require<Gfx::Shader>(
+  nDebugDrawShaderId = AssetBin<Gfx::Shader>::Require(
     "DebugDraw", "vres/shader/debugLine.vs", "vres/shader/color.fs");
-  nDefaultTextShaderId = Require<Gfx::Shader>(
+  nDefaultTextShaderId = AssetBin<Gfx::Shader>::Require(
     "DefaultText", "vres/shader/text.vs", "vres/shader/text.fs");
-  nFramebufferShaderId = Require<Gfx::Shader>(
+  nFramebufferShaderId = AssetBin<Gfx::Shader>::Require(
     "Framebuffer", "vres/shader/fullscreen.vs", "vres/shader/fullscreen.fs");
-  nMemberIdShaderId = Require<Gfx::Shader>(
+  nMemberIdShaderId = AssetBin<Gfx::Shader>::Require(
     "MemberId", "vres/shader/default.vs", "vres/shader/memberId.fs");
-  nArrowModelId = Require<Gfx::Model>("Arrow", "vres/model/arrow.obj");
-  nCubeModelId = Require<Gfx::Model>("Cube", "vres/model/cube.obj");
-  nScaleModelId = Require<Gfx::Model>("Scale", "vres/model/scale.obj");
-  nSphereModelId = Require<Gfx::Model>("Sphere", "vres/model/sphere.obj");
-  nTorusModelId = Require<Gfx::Model>("Torus", "vres/model/torus.obj");
+  nArrowModelId =
+    AssetBin<Gfx::Model>::Require("Arrow", "vres/model/arrow.obj");
+  nCubeModelId = AssetBin<Gfx::Model>::Require("Cube", "vres/model/cube.obj");
+  nScaleModelId =
+    AssetBin<Gfx::Model>::Require("Scale", "vres/model/scale.obj");
+  nSphereModelId =
+    AssetBin<Gfx::Model>::Require("Sphere", "vres/model/sphere.obj");
+  nTorusModelId =
+    AssetBin<Gfx::Model>::Require("Torus", "vres/model/torus.obj");
 }
 
 template<typename T>
@@ -100,7 +115,8 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
     }
 
     // Add the asset to the bin.
-    Asset<T>& asset = AssetBin<T>::smAssets.Emplace(id, assetEx.Key());
+    Asset<T>& asset =
+      AssetBin<T>::smAssets.Emplace(id, assetEx.Key(), Status::Unneeded);
     if (id >= AssetBin<T>::smIdHandout)
     {
       AssetBin<T>::smIdHandout = id + 1;
@@ -110,22 +126,34 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
     {
       asset.SetPath(i, pathsEx[i].As<std::string>(""));
     }
-
-    // todo: This will only be here temporarily. Assets should initialized in a
-    // different thread upon request when they are needed.
-    Result result = asset.Init();
-    LogErrorIf(!result.Success(), result.mError.c_str());
   }
 }
 
 void Init()
 {
   InitRequiredAssets();
-  LoadAssets();
+  DeserializeAssets();
+}
+
+bool InitThreadOpen()
+{
+  return nInitThread != nullptr;
+}
+
+void Purge()
+{
+  if (nInitThread != nullptr)
+  {
+    nStopInitThread = true;
+    nInitThread->join();
+    delete nInitThread;
+    nInitThread = nullptr;
+    nStopInitThread = false;
+  }
 }
 
 const char* nAssetFile = "assets.vlk";
-void LoadAssets()
+void DeserializeAssets()
 {
   Vlk::Value rootVal;
   Result result = rootVal.Read(nAssetFile);
@@ -141,7 +169,7 @@ void LoadAssets()
   DeserializeAssets<Gfx::Shader>(rootEx);
 }
 
-void SaveAssets()
+void SerializeAssets()
 {
   Vlk::Value rootVal;
   SerializeAssets<Gfx::Font>(rootVal);
@@ -155,6 +183,104 @@ void SaveAssets()
 bool IsRequiredId(AssetId id)
 {
   return id < 1;
+}
+
+void HandleAssetLoading()
+{
+  InitBin<Gfx::Font>::AssessInitQueue();
+  InitBin<Gfx::Image>::AssessInitQueue();
+  InitBin<Gfx::Model>::AssessInitQueue();
+  InitBin<Gfx::Shader>::AssessInitQueue();
+
+  if (nAllModelFInfo.Size() == 0)
+  {
+    return;
+  }
+  nModelFInfoMutex.lock();
+  for (const ModelFInfo& fInfo : nAllModelFInfo)
+  {
+    Asset<Gfx::Model>& asset = GetAsset<Gfx::Model>(fInfo.mId);
+    if (fInfo.mMeshIndex == ModelFInfo::smInvalidMeshIndex)
+    {
+      asset.mStatus = Status::Live;
+    } else
+    {
+      asset.mResource.FinalizeMesh(fInfo);
+    }
+  }
+  nAllModelFInfo.Clear();
+  nModelFInfoMutex.unlock();
+}
+
+void AddModelFInfo(const ModelFInfo& fInfo)
+{
+  nModelFInfoMutex.lock();
+  nAllModelFInfo.Push(fInfo);
+  nModelFInfoMutex.unlock();
+}
+
+void InitThreadMain()
+{
+  Viewport::InitContextSharing();
+  while (nRemainingInits > 0 && !nStopInitThread)
+  {
+    InitBin<Gfx::Shader>::HandleInitQueue();
+    InitBin<Gfx::Font>::HandleInitQueue();
+    InitBin<Gfx::Image>::HandleInitQueue();
+    InitBin<Gfx::Model>::HandleInitQueue();
+  }
+}
+
+template<>
+template<typename... Args>
+void AssetBin<Gfx::Model>::InitDefault(Args&&... args)
+{
+  Asset<Gfx::Model>& defaultAsset = AssetBin<Gfx::Model>::smAssets.Emplace(
+    nDefaultAssetId, "Default", Status::Initializing);
+  InitBin<Gfx::Model>::smInitQueue.Push(nDefaultAssetId);
+  Result result = defaultAsset.mResource.Init(args...);
+  InitBin<Gfx::Model>::smInitQueue.Pop();
+  LogAbortIf(!result.Success(), result.mError.c_str());
+}
+
+template<>
+template<typename... Args>
+AssetId AssetBin<Gfx::Model>::Require(const std::string& name, Args&&... args)
+{
+  AssetId id = AssetBin<Gfx::Model>::NextRequiredId();
+  Asset<Gfx::Model>& newAsset =
+    AssetBin<Gfx::Model>::smAssets.Emplace(id, name, Status::Initializing);
+  InitBin<Gfx::Model>::smInitQueue.Push(id);
+  Result result = newAsset.mResource.Init(args...);
+  InitBin<Gfx::Model>::smInitQueue.Pop();
+  LogAbortIf(!result.Success(), result.mError.c_str());
+  return id;
+}
+
+template<>
+void InitBin<Gfx::Model>::HandleInitQueue()
+{
+  while (smInitQueue.Size() > 0)
+  {
+    if (nStopInitThread)
+    {
+      break;
+    }
+
+    AssLib::Asset<Gfx::Model>& asset =
+      AssLib::AssetBin<Gfx::Model>::smAssets.Get(CurrentId());
+    Result result = asset.Init();
+    if (!result.Success())
+    {
+      LogError(result.mError.c_str());
+      asset.mStatus = AssLib::Status::Failed;
+    }
+
+    nInitQueueMutex.lock();
+    smInitQueue.Remove(0);
+    --nRemainingInits;
+    nInitQueueMutex.unlock();
+  }
 }
 
 } // namespace AssetLibrary

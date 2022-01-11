@@ -4,16 +4,16 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
+#include "Viewport.h"
 #include "gfx/Framebuffer.h"
 #include "math/Constants.h"
-
-#include "Viewport.h"
 
 namespace Viewport {
 
 void ResizeCallback(GLFWwindow* window, int width, int height);
 
 GLFWwindow* nWindow;
+GLFWwindow* nSharedWindow;
 bool nActive = true;
 float nFov = Math::nPi / 2.0f;
 int nWidth;
@@ -29,18 +29,21 @@ void Init(const char* windowName, bool visible)
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
   glfwWindowHint(GLFW_SAMPLES, 4);
+  glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+  glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
   if (!visible)
   {
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
   }
   // We use 1 for the starting window width and height because it will be
   // maximized to fill the whole monitor.
-  nWindow = glfwCreateWindow(1, 1, windowName, NULL, NULL);
+  nWindow = glfwCreateWindow(800, 800, windowName, NULL, NULL);
   LogAbortIf(!nWindow, "glfw window creation failed.");
   glfwGetWindowSize(nWindow, &nWidth, &nHeight);
   glfwMakeContextCurrent(nWindow);
+  glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+  nSharedWindow = glfwCreateWindow(1, 1, "SharedContext", NULL, nWindow);
 
   bool gladLoaded = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
   LogAbortIf(!gladLoaded, "glad initialization failed.");
@@ -57,12 +60,19 @@ void Update()
 
 void Purge()
 {
+  glfwDestroyWindow(nSharedWindow);
+  glfwDestroyWindow(nWindow);
   glfwTerminate();
 }
 
 void SwapBuffers()
 {
   glfwSwapBuffers(nWindow);
+}
+
+void InitContextSharing()
+{
+  glfwMakeContextCurrent(nSharedWindow);
 }
 
 const Mat4& Perspective()

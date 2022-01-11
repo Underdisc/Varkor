@@ -1,7 +1,12 @@
+namespace Gfx {
+struct Model;
+}
+
 namespace AssetLibrary {
 
 template<typename T>
-Asset<T>::Asset(const std::string& name): mName(name)
+Asset<T>::Asset(const std::string& name, Status status):
+  mName(name), mStatus(status)
 {}
 
 template<typename T>
@@ -25,6 +30,7 @@ void Asset<T>::SetPath(int index, const std::string& newPath)
 {
   mPaths[index] = newPath;
   mResource.Purge();
+  mStatus = Status::Unneeded;
 }
 
 template<typename T>
@@ -43,7 +49,7 @@ AssetId Create(const std::string& name, bool includeId)
   {
     ss << id;
   }
-  AssetBin<T>::smAssets.Emplace(id, ss.str());
+  AssetBin<T>::smAssets.Emplace(id, ss.str(), Status::Unneeded);
   return id;
 }
 
@@ -53,58 +59,35 @@ void Remove(AssetId id)
   AssetBin<T>::smAssets.Remove(id);
 }
 
-template<typename T, typename... Args>
-AssetId Require(const std::string& name, Args&&... args)
-{
-  AssetId id = AssetBin<T>::NextRequiredId();
-  Asset<T>& newAsset = AssetBin<T>::smAssets.Emplace(id, name);
-  Result result = newAsset.mResource.Init(args...);
-  LogAbortIf(!result.Success(), result.mError.c_str());
-  return id;
-}
-
-template<typename T>
-T& Get(AssetId id, AssetId defaultId)
-{
-  return GetAsset<T>(id, defaultId).mResource;
-}
-
-template<typename T>
-Asset<T>& GetAsset(AssetId id, AssetId defaultId)
-{
-  Asset<T>* asset = AssetBin<T>::smAssets.Find(id);
-  if (asset == nullptr)
-  {
-    return AssetBin<T>::smAssets.Get(defaultId);
-  }
-  return *asset;
-}
-
-template<typename T>
-T* TryGet(AssetId id)
-{
-  Asset<T>* asset = TryGetAsset<T>(id);
-  if (asset == nullptr)
-  {
-    return nullptr;
-  }
-  return &asset->mResource;
-}
-
-template<typename T>
-Asset<T>* TryGetAsset(AssetId id)
-{
-  return AssetBin<T>::smAssets.Find(id);
-}
-
+template<>
+template<typename... Args>
+void AssetBin<Gfx::Model>::InitDefault(Args&&... args);
 template<typename T>
 template<typename... Args>
 void AssetBin<T>::InitDefault(Args&&... args)
 {
   Asset<T>& defaultAsset =
-    AssetBin<T>::smAssets.Emplace(nDefaultAssetId, "Default");
+    AssetBin<T>::smAssets.Emplace(nDefaultAssetId, "Default", Status::Live);
+  InitBin<T>::smInitQueue.Push(nDefaultAssetId);
   Result result = defaultAsset.mResource.Init(args...);
+  InitBin<T>::smInitQueue.Pop();
   LogAbortIf(!result.Success(), result.mError.c_str());
+}
+
+template<>
+template<typename... Args>
+AssetId AssetBin<Gfx::Model>::Require(const std::string& name, Args&&... args);
+template<typename T>
+template<typename... Args>
+AssetId AssetBin<T>::Require(const std::string& name, Args&&... args)
+{
+  AssetId id = NextRequiredId();
+  Asset<T>& newAsset = smAssets.Emplace(id, name, Status::Live);
+  InitBin<T>::smInitQueue.Push(id);
+  Result result = newAsset.mResource.Init(args...);
+  InitBin<T>::smInitQueue.Pop();
+  LogAbortIf(!result.Success(), result.mError.c_str());
+  return id;
 }
 
 template<typename T>
@@ -119,4 +102,110 @@ AssetId AssetBin<T>::NextRequiredId()
   return smRequiredIdHandout--;
 }
 
+template<typename T>
+T* TryGetLive(AssetId id)
+{
+  Asset<T>* asset = TryGetAsset<T>(id);
+  if (asset == nullptr || asset->mStatus == Status::Failed)
+  {
+    return &AssetBin<T>::smAssets.Find(nDefaultAssetId)->mResource;
+  }
+  if (asset->mStatus == Status::Initializing)
+  {
+    return nullptr;
+  }
+  if (asset->mStatus == Status::Unneeded)
+  {
+    asset->mStatus = Status::Initializing;
+    InitBin<T>::Queue(id);
+    return nullptr;
+  }
+  return &asset->mResource;
+}
+
+template<typename T>
+Asset<T>& GetAsset(AssetId id)
+{
+  return AssetBin<T>::smAssets.Get(id);
+}
+
+template<typename T>
+Asset<T>* TryGetAsset(AssetId id)
+{
+  return AssetBin<T>::smAssets.Find(id);
+}
+
+extern std::thread* nInitThread;
+extern bool nStopInitThread;
+extern std::mutex nInitQueueMutex;
+extern size_t nRemainingInits;
+void InitThreadMain();
+
+template<typename T>
+AssetId InitBin<T>::CurrentId()
+{
+  nInitQueueMutex.lock();
+  AssetId frontId = smInitQueue[0];
+  nInitQueueMutex.unlock();
+  return frontId;
+}
+
+template<typename T>
+void InitBin<T>::Queue(AssetId id)
+{
+  nInitQueueMutex.lock();
+  smInitQueue.Push(id);
+  ++nRemainingInits;
+  nInitQueueMutex.unlock();
+}
+
+template<typename T>
+void InitBin<T>::AssessInitQueue()
+{
+  if (nInitThread == nullptr)
+  {
+    if (smInitQueue.Size() > 0)
+    {
+      nInitThread = new std::thread(InitThreadMain);
+    }
+    return;
+  }
+
+  if (nRemainingInits == 0)
+  {
+    nInitThread->join();
+    delete nInitThread;
+    nInitThread = nullptr;
+  }
+}
+
+template<>
+void InitBin<Gfx::Model>::HandleInitQueue();
+template<typename T>
+void InitBin<T>::HandleInitQueue()
+{
+  while (smInitQueue.Size() > 0)
+  {
+    if (nStopInitThread)
+    {
+      break;
+    }
+
+    AssLib::Asset<T>& asset = AssLib::AssetBin<T>::smAssets.Get(CurrentId());
+    Result result = asset.Init();
+    if (result.Success())
+    {
+      asset.mStatus = Status::Live;
+    } else
+    {
+      LogError(result.mError.c_str());
+      asset.mStatus = Status::Failed;
+    }
+
+    nInitQueueMutex.lock();
+    smInitQueue.Remove(0);
+    --nRemainingInits;
+    nInitQueueMutex.unlock();
+  }
+}
 } // namespace AssetLibrary

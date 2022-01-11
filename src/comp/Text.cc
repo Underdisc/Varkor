@@ -48,12 +48,17 @@ void Text::VDeserialize(const Vlk::Explorer& textEx)
 
 Ds::Vector<Text::Line> Text::GetLines() const
 {
+  Ds::Vector<Line> lines;
+  Gfx::Font* font = AssLib::TryGetLive<Gfx::Font>(mFontId);
+  if (font == nullptr)
+  {
+    return lines;
+  }
+
   auto isWhitespace = [](char codepoint) -> bool
   {
     return (codepoint == ' ' || codepoint == '\t' || codepoint == '\n');
   };
-  Ds::Vector<Line> lines;
-  Gfx::Font& font = AssLib::Get<Gfx::Font>(mFontId);
   constexpr int invalidLoc = -1;
   int prevWordEnd = invalidLoc;
   int wordStart = invalidLoc;
@@ -88,7 +93,7 @@ Ds::Vector<Text::Line> Text::GetLines() const
         lineEnd = lineStart;
       }
     }
-    const Gfx::Font::GlyphMetrics& glyphM = font.GetGlyphMetrics(codepoint);
+    const Gfx::Font::GlyphMetrics& glyphM = font->GetGlyphMetrics(codepoint);
     currentWidth += glyphM.mAdvance;
     if (currentWidth > mWidth && lineWordCount >= 1)
     {
@@ -120,7 +125,7 @@ Ds::Vector<Text::Line> Text::GetLines() const
     line.mWidth = 0.0f;
     for (size_t i = line.mStart; i < line.mEnd; ++i)
     {
-      const Gfx::Font::GlyphMetrics& glyphM = font.GetGlyphMetrics(mText[i]);
+      const Gfx::Font::GlyphMetrics& glyphM = font->GetGlyphMetrics(mText[i]);
       line.mWidth += glyphM.mAdvance;
     }
   }
@@ -130,7 +135,12 @@ Ds::Vector<Text::Line> Text::GetLines() const
 Ds::Vector<Text::DrawInfo> Text::GetAllDrawInfo() const
 {
   Ds::Vector<DrawInfo> drawInfo;
-  Gfx::Font& font = AssLib::Get<Gfx::Font>(mFontId);
+  Gfx::Font* font = AssLib::TryGetLive<Gfx::Font>(mFontId);
+  if (font == nullptr)
+  {
+    return drawInfo;
+  }
+
   Vec2 baselineOffset = {0.0f, 0.0f};
   float halfWidth = mWidth / 2.0f;
   Ds::Vector<Line> lines = GetLines();
@@ -146,18 +156,18 @@ Ds::Vector<Text::DrawInfo> Text::GetAllDrawInfo() const
     {
       // Find the scale that maintains the character's aspect ratio and the
       // translation offset from the text's relative origin.
-      const Gfx::Font::GlyphMetrics& glyphM = font.GetGlyphMetrics(mText[i]);
+      const Gfx::Font::GlyphMetrics& glyphM = font->GetGlyphMetrics(mText[i]);
       Mat4 scale, translate;
       Vec2 diagonal = glyphM.mEndOffset - glyphM.mStartOffset;
       Math::Scale(&scale, {diagonal[0], diagonal[1], 1.0f});
       Vec2 centerOffset = (glyphM.mStartOffset + glyphM.mEndOffset) / 2.0f;
       Vec2 fullOffset = baselineOffset + centerOffset;
       Math::Translate(&translate, {fullOffset[0], fullOffset[1], 0.0f});
-      GLuint textureId = font.GetTextureId(mText[i]);
+      GLuint textureId = font->GetTextureId(mText[i]);
       drawInfo.Push({textureId, translate * scale});
       baselineOffset[0] += glyphM.mAdvance;
     }
-    baselineOffset[1] -= font.NewlineOffset();
+    baselineOffset[1] -= font->NewlineOffset();
   }
   return drawInfo;
 }

@@ -11,6 +11,7 @@ void Init(const char* windowName, bool visible = true);
 void Update();
 void Purge();
 void SwapBuffers();
+void InitContextSharing();
 
 const Mat4& Perspective();
 Vec3 MouseToWorldPosition(Vec2 standardPosition, const Mat4& inverseView);

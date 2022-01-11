@@ -14,7 +14,6 @@ public:
   static constexpr const char* smPathNames[smInitPathCount] = {"Image"};
   Result Init(std::string paths[smInitPathCount]);
   void Purge();
-  bool Live() const;
 
   Image();
   Image(Image&& other);

@@ -29,7 +29,7 @@ void VarkorMain(const char* windowName, int argc, char* argv[])
   Debug::Draw::Init();
 
   // Run the engine.
-  while (Viewport::Active())
+  while (Viewport::Active() || AssetLibrary::InitThreadOpen())
   {
     Framer::Start();
     Input::Update();
@@ -45,10 +45,12 @@ void VarkorMain(const char* windowName, int argc, char* argv[])
     Editor::Render();
     Viewport::SwapBuffers();
     Viewport::Update();
+    AssetLibrary::HandleAssetLoading();
     Framer::End();
   }
 
   // Perform all of the necessary purging.
+  AssetLibrary::Purge();
   Framer::Purge();
   Editor::Purge();
   Viewport::Purge();

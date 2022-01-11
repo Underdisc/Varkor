@@ -16,7 +16,6 @@ public:
   static constexpr const char* smPathNames[smInitPathCount] = {"Font"};
   Result Init(std::string paths[smInitPathCount]);
   void Purge();
-  bool Live() const;
 
   Font();
   Font(Font&& other);

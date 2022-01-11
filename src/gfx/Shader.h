@@ -8,7 +8,29 @@
 
 namespace Gfx {
 
-class Shader
+struct Uniform
+{
+  enum class Type
+  {
+    Model,
+    Proj,
+    View,
+    ViewPos,
+    Sampler,
+    Color,
+    AlphaColor,
+    MemberId,
+    Time,
+    ADiffuse,
+    ASpecular,
+    Count,
+  };
+  static const char* smTypeStrings[Type::Count];
+  Type mType;
+  GLint mLocation;
+};
+
+struct Shader
 {
 public:
   static constexpr int smInitPathCount = 2;
@@ -16,7 +38,6 @@ public:
     "Vertex", "Fragment"};
   Result Init(std::string paths[smInitPathCount]);
   void Purge();
-  bool Live() const;
 
   Shader();
   Shader(Shader&& other);
@@ -25,23 +46,15 @@ public:
   Shader(const char* vertexFile, const char* fragmentFile);
 
   Result Init(const char* vertexFile, const char* fragmentFile);
-  void Use() const;
-  unsigned int Id() const;
-  int UniformLocation(const char* name) const;
-  void SetInt(const char* name, int value) const;
-  void SetFloat(const char* name, float value) const;
-  void SetVec2(const char* name, const float* data) const;
-  void SetVec3(const char* name, const float* data) const;
-  void SetVec4(const char* name, const float* data) const;
-  void SetMat4(
-    const char* name, const float* data, bool transpose = true) const;
-  void SetSampler(const char* name, int textureUnit) const;
+  GLuint Id() const;
+  GLint UniformLocation(Uniform::Type type) const;
 
 private:
-  unsigned int mProgram;
+  GLuint mProgram;
+  Ds::Vector<Uniform> mUniforms;
 
   static bool smLogMissingUniforms;
-  static constexpr int smInvalidLocation = -1;
+  static constexpr GLint smInvalidLocation = -1;
 
   struct SourceChunk
   {
@@ -65,6 +78,7 @@ private:
     const char* shaderFile, std::string& content);
   Result Compile(
     const char* shaderSource, int shaderType, unsigned int* shaderId);
+  void InitializeUniforms();
 };
 
 } // namespace Gfx

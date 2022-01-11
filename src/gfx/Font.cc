@@ -27,11 +27,6 @@ void Font::Purge()
   }
 }
 
-bool Font::Live() const
-{
-  return mFontInfo.data != nullptr;
-}
-
 Font::Font()
 {
   mFontInfo.data = nullptr;
@@ -110,18 +105,11 @@ void Font::InitGlyphs()
     stbtt_ScaleForPixelHeight(&mFontInfo, (float)pixelHeight);
   for (size_t i = 0; i < smGlyphCount; ++i)
   {
-    int glyphIndex = stbtt_FindGlyphIndex(&mFontInfo, (int)i);
-    if (glyphIndex == 0)
-    {
-      mTextureIds[i] = 0;
-      continue;
-    }
-
-    // Upload the glyph sdf texture.
     const int padding = 4;
     const int onEdgeValue = 120;
     const float pixelDistance = 40.0f;
     int textureWidth, textureHeight;
+    int glyphIndex = stbtt_FindGlyphIndex(&mFontInfo, (int)i);
     unsigned char* textureData = stbtt_GetGlyphSDF(
       &mFontInfo,
       renderScale,
@@ -133,25 +121,33 @@ void Font::InitGlyphs()
       &textureHeight,
       nullptr,
       nullptr);
-    glGenTextures(1, &mTextureIds[i]);
-    glBindTexture(GL_TEXTURE_2D, mTextureIds[i]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(
-      GL_TEXTURE_2D,
-      0,
-      GL_R8,
-      textureWidth,
-      textureHeight,
-      0,
-      GL_RED,
-      GL_UNSIGNED_BYTE,
-      textureData);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbtt_FreeBitmap(textureData, nullptr);
+
+    if (textureData != nullptr)
+    {
+      // Upload the glyph sdf texture.
+      glGenTextures(1, &mTextureIds[i]);
+      glBindTexture(GL_TEXTURE_2D, mTextureIds[i]);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_R8,
+        textureWidth,
+        textureHeight,
+        0,
+        GL_RED,
+        GL_UNSIGNED_BYTE,
+        textureData);
+      glGenerateMipmap(GL_TEXTURE_2D);
+      stbtt_FreeBitmap(textureData, nullptr);
+    } else
+    {
+      mTextureIds[i] = 0;
+    }
 
     // Calculate the glyph's metrics.
     GlyphMetrics& glyphMetrics = mAllGlyphMetrics[i];
@@ -177,6 +173,7 @@ void Font::InitGlyphs()
     stbtt_GetCodepointHMetrics(&mFontInfo, (int)i, &advance, 0);
     glyphMetrics.mAdvance = advance * toPreWorldScale;
   }
+  glFinish();
 }
 
 GLuint Font::GetTextureId(int codepoint)

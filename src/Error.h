@@ -1,6 +1,7 @@
 #ifndef Error_h
 #define Error_h
 
+#include <mutex>
 #include <string>
 
 namespace Error {
@@ -16,6 +17,7 @@ void Abort(const char* reason);
 void Abort();
 void StackTrace();
 
+extern std::mutex nLogMutex;
 extern std::string nLog;
 extern bool nUseCout;
 

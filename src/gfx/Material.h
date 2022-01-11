@@ -1,7 +1,6 @@
 #ifndef gfx_Material_h
 #define gfx_Material_h
 
-#include <functional>
 #include <string>
 
 #include "ds/Vector.h"
@@ -17,19 +16,12 @@ struct Material
     Diffuse,
     Specular,
   };
-  struct Texture
+  struct TextureGroup
   {
-    TextureType mTextureType;
-    Image mImage;
+    TextureType mType;
+    Ds::Vector<Image> mImages;
   };
-
-  Material(Ds::Vector<Texture>&& textures);
-  void VisitTextures(
-    std::function<void(const Texture&, const std::string&, int)> visit) const;
-
-private:
-  // The textures must be ordered by their type.
-  Ds::Vector<Texture> mTextures;
+  Ds::Vector<TextureGroup> mGroups;
 };
 
 } // namespace Gfx

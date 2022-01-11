@@ -64,6 +64,7 @@ void Init()
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
   };
+
   uploadQuadVertexArray(fullscreenVertices, &nFullscreenVao, &nFullscreenVbo);
   uploadQuadVertexArray(spriteVertices, &nSpriteVao, &nSpriteVbo);
 
@@ -71,7 +72,7 @@ void Init()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
-  glPolygonMode(GL_FRONT, GL_FILL);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void Clear()
@@ -111,25 +112,40 @@ void RenderQuad(GLuint vao)
 
 void RenderMemberIds(const World::Space& space, const Mat4& view)
 {
-  const Gfx::Shader& memberIdShader =
-    AssLib::Get<Gfx::Shader>(AssLib::nMemberIdShaderId);
-  memberIdShader.Use();
-  memberIdShader.SetMat4("uView", view.CData());
-  memberIdShader.SetMat4("uProj", Viewport::Perspective().CData());
+  const Gfx::Shader* memberIdShader =
+    AssLib::TryGetLive<Gfx::Shader>(AssLib::nMemberIdShaderId);
+  if (memberIdShader == nullptr)
+  {
+    return;
+  }
+
+  GLint viewLoc = memberIdShader->UniformLocation(Uniform::Type::View);
+  GLint projLoc = memberIdShader->UniformLocation(Uniform::Type::Proj);
+  GLint modelLoc = memberIdShader->UniformLocation(Uniform::Type::Model);
+  GLint memberIdLoc = memberIdShader->UniformLocation(Uniform::Type::MemberId);
+
+  glUseProgram(memberIdShader->Id());
+  glUniformMatrix4fv(viewLoc, 1, true, view.CData());
+  glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
 
   // Render MemberIds for every model.
   space.VisitTableComponents<Comp::Model>(
     [&](World::MemberId owner, const Comp::Model& modelComp)
     {
-      memberIdShader.Use();
-      memberIdShader.SetInt("uMemberId", owner);
+      const Gfx::Model* model =
+        AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
+      if (model == nullptr)
+      {
+        return;
+      }
+
+      glUniform1i(memberIdLoc, (int)owner);
       Mat4 memberTransformation = GetTransformation(space, owner);
-      const Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
-      for (const Gfx::Model::DrawInfo& drawInfo : model.GetAllDrawInfo())
+      for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo())
       {
         Mat4 transformation = memberTransformation * drawInfo.mTransformation;
-        memberIdShader.SetMat4("uModel", transformation.CData());
-        const Gfx::Mesh& mesh = model.GetMesh(drawInfo.mMeshIndex);
+        glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
+        const Gfx::Mesh& mesh = model->GetMesh(drawInfo.mMeshIndex);
         glBindVertexArray(mesh.Vao());
         glDrawElements(
           GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
@@ -142,11 +158,16 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
   space.VisitTableComponents<Comp::Sprite>(
     [&](World::MemberId owner, const Comp::Sprite& spriteComp)
     {
-      const Gfx::Image& image = AssLib::Get<Gfx::Image>(spriteComp.mImageId);
-      Mat4 transformation = GetImageTransformation(space, owner, image);
-      memberIdShader.Use();
-      memberIdShader.SetMat4("uModel", transformation.CData());
-      memberIdShader.SetInt("uMemberId", owner);
+      const Gfx::Image* image =
+        AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
+      if (image == nullptr)
+      {
+        return;
+      }
+
+      Mat4 transformation = GetImageTransformation(space, owner, *image);
+      glUniform1i(memberIdLoc, (int)owner);
+      glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
       RenderQuad(nSpriteVao);
     });
 
@@ -159,8 +180,8 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
       for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo)
       {
         Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
-        memberIdShader.SetMat4("uModel", glyphTransformation.CData());
-        memberIdShader.SetInt("uMemberId", owner);
+        glUniform1i(memberIdLoc, (int)owner);
+        glUniformMatrix4fv(modelLoc, 1, true, glyphTransformation.CData());
         RenderQuad(nSpriteVao);
       }
     });
@@ -220,34 +241,62 @@ void RenderSpace(
   space.VisitTableComponents<Comp::Model>(
     [&](World::MemberId owner, const Comp::Model& modelComp)
     {
-      const Gfx::Shader& shader = AssLib::Get<Gfx::Shader>(modelComp.mShaderId);
-      shader.Use();
-      shader.SetMat4("uView", view.CData());
-      shader.SetMat4("uProj", Viewport::Perspective().CData());
-      shader.SetVec3("uViewPos", viewPos.CData());
-      shader.SetFloat("uTime", Framer::TotalTime());
+      const Gfx::Shader* shader =
+        AssLib::TryGetLive<Gfx::Shader>(modelComp.mShaderId);
+      const Gfx::Model* model =
+        AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
+      if (shader == nullptr || model == nullptr)
+      {
+        return;
+      }
+
+      GLint viewLoc = shader->UniformLocation(Uniform::Type::View);
+      GLint projLoc = shader->UniformLocation(Uniform::Type::Proj);
+      GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
+      GLint viewPosLoc = shader->UniformLocation(Uniform::Type::ViewPos);
+      GLint timeLoc = shader->UniformLocation(Uniform::Type::Time);
+      GLint diffuseLoc = shader->UniformLocation(Uniform::Type::ADiffuse);
+      GLint specLoc = shader->UniformLocation(Uniform::Type::ASpecular);
+
+      glUseProgram(shader->Id());
+      glUniformMatrix4fv(viewLoc, 1, true, view.CData());
+      glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
+      glUniform3fv(viewPosLoc, 1, viewPos.CData());
+      glUniform1f(timeLoc, Framer::TotalTime());
 
       Mat4 memberTransformation = GetTransformation(space, owner);
-      const Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
-      for (const Gfx::Model::DrawInfo& drawInfo : model.GetAllDrawInfo())
+      for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo())
       {
         // Prepare all of the textures.
-        const Material& material = model.GetMaterial(drawInfo.mMaterialIndex);
-        material.VisitTextures(
-          [&shader](
-            const Material::Texture& texture,
-            const std::string& uniformName,
-            int index)
+        const Material& material = model->GetMaterial(drawInfo.mMaterialIndex);
+        int textureCounter = 0;
+        Ds::Vector<GLint> indices;
+        for (const Material::TextureGroup& group : material.mGroups)
+        {
+          indices.Reserve(group.mImages.Size());
+          for (const Image& image : group.mImages)
           {
-            glActiveTexture(GL_TEXTURE0 + index);
-            glBindTexture(GL_TEXTURE_2D, texture.mImage.Id());
-            shader.SetSampler(uniformName.c_str(), index);
-          });
+            glActiveTexture(GL_TEXTURE0 + textureCounter);
+            glBindTexture(GL_TEXTURE_2D, image.Id());
+            indices.Push(textureCounter);
+            ++textureCounter;
+          }
+          switch (group.mType)
+          {
+          case Material::TextureType::Diffuse:
+            glUniform1iv(diffuseLoc, (GLsizei)indices.Size(), indices.CData());
+            break;
+          case Material::TextureType::Specular:
+            glUniform1iv(specLoc, (GLsizei)indices.Size(), indices.CData());
+            break;
+          }
+          indices.Clear();
+        }
 
         // Render the mesh.
         Mat4 transformation = memberTransformation * drawInfo.mTransformation;
-        shader.SetMat4("uModel", transformation.CData());
-        const Mesh& mesh = model.GetMesh(drawInfo.mMeshIndex);
+        glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
+        const Mesh& mesh = model->GetMesh(drawInfo.mMeshIndex);
         glBindVertexArray(mesh.Vao());
         glDrawElements(
           GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
@@ -260,17 +309,30 @@ void RenderSpace(
   space.VisitTableComponents<Comp::Sprite>(
     [&](World::MemberId owner, const Comp::Sprite& spriteComp)
     {
-      const Gfx::Shader& shader =
-        AssLib::Get<Gfx::Shader>(spriteComp.mShaderId);
-      const Gfx::Image& image = AssLib::Get<Gfx::Image>(spriteComp.mImageId);
-      Mat4 transformation = GetImageTransformation(space, owner, image);
+      const Gfx::Shader* shader =
+        AssLib::TryGetLive<Gfx::Shader>(spriteComp.mShaderId);
+      const Gfx::Image* image =
+        AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
+      if (shader == nullptr || image == nullptr)
+      {
+        return;
+      }
+
+      GLint projLoc = shader->UniformLocation(Uniform::Type::Proj);
+      GLint viewLoc = shader->UniformLocation(Uniform::Type::View);
+      GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
+      GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
+
+      glUseProgram(shader->Id());
+      glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
+      glUniformMatrix4fv(viewLoc, 1, true, view.CData());
+      glUniform1i(samplerLoc, 0);
+
+      Mat4 transformation = GetImageTransformation(space, owner, *image);
+      glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
+
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, image.Id());
-      shader.Use();
-      shader.SetMat4("uModel", transformation.CData());
-      shader.SetMat4("uView", view.CData());
-      shader.SetMat4("uProj", Viewport::Perspective().CData());
-      shader.SetInt("uTexture", 0);
+      glBindTexture(GL_TEXTURE_2D, image->Id());
       RenderQuad(nSpriteVao);
       glBindTexture(GL_TEXTURE_2D, 0);
     });
@@ -279,20 +341,31 @@ void RenderSpace(
   space.VisitTableComponents<Comp::Text>(
     [&](World::MemberId owner, Comp::Text& textComp)
     {
-      const Gfx::Shader& shader = AssLib::Get<Gfx::Shader>(
-        textComp.mShaderId, AssLib::nDefaultTextShaderId);
-      shader.Use();
-      shader.SetMat4("uView", view.CData());
-      shader.SetMat4("uProj", Viewport::Perspective().CData());
-      shader.SetInt("uTexture", 0);
-      shader.SetVec3("uColor", textComp.mColor.CData());
+      const Gfx::Shader* shader =
+        AssLib::TryGetLive<Gfx::Shader>(textComp.mShaderId);
+      if (shader == nullptr)
+      {
+        shader = AssLib::TryGetLive<Gfx::Shader>(AssLib::nDefaultTextShaderId);
+      }
+
+      GLint projLoc = shader->UniformLocation(Uniform::Type::Proj);
+      GLint viewLoc = shader->UniformLocation(Uniform::Type::View);
+      GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
+      GLint colorLoc = shader->UniformLocation(Uniform::Type::Color);
+      GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
+
+      glUseProgram(shader->Id());
+      glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
+      glUniformMatrix4fv(viewLoc, 1, true, view.CData());
+      glUniform1i(samplerLoc, 0);
+      glUniform3fv(colorLoc, 1, textComp.mColor.CData());
 
       Mat4 baseTransformation = GetTransformation(space, owner);
       Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
       for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo)
       {
         Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
-        shader.SetMat4("uModel", glyphTransformation.CData());
+        glUniformMatrix4fv(modelLoc, 1, true, glyphTransformation.CData());
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, drawInfo.mId);
         RenderQuad(nSpriteVao);
@@ -313,15 +386,22 @@ void RenderWorld()
 
 void RenderQueuedFullscreenFramebuffers()
 {
-  const Gfx::Shader& framebufferShader =
-    AssLib::Get<Gfx::Shader>(AssLib::nFramebufferShaderId);
+  const Gfx::Shader* shader =
+    AssLib::TryGetLive<Gfx::Shader>(AssLib::nFramebufferShaderId);
+  if (shader == nullptr)
+  {
+    return;
+  }
+
+  GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
+  glUseProgram(shader->Id());
+  glUniform1i(samplerLoc, 0);
+
   for (unsigned int tbo : nQueuedFullscreenFramebuffers)
   {
     glDisable(GL_DEPTH_TEST);
-    framebufferShader.Use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tbo);
-    framebufferShader.SetInt("uTexture", 0);
     RenderQuad(nFullscreenVao);
     glBindTexture(GL_TEXTURE_2D, 0);
     glEnable(GL_DEPTH_TEST);

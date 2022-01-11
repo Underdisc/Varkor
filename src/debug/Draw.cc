@@ -95,15 +95,25 @@ void CartesianAxes()
 void Render(const Mat4& view, const Mat4& projection)
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  Gfx::Shader& shader = AssLib::Get<Gfx::Shader>(AssLib::nDebugDrawShaderId);
-  shader.SetMat4("uView", view.CData(), true);
-  shader.SetMat4("uProj", projection.CData(), true);
+  Gfx::Shader* shader =
+    AssLib::TryGetLive<Gfx::Shader>(AssLib::nDebugDrawShaderId);
+  if (shader == nullptr)
+  {
+    return;
+  }
+
+  GLint viewLoc = shader->UniformLocation(Gfx::Uniform::Type::View);
+  GLint projLoc = shader->UniformLocation(Gfx::Uniform::Type::Proj);
+  GLint alphaColorLoc = shader->UniformLocation(Gfx::Uniform::Type::AlphaColor);
+  glUseProgram(shader->Id());
+  glUniformMatrix4fv(viewLoc, 1, true, view.CData());
+  glUniformMatrix4fv(projLoc, 1, true, projection.CData());
   for (int i = 0; i < nRenderables.Size(); ++i)
   {
     const Renderable& renderable = nRenderables[i];
     Vec4 fullColor = (Vec4)renderable.mColor;
     fullColor[3] = 1.0f;
-    shader.SetVec4("uColor", fullColor.CData());
+    glUniform4fv(alphaColorLoc, 1, fullColor.CData());
     glBindVertexArray(renderable.mVao);
     if (renderable.mCount == 1)
     {

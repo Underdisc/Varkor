@@ -10,6 +10,18 @@
 
 namespace Gfx {
 
+const char* Uniform::smTypeStrings[Uniform::Type::Count] = {
+  "uModel",
+  "uProj",
+  "uView",
+  "uViewPos",
+  "uTexture",
+  "uColor",
+  "uAlphaColor",
+  "uMemberId",
+  "uTime",
+  "uMateial.mDiffuse",
+  "uMaterial.mSpecular"};
 bool Shader::smLogMissingUniforms = false;
 
 Result Shader::Init(std::string paths[smInitPathCount])
@@ -21,11 +33,6 @@ void Shader::Purge()
 {
   glDeleteProgram(mProgram);
   mProgram = 0;
-}
-
-bool Shader::Live() const
-{
-  return mProgram != 0;
 }
 
 Shader::Shader(): mProgram(0) {}
@@ -56,6 +63,7 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile): mProgram(0)
 Result Shader::Init(const char* vertexFile, const char* fragmentFile)
 {
   Purge();
+
   // Compile the provided shader files.
   unsigned int vertexId, fragmentId;
   Result result = Compile(vertexFile, GL_VERTEX_SHADER, &vertexId);
@@ -90,78 +98,61 @@ Result Shader::Init(const char* vertexFile, const char* fragmentFile)
     result.mError = reason.str();
     mProgram = 0;
   }
+  InitializeUniforms();
+  glFinish();
   return result;
 }
 
-void Shader::Use() const
-{
-  glUseProgram(mProgram);
-}
-
-unsigned int Shader::Id() const
+GLuint Shader::Id() const
 {
   return mProgram;
 }
 
-int Shader::UniformLocation(const char* name) const
+GLint Shader::UniformLocation(Uniform::Type type) const
 {
-  int loc = glGetUniformLocation(mProgram, name);
-  if (smLogMissingUniforms && loc == smInvalidLocation)
+  for (const Uniform& uniform : mUniforms)
   {
+    if (uniform.mType == type)
+    {
+      return uniform.mLocation;
+    }
+  }
+  if (smLogMissingUniforms)
+  {
+    const char* typeString = Uniform::smTypeStrings[(int)type];
     std::stringstream error;
-    error << name << " uniform not found";
+    error << "Shader does not contain the " << typeString << " uniform.";
     LogError(error.str().c_str());
   }
-  return loc;
+  return smInvalidLocation;
 }
 
-void Shader::SetInt(const char* name, int value) const
+void Shader::InitializeUniforms()
 {
-  int loc = UniformLocation(name);
-  Use();
-  glUniform1i(loc, value);
-}
+  auto tryAddUniform = [this](Uniform::Type type)
+  {
+    const char* typeString = Uniform::smTypeStrings[(int)type];
+    int location = glGetUniformLocation(mProgram, typeString);
+    if (location != smInvalidLocation)
+    {
+      Uniform newUniform;
+      newUniform.mType = type;
+      newUniform.mLocation = location;
+      mUniforms.Push(newUniform);
+    }
+  };
 
-void Shader::SetFloat(const char* name, float value) const
-{
-  int loc = UniformLocation(name);
-  Use();
-  glUniform1f(loc, value);
-}
-
-void Shader::SetVec2(const char* name, const float* data) const
-{
-  int loc = UniformLocation(name);
-  Use();
-  glUniform2fv(loc, 1, data);
-}
-
-void Shader::SetVec3(const char* name, const float* data) const
-{
-  int loc = UniformLocation(name);
-  Use();
-  glUniform3fv(loc, 1, data);
-}
-
-void Shader::SetVec4(const char* name, const float* data) const
-{
-  int loc = UniformLocation(name);
-  Use();
-  glUniform4fv(loc, 1, data);
-}
-
-void Shader::SetMat4(const char* name, const float* data, bool transpose) const
-{
-  int loc = UniformLocation(name);
-  Use();
-  glUniformMatrix4fv(loc, 1, transpose, data);
-}
-
-void Shader::SetSampler(const char* name, int textureUnit) const
-{
-  int loc = UniformLocation(name);
-  Use();
-  glUniform1i(loc, textureUnit);
+  tryAddUniform(Uniform::Type::Model);
+  tryAddUniform(Uniform::Type::Proj);
+  tryAddUniform(Uniform::Type::View);
+  tryAddUniform(Uniform::Type::ViewPos);
+  tryAddUniform(Uniform::Type::Sampler);
+  tryAddUniform(Uniform::Type::Color);
+  tryAddUniform(Uniform::Type::AlphaColor);
+  tryAddUniform(Uniform::Type::MemberId);
+  tryAddUniform(Uniform::Type::Time);
+  tryAddUniform(Uniform::Type::ADiffuse);
+  tryAddUniform(Uniform::Type::ASpecular);
 }
 
 int GetLineNumber(size_t until, const std::string& string)

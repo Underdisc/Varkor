@@ -22,11 +22,6 @@ void Model::Purge()
   mMaterials.Clear();
 }
 
-bool Model::Live() const
-{
-  return mMeshes.Size() != 0;
-}
-
 Model::Model() {}
 
 Model::Model(Model&& other)
@@ -69,7 +64,13 @@ Result Model::Init(const std::string& file)
     return Result(error.str());
   }
 
+  // Register all of the nodes in the scene.
+  Mat4 parentTransformation;
+  Math::Identity(&parentTransformation);
+  RegisterNode(*scene, *scene->mRootNode, parentTransformation);
+
   // Register all of the model's meshes.
+  mMeshes.Reserve(scene->mNumMeshes);
   for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
   {
     const aiMesh& assimpMesh = *scene->mMeshes[meshIndex];
@@ -93,12 +94,17 @@ Result Model::Init(const std::string& file)
     }
   }
 
-  // Register all of the nodes in the scene.
-  Mat4 parentTransformation;
-  Math::Identity(&parentTransformation);
-  RegisterNode(*scene, *scene->mRootNode, parentTransformation);
-
+  AssLib::ModelFInfo fInfo;
+  fInfo.mId = AssLib::InitBin<Gfx::Model>::CurrentId();
+  fInfo.mMeshIndex = AssLib::ModelFInfo::smInvalidMeshIndex;
+  AssLib::AddModelFInfo(fInfo);
   return Result();
+}
+
+void Model::FinalizeMesh(const AssLib::ModelFInfo& fInfo)
+{
+  Mesh& mesh = mMeshes[fInfo.mMeshIndex];
+  mesh.Finalize(fInfo.mAttributes, fInfo.mVertexByteCount);
 }
 
 const Ds::Vector<Model::DrawInfo>& Model::GetAllDrawInfo() const
@@ -200,8 +206,19 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
     }
   }
 
-  // Create the new mesh.
-  mMeshes.Emplace(attributes, vertexByteCount, vertexBuffer, elementBuffer);
+  // Upload the buffer data for the new mesh.
+  Mesh newMesh;
+  newMesh.Upload(vertexBuffer, elementBuffer);
+  mMeshes.Emplace(Util::Move(newMesh));
+
+  // The info needed to finalize one of the meshes on this model is needed by
+  // the loader so finalization can be peformed on the main thread.
+  AssLib::ModelFInfo fInfo;
+  fInfo.mId = AssLib::InitBin<Gfx::Model>::CurrentId();
+  fInfo.mMeshIndex = (int)mMeshes.Size() - 1;
+  fInfo.mAttributes = attributes;
+  fInfo.mVertexByteCount = vertexByteCount;
+  AssLib::AddModelFInfo(fInfo);
 }
 
 Material::TextureType ConvertAiTextureType(const aiTextureType& type)
@@ -217,12 +234,15 @@ Material::TextureType ConvertAiTextureType(const aiTextureType& type)
 Result Model::RegisterMaterial(
   const aiMaterial& assimpMat, const std::string& fileDir)
 {
-  Ds::Vector<Material::Texture> textures;
-  // This is a helper function for adding all textures of a certain type.
-  auto addTextures = [&](aiTextureType type) -> Result
+  Material material;
+
+  // This will add a TextureGroup of the desired type to the material.
+  auto addTextureGroup = [&](aiTextureType type) -> Result
   {
-    unsigned int count = assimpMat.GetTextureCount(type);
-    for (unsigned int i = 0; i < count; ++i)
+    Material::TextureGroup group;
+    group.mType = ConvertAiTextureType(type);
+    unsigned int textureCount = assimpMat.GetTextureCount(type);
+    for (unsigned int i = 0; i < textureCount; ++i)
     {
       aiString filename;
       if (assimpMat.Get(AI_MATKEY_TEXTURE(type, i), filename) != AI_SUCCESS)
@@ -234,32 +254,32 @@ Result Model::RegisterMaterial(
       }
       std::stringstream fullPath;
       fullPath << fileDir << filename.C_Str();
-      textures.Emplace();
-      Material::Texture& texture = textures.Top();
-      texture.mTextureType = ConvertAiTextureType(type);
-      Result result = texture.mImage.Init(fullPath.str());
+      Image image;
+      Result result = image.Init(fullPath.str());
       if (!result.Success())
       {
         std::stringstream error;
         error << "Failed to initiazlize a texture: " << result.mError;
         return Result(error.str());
       }
+      group.mImages.Emplace(Util::Move(image));
     }
+    material.mGroups.Emplace(Util::Move(group));
     return Result();
   };
 
   // Add all of the material's textures and create the material.
-  Result result = addTextures(aiTextureType_DIFFUSE);
+  Result result = addTextureGroup(aiTextureType_DIFFUSE);
   if (!result.Success())
   {
     return result;
   }
-  result = addTextures(aiTextureType_SPECULAR);
+  result = addTextureGroup(aiTextureType_SPECULAR);
   if (!result.Success())
   {
     return result;
   }
-  mMaterials.Emplace(Util::Move(textures));
+  mMaterials.Emplace(Util::Move(material));
   return Result();
 }
 

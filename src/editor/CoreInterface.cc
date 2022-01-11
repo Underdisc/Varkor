@@ -124,7 +124,7 @@ void CoreInterface::FileMenu()
 
   if (ImGui::MenuItem("Save Assets File"))
   {
-    AssetLibrary::SaveAssets();
+    AssetLibrary::SerializeAssets();
   }
   if (ImGui::MenuItem("Save Components File"))
   {

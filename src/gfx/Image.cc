@@ -19,11 +19,6 @@ void Image::Purge()
   mId = 0;
 }
 
-bool Image::Live() const
-{
-  return mId != 0;
-}
-
 Image::Image(): mId(0) {}
 
 Image::Image(Image&& other)
@@ -75,6 +70,7 @@ Result Image::Init(const std::string& file)
   {
     format = GL_RGB;
   }
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
   glTexImage2D(
     GL_TEXTURE_2D,
     0,
@@ -87,6 +83,7 @@ Result Image::Init(const std::string& file)
     data);
   glGenerateMipmap(GL_TEXTURE_2D);
   stbi_image_free(data);
+  glFinish();
   return Result();
 }
 

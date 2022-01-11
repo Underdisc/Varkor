@@ -17,6 +17,7 @@ void LogString(const char* string);
 std::string FormatFileName(const char* file);
 void SignalHandler(int signal);
 
+std::mutex nLogMutex;
 std::string nLog;
 std::ofstream nFile;
 bool nUseCout = true;
@@ -151,6 +152,7 @@ void LogString(const char* string)
 {
   std::stringstream logStream;
   logStream << string << '\n';
+  nLogMutex.lock();
   nLog += logStream.str();
   if (nFile.is_open())
   {
@@ -160,6 +162,7 @@ void LogString(const char* string)
   {
     std::cout << logStream.str();
   }
+  nLogMutex.unlock();
 }
 
 std::string FormatFileName(const char* file)

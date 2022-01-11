@@ -65,7 +65,7 @@ void AssetInterface<T>::Show()
     if (selected)
     {
       ImGui::PushItemWidth(-1);
-      EditAssetHeader(&asset);
+      InputText("Name", &asset.mName);
       EditAssetPaths(mSelectedId);
       ImGui::PopItemWidth();
     }
@@ -85,27 +85,18 @@ template<typename T>
 void AssetInterface<T>::ShowStatus(const AssLib::Asset<T>& asset)
 {
   ImGui::PushItemWidth(-1);
-  if (asset.mResource.Live())
+  const ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);
+  const ImVec4 red(1.0f, 0.0f, 0.0f, 1.0f);
+  const ImVec4 blue(0.0f, 0.5f, 1.0f, 1.0f);
+  const ImVec4 white(1.0, 1.0f, 1.0f, 1.0f);
+  switch (asset.mStatus)
   {
-    ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);
-    ImGui::TextColored(green, "+");
-  } else
-  {
-    ImVec4 red(1.0f, 0.0f, 0.0f, 1.0f);
-    ImGui::TextColored(red, "-");
+  case AssLib::Status::Unneeded: ImGui::TextColored(white, "|"); break;
+  case AssLib::Status::Initializing: ImGui::TextColored(blue, ">"); break;
+  case AssLib::Status::Failed: ImGui::TextColored(red, "-"); break;
+  case AssLib::Status::Live: ImGui::TextColored(green, "+"); break;
   }
   ImGui::PopItemWidth();
-}
-
-template<typename T>
-void AssetInterface<T>::EditAssetHeader(AssLib::Asset<T>* asset)
-{
-  InputText("Name", &asset->mName);
-  if (ImGui::Button("Init", ImVec2(-1.0f, 0.0f)))
-  {
-    Result result = asset->Init();
-    LogErrorIf(!result.Success(), result.mError.c_str());
-  }
 }
 
 template<typename T>

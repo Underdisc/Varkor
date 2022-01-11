@@ -17,17 +17,18 @@ size_t AttributeSize(unsigned int attribute);
 
 struct Mesh
 {
-  Mesh(
-    unsigned int attributes,
-    size_t vertexByteCount,
-    const Ds::Vector<char>& vertexBuffer,
-    const Ds::Vector<unsigned int>& elementBuffer);
+  Mesh();
   Mesh(Mesh&& other);
+  Mesh& operator=(Mesh&& other);
   ~Mesh();
 
-  Mesh& operator=(Mesh&& other);
+  void Upload(
+    const Ds::Vector<char>& vertexBuffer,
+    const Ds::Vector<unsigned int>& elementBuffer);
+  void Finalize(unsigned int attributes, size_t vertexByteCount);
 
   GLuint Vao() const;
+  GLuint Ebo() const;
   size_t IndexCount() const;
 
 private:

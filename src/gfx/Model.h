@@ -4,7 +4,9 @@
 #include <assimp/scene.h>
 #include <string>
 
+#include "AssetLibrary.h"
 #include "Result.h"
+#include "ds/Vector.h"
 #include "gfx/Material.h"
 #include "gfx/Mesh.h"
 #include "math/Matrix4.h"
@@ -18,7 +20,6 @@ public:
   static constexpr const char* smPathNames[smInitPathCount] = {"Model"};
   Result Init(std::string paths[smInitPathCount]);
   void Purge();
-  bool Live() const;
 
   Model();
   Model(Model&& other);
@@ -26,6 +27,8 @@ public:
   ~Model();
 
   Result Init(const std::string& file);
+  void FinalizeMesh(const AssLib::ModelFInfo& fInfo);
+
   struct DrawInfo
   {
     Mat4 mTransformation;

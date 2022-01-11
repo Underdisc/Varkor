@@ -668,20 +668,28 @@ Vec3 Hook<Comp::Transform>::ScaleToInterval(Vec3 vector, float interval)
 void Hook<Comp::Transform>::RenderHandle(
   World::MemberId handleId, const Vec4& color)
 {
-  const Gfx::Shader& colorShader =
-    AssLib::Get<Gfx::Shader>(AssLib::nColorShaderId);
-  colorShader.SetVec4("uColor", color.CData());
+  const Gfx::Shader* shader =
+    AssLib::TryGetLive<Gfx::Shader>(AssLib::nColorShaderId);
+  Comp::Model& modelComp = *mSpace.GetComponent<Comp::Model>(handleId);
+  const Gfx::Model* model = AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
+  if (shader == nullptr || model == nullptr)
+  {
+    return;
+  }
 
+  GLint alphaColorLoc = shader->UniformLocation(Gfx::Uniform::Type::AlphaColor);
+  GLint modelLoc = shader->UniformLocation(Gfx::Uniform::Type::Model);
+
+  glUseProgram(shader->Id());
+  glUniform4fv(alphaColorLoc, 1, color.CData());
   Comp::Transform& transform = *mSpace.GetComponent<Comp::Transform>(handleId);
   Mat4 memberTransformation = transform.GetWorldMatrix(mSpace, handleId);
-  Comp::Model& modelComp = *mSpace.GetComponent<Comp::Model>(handleId);
-  const Gfx::Model& model = AssLib::Get<Gfx::Model>(modelComp.mModelId);
-  const Ds::Vector<Gfx::Model::DrawInfo>& allDrawInfo = model.GetAllDrawInfo();
+  const Ds::Vector<Gfx::Model::DrawInfo>& allDrawInfo = model->GetAllDrawInfo();
   for (const Gfx::Model::DrawInfo& drawInfo : allDrawInfo)
   {
     Mat4 transformation = memberTransformation * drawInfo.mTransformation;
-    colorShader.SetMat4("uModel", transformation.CData());
-    const Gfx::Mesh& mesh = model.GetMesh(drawInfo.mMeshIndex);
+    glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
+    const Gfx::Mesh& mesh = model->GetMesh(drawInfo.mMeshIndex);
     glBindVertexArray(mesh.Vao());
     glDrawElements(
       GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
@@ -694,6 +702,20 @@ void Hook<Comp::Transform>::RenderHandles(
   const World::Space& space,
   World::MemberId ownerId)
 {
+  const Gfx::Shader* shader =
+    AssLib::TryGetLive<Gfx::Shader>(AssLib::nColorShaderId);
+  if (shader == nullptr)
+  {
+    return;
+  }
+
+  GLint viewLoc = shader->UniformLocation(Gfx::Uniform::Type::View);
+  GLint projLoc = shader->UniformLocation(Gfx::Uniform::Type::Proj);
+
+  glUseProgram(shader->Id());
+  glUniformMatrix4fv(viewLoc, 1, true, nCamera.WorldToCamera().CData());
+  glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
+
   // Set the handles' translation to the transform's position, the rotation to
   // the frame rotation and scale depending on the distance from the camera.
   Vec3 worldTranslation = transform->GetWorldTranslation(space, ownerId);
@@ -744,10 +766,6 @@ void Hook<Comp::Transform>::RenderHandles(
 
   // Render the handles to a framebuffer for the renderer to use later.
   glBindFramebuffer(GL_FRAMEBUFFER, mDrawbuffer.Fbo());
-  const Gfx::Shader& colorShader =
-    AssLib::Get<Gfx::Shader>(AssLib::nColorShaderId);
-  colorShader.SetMat4("uView", nCamera.WorldToCamera().CData());
-  colorShader.SetMat4("uProj", Viewport::Perspective().CData());
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   RenderHandle(mX, xColor);
