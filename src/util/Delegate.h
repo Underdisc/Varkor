@@ -1,20 +1,27 @@
 #ifndef util_Delegate_h
 #define util_Delegate_h
 
+#include "Error.h"
+
 namespace Util {
 
 template<typename R, typename... Args>
 struct Delegate
 {
 public:
-  // Empty delegate.
-  void BindNull()
-  {
-    mFunction = nullptr;
-  }
   bool Open() const
   {
     return mFunction != nullptr;
+  }
+  void VerifyOpen() const
+  {
+    LogAbortIf(mFunction == nullptr, "The Delegate is not open.");
+  }
+
+  // Closed delegate.
+  void BindNull()
+  {
+    mFunction = nullptr;
   }
 
   // Free function delegate.
@@ -25,6 +32,7 @@ public:
   }
   R Invoke(Args... args)
   {
+    VerifyOpen();
     return mFunction(nullptr, args...);
   }
 
@@ -36,6 +44,7 @@ public:
   }
   R Invoke(void* instance, Args... args) const
   {
+    VerifyOpen();
     return mFunction(instance, args...);
   }
 
