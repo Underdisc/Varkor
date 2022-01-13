@@ -13,7 +13,6 @@
 
 #include "Registrar.h"
 #include "comp/Type.h"
-#include "editor/Interface.h"
 
 // clang-format off
 #include "comp/Model.h"
@@ -28,13 +27,6 @@
 // clang-format on
 
 namespace Registrar {
-
-template<typename T>
-void Register()
-{
-  Comp::Type<T>::Register();
-  Editor::RegisterHook<T>();
-}
 
 void RegisterTypes()
 {
