@@ -447,7 +447,12 @@ void Space::Serialize(Vlk::Value& spaceVal) const
       memberId,
       [&](Comp::TypeId typeId, size_t tableIndex)
       {
-        Comp::TypeData& typeData = Comp::nTypeData[typeId];
+        const Comp::TypeData& typeData = Comp::nTypeData[typeId];
+        if (!typeData.mVSerialize.Open())
+        {
+          return;
+        }
+
         Vlk::Value& componentVal = componentsVal(typeData.mName);
         Table& table = mTables.Get(typeId);
         typeData.mVSerialize.Invoke(table[tableIndex], componentVal);
@@ -495,6 +500,14 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
       Vlk::Explorer componentEx = componentsEx(i);
       Comp::TypeId typeId = Comp::GetTypeId(componentEx.Key());
       const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
+      if (!typeData.mVDeserialize.Open())
+      {
+        std::stringstream error;
+        error << "The " << typeData.mName
+              << " component does not have a VDeserialize function.";
+        LogAbort(error.str().c_str());
+      }
+
       void* component = AddComponent(typeId, memberId, false);
       typeData.mDefaultConstruct(component);
       typeData.mVDeserialize.Invoke(component, componentEx);
