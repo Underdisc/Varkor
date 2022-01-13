@@ -1,6 +1,10 @@
 #ifndef VarkorMain_h
 #define VarkorMain_h
 
-void VarkorMain(const char* windowName, int argc, char* argv[]);
+#include "Result.h"
+
+Result VarkorInit(const char* windowName, int argc, char* argv[]);
+void VarkorRun();
+void VarkorPurge();
 
 #endif

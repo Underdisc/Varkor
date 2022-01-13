@@ -4,21 +4,21 @@
 #include "Input.h"
 #include "Options.h"
 #include "Registrar.h"
+#include "Result.h"
 #include "Viewport.h"
 #include "debug/Draw.h"
 #include "editor/Editor.h"
 #include "gfx/Renderer.h"
 #include "world/World.h"
 
-void VarkorMain(const char* windowName, int argc, char* argv[])
+Result VarkorInit(const char* windowName, int argc, char* argv[])
 {
-  // Perform all of the necessary initialization.
-  Error::Init("log.err");
   Result result = Options::Init(argc, argv);
   if (!result.Success())
   {
-    return;
+    return result;
   }
+  Error::Init("log.err");
   Viewport::Init(windowName);
   Registrar::Init();
   Editor::Init();
@@ -27,8 +27,11 @@ void VarkorMain(const char* windowName, int argc, char* argv[])
   Input::Init();
   Gfx::Renderer::Init();
   Debug::Draw::Init();
+  return Result();
+}
 
-  // Run the engine.
+void VarkorRun()
+{
   while (Viewport::Active() || AssetLibrary::InitThreadOpen())
   {
     Framer::Start();
@@ -48,8 +51,10 @@ void VarkorMain(const char* windowName, int argc, char* argv[])
     AssetLibrary::HandleAssetLoading();
     Framer::End();
   }
+}
 
-  // Perform all of the necessary purging.
+void VarkorPurge()
+{
   AssetLibrary::Purge();
   Framer::Purge();
   Editor::Purge();
@@ -60,7 +65,12 @@ void VarkorMain(const char* windowName, int argc, char* argv[])
 #ifdef VarkorStandalone
 int main(int argc, char* argv[])
 {
-  VarkorMain("Varkor", argc, argv);
-  return 0;
+  Result result = VarkorInit("Varkor Standalone", argc, argv);
+  if (!result.Success())
+  {
+    return 0;
+  }
+  VarkorRun();
+  VarkorPurge();
 }
 #endif

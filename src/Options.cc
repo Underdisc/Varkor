@@ -1,7 +1,6 @@
 #include <iostream>
 #include <mingw/getopt.h>
 
-#include "Error.h"
 #include "Options.h"
 
 namespace Options {
