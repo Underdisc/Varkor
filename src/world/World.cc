@@ -77,7 +77,7 @@ void Update()
 {
   for (int i = 0; i < nSpaces.Size(); ++i)
   {
-    nSpaces[i].Update();
+    nSpaces[i].Update((SpaceId)i);
   }
 }
 

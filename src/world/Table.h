@@ -20,7 +20,6 @@ public:
   size_t AllocateComponent(MemberId member);
   size_t Duplicate(size_t index, MemberId duplicateId);
   void Rem(size_t index);
-  void UpdateComponents() const;
 
   // Access component data and the owner of that component data.
   void* operator[](size_t index) const;
@@ -28,6 +27,7 @@ public:
   MemberId GetOwner(size_t index) const;
 
   // Access private members that allow the component table to function.
+  Comp::TypeId TypeId() const;
   const void* Data() const;
   size_t Stride() const;
   size_t Size() const;

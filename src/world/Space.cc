@@ -2,6 +2,7 @@
 
 #include "Error.h"
 #include "vlk/Valkor.h"
+#include "world/Object.h"
 #include "world/Space.h"
 
 namespace World {
@@ -82,11 +83,25 @@ Space::Space(): mName("DefaultName"), mCameraId(nInvalidMemberId) {}
 Space::Space(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
 {}
 
-void Space::Update()
+void Space::Update(SpaceId spaceId)
 {
+  Object currentObject;
+  currentObject.mSpace = spaceId;
   for (const Ds::KvPair<Comp::TypeId, Table>& tablePair : mTables)
   {
-    tablePair.mValue.UpdateComponents();
+    const Table& table = tablePair.mValue;
+    const Comp::TypeData& typeData = Comp::GetTypeData(table.TypeId());
+    if (!typeData.mVUpdate.Open())
+    {
+      continue;
+    }
+
+    table.VisitActiveIndices(
+      [&](size_t index)
+      {
+        currentObject.mMember = table.GetOwner(index);
+        typeData.mVUpdate.Invoke(table[index], currentObject);
+      });
   }
 }
 

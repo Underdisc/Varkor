@@ -86,6 +86,11 @@ MemberId Table::GetOwner(size_t index) const
   return mOwners[index];
 }
 
+Comp::TypeId Table::TypeId() const
+{
+  return mTypeId;
+}
+
 const void* Table::Data() const
 {
   return (void*)mData;
@@ -105,20 +110,6 @@ size_t Table::Size() const
 size_t Table::Capacity() const
 {
   return mCapacity;
-}
-
-void Table::UpdateComponents() const
-{
-  const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
-  if (!typeData.mVUpdate.Open())
-  {
-    return;
-  }
-  VisitComponents(
-    [&typeData](void* component)
-    {
-      typeData.mVUpdate.Invoke(component);
-    });
 }
 
 void Table::VisitComponents(std::function<void(void*)> visit) const
