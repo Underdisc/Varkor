@@ -130,7 +130,7 @@ Result Value::Read(const char* filename)
   if (!stream.is_open())
   {
     std::stringstream error;
-    error << filename << " failed to open while reading.";
+    error << filename << " failed to open.";
     return Result(error.str());
   }
   std::stringstream content;

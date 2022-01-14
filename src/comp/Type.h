@@ -47,7 +47,7 @@ const TypeData& GetTypeData(TypeId id);
 size_t TypeDataCount();
 TypeId GetTypeId(const std::string& typeName);
 
-void ReadComponentsFile();
+void AssessComponentsFile();
 void SaveComponentsFile();
 
 } // namespace Comp

@@ -39,7 +39,7 @@ void RegisterTypes()
 void Init()
 {
   RegisterTypes();
-  Comp::ReadComponentsFile();
+  Comp::AssessComponentsFile();
 }
 
 } // namespace Registrar

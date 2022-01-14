@@ -38,7 +38,7 @@ TypeId GetTypeId(const std::string& typeName)
   return nInvalidTypeId;
 }
 
-void ReadComponentsFile()
+void AssessComponentsFile()
 {
   // Ensure that the components file contains the required information and
   // initialize the version.
