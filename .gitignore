@@ -2,9 +2,9 @@
 *.exe
 *.ilk
 *.pdb
+buildSpecs.bat
 .vs/
 build/
-working/buildSpecs.bat
 working/imgui.ini
 working/assets.vlk
 working/res/

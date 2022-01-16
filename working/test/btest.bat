@@ -1,6 +1,6 @@
 @echo off
 
-REM Usage: btest.bat (all [t|c])|({target} [r|d|a|t|c])
+REM Usage: btest (all [t|c])|({target} [r|d|a|t|c])
 
 REM Required Environment Variables to be set in buildSpecs.bat.
 REM buildDir - The path to the build directory relative to buildSpecs.bat.

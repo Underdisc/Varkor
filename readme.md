@@ -1,8 +1,8 @@
 # Varkor
 
-Varkor is a custom game engine project that will also do other cool things that aren't necessarily for games.
+Varkor is a C++ game engine. It can run as a standalone executable, but its true intent is to be used a static library that other C++ projects can link against and build upon. Fundamentally, it's a game engine, but, like other engines, its use cases extend beyond just games.
 
-## Building Varkor
+## Building Varkor Standalone
 
 *Disclaimer*: This is how I build the project. Feel free to use your own method if you are inclined. No promises that you won't encounter some bumps though.
 
@@ -84,13 +84,14 @@ Now you should have a `build.ninja` file in your current directory. All that's l
 ninja varkor
 ```
 
-### Advice For Quick Building
+### Rapid Builds
 
-Because `varkor.exe` is placed in `working/` by default, building Varkor, going to `working/` to run it, and going back to build again can be really fucking annoying. Inside of `working/`, you will find a batch script called `bvarkor.bat`. After setting up the cmd shell, you can run `bvarkor.bat` and the script will go to a specified build directory, run the generator command, and return to `working/`. `bvarkor.bat r` will run varkor as well if the build is successful.
+Because `varkor.exe` is placed in `working/` by default, building Varkor, going to `working/` to run it, and going back to build again can be really fucking annoying. Inside of `working/`, you will find a batch script called `build.bat`. After setting up the cmd shell and creating a `buildSpecs.bat` file, you can run `build.bat`. The script will go to a specified build directory, run the generator command, and return to `working/`. `build r` will also run varkor if the build was successful.
 
-To use `working/bvarkor.bat`, you need to create a file called `working/buildSpecs.bat`. This file will be ignored by git. This script should set environment variables specific to your environment so they can be used by `bvarkor.bat`. You can find out what these environment variables are at the top of `bvarkor.bat`. As an example, here is the current content of my `buildSpecs.bat` file.
+As mentioned, you need to create a file called `buildSpecs.bat` to use `working/build.bat`. This file is git ignored and must be in the root of your local copy of this repository. The script needs to set environment variables specific to your setup so they can be used by `build.bat`. You can find out what these environment variables are at the top of `working/checkBuildSpecs.bat`. As an example, here is the current content of my `buildSpecs.bat` file.
 
 ```
+set buildDir="build/rel/msvc64"
 set generator=ninja
-set buildDir="../build/rel/msvc64"
+set target=varkor
 ```
