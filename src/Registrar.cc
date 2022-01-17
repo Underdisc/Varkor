@@ -36,9 +36,14 @@ void RegisterTypes()
   Register<Comp::Text>();
 }
 
+void (*nRegisterCustomTypes)() = nullptr;
 void Init()
 {
   RegisterTypes();
+  if (nRegisterCustomTypes != nullptr)
+  {
+    nRegisterCustomTypes();
+  }
   Comp::AssessComponentsFile();
 }
 

@@ -5,6 +5,7 @@
 
 namespace Registrar {
 
+extern void (*nRegisterCustomTypes)();
 void Init();
 
 template<typename T>
