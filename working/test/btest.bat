@@ -26,7 +26,7 @@ REM   not run easy. A build of OpenCppCoverage needs to be in your path. It can
 REM   be found here (https://github.com/OpenCppCoverage/OpenCppCoverage).
 
 REM Ensure that the build specifications exist.
-pushd "../"
+pushd ..\
 call checkBuildSpecs.bat
 set buildSpecsCheckFailed=1
 if errorlevel %buildSpecsCheckFailed% (
@@ -40,7 +40,7 @@ if "%1" == "" (
   popd
   exit /b 1
 )
-pushd %buildDir%
+pushd ..\%buildDir%
 if "%1" == "all" (
   %generator% tests
 ) else (
