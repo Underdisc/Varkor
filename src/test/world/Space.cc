@@ -97,13 +97,13 @@ void AddComponent()
   space.AddComponent<Dynamic>(mem1);
   World::MemberId mem2 = space.CreateMember();
   space.AddComponent<Simple0>(mem2);
-  space.AddComponent<Container>(mem2, 5);
+  space.AddComponent<Container>(mem2).SetData(5);
 
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
 
-  space.AddComponent<Container>(mem1, 4);
-  space.AddComponent<Container>(mem0, 3);
+  space.AddComponent<Container>(mem1).SetData(4);
+  space.AddComponent<Container>(mem0).SetData(3);
   space.AddComponent<Dynamic>(mem2);
 
   PrintSpace(space);
@@ -280,32 +280,32 @@ void Duplicate()
 
   // A lone member.
   World::MemberId testId = space.CreateMember();
-  space.AddComponent<Simple0>(testId, 0);
-  space.AddComponent<Simple1>(testId, 0);
+  space.AddComponent<Simple0>(testId).SetData(0);
+  space.AddComponent<Simple1>(testId).SetData(0);
   space.Duplicate(testId);
 
   // A member with children.
   testId = space.CreateMember();
-  space.AddComponent<Simple0>(testId, 1);
-  space.AddComponent<Simple1>(testId, 1);
+  space.AddComponent<Simple0>(testId).SetData(1);
+  space.AddComponent<Simple1>(testId).SetData(1);
   World::MemberId childId = space.CreateChildMember(testId);
-  space.AddComponent<Dynamic>(childId, 1);
-  space.AddComponent<Container>(childId, 1);
+  space.AddComponent<Dynamic>(childId).SetData(1);
+  space.AddComponent<Container>(childId).SetData(1);
   childId = space.CreateChildMember(testId);
-  space.AddComponent<Dynamic>(childId, 1);
+  space.AddComponent<Dynamic>(childId).SetData(1);
   space.Duplicate(testId);
 
   // A member with a parent and children.
   World::MemberId parentId = space.CreateMember();
   testId = space.CreateChildMember(parentId);
-  space.AddComponent<Simple0>(testId, 2);
-  space.AddComponent<Dynamic>(testId, 2);
+  space.AddComponent<Simple0>(testId).SetData(2);
+  space.AddComponent<Dynamic>(testId).SetData(2);
   childId = space.CreateChildMember(testId);
-  space.AddComponent<Simple0>(childId, 2);
-  space.AddComponent<Container>(childId, 2);
+  space.AddComponent<Simple0>(childId).SetData(2);
+  space.AddComponent<Container>(childId).SetData(2);
   childId = space.CreateChildMember(testId);
-  space.AddComponent<Simple1>(childId, 2);
-  space.AddComponent<Container>(childId, 2);
+  space.AddComponent<Simple1>(childId).SetData(2);
+  space.AddComponent<Container>(childId).SetData(2);
   space.Duplicate(testId);
 
   PrintSpaceMembers(space);

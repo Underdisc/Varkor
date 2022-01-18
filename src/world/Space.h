@@ -72,8 +72,6 @@ struct Space
   // Component creation, deletion, and access.
   template<typename T>
   T& AddComponent(MemberId memberId);
-  template<typename T, typename... Args>
-  T& AddComponent(MemberId memberId, const Args&... args);
   template<typename T>
   void RemComponent(MemberId memberId);
   template<typename T>
@@ -81,8 +79,7 @@ struct Space
   template<typename T>
   bool HasComponent(MemberId memberId) const;
 
-  void* AddComponent(
-    Comp::TypeId typeId, MemberId memberId, bool construct = true);
+  void* AddComponent(Comp::TypeId typeId, MemberId memberId, bool init = true);
   void RemComponent(Comp::TypeId typeId, MemberId memberId);
   void* GetComponent(Comp::TypeId typeId, MemberId memberId) const;
   bool HasComponent(Comp::TypeId typeId, MemberId memberId) const;

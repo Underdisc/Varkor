@@ -9,14 +9,6 @@ T& Space::AddComponent(MemberId memberId)
   return *(T*)AddComponent(Comp::Type<T>::smId, memberId);
 }
 
-template<typename T, typename... Args>
-T& Space::AddComponent(MemberId memberId, const Args&... args)
-{
-  T* component = (T*)AddComponent(Comp::Type<T>::smId, memberId, false);
-  new (component) T(args...);
-  return *component;
-}
-
 template<typename T>
 void Space::RemComponent(MemberId memberId)
 {

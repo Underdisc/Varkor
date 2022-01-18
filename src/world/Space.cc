@@ -248,8 +248,7 @@ const Member& Space::GetConstMember(MemberId id) const
   return mMembers[id];
 }
 
-void* Space::AddComponent(
-  Comp::TypeId typeId, MemberId memberId, bool construct)
+void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
 {
   // Create the component table if necessary and make sure the member doesn't
   // already have the component.
@@ -265,18 +264,20 @@ void* Space::AddComponent(
     HasComponent(typeId, memberId),
     "The member already has this component type.");
 
-  // Create the component and make it part of the member
+  // Create the component's descriptor.
   ComponentDescriptor newDesc;
   newDesc.mTypeId = typeId;
-  if (construct)
-  {
-    newDesc.mTableIndex = table->Add(memberId);
-  } else
-  {
-    newDesc.mTableIndex = table->AllocateComponent(memberId);
-  }
+  newDesc.mTableIndex = table->Add(memberId);
   AddDescriptorToMember(memberId, newDesc);
-  return table->GetComponent(newDesc.mTableIndex);
+
+  // Initialize the component if requested.
+  void* component = table->GetComponent(newDesc.mTableIndex);
+  const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
+  if (init && typeData.mVInit.Open())
+  {
+    typeData.mVInit.Invoke(component);
+  }
+  return component;
 }
 
 void Space::AddDescriptorToMember(
@@ -509,7 +510,6 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
       }
 
       void* component = AddComponent(typeId, memberId, false);
-      typeData.mDefaultConstruct(component);
       typeData.mVDeserialize.Invoke(component, componentEx);
     }
   }
