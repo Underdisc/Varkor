@@ -1,11 +1,18 @@
 #ifndef test_world_Print_h
 #define test_world_Print_h
 
+#include <iomanip>
 #include <iostream>
 
 #include "comp/Type.h"
 #include "world/Space.h"
 #include "world/Table.h"
+
+void PrintKey()
+{
+  std::cout << "=Key=\n"
+            << "-DescriptorBin-\nRowIndex: [TypeId|TableIndex]...\n\n";
+}
 
 // Table Functions /////////////////////////////////////////////////////////////
 template<typename T>
@@ -117,18 +124,27 @@ void PrintSpaceDescriptorBin(const World::Space& space)
 {
   const Ds::Vector<World::ComponentDescriptor>& descriptorBin =
     space.DescriptorBin();
-  std::cout << "DescriptorBin: [Table, Index]";
-  for (const World::ComponentDescriptor& desc : descriptorBin)
+  const size_t rowSize = 5;
+  std::cout << "-DescriptorBin-";
+  for (size_t i = 0; i < descriptorBin.Size(); ++i)
   {
-    std::cout << ", ";
+    if (i % rowSize == 0)
+    {
+      std::cout << "\n" << std::setfill('0') << std::setw(2) << i << ": ";
+    } else
+    {
+      std::cout << " ";
+    }
+    const World::ComponentDescriptor& desc = descriptorBin[i];
     if (!desc.InUse())
     {
       std::cout << "[inv]";
-      continue;
+    } else
+    {
+      std::cout << "[" << desc.mTypeId << "|" << desc.mTableIndex << "]";
     }
-    std::cout << "[" << desc.mTypeId << ", " << desc.mTableIndex << "]";
   }
-  std::cout << std::endl;
+  std::cout << "\n";
 }
 
 void PrintSpaceUnusedMemberIds(const World::Space& space)

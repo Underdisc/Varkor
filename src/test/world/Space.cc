@@ -320,6 +320,7 @@ int main(void)
 {
   EnableLeakOutput();
   RegisterComponentTypes();
+  PrintKey();
 
   CreateMember();
   DeleteMember();
