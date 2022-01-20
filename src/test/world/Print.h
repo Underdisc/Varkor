@@ -5,82 +5,70 @@
 #include <iostream>
 
 #include "comp/Type.h"
+#include "test/world/TestTypes.h"
 #include "world/Space.h"
 #include "world/Table.h"
 
 void PrintKey()
 {
   std::cout << "=Key=\n"
-            << "-MemberBin-\nRowMemberId: [FirstDescriptor|LastDescriptor]...\n"
+            << "-ComponentData-\nTypeId: [Data]...\n"
             << "-DescriptorBin-\nRowIndex: [TypeId|TableIndex]...\n"
-            << "-Relationships-\nMemberId: [ChildId|ChildParentId]\n\n";
+            << "-MemberBin-\nRowMemberId: [FirstDescriptor|LastDescriptor]...\n"
+            << "-Relationships-\nMemberId: [ChildId|ChildParentId]\n"
+            << "-TableOwners-\nTypeId: [Owner, ...]\n"
+            << "-TableStats-\nTypeId: Stats, ...\n\n";
 }
 
-// Table Functions /////////////////////////////////////////////////////////////
 template<typename T>
-void PrintTable(const World::Table& table)
+void PrintSpaceComponentData(const World::Space& space)
 {
-  std::cout << "{Owner: [Data]}" << std::endl;
-  table.VisitActiveIndices(
-    [&table](size_t i)
+  std::cout << Comp::Type<T>::smId << ": ";
+  space.VisitTableComponents<T>(
+    [](World::MemberId memberId, T& component)
     {
-      std::cout << "{" << table.GetOwner(i) << ": ";
-      (*(T*)table[i]).PrintData();
-      std::cout << "}" << std::endl;
-    });
-}
-template<typename T>
-void PrintTableData(const World::Table& table)
-{
-  table.VisitComponents(
-    [](void* component)
-    {
-      (*(T*)component).PrintData();
+      component.PrintData();
     });
   std::cout << std::endl;
 }
 
-void PrintTableOwners(const World::Table& table)
+void PrintSpaceTestTypeComponentData(const World::Space& space)
 {
-  std::cout << "Owners: [";
-  table.VisitActiveIndices(
-    [&](size_t i)
-    {
-      std::cout << table.GetOwner(i) << ", ";
-    });
-  std::cout << "]" << std::endl;
+  std::cout << "-ComponentData-\n";
+  PrintSpaceComponentData<Simple0>(space);
+  PrintSpaceComponentData<Simple1>(space);
+  PrintSpaceComponentData<Dynamic>(space);
+  PrintSpaceComponentData<Container>(space);
 }
 
-void PrintTableStats(const World::Table& table)
+void PrintSpaceTablesStats(const World::Space& space)
 {
-  size_t stride = table.Stride();
-  size_t size = table.Size();
-  size_t capacity = table.Capacity();
-  std::cout << "Stride: " << stride << std::endl
-            << "Size: " << size << std::endl
-            << "SizeInBytes: " << size * stride << std::endl
-            << "Capacity: " << capacity << std::endl
-            << "CapacityInBytes: " << capacity * stride << std::endl;
-}
-
-// Space Functions /////////////////////////////////////////////////////////////
-void PrintSpaceTables(const World::Space& space)
-{
+  std::cout << "-TableStats-\n";
   for (const auto& tablePair : space.Tables())
   {
-    std::cout << tablePair.Key() << " {" << std::endl;
-    PrintTableStats(tablePair.mValue);
-    PrintTableOwners(tablePair.mValue);
-    std::cout << "}" << std::endl;
+    const World::Table& table = tablePair.mValue;
+    std::cout << tablePair.Key() << ": Stride: " << table.Stride()
+              << ", Size: " << table.Size()
+              << ", Capacity: " << table.Capacity() << "\n";
   }
 }
 
 void PrintSpaceTablesOwners(const World::Space& space)
 {
+  std::cout << "-TableOwners-\n";
   for (const auto& tablePair : space.Tables())
   {
-    std::cout << "Table " << tablePair.Key() << " ";
-    PrintTableOwners(tablePair.mValue);
+    std::cout << tablePair.Key() << ": [";
+    const World::Table& table = tablePair.mValue;
+    for (size_t i = 0; i < table.Size(); ++i)
+    {
+      std::cout << table.GetOwner(i);
+      if (i < table.Size() - 1)
+      {
+        std::cout << ", ";
+      }
+    }
+    std::cout << "]\n";
   }
 }
 
@@ -190,7 +178,8 @@ void PrintSpaceUnusedMemberIds(const World::Space& space)
 
 void PrintSpace(const World::Space& space)
 {
-  PrintSpaceTables(space);
+  PrintSpaceTablesStats(space);
+  PrintSpaceTablesOwners(space);
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
 }

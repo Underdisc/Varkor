@@ -1,3 +1,6 @@
+#ifndef test_world_TestTypes_h
+#define test_world_TestTypes_h
+
 #include <iostream>
 
 #include "comp/Type.h"
@@ -179,3 +182,5 @@ void RegisterComponentTypes()
   Comp::Type<Dynamic>::Register();
   Comp::Type<Container>::Register();
 }
+
+#endif

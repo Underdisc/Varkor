@@ -7,18 +7,6 @@
 #include "world/Space.h"
 #include "world/Types.h"
 
-template<typename T>
-void PrintComponentData(const World::Space& space)
-{
-  std::cout << Comp::Type<T>::smId << ": ";
-  space.VisitTableComponents<T>(
-    [](World::MemberId memberId, T& component)
-    {
-      component.PrintData();
-    });
-  std::cout << std::endl;
-}
-
 void CreateMember()
 {
   std::cout << "<= CreateMember =>" << std::endl;
@@ -109,10 +97,7 @@ void AddComponent()
   space.AddComponent<Dynamic>(mem2);
 
   PrintSpace(space);
-  PrintComponentData<Simple0>(space);
-  PrintComponentData<Simple1>(space);
-  PrintComponentData<Dynamic>(space);
-  PrintComponentData<Container>(space);
+  PrintSpaceTestTypeComponentData(space);
   std::cout << std::endl;
 }
 
@@ -153,7 +138,8 @@ void RemComponent()
 
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
-  PrintSpaceTables(space);
+  PrintSpaceTablesStats(space);
+  PrintSpaceTablesOwners(space);
   std::cout << std::endl;
 }
 
@@ -242,10 +228,7 @@ void GetComponent()
   mem1comp2->SetData(3);
 
   PrintSpace(space);
-  PrintComponentData<Simple0>(space);
-  PrintComponentData<Simple1>(space);
-  PrintComponentData<Dynamic>(space);
-  PrintComponentData<Container>(space);
+  PrintSpaceTestTypeComponentData(space);
   std::cout << std::endl;
 }
 
@@ -313,11 +296,7 @@ void Duplicate()
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
   PrintSpaceRelationships(space);
-  std::cout << "-Tables-" << std::endl;
-  PrintComponentData<Simple0>(space);
-  PrintComponentData<Simple1>(space);
-  PrintComponentData<Dynamic>(space);
-  PrintComponentData<Container>(space);
+  PrintSpaceTestTypeComponentData(space);
 }
 
 int main(void)
