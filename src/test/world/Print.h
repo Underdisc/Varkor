@@ -11,7 +11,9 @@
 void PrintKey()
 {
   std::cout << "=Key=\n"
-            << "-DescriptorBin-\nRowIndex: [TypeId|TableIndex]...\n\n";
+            << "-MemberBin-\nRowMemberId: [FirstDescriptor|LastDescriptor]...\n"
+            << "-DescriptorBin-\nRowIndex: [TypeId|TableIndex]...\n"
+            << "-Relationships-\nMemberId: [ChildId|ChildParentId]\n\n";
 }
 
 // Table Functions /////////////////////////////////////////////////////////////
@@ -82,42 +84,64 @@ void PrintSpaceTablesOwners(const World::Space& space)
   }
 }
 
-void PrintSpaceMember(
-  const World::Space& space,
-  World::MemberId memberId,
-  const std::string& indent = "")
+void PrintSpaceRelationships(const World::Space& space)
 {
-  const World::Member& member = space.Members()[memberId];
-  std::cout << indent << "{" << memberId << "}";
-  if (member.DescriptorCount() > 0)
-  {
-    std::cout << "->";
-  }
-  space.VisitMemberComponents(
-    memberId,
-    [](Comp::TypeId typeId, size_t tableIndex)
-    {
-      std::cout << "[" << typeId << ", " << tableIndex << "]";
-    });
-  std::cout << std::endl;
-  for (World::MemberId childId : member.Children())
-  {
-    PrintSpaceMember(space, childId, indent + "| ");
-  }
-}
-
-void PrintSpaceMembers(const World::Space& space)
-{
-  std::cout << "-Members {MemberId}->[TypeId, TableIndex]...-" << std::endl;
+  std::cout << "-Relationships-";
+  bool noRelationships = true;
   const Ds::Vector<World::Member>& members = space.Members();
   for (World::MemberId memberId = 0; memberId < members.Size(); ++memberId)
   {
     const World::Member& member = members[memberId];
-    if (member.InUseRootMember())
+    const Ds::Vector<World::MemberId> childrenIds = member.Children();
+    if (childrenIds.Size() == 0)
     {
-      PrintSpaceMember(space, memberId);
+      continue;
+    }
+    noRelationships = false;
+    std::cout << '\n' << std::setfill('0') << std::setw(2) << memberId << ":";
+    for (World::MemberId childId : childrenIds)
+    {
+      const World::Member& child = members[childId];
+      std::cout << " [" << childId << "|" << child.Parent() << "]";
     }
   }
+  if (noRelationships)
+  {
+    std::cout << "\nNone";
+  }
+  std::cout << '\n';
+}
+
+void PrintSpaceMembers(const World::Space& space)
+{
+  std::cout << "-MemberBin-";
+  const Ds::Vector<World::Member>& members = space.Members();
+  const size_t rowSize = 5;
+  for (World::MemberId memberId = 0; memberId < members.Size(); ++memberId)
+  {
+    if (memberId % rowSize == 0)
+    {
+      std::cout << "\n"
+                << std::setfill('0') << std::setw(2) << memberId << ": ";
+    } else
+    {
+      std::cout << " ";
+    }
+    const World::Member& member = members[memberId];
+    if (!member.InUse())
+    {
+      std::cout << "[ inv ]";
+    } else if (member.DescriptorCount() == 0)
+    {
+      std::cout << "[empty]";
+    } else
+    {
+      std::cout << "[" << std::setfill('0') << std::setw(2)
+                << member.FirstDescriptorId() << "|" << std::setfill('0')
+                << std::setw(2) << member.LastDescriptorId() << "]";
+    }
+  }
+  std::cout << "\n";
 }
 
 void PrintSpaceDescriptorBin(const World::Space& space)

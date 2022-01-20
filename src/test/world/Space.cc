@@ -71,6 +71,7 @@ void ParentChildMembers()
   space.CreateChildMember(memberIds[2]);
   space.CreateChildMember(memberIds[3]);
   PrintSpaceMembers(space);
+  PrintSpaceRelationships(space);
 
   // Delete the member with children and create members that take the MemberIds
   // that were once used by the children.
@@ -80,6 +81,7 @@ void ParentChildMembers()
     space.CreateMember();
   }
   PrintSpaceMembers(space);
+  PrintSpaceRelationships(space);
   std::cout << std::endl;
 }
 
@@ -309,6 +311,8 @@ void Duplicate()
   space.Duplicate(testId);
 
   PrintSpaceMembers(space);
+  PrintSpaceDescriptorBin(space);
+  PrintSpaceRelationships(space);
   std::cout << "-Tables-" << std::endl;
   PrintComponentData<Simple0>(space);
   PrintComponentData<Simple1>(space);
