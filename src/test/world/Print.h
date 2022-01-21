@@ -9,6 +9,45 @@
 #include "world/Space.h"
 #include "world/Table.h"
 
+void PrintTableStats(const World::Table& table)
+{
+  std::cout << "-TableStats-\n"
+            << "Stride: " << table.Stride() << ", Size: " << table.Size()
+            << ", Capacity: " << table.Capacity() << "\n";
+}
+
+void PrintTableOwners(const World::Table& table)
+{
+  std::cout << "-TableOwners-\n[";
+  for (size_t i = 0; i < table.Size(); ++i)
+  {
+    std::cout << table.GetOwner(i);
+    if (i < table.Size() - 1)
+    {
+      std::cout << ", ";
+    }
+  }
+  std::cout << "]\n";
+}
+
+template<typename T>
+void PrintTable(const World::Table& table)
+{
+  std::cout << "-TableData-\n";
+  for (size_t i = 0; i < table.Size(); ++i)
+  {
+    World::MemberId owner = table.GetOwner(i);
+    if (owner == World::nInvalidMemberId)
+    {
+      continue;
+    }
+    std::cout << table.GetOwner(i) << ": ";
+    T* component = (T*)table.GetComponent(i);
+    component->PrintData();
+    std::cout << "\n";
+  }
+}
+
 void PrintKey()
 {
   std::cout << "=Key=\n"

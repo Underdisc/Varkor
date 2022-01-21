@@ -144,7 +144,6 @@ void GetComponent()
   PrintTable<Dynamic>(dynamic);
   std::cout << "-Container-" << std::endl;
   PrintTable<Container>(container);
-  std::cout << std::endl;
 }
 
 int main(void)
