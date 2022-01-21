@@ -1,6 +1,7 @@
 #ifndef gfx_Shader_h
 #define gfx_Shader_h
 
+#include <glad/glad.h>
 #include <string>
 
 #include "Result.h"

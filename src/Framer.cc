@@ -3,7 +3,7 @@
   #pragma comment(lib, "Winmm.lib")
 #endif
 
-#include <GLFW/glfw3.h>
+#include <GLFW/VarkorGlfw.h>
 #include <chrono>
 #include <thread>
 

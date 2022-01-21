@@ -1,7 +1,7 @@
 #ifndef Input_h
 #define Input_h
 
-#include <GLFW/glfw3.h>
+#include <GLFW/VarkorGlfw.h>
 
 #include "math/Vector.h"
 

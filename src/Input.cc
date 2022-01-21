@@ -1,10 +1,7 @@
-#include <GLFW/glfw3.h>
-
+#include "Input.h"
 #include "Viewport.h"
 #include "ds/Vector.h"
 #include "math/Vector.h"
-
-#include "Input.h"
 
 namespace Input {
 
