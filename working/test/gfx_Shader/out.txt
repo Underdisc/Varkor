@@ -22,4 +22,3 @@ CompilerErrors0.glsl(6) : error C1503: undefined variable "error"
 CompilerErrors2.glsl(4) : error C1503: undefined variable "error"
 CompilerErrors2.glsl(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
 CompilerErrors.fs(11) : error C1503: undefined variable "error"
-
