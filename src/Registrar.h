@@ -8,10 +8,10 @@ namespace Registrar {
 extern void (*nRegisterCustomTypes)();
 void Init();
 
-template<typename T>
+template<typename T, typename... Dependencies>
 void Register()
 {
-  Comp::Type<T>::Register();
+  Comp::Type<T>::Register<Dependencies...>();
   Editor::RegisterHook<T>();
 }
 

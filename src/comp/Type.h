@@ -24,6 +24,7 @@ template<typename T>
 struct Type
 {
   static TypeId smId;
+  template<typename... Dependencies>
   static void Register();
 };
 
@@ -31,6 +32,8 @@ struct TypeData
 {
   std::string mName;
   size_t mSize;
+  Ds::Vector<TypeId> mDependencies;
+  Ds::Vector<TypeId> mDependants;
   void (*mDefaultConstruct)(void* data);
   void (*mCopyConstruct)(void* from, void* to);
   void (*mMoveConstruct)(void* from, void* to);
@@ -39,6 +42,11 @@ struct TypeData
   Util::Delegate<void, const World::Object&> mVUpdate;
   Util::Delegate<void, Vlk::Value&> mVSerialize;
   Util::Delegate<void, const Vlk::Explorer&> mVDeserialize;
+
+  template<typename Dependant, typename Dependency, typename... Rest>
+  void AddDependencies();
+  template<typename Dependant>
+  void AddDependencies();
 };
 
 template<typename T>

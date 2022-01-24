@@ -9,6 +9,33 @@
 #include "world/Space.h"
 #include "world/Table.h"
 
+template<typename T>
+void PrintRegistration()
+{
+  const Comp::TypeData& typeData = Comp::GetTypeData<T>();
+  std::cout << "-" << Comp::Type<T>::smId << "-"
+            << "\nName: " << typeData.mName << "\nSize: " << typeData.mSize
+            << "\nDependencies: [";
+  for (size_t i = 0; i < typeData.mDependencies.Size(); ++i)
+  {
+    std::cout << typeData.mDependencies[i];
+    if (i < typeData.mDependencies.Size() - 1)
+    {
+      std::cout << ", ";
+    }
+  }
+  std::cout << "]\nDependants: [";
+  for (size_t i = 0; i < typeData.mDependants.Size(); ++i)
+  {
+    std::cout << typeData.mDependants[i];
+    if (i < typeData.mDependants.Size() - 1)
+    {
+      std::cout << ", ";
+    }
+  }
+  std::cout << "]\n";
+}
+
 void PrintTableStats(const World::Table& table)
 {
   std::cout << "-TableStats-\n"

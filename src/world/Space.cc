@@ -259,10 +259,24 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
     mTables.Insert(typeId, newTable);
     table = mTables.Find(typeId);
   }
-  VerifyMemberId(memberId);
-  LogAbortIf(
-    HasComponent(typeId, memberId),
-    "The member already has this component type.");
+  const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
+  if (HasComponent(typeId, memberId))
+  {
+    const Member& member = mMembers[memberId];
+    std::stringstream error;
+    error << member.mName << " (MemberId: " << memberId << ") already has a "
+          << typeData.mName << " (TypeId: " << typeId << ") component.";
+    LogAbort(error.str().c_str());
+  }
+
+  // Add any missing dependencies.
+  for (Comp::TypeId dependencyId : typeData.mDependencies)
+  {
+    if (!HasComponent(dependencyId, memberId))
+    {
+      AddComponent(dependencyId, memberId, init);
+    }
+  }
 
   // Create the component's descriptor.
   ComponentDescriptor newDesc;
@@ -272,7 +286,6 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
 
   // Initialize the component if requested.
   void* component = table->GetComponent(newDesc.mTableIndex);
-  const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
   if (init && typeData.mVInit.Open())
   {
     typeData.mVInit.Invoke(component);
@@ -325,12 +338,27 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
     }
     ++descId;
   }
-  LogAbortIf(
-    descId == endDescId, "The member does not have the component type.");
-  ComponentDescriptor& desc = mDescriptorBin[descId];
+  const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
+  if (descId == endDescId)
+  {
+    std::stringstream error;
+    error << member.mName << " (MemberId: " << memberId << ") does not have a "
+          << typeData.mName << " (TypeId: " << typeId << ") component.";
+    LogAbort(error.str().c_str());
+  }
+
+  // Remove all of the dependant components.
+  for (Comp::TypeId dependantId : typeData.mDependants)
+  {
+    if (HasComponent(dependantId, memberId))
+    {
+      RemComponent(dependantId, memberId);
+    }
+  }
 
   // Remove the old ComponentDescriptor from the member.
   Table& table = mTables.Get(typeId);
+  ComponentDescriptor& desc = mDescriptorBin[descId];
   table.Rem(desc.mTableIndex);
   if (descId == member.LastDescriptorId())
   {
@@ -509,7 +537,11 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
         LogAbort(error.str().c_str());
       }
 
-      void* component = AddComponent(typeId, memberId, false);
+      void* component = GetComponent(typeId, memberId);
+      if (component == nullptr)
+      {
+        component = AddComponent(typeId, memberId, false);
+      }
       typeData.mVDeserialize.Invoke(component, componentEx);
     }
   }

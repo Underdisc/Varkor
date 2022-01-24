@@ -64,10 +64,6 @@ struct Simple0
   {
     SetData(Comp::Type<Simple0>::smId);
   }
-  Simple0(int value)
-  {
-    SetData(value);
-  }
   void SetData(int value)
   {
     m0 = (float)value;
@@ -87,10 +83,6 @@ struct Simple1
   Simple1()
   {
     SetData(Comp::Type<Simple1>::smId);
-  }
-  Simple1(int value)
-  {
-    SetData(value);
   }
   void SetData(int value)
   {
@@ -112,10 +104,6 @@ struct Dynamic
   Dynamic(): m0(nullptr)
   {
     SetData(Comp::Type<Dynamic>::smId);
-  }
-  Dynamic(int value): m0(nullptr)
-  {
-    SetData(value);
   }
   Dynamic(const Dynamic& other): m0(nullptr)
   {
@@ -155,10 +143,6 @@ struct Container
   {
     SetData(Comp::Type<Container>::smId);
   }
-  Container(int value)
-  {
-    SetData(value);
-  }
   void SetData(int value)
   {
     mVector.Clear();
@@ -172,6 +156,24 @@ struct Container
     std::cout << mVector;
   }
 };
+
+struct Dependant
+{
+  int m0;
+
+  Dependant()
+  {
+    SetData(Comp::Type<Dependant>::smId);
+  }
+  void SetData(int value)
+  {
+    m0 = value;
+  }
+  void PrintData() const
+  {
+    std::cout << "[" << m0 << "]";
+  }
+};
 #pragma pack(pop)
 
 void RegisterComponentTypes()
@@ -181,6 +183,7 @@ void RegisterComponentTypes()
   Comp::Type<Simple1>::Register();
   Comp::Type<Dynamic>::Register();
   Comp::Type<Container>::Register();
+  Comp::Type<Dependant>::Register<CallCounter, Dynamic>();
 }
 
 #endif

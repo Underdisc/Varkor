@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "util/Utility.h"
 
 namespace Comp {
@@ -72,6 +74,7 @@ int CreateId();
 extern Ds::Vector<TypeData> nTypeData;
 
 template<typename T>
+template<typename... Dependencies>
 void Type<T>::Register()
 {
   LogAbortIf(smId != nInvalidTypeId, "Type already registered.");
@@ -80,6 +83,8 @@ void Type<T>::Register()
   TypeData data;
   data.mName = Util::GetShortTypename<T>();
   data.mSize = sizeof(T);
+  data.AddDependencies<T, Dependencies...>();
+
   data.mDefaultConstruct = &DefaultConstruct<T>;
   data.mCopyConstruct = &CopyConstruct<T>;
   data.mMoveConstruct = &MoveConstruct<T>;
@@ -88,12 +93,34 @@ void Type<T>::Register()
   BindVUpdate<T>(&data.mVUpdate);
   BindVSerialize<T>(&data.mVSerialize);
   BindVDeserialize<T>(&data.mVDeserialize);
+
   nTypeData.Push(data);
 }
+
+template<typename Dependant, typename Dependency, typename... Rest>
+void TypeData::AddDependencies()
+{
+  if (Type<Dependency>::smId == nInvalidTypeId)
+  {
+    std::stringstream error;
+    error << "Dependency of " << mName << " (TypeId: " << Type<Dependant>::smId
+          << ") not yet Registered.";
+    LogAbort(error.str().c_str());
+  }
+  mDependencies.Push(Type<Dependency>::smId);
+  TypeData& dependencyTypeData = nTypeData[Type<Dependency>::smId];
+  dependencyTypeData.mDependants.Push(Type<Dependant>::smId);
+  AddDependencies<Dependant, Rest...>();
+}
+
+template<typename Dependant>
+void TypeData::AddDependencies()
+{}
 
 template<typename T>
 const TypeData& GetTypeData()
 {
+  LogAbortIf(Type<T>::smId == nInvalidTypeId, "Type not registered.");
   return nTypeData[Type<T>::smId];
 }
 

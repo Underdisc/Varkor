@@ -30,10 +30,12 @@ public:
 
   Member();
   DescriptorId FirstDescriptorId() const;
+  DescriptorId LastDescriptorId() const;
   DescriptorId DescriptorCount() const;
   MemberId Parent() const;
   const Ds::Vector<MemberId>& Children() const;
   bool HasParent() const;
+  bool InUse() const;
   bool InUseRootMember() const;
 
 private:
@@ -46,9 +48,7 @@ private:
 
   void StartUse(DescriptorId firstDescId, const std::string& name);
   void EndUse();
-  bool InUse() const;
   DescriptorId EndDescriptorId() const;
-  DescriptorId LastDescriptorId() const;
 
   friend Space;
 };

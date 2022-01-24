@@ -7,6 +7,18 @@
 #include "world/Space.h"
 #include "world/Types.h"
 
+void Registration()
+{
+  std::cout << "<= Registration =>\n";
+  PrintRegistration<CallCounter>();
+  PrintRegistration<Simple0>();
+  PrintRegistration<Simple1>();
+  PrintRegistration<Dynamic>();
+  PrintRegistration<Container>();
+  PrintRegistration<Dependant>();
+  std::cout << "\n";
+}
+
 void CreateMember()
 {
   std::cout << "<= CreateMember =>" << std::endl;
@@ -297,6 +309,34 @@ void Duplicate()
   PrintSpaceDescriptorBin(space);
   PrintSpaceRelationships(space);
   PrintSpaceTestTypeComponentData(space);
+  std::cout << "\n";
+}
+
+void Dependencies()
+{
+  std::cout << "<= Dependencies =>\n";
+  World::Space space;
+
+  World::MemberId mem0 = space.CreateMember();
+  space.AddComponent<CallCounter>(mem0);
+  space.AddComponent<Dynamic>(mem0);
+  space.AddComponent<Dependant>(mem0);
+  World::MemberId mem1 = space.CreateMember();
+  space.AddComponent<Dependant>(mem1);
+  World::MemberId mem2 = space.CreateMember();
+  space.AddComponent<Dependant>(mem2);
+  std::cout << "=Add=\n";
+  PrintSpaceMembers(space);
+  PrintSpaceDescriptorBin(space);
+
+  space.RemComponent<CallCounter>(mem0);
+  space.RemComponent<Dynamic>(mem1);
+  space.RemComponent<Dependant>(mem2);
+  std::cout << "=Rem=\n";
+  PrintSpaceMembers(space);
+  PrintSpaceDescriptorBin(space);
+  CallCounter::Print();
+  CallCounter::Reset();
 }
 
 int main(void)
@@ -305,6 +345,7 @@ int main(void)
   RegisterComponentTypes();
   PrintKey();
 
+  Registration();
   CreateMember();
   DeleteMember();
   ParentChildMembers();
@@ -314,4 +355,5 @@ int main(void)
   GetComponent();
   HasComponent();
   Duplicate();
+  Dependencies();
 }
