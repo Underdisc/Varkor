@@ -47,6 +47,9 @@ struct TypeData
   void AddDependencies();
   template<typename Dependant>
   void AddDependencies();
+
+  std::string AssessmentHeader() const;
+  std::string DifferenceHeader() const;
 };
 
 template<typename T>

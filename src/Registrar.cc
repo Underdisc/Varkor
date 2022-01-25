@@ -30,10 +30,11 @@ namespace Registrar {
 
 void RegisterTypes()
 {
-  Register<Comp::Model>();
-  Register<Comp::Transform>();
-  Register<Comp::Sprite>();
-  Register<Comp::Text>();
+  using namespace Comp;
+  Register<Transform>();
+  Register<Model, Transform>();
+  Register<Sprite, Transform>();
+  Register<Text, Transform>();
 }
 
 void (*nRegisterCustomTypes)() = nullptr;
