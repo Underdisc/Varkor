@@ -345,13 +345,13 @@ void Value::PrintTrueValue(std::ostream& os) const
 
 void Value::PrintValueArray(std::ostream& os, std::string& indent) const
 {
+  if (mValueArray.Empty())
+  {
+    os << "[]";
+    return;
+  }
   if (BelowPackThreshold())
   {
-    if (mValueArray.Empty())
-    {
-      os << "[]";
-      return;
-    }
     os << "[";
     mValueArray[0].PrintValue(os, indent);
     for (size_t i = 1; i < mValueArray.Size(); ++i)
@@ -362,13 +362,13 @@ void Value::PrintValueArray(std::ostream& os, std::string& indent) const
     os << "]";
     return;
   }
-  os << "[";
   indent += "  ";
-  for (const Value& value : mValueArray)
+  os << "[\n" << indent;
+  mValueArray[0].PrintValue(os, indent);
+  for (size_t i = 1; i < mValueArray.Size(); ++i)
   {
-    os << "\n" << indent;
-    value.PrintValue(os, indent);
-    os << ",";
+    os << ",\n" << indent;
+    mValueArray[i].PrintValue(os, indent);
   }
   indent.erase(indent.size() - 2);
   os << "\n" << indent << "]";
