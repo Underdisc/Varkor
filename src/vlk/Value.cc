@@ -102,25 +102,23 @@ bool Value::BelowPackThreshold() const
 
 bool Value::ReachedThreshold(size_t& elementCount) const
 {
-  HardExpectType(Type::ValueArray);
-  if (mValueArray.Empty())
-  {
-    return false;
-  }
   const size_t countThreshold = 5;
-  if (mValueArray[0].mType == Type::TrueValue)
+  switch (mType)
   {
-    elementCount += mValueArray.Size();
-    return elementCount > countThreshold;
-  }
-  for (const Value& subValue : mValueArray)
-  {
-    if (subValue.ReachedThreshold(elementCount))
+  case Type::ValueArray:
+    for (const Value& subValue : mValueArray)
     {
-      return true;
+      if (subValue.ReachedThreshold(elementCount))
+      {
+        return true;
+      }
     }
+    return false;
+  case Type::PairArray: return true;
+  case Type::TrueValue: ++elementCount; return elementCount > countThreshold;
   }
-  return false;
+  LogAbort("Function expects an initialized Value.");
+  return true;
 }
 
 Result Value::Read(const char* filename)

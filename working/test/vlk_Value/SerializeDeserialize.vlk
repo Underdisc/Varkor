@@ -10,4 +10,14 @@
     :Key2: '2'
     :Key3: '3'
   }
+  :ArrayOfPairArrays: [
+    {
+      :Key0: '0'
+      :Key1: '1'
+    },
+    {
+      :Key0: '0'
+      :Key1: '1'
+    },
+  ]
 }

@@ -140,6 +140,32 @@
   }
 }
 
+<= ValueArrayPairArray =>
+{
+  :ValueArray: [
+    {
+      :PairA: 'ValueA'
+      :PairB: 'ValueB'
+    },
+    {
+      :PairA: 'ValueA'
+      :PairB: 'ValueB'
+    },
+    {
+      :PairA: 'ValueA'
+      :PairB: 'ValueB'
+    },
+    {
+      :PairA: 'ValueA'
+      :PairB: 'ValueB'
+    },
+    {
+      :PairA: 'ValueA'
+      :PairB: 'ValueB'
+    },
+  ]
+}
+
 <= SerializeDeserialize =>
 Integer: 5
 Floats: 
@@ -157,6 +183,13 @@ PairArray:
   Key1: 1
   Key2: 2
   Key3: 3
+ArrayOfPairArrays:
+  PairArray0:
+    Key0: 0
+    Key1: 1
+  PairArray1:
+    Key0: 0
+    Key1: 1
 
 <= Move =>
 '5'

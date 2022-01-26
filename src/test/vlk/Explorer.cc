@@ -3,9 +3,9 @@
 #include "vlk/Explorer.h"
 #include "vlk/Value.h"
 
-void Basic()
+void Deserialize()
 {
-  std::cout << "<= Basic =>\n";
+  std::cout << "<= Deserialize =>\n";
   Vlk::Value rootVal;
   rootVal.Read("../vlk_Value/SerializeDeserialize.vlk");
   Vlk::Explorer rootEx(rootVal);
@@ -20,10 +20,11 @@ void Basic()
   std::cout << "Invalid Size: " << rootEx("Invalid").Size() << "\n";
   std::cout << "PairArray Size: " << rootEx(3).Size() << "\n";
   std::cout << "PairArray Key: " << rootEx(3).Key() << "\n";
+  std::cout << "Other Key: " << rootEx("ArrayOfPairArrays")[1](1).Key() << "\n";
   std::cout << std::endl;
 }
 
 int main()
 {
-  Basic();
+  Deserialize();
 }

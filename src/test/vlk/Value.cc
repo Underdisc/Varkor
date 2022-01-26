@@ -119,6 +119,20 @@ void MultidimensionalArrays()
   std::cout << std::endl;
 }
 
+void ValueArrayPairArray()
+{
+  std::cout << "<= ValueArrayPairArray =>\n";
+  Vlk::Value rootVal;
+  Vlk::Value& valueArrayVal = rootVal("ValueArray")[{5}];
+  for (int i = 0; i < 5; ++i)
+  {
+    valueArrayVal[i]("PairA") = "ValueA";
+    valueArrayVal[i]("PairB") = "ValueB";
+  }
+  PrintParsePrint(rootVal);
+  std::cout << "\n";
+}
+
 void SerializeDeserialize()
 {
   std::cout << "<= SerializeDeserialize =>" << std::endl;
@@ -131,6 +145,7 @@ void SerializeDeserialize()
     floats[0] = 1;
     floats[1] = 11.34f;
     floats[2] = -3.1415f;
+
     Vlk::Value& containerVal = rootVal("Container");
     Vlk::Value& stringsVal = containerVal("Strings")[{3}];
     stringsVal[0][{2}];
@@ -141,11 +156,19 @@ void SerializeDeserialize()
     stringsVal[1][1] = std::string("stringy");
     stringsVal[2][{1}];
     stringsVal[2][0] = "thingy";
+
     Vlk::Value& pairArrayVal = rootVal("PairArray");
     pairArrayVal("Key0") = 0;
     pairArrayVal("Key1") = 1;
     pairArrayVal("Key2") = 2;
     pairArrayVal("Key3") = 3;
+
+    Vlk::Value& arrayOfPairArraysVal = rootVal("ArrayOfPairArrays")[{2}];
+    for (size_t i = 0; i < 2; ++i)
+    {
+      arrayOfPairArraysVal[i]("Key0") = 0;
+      arrayOfPairArraysVal[i]("Key1") = 1;
+    }
     Result result = rootVal.Write(filename);
     LogAbortIf(!result.Success(), result.mError.c_str());
   }
@@ -162,6 +185,7 @@ void SerializeDeserialize()
     {
       std::cout << "  " << floats.TryGetValue(i)->As<float>() << std::endl;
     }
+
     const Vlk::Pair& strings =
       *rootVal.TryGetPair("Container")->TryGetPair("Strings");
     std::cout << strings.Key() << ": " << std::endl;
@@ -172,12 +196,27 @@ void SerializeDeserialize()
         std::cout << "  " << strings[i][j].As<std::string>() << std::endl;
       }
     }
+
     const Vlk::Pair& pairArray = *rootVal.TryGetPair("PairArray");
     std::cout << pairArray.Key() << ": " << std::endl;
     for (size_t i = 0; i < pairArray.Size(); ++i)
     {
       std::cout << "  " << pairArray.TryGetPair(i)->Key() << ": "
                 << pairArray(i).As<int>() << std::endl;
+    }
+
+    const Vlk::Pair& arrayOfPairArrays =
+      *rootVal.TryGetPair("ArrayOfPairArrays");
+    std::cout << arrayOfPairArrays.Key() << ":\n";
+    for (size_t i = 0; i < arrayOfPairArrays.Size(); ++i)
+    {
+      const Vlk::Value& elementPairArray = arrayOfPairArrays[i];
+      std::cout << "  PairArray" << i << ":\n";
+      for (size_t j = 0; j < elementPairArray.Size(); ++j)
+      {
+        std::cout << "    " << elementPairArray.TryGetPair(j)->Key() << ": "
+                  << elementPairArray(j).As<int>() << "\n";
+      }
     }
   }
   std::cout << std::endl;
@@ -246,6 +285,7 @@ int main()
   ValueArray();
   PairArray();
   MultidimensionalArrays();
+  ValueArrayPairArray();
   SerializeDeserialize();
   Move();
   Errors();

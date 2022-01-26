@@ -9,7 +9,7 @@
 // Value = PairArray | ValueArray | <TrueValue>
 // PairArray = <OpenBrace> Pair* <CloseBrace>
 // ValueArray = <OpenBracket> (ValueList | ValueArrayList)? <CloseBracket>
-// Pair = <Key> (Value)
+// Pair = <Key> Value
 // ValueList = Value (<Comma> Value)* <Comma>?
 // ValueArrayList = ValueArray (<Comma> ValueArray)* <Comma>?
 
@@ -94,15 +94,14 @@ bool Parser::ParseValue()
   {
     return ParsePairArray() || ParseValueArray();
   }
-  if (mValueStack.Top()->mType == Value::Type::Invalid)
+  if (mValueStack.Top()->mType == Value::Type::ValueArray)
+  {
+    mValueStack.Top()->mValueArray.Emplace(Value::Type::TrueValue);
+    mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
+  } else
   {
     mValueStack.Top()->Init(Value::Type::TrueValue);
     mValueStack.Push(mValueStack.Top());
-  } else
-  {
-    mValueStack.Top()->HardExpectType(Value::Type::ValueArray);
-    mValueStack.Top()->mValueArray.Emplace(Value::Type::TrueValue);
-    mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
   }
   const Token& valueToken = LastToken();
   std::string& trueValue = mValueStack.Top()->mTrueValue;
@@ -127,9 +126,18 @@ bool Parser::ParsePairArray()
   {
     return false;
   }
-  mValueStack.Top()->Init(Value::Type::PairArray);
+  if (mValueStack.Top()->mType == Value::Type::ValueArray)
+  {
+    mValueStack.Top()->mValueArray.Emplace(Value::Type::PairArray);
+    mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
+  } else
+  {
+    mValueStack.Top()->Init(Value::Type::PairArray);
+    mValueStack.Push(mValueStack.Top());
+  }
   while (ParsePair())
   {}
+  mValueStack.Pop();
   Expect(Token::Type::CloseBrace, "Expected } or Pair.");
   return true;
 }
@@ -140,15 +148,14 @@ bool Parser::ParseValueArray()
   {
     return false;
   }
-  if (mValueStack.Top()->mType == Value::Type::Invalid)
+  if (mValueStack.Top()->mType == Value::Type::ValueArray)
+  {
+    mValueStack.Top()->mValueArray.Emplace(Value::Type::ValueArray);
+    mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
+  } else
   {
     mValueStack.Top()->Init(Value::Type::ValueArray);
     mValueStack.Push(mValueStack.Top());
-  } else
-  {
-    mValueStack.Top()->HardExpectType(Value::Type::ValueArray);
-    mValueStack.Top()->mValueArray.Emplace(Value::Type::ValueArray);
-    mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
   }
   ParseValueList() || ParseValueArrayList();
   mValueStack.Pop();
