@@ -32,80 +32,113 @@ TypeId GetTypeId(const std::string& typeName)
       return typeId;
     }
   }
-  std::string error;
-  error += typeName + " does not have a TypeId.";
-  LogAbort(error.c_str());
   return nInvalidTypeId;
 }
 
-std::string TypeData::AssessmentHeader() const
+std::string AssessmentHeader(TypeId id)
 {
-  std::stringstream error;
-  error << mName << " component assessment: ";
-  return error.str();
+  const TypeData& typeData = GetTypeData(id);
+  std::stringstream header;
+  header << "Component " << id << " (" << typeData.mName << ") assessment: ";
+  return header.str();
 }
 
-std::string TypeData::DifferenceHeader() const
+std::string DifferenceHeader(TypeId id)
 {
-  std::stringstream error;
-  error << AssessmentHeader() << "Live and saved difference: ";
-  return error.str();
+  std::stringstream header;
+  header << AssessmentHeader(id) << "Live versus saved difference: ";
+  return header.str();
 }
 
-void AssessSize(const TypeData& typeData, const Vlk::Explorer& compEx)
+void AssessName(TypeId id, const Vlk::Explorer& compEx)
+{
+  Vlk::Explorer nameEx = compEx("Name");
+  if (!nameEx.Valid())
+  {
+    std::stringstream error;
+    error << AssessmentHeader(id) << "Missing Name field.";
+    LogError(error.str().c_str());
+    return;
+  }
+
+  const TypeData& typeData = GetTypeData(id);
+  std::string name = nameEx.As<std::string>();
+  if (typeData.mName != name)
+  {
+    std::stringstream error;
+    error << DifferenceHeader(id) << "Live Name: " << typeData.mName
+          << ", Saved Name: " << name;
+    LogError(error.str().c_str());
+  }
+}
+
+void AssessSize(TypeId id, const Vlk::Explorer& compEx)
 {
   Vlk::Explorer sizeEx = compEx("Size");
   if (!sizeEx.Valid())
   {
     std::stringstream error;
-    error << typeData.AssessmentHeader() << "Missing Size field.";
+    error << AssessmentHeader(id) << "Missing Size field.";
     LogError(error.str().c_str());
     return;
   }
 
+  const TypeData& typeData = GetTypeData(id);
   size_t size = sizeEx.As<size_t>();
-  if (size != typeData.mSize)
+  if (typeData.mSize != size)
   {
     std::stringstream error;
-    error << typeData.DifferenceHeader() << "(Live Size: " << typeData.mSize
-          << "), (Saved Size: " << size << ")";
+    error << DifferenceHeader(id) << "Live Size: " << typeData.mSize
+          << ", Saved Size: " << size;
     LogError(error.str().c_str());
   }
 }
 
-void AssessDependencies(const TypeData& typeData, const Vlk::Explorer& compEx)
+void AssessDependencies(TypeId id, const Vlk::Explorer& compEx)
 {
   Vlk::Explorer dependenciesEx = compEx("Dependencies");
   if (!dependenciesEx.Valid())
   {
     std::stringstream error;
-    error << typeData.AssessmentHeader() << "Missing Dependencies field.";
+    error << AssessmentHeader(id) << "Missing Dependencies field.";
     LogError(error.str().c_str());
     return;
   }
 
+  const TypeData& typeData = GetTypeData(id);
+  // Find saved dependencies that do not exist on the live component.
   Ds::Vector<TypeId> savedIds;
   for (int i = 0; i < dependenciesEx.Size(); ++i)
   {
     const std::string& dependencyName = dependenciesEx[i].As<std::string>();
     TypeId savedId = GetTypeId(dependencyName);
+    if (savedId == nInvalidTypeId)
+    {
+      std::stringstream error;
+      error << AssessmentHeader(id) << "Saved " << dependencyName
+            << " dependency is not an existing component's name.";
+      LogError(error.str().c_str());
+      continue;
+    }
     savedIds.Push(savedId);
     if (!typeData.mDependencies.Contains(savedId))
     {
       std::stringstream error;
-      error << typeData.DifferenceHeader() << "Live missing " << dependencyName
-            << " dependency.";
+      error << DifferenceHeader(id) << "Live missing " << savedId << " ("
+            << dependencyName << ") dependency.";
       LogError(error.str().c_str());
     }
   }
-  for (TypeId liveDependencyId : typeData.mDependencies)
+
+  // Find live dependencies that do not exist of the saved component.
+  for (TypeId liveId : typeData.mDependencies)
   {
-    if (!savedIds.Contains(liveDependencyId))
+    if (!savedIds.Contains(liveId))
     {
-      const TypeData& dependencyTypeData = GetTypeData(liveDependencyId);
+      const TypeData& dependencyTypeData = GetTypeData(liveId);
       std::stringstream error;
-      error << typeData.DifferenceHeader() << "Saved missing "
-            << dependencyTypeData.mName << " dependency.";
+      error << DifferenceHeader(id) << "Saved missing " << liveId << " ("
+            << dependencyTypeData.mName << ") dependency.";
       LogError(error.str().c_str());
     }
   }
@@ -133,30 +166,22 @@ void AssessComponentsFile()
   }
   nVersion = versionEx.As<int>();
 
-  // Display errors that show missing information or any changes to components.
-  for (TypeId id = 0; id < TypeDataCount(); ++id)
+  if (componentsEx.Size() != TypeDataCount())
   {
-    const TypeData& typeData = GetTypeData(id);
-    Vlk::Explorer componentEx = componentsEx(id);
-    if (!componentEx.Valid())
-    {
-      std::stringstream error;
-      error << "The \"" << typeData.mName
-            << "\" component had no entry saved at Id (" << id << ").";
-      LogError(error.str().c_str());
-      continue;
-    }
-    if (componentEx.Key() != typeData.mName)
-    {
-      std::stringstream error;
-      error << "The \"" << typeData.mName
-            << "\" component's name differed from the saved name \""
-            << componentEx.Key() << "\" at Id (" << id << ").";
-      LogError(error.str().c_str());
-      continue;
-    }
-    AssessSize(typeData, componentEx);
-    AssessDependencies(typeData, componentEx);
+    std::stringstream error;
+    error << "Component assessment: Live and saved difference: "
+          << TypeDataCount() << " live components and " << componentsEx.Size()
+          << " saved components.";
+    LogError(error.str().c_str());
+  }
+
+  // Display errors that show missing information and component differences.
+  for (TypeId id = 0; id < componentsEx.Size(); ++id)
+  {
+    Vlk::Explorer compEx = componentsEx[id];
+    AssessName(id, compEx);
+    AssessSize(id, compEx);
+    AssessDependencies(id, compEx);
   }
 }
 
@@ -164,16 +189,18 @@ void SaveComponentsFile()
 {
   Vlk::Value rootVal;
   rootVal("Version") = nVersion;
-  Vlk::Value& componentsVal = rootVal("Components");
+  Vlk::Value& componentsVal = rootVal("Components")[{TypeDataCount()}];
   for (TypeId id = 0; id < TypeDataCount(); ++id)
   {
     const TypeData& typeData = GetTypeData(id);
-    Vlk::Value& typeDataVal = componentsVal(typeData.mName);
-    typeDataVal("Size") = typeData.mSize;
+    Vlk::Value& compVal = componentsVal[id];
+    compVal("Id") = id;
+    compVal("Name") = typeData.mName;
+    compVal("Size") = typeData.mSize;
     // Save the dependencies. We don't save dependants because they can be
     // inferred from the dependencies.
     Vlk::Value& dependenciesVal =
-      typeDataVal("Dependencies")[{typeData.mDependencies.Size()}];
+      compVal("Dependencies")[{typeData.mDependencies.Size()}];
     for (size_t i = 0; i < typeData.mDependencies.Size(); ++i)
     {
       TypeId typeId = typeData.mDependencies[i];

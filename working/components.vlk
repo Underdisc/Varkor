@@ -1,21 +1,29 @@
 {
-  :Version: '5'
-  :Components: {
-    :Transform: {
+  :Version: '6'
+  :Components: [
+    {
+      :Id: '0'
+      :Name: 'Transform'
       :Size: '105'
       :Dependencies: []
-    }
-    :Model: {
+    },
+    {
+      :Id: '1'
+      :Name: 'Model'
       :Size: '8'
       :Dependencies: ['Transform']
-    }
-    :Sprite: {
+    },
+    {
+      :Id: '2'
+      :Name: 'Sprite'
       :Size: '8'
       :Dependencies: ['Transform']
-    }
-    :Text: {
+    },
+    {
+      :Id: '3'
+      :Name: 'Text'
       :Size: '68'
       :Dependencies: ['Transform']
     }
-  }
+  ]
 }

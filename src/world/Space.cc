@@ -528,6 +528,12 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
     {
       Vlk::Explorer componentEx = componentsEx(i);
       Comp::TypeId typeId = Comp::GetTypeId(componentEx.Key());
+      if (typeId == Comp::nInvalidTypeId)
+      {
+        std::stringstream error;
+        error << "There is no component named " << componentEx.Key() << ".";
+        LogAbort(error.str().c_str());
+      }
       const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
       if (!typeData.mVDeserialize.Open())
       {
