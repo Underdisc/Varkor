@@ -3,7 +3,9 @@
 
 namespace Temporal {
 
+void Update();
 float DeltaTime();
+float TotalTime();
 
 } // namespace Temporal
 

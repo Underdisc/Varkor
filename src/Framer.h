@@ -19,8 +19,7 @@ void SetFrameAverageCount(int count);
 bool VSyncEnabled();
 bool FramerateUncapped();
 
-float DeltaTime();
-float TotalTime();
+float FrameTime();
 float GetAverageFrameUsage();
 float GetAverageFps();
 int GetFramerate();

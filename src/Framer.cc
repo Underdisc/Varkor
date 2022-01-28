@@ -32,8 +32,7 @@ constexpr int nUncappedValue = 0;
 constexpr int nDefaultFramerate = 60;
 Nanoseconds nTargetFrameTimeNano;
 
-float nDeltaTime = 0.0f;
-float nTotalTime = 0.0f;
+float nFrameTime = 0.0f;
 Clock::time_point nStartTime;
 
 // These are used for tracking and updating average fps and frame usage values.
@@ -103,11 +102,10 @@ void End()
   }
 
   Nanoseconds fullTime = endTime - nStartTime;
-  nDeltaTime = (float)fullTime.count() / (float)Nanoseconds::period::den;
-  float fps = 1.0f / nDeltaTime;
+  nFrameTime = (float)fullTime.count() / (float)Nanoseconds::period::den;
+  float fps = 1.0f / nFrameTime;
   nPreviousFpsValues.Pop();
   nPreviousFpsValues.Insert(0, fps);
-  nTotalTime += nDeltaTime;
 
   Nanoseconds sinceAverageUpdate = endTime - nLastAverageUpdateTime;
   float AverageUpdateDelta =
@@ -171,14 +169,9 @@ bool FramerateUncapped()
   return nFramerate == nUncappedValue;
 }
 
-float DeltaTime()
+float FrameTime()
 {
-  return nDeltaTime;
-}
-
-float TotalTime()
-{
-  return nTotalTime;
+  return nFrameTime;
 }
 
 float GetAverageFrameUsage()

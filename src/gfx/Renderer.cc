@@ -1,8 +1,8 @@
 #include <glad/glad.h>
 
 #include "AssetLibrary.h"
-#include "Framer.h"
 #include "Input.h"
+#include "Temporal.h"
 #include "Viewport.h"
 #include "comp/Model.h"
 #include "comp/Sprite.h"
@@ -262,7 +262,7 @@ void RenderSpace(
       glUniformMatrix4fv(viewLoc, 1, true, view.CData());
       glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
       glUniform3fv(viewPosLoc, 1, viewPos.CData());
-      glUniform1f(timeLoc, Framer::TotalTime());
+      glUniform1f(timeLoc, Temporal::TotalTime());
 
       Mat4 memberTransformation = GetTransformation(space, owner);
       for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo())

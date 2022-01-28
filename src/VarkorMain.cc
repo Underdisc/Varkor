@@ -5,6 +5,7 @@
 #include "Options.h"
 #include "Registrar.h"
 #include "Result.h"
+#include "Temporal.h"
 #include "Viewport.h"
 #include "debug/Draw.h"
 #include "editor/Editor.h"
@@ -35,9 +36,10 @@ void VarkorRun()
   while (Viewport::Active() || AssetLibrary::InitThreadOpen())
   {
     Framer::Start();
+    Temporal::Update();
+
     Input::Update();
     Gfx::Renderer::Clear();
-
     Editor::Run();
     World::Update();
     if (!Editor::nEditorMode)
@@ -49,6 +51,7 @@ void VarkorRun()
     Viewport::SwapBuffers();
     Viewport::Update();
     AssetLibrary::HandleAssetLoading();
+
     Framer::End();
   }
 }
