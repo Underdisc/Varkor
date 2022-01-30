@@ -11,6 +11,7 @@ function(AddTest target)
     OUTPUT_NAME "test")
 endfunction()
 
+Addtest(ds_List ds/List.cc ds/TestType.cc)
 Addtest(ds_Map ds/Map.cc ds/TestType.cc)
 Addtest(ds_RbTree ds/RbTree.cc ds/TestType.cc)
 AddTest(ds_Vector ds/Vector.cc ds/TestType.cc)

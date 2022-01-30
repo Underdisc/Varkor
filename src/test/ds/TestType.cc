@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "TestType.h"
 
 int TestType::smDefaultConstructorCount = 0;
@@ -80,6 +82,18 @@ void TestType::ResetCounts()
   smDestructorCount = 0;
   smCopyAssignmentCount = 0;
   smMoveAssignmentCount = 0;
+}
+
+void TestType::PrintCounts()
+{
+  std::cout << "-Counts-\n"
+            << "DefaultConstructor: " << smDefaultConstructorCount << "\n"
+            << "Constructor: " << smConstructorCount << "\n"
+            << "CopyConstructor: " << smCopyConstructorCount << "\n"
+            << "MoveConstructor: " << smMoveConstructorCount << "\n"
+            << "Destructor: " << smDestructorCount << "\n"
+            << "CopyAssignment: " << smCopyAssignmentCount << "\n"
+            << "MoveAssignment: " << smMoveAssignmentCount << "\n";
 }
 
 std::ostream& operator<<(std::ostream& os, const TestType& rhs)

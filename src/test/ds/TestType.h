@@ -16,8 +16,9 @@ struct TestType
   TestType& operator=(TestType&& other);
   bool operator>(const TestType& other);
   bool operator<(const TestType& other);
-  static void ResetCounts();
 
+  static void ResetCounts();
+  static void PrintCounts();
   static int smDefaultConstructorCount;
   static int smConstructorCount;
   static int smCopyConstructorCount;

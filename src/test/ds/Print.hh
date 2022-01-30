@@ -26,6 +26,30 @@ std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector)
   return os;
 }
 
+template<typename T>
+void PrintList(const Ds::List<T>& list)
+{
+  std::cout << "-List-\n";
+  std::cout << "Size: " << list.Size();
+  const size_t rowCount = 5;
+  size_t elementIndex = 0;
+  for (const T& value : list)
+  {
+    size_t columnIndex = elementIndex % rowCount;
+    if (columnIndex == 0)
+    {
+      std::cout << "\n"
+                << std::setfill('0') << std::setw(2) << elementIndex << ": ";
+    } else
+    {
+      std::cout << ", ";
+    }
+    std::cout << value;
+    ++elementIndex;
+  }
+  std::cout << "\n";
+}
+
 struct BTreeIndenter
 {
   BTreeIndenter(): mDepth(0), mIndent("") {}
