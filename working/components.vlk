@@ -1,5 +1,5 @@
 {
-  :Version: '6'
+  :Version: '7'
   :Components: [
     {
       :Id: '0'
@@ -24,6 +24,12 @@
       :Name: 'Text'
       :Size: '68'
       :Dependencies: ['Transform']
+    },
+    {
+      :Id: '4'
+      :Name: 'AlphaColor'
+      :Size: '16'
+      :Dependencies: []
     }
   ]
 }

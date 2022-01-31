@@ -15,13 +15,14 @@
 #include "comp/Type.h"
 
 // clang-format off
-#include "comp/Model.h"
 #include "comp/Transform.h"
+#include "comp/Model.h"
 #include "comp/Sprite.h"
 #include "comp/Text.h"
+#include "comp/AlphaColor.h"
 
-#include "editor/hook/Model.h"
 #include "editor/hook/Transform.h"
+#include "editor/hook/Model.h"
 #include "editor/hook/Sprite.h"
 #include "editor/hook/Text.h"
 // clang-format on
@@ -35,6 +36,7 @@ void RegisterTypes()
   Register<Model, Transform>();
   Register<Sprite, Transform>();
   Register<Text, Transform>();
+  Register<AlphaColor>();
 }
 
 void (*nRegisterCustomTypes)() = nullptr;

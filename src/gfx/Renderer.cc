@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "Temporal.h"
 #include "Viewport.h"
+#include "comp/AlphaColor.h"
 #include "comp/Model.h"
 #include "comp/Sprite.h"
 #include "comp/Text.h"
@@ -263,6 +264,14 @@ void RenderSpace(
       glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
       glUniform3fv(viewPosLoc, 1, viewPos.CData());
       glUniform1f(timeLoc, Temporal::TotalTime());
+      Comp::AlphaColor* alphaColorComp =
+        space.GetComponent<Comp::AlphaColor>(owner);
+      if (alphaColorComp != nullptr)
+      {
+        GLint alphaColorLoc =
+          shader->UniformLocation(Uniform::Type::AlphaColor);
+        glUniform4fv(alphaColorLoc, 1, alphaColorComp->mAlphaColor.CData());
+      }
 
       Mat4 memberTransformation = GetTransformation(space, owner);
       for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo())
