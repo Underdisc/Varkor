@@ -55,12 +55,12 @@ Result Model::Init(const std::string& file)
   if (!sceneCreated || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE)
   {
     std::stringstream error;
-    error << "Failed to load " << file << ":" << importer.GetErrorString();
+    error << "Failed to load \"" << file << "\": " << importer.GetErrorString();
     return Result(error.str());
   } else if (scene->mNumMeshes == 0)
   {
     std::stringstream error;
-    error << "Failed to load " << file << ": There was no model data.";
+    error << "Failed to load \"" << file << "\": There was no model data.";
     return Result(error.str());
   }
 
