@@ -81,4 +81,9 @@ void Update()
   }
 }
 
+void Purge()
+{
+  nSpaces.Clear();
+}
+
 } // namespace World

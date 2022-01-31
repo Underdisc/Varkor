@@ -25,6 +25,7 @@ SpaceId CreateSpace();
 ValueResult<SpaceId> LoadSpace(const char* filename);
 Space& GetSpace(SpaceId id);
 void Update();
+void Purge();
 
 } // namespace World
 

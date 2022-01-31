@@ -58,6 +58,7 @@ void VarkorRun()
 
 void VarkorPurge()
 {
+  World::Purge();
   AssetLibrary::Purge();
   Framer::Purge();
   Editor::Purge();
