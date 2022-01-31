@@ -34,8 +34,8 @@ bool SpaceVisitor::End()
 }
 
 // Function pointers for calling into project code.
-void (*CentralUpdate)() = nullptr;
-void (*SpaceUpdate)(const Space& space, SpaceId spaceId) = nullptr;
+void (*nCentralUpdate)() = nullptr;
+void (*nSpaceUpdate)(const Space& space, SpaceId spaceId) = nullptr;
 
 SpaceId CreateSpace()
 {
@@ -75,9 +75,17 @@ Space& GetSpace(SpaceId id)
 
 void Update()
 {
+  if (nCentralUpdate != nullptr)
+  {
+    nCentralUpdate();
+  }
   for (int i = 0; i < nSpaces.Size(); ++i)
   {
     nSpaces[i].Update((SpaceId)i);
+    if (nSpaceUpdate != nullptr)
+    {
+      nSpaceUpdate(nSpaces[i], (SpaceId)i);
+    }
   }
 }
 

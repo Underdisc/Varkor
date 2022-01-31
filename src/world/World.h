@@ -21,6 +21,9 @@ private:
   SpaceId mCurrentSpace;
 };
 
+extern void (*nCentralUpdate)();
+extern void (*nSpaceUpdate)(const Space& space, SpaceId spaceId);
+
 SpaceId CreateSpace();
 ValueResult<SpaceId> LoadSpace(const char* filename);
 Space& GetSpace(SpaceId id);
