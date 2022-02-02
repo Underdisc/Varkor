@@ -9,10 +9,10 @@ Size: 20
 Size: 0
 -Counts-
 DefaultConstructor: 0
-Constructor: 20
-CopyConstructor: 0
-MoveConstructor: 20
-Destructor: 40
+Constructor: 10
+CopyConstructor: 20
+MoveConstructor: 0
+Destructor: 30
 CopyAssignment: 0
 MoveAssignment: 0
 
@@ -37,12 +37,11 @@ CopyAssignment: 0
 MoveAssignment: 0
 
 <= Iter =>
--ListNonConstIter-
-[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
--List-
-Size: 0
+List: [[4, 4], 3, 2, 1, 0]
+List: [[4, 4], 3, 2, 1, 0]
+Empty: 1
 
-<= Emplace =>
+<= EmplaceBackFront =>
 -List-
 Size: 20
 00: [9, 9], [8, 8], [7, 7], [6, 6], [5, 5]
@@ -71,6 +70,59 @@ Constructor: 10
 CopyConstructor: 0
 MoveConstructor: 20
 Destructor: 30
+CopyAssignment: 0
+MoveAssignment: 0
+
+<= Insert =>
+-List-
+Size: 35
+00: [0, 0], [0, 0], [0, 0], [1, 1], [1, 1]
+05: [1, 1], [2, 2], [2, 2], [2, 2], [3, 3]
+10: [3, 3], [3, 3], [4, 4], [4, 4], [4, 4]
+15: [5, 5], [5, 5], [5, 5], [6, 6], [6, 6]
+20: [6, 6], [7, 7], [7, 7], [7, 7], [8, 8]
+25: [8, 8], [8, 8], [9, 9], [9, 9], [9, 9]
+30: [0, 0], [1, 1], [2, 2], [3, 3], [4, 4]
+-Counts-
+DefaultConstructor: 0
+Constructor: 15
+CopyConstructor: 20
+MoveConstructor: 15
+Destructor: 50
+CopyAssignment: 0
+MoveAssignment: 0
+
+<= Emplace =>
+-List-
+Size: 20
+00: [9, 9], [0, 0], [8, 8], [1, 1], [7, 7]
+05: [2, 2], [6, 6], [3, 3], [5, 5], [4, 4]
+10: [4, 4], [5, 5], [3, 3], [6, 6], [2, 2]
+15: [7, 7], [1, 1], [8, 8], [0, 0], [9, 9]
+-Counts-
+DefaultConstructor: 0
+Constructor: 20
+CopyConstructor: 0
+MoveConstructor: 10
+Destructor: 30
+CopyAssignment: 0
+MoveAssignment: 0
+
+<= Erase =>
+-List-
+Size: 5
+00: [1, 1], [3, 3], [5, 5], [7, 7], [9, 9]
+-List-
+Size: 4
+00: [1, 1], [3, 3], [5, 5], [7, 7]
+-List-
+Size: 0
+-Counts-
+DefaultConstructor: 0
+Constructor: 10
+CopyConstructor: 0
+MoveConstructor: 0
+Destructor: 10
 CopyAssignment: 0
 MoveAssignment: 0
 

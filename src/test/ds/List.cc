@@ -13,8 +13,9 @@ void Push()
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i)
   {
-    list.PushBack(TestType(i));
-    list.PushFront(TestType(i));
+    TestType testType(i);
+    list.PushBack(testType);
+    list.PushFront(testType);
   }
   PrintList(list);
   list.Clear();
@@ -53,32 +54,46 @@ void Pop()
 void Iter()
 {
   std::cout << "<= Iter =>\n";
-  Ds::List<int> list;
-  for (int i = 0; i < 10; ++i)
+  Ds::List<TestType> list;
+  for (int i = 0; i < 5; ++i)
   {
-    list.PushFront(i);
+    list.EmplaceFront(i);
   }
+
+  // Print elements using a const iterator.
+  auto cIt = list.cbegin();
+  auto cItE = list.cend();
+  std::cout << "List: [" << *cIt;
+  ++cIt;
+  while (cIt != cItE)
+  {
+    std::cout << ", " << cIt->mA;
+    ++cIt;
+  }
+  std::cout << "]\n";
+
+  // Print elements using a non-const iterator.
   auto it = list.begin();
   auto itE = list.end();
-  std::cout << "-ListNonConstIter-\n";
-  std::cout << "[" << *it;
+  std::cout << "List: [" << *it;
   ++it;
   while (it != itE)
   {
-    std::cout << ", " << *it;
+    std::cout << ", " << it->mA;
     ++it;
   }
   std::cout << "]\n";
-  for (int i = 0; i < 10; ++i)
+
+  for (int i = 0; i < 5; ++i)
   {
     list.PopFront();
   }
-  PrintList(list);
+  std::cout << "Empty: " << (list.begin() == list.end()) << "\n";
 }
 
-void Emplace()
+void EmplaceBackFront()
 {
-  std::cout << "<= Emplace =>\n";
+  std::cout << "<= EmplaceBackFront =>\n";
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i)
   {
@@ -105,6 +120,93 @@ void MovePush()
   TestType::PrintCounts();
 }
 
+void Insert()
+{
+  std::cout << "<= Insert =>\n";
+  Ds::List<TestType> list;
+  for (int i = 0; i < 10; ++i)
+  {
+    list.EmplaceBack(i);
+  }
+  auto it = list.begin();
+  auto itE = list.end();
+  while (it != itE)
+  {
+    TestType testType(*it);
+    list.Insert(it, testType);
+    list.Insert(it, Util::Move(testType));
+    ++it;
+  }
+  for (int i = 0; i < 5; ++i)
+  {
+    list.Insert(list.end(), TestType(i));
+  }
+  PrintList(list);
+  list.Clear();
+  TestType::PrintCounts();
+}
+
+void Emplace()
+{
+  std::cout << "<= Emplace =>\n";
+  Ds::List<TestType> list;
+  for (int i = 0; i < 10; ++i)
+  {
+    list.EmplaceBack(TestType(i));
+  }
+  int newValue = 9;
+  auto it = list.begin();
+  auto itE = list.end();
+  while (it != itE)
+  {
+    list.Emplace(it, newValue);
+    ++it;
+    --newValue;
+  }
+  PrintList(list);
+  list.Clear();
+  TestType::PrintCounts();
+}
+
+void Erase()
+{
+  std::cout << "<= Erase =>\n";
+  Ds::List<TestType> list;
+  for (int i = 0; i < 10; ++i)
+  {
+    list.EmplaceBack(i);
+  }
+
+  // Erase every other element.
+  auto it = list.begin();
+  auto itE = list.end();
+  while (it != itE)
+  {
+    it = list.Erase(it);
+    ++it;
+  }
+  PrintList(list);
+
+  // Erase the last element.
+  it = list.begin();
+  for (int i = 0; i < 4; ++i)
+  {
+    ++it;
+  }
+  it = list.Erase(it);
+  LogAbortIf(it != list.end(), "Iterator must be the end of the list.");
+  PrintList(list);
+
+  // Erase the remaining elements.
+  it = list.begin();
+  while (it != itE)
+  {
+    it = list.Erase(it);
+  }
+  PrintList(list);
+  TestType::PrintCounts();
+}
+
 void RunTest(void (*testFunction)())
 {
   TestType::ResetCounts();
@@ -118,6 +220,9 @@ void main()
   RunTest(Push);
   RunTest(Pop);
   RunTest(Iter);
-  RunTest(Emplace);
+  RunTest(EmplaceBackFront);
   RunTest(MovePush);
+  RunTest(Insert);
+  RunTest(Emplace);
+  RunTest(Erase);
 }

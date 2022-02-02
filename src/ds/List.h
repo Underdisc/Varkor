@@ -6,22 +6,6 @@ namespace Ds {
 template<typename T>
 struct List
 {
-public:
-  List();
-  ~List();
-  void PushBack(const T& value);
-  void PushFront(const T& value);
-  void PushBack(T&& value);
-  void PushFront(T&& value);
-  template<typename... Args>
-  void EmplaceBack(Args&&... args);
-  template<typename... Args>
-  void EmplaceFront(Args&&... args);
-  void PopBack();
-  void PopFront();
-  void Clear();
-  size_t Size() const;
-
 private:
   struct Node
   {
@@ -34,8 +18,6 @@ private:
     Node* mNext;
     Node* mPrev;
   };
-  void PushNodeBack(Node* newNode);
-  void PushNodeFront(Node* newNode);
 
   Node* mHead;
   Node* mTail;
@@ -45,31 +27,67 @@ private:
   {
   public:
     void operator++();
-    bool operator==(const IterBase& other);
-    bool operator!=(const IterBase& other);
+    bool operator==(const IterBase& other) const;
+    bool operator!=(const IterBase& other) const;
 
   protected:
-    void VerifyCurrent();
+    IterBase(Node* current);
+    void VerifyCurrent() const;
     Node* mCurrent;
-
     friend List<T>;
   };
 
 public:
   struct Iter: IterBase
   {
-    T& operator*();
-    T* operator->();
+  public:
+    T& operator*() const;
+    T* operator->() const;
+
+  private:
+    Iter(Node* current);
+    friend List<T>;
   };
+
   struct CIter: IterBase
   {
-    const T& operator*();
-    const T* operator->();
+  public:
+    const T& operator*() const;
+    const T* operator->() const;
+
+  private:
+    CIter(Node* current);
+    friend List<T>;
   };
+
   Iter begin() const;
   Iter end() const;
   CIter cbegin() const;
   CIter cend() const;
+
+public:
+  List();
+  ~List();
+  void PushBack(const T& value);
+  void PushFront(const T& value);
+  void PushBack(T&& value);
+  void PushFront(T&& value);
+  template<typename... Args>
+  void EmplaceBack(Args&&... args);
+  template<typename... Args>
+  void EmplaceFront(Args&&... args);
+  Iter Insert(Iter it, const T& value);
+  Iter Insert(Iter it, T&& value);
+  template<typename... Args>
+  Iter Emplace(Iter it, Args&&... args);
+  void PopBack();
+  void PopFront();
+  Iter Erase(Iter it);
+  void Clear();
+  size_t Size() const;
+
+private:
+  void InsertNode(Iter it, Node* newNode);
 };
 
 } // namespace Ds
