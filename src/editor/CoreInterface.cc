@@ -40,25 +40,24 @@ void CoreInterface::Show()
   // Display a button for space creation and display all of the existing spaces.
   if (ImGui::Button("Create Space", ImVec2(-1, 0)))
   {
-    World::CreateSpace();
+    World::CreateTopSpace();
   }
   ImGui::BeginChild("Spaces", ImVec2(0, 0), true);
-  World::SpaceId activeSpaceId = World::nInvalidSpaceId;
+  World::Space* activeSpace = nullptr;
   OverviewInterface* overview = FindInterface<OverviewInterface>();
   if (overview != nullptr)
   {
-    activeSpaceId = overview->mSpaceId;
+    activeSpace = overview->mSpace;
   }
-  for (World::SpaceVisitor visitor; !visitor.End(); visitor.Next())
+  for (World::Space& space : World::nSpaces)
   {
-    World::Space& space = visitor.CurrentSpace();
-    bool selected = activeSpaceId == visitor.CurrentSpaceId();
-    ImGui::PushID(visitor.CurrentSpaceId());
+    bool selected = activeSpace == &space;
+    ImGui::PushID((void*)&space);
     if (ImGui::Selectable(space.mName.c_str(), selected))
     {
       if (!selected)
       {
-        OpenInterface<OverviewInterface>(visitor.CurrentSpaceId());
+        OpenInterface<OverviewInterface>(&space);
       } else
       {
         CloseInterface<OverviewInterface>();
@@ -89,13 +88,13 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [this](const std::string& filename)
       {
-        ValueResult<World::SpaceId> result = World::LoadSpace(filename.c_str());
+        ValueResult<World::SpaceIt> result = World::LoadSpace(filename.c_str());
         if (!result.Success())
         {
           LogError(result.mError.c_str());
           return;
         }
-        OpenInterface<OverviewInterface>(result.mValue);
+        OpenInterface<OverviewInterface>(&(*result.mValue));
       },
       FileInterface::AccessType::Select);
   }
@@ -105,23 +104,21 @@ void CoreInterface::FileMenu()
   OverviewInterface* overview = FindInterface<OverviewInterface>();
   if (overview != nullptr)
   {
-    spaceSelected = overview->mSpaceId != World::nInvalidSpaceId;
+    spaceSelected = true;
   }
   if (ImGui::MenuItem("Save Selected Space", nullptr, false, spaceSelected))
   {
-    const World::Space& space = World::GetSpace(overview->mSpaceId);
     OpenInterface<FileInterface>(
-      [this, &space](const std::string& filename)
+      [overview](const std::string& filename)
       {
         Vlk::Value rootVal;
-        space.Serialize(rootVal);
+        overview->mSpace->Serialize(rootVal);
         Result result = rootVal.Write(filename.c_str());
         LogErrorIf(!result.Success(), result.mError.c_str());
       },
       FileInterface::AccessType::Save,
-      space.mName + ".vlk");
+      overview->mSpace->mName + ".vlk");
   }
-
   if (ImGui::MenuItem("Save Assets File"))
   {
     AssetLibrary::SerializeAssets();

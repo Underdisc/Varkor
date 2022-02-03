@@ -57,7 +57,7 @@ struct Space
 {
   Space();
   Space(const std::string& name);
-  void Update(SpaceId spaceId);
+  void Update();
 
   // Member modification.
   MemberId CreateMember();

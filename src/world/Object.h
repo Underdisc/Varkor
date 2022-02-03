@@ -4,7 +4,7 @@
 #include <string>
 
 #include "comp/Type.h"
-#include "world/Types.h"
+#include "world/Space.h"
 
 namespace World {
 
@@ -13,8 +13,9 @@ namespace World {
 // object.
 struct Object
 {
-  Object();
-  Object(SpaceId space, MemberId member);
+  Object(const Object& other);
+  Object(Space* space);
+  Object(Space* space, MemberId memberId);
 
   template<typename T>
   void AddComponent() const;
@@ -30,14 +31,14 @@ struct Object
   void* GetComponent(Comp::TypeId typeId) const;
   bool HasComponent(Comp::TypeId typeId) const;
 
+  Object Duplicate() const;
+  Member& GetMember() const;
   std::string& GetName() const;
   bool HasParent() const;
   Object Parent() const;
-  void Invalidate();
-  bool Valid() const;
 
-  SpaceId mSpace;
-  MemberId mMember;
+  Space* mSpace;
+  MemberId mMemberId;
 };
 
 } // namespace World

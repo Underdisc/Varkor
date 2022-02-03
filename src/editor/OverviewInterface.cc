@@ -5,22 +5,19 @@
 #include "editor/OverviewInterface.h"
 #include "editor/Utility.h"
 #include "gfx/Renderer.h"
-#include "world/World.h"
 
 namespace Editor {
 
-OverviewInterface::OverviewInterface(World::SpaceId spaceId): mSpaceId(spaceId)
-{}
+OverviewInterface::OverviewInterface(World::Space* space): mSpace(space) {}
 
 void OverviewInterface::Show()
 {
   // Render the selected space and handle object picking.
   InspectorInterface* inspector = FindInterface<InspectorInterface>();
-  World::Space& space = World::GetSpace(mSpaceId);
   if (nEditorMode)
   {
     Gfx::Renderer::RenderSpace(
-      space, nCamera.WorldToCamera(), nCamera.Position());
+      *mSpace, nCamera.WorldToCamera(), nCamera.Position());
     bool picking = true;
     if (inspector != nullptr && inspector->SuppressObjectPicking())
     {
@@ -29,10 +26,11 @@ void OverviewInterface::Show()
     if (picking && Input::MousePressed(Input::Mouse::Left))
     {
       World::MemberId clickedMemberId =
-        Gfx::Renderer::HoveredMemberId(space, nCamera.WorldToCamera());
+        Gfx::Renderer::HoveredMemberId(*mSpace, nCamera.WorldToCamera());
       if (clickedMemberId != World::nInvalidMemberId)
       {
-        OpenInterface<InspectorInterface>(mSpaceId, clickedMemberId);
+        World::Object clickedObject(mSpace, clickedMemberId);
+        OpenInterface<InspectorInterface>(clickedObject);
       }
     }
   }
@@ -43,9 +41,9 @@ void OverviewInterface::Show()
   // onto the camera widget.
   std::stringstream cameraLabel;
   cameraLabel << "Camera: ";
-  if (space.mCameraId != World::nInvalidMemberId)
+  if (mSpace->mCameraId != World::nInvalidMemberId)
   {
-    const World::Member& camera = space.GetMember(space.mCameraId);
+    const World::Member& camera = mSpace->GetMember(mSpace->mCameraId);
     cameraLabel << camera.mName;
   } else
   {
@@ -57,20 +55,20 @@ void OverviewInterface::Show()
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
     if (payload != nullptr)
     {
-      space.mCameraId = *(const World::MemberId*)payload->Data;
+      mSpace->mCameraId = *(const World::MemberId*)payload->Data;
     }
   }
 
   // Display a selectable list of all members in the space.
   if (ImGui::Button("Create Member", ImVec2(-1, 0)))
   {
-    space.CreateMember();
+    mSpace->CreateMember();
   }
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
-  space.VisitRootMemberIds(
-    [this, inspector, &space](World::MemberId memberId)
+  mSpace->VisitRootMemberIds(
+    [this, inspector](World::MemberId memberId)
     {
-      DisplayMember(memberId, space, inspector);
+      DisplayMember(memberId, inspector);
     });
   ImGui::EndChild();
 
@@ -81,10 +79,10 @@ void OverviewInterface::Show()
     if (payload != nullptr)
     {
       World::MemberId childId = *(const World::MemberId*)payload->Data;
-      World::Member& member = space.GetMember(childId);
+      World::Member& member = mSpace->GetMember(childId);
       if (member.HasParent())
       {
-        space.RemoveParent(childId);
+        mSpace->RemoveParent(childId);
       }
     }
     ImGui::EndDragDropTarget();
@@ -93,17 +91,17 @@ void OverviewInterface::Show()
 }
 
 void OverviewInterface::DisplayMember(
-  World::MemberId memberId, World::Space& space, InspectorInterface* inspector)
+  World::MemberId memberId, InspectorInterface* inspector)
 {
   // Create the Member's tree node.
   bool selected =
-    inspector != nullptr && memberId == inspector->mObject.mMember;
+    inspector != nullptr && memberId == inspector->mObject.mMemberId;
   ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
   if (selected)
   {
     flags |= ImGuiTreeNodeFlags_Selected;
   }
-  World::Member& member = space.GetMember(memberId);
+  World::Member& member = mSpace->GetMember(memberId);
   if (member.Children().Size() == 0)
   {
     flags |= ImGuiTreeNodeFlags_Leaf;
@@ -125,7 +123,7 @@ void OverviewInterface::DisplayMember(
     if (payload != nullptr)
     {
       World::MemberId childId = *(const World::MemberId*)payload->Data;
-      space.MakeParent(memberId, childId);
+      mSpace->MakeParent(memberId, childId);
     }
     ImGui::EndDragDropTarget();
   }
@@ -133,7 +131,8 @@ void OverviewInterface::DisplayMember(
   // Open an InspectInterface for the Member if it is clicked.
   if (ImGui::IsItemClicked())
   {
-    OpenInterface<InspectorInterface>(mSpaceId, memberId);
+    World::Object object(mSpace, memberId);
+    OpenInterface<InspectorInterface>(object);
   }
 
   // Display a text box for changing the Member's name.
@@ -149,7 +148,7 @@ void OverviewInterface::DisplayMember(
   {
     for (World::MemberId childId : member.Children())
     {
-      DisplayMember(childId, space, inspector);
+      DisplayMember(childId, inspector);
     }
     ImGui::TreePop();
   }

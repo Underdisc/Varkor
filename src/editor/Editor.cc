@@ -78,11 +78,11 @@ void Init()
   nCoreInterface.Init();
   if (!Options::nLoadSpace.empty())
   {
-    ValueResult<World::SpaceId> result =
+    ValueResult<World::SpaceIt> result =
       World::LoadSpace(Options::nLoadSpace.c_str());
     if (result.Success())
     {
-      nCoreInterface.OpenInterface<OverviewInterface>(result.mValue);
+      nCoreInterface.OpenInterface<OverviewInterface>(&(*result.mValue));
     } else
     {
       LogError(result.mError.c_str());

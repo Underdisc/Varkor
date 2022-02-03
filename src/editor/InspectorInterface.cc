@@ -7,20 +7,18 @@
 
 namespace Editor {
 
-InspectorInterface::InspectorInterface(
-  World::SpaceId spaceId, World::MemberId memberId):
-  mObject(spaceId, memberId), mSuppressObjectPicking(false)
+InspectorInterface::InspectorInterface(World::Object& object):
+  mObject(object), mSuppressObjectPicking(false)
 {}
 
 void InspectorInterface::Show()
 {
   // Perform a duplication and inspect the duplicate if requested.
-  World::Space& space = World::GetSpace(mObject.mSpace);
-  bool duplicate = mObject.Valid() && Input::KeyDown(Input::Key::LeftControl) &&
-    Input::KeyPressed(Input::Key::D);
+  bool duplicate =
+    Input::KeyDown(Input::Key::LeftControl) && Input::KeyPressed(Input::Key::D);
   if (duplicate)
   {
-    mObject.mMember = space.Duplicate(mObject.mMember);
+    mObject = mObject.Duplicate();
   }
 
   ImGui::Begin("Inspector", &mOpen, ImGuiWindowFlags_NoFocusOnAppearing);
@@ -31,9 +29,9 @@ void InspectorInterface::Show()
 
   // Display all of the Member's components and the active component hooks.
   mSuppressObjectPicking = false;
-  World::Member& member = space.GetMember(mObject.mMember);
-  space.VisitMemberComponents(
-    mObject.mMember,
+  World::Member& member = mObject.GetMember();
+  mObject.mSpace->VisitMemberComponents(
+    mObject.mMemberId,
     [this](Comp::TypeId typeId, size_t tableIndex)
     {
       bool removeComponent = false;
@@ -80,18 +78,17 @@ AddComponentInterface::AddComponentInterface(const World::Object& object):
 
 void AddComponentInterface::Show()
 {
-  World::Space& space = World::GetSpace(mObject.mSpace);
   ImGui::Begin("Add Components", &mOpen);
   for (Comp::TypeId typeId = 0; typeId < Comp::TypeDataCount(); ++typeId)
   {
-    if (space.HasComponent(typeId, mObject.mMember))
+    if (mObject.HasComponent(typeId))
     {
       continue;
     }
     const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
     if (ImGui::Button(typeData.mName.c_str(), ImVec2(-1, 0)))
     {
-      space.AddComponent(typeId, mObject.mMember);
+      mObject.AddComponent(typeId);
     }
   }
   ImGui::End();

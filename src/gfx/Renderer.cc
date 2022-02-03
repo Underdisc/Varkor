@@ -82,22 +82,22 @@ void Clear()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-Mat4 GetTransformation(const World::Space& space, World::MemberId memberId)
+Mat4 GetTransformation(const World::Object& object)
 {
-  Comp::Transform* transform = space.GetComponent<Comp::Transform>(memberId);
+  Comp::Transform* transform = object.GetComponent<Comp::Transform>();
   if (transform == nullptr)
   {
     Mat4 identity;
     Math::Identity(&identity);
     return identity;
   }
-  return transform->GetWorldMatrix(space, memberId);
+  return transform->GetWorldMatrix(object);
 }
 
 Mat4 GetImageTransformation(
-  const World::Space& space, World::MemberId memberId, const Gfx::Image& image)
+  const World::Object& object, const Gfx::Image& image)
 {
-  Mat4 transformation = GetTransformation(space, memberId);
+  Mat4 transformation = GetTransformation(object);
   Mat4 aspectScale;
   Math::Scale(&aspectScale, {image.Aspect(), 1.0f, 1.0f});
   transformation *= aspectScale;
@@ -141,7 +141,8 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
       }
 
       glUniform1i(memberIdLoc, (int)owner);
-      Mat4 memberTransformation = GetTransformation(space, owner);
+      World::Object object(const_cast<World::Space*>(&space), owner);
+      Mat4 memberTransformation = GetTransformation(object);
       for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo())
       {
         Mat4 transformation = memberTransformation * drawInfo.mTransformation;
@@ -166,7 +167,8 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
         return;
       }
 
-      Mat4 transformation = GetImageTransformation(space, owner, *image);
+      World::Object object(const_cast<World::Space*>(&space), owner);
+      Mat4 transformation = GetImageTransformation(object, *image);
       glUniform1i(memberIdLoc, (int)owner);
       glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
       RenderQuad(nSpriteVao);
@@ -176,7 +178,8 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
   space.VisitTableComponents<Comp::Text>(
     [&](World::MemberId owner, const Comp::Text& textComp)
     {
-      Mat4 baseTransformation = GetTransformation(space, owner);
+      World::Object object(const_cast<World::Space*>(&space), owner);
+      Mat4 baseTransformation = GetTransformation(object);
       Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
       for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo)
       {
@@ -229,8 +232,9 @@ void RenderSpace(const World::Space& space)
     viewPos = {0.0, 0.0f, 0.0f};
   } else
   {
-    view = cameraTransform->GetInverseWorldMatrix(space, space.mCameraId);
-    viewPos = cameraTransform->GetWorldTranslation(space, space.mCameraId);
+    World::Object object(const_cast<World::Space*>(&space), space.mCameraId);
+    view = cameraTransform->GetInverseWorldMatrix(object);
+    viewPos = cameraTransform->GetWorldTranslation(object);
   }
   RenderSpace(space, view, viewPos);
 }
@@ -273,7 +277,8 @@ void RenderSpace(
         glUniform4fv(alphaColorLoc, 1, alphaColorComp->mAlphaColor.CData());
       }
 
-      Mat4 memberTransformation = GetTransformation(space, owner);
+      World::Object object(const_cast<World::Space*>(&space), owner);
+      Mat4 memberTransformation = GetTransformation(object);
       for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo())
       {
         // Prepare all of the textures.
@@ -337,7 +342,8 @@ void RenderSpace(
       glUniformMatrix4fv(viewLoc, 1, true, view.CData());
       glUniform1i(samplerLoc, 0);
 
-      Mat4 transformation = GetImageTransformation(space, owner, *image);
+      World::Object object(const_cast<World::Space*>(&space), owner);
+      Mat4 transformation = GetImageTransformation(object, *image);
       glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
 
       glActiveTexture(GL_TEXTURE0);
@@ -369,7 +375,8 @@ void RenderSpace(
       glUniform1i(samplerLoc, 0);
       glUniform3fv(colorLoc, 1, textComp.mColor.CData());
 
-      Mat4 baseTransformation = GetTransformation(space, owner);
+      World::Object object(const_cast<World::Space*>(&space), owner);
+      Mat4 baseTransformation = GetTransformation(object);
       Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
       for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo)
       {
@@ -385,11 +392,9 @@ void RenderSpace(
 
 void RenderWorld()
 {
-  World::SpaceVisitor visitor;
-  while (!visitor.End())
+  for (const World::Space& space : World::nSpaces)
   {
-    RenderSpace(visitor.CurrentSpace());
-    visitor.Next();
+    RenderSpace(space);
   }
 }
 

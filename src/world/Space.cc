@@ -83,10 +83,9 @@ Space::Space(): mName("DefaultName"), mCameraId(nInvalidMemberId) {}
 Space::Space(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
 {}
 
-void Space::Update(SpaceId spaceId)
+void Space::Update()
 {
-  Object currentObject;
-  currentObject.mSpace = spaceId;
+  Object currentObject(this);
   for (const Ds::KvPair<Comp::TypeId, Table>& tablePair : mTables)
   {
     const Table& table = tablePair.mValue;
@@ -99,7 +98,7 @@ void Space::Update(SpaceId spaceId)
     table.VisitActiveIndices(
       [&](size_t index)
       {
-        currentObject.mMember = table.GetOwner(index);
+        currentObject.mMemberId = table.GetOwner(index);
         typeData.mVUpdate.Invoke(table[index], currentObject);
       });
   }

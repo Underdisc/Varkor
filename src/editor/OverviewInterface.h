@@ -4,22 +4,18 @@
 #include "editor/InspectorInterface.h"
 #include "editor/WindowInterface.h"
 #include "world/Space.h"
-#include "world/Types.h"
 
 namespace Editor {
 
 struct OverviewInterface: public WindowInterface
 {
 public:
-  OverviewInterface(World::SpaceId spaceId);
+  OverviewInterface(World::Space* space);
   void Show();
-  World::SpaceId mSpaceId;
+  World::Space* mSpace;
 
 private:
-  void DisplayMember(
-    World::MemberId memberId,
-    World::Space& space,
-    InspectorInterface* inspector);
+  void DisplayMember(World::MemberId memberId, InspectorInterface* inspector);
 };
 
 } // namespace Editor

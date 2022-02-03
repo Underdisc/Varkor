@@ -9,7 +9,7 @@ namespace Editor {
 struct InspectorInterface: public WindowInterface
 {
 public:
-  InspectorInterface(World::SpaceId spaceId, World::MemberId memberId);
+  InspectorInterface(World::Object& object);
   void Show();
   bool SuppressObjectPicking();
   World::Object mObject;

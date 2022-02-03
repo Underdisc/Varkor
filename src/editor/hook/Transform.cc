@@ -149,12 +149,11 @@ bool Hook<Comp::Transform>::Gizmo(
   const Vec3& cameraPosition = nCamera.Position();
   Math::Ray mouseRay;
   mouseRay.StartDirection(cameraPosition, worldPosition - cameraPosition);
-  const World::Space& space = World::GetSpace(object.mSpace);
 
   // Check to see if the user is beginning or ending a gizmo operation.
   if (Input::MousePressed(Input::Mouse::Left))
   {
-    TryStartOperation(transform, space, object.mMember, mouseRay);
+    TryStartOperation(transform, object, mouseRay);
   }
   if (!Input::MouseDown(Input::Mouse::Left))
   {
@@ -166,16 +165,14 @@ bool Hook<Comp::Transform>::Gizmo(
   switch (mMode)
   {
   case Mode::Translate:
-    noObjectPicking = Translate(transform, space, object.mMember, mouseRay);
+    noObjectPicking = Translate(transform, object, mouseRay);
     break;
-  case Mode::Scale:
-    noObjectPicking = Scale(transform, space, object.mMember, mouseRay);
-    break;
+  case Mode::Scale: noObjectPicking = Scale(transform, object, mouseRay); break;
   case Mode::Rotate:
-    noObjectPicking = Rotate(transform, space, object.mMember, mouseRay);
+    noObjectPicking = Rotate(transform, object, mouseRay);
     break;
   }
-  RenderHandles(transform, space, object.mMember);
+  RenderHandles(transform, object);
   return noObjectPicking;
 }
 
@@ -214,8 +211,7 @@ void Hook<Comp::Transform>::DisplayOptionsWindow()
 
 void Hook<Comp::Transform>::TryStartOperation(
   Comp::Transform* transform,
-  const World::Space& space,
-  World::MemberId ownerId,
+  const World::Object& object,
   const Math::Ray& mouseRay)
 {
   // Determine if the user began an operation.
@@ -230,11 +226,11 @@ void Hook<Comp::Transform>::TryStartOperation(
   // Save values related to the user's state when starting an operation.
   mStartScale = transform->GetScale();
   mStartRotation = transform->GetRotation();
-  mStartWorldRotation = transform->GetWorldRotation(space, ownerId);
+  mStartWorldRotation = transform->GetWorldRotation(object);
   Math::Ray gizmoRay;
   Math::Plane gizmoPlane;
-  PrepareGizmoRepresentation(transform, space, ownerId, &gizmoRay, &gizmoPlane);
-  Vec3 worldTranslation = transform->GetWorldTranslation(space, ownerId);
+  PrepareGizmoRepresentation(transform, object, &gizmoRay, &gizmoPlane);
+  Vec3 worldTranslation = transform->GetWorldTranslation(object);
   switch (mOperation)
   {
   case Operation::X:
@@ -270,15 +266,14 @@ void Hook<Comp::Transform>::TryStartOperation(
 
 bool Hook<Comp::Transform>::Translate(
   Comp::Transform* transform,
-  const World::Space& space,
-  World::MemberId ownerId,
+  const World::Object& object,
   const Math::Ray& mouseRay)
 {
   Math::Ray gizmoRay;
   Math::Plane gizmoPlane;
   Vec3 planeAxis;
   PrepareGizmoRepresentation(
-    transform, space, ownerId, &gizmoRay, &gizmoPlane, &planeAxis);
+    transform, object, &gizmoRay, &gizmoPlane, &planeAxis);
 
   auto singleTranslate = [&]()
   {
@@ -290,12 +285,12 @@ bool Hook<Comp::Transform>::Translate(
     Vec3 newWorldTranslation = mousePoint - mTranslateOffset;
     if (!mSnapping)
     {
-      transform->SetWorldTranslation(newWorldTranslation, space, ownerId);
+      transform->SetWorldTranslation(newWorldTranslation, object);
       return;
     }
     Vec3 translation = transform->GetTranslation();
     Vec3 newTranslation =
-      transform->WorldToLocalTranslation(newWorldTranslation, space, ownerId);
+      transform->WorldToLocalTranslation(newWorldTranslation, object);
     Vec3 delta = newTranslation - translation;
     delta = ScaleToInterval(delta, mTranslateSnapInterval);
     newTranslation = translation + delta;
@@ -312,16 +307,16 @@ bool Hook<Comp::Transform>::Translate(
     Vec3 newWorldTranslation = mousePoint - mTranslateOffset;
     if (!mSnapping)
     {
-      transform->SetWorldTranslation(newWorldTranslation, space, ownerId);
+      transform->SetWorldTranslation(newWorldTranslation, object);
       return;
     }
     Vec3 translation = transform->GetTranslation();
     Vec3 newTranslation =
-      transform->WorldToLocalTranslation(newWorldTranslation, space, ownerId);
+      transform->WorldToLocalTranslation(newWorldTranslation, object);
     Vec3 delta = newTranslation - translation;
     // We find perpendicular vectors that describe the delta and are parallel to
     // the plane that the transform is moving on.
-    Quat pWorldRotation = transform->GetParentWorldRotation(space, ownerId);
+    Quat pWorldRotation = transform->GetParentWorldRotation(object);
     planeAxis = pWorldRotation.Conjugate().Rotate(planeAxis);
     Math::Ray planeRay;
     planeRay.StartDirection({0.0f, 0.0f, 0.0f}, planeAxis);
@@ -348,7 +343,7 @@ bool Hook<Comp::Transform>::Translate(
     {
       Vec3 mousePoint = Math::Intersection(mouseRay, gizmoPlane);
       Vec3 newWorldTranslation = mousePoint - mTranslateOffset;
-      transform->SetWorldTranslation(newWorldTranslation, space, ownerId);
+      transform->SetWorldTranslation(newWorldTranslation, object);
     }
     return true;
   }
@@ -357,15 +352,14 @@ bool Hook<Comp::Transform>::Translate(
 
 bool Hook<Comp::Transform>::Scale(
   Comp::Transform* transform,
-  const World::Space& space,
-  World::MemberId ownerId,
+  const World::Object& object,
   const Math::Ray& mouseRay)
 {
   Math::Ray gizmoRay;
   Math::Plane gizmoPlane;
-  PrepareGizmoRepresentation(transform, space, ownerId, &gizmoRay, &gizmoPlane);
+  PrepareGizmoRepresentation(transform, object, &gizmoRay, &gizmoPlane);
   Vec3 startingPoint =
-    transform->GetWorldTranslation(space, ownerId) + mTranslateOffset;
+    transform->GetWorldTranslation(object) + mTranslateOffset;
   const float sensitivity = 0.3f;
 
   // This will peform scaling on a single axis.
@@ -431,13 +425,12 @@ bool Hook<Comp::Transform>::Scale(
 
 bool Hook<Comp::Transform>::Rotate(
   Comp::Transform* transform,
-  const World::Space& space,
-  World::MemberId ownerId,
+  const World::Object& object,
   const Math::Ray& mouseRay)
 {
   Math::Ray gizmoRay;
   Math::Plane gizmoPlane;
-  PrepareGizmoRepresentation(transform, space, ownerId, &gizmoRay, &gizmoPlane);
+  PrepareGizmoRepresentation(transform, object, &gizmoRay, &gizmoPlane);
 
   // This will perform a rotation around a single axis.
   auto singleRotate = [&]()
@@ -447,7 +440,7 @@ bool Hook<Comp::Transform>::Rotate(
       return;
     }
     Vec3 currentPoint = Math::Intersection(mouseRay, gizmoPlane);
-    Vec3 worldTranslation = transform->GetWorldTranslation(space, ownerId);
+    Vec3 worldTranslation = transform->GetWorldTranslation(object);
     Vec3 currentOffset = currentPoint - worldTranslation;
     // We don't need to check if the magnitude of mTranslateOffset is 0 because
     // it never should be.
@@ -470,8 +463,7 @@ bool Hook<Comp::Transform>::Rotate(
       float snapDelta = Math::nPi / (float)mRotationSnapDenominator;
       angle = Math::RoundToNearest(angle, snapDelta);
     }
-    Math::Quaternion parentRotation =
-      transform->GetParentWorldRotation(space, ownerId);
+    Math::Quaternion parentRotation = transform->GetParentWorldRotation(object);
     Vec3 axis = parentRotation.Conjugate().Rotate(gizmoPlane.Normal());
     Math::Quaternion delta;
     delta.AngleAxis(angle, axis);
@@ -485,8 +477,7 @@ bool Hook<Comp::Transform>::Rotate(
     const float pixelsPerRadian = 500.0f;
     mouseMotion = (mouseMotion / pixelsPerRadian) * Math::nPi;
     Math::Quaternion horizontalRotation, verticalRotation;
-    Math::Quaternion parentRotation =
-      transform->GetParentWorldRotation(space, ownerId);
+    Math::Quaternion parentRotation = transform->GetParentWorldRotation(object);
     Vec3 up = parentRotation.Conjugate().Rotate(nCamera.Up());
     Vec3 right = parentRotation.Conjugate().Rotate(nCamera.Right());
     horizontalRotation.AngleAxis(mouseMotion[0], up);
@@ -567,20 +558,19 @@ Hook<Comp::Transform>::Operation Hook<Comp::Transform>::GetHandleOperation(
 
 void Hook<Comp::Transform>::PrepareGizmoRepresentation(
   Comp::Transform* transform,
-  const World::Space& space,
-  World::MemberId ownerId,
+  const World::Object& object,
   Math::Ray* gizmoRay,
   Math::Plane* gizmoPlane,
   Vec3* planeAxis) const
 {
   // Place the gizmo representations in the correct position.
-  Mat4 worldMatrix = transform->GetWorldMatrix(space, ownerId);
+  Mat4 worldMatrix = transform->GetWorldMatrix(object);
   Vec3 worldTranslation = Math::ApplyToPoint(worldMatrix, {0.0f, 0.0f, 0.0f});
   gizmoRay->mStart = worldTranslation;
   gizmoPlane->mPoint = worldTranslation;
 
   // Rotate the gizmo representations to the correct orientation.
-  Math::Quaternion rotation = ReferenceFrameRotation(transform, space, ownerId);
+  Math::Quaternion rotation = ReferenceFrameRotation(transform, object);
   if (mReferenceFrame == ReferenceFrame::Relative)
   {
     // The reference frame function returned the transform's current world
@@ -630,24 +620,22 @@ void Hook<Comp::Transform>::PrepareGizmoRepresentation(
 }
 
 Quat Hook<Comp::Transform>::ReferenceFrameRotation(
-  Comp::Transform* transform,
-  const World::Space& space,
-  World::MemberId ownerId) const
+  Comp::Transform* transform, const World::Object& object) const
 {
   Quat rotation;
   if (mMode == Mode::Scale)
   {
-    rotation = transform->GetWorldRotation(space, ownerId);
+    rotation = transform->GetWorldRotation(object);
     return rotation;
   }
   switch (mReferenceFrame)
   {
   case ReferenceFrame::World: rotation.Identity(); break;
   case ReferenceFrame::Parent:
-    rotation = transform->GetParentWorldRotation(space, ownerId);
+    rotation = transform->GetParentWorldRotation(object);
     break;
   case ReferenceFrame::Relative:
-    rotation = transform->GetWorldRotation(space, ownerId);
+    rotation = transform->GetWorldRotation(object);
     break;
   }
   return rotation;
@@ -683,7 +671,8 @@ void Hook<Comp::Transform>::RenderHandle(
   glUseProgram(shader->Id());
   glUniform4fv(alphaColorLoc, 1, color.CData());
   Comp::Transform& transform = *mSpace.GetComponent<Comp::Transform>(handleId);
-  Mat4 memberTransformation = transform.GetWorldMatrix(mSpace, handleId);
+  World::Object handleObject(&mSpace, handleId);
+  Mat4 memberTransformation = transform.GetWorldMatrix(handleObject);
   const Ds::Vector<Gfx::Model::DrawInfo>& allDrawInfo = model->GetAllDrawInfo();
   for (const Gfx::Model::DrawInfo& drawInfo : allDrawInfo)
   {
@@ -698,9 +687,7 @@ void Hook<Comp::Transform>::RenderHandle(
 }
 
 void Hook<Comp::Transform>::RenderHandles(
-  Comp::Transform* transform,
-  const World::Space& space,
-  World::MemberId ownerId)
+  Comp::Transform* transform, const World::Object& object)
 {
   const Gfx::Shader* shader =
     AssLib::TryGetLive<Gfx::Shader>(AssLib::nColorShaderId);
@@ -718,7 +705,7 @@ void Hook<Comp::Transform>::RenderHandles(
 
   // Set the handles' translation to the transform's position, the rotation to
   // the frame rotation and scale depending on the distance from the camera.
-  Vec3 worldTranslation = transform->GetWorldTranslation(space, ownerId);
+  Vec3 worldTranslation = transform->GetWorldTranslation(object);
   const Vec3& cameraTranslation = nCamera.Position();
   Math::Ray cameraRay;
   cameraRay.StartDirection(cameraTranslation, nCamera.Forward());
@@ -727,7 +714,7 @@ void Hook<Comp::Transform>::RenderHandles(
   Comp::Transform& parentT = *mSpace.GetComponent<Comp::Transform>(mParent);
   parentT.SetTranslation(worldTranslation);
   parentT.SetUniformScale(Math::Magnitude(projectedDistance) * 0.3f);
-  parentT.SetRotation(ReferenceFrameRotation(transform, space, ownerId));
+  parentT.SetRotation(ReferenceFrameRotation(transform, object));
 
   // Always make the outer scale ring face the camera.
   if (mMode == Mode::Scale)
@@ -736,7 +723,7 @@ void Hook<Comp::Transform>::RenderHandles(
     Math::Quaternion xyzRot;
     Vec3 transformDirection = cameraTranslation - worldTranslation;
     xyzRot.FromTo({1.0f, 0.0f, 0.0f}, transformDirection);
-    xyzRot = transform->GetWorldRotation(space, ownerId).Conjugate() * xyzRot;
+    xyzRot = transform->GetWorldRotation(object).Conjugate() * xyzRot;
     xyzT->SetRotation(xyzRot);
   }
 

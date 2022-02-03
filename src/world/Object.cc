@@ -1,64 +1,62 @@
-#include "world/Space.h"
-#include "world/World.h"
-
 #include "Object.h"
 
 namespace World {
 
-Object::Object(): mSpace(nInvalidSpaceId), mMember(nInvalidMemberId) {}
+Object::Object(const Object& other):
+  mSpace(other.mSpace), mMemberId(other.mMemberId)
+{}
 
-Object::Object(SpaceId space, MemberId member): mSpace(space), mMember(member)
+Object::Object(Space* space): mSpace(space) {}
+
+Object::Object(Space* space, MemberId memberId):
+  mSpace(space), mMemberId(memberId)
 {}
 
 void Object::AddComponent(Comp::TypeId typeId) const
 {
-  Space& space = GetSpace(mSpace);
-  space.AddComponent(typeId, mMember);
+  mSpace->AddComponent(typeId, mMemberId);
 }
 
 void Object::RemComponent(Comp::TypeId typeId) const
 {
-  Space& space = GetSpace(mSpace);
-  space.RemComponent(typeId, mMember);
+  mSpace->RemComponent(typeId, mMemberId);
 }
 
 void* Object::GetComponent(Comp::TypeId typeId) const
 {
-  Space& space = GetSpace(mSpace);
-  return space.GetComponent(typeId, mMember);
+  return mSpace->GetComponent(typeId, mMemberId);
 }
 
 bool Object::HasComponent(Comp::TypeId typeId) const
 {
-  Space& space = GetSpace(mSpace);
-  return space.HasComponent(typeId, mMember);
+  return mSpace->HasComponent(typeId, mMemberId);
+}
+
+Object Object::Duplicate() const
+{
+  MemberId newMemberId = mSpace->Duplicate(mMemberId);
+  return Object(mSpace, newMemberId);
+}
+
+Member& Object::GetMember() const
+{
+  return mSpace->mMembers[mMemberId];
 }
 
 std::string& Object::GetName() const
 {
-  return GetSpace(mSpace).mMembers[mMember].mName;
+  return mSpace->mMembers[mMemberId].mName;
 }
 
 bool Object::HasParent() const
 {
-  return GetSpace(mSpace).mMembers[mMember].HasParent();
+  return mSpace->mMembers[mMemberId].HasParent();
 }
 
 Object Object::Parent() const
 {
-  Object parent(mSpace, GetSpace(mSpace).mMembers[mMember].Parent());
+  Object parent(mSpace, mSpace->mMembers[mMemberId].Parent());
   return parent;
-}
-
-void Object::Invalidate()
-{
-  mSpace = nInvalidSpaceId;
-  mMember = nInvalidMemberId;
-}
-
-bool Object::Valid() const
-{
-  return mSpace != nInvalidSpaceId && mMember != nInvalidMemberId;
 }
 
 } // namespace World

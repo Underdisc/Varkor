@@ -12,8 +12,7 @@ struct Object;
 
 #include "math/Matrix4.h"
 #include "math/Vector.h"
-#include "world/Space.h"
-#include "world/Types.h"
+#include "world/Object.h"
 
 namespace Comp {
 
@@ -27,29 +26,24 @@ struct Transform
   const Vec3& GetScale() const;
   const Quat& GetRotation() const;
   const Vec3& GetTranslation() const;
-  Quat GetWorldRotation(
-    const World::Space& space, World::MemberId ownerId) const;
-  Vec3 GetWorldTranslation(const World::Space& space, World::MemberId ownerId);
+  Quat GetWorldRotation(const World::Object& object) const;
+  Vec3 GetWorldTranslation(const World::Object& object);
 
   void SetUniformScale(float newUniformScale);
   void SetScale(const Vec3& newScale);
   void SetRotation(const Quat& newRotation);
   void SetTranslation(const Vec3& newTranslation);
   void SetWorldTranslation(
-    const Vec3& worldTranslation,
-    const World::Space& space,
-    World::MemberId ownerId);
+    const Vec3& worldTranslation, const World::Object& object);
 
-  Quat GetParentWorldRotation(
-    const World::Space& space, World::MemberId ownerId) const;
+  Quat GetParentWorldRotation(const World::Object& object) const;
   Vec3 WorldToLocalTranslation(
-    Vec3 worldTranslation, const World::Space& space, World::MemberId ownerId);
+    const Vec3& worldTranslation, const World::Object& object);
 
   const Mat4& GetLocalMatrix();
   Mat4 GetInverseLocalMatrix();
-  Mat4 GetWorldMatrix(const World::Space& space, World::MemberId ownerId);
-  Mat4 GetInverseWorldMatrix(
-    const World::Space& space, World::MemberId ownerId);
+  Mat4 GetWorldMatrix(const World::Object& object);
+  Mat4 GetInverseWorldMatrix(const World::Object& object);
 
 private:
   Vec3 mScale;

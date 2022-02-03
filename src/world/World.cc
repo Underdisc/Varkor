@@ -1,76 +1,20 @@
 #include <sstream>
 
-#include "ds/Vector.h"
 #include "vlk/Valkor.h"
 #include "world/Space.h"
 #include "world/World.h"
 
 namespace World {
 
-// todo: This should be a list instead of a vector.
-// This is just the list of the spaces that currently exist within the world.
-Ds::Vector<Space> nSpaces;
-
-SpaceVisitor::SpaceVisitor(): mCurrentSpace(0) {}
-
-Space& SpaceVisitor::CurrentSpace()
-{
-  return nSpaces[mCurrentSpace];
-}
-
-SpaceId SpaceVisitor::CurrentSpaceId()
-{
-  return mCurrentSpace;
-}
-
-void SpaceVisitor::Next()
-{
-  ++mCurrentSpace;
-}
-
-bool SpaceVisitor::End()
-{
-  return mCurrentSpace >= nSpaces.Size();
-}
+Ds::List<Space> nSpaces;
 
 // Function pointers for calling into project code.
 void (*nCentralUpdate)() = nullptr;
-void (*nSpaceUpdate)(const Space& space, SpaceId spaceId) = nullptr;
+void (*nSpaceUpdate)(SpaceIt spaceIt) = nullptr;
 
-SpaceId CreateSpace()
+void Purge()
 {
-  SpaceId newSpace = (SpaceId)nSpaces.Size();
-  std::stringstream defaultName;
-  defaultName << "Space" << newSpace;
-  nSpaces.Emplace(defaultName.str());
-  return newSpace;
-}
-
-ValueResult<SpaceId> LoadSpace(const char* filename)
-{
-  Vlk::Value rootVal;
-  Result result = rootVal.Read(filename);
-  if (!result.Success())
-  {
-    return ValueResult<SpaceId>(Util::Move(result), nInvalidSpaceId);
-  }
-  SpaceId newSpaceId = World::CreateSpace();
-  World::Space& newSpace = World::GetSpace(newSpaceId);
-  Vlk::Explorer rootEx(rootVal);
-  newSpace.Deserialize(rootEx);
-  return ValueResult<SpaceId>(newSpaceId);
-}
-
-void VerifySpace(SpaceId space)
-{
-  LogAbortIf(
-    space < 0 || space >= nSpaces.Size(), "The provided space does not exist.");
-}
-
-Space& GetSpace(SpaceId id)
-{
-  VerifySpace(id);
-  return nSpaces[id];
+  nSpaces.Clear();
 }
 
 void Update()
@@ -79,19 +23,40 @@ void Update()
   {
     nCentralUpdate();
   }
-  for (int i = 0; i < nSpaces.Size(); ++i)
+
+  SpaceIt it = nSpaces.begin();
+  SpaceIt itE = nSpaces.end();
+  while (it != itE)
   {
-    nSpaces[i].Update((SpaceId)i);
+    it->Update();
     if (nSpaceUpdate != nullptr)
     {
-      nSpaceUpdate(nSpaces[i], (SpaceId)i);
+      nSpaceUpdate(it);
     }
+    ++it;
   }
 }
 
-void Purge()
+SpaceIt CreateTopSpace()
 {
-  nSpaces.Clear();
+  std::stringstream defaultName;
+  defaultName << "Space" << nSpaces.Size();
+  SpaceIt newSpaceIt = nSpaces.Emplace(nSpaces.end(), defaultName.str());
+  return newSpaceIt;
+}
+
+ValueResult<SpaceIt> LoadSpace(const char* filename)
+{
+  Vlk::Value rootVal;
+  Result result = rootVal.Read(filename);
+  if (!result.Success())
+  {
+    return ValueResult<SpaceIt>(Util::Move(result), nSpaces.end());
+  }
+  SpaceIt newSpaceIt = CreateTopSpace();
+  Vlk::Explorer rootEx(rootVal);
+  newSpaceIt->Deserialize(rootEx);
+  return ValueResult<SpaceIt>(newSpaceIt);
 }
 
 } // namespace World

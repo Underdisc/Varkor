@@ -55,16 +55,14 @@ const Vec3& Transform::GetTranslation() const
   return mTranslation;
 }
 
-Quat Transform::GetWorldRotation(
-  const World::Space& space, World::MemberId ownerId) const
+Quat Transform::GetWorldRotation(const World::Object& object) const
 {
-  return GetParentWorldRotation(space, ownerId) * mRotation;
+  return GetParentWorldRotation(object) * mRotation;
 }
 
-Vec3 Transform::GetWorldTranslation(
-  const World::Space& space, World::MemberId ownerId)
+Vec3 Transform::GetWorldTranslation(const World::Object& object)
 {
-  Mat4 worldMatrix = GetWorldMatrix(space, ownerId);
+  Mat4 worldMatrix = GetWorldMatrix(object);
   return Math::ApplyToPoint(worldMatrix, {0.0f, 0.0f, 0.0f});
 }
 
@@ -96,38 +94,32 @@ void Transform::SetTranslation(const Vec3& newTranslation)
 }
 
 void Transform::SetWorldTranslation(
-  const Vec3& worldTranslation,
-  const World::Space& space,
-  World::MemberId ownerId)
+  const Vec3& worldTranslation, const World::Object& object)
 {
-  SetTranslation(WorldToLocalTranslation(worldTranslation, space, ownerId));
+  SetTranslation(WorldToLocalTranslation(worldTranslation, object));
 }
 
-Quat Transform::GetParentWorldRotation(
-  const World::Space& space, World::MemberId ownerId) const
+Quat Transform::GetParentWorldRotation(const World::Object& object) const
 {
-  const World::Member& member = space.GetConstMember(ownerId);
-  Transform* pTransform = space.GetComponent<Transform>(member.Parent());
+  World::Object pObject = object.Parent();
+  Transform* pTransform = pObject.GetComponent<Transform>();
   if (pTransform == nullptr)
   {
-    Math::Quaternion identity;
-    identity.Identity();
-    return identity;
+    return Math::Quaternion(1.0f, 0.0, 0.0f, 0.0f);
   }
-  return pTransform->GetWorldRotation(space, member.Parent());
+  return pTransform->GetWorldRotation(pObject);
 }
 
 Vec3 Transform::WorldToLocalTranslation(
-  Vec3 worldTranslation, const World::Space& space, World::MemberId ownerId)
+  const Vec3& worldTranslation, const World::Object& object)
 {
-  const World::Member& member = space.GetConstMember(ownerId);
-  Transform* pTransform = space.GetComponent<Transform>(member.Parent());
+  World::Object pObject = object.Parent();
+  Transform* pTransform = pObject.GetComponent<Transform>();
   if (pTransform == nullptr)
   {
     return worldTranslation;
   }
-  Mat4 pInverseWorldMatrix =
-    pTransform->GetInverseWorldMatrix(space, member.Parent());
+  Mat4 pInverseWorldMatrix = pTransform->GetInverseWorldMatrix(pObject);
   return Math::ApplyToPoint(pInverseWorldMatrix, worldTranslation);
 }
 
@@ -157,34 +149,29 @@ Mat4 Transform::GetInverseLocalMatrix()
   return inverseScale * inverseRotate * inverseTranslate;
 }
 
-Mat4 Transform::GetWorldMatrix(
-  const World::Space& space, World::MemberId ownerId)
+Mat4 Transform::GetWorldMatrix(const World::Object& object)
 {
-  const World::Member& member = space.GetConstMember(ownerId);
-  World::MemberId parentId = member.Parent();
-  Transform* parentTransform = space.GetComponent<Transform>(parentId);
-  if (parentTransform == nullptr)
+  World::Object pObject = object.Parent();
+  Transform* pTransform = pObject.GetComponent<Transform>();
+  if (pTransform == nullptr)
   {
     return GetLocalMatrix();
   }
   const Mat4& localTransformation = GetLocalMatrix();
-  Mat4 parentTransformation = parentTransform->GetWorldMatrix(space, parentId);
+  Mat4 parentTransformation = pTransform->GetWorldMatrix(pObject);
   return parentTransformation * localTransformation;
 }
 
-Mat4 Transform::GetInverseWorldMatrix(
-  const World::Space& space, World::MemberId ownerId)
+Mat4 Transform::GetInverseWorldMatrix(const World::Object& object)
 {
-  const World::Member& member = space.GetConstMember(ownerId);
-  World::MemberId parentId = member.Parent();
-  Transform* parentTransform = space.GetComponent<Transform>(parentId);
-  if (parentTransform == nullptr)
+  World::Object pObject = object.Parent();
+  Transform* pTransform = pObject.GetComponent<Transform>();
+  if (pTransform == nullptr)
   {
     return GetInverseLocalMatrix();
   }
   Mat4 inverseLocalMatrix = GetInverseLocalMatrix();
-  Mat4 inverseParentMatrix =
-    parentTransform->GetInverseWorldMatrix(space, parentId);
+  Mat4 inverseParentMatrix = pTransform->GetInverseWorldMatrix(pObject);
   return inverseLocalMatrix * inverseParentMatrix;
 }
 
