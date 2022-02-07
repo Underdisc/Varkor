@@ -25,9 +25,9 @@ float ContributionDiscard(float value, float edgeValue)
   return contribution;
 }
 
-vec4 BasicText(float value, vec3 color)
+vec4 BasicText(float value, vec3 color, float edgeValue)
 {
-  float contribution = ContributionDiscard(value, onEdgeValue);
+  float contribution = ContributionDiscard(value, edgeValue);
   return vec4(color, contribution);
 }
 

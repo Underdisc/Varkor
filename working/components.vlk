@@ -22,7 +22,7 @@
     {
       :Id: '3'
       :Name: 'Text'
-      :Size: '68'
+      :Size: '72'
       :Dependencies: ['Transform']
     },
     {

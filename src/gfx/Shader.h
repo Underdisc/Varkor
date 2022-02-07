@@ -22,6 +22,7 @@ struct Uniform
     AlphaColor,
     MemberId,
     Time,
+    FillAmount,
     ADiffuse,
     ASpecular,
     Count,

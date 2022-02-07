@@ -15,6 +15,7 @@ bool Hook<Comp::Text>::Edit(const World::Object& object)
   const char* alignments[] = {"Left", "Center", "Right"};
   ImGui::Combo("Align", &(int)textComp->mAlign, alignments, 3);
   ImGui::ColorEdit3("Color", textComp->mColor.mD);
+  ImGui::DragFloat("FillAmount", &textComp->mFillAmount, 0.01f, 0.0f, 1.0f);
   ImGui::PopItemWidth();
   ImGui::PushID(0);
   InputTextMultiline("", {-1.0f, 100.0f}, &textComp->mText);

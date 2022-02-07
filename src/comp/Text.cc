@@ -11,11 +11,12 @@ namespace Comp {
 void Text::VInit()
 {
   mFontId = AssLib::nDefaultAssetId;
-  mShaderId = AssLib::nDefaultAssetId;
+  mShaderId = AssLib::nDefaultTextShaderId;
   mText = "";
   mAlign = Alignment::Left;
   mWidth = 10.0f;
   mColor = {1.0f, 1.0f, 1.0f};
+  mFillAmount = 1.0f;
 }
 
 void Text::VSerialize(Vlk::Value& textVal)
@@ -44,6 +45,7 @@ void Text::VDeserialize(const Vlk::Explorer& textEx)
   {
     mColor[i] = colorEx[i].As<float>(1.0f);
   }
+  mFillAmount = 1.0f;
 }
 
 Ds::Vector<Text::Line> Text::GetLines() const
@@ -143,6 +145,7 @@ Ds::Vector<Text::DrawInfo> Text::GetAllDrawInfo() const
 
   Vec2 baselineOffset = {0.0f, 0.0f};
   float halfWidth = mWidth / 2.0f;
+  size_t currentCharacter = 0;
   Ds::Vector<Line> lines = GetLines();
   for (const Line& line : lines)
   {

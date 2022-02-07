@@ -20,6 +20,7 @@ const char* Uniform::smTypeStrings[Uniform::Type::Count] = {
   "uAlphaColor",
   "uMemberId",
   "uTime",
+  "uFillAmount",
   "uMateial.mDiffuse",
   "uMaterial.mSpecular"};
 bool Shader::smLogMissingUniforms = false;
@@ -151,6 +152,7 @@ void Shader::InitializeUniforms()
   tryAddUniform(Uniform::Type::AlphaColor);
   tryAddUniform(Uniform::Type::MemberId);
   tryAddUniform(Uniform::Type::Time);
+  tryAddUniform(Uniform::Type::FillAmount);
   tryAddUniform(Uniform::Type::ADiffuse);
   tryAddUniform(Uniform::Type::ASpecular);
 }

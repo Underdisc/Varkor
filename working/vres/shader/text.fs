@@ -7,9 +7,11 @@ out vec4 iFinalColor;
 
 uniform sampler2D uTexture;
 uniform vec3 uColor;
+uniform float uFillAmount;
 
 void main()
 {
   float value = texture(uTexture, iTextureCoords).r;
-  iFinalColor = BasicText(value, uColor);
+  float edgeValue = onEdgeValue + (1.0 - uFillAmount) * (1.0 - onEdgeValue);
+  iFinalColor = BasicText(value, uColor, edgeValue);
 }

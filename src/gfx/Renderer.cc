@@ -368,12 +368,14 @@ void RenderSpace(
       GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
       GLint colorLoc = shader->UniformLocation(Uniform::Type::Color);
       GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
+      GLint fillAmountLoc = shader->UniformLocation(Uniform::Type::FillAmount);
 
       glUseProgram(shader->Id());
       glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
       glUniformMatrix4fv(viewLoc, 1, true, view.CData());
       glUniform1i(samplerLoc, 0);
       glUniform3fv(colorLoc, 1, textComp.mColor.CData());
+      glUniform1f(fillAmountLoc, textComp.mFillAmount);
 
       World::Object object(const_cast<World::Space*>(&space), owner);
       Mat4 baseTransformation = GetTransformation(object);
