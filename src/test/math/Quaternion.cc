@@ -44,6 +44,25 @@ void FromTo()
   std::cout << q[2].Rotate(v[0]) << std::endl << std::endl;
 }
 
+void Interpolate()
+{
+  std::cout << "<= Interpolate =>\n";
+  std::cout << "-NegativeZAxis-\n";
+  Math::Quaternion q;
+  q.AngleAxis(Math::nPi, {0.0f, 0.0f, -1.0f});
+  std::cout << q.Interpolate(0.25f) << '\n';
+  std::cout << q.Interpolate(0.5f) << '\n';
+  std::cout << q.Interpolate(0.75f) << '\n';
+  std::cout << q.Interpolate(1.0f) << '\n';
+  std::cout << "-PositiveAxis-\n";
+  q.AngleAxis(Math::nPi, {1.0f, 1.0f, 1.0f});
+  std::cout << q.Interpolate(0.25f) << '\n';
+  std::cout << q.Interpolate(0.5f) << '\n';
+  std::cout << q.Interpolate(0.75f) << '\n';
+  std::cout << q.Interpolate(1.0f) << '\n';
+  std::cout << q << "\n\n";
+}
+
 void Conjugate()
 {
   std::cout << "<= Conjugate =>" << std::endl;
@@ -95,6 +114,7 @@ int main(void)
 {
   AngleAxis();
   FromTo();
+  Interpolate();
   Conjugate();
   Multiplication();
   EulerAngles();

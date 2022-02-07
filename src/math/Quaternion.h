@@ -21,6 +21,7 @@ struct Quaternion
   void AngleAxis(float angle, Vec3 axis);
   void FromTo(Vec3 from, Vec3 to);
 
+  Quaternion Interpolate(float t) const;
   Quaternion Conjugate() const;
   float Magnitude() const;
   void Normalize();

@@ -1,8 +1,7 @@
 #include <math.h>
 
-#include "math/Utility.h"
-
 #include "math/Quaternion.h"
+#include "math/Utility.h"
 
 namespace Math {
 
@@ -43,6 +42,15 @@ void Quaternion::FromTo(Vec3 from, Vec3 to)
   mC = axis[1];
   mD = axis[2];
   Normalize();
+}
+
+Quaternion Quaternion::Interpolate(float t) const
+{
+  float halfAngle = std::acosf(mA);
+  halfAngle *= t;
+  Vec3 axis = {mB, mC, mD};
+  axis = Math::Normalize(axis) * std::sinf(halfAngle);
+  return Quaternion(std::cosf(halfAngle), axis[0], axis[1], axis[2]);
 }
 
 void Quaternion::Normalize()
