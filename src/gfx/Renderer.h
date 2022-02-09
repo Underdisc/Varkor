@@ -1,3 +1,4 @@
+#include "Result.h"
 #include "comp/Model.h"
 #include "gfx/Framebuffer.h"
 #include "gfx/Shader.h"
@@ -9,11 +10,16 @@ namespace Renderer {
 
 void Init();
 void Clear();
-void RenderMemberIds(const World::Space& space, const Mat4& view);
-World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view);
+void RenderMemberIds(
+  const World::Space& space, const Mat4& view, const Mat4& proj);
+World::MemberId HoveredMemberId(
+  const World::Space& space, const Mat4& view, const Mat4& proj);
 void RenderSpace(
-  const World::Space& space, const Mat4& view, const Vec3& viewPos);
-void RenderWorld();
+  const World::Space& space,
+  const Mat4& view,
+  const Mat4& proj,
+  const Vec3& viewPos);
+Result RenderWorld();
 void RenderQueuedFullscreenFramebuffers();
 void QueueFullscreenFramebuffer(const Framebuffer& framebuffer);
 

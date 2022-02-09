@@ -140,7 +140,7 @@ const Mat4& Transform::GetLocalMatrix()
   return mMatrix;
 }
 
-Mat4 Transform::GetInverseLocalMatrix()
+Mat4 Transform::GetInverseLocalMatrix() const
 {
   Mat4 inverseScale, inverseRotate, inverseTranslate;
   Math::Scale(&inverseScale, 1.0f / mScale);

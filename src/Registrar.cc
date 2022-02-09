@@ -16,15 +16,15 @@
 
 // clang-format off
 #include "comp/Transform.h"
-#include "comp/Model.h"
-#include "comp/Sprite.h"
-#include "comp/Text.h"
-#include "comp/AlphaColor.h"
-
 #include "editor/hook/Transform.h"
+#include "comp/Model.h"
 #include "editor/hook/Model.h"
+#include "comp/Sprite.h"
 #include "editor/hook/Sprite.h"
+#include "comp/Text.h"
 #include "editor/hook/Text.h"
+#include "comp/AlphaColor.h"
+#include "comp/Camera.h"
 // clang-format on
 
 namespace Registrar {
@@ -37,6 +37,7 @@ void RegisterTypes()
   Register<Sprite, Transform>();
   Register<Text, Transform>();
   Register<AlphaColor>();
+  Register<Camera, Transform>();
 }
 
 void (*nRegisterCustomTypes)() = nullptr;

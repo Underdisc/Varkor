@@ -44,7 +44,12 @@ void VarkorRun()
     World::Update();
     if (!Editor::nEditorMode)
     {
-      Gfx::Renderer::RenderWorld();
+      Result result = Gfx::Renderer::RenderWorld();
+      if (!result.Success())
+      {
+        LogError(result.mError.c_str());
+        Editor::nEditorMode = true;
+      }
     }
     Gfx::Renderer::RenderQueuedFullscreenFramebuffers();
     Editor::Render();

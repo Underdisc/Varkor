@@ -17,7 +17,8 @@ void OverviewInterface::Show()
   if (nEditorMode)
   {
     Gfx::Renderer::RenderSpace(
-      *mSpace, nCamera.WorldToCamera(), nCamera.Position());
+      *mSpace, nCamera.View(), nCamera.Proj(), nCamera.Position());
+
     bool picking = true;
     if (inspector != nullptr && inspector->SuppressObjectPicking())
     {
@@ -26,7 +27,7 @@ void OverviewInterface::Show()
     if (picking && Input::MousePressed(Input::Mouse::Left))
     {
       World::MemberId clickedMemberId =
-        Gfx::Renderer::HoveredMemberId(*mSpace, nCamera.WorldToCamera());
+        Gfx::Renderer::HoveredMemberId(*mSpace, nCamera.View(), nCamera.Proj());
       if (clickedMemberId != World::nInvalidMemberId)
       {
         World::Object clickedObject(mSpace, clickedMemberId);

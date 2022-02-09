@@ -144,8 +144,8 @@ bool Hook<Comp::Transform>::Gizmo(
   DisplayOptionsWindow();
 
   // Find the world ray represented by the mouse and camera positions.
-  Vec3 worldPosition = Viewport::MouseToWorldPosition(
-    Input::StandardMousePosition(), nCamera.CameraToWorld());
+  Vec3 worldPosition =
+    nCamera.StandardToWorldPosition(Input::StandardMousePosition());
   const Vec3& cameraPosition = nCamera.Position();
   Math::Ray mouseRay;
   mouseRay.StartDirection(cameraPosition, worldPosition - cameraPosition);
@@ -216,7 +216,7 @@ void Hook<Comp::Transform>::TryStartOperation(
 {
   // Determine if the user began an operation.
   World::MemberId handleId =
-    Gfx::Renderer::HoveredMemberId(mSpace, nCamera.WorldToCamera());
+    Gfx::Renderer::HoveredMemberId(mSpace, nCamera.View(), nCamera.Proj());
   mOperation = GetHandleOperation(handleId);
   if (mOperation == Operation::None)
   {
@@ -700,8 +700,8 @@ void Hook<Comp::Transform>::RenderHandles(
   GLint projLoc = shader->UniformLocation(Gfx::Uniform::Type::Proj);
 
   glUseProgram(shader->Id());
-  glUniformMatrix4fv(viewLoc, 1, true, nCamera.WorldToCamera().CData());
-  glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
+  glUniformMatrix4fv(viewLoc, 1, true, nCamera.View().CData());
+  glUniformMatrix4fv(projLoc, 1, true, nCamera.Proj().CData());
 
   // Set the handles' translation to the transform's position, the rotation to
   // the frame rotation and scale depending on the distance from the camera.

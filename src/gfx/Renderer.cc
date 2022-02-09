@@ -1,10 +1,12 @@
 #include <glad/glad.h>
+#include <sstream>
 
 #include "AssetLibrary.h"
 #include "Input.h"
 #include "Temporal.h"
 #include "Viewport.h"
 #include "comp/AlphaColor.h"
+#include "comp/Camera.h"
 #include "comp/Model.h"
 #include "comp/Sprite.h"
 #include "comp/Text.h"
@@ -111,7 +113,8 @@ void RenderQuad(GLuint vao)
   glBindVertexArray(0);
 }
 
-void RenderMemberIds(const World::Space& space, const Mat4& view)
+void RenderMemberIds(
+  const World::Space& space, const Mat4& view, const Mat4& proj)
 {
   const Gfx::Shader* memberIdShader =
     AssLib::TryGetLive<Gfx::Shader>(AssLib::nMemberIdShaderId);
@@ -127,7 +130,7 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
 
   glUseProgram(memberIdShader->Id());
   glUniformMatrix4fv(viewLoc, 1, true, view.CData());
-  glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
+  glUniformMatrix4fv(projLoc, 1, true, proj.CData());
 
   // Render MemberIds for every model.
   space.VisitTableComponents<Comp::Model>(
@@ -192,14 +195,15 @@ void RenderMemberIds(const World::Space& space, const Mat4& view)
   glEnable(GL_CULL_FACE);
 }
 
-World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view)
+World::MemberId HoveredMemberId(
+  const World::Space& space, const Mat4& view, const Mat4& proj)
 {
   // Render all of the MemberIds to a framebuffer.
   Gfx::Framebuffer handlebuffer(GL_RED_INTEGER, GL_INT);
   glBindFramebuffer(GL_FRAMEBUFFER, handlebuffer.Fbo());
   glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
   glClear(GL_DEPTH_BUFFER_BIT);
-  Gfx::Renderer::RenderMemberIds(space, view);
+  Gfx::Renderer::RenderMemberIds(space, view, proj);
 
   // Find the MemberId at the mouse position.
   World::MemberId memberId;
@@ -216,31 +220,41 @@ World::MemberId HoveredMemberId(const World::Space& space, const Mat4& view)
   return memberId;
 }
 
-void RenderSpace(const World::Space& space)
+Result RenderSpace(const World::Space& space)
 {
+  // Make sure the space has a camera.
+  if (space.mCameraId == World::nInvalidMemberId)
+  {
+    std::stringstream error;
+    error << "Space \"" << space.mName << "\" has no assigned camera.";
+    return Result(error.str());
+  }
+  // Make sure the camera has a camera component.
+  Comp::Camera* cameraComp = space.GetComponent<Comp::Camera>(space.mCameraId);
+  if (cameraComp == nullptr)
+  {
+    std::stringstream error;
+    error << "Space \"" << space.mName
+          << "\"'s camera does not have a camera component";
+    return Result(error.str());
+  }
+
   // Find the view matrix using the space's camera and render the space.
-  Comp::Transform* cameraTransform = nullptr;
-  if (space.mCameraId != World::nInvalidMemberId)
-  {
-    cameraTransform = space.GetComponent<Comp::Transform>(space.mCameraId);
-  }
-  Mat4 view;
-  Vec3 viewPos;
-  if (cameraTransform == nullptr)
-  {
-    Math::Identity(&view);
-    viewPos = {0.0, 0.0f, 0.0f};
-  } else
-  {
-    World::Object object(const_cast<World::Space*>(&space), space.mCameraId);
-    view = cameraTransform->GetInverseWorldMatrix(object);
-    viewPos = cameraTransform->GetWorldTranslation(object);
-  }
-  RenderSpace(space, view, viewPos);
+  Comp::Transform& transformComp =
+    *space.GetComponent<Comp::Transform>(space.mCameraId);
+  World::Object object(const_cast<World::Space*>(&space), space.mCameraId);
+  Mat4 view = transformComp.GetInverseWorldMatrix(object);
+  Mat4 proj = cameraComp->Proj();
+  Vec3 viewPos = transformComp.GetWorldTranslation(object);
+  RenderSpace(space, view, proj, viewPos);
+  return Result();
 }
 
 void RenderSpace(
-  const World::Space& space, const Mat4& view, const Vec3& viewPos)
+  const World::Space& space,
+  const Mat4& view,
+  const Mat4& proj,
+  const Vec3& viewPos)
 {
   // Render all of the Model components.
   space.VisitTableComponents<Comp::Model>(
@@ -265,7 +279,7 @@ void RenderSpace(
 
       glUseProgram(shader->Id());
       glUniformMatrix4fv(viewLoc, 1, true, view.CData());
-      glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
+      glUniformMatrix4fv(projLoc, 1, true, proj.CData());
       glUniform3fv(viewPosLoc, 1, viewPos.CData());
       glUniform1f(timeLoc, Temporal::TotalTime());
       Comp::AlphaColor* alphaColorComp =
@@ -332,14 +346,14 @@ void RenderSpace(
         return;
       }
 
-      GLint projLoc = shader->UniformLocation(Uniform::Type::Proj);
       GLint viewLoc = shader->UniformLocation(Uniform::Type::View);
+      GLint projLoc = shader->UniformLocation(Uniform::Type::Proj);
       GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
       GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
 
       glUseProgram(shader->Id());
-      glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
       glUniformMatrix4fv(viewLoc, 1, true, view.CData());
+      glUniformMatrix4fv(projLoc, 1, true, proj.CData());
       glUniform1i(samplerLoc, 0);
 
       World::Object object(const_cast<World::Space*>(&space), owner);
@@ -363,16 +377,16 @@ void RenderSpace(
         shader = AssLib::TryGetLive<Gfx::Shader>(AssLib::nDefaultTextShaderId);
       }
 
-      GLint projLoc = shader->UniformLocation(Uniform::Type::Proj);
       GLint viewLoc = shader->UniformLocation(Uniform::Type::View);
+      GLint projLoc = shader->UniformLocation(Uniform::Type::Proj);
       GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
       GLint colorLoc = shader->UniformLocation(Uniform::Type::Color);
       GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
       GLint fillAmountLoc = shader->UniformLocation(Uniform::Type::FillAmount);
 
       glUseProgram(shader->Id());
-      glUniformMatrix4fv(projLoc, 1, true, Viewport::Perspective().CData());
       glUniformMatrix4fv(viewLoc, 1, true, view.CData());
+      glUniformMatrix4fv(projLoc, 1, true, proj.CData());
       glUniform1i(samplerLoc, 0);
       glUniform3fv(colorLoc, 1, textComp.mColor.CData());
       glUniform1f(fillAmountLoc, textComp.mFillAmount);
@@ -392,12 +406,17 @@ void RenderSpace(
   glEnable(GL_CULL_FACE);
 }
 
-void RenderWorld()
+Result RenderWorld()
 {
   for (const World::Space& space : World::nSpaces)
   {
-    RenderSpace(space);
+    Result result = RenderSpace(space);
+    if (!result.Success())
+    {
+      return result;
+    }
   }
+  return Result();
 }
 
 void RenderQueuedFullscreenFramebuffers()

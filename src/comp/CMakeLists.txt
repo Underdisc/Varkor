@@ -1,5 +1,6 @@
 target_sources(${varkorTarget} PRIVATE
   AlphaColor.cc
+  Camera.cc
   DirectionalLight.cc
   Model.cc
   PointLight.cc

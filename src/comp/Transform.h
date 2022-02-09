@@ -41,7 +41,7 @@ struct Transform
     const Vec3& worldTranslation, const World::Object& object);
 
   const Mat4& GetLocalMatrix();
-  Mat4 GetInverseLocalMatrix();
+  Mat4 GetInverseLocalMatrix() const;
   Mat4 GetWorldMatrix(const World::Object& object);
   Mat4 GetInverseWorldMatrix(const World::Object& object);
 

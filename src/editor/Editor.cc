@@ -4,7 +4,6 @@
 
 #include "Input.h"
 #include "Options.h"
-#include "Temporal.h"
 #include "Viewport.h"
 #include "editor/Camera.h"
 #include "editor/CoreInterface.h"
@@ -108,7 +107,7 @@ void Run()
 
   if (nEditorMode)
   {
-    nCamera.Update(Temporal::DeltaTime());
+    nCamera.Update();
   }
   nCoreInterface.HandleInterfaces();
 }

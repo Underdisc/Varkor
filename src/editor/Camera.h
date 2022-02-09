@@ -1,6 +1,8 @@
 #ifndef editor_Camera_h
 #define editor_Camera_h
 
+#include "comp/Camera.h"
+#include "comp/Transform.h"
 #include "math/Matrix4.h"
 #include "math/Vector.h"
 
@@ -10,32 +12,27 @@ class Camera
 {
 public:
   Camera();
-  void Update(float dt);
-  const Mat4& WorldToCamera() const;
-  Mat4 CameraToWorld() const;
+  void Update();
+  Mat4 View() const;
+  const Mat4& InverseView();
+  Mat4 Proj() const;
+
+  Vec3 Forward() const;
+  Vec3 Right() const;
+  Vec3 Up() const;
+
   const Vec3& Position() const;
-  const Vec3& Right() const;
-  const Vec3& Up() const;
-  const Vec3& Forward() const;
+  Vec3 StandardToWorldPosition(const Vec2& standardPosition);
 
 private:
-  void CalculateBasisVectors();
-  void CalculateWorldToCamera();
-
-  // Values describing the location and orientation of the camera.
+  Comp::Transform mTransform;
+  Comp::Camera mCamera;
   float mYaw;
   float mPitch;
-  Vec3 mPosition;
 
   // Settings used for the camera controls.
   float mSpeed;
   float mSensitivity;
-
-  // Values used to create the world to camera transformation.
-  Vec3 mForward;
-  Vec3 mRight;
-  Vec3 mUp;
-  Mat4 mWtc;
 };
 
 } // namespace Editor

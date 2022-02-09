@@ -1,6 +1,5 @@
-#include <math.h>
-
 #include "Input.h"
+#include "Temporal.h"
 #include "math/Constants.h"
 
 #include "Camera.h"
@@ -9,27 +8,34 @@ namespace Editor {
 
 Camera::Camera()
 {
+  mTransform.VInit();
+  mCamera.VInit();
   mYaw = 0.0f;
   mPitch = 0.0f;
-  mPosition = {0.0f, 0.0f, 0.0f};
 
   mSpeed = 1.0f;
-  mSensitivity = 0.3f * Math::nPi / 256.0f;
-
-  CalculateBasisVectors();
-  mWtc[3][0] = 0.0f;
-  mWtc[3][1] = 0.0f;
-  mWtc[3][2] = 0.0f;
-  mWtc[3][3] = 1.0f;
-  CalculateWorldToCamera();
+  mSensitivity = 0.001f * Math::nPi;
 }
 
-void Camera::Update(float dt)
+void Camera::Update()
 {
   // LeftControl disables camera motion because it's the editor's modifier key.
   if (Input::KeyDown(Input::Key::LeftControl))
   {
     return;
+  }
+
+  // Change the camera's yaw and pitch depending on input.
+  if (Input::MouseDown(Input::Mouse::Right))
+  {
+    Vec2 mouseMotion = Input::MouseMotion();
+    mYaw -= mouseMotion[0] * mSensitivity;
+    mPitch -= mouseMotion[1] * mSensitivity;
+    Math::Quaternion hRot, vRot;
+    hRot.AngleAxis(mYaw, {0.0f, 1.0f, 0.0f});
+    vRot.AngleAxis(mPitch, {1.0f, 0.0f, 0.0f});
+    Math::Quaternion rotation = hRot * vRot;
+    mTransform.SetRotation(rotation);
   }
 
   // Change the camera speed using scroll wheel input.
@@ -43,114 +49,72 @@ void Camera::Update(float dt)
   }
 
   // Change the camera position depending on input.
+  Vec3 translation = mTransform.GetTranslation();
   if (Input::KeyDown(Input::Key::W))
   {
-    mPosition += mForward * dt * mSpeed;
+    translation += Forward() * Temporal::DeltaTime() * mSpeed;
   }
   if (Input::KeyDown(Input::Key::S))
   {
-    mPosition -= mForward * dt * mSpeed;
+    translation -= Forward() * Temporal::DeltaTime() * mSpeed;
   }
   if (Input::KeyDown(Input::Key::D))
   {
-    mPosition += mRight * dt * mSpeed;
+    translation += Right() * Temporal::DeltaTime() * mSpeed;
   }
   if (Input::KeyDown(Input::Key::A))
   {
-    mPosition -= mRight * dt * mSpeed;
+    translation -= Right() * Temporal::DeltaTime() * mSpeed;
   }
   if (Input::KeyDown(Input::Key::E))
   {
-    mPosition += mUp * dt * mSpeed;
+    translation += Up() * Temporal::DeltaTime() * mSpeed;
   }
   if (Input::KeyDown(Input::Key::Q))
   {
-    mPosition -= mUp * dt * mSpeed;
+    translation -= Up() * Temporal::DeltaTime() * mSpeed;
   }
-
-  // Change the camera yaw and pitch depending on input and calculate the world
-  // to camera transformation.
-  if (Input::MouseDown(Input::Mouse::Right))
-  {
-    Vec2 mouseMotion = Input::MouseMotion();
-    mYaw += mouseMotion[0] * mSensitivity;
-    mPitch -= mouseMotion[1] * mSensitivity;
-    if (mPitch >= Math::nPiO2)
-    {
-      mPitch = Math::nPiO2 - Math::nEpsilonL;
-    } else if (mPitch <= -Math::nPiO2)
-    {
-      mPitch = -Math::nPiO2 + Math::nEpsilonL;
-    }
-    CalculateBasisVectors();
-  }
-  CalculateWorldToCamera();
+  mTransform.SetTranslation(translation);
 }
 
-const Mat4& Camera::WorldToCamera() const
+Mat4 Camera::View() const
 {
-  return mWtc;
+  return mTransform.GetInverseLocalMatrix();
 }
 
-Mat4 Camera::CameraToWorld() const
+const Mat4& Camera::InverseView()
 {
-  // clang-format off
-  Mat4 ctw = {mRight[0], mUp[0], mForward[0], mPosition[0],
-              mRight[1], mUp[1], mForward[1], mPosition[1],
-              mRight[2], mUp[2], mForward[2], mPosition[2],
-                   0.0f,   0.0f,        0.0f,         1.0f};
-  // clang-format on
-  return ctw;
+  return mTransform.GetLocalMatrix();
+}
+
+Mat4 Camera::Proj() const
+{
+  return mCamera.Proj();
+}
+
+Vec3 Camera::Forward() const
+{
+  return mTransform.GetRotation().Rotate({0.0f, 0.0f, -1.0f});
+}
+
+Vec3 Camera::Right() const
+{
+  return mTransform.GetRotation().Rotate({1.0f, 0.0f, 0.0f});
+}
+
+Vec3 Camera::Up() const
+{
+  return mTransform.GetRotation().Rotate({0.0f, 1.0f, 0.0f});
 }
 
 const Vec3& Camera::Position() const
 {
-  return mPosition;
+  return mTransform.GetTranslation();
 }
 
-const Vec3& Camera::Right() const
+Vec3 Camera::StandardToWorldPosition(const Vec2& standardPosition)
 {
-  return mRight;
-}
-
-const Vec3& Camera::Up() const
-{
-  return mUp;
-}
-
-const Vec3& Camera::Forward() const
-{
-  return mForward;
-}
-
-void Camera::CalculateBasisVectors()
-{
-  float horizontalScale = cosf(mPitch);
-  mForward[0] = cosf(mYaw) * horizontalScale;
-  mForward[1] = sinf(mPitch);
-  mForward[2] = sinf(mYaw) * horizontalScale;
-  Vec3 globalUp = {0.0f, 1.0f, 0.0f};
-  mRight = Math::Cross(mForward, globalUp);
-  mRight = Math::Normalize(mRight);
-  mUp = Math::Cross(mRight, mForward);
-}
-
-void Camera::CalculateWorldToCamera()
-{
-  Vec3 back = -mForward;
-  Vec3 negativePosition = -mPosition;
-  mWtc[0][0] = mRight[0];
-  mWtc[0][1] = mRight[1];
-  mWtc[0][2] = mRight[2];
-  mWtc[0][3] = Math::Dot(negativePosition, mRight);
-  mWtc[1][0] = mUp[0];
-  mWtc[1][1] = mUp[1];
-  mWtc[1][2] = mUp[2];
-  mWtc[1][3] = Math::Dot(negativePosition, mUp);
-  mWtc[2][0] = back[0];
-  mWtc[2][1] = back[1];
-  mWtc[2][2] = back[2];
-  mWtc[2][3] = Math::Dot(negativePosition, back);
+  return mCamera.StandardToWorldPosition(standardPosition, InverseView());
 }
 
 } // namespace Editor

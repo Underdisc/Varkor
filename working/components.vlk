@@ -1,5 +1,5 @@
 {
-  :Version: '7'
+  :Version: '8'
   :Components: [
     {
       :Id: '0'
@@ -30,6 +30,12 @@
       :Name: 'AlphaColor'
       :Size: '16'
       :Dependencies: []
+    },
+    {
+      :Id: '5'
+      :Name: 'Camera'
+      :Size: '12'
+      :Dependencies: ['Transform']
     }
   ]
 }
