@@ -38,6 +38,35 @@ void FromTo()
   std::cout << q[2].Rotate(v[0]) << std::endl << std::endl;
 }
 
+void BasisVectors()
+{
+  std::cout << "<= BasisVectors =>\n";
+  auto testBasis = [](Vec3 xAxis, Vec3 up)
+  {
+    xAxis = Math::Normalize(xAxis);
+    Vec3 zAxis = Math::Normalize(Math::Cross(xAxis, up));
+    Vec3 yAxis = Math::Normalize(Math::Cross(zAxis, xAxis));
+
+    Math::Quaternion q;
+    q.BasisVectors(xAxis, yAxis, zAxis);
+    std::cout << q << '\n';
+  };
+  Math::Quaternion q;
+  testBasis({1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
+  testBasis({1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f});
+  testBasis({-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
+  testBasis({-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f});
+  testBasis({1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f});
+  testBasis({1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f});
+  testBasis({-1.0f, -1.0f, -1.0f}, {0.0f, 1.0f, 0.0f});
+  testBasis({-1.0f, -1.0f, -1.0f}, {0.0f, -1.0f, 0.0f});
+  testBasis({-1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f});
+  testBasis({-1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f});
+  testBasis({1.0f, -1.0f, -1.0f}, {0.0f, 1.0f, 0.0f});
+  testBasis({1.0f, -1.0f, -1.0f}, {0.0f, -1.0f, 0.0f});
+  std::cout << '\n';
+}
+
 void Interpolate()
 {
   std::cout << "<= Interpolate =>\n";
@@ -108,6 +137,7 @@ int main(void)
 {
   AngleAxis();
   FromTo();
+  BasisVectors();
   Interpolate();
   Conjugate();
   Multiplication();

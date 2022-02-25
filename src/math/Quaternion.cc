@@ -44,6 +44,54 @@ void Quaternion::FromTo(Vec3 from, Vec3 to)
   Normalize();
 }
 
+// This initializes the quaternion using the 3 orthogonal unit vectors
+// associated with it. What happens when a proper orthogonal basis is not
+// supplied is beyond the scope of this function.
+void Quaternion::BasisVectors(
+  const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis)
+{
+  // These values are found with the basis vector rotation matrix [X, Y, Z]
+  // where X, Y, and Z are the basis vectors for the respective axes. Using
+  // that and the quaternion rotation matrix representation, we can calculate
+  // the quaternion coefficients.
+  float wSquared = (xAxis[0] + yAxis[1] + zAxis[2] + 1.0f) * 0.25f;
+  if (wSquared > 0.0f)
+  {
+    mA = std::sqrtf(wSquared);
+    float w4 = mA * 4.0f;
+    mB = (yAxis[2] - zAxis[1]) / w4;
+    mC = (zAxis[0] - xAxis[2]) / w4;
+    mD = (xAxis[1] - yAxis[0]) / w4;
+    return;
+  }
+  float xSquared = (xAxis[0] - yAxis[1] - zAxis[2] + 1.0f) * 0.25f;
+  if (xSquared > 0.0f)
+  {
+    mB = std::sqrtf(xSquared);
+    float x4 = mB * 4.0f;
+    mA = (yAxis[2] - zAxis[1]) / x4;
+    mC = (xAxis[1] + yAxis[0]) / x4;
+    mD = (xAxis[2] + zAxis[0]) / x4;
+    return;
+  }
+  float ySquared = (yAxis[1] - xAxis[0] - zAxis[2] + 1.0f) * 0.25f;
+  if (ySquared > 0.0f)
+  {
+    mC = std::sqrtf(ySquared);
+    float y4 = mC * 4.0f;
+    mA = (zAxis[0] - xAxis[2]) / y4;
+    mB = (xAxis[1] + yAxis[0]) / y4;
+    mD = (yAxis[2] + zAxis[1]) / y4;
+    return;
+  }
+  float zSquared = (zAxis[2] - xAxis[0] - yAxis[1] + 1.0f) * 0.25f;
+  mD = std::sqrtf(zSquared);
+  float z4 = mD * 4.0f;
+  mA = (xAxis[1] - yAxis[0]) / z4;
+  mB = (xAxis[2] + zAxis[0]) / z4;
+  mC = (yAxis[2] + zAxis[1]) / z4;
+}
+
 Quaternion Quaternion::Interpolate(float t) const
 {
   float halfAngle = std::acosf(mA);
@@ -99,6 +147,7 @@ Vec3 Quaternion::Axis() const
 
 Vec3 Quaternion::EulerAngles() const
 {
+  // The angle order is the rotation around the x, y, and then z axis.
   Vec3 angles;
   float m21 = 2.0f * mC * mD + 2.0f * mB * mA;
   float m22 = 1.0f - 2.0f * mB * mB - 2.0f * mC * mC;

@@ -20,6 +20,7 @@ struct Quaternion
   void Identity();
   void AngleAxis(float angle, Vec3 axis);
   void FromTo(Vec3 from, Vec3 to);
+  void BasisVectors(const Vec3& right, const Vec3& up, const Vec3& forward);
 
   Quaternion Interpolate(float t) const;
   Quaternion Conjugate() const;
@@ -40,5 +41,6 @@ Quaternion operator*(const Quaternion& a, const Quaternion& b);
 } // namespace Math
 
 typedef Math::Quaternion Quat;
+typedef Math::Quaternion Quaternion;
 
 #endif
