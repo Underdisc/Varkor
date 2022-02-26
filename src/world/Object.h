@@ -36,6 +36,7 @@ struct Object
   std::string& GetName() const;
   bool HasParent() const;
   Object Parent() const;
+  bool Valid() const;
 
   Space* mSpace;
   MemberId mMemberId;

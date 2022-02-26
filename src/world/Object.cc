@@ -59,4 +59,9 @@ Object Object::Parent() const
   return parent;
 }
 
+bool Object::Valid() const
+{
+  return mSpace != nullptr && mMemberId != nInvalidMemberId;
+}
+
 } // namespace World
