@@ -82,8 +82,10 @@ Mat4 Camera::Proj() const
   return proj;
 }
 
-// Standard position represents a location on the monitor using values in the
-// range of [0, 1].
+// This will take a position in the window and convert it to a position in the
+// world. The values in standard position should be in the range of [-1, 1],
+// where -1 represents the leftmost and bottommost edges of the window. The
+// value returned will be on the view frustrum's near plane.
 Vec3 Camera::StandardToWorldPosition(
   Vec2 standardPosition, const Mat4& inverseView) const
 {

@@ -58,6 +58,9 @@ const Vec2& MousePosition()
   return nMousePosition;
 }
 
+// This will give the mouse position in the window. Both values in the returned
+// vector are in the range of [-1, 1], where -1 represents the leftmost and
+// bottommost edges of the window.
 Vec2 StandardMousePosition()
 {
   Vec2 standard = nMousePosition;
