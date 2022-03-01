@@ -77,6 +77,21 @@ void Perspective()
   std::cout << matrix << std::endl;
 }
 
+void Orthographic()
+{
+  std::cout << "<= Orthographic =>" << std::endl;
+  auto useInputs = [](float height, float aspect, float near, float far)
+  {
+    Mat4 matrix;
+    Math::Orthographic(&matrix, height, aspect, near, far);
+    std::cout << matrix;
+  };
+  useInputs(5.0f, 2.0f, 0.0f, 100.0f);
+  useInputs(30.0f, 1.5f, 1.0f, 200.0f);
+  useInputs(15.0f, 10.0f, 0.5f, 1000.0f);
+  std::cout << '\n';
+}
+
 int main(void)
 {
   Multiply();
@@ -86,4 +101,5 @@ int main(void)
   Translate();
   Rotate();
   Perspective();
+  Orthographic();
 }

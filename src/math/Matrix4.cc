@@ -128,7 +128,6 @@ void Perspective(
 {
   // The fov passed into this function is the angle formed by the top and the
   // bottom of the view fustum, not the left and right.
-  Zero(m);
   float tanHalfFov = std::tanf(fovY / 2.0f);
   float tanHalfFovAspect = tanHalfFov * aspect;
   float nearFarDifference = near - far;
@@ -136,11 +135,28 @@ void Perspective(
   LogAbortIf(tanHalfFovAspect == 0.0f, "The value of tan(fov/2)*aspect is 0.");
   LogAbortIf(nearFarDifference == 0.0f, "near and far have the same value.");
 
+  Zero(m);
   m->mD[0][0] = 1.0f / tanHalfFovAspect;
   m->mD[1][1] = 1.0f / tanHalfFov;
   m->mD[2][2] = (near + far) / nearFarDifference;
   m->mD[2][3] = 2.0f * near * far / nearFarDifference;
   m->mD[3][2] = -1.0f;
+}
+
+void Orthographic(
+  Matrix<float, 4>* m, float height, float aspect, float near, float far)
+{
+  LogAbortIf(height == 0.0f, "height must be a non-zero value.");
+  LogAbortIf(near == far, "near and far must be different values.");
+
+  Zero(m);
+  float width = height * aspect;
+  float zScale = 2.0f / (far - near);
+  m->mD[0][0] = 2.0f / width;
+  m->mD[1][1] = 2.0f / height;
+  m->mD[2][2] = zScale;
+  m->mD[2][3] = near * zScale + 1.0f;
+  m->mD[3][3] = 1.0f;
 }
 
 } // namespace Math

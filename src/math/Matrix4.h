@@ -27,7 +27,9 @@ void Scale(Matrix<float, 4>* matrix, float uniformScale);
 void Translate(Matrix<float, 4>* matrix, const Vec3& translation);
 void Rotate(Matrix<float, 4>* matrix, const Quaternion& rotation);
 void Perspective(
-  Matrix<float, 4>* m, float near, float far, float fov, float aspect);
+  Matrix<float, 4>* m, float fovY, float aspect, float near, float far);
+void Orthographic(
+  Matrix<float, 4>* m, float height, float aspect, float near, float far);
 
 } // namespace Math
 
