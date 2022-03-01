@@ -1,6 +1,3 @@
-#include <iomanip>
-#include <sstream>
-
 #include "Error.h"
 
 namespace Math {
@@ -64,43 +61,6 @@ Vector<T, N> operator*(const Matrix<T, N>& matrix, const Vector<T, N>& vector)
     }
   }
   return result;
-}
-
-template<typename T, unsigned int N>
-std::ostream& operator<<(std::ostream& os, const Matrix<T, N>& matrix)
-{
-  // We find the longest number in each column so that all columns are aligned
-  // when printed to console.
-  int longestWidths[N];
-  for (int c = 0; c < N; ++c)
-  {
-    longestWidths[c] = 1;
-    for (int r = 0; r < N; ++r)
-    {
-      std::stringstream ss;
-      ss << matrix[r][c];
-      int width = (int)ss.str().size();
-      if (width > longestWidths[c])
-      {
-        longestWidths[c] = width;
-      }
-    }
-  }
-
-  for (int r = 0; r < N; ++r)
-  {
-    os << "[";
-    for (int c = 0; c < N; ++c)
-    {
-      os << std::setw(longestWidths[c]) << std::right << matrix[r][c];
-      if (c < N - 1)
-      {
-        os << ", ";
-      }
-    }
-    os << "]" << std::endl;
-  }
-  return os;
 }
 
 template<typename T, unsigned int N>
