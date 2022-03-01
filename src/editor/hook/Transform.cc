@@ -142,13 +142,8 @@ bool Hook<Comp::Transform>::Gizmo(
     }
   }
   DisplayOptionsWindow();
-
-  // Find the world ray represented by the mouse and camera positions.
-  Vec3 worldPosition =
-    nCamera.StandardToWorldPosition(Input::StandardMousePosition());
-  const Vec3& cameraPosition = nCamera.Position();
-  Math::Ray mouseRay;
-  mouseRay.StartDirection(cameraPosition, worldPosition - cameraPosition);
+  Math::Ray mouseRay =
+    nCamera.StandardPositionToRay(Input::StandardMousePosition());
 
   // Check to see if the user is beginning or ending a gizmo operation.
   if (Input::MousePressed(Input::Mouse::Left))

@@ -3,6 +3,7 @@
 
 #include "comp/Camera.h"
 #include "comp/Transform.h"
+#include "math/Geometry.h"
 #include "math/Matrix4.h"
 #include "math/Vector.h"
 
@@ -22,7 +23,7 @@ public:
   Vec3 Up() const;
 
   const Vec3& Position() const;
-  Vec3 StandardToWorldPosition(const Vec2& standardPosition);
+  Math::Ray StandardPositionToRay(const Vec2& standardPosition);
 
 private:
   Comp::Transform mTransform;

@@ -22,13 +22,27 @@ struct Camera
   Vec3 StandardToWorldPosition(
     Vec2 standardPosition, const Mat4& inverseView) const;
 
-  float mFov;
+  enum class ProjectionType
+  {
+    Perspective,
+    Orthographic
+  };
+
+  ProjectionType mProjectionType;
+  union
+  {
+    float mFov;
+    float mHeight;
+  };
   float mNear;
   float mFar;
 
+  static const char* smProjectionTypeNames[];
   static float smDefaultFov;
-  static float smDefaultNear;
-  static float smDefaultFar;
+  static float smDefaultHeight;
+  static float smMinimumPerspectiveNear;
+  static float smMinimumOrthographicNear;
+  static float smMaximumFar;
 };
 #pragma pack(pop)
 

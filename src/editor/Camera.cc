@@ -112,9 +112,24 @@ const Vec3& Camera::Position() const
   return mTransform.GetTranslation();
 }
 
-Vec3 Camera::StandardToWorldPosition(const Vec2& standardPosition)
+// Imagine a position on the window extending as a line into space such that we
+// are only able to see it as a single point. This function will return a
+// ray that represents exactly that.
+Math::Ray Camera::StandardPositionToRay(const Vec2& standardPosition)
 {
-  return mCamera.StandardToWorldPosition(standardPosition, InverseView());
+  Vec3 worldPosition =
+    mCamera.StandardToWorldPosition(standardPosition, InverseView());
+  Math::Ray ray;
+  switch (mCamera.mProjectionType)
+  {
+  case Comp::Camera::ProjectionType::Perspective:
+    ray.StartDirection(Position(), worldPosition - Position());
+    break;
+  case Comp::Camera::ProjectionType::Orthographic:
+    ray.StartDirection(worldPosition, Forward());
+    break;
+  }
+  return ray;
 }
 
 } // namespace Editor
