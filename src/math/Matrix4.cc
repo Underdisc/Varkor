@@ -151,11 +151,11 @@ void Orthographic(
 
   Zero(m);
   float width = height * aspect;
-  float zScale = 2.0f / (far - near);
+  float zScale = 2.0f / (near - far);
   m->mD[0][0] = 2.0f / width;
   m->mD[1][1] = 2.0f / height;
   m->mD[2][2] = zScale;
-  m->mD[2][3] = near * zScale + 1.0f;
+  m->mD[2][3] = near * zScale - 1.0f;
   m->mD[3][3] = 1.0f;
 }
 
