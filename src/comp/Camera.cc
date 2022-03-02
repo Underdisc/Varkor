@@ -42,7 +42,8 @@ void Camera::VSerialize(Vlk::Value& cameraVal)
 
 void Camera::VDeserialize(const Vlk::Explorer& cameraEx)
 {
-  std::string projectionTypeName = cameraEx("ProjectionType").As<std::string>();
+  std::string projectionTypeName =
+    cameraEx("ProjectionType").As<std::string>(smProjectionTypeNames[0]);
   if (projectionTypeName == smProjectionTypeNames[1])
   {
     mProjectionType = ProjectionType::Orthographic;

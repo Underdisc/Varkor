@@ -1,5 +1,5 @@
 {
-  :Version: '8'
+  :Version: '9'
   :Components: [
     {
       :Id: '0'
@@ -34,7 +34,7 @@
     {
       :Id: '5'
       :Name: 'Camera'
-      :Size: '12'
+      :Size: '16'
       :Dependencies: ['Transform']
     }
   ]
