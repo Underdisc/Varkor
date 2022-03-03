@@ -10,6 +10,7 @@ namespace Renderer {
 
 void Init();
 void Clear();
+void Render();
 void RenderMemberIds(
   const World::Space& space, const Mat4& view, const Mat4& proj);
 World::MemberId HoveredMemberId(
@@ -20,7 +21,7 @@ void RenderSpace(
   const Mat4& proj,
   const Vec3& viewPos);
 Result RenderWorld();
-void RenderQueuedFullscreenFramebuffers();
+void RenderFramebuffers();
 void QueueFullscreenFramebuffer(const Framebuffer& framebuffer);
 
 } // namespace Renderer

@@ -2,11 +2,13 @@
 #define editor_Editor_h
 
 #include "editor/Camera.h"
+#include "editor/CoreInterface.h"
 
 namespace Editor {
 
 extern bool nEditorMode;
 extern Camera nCamera;
+extern CoreInterface nCoreInterface;
 
 void Init();
 void Purge();

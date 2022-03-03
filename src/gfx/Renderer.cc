@@ -12,6 +12,8 @@
 #include "comp/Text.h"
 #include "comp/Transform.h"
 #include "ds/Vector.h"
+#include "editor/Editor.h"
+#include "editor/OverviewInterface.h"
 #include "gfx/Framebuffer.h"
 #include "gfx/Image.h"
 #include "gfx/Model.h"
@@ -30,6 +32,9 @@ GLuint nFullscreenVao;
 GLuint nFullscreenVbo;
 GLuint nSpriteVao;
 GLuint nSpriteVbo;
+
+size_t nNextSpaceFramebuffer;
+Ds::Vector<Framebuffer> nSpaceFramebuffers;
 
 Ds::Vector<unsigned int> nQueuedFullscreenFramebuffers;
 
@@ -67,9 +72,10 @@ void Init()
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
   };
-
   uploadQuadVertexArray(fullscreenVertices, &nFullscreenVao, &nFullscreenVbo);
   uploadQuadVertexArray(spriteVertices, &nSpriteVao, &nSpriteVbo);
+
+  nNextSpaceFramebuffer = 0;
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -80,8 +86,50 @@ void Init()
 
 void Clear()
 {
+  // Remove any space framebuffers that were not used during the last render and
+  // clear those that were used.
+  for (size_t i = nNextSpaceFramebuffer; i < nSpaceFramebuffers.Size(); ++i)
+  {
+    nSpaceFramebuffers.Pop();
+  }
+  for (size_t i = 0; i < nSpaceFramebuffers.Size(); ++i)
+  {
+    glBindFramebuffer(GL_FRAMEBUFFER, nSpaceFramebuffers[i].Fbo());
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  nNextSpaceFramebuffer = 0;
+
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Render()
+{
+  Clear();
+  if (Editor::nEditorMode)
+  {
+    Editor::OverviewInterface* overviewInterface =
+      Editor::nCoreInterface.FindInterface<Editor::OverviewInterface>();
+    if (overviewInterface != nullptr)
+    {
+      RenderSpace(
+        *overviewInterface->mSpace,
+        Editor::nCamera.View(),
+        Editor::nCamera.Proj(),
+        Editor::nCamera.Position());
+    }
+  } else
+  {
+    Result result = RenderWorld();
+    if (!result.Success())
+    {
+      LogError(result.mError.c_str());
+      Editor::nEditorMode = true;
+    }
+  }
+  RenderFramebuffers();
 }
 
 Mat4 GetTransformation(const World::Object& object)
@@ -256,6 +304,15 @@ void RenderSpace(
   const Mat4& proj,
   const Vec3& viewPos)
 {
+  // Get the next space framebuffer that hasn't been rendered to and bind it.
+  if (nNextSpaceFramebuffer >= nSpaceFramebuffers.Size())
+  {
+    nSpaceFramebuffers.Emplace(GL_RGBA, GL_UNSIGNED_BYTE);
+  }
+  const Framebuffer& framebuffer = nSpaceFramebuffers[nNextSpaceFramebuffer];
+  ++nNextSpaceFramebuffer;
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo());
+
   // Render all of the Model components.
   space.VisitTableComponents<Comp::Model>(
     [&](World::MemberId owner, const Comp::Model& modelComp)
@@ -404,6 +461,8 @@ void RenderSpace(
       }
     });
   glEnable(GL_CULL_FACE);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 Result RenderWorld()
@@ -419,7 +478,7 @@ Result RenderWorld()
   return Result();
 }
 
-void RenderQueuedFullscreenFramebuffers()
+void RenderFramebuffers()
 {
   const Gfx::Shader* shader =
     AssLib::TryGetLive<Gfx::Shader>(AssLib::nFramebufferShaderId);
@@ -432,16 +491,22 @@ void RenderQueuedFullscreenFramebuffers()
   glUseProgram(shader->Id());
   glUniform1i(samplerLoc, 0);
 
+  glDisable(GL_DEPTH_TEST);
+  for (size_t i = 0; i < nNextSpaceFramebuffer; ++i)
+  {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, nSpaceFramebuffers[i].ColorTbo());
+    RenderQuad(nFullscreenVao);
+  }
   for (unsigned int tbo : nQueuedFullscreenFramebuffers)
   {
-    glDisable(GL_DEPTH_TEST);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tbo);
     RenderQuad(nFullscreenVao);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glEnable(GL_DEPTH_TEST);
   }
   nQueuedFullscreenFramebuffers.Clear();
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glEnable(GL_DEPTH_TEST);
 }
 
 void QueueFullscreenFramebuffer(const Framebuffer& framebuffer)

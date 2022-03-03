@@ -39,19 +39,9 @@ void VarkorRun()
     Temporal::Update();
 
     Input::Update();
-    Gfx::Renderer::Clear();
-    Editor::Run();
     World::Update();
-    if (!Editor::nEditorMode)
-    {
-      Result result = Gfx::Renderer::RenderWorld();
-      if (!result.Success())
-      {
-        LogError(result.mError.c_str());
-        Editor::nEditorMode = true;
-      }
-    }
-    Gfx::Renderer::RenderQueuedFullscreenFramebuffers();
+    Editor::Run();
+    Gfx::Renderer::Render();
     Editor::Render();
     Viewport::SwapBuffers();
     Viewport::Update();
