@@ -9,6 +9,7 @@ namespace Gfx {
 namespace Renderer {
 
 void Init();
+void Purge();
 void Clear();
 void Render();
 void RenderMemberIds(

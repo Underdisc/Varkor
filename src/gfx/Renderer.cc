@@ -84,6 +84,11 @@ void Init()
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
+void Purge()
+{
+  nSpaceFramebuffers.Clear();
+}
+
 void Clear()
 {
   // Remove any space framebuffers that were not used during the last render and
