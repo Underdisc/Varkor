@@ -8,7 +8,7 @@
 
 namespace Comp {
 
-void Text::VInit()
+void Text::VInit(const World::Object& owner)
 {
   mFontId = AssLib::nDefaultAssetId;
   mShaderId = AssLib::nDefaultTextShaderId;

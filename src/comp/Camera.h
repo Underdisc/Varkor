@@ -11,7 +11,7 @@ namespace Comp {
 #pragma pack(push, 1)
 struct Camera
 {
-  void VInit();
+  void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& cameraVal);
   void VDeserialize(const Vlk::Explorer& cameraEx);
   void LocalLookAt(

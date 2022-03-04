@@ -38,7 +38,7 @@ namespace Comp {
     delegate->BindNull();                                                       \
   }
 // clang-format on
-BindableTypeFunction(Init, void);
+BindableTypeFunction(Init, void, const World::Object&);
 BindableTypeFunction(Update, void, const World::Object&);
 BindableTypeFunction(Serialize, void, Vlk::Value&);
 BindableTypeFunction(Deserialize, void, const Vlk::Explorer&);

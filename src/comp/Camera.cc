@@ -14,7 +14,7 @@ float Camera::smMinimumPerspectiveNear = 0.1f;
 float Camera::smMinimumOrthographicNear = 0.0f;
 float Camera::smMaximumFar = 1000000.0f;
 
-void Camera::VInit()
+void Camera::VInit(const World::Object& owner)
 {
   mProjectionType = ProjectionType::Perspective;
   mFov = smDefaultFov;

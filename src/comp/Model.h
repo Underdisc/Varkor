@@ -2,18 +2,15 @@
 #define comp_Model_h
 
 #include "AssetLibrary.h"
-
-namespace Vlk {
-struct Value;
-struct Explorer;
-} // namespace Vlk
+#include "vlk/Valkor.h"
+#include "world/Object.h"
 
 namespace Comp {
 
 #pragma pack(push, 1)
 struct Model
 {
-  void VInit();
+  void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& modelVal);
   void VDeserialize(const Vlk::Explorer& modelEx);
 

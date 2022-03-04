@@ -3,13 +3,14 @@
 
 #include "AssetLibrary.h"
 #include "vlk/Valkor.h"
+#include "world/Object.h"
 
 namespace Comp {
 
 #pragma pack(push, 1)
 struct Sprite
 {
-  void VInit();
+  void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& spriteVal);
   void VDeserialize(const Vlk::Explorer& spriteEx);
 

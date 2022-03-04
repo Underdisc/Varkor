@@ -287,7 +287,8 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
   void* component = table->GetComponent(newDesc.mTableIndex);
   if (init && typeData.mVInit.Open())
   {
-    typeData.mVInit.Invoke(component);
+    Object owner(this, memberId);
+    typeData.mVInit.Invoke(component, owner);
   }
   return component;
 }

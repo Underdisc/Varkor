@@ -1,9 +1,8 @@
 #include "comp/Transform.h"
-#include "vlk/Valkor.h"
 
 namespace Comp {
 
-void Transform::VInit()
+void Transform::VInit(const World::Object& owner)
 {
   mScale = {1.0f, 1.0f, 1.0f};
   mRotation = {1.0f, 0.0f, 0.0f, 0.0f};

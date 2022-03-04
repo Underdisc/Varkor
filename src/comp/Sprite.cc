@@ -2,7 +2,7 @@
 
 namespace Comp {
 
-void Sprite::VInit()
+void Sprite::VInit(const World::Object& owner)
 {
   mImageId = AssLib::nDefaultAssetId;
   mShaderId = AssLib::nDefaultAssetId;

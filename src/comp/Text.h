@@ -8,13 +8,14 @@
 #include "ds/Vector.h"
 #include "math/Matrix4.h"
 #include "vlk/Valkor.h"
+#include "world/Object.h"
 
 namespace Comp {
 
 #pragma pack(push, 1)
 struct Text
 {
-  void VInit();
+  void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& textVal);
   void VDeserialize(const Vlk::Explorer& textEx);
 

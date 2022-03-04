@@ -1,17 +1,9 @@
 #ifndef comp_Transform_h
 #define comp_Transform_h
 
-namespace Vlk {
-struct Value;
-struct Explorer;
-} // namespace Vlk
-
-namespace World {
-struct Object;
-}
-
 #include "math/Matrix4.h"
 #include "math/Vector.h"
+#include "vlk/Valkor.h"
 #include "world/Object.h"
 
 namespace Comp {
@@ -19,7 +11,7 @@ namespace Comp {
 #pragma pack(push, 1)
 struct Transform
 {
-  void VInit();
+  void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& transformVal);
   void VDeserialize(const Vlk::Explorer& transformEx);
 

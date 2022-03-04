@@ -1,9 +1,8 @@
 #include "comp/Model.h"
-#include "vlk/Valkor.h"
 
 namespace Comp {
 
-void Model::VInit()
+void Model::VInit(const World::Object& owner)
 {
   mModelId = AssLib::nDefaultAssetId;
   mShaderId = AssLib::nDefaultAssetId;

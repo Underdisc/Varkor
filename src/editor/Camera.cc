@@ -1,15 +1,19 @@
+#include "editor/Camera.h"
 #include "Input.h"
 #include "Temporal.h"
 #include "math/Constants.h"
-
-#include "Camera.h"
+#include "world/Object.h"
 
 namespace Editor {
 
 Camera::Camera()
 {
-  mTransform.VInit();
-  mCamera.VInit();
+  // The camera and transform components do not use the owner, so giving them an
+  // invalid one doesn't cause any problems.
+  World::Object owner(nullptr, World::nInvalidMemberId);
+  mTransform.VInit(owner);
+  mCamera.VInit(owner);
+
   mYaw = 0.0f;
   mPitch = 0.0f;
 
