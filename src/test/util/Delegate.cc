@@ -31,7 +31,8 @@ void FreeFunction()
 
   Util::Delegate<int, int, float> returnAndArgs;
   returnAndArgs.Bind<ReturnAndArgs>();
-  std::cout << " " << returnAndArgs.Invoke(1, 2) << std::endl
+  int returnValue = returnAndArgs.Invoke(1, 2);
+  std::cout << " " << returnValue << std::endl
             << "Open: " << basic.Open() << args.Open() << returnAndArgs.Open()
             << std::endl
             << std::endl;
@@ -72,7 +73,8 @@ void MemberFunction()
 
   Util::Delegate<int, int, float> returnAndArgs;
   returnAndArgs.Bind<Object, &Object::ReturnAndArgs>();
-  std::cout << " " << returnAndArgs.Invoke((void*)&object, 1, 2) << std::endl
+  int returnValue = returnAndArgs.Invoke((void*)&object, 1, 2);
+  std::cout << " " << returnValue << std::endl
             << "Open: " << basic.Open() << args.Open() << returnAndArgs.Open()
             << std::endl
             << std::endl;

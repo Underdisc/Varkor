@@ -17,7 +17,8 @@ void Deserialize()
   stringsEx[0][3][0];
 
   // Test other functions supplied by the explorer.
-  std::cout << "Invalid Size: " << rootEx("Invalid").Size() << "\n";
+  size_t invalidSize = rootEx("Invalid").Size();
+  std::cout << "Invalid Size: " << invalidSize << "\n";
   std::cout << "PairArray Size: " << rootEx(3).Size() << "\n";
   std::cout << "PairArray Key: " << rootEx(3).Key() << "\n";
   std::cout << "Other Key: " << rootEx("ArrayOfPairArrays")[1](1).Key() << "\n";
