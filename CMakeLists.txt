@@ -6,7 +6,7 @@ project(varkor)
 find_package(OpenGL)
 list(APPEND CMAKE_PREFIX_PATH "ext/lib")
 if (MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /W3 /sdl")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX /W3 /sdl /std:c++17")
 
   # Determine the correct libraries using the build type.
   if ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")

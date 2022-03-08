@@ -34,8 +34,8 @@ template<typename K, typename V>
 class Map: public RbTree<KvPair<K, V>>
 {
 public:
-  typedef RbTree<KvPair<K, V>>::Iter Iter;
-  typedef RbTree<KvPair<K, V>>::CIter CIter;
+  typename typedef RbTree<KvPair<K, V>>::Iter Iter;
+  typename typedef RbTree<KvPair<K, V>>::CIter CIter;
   Iter begin() const;
   Iter end() const;
   CIter cbegin() const;
