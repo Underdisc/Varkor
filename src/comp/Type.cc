@@ -1,10 +1,10 @@
 #include "Type.h"
+#include "Options.h"
 #include "vlk/Valkor.h"
 
 namespace Comp {
 
 int nVersion = -1;
-const char* nComponentsFilename = "components.vlk";
 Ds::Vector<TypeData> nTypeData;
 
 int CreateId()
@@ -144,12 +144,15 @@ void AssessDependencies(TypeId id, const Vlk::Explorer& compEx)
   }
 }
 
+const char* nComponentsFilename = "components.vlk";
 void AssessComponentsFile()
 {
   // Ensure that the components file contains the required information and
   // initialize the version.
   Vlk::Value rootVal;
-  Result result = rootVal.Read(nComponentsFilename);
+  std::string componentsFile =
+    Options::PrependResDirectory(nComponentsFilename);
+  Result result = rootVal.Read(componentsFile.c_str());
   if (!result.Success())
   {
     LogError(result.mError.c_str());
@@ -208,7 +211,9 @@ void SaveComponentsFile()
       dependenciesVal[i] = dependencyTypeData.mName;
     }
   }
-  Result result = rootVal.Write(nComponentsFilename);
+  std::string componentsFile =
+    Options::PrependResDirectory(nComponentsFilename);
+  Result result = rootVal.Write(componentsFile.c_str());
   LogErrorIf(!result.Success(), result.mError.c_str());
 }
 

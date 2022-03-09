@@ -3,10 +3,11 @@
 *.ilk
 *.pdb
 buildSpecs.bat
+projects.cmake
 .vs/
 build/
 working/imgui.ini
-working/assets.vlk
-working/res/
+working/res/assets.vlk
+working/res/test
 working/test/*/coverage
 working/test/*/out_diff.txt

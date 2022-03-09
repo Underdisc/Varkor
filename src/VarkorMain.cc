@@ -12,9 +12,10 @@
 #include "gfx/Renderer.h"
 #include "world/World.h"
 
-Result VarkorInit(const char* windowName, int argc, char* argv[])
+Result VarkorInit(
+  int argc, char* argv[], const char* windowName, const char* projectDirectory)
 {
-  Result result = Options::Init(argc, argv);
+  Result result = Options::Init(argc, argv, projectDirectory);
   if (!result.Success())
   {
     return result;
@@ -65,7 +66,7 @@ void VarkorPurge()
 #ifdef VarkorStandalone
 int main(int argc, char* argv[])
 {
-  Result result = VarkorInit("Varkor Standalone", argc, argv);
+  Result result = VarkorInit(argc, argv, "Varkor Standalone", "");
   if (!result.Success())
   {
     return 0;

@@ -77,8 +77,8 @@ void Init()
   nCoreInterface.Init();
   if (!Options::nLoadSpace.empty())
   {
-    ValueResult<World::SpaceIt> result =
-      World::LoadSpace(Options::nLoadSpace.c_str());
+    std::string spaceFile = Options::PrependResDirectory(Options::nLoadSpace);
+    ValueResult<World::SpaceIt> result = World::LoadSpace(spaceFile.c_str());
     if (result.Success())
     {
       nCoreInterface.OpenInterface<OverviewInterface>(&(*result.mValue));

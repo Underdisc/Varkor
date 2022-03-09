@@ -46,7 +46,8 @@ public:
   T mResource;
   Asset(const std::string& name, Status status);
   Result Init();
-  Result Init(const std::string paths[T::smInitPathCount]);
+  template<typename... Paths>
+  void SetPaths(const Paths&... paths);
   void SetPath(int index, const std::string& newPath);
   const std::string& GetPath(int index) const;
 
@@ -54,6 +55,14 @@ public:
 
 private:
   std::string mPaths[T::smInitPathCount];
+
+  template<typename Path>
+  void SetPaths(int currentPathIndex, const Path& path);
+  template<typename Path, typename... RemainingPaths>
+  void SetPaths(
+    int currentPathIndex,
+    const Path& path,
+    const RemainingPaths&... remainingPaths);
 };
 
 // These functions serve as the primary interface for the AssetLibrary.

@@ -1,6 +1,7 @@
 #include <dirent/dirent.h>
 #include <imgui/imgui.h>
 
+#include "Options.h"
 #include "editor/FileInterface.h"
 #include "editor/Utility.h"
 
@@ -24,15 +25,17 @@ void FileInterface::Show()
   // Open the currently selected directory. We unroll the path to handle cases
   // where directories may have been deleted or renamed.
   static std::string path = ".";
-  DIR* directory = opendir(path.c_str());
+  std::string fullPath = Options::PrependResDirectory(path);
+  DIR* directory = opendir(fullPath.c_str());
   while (directory == nullptr)
   {
     path.erase(path.find_last_of('/'));
-    directory = opendir(path.c_str());
+    fullPath.erase(path.find_last_of('/'));
+    directory = opendir(fullPath.c_str());
   }
 
-  // This will prevent "." from showing up as an option and ".." when the
-  // current path is ".".
+  // This will prevent "."  and ".." from showing up as options when the current
+  // path is ".".
   readdir(directory);
   if (path == ".")
   {
@@ -95,13 +98,7 @@ void FileInterface::Show()
   }
   if (ImGui::Button(buttonLabel, ImVec2(-1, 0)))
   {
-    if (path.size() > 1)
-    {
-      mCallback(path.substr(2) + "/" + mFile);
-    } else
-    {
-      mCallback(mFile);
-    }
+    mCallback(fullPath.substr(2) + "/" + mFile);
     mOpen = false;
   }
   ImGui::End();

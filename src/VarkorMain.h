@@ -3,7 +3,8 @@
 
 #include "Result.h"
 
-Result VarkorInit(const char* windowName, int argc, char* argv[]);
+Result VarkorInit(
+  int argc, char* argv[], const char* windowName, const char* projectDirectory);
 void VarkorRun();
 void VarkorPurge();
 

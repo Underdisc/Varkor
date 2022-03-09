@@ -41,3 +41,17 @@ AddVarkorTarget()
 
 # Create all of the test targets.
 add_subdirectory(src/test)
+
+function(AddProject targetName directory)
+  project(${targetName})
+  add_executable(${targetName})
+  add_subdirectory("${directory}/src" "${targetName}Src")
+  target_link_libraries(${targetName} varkorLibrary)
+  target_compile_definitions(${targetName}
+    PUBLIC PROJECT_DIRECTORY="${directory}")
+  set_property(TARGET ${targetName} PROPERTY RUNTIME_OUTPUT_DIRECTORY
+    "${CMAKE_SOURCE_DIR}/working")
+endfunction()
+
+# Create all of the targets for different Varkor projects.
+include("projects.cmake" OPTIONAL)

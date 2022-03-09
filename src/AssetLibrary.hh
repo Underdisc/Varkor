@@ -1,3 +1,8 @@
+#include <filesystem>
+#include <sstream>
+
+#include "Options.h"
+
 namespace Gfx {
 struct Model;
 }
@@ -12,17 +17,53 @@ Asset<T>::Asset(const std::string& name, Status status):
 template<typename T>
 Result Asset<T>::Init()
 {
-  return mResource.Init(mPaths);
+  // These path checks and conversions are necessary because a path may be
+  // relative to the working directory (consider files within vres/) or a
+  // project's resource directory.
+  std::string paths[T::smInitPathCount];
+  for (int i = 0; i < T::smInitPathCount; ++i)
+  {
+    if (std::filesystem::exists(mPaths[i]))
+    {
+      paths[i] = mPaths[i];
+      continue;
+    }
+    std::string projectAssetPath = Options::PrependResDirectory(mPaths[i]);
+    if (!std::filesystem::exists(projectAssetPath))
+    {
+      std::stringstream error;
+      error << "Failed to open \"" << mPaths[i] << "\".";
+      return Result(error.str());
+    }
+    paths[i] = projectAssetPath;
+  }
+  return mResource.Init(paths);
 }
 
 template<typename T>
-Result Asset<T>::Init(const std::string paths[T::smInitPathCount])
+template<typename Path>
+void Asset<T>::SetPaths(int currentPathIndex, const Path& path)
 {
-  for (size_t i = 0; i < T::smInitPathCount; ++i)
-  {
-    mPaths[i] = paths[i];
-  }
-  return Init();
+  mPaths[currentPathIndex] = path;
+}
+
+template<typename T>
+template<typename Path, typename... RemainingPaths>
+void Asset<T>::SetPaths(
+  int currentPathIndex,
+  const Path& path,
+  const RemainingPaths&... remainingPaths)
+{
+  mPaths[currentPathIndex] = path;
+  ++currentPathIndex;
+  SetPaths(currentPathIndex, remainingPaths...);
+}
+
+template<typename T>
+template<typename... Paths>
+void Asset<T>::SetPaths(const Paths&... paths)
+{
+  SetPaths(0, paths...);
 }
 
 template<typename T>
@@ -68,8 +109,9 @@ void AssetBin<T>::InitDefault(Args&&... args)
 {
   Asset<T>& defaultAsset =
     AssetBin<T>::smAssets.Emplace(nDefaultAssetId, "Default", Status::Live);
+  defaultAsset.SetPaths(args...);
   InitBin<T>::smInitQueue.Push(nDefaultAssetId);
-  Result result = defaultAsset.mResource.Init(args...);
+  Result result = defaultAsset.Init();
   InitBin<T>::smInitQueue.Pop();
   LogAbortIf(!result.Success(), result.mError.c_str());
 }
@@ -83,8 +125,9 @@ AssetId AssetBin<T>::Require(const std::string& name, Args&&... args)
 {
   AssetId id = NextRequiredId();
   Asset<T>& newAsset = smAssets.Emplace(id, name, Status::Live);
+  newAsset.SetPaths(args...);
   InitBin<T>::smInitQueue.Push(id);
-  Result result = newAsset.mResource.Init(args...);
+  Result result = newAsset.Init();
   InitBin<T>::smInitQueue.Pop();
   LogAbortIf(!result.Success(), result.mError.c_str());
   return id;

@@ -1,6 +1,7 @@
 #include <fstream>
 
 #include "AssetLibrary.h"
+#include "Options.h"
 #include "Viewport.h"
 #include "gfx/Font.h"
 #include "gfx/Image.h"
@@ -152,11 +153,12 @@ void Purge()
   }
 }
 
-const char* nAssetFile = "assets.vlk";
+const char* nAssetsFilename = "assets.vlk";
 void DeserializeAssets()
 {
   Vlk::Value rootVal;
-  Result result = rootVal.Read(nAssetFile);
+  std::string assetsFile = Options::PrependResDirectory(nAssetsFilename);
+  Result result = rootVal.Read(assetsFile.c_str());
   if (!result.Success())
   {
     LogError(result.mError.c_str());
@@ -176,7 +178,8 @@ void SerializeAssets()
   SerializeAssets<Gfx::Image>(rootVal);
   SerializeAssets<Gfx::Model>(rootVal);
   SerializeAssets<Gfx::Shader>(rootVal);
-  Result result = rootVal.Write(nAssetFile);
+  std::string assetsFile = Options::PrependResDirectory(nAssetsFilename);
+  Result result = rootVal.Write(assetsFile.c_str());
   LogErrorIf(!result.Success(), result.mError.c_str());
 }
 
@@ -237,8 +240,9 @@ void AssetBin<Gfx::Model>::InitDefault(Args&&... args)
 {
   Asset<Gfx::Model>& defaultAsset = AssetBin<Gfx::Model>::smAssets.Emplace(
     nDefaultAssetId, "Default", Status::Initializing);
+  defaultAsset.SetPaths(args...);
   InitBin<Gfx::Model>::smInitQueue.Push(nDefaultAssetId);
-  Result result = defaultAsset.mResource.Init(args...);
+  Result result = defaultAsset.Init();
   InitBin<Gfx::Model>::smInitQueue.Pop();
   LogAbortIf(!result.Success(), result.mError.c_str());
 }
@@ -250,8 +254,9 @@ AssetId AssetBin<Gfx::Model>::Require(const std::string& name, Args&&... args)
   AssetId id = AssetBin<Gfx::Model>::NextRequiredId();
   Asset<Gfx::Model>& newAsset =
     AssetBin<Gfx::Model>::smAssets.Emplace(id, name, Status::Initializing);
+  newAsset.SetPaths(args...);
   InitBin<Gfx::Model>::smInitQueue.Push(id);
-  Result result = newAsset.mResource.Init(args...);
+  Result result = newAsset.Init();
   InitBin<Gfx::Model>::smInitQueue.Pop();
   LogAbortIf(!result.Success(), result.mError.c_str());
   return id;

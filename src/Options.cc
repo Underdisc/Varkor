@@ -6,6 +6,7 @@
 namespace Options {
 
 std::string nLoadSpace = "";
+std::string nProjectDirectory = "";
 
 void ShowHelp()
 {
@@ -15,8 +16,14 @@ void ShowHelp()
        "and select the space saved within the given file.\n";
 }
 
-Result Init(int argc, char* argv[])
+Result Init(int argc, char* argv[], const char* projectDirectory)
 {
+  nProjectDirectory = projectDirectory;
+  if (!nProjectDirectory.empty() && nProjectDirectory.back() != '/')
+  {
+    nProjectDirectory += '/';
+  }
+
   const char* getoptString = "hs:";
   option allOptions[] = {
     {"help", no_argument, NULL, 'h'},
@@ -34,6 +41,11 @@ Result Init(int argc, char* argv[])
     }
   }
   return Result();
+}
+
+std::string PrependResDirectory(const std::string& path)
+{
+  return nProjectDirectory + "res/" + path;
 }
 
 } // namespace Options
