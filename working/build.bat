@@ -11,7 +11,7 @@ if errorlevel %buildSpecsCheckFailed% (
 )
 
 REM Build the target.
-pushd ..\%buildDir%
+pushd %buildDir%
 %generator% %target%
 popd
 set buildFailed=1

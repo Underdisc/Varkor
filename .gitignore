@@ -2,10 +2,10 @@
 *.exe
 *.ilk
 *.pdb
-buildSpecs.bat
 projects.cmake
 .vs/
 build/
+working/buildSpecs.bat
 working/imgui.ini
 working/res/assets.vlk
 working/res/test

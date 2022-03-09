@@ -88,10 +88,10 @@ ninja varkor
 
 Because `varkor.exe` is placed in `working/` by default, building Varkor, going to `working/` to run it, and going back to build again can be really fucking annoying. Inside of `working/`, you will find a batch script called `build.bat`. After setting up the cmd shell and creating a `buildSpecs.bat` file, you can run `build.bat`. The script will go to a specified build directory, run the generator command, and return to `working/`. `build r` will also run varkor if the build was successful.
 
-As mentioned, you need to create a file called `buildSpecs.bat` to use `working/build.bat`. This file is git ignored and must be in the root of your local copy of this repository. The script needs to set environment variables specific to your setup so they can be used by `build.bat`. You can find out what these environment variables are at the top of `working/checkBuildSpecs.bat`. As an example, here is the current content of my `buildSpecs.bat` file.
+As mentioned, you need to create a file called `buildSpecs.bat` to use `working/build.bat`. This file is git ignored and must be placed in `working/`. The script needs to set environment variables specific to your setup so they can be used by `build.bat`. You can find out what these environment variables are at the top of `working/checkBuildSpecs.bat`. As an example, here is the current content of my `buildSpecs.bat` file.
 
 ```
-set buildDir="build/rel/msvc64"
+set buildDir="../build/rel/msvc64"
 set generator=ninja
 set target=varkor
 ```
