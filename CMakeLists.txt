@@ -19,7 +19,7 @@ if (MSVC)
   endif ()
 endif ()
 
-function(AddVarkorTarget)
+function(AddVarkorTarget varkorTarget)
   add_subdirectory(src ${varkorTarget}Src)
   add_subdirectory(ext ${varkorTarget}Ext)
   target_include_directories(${varkorTarget} PUBLIC "src")
@@ -31,13 +31,11 @@ add_executable(varkor)
 target_compile_definitions(varkor PRIVATE VarkorStandalone)
 set_property(TARGET varkor PROPERTY RUNTIME_OUTPUT_DIRECTORY
   "${CMAKE_SOURCE_DIR}/working")
-set(varkorTarget varkor)
-AddVarkorTarget()
+AddVarkorTarget(varkor)
 
 # Create the target for the library version of Varkor.
 add_library(varkorLibrary)
-set(varkorTarget varkorLibrary)
-AddVarkorTarget()
+AddVarkorTarget(varkorLibrary)
 
 # Create all of the test targets.
 add_subdirectory(src/test)
