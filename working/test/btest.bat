@@ -40,7 +40,7 @@ if "%1" == "" (
   popd
   exit /b 1
 )
-pushd ..\%buildDir%
+pushd %buildDir%
 if "%1" == "all" (
   %generator% tests
 ) else (
