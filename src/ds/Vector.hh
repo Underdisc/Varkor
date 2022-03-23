@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "Error.h"
 #include "debug/MemLeak.h"
 #include "util/Memory.h"
@@ -338,7 +340,12 @@ const T* Vector<T>::end() const
 template<typename T>
 void Vector<T>::VerifyIndex(size_t index) const
 {
-  LogAbortIf(index < 0 || index >= mSize, "An invalid index was provided.");
+  if (index < 0 || index >= mSize)
+  {
+    std::stringstream error;
+    error << index << " is not a valid index.";
+    LogAbort(error.str().c_str());
+  }
 }
 
 template<typename T>
