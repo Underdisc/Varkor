@@ -68,6 +68,8 @@ private:
 // These functions serve as the primary interface for the AssetLibrary.
 template<typename T>
 AssetId Create(const std::string& name, bool includeId = false);
+template<typename T, typename... Paths>
+AssetId Create(const std::string& name, const Paths&... paths);
 template<typename T>
 void Remove(AssetId id);
 template<typename T>

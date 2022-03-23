@@ -94,6 +94,15 @@ AssetId Create(const std::string& name, bool includeId)
   return id;
 }
 
+template<typename T, typename... Paths>
+AssetId Create(const std::string& name, const Paths&... paths)
+{
+  AssetId id = AssetBin<T>::NextId();
+  Asset<T>& asset = AssetBin<T>::smAssets.Emplace(id, name, Status::Unneeded);
+  asset.SetPaths(paths...);
+  return id;
+}
+
 template<typename T>
 void Remove(AssetId id)
 {
