@@ -56,7 +56,9 @@ const Vec3& Transform::GetTranslation() const
 
 Quat Transform::GetWorldRotation(const World::Object& object) const
 {
-  return GetParentWorldRotation(object) * mRotation;
+  Quat worldRotation = GetParentWorldRotation(object) * mRotation;
+  worldRotation.Normalize();
+  return worldRotation;
 }
 
 Vec3 Transform::GetWorldTranslation(const World::Object& object)
