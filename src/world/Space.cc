@@ -83,6 +83,15 @@ Space::Space(): mName("DefaultName"), mCameraId(nInvalidMemberId) {}
 Space::Space(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
 {}
 
+void Space::Clear()
+{
+  mCameraId = nInvalidMemberId;
+  mTables.Clear();
+  mMembers.Clear();
+  mUnusedMemberIds.Clear();
+  mDescriptorBin.Clear();
+}
+
 void Space::Update()
 {
   Object currentObject(this);

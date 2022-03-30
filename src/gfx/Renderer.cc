@@ -11,6 +11,7 @@
 #include "comp/Sprite.h"
 #include "comp/Text.h"
 #include "comp/Transform.h"
+#include "debug/Draw.h"
 #include "ds/Vector.h"
 #include "editor/Editor.h"
 #include "editor/OverviewInterface.h"
@@ -35,8 +36,6 @@ GLuint nSpriteVbo;
 
 size_t nNextSpaceFramebuffer;
 Ds::Vector<Framebuffer> nSpaceFramebuffers;
-
-Ds::Vector<unsigned int> nQueuedFullscreenFramebuffers;
 
 void Init()
 {
@@ -115,16 +114,20 @@ void Render()
   Clear();
   if (Editor::nEditorMode)
   {
+    // Render only the selected space and the editor space.
     Editor::OverviewInterface* overviewInterface =
       Editor::nCoreInterface.FindInterface<Editor::OverviewInterface>();
-    if (overviewInterface != nullptr)
+    if (overviewInterface == nullptr)
     {
-      RenderSpace(
-        *overviewInterface->mSpace,
-        Editor::nCamera.View(),
-        Editor::nCamera.Proj(),
-        Editor::nCamera.Position());
+      return;
     }
+    const Mat4& view = Editor::nCamera.View();
+    const Mat4& proj = Editor::nCamera.Proj();
+    const Vec3& position = Editor::nCamera.Position();
+    RenderSpace(*overviewInterface->mSpace, view, proj, position);
+    RenderSpace(Editor::nSpace, view, proj, position);
+    RenderFramebuffers();
+    Debug::Draw::Render(Editor::nCamera.View(), Editor::nCamera.Proj());
   } else
   {
     Result result = RenderWorld();
@@ -133,8 +136,8 @@ void Render()
       LogError(result.mError.c_str());
       Editor::nEditorMode = true;
     }
+    RenderFramebuffers();
   }
-  RenderFramebuffers();
 }
 
 Mat4 GetTransformation(const World::Object& object)
@@ -503,20 +506,8 @@ void RenderFramebuffers()
     glBindTexture(GL_TEXTURE_2D, nSpaceFramebuffers[i].ColorTbo());
     RenderQuad(nFullscreenVao);
   }
-  for (unsigned int tbo : nQueuedFullscreenFramebuffers)
-  {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tbo);
-    RenderQuad(nFullscreenVao);
-  }
-  nQueuedFullscreenFramebuffers.Clear();
   glBindTexture(GL_TEXTURE_2D, 0);
   glEnable(GL_DEPTH_TEST);
-}
-
-void QueueFullscreenFramebuffer(const Framebuffer& framebuffer)
-{
-  nQueuedFullscreenFramebuffers.Push(framebuffer.ColorTbo());
 }
 
 } // namespace Renderer

@@ -14,19 +14,17 @@ void OverviewInterface::Show()
 {
   // Handle object picking.
   InspectorInterface* inspector = FindInterface<InspectorInterface>();
-  bool picking = nEditorMode &&
-    (inspector == nullptr ||
-     (inspector != nullptr && !inspector->SuppressObjectPicking()));
-  if (picking && Input::MousePressed(Input::Mouse::Left))
+  if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left))
   {
     World::MemberId clickedMemberId =
       Gfx::Renderer::HoveredMemberId(*mSpace, nCamera.View(), nCamera.Proj());
     if (clickedMemberId != World::nInvalidMemberId)
     {
       World::Object clickedObject(mSpace, clickedMemberId);
-      OpenInterface<InspectorInterface>(clickedObject);
+      inspector = OpenInterface<InspectorInterface>(clickedObject);
     }
   }
+  nSuppressObjectPicking = false;
 
   ImGui::Begin("Overview", &mOpen);
 

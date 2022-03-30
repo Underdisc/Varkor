@@ -7,8 +7,7 @@
 
 namespace Editor {
 
-InspectorInterface::InspectorInterface(World::Object& object):
-  mObject(object), mSuppressObjectPicking(false)
+InspectorInterface::InspectorInterface(World::Object& object): mObject(object)
 {}
 
 void InspectorInterface::Show()
@@ -28,7 +27,6 @@ void InspectorInterface::Show()
   }
 
   // Display all of the Member's components and the active component hooks.
-  mSuppressObjectPicking = false;
   World::Member& member = mObject.GetMember();
   mObject.mSpace->VisitMemberComponents(
     mObject.mMemberId,
@@ -53,7 +51,7 @@ void InspectorInterface::Show()
         {
           hook = hookFunctions.mOpener(this);
         }
-        mSuppressObjectPicking |= hook->Edit(mObject);
+        hook->Edit(mObject);
       } else if (hook != nullptr)
       {
         hookFunctions.mCloser(this);
@@ -65,11 +63,6 @@ void InspectorInterface::Show()
       }
     });
   ImGui::End();
-}
-
-bool InspectorInterface::SuppressObjectPicking()
-{
-  return mSuppressObjectPicking;
 }
 
 AddComponentInterface::AddComponentInterface(const World::Object& object):

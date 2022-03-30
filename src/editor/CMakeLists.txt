@@ -11,4 +11,5 @@ target_sources(${varkorTarget} PRIVATE
   OverviewInterface.cc
   Utility.cc
   WindowInterface.cc)
+add_subdirectory(gizmos)
 add_subdirectory(hook)

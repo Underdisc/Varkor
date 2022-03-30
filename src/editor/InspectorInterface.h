@@ -11,11 +11,7 @@ struct InspectorInterface: public WindowInterface
 public:
   InspectorInterface(World::Object& object);
   void Show();
-  bool SuppressObjectPicking();
   World::Object mObject;
-
-private:
-  bool mSuppressObjectPicking;
 };
 
 struct AddComponentInterface: public WindowInterface

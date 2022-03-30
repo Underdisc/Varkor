@@ -175,7 +175,31 @@ void PerpendicularTo()
   Vec3 c = {1.0f, 0.0f, -2.0f};
   std::cout << Math::PerpendicularTo(a) << std::endl;
   std::cout << Math::PerpendicularTo(b) << std::endl;
-  std::cout << Math::PerpendicularTo(c) << std::endl;
+  std::cout << Math::PerpendicularTo(c) << std::endl << std::endl;
+}
+
+void ScaleToInterval()
+{
+  std::cout << "<= ScaleToInterval =>\n"
+            << Math::ScaleToInterval(Vec3({1.0f, 0.0f, 0.0f}), 0.5f) << "\n"
+            << Math::ScaleToInterval(Vec3({0.2f, 0.0f, 0.0f}), 0.5f) << "\n"
+            << Math::ScaleToInterval(Vec3({0.0f, 0.6f, 0.6f}), 1.0f) << "\n"
+            << Math::ScaleToInterval(Vec3({1.0f, 1.0f, 1.0f}), 2.5f) << "\n"
+            << Math::ScaleToInterval(Vec3({-1.0f, -1.0f, -1.0f}), 0.5f)
+            << "\n\n";
+}
+
+void ScaleComponentsToInterval()
+{
+  // clang-format off
+  std::cout << "<= ScaleComponentsToInterval =>\n"
+    << Math::ScaleComponentsToInterval(Vec3({1.0f, 0.5f, 6.6f}), 0.5f) << "\n"
+    << Math::ScaleComponentsToInterval(Vec3({0.2f, 0.3f, 0.4f}), 0.5f) << "\n"
+    << Math::ScaleComponentsToInterval(Vec3({-0.8f, 0.4f, 0.6f}), 1.0f) << "\n"
+    << Math::ScaleComponentsToInterval(Vec3({1.0f, 4.9f, -14.4f}), 2.5f) << "\n"
+    << Math::ScaleComponentsToInterval(Vec3({-1.4f, -1.2f, 6.1f}), 0.5f)
+    << "\n";
+  // clang-format on
 }
 
 int main(void)
@@ -195,4 +219,6 @@ int main(void)
   Dot();
   ComponentwiseProduct();
   PerpendicularTo();
+  ScaleToInterval();
+  ScaleComponentsToInterval();
 }

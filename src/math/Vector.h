@@ -61,6 +61,10 @@ template<typename T, unsigned int N>
 Vector<T, N> ComponentwiseProduct(const Vector<T, N>& a, const Vector<T, N>& b);
 template<typename T>
 Vector<T, 3> PerpendicularTo(const Vector<T, 3>& vector);
+template<typename T, unsigned int N>
+Vector<T, N> ScaleToInterval(Vector<T, N> vector, float interval);
+template<typename T, unsigned int N>
+Vector<T, N> ScaleComponentsToInterval(Vector<T, N> vector, float interval);
 
 } // namespace Math
 

@@ -25,6 +25,7 @@ struct Transform
   void SetScale(const Vec3& newScale);
   void SetRotation(const Quat& newRotation);
   void SetTranslation(const Vec3& newTranslation);
+  void SetWorldRotation(const Quat& worldRotation, const World::Object& object);
   void SetWorldTranslation(
     const Vec3& worldTranslation, const World::Object& object);
 

@@ -8,13 +8,16 @@
 #include "editor/Camera.h"
 #include "editor/CoreInterface.h"
 #include "editor/OverviewInterface.h"
+#include "editor/gizmos/Gizmos.h"
 #include "world/World.h"
 
 namespace Editor {
 
 CoreInterface nCoreInterface;
 ImGuiContext* nImGuiContext;
+bool nSuppressObjectPicking = false;
 bool nEditorMode = true;
+World::Space nSpace;
 Camera nCamera;
 
 void Init()
@@ -92,6 +95,8 @@ void Init()
 void Purge()
 {
   nCoreInterface.PurgeInterfaces();
+  Gizmos::PurgeAll();
+  nSpace.Clear();
   ImGui::DestroyContext(nImGuiContext);
 }
 
@@ -113,6 +118,7 @@ void EndFrame()
     nCamera.Update();
   }
   nCoreInterface.HandleInterfaces();
+  Gizmos::PurgeUnneeded();
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

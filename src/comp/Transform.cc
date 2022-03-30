@@ -94,6 +94,23 @@ void Transform::SetTranslation(const Vec3& newTranslation)
   mUpdated = false;
 }
 
+void Transform::SetWorldRotation(
+  const Quat& newWorldRotation, const World::Object& object)
+{
+  World::Object pObject = object.Parent();
+  Transform* pTransform = pObject.GetComponent<Transform>();
+  if (pTransform == nullptr)
+  {
+    mRotation = newWorldRotation;
+  } else
+  {
+    Quat parentRotation = pTransform->GetWorldRotation(pObject);
+    mRotation = parentRotation.Conjugate() * newWorldRotation;
+  }
+  mRotation.Normalize();
+  mUpdated = false;
+}
+
 void Transform::SetWorldTranslation(
   const Vec3& worldTranslation, const World::Object& object)
 {

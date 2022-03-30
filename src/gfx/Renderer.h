@@ -23,7 +23,6 @@ void RenderSpace(
   const Vec3& viewPos);
 Result RenderWorld();
 void RenderFramebuffers();
-void QueueFullscreenFramebuffer(const Framebuffer& framebuffer);
 
 } // namespace Renderer
 } // namespace Gfx

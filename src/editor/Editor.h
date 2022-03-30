@@ -3,10 +3,13 @@
 
 #include "editor/Camera.h"
 #include "editor/CoreInterface.h"
+#include "world/Space.h"
 
 namespace Editor {
 
 extern bool nEditorMode;
+extern bool nSuppressObjectPicking;
+extern World::Space nSpace;
 extern Camera nCamera;
 extern CoreInterface nCoreInterface;
 

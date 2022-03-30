@@ -266,4 +266,29 @@ Vector<T, 3> PerpendicularTo(const Vector<T, 3>& vector)
   return result;
 }
 
+template<typename T, unsigned int N>
+Vector<T, N> ScaleToInterval(Vector<T, N> vector, float interval)
+{
+  float length = Math::Magnitude(vector);
+  if (Math::Near(length, 0.0f))
+  {
+    Vector<T, N> zeroVector {};
+    return zeroVector;
+  }
+  float newLength = Math::RoundToNearest(length, interval);
+  vector = vector / length;
+  return vector * newLength;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N> ScaleComponentsToInterval(Vector<T, N> vector, float interval)
+{
+  Vector<T, N> newVector;
+  for (int i = 0; i < N; ++i)
+  {
+    newVector[i] = RoundToNearest(vector[i], interval);
+  }
+  return newVector;
+}
+
 } // namespace Math
