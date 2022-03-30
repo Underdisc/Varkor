@@ -12,8 +12,8 @@ extern CoreInterface nCoreInterface;
 
 void Init();
 void Purge();
-void Run();
-void Render();
+void StartFrame();
+void EndFrame();
 
 } // namespace Editor
 

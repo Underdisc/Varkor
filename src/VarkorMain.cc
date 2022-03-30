@@ -37,13 +37,13 @@ void VarkorRun()
   while (Viewport::Active() || AssetLibrary::InitThreadOpen())
   {
     Framer::Start();
-    Temporal::Update();
 
+    Temporal::Update();
     Input::Update();
+    Editor::StartFrame();
     World::Update();
-    Editor::Run();
     Gfx::Renderer::Render();
-    Editor::Render();
+    Editor::EndFrame();
     Viewport::SwapBuffers();
     Viewport::Update();
     AssetLibrary::HandleAssetLoading();

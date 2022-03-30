@@ -95,7 +95,7 @@ void Purge()
   ImGui::DestroyContext(nImGuiContext);
 }
 
-void Run()
+void StartFrame()
 {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
@@ -104,16 +104,15 @@ void Run()
   ImGuiIO& io = ImGui::GetIO();
   Input::SetMouseFocus(!io.WantCaptureMouse);
   Input::SetKeyboardFocus(!io.WantCaptureKeyboard);
+}
 
+void EndFrame()
+{
   if (nEditorMode)
   {
     nCamera.Update();
   }
   nCoreInterface.HandleInterfaces();
-}
-
-void Render()
-{
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
