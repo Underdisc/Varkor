@@ -12,6 +12,10 @@ bool Near(float a, float b)
 
 float Round(float value)
 {
+  if (value < 0.0f)
+  {
+    return (float)(int)(value - 0.5f);
+  }
   return (float)(int)(value + 0.5f);
 }
 
