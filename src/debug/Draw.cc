@@ -94,7 +94,6 @@ void CartesianAxes()
 
 void Render(const Mat4& view, const Mat4& projection)
 {
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   Gfx::Shader* shader =
     AssLib::TryGetLive<Gfx::Shader>(AssLib::nDebugDrawShaderId);
   if (shader == nullptr)
