@@ -35,13 +35,11 @@ RbTree<T>::Node::Node(Args&&... args):
 template<typename T>
 typename RbTree<T>::Node* RbTree<T>::Node::FindPredecessor() const
 {
-  if (mLeft == nullptr)
-  {
+  if (mLeft == nullptr) {
     return nullptr;
   }
   Node* predecessor = mLeft;
-  while (predecessor->mRight != nullptr)
-  {
+  while (predecessor->mRight != nullptr) {
     predecessor = predecessor->mRight;
   }
   return predecessor;
@@ -50,13 +48,11 @@ typename RbTree<T>::Node* RbTree<T>::Node::FindPredecessor() const
 template<typename T>
 typename RbTree<T>::Node* RbTree<T>::Node::FindSuccessor() const
 {
-  if (mRight == nullptr)
-  {
+  if (mRight == nullptr) {
     return nullptr;
   }
   Node* successor = mRight;
-  while (successor->mLeft != nullptr)
-  {
+  while (successor->mLeft != nullptr) {
     successor = successor->mLeft;
   }
   return successor;
@@ -67,19 +63,16 @@ template<typename T>
 void RbTree<T>::IterBase::operator++()
 {
   Node* successor = mCurrent->FindSuccessor();
-  if (successor != nullptr)
-  {
+  if (successor != nullptr) {
     mCurrent = successor;
     return;
   }
 
   // There was no right subtree so we need to travel up the tree.
-  while (mCurrent->mParent != nullptr)
-  {
+  while (mCurrent->mParent != nullptr) {
     Node* child = mCurrent;
     mCurrent = mCurrent->mParent;
-    if (mCurrent->mLeft == child)
-    {
+    if (mCurrent->mLeft == child) {
       return;
     }
   }
@@ -209,18 +202,15 @@ void RbTree<T>::RemoveNode(Node* node)
   // Find out if there is a node that will take the place of the node to be
   // removed.
   Node* replace = node->FindPredecessor();
-  if (replace == nullptr)
-  {
+  if (replace == nullptr) {
     replace = node->mRight;
   }
-  if (replace != nullptr)
-  {
+  if (replace != nullptr) {
     node->mValue = Util::Move(replace->mValue);
     node = replace;
   }
 
-  if (node == mHead)
-  {
+  if (node == mHead) {
     delete mHead;
     mHead = nullptr;
     return;
@@ -230,13 +220,11 @@ void RbTree<T>::RemoveNode(Node* node)
   // remove it. If it had a red child, we would have a double red situation. If
   // it had a black child, the black height for the tree would not be consistent
   // because the node only has one child.
-  if (node->mColor == Node::Color::Red)
-  {
-    if (node->mParent->mLeft == node)
-    {
+  if (node->mColor == Node::Color::Red) {
+    if (node->mParent->mLeft == node) {
       node->mParent->mLeft = nullptr;
-    } else
-    {
+    }
+    else {
       node->mParent->mRight = nullptr;
     }
     delete node;
@@ -246,14 +234,12 @@ void RbTree<T>::RemoveNode(Node* node)
   // If the node has a child, it can only be a left red child and we can move
   // that child up and change its color to black. This occurs because we choose
   // to find the predecessor when searching for a replacement node.
-  if (node->mLeft != nullptr)
-  {
+  if (node->mLeft != nullptr) {
     node->mLeft->mParent = node->mParent;
-    if (node->mParent->mLeft == node)
-    {
+    if (node->mParent->mLeft == node) {
       node->mParent->mLeft = node->mLeft;
-    } else
-    {
+    }
+    else {
       node->mParent->mRight = node->mLeft;
     }
     node->mLeft->mColor = Node::Color::Black;
@@ -264,11 +250,10 @@ void RbTree<T>::RemoveNode(Node* node)
   // We have a black node with no children that needs to be removed, hence some
   // balancing needs to be done before finally removing the node.
   BalanceRemoval(node);
-  if (node->mParent->mLeft == node)
-  {
+  if (node->mParent->mLeft == node) {
     node->mParent->mLeft = nullptr;
-  } else
-  {
+  }
+  else {
     node->mParent->mRight = nullptr;
   }
   delete node;
@@ -301,10 +286,8 @@ bool RbTree<T>::HasConsistentBlackHeight()
   // as far as we can.
   int expectedBh = 0;
   Node* node = mHead;
-  while (node != nullptr)
-  {
-    if (node->mColor == Node::Color::Black)
-    {
+  while (node != nullptr) {
+    if (node->mColor == Node::Color::Black) {
       ++expectedBh;
     }
     node = node->mLeft;
@@ -325,16 +308,14 @@ template<typename CT>
 typename RbTree<T>::Node* RbTree<T>::FindNode(const CT& value) const
 {
   Node* node = mHead;
-  while (node != nullptr)
-  {
-    if (node->mValue > value)
-    {
+  while (node != nullptr) {
+    if (node->mValue > value) {
       node = node->mLeft;
-    } else if (node->mValue < value)
-    {
+    }
+    else if (node->mValue < value) {
       node = node->mRight;
-    } else
-    {
+    }
+    else {
       return node;
     }
   }
@@ -344,8 +325,7 @@ typename RbTree<T>::Node* RbTree<T>::FindNode(const CT& value) const
 template<typename T>
 void RbTree<T>::InsertNode(Node* newNode)
 {
-  if (mHead == nullptr)
-  {
+  if (mHead == nullptr) {
     mHead = newNode;
     mHead->mColor = Node::Color::Black;
     return;
@@ -355,17 +335,15 @@ void RbTree<T>::InsertNode(Node* newNode)
   // inserted.
   Node* parent = nullptr;
   Node** insertionPoint = &mHead;
-  while (*insertionPoint != nullptr)
-  {
+  while (*insertionPoint != nullptr) {
     parent = *insertionPoint;
-    if (newNode->mValue > (*insertionPoint)->mValue)
-    {
+    if (newNode->mValue > (*insertionPoint)->mValue) {
       insertionPoint = &(*insertionPoint)->mRight;
-    } else if (newNode->mValue < (*insertionPoint)->mValue)
-    {
+    }
+    else if (newNode->mValue < (*insertionPoint)->mValue) {
       insertionPoint = &(*insertionPoint)->mLeft;
-    } else
-    {
+    }
+    else {
       LogAbort("The RbTree already contains this value.");
     }
   }
@@ -380,18 +358,14 @@ template<typename T>
 void RbTree<T>::BalanceInsertion(Node* child)
 {
   while (child != nullptr && child->mColor == Node::Color::Red &&
-         child->mParent->mColor == Node::Color::Red)
-  {
+         child->mParent->mColor == Node::Color::Red) {
     Node* parent = child->mParent;
     Node* grandparent = parent->mParent;
-    if (grandparent->mLeft == parent)
-    {
+    if (grandparent->mLeft == parent) {
       Node* uncle = grandparent->mRight;
-      if (uncle == nullptr || uncle->mColor == Node::Color::Black)
-      {
+      if (uncle == nullptr || uncle->mColor == Node::Color::Black) {
         // We need make sure that the child is to the left of the parent.
-        if (child == parent->mRight)
-        {
+        if (child == parent->mRight) {
           RotateLeft(parent);
           Node* temp = child;
           child = parent;
@@ -403,25 +377,22 @@ void RbTree<T>::BalanceInsertion(Node* child)
         RotateRight(grandparent);
         grandparent->mColor = Node::Color::Red;
         parent->mColor = Node::Color::Black;
-      } else
-      {
+      }
+      else {
         // We push down the blackness when the uncle is red.
-        if (grandparent != mHead)
-        {
+        if (grandparent != mHead) {
           grandparent->mColor = Node::Color::Red;
         }
         parent->mColor = Node::Color::Black;
         uncle->mColor = Node::Color::Black;
       }
-    } else
-    {
+    }
+    else {
       // This is just a reflection of the code that is used when the parent is
       // to the left of the grandparent.
       Node* uncle = grandparent->mLeft;
-      if (uncle == nullptr || uncle->mColor == Node::Color::Black)
-      {
-        if (child == parent->mLeft)
-        {
+      if (uncle == nullptr || uncle->mColor == Node::Color::Black) {
+        if (child == parent->mLeft) {
           RotateRight(parent);
           Node* temp = child;
           child = parent;
@@ -431,10 +402,9 @@ void RbTree<T>::BalanceInsertion(Node* child)
         RotateLeft(grandparent);
         grandparent->mColor = Node::Color::Red;
         parent->mColor = Node::Color::Black;
-      } else
-      {
-        if (grandparent != mHead)
-        {
+      }
+      else {
+        if (grandparent != mHead) {
           grandparent->mColor = Node::Color::Red;
         }
         parent->mColor = Node::Color::Black;
@@ -449,18 +419,14 @@ template<typename T>
 void RbTree<T>::BalanceRemoval(Node* node)
 {
   // The node passed in is a double black node and we balance it out here.
-  while (node->mParent != nullptr && node->mColor == Node::Color::Black)
-  {
+  while (node->mParent != nullptr && node->mColor == Node::Color::Black) {
     Node* parent = node->mParent;
-    if (parent->mLeft == node)
-    {
+    if (parent->mLeft == node) {
       Node* sibling = node->mParent->mRight;
-      if (sibling->mColor == Node::Color::Black)
-      {
+      if (sibling->mColor == Node::Color::Black) {
         bool redRightChild = sibling->mRight != nullptr &&
           sibling->mRight->mColor == Node::Color::Red;
-        if (redRightChild)
-        {
+        if (redRightChild) {
           // We rotate around the parent towards the double black node because
           // the sibling side has a greater black height.
           sibling->mColor = parent->mColor;
@@ -471,8 +437,7 @@ void RbTree<T>::BalanceRemoval(Node* node)
         }
         bool redLeftChild = sibling->mLeft != nullptr &&
           sibling->mLeft->mColor == Node::Color::Red;
-        if (redLeftChild)
-        {
+        if (redLeftChild) {
           // This rotates around the sibling so that the sibling's left child
           // becomes the new sibling. This new sibling will now have a right red
           // child.
@@ -481,8 +446,7 @@ void RbTree<T>::BalanceRemoval(Node* node)
           RotateRight(sibling);
           continue;
         }
-        if (parent->mColor == Node::Color::Red)
-        {
+        if (parent->mColor == Node::Color::Red) {
           // We make the parent black and the sibling red to account for the
           // double black.
           parent->mColor = Node::Color::Black;
@@ -495,8 +459,8 @@ void RbTree<T>::BalanceRemoval(Node* node)
         sibling->mColor = Node::Color::Red;
         node = parent;
         continue;
-      } else
-      {
+      }
+      else {
         // We need to rotate towards the double black because the sibling is red
         // and we know that it has black nodes underneath it that need to be
         // balanced to the other side of the tree.
@@ -504,17 +468,15 @@ void RbTree<T>::BalanceRemoval(Node* node)
         parent->mColor = Node::Color::Red;
         RotateLeft(parent);
       }
-    } else
-    {
+    }
+    else {
       // This code is just a reflection of the above code for handling the case
       // where the sibling is to the left of the parent.
       Node* sibling = node->mParent->mLeft;
-      if (sibling->mColor == Node::Color::Black)
-      {
+      if (sibling->mColor == Node::Color::Black) {
         bool redLeftChild = sibling->mLeft != nullptr &&
           sibling->mLeft->mColor == Node::Color::Red;
-        if (redLeftChild)
-        {
+        if (redLeftChild) {
           sibling->mColor = parent->mColor;
           parent->mColor = Node::Color::Black;
           sibling->mLeft->mColor = Node::Color::Black;
@@ -523,15 +485,13 @@ void RbTree<T>::BalanceRemoval(Node* node)
         }
         bool redRightChild = sibling->mRight != nullptr &&
           sibling->mRight->mColor == Node::Color::Red;
-        if (redRightChild)
-        {
+        if (redRightChild) {
           sibling->mColor = Node::Color::Red;
           sibling->mRight->mColor = Node::Color::Black;
           RotateLeft(sibling);
           continue;
         }
-        if (parent->mColor == Node::Color::Red)
-        {
+        if (parent->mColor == Node::Color::Red) {
           parent->mColor = Node::Color::Black;
           sibling->mColor = Node::Color::Red;
           return;
@@ -539,8 +499,8 @@ void RbTree<T>::BalanceRemoval(Node* node)
         sibling->mColor = Node::Color::Red;
         node = parent;
         continue;
-      } else
-      {
+      }
+      else {
         sibling->mColor = Node::Color::Black;
         parent->mColor = Node::Color::Red;
         RotateRight(parent);
@@ -560,21 +520,19 @@ void RbTree<T>::RotateLeft(Node* oldRoot)
   // Update the parent pointers of the 3 affected nodes.
   newRoot->mParent = oldRoot->mParent;
   oldRoot->mParent = newRoot;
-  if (oldRoot->mRight != nullptr)
-  {
+  if (oldRoot->mRight != nullptr) {
     oldRoot->mRight->mParent = oldRoot;
   }
 
   // Update the connection from the parent to the new root.
   Node* parent = newRoot->mParent;
-  if (parent == nullptr)
-  {
+  if (parent == nullptr) {
     mHead = newRoot;
-  } else if (parent->mLeft == oldRoot)
-  {
+  }
+  else if (parent->mLeft == oldRoot) {
     parent->mLeft = newRoot;
-  } else
-  {
+  }
+  else {
     parent->mRight = newRoot;
   }
 }
@@ -589,20 +547,18 @@ void RbTree<T>::RotateRight(Node* oldRoot)
 
   newRoot->mParent = oldRoot->mParent;
   oldRoot->mParent = newRoot;
-  if (oldRoot->mLeft != nullptr)
-  {
+  if (oldRoot->mLeft != nullptr) {
     oldRoot->mLeft->mParent = oldRoot;
   }
 
   Node* parent = newRoot->mParent;
-  if (parent == nullptr)
-  {
+  if (parent == nullptr) {
     mHead = newRoot;
-  } else if (parent->mLeft == oldRoot)
-  {
+  }
+  else if (parent->mLeft == oldRoot) {
     parent->mLeft = newRoot;
-  } else
-  {
+  }
+  else {
     parent->mRight = newRoot;
   }
 }
@@ -612,25 +568,23 @@ void RbTree<T>::SwapNodes(Node* a, Node* b)
 {
   // Update all of the pointers on the nodes being swapped and the pointers on
   // nodes connected to them.
-  if (b->mParent == a)
-  {
+  if (b->mParent == a) {
     SwapAttachedNodePointers(a, b);
-  } else if (a->mParent == b)
-  {
+  }
+  else if (a->mParent == b) {
     SwapAttachedNodePointers(b, a);
-  } else
-  {
+  }
+  else {
     SwapDetachedNodePointers(a, b);
   }
 
   Node::Color aColor = a->mColor;
   a->mColor = b->mColor;
   b->mColor = aColor;
-  if (a == mHead)
-  {
+  if (a == mHead) {
     mHead = b;
-  } else if (b == mHead)
-  {
+  }
+  else if (b == mHead) {
     mHead = a;
   }
 }
@@ -639,34 +593,28 @@ template<typename T>
 void RbTree<T>::SwapAttachedNodePointers(Node* above, Node* below)
 {
   // Handle above's Parent.
-  if (above->mParent != nullptr)
-  {
-    if (above->mParent->mLeft == above)
-    {
+  if (above->mParent != nullptr) {
+    if (above->mParent->mLeft == above) {
       above->mParent->mLeft = below;
-    } else
-    {
+    }
+    else {
       above->mParent->mRight = below;
     }
   }
 
   // Handle above's child that is not the below node.
-  if (above->mLeft != nullptr && above->mLeft != below)
-  {
+  if (above->mLeft != nullptr && above->mLeft != below) {
     above->mLeft->mParent = below;
   }
-  if (above->mRight != nullptr && above->mRight != below)
-  {
+  if (above->mRight != nullptr && above->mRight != below) {
     above->mRight->mParent = below;
   }
 
   // Handle below's children.
-  if (below->mLeft != nullptr)
-  {
+  if (below->mLeft != nullptr) {
     below->mLeft->mParent = above;
   }
-  if (below->mRight != nullptr)
-  {
+  if (below->mRight != nullptr) {
     below->mRight->mParent = above;
   }
 
@@ -674,12 +622,11 @@ void RbTree<T>::SwapAttachedNodePointers(Node* above, Node* below)
   Node* belowLeft = below->mLeft;
   Node* belowRight = below->mRight;
   below->mParent = above->mParent;
-  if (below == above->mLeft)
-  {
+  if (below == above->mLeft) {
     below->mLeft = above;
     below->mRight = above->mRight;
-  } else
-  {
+  }
+  else {
     below->mRight = above;
     below->mLeft = above->mLeft;
   }
@@ -694,22 +641,18 @@ void RbTree<T>::SwapDetachedNodePointers(Node* a, Node* b)
   // This will change all pointers that point to leaving to point to taking.
   auto takePlace = [](Node* taking, Node* leaving)
   {
-    if (leaving->mParent != nullptr)
-    {
-      if (leaving->mParent->mLeft == leaving)
-      {
+    if (leaving->mParent != nullptr) {
+      if (leaving->mParent->mLeft == leaving) {
         leaving->mParent->mLeft = taking;
-      } else
-      {
+      }
+      else {
         leaving->mParent->mRight = taking;
       }
     }
-    if (leaving->mLeft != nullptr)
-    {
+    if (leaving->mLeft != nullptr) {
       leaving->mLeft->mParent = taking;
     }
-    if (leaving->mRight != nullptr)
-    {
+    if (leaving->mRight != nullptr) {
       leaving->mRight->mParent = taking;
     }
   };
@@ -731,8 +674,7 @@ void RbTree<T>::SwapDetachedNodePointers(Node* a, Node* b)
 template<typename T>
 void RbTree<T>::Delete(Node* node)
 {
-  if (node == nullptr)
-  {
+  if (node == nullptr) {
     return;
   }
   Delete(node->mLeft);
@@ -743,13 +685,11 @@ void RbTree<T>::Delete(Node* node)
 template<typename T>
 typename RbTree<T>::Node* RbTree<T>::LeftmostNode() const
 {
-  if (mHead == nullptr)
-  {
+  if (mHead == nullptr) {
     return nullptr;
   }
   Node* node = mHead;
-  while (node->mLeft != nullptr)
-  {
+  while (node->mLeft != nullptr) {
     node = node->mLeft;
   }
   return node;
@@ -758,14 +698,12 @@ typename RbTree<T>::Node* RbTree<T>::LeftmostNode() const
 template<typename T>
 bool RbTree<T>::HasBlackHeight(Node* node, int currentBh, int expectedBh)
 {
-  if (node == nullptr)
-  {
+  if (node == nullptr) {
     ++currentBh;
     return currentBh == expectedBh;
   }
 
-  if (node->mColor == Node::Color::Black)
-  {
+  if (node->mColor == Node::Color::Black) {
     ++currentBh;
   }
   bool correctLh = HasBlackHeight(node->mLeft, currentBh, expectedBh);
@@ -776,8 +714,7 @@ bool RbTree<T>::HasBlackHeight(Node* node, int currentBh, int expectedBh)
 template<typename T>
 bool RbTree<T>::HasDoubleRed(Node* node)
 {
-  if (node == nullptr)
-  {
+  if (node == nullptr) {
     return false;
   }
   bool doubleRed = node->mParent != nullptr &&

@@ -14,8 +14,7 @@ void LeftInsert()
   // Every time a value is inserted, it will become the leftmost leaf node.
   std::cout << "<= LeftInsert =>" << std::endl;
   Ds::RbTree<int> tree;
-  for (int i = 20; i > 0; --i)
-  {
+  for (int i = 20; i > 0; --i) {
     tree.Insert(i);
   }
   PrintRbTree(tree);
@@ -27,8 +26,7 @@ void RightInsert()
   // Every time a value is inserted, it will become the rightmost leaf node.
   std::cout << "<= RightInsert =>" << std::endl;
   Ds::RbTree<int> tree;
-  for (int i = 0; i < 20; ++i)
-  {
+  for (int i = 0; i < 20; ++i) {
     tree.Insert(i);
   }
   PrintRbTree(tree);
@@ -44,8 +42,7 @@ void ExplicitInsert()
                     22, 23, 24, 25, 26, 27, 28, 29, 1, 3,  0};
   int sequenceSize = sizeof(sequence) / sizeof(int);
   Ds::RbTree<int> tree;
-  for (int i = 0; i < sequenceSize; ++i)
-  {
+  for (int i = 0; i < sequenceSize; ++i) {
     tree.Insert(sequence[i]);
   }
   PrintRbTree(tree);
@@ -58,8 +55,7 @@ void MoveInsert()
   int sequence[] = {10, 5, 6, 11, 1, 9, 2};
   int sequenceSize = sizeof(sequence) / sizeof(int);
   Ds::RbTree<TestType> tree;
-  for (int i = 0; i < sequenceSize; ++i)
-  {
+  for (int i = 0; i < sequenceSize; ++i) {
     TestType newValue(sequence[i], (float)sequence[i]);
     tree.Insert(Util::Move(newValue));
   }
@@ -77,8 +73,7 @@ void Emplace()
   int sequence[] = {0, 9, 1, 8, 2, 7, 3, 6, 4, 5};
   int sequenceSize = sizeof(sequence) / sizeof(int);
   Ds::RbTree<TestType> tree;
-  for (int i = 0; i < sequenceSize; ++i)
-  {
+  for (int i = 0; i < sequenceSize; ++i) {
     tree.Emplace(sequence[i], (float)sequence[i]);
   }
   PrintRbTree(tree);
@@ -145,8 +140,7 @@ void Iterator()
   std::cout << "<= Iterator =>" << std::endl;
   // Attempt to create an iterator for an empty tree.
   Ds::RbTree<int> tree;
-  if (tree.cbegin() == tree.cend())
-  {
+  if (tree.cbegin() == tree.cend()) {
     std::cout << "Empty Tree" << std::endl;
   }
   std::cout << "--- 0 ---" << std::endl;
@@ -154,11 +148,9 @@ void Iterator()
   // Insert random values into the tree.
   int insertionCount = 0;
   srand(10);
-  while (insertionCount < 20)
-  {
+  while (insertionCount < 20) {
     int value = rand() % 100;
-    if (!tree.Contains(value))
-    {
+    if (!tree.Contains(value)) {
       tree.Insert(value);
       ++insertionCount;
     }
@@ -171,8 +163,7 @@ void Iterator()
   auto cItE = tree.cend();
   std::cout << *cIt;
   ++cIt;
-  while (cIt != cItE)
-  {
+  while (cIt != cItE) {
     std::cout << ", " << *cIt;
     ++cIt;
   }
@@ -201,11 +192,9 @@ void ExtensiveModification()
   auto insertValues = [&checkTree, &tree, exchangeCount](int* buffer)
   {
     int insertionCount = 0;
-    while (insertionCount < exchangeCount)
-    {
+    while (insertionCount < exchangeCount) {
       int value = rand() % 1000;
-      if (!tree.Contains(value))
-      {
+      if (!tree.Contains(value)) {
         tree.Insert(value);
         checkTree();
         buffer[insertionCount] = value;
@@ -217,8 +206,7 @@ void ExtensiveModification()
   // This will remove all of the values in the provided buffer from the tree.
   auto removeValues = [&checkTree, &tree, exchangeCount](int* buffer)
   {
-    for (int i = 0; i < exchangeCount; ++i)
-    {
+    for (int i = 0; i < exchangeCount; ++i) {
       tree.Remove(buffer[i]);
       checkTree();
     }
@@ -229,8 +217,7 @@ void ExtensiveModification()
   srand(5);
   insertValues(front);
 
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     // Values are inserted into the tree and the back buffer first. After this,
     // all of the values in the front buffer are removed and the buffers are
     // swapped.

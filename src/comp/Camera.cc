@@ -25,8 +25,7 @@ void Camera::VInit(const World::Object& owner)
 void Camera::VSerialize(Vlk::Value& cameraVal)
 {
   Vlk::Value& projectionTypeVal = cameraVal("ProjectionType");
-  switch (mProjectionType)
-  {
+  switch (mProjectionType) {
   case ProjectionType::Perspective:
     projectionTypeVal = smProjectionTypeNames[0];
     cameraVal("Fov") = mFov;
@@ -44,13 +43,12 @@ void Camera::VDeserialize(const Vlk::Explorer& cameraEx)
 {
   std::string projectionTypeName =
     cameraEx("ProjectionType").As<std::string>(smProjectionTypeNames[0]);
-  if (projectionTypeName == smProjectionTypeNames[1])
-  {
+  if (projectionTypeName == smProjectionTypeNames[1]) {
     mProjectionType = ProjectionType::Orthographic;
     mHeight = cameraEx("Height").As<float>(smDefaultHeight);
     mNear = cameraEx("Near").As<float>(smMinimumOrthographicNear);
-  } else
-  {
+  }
+  else {
     mProjectionType = ProjectionType::Perspective;
     mFov = cameraEx("Fov").As<float>(smDefaultFov);
     mNear = cameraEx("Near").As<float>(smMinimumPerspectiveNear);
@@ -82,14 +80,12 @@ void Camera::WorldLookAt(
   const Vec3& worldPosition, const Vec3& worldUp, const World::Object& owner)
 {
   World::Object parent = owner.Parent();
-  if (!parent.Valid())
-  {
+  if (!parent.Valid()) {
     LocalLookAt(worldPosition, worldUp, owner);
     return;
   }
   Transform* parentTransform = parent.GetComponent<Transform>();
-  if (parentTransform == nullptr)
-  {
+  if (parentTransform == nullptr) {
     LocalLookAt(worldPosition, worldUp, owner);
     return;
   }
@@ -106,8 +102,7 @@ void Camera::WorldLookAt(
 Mat4 Camera::Proj() const
 {
   Mat4 projection;
-  switch (mProjectionType)
-  {
+  switch (mProjectionType) {
   case ProjectionType::Perspective:
     Math::Perspective(&projection, mFov, Viewport::Aspect(), mNear, mFar);
     break;
@@ -126,8 +121,7 @@ Vec3 Camera::StandardToWorldPosition(
   Vec2 standardPosition, const Mat4& inverseView) const
 {
   float heightOver2;
-  switch (mProjectionType)
-  {
+  switch (mProjectionType) {
   case ProjectionType::Perspective:
     heightOver2 = std::tanf(mFov / 2.0f) * mNear;
     break;
@@ -156,11 +150,9 @@ bool Hook<Comp::Camera>::Edit(const World::Object& object)
     Comp::Camera::smProjectionTypeNames,
     projectionNameCount);
   Comp::Camera::ProjectionType newType = (Comp::Camera::ProjectionType)intProj;
-  if (newType != cameraComp->mProjectionType)
-  {
+  if (newType != cameraComp->mProjectionType) {
     cameraComp->mProjectionType = newType;
-    switch (newType)
-    {
+    switch (newType) {
     case Comp::Camera::ProjectionType::Perspective:
       cameraComp->mFov = Comp::Camera::smDefaultFov;
       cameraComp->mNear = Comp::Camera::smMinimumPerspectiveNear;
@@ -171,8 +163,7 @@ bool Hook<Comp::Camera>::Edit(const World::Object& object)
       break;
     }
   }
-  switch (cameraComp->mProjectionType)
-  {
+  switch (cameraComp->mProjectionType) {
   case Comp::Camera::ProjectionType::Perspective:
     ImGui::DragFloat("FoV", &cameraComp->mFov, 0.001f, 0.1f, Math::nPi - 0.1f);
     ImGui::DragFloat(

@@ -17,8 +17,7 @@ Table::~Table()
     {
       typeData.mDestruct(component);
     });
-  if (mData != nullptr)
-  {
+  if (mData != nullptr) {
     delete[] mData;
   }
 }
@@ -38,8 +37,7 @@ size_t Table::Add(MemberId memberId)
 size_t Table::AllocateComponent(MemberId member)
 {
   mOwners.Push(member);
-  if (mSize >= mCapacity)
-  {
+  if (mSize >= mCapacity) {
     Grow();
   }
   return mSize++;
@@ -119,10 +117,8 @@ void Table::VisitComponents(std::function<void(void*)> visit) const
 
 void Table::VisitActiveIndices(std::function<void(size_t)> visit) const
 {
-  for (size_t i = 0; i < mSize; ++i)
-  {
-    if (GetOwner(i) != nInvalidMemberId)
-    {
+  for (size_t i = 0; i < mSize; ++i) {
+    if (GetOwner(i) != nInvalidMemberId) {
       visit(i);
     }
   }
@@ -131,12 +127,11 @@ void Table::VisitActiveIndices(std::function<void(size_t)> visit) const
 void Table::Grow()
 {
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
-  if (mData == nullptr)
-  {
+  if (mData == nullptr) {
     mData = alloc char[smStartCapacity * typeData.mSize];
     mCapacity = smStartCapacity;
-  } else
-  {
+  }
+  else {
     char* oldData = mData;
     mCapacity = (size_t)((float)mCapacity * smGrowthFactor);
     char* newData = alloc char[mCapacity * typeData.mSize];

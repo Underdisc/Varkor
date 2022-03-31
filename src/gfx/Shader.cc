@@ -68,13 +68,11 @@ Result Shader::Init(const char* vertexFile, const char* fragmentFile)
   // Compile the provided shader files.
   unsigned int vertexId, fragmentId;
   Result result = Compile(vertexFile, GL_VERTEX_SHADER, &vertexId);
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     return result;
   }
   result = Compile(fragmentFile, GL_FRAGMENT_SHADER, &fragmentId);
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     return result;
   }
 
@@ -87,8 +85,7 @@ Result Shader::Init(const char* vertexFile, const char* fragmentFile)
   glDeleteShader(fragmentId);
   int linked;
   glGetProgramiv(mProgram, GL_LINK_STATUS, &linked);
-  if (!linked)
-  {
+  if (!linked) {
     const int errorLogLen = 512;
     char errorLog[errorLogLen];
     glGetProgramInfoLog(mProgram, errorLogLen, NULL, errorLog);
@@ -111,15 +108,12 @@ GLuint Shader::Id() const
 
 GLint Shader::UniformLocation(Uniform::Type type) const
 {
-  for (const Uniform& uniform : mUniforms)
-  {
-    if (uniform.mType == type)
-    {
+  for (const Uniform& uniform : mUniforms) {
+    if (uniform.mType == type) {
       return uniform.mLocation;
     }
   }
-  if (smLogMissingUniforms)
-  {
+  if (smLogMissingUniforms) {
     const char* typeString = Uniform::smTypeStrings[(int)type];
     std::stringstream error;
     error << "Shader does not contain the " << typeString << " uniform.";
@@ -134,8 +128,7 @@ void Shader::InitializeUniforms()
   {
     const char* typeString = Uniform::smTypeStrings[(int)type];
     int location = glGetUniformLocation(mProgram, typeString);
-    if (location != smInvalidLocation)
-    {
+    if (location != smInvalidLocation) {
       Uniform newUniform;
       newUniform.mType = type;
       newUniform.mLocation = location;
@@ -161,8 +154,7 @@ int GetLineNumber(size_t until, const std::string& string)
 {
   int lineNumber = 1;
   size_t currentChar = string.find('\n', 0);
-  while (currentChar < until)
-  {
+  while (currentChar < until) {
     ++lineNumber;
     currentChar = string.find('\n', currentChar + 1);
   }
@@ -187,8 +179,8 @@ Shader::IncludeResult Shader::HandleIncludes(
 
   std::regex expression("#include \"([^\"]*)\"");
   std::smatch match;
-  while (std::regex_search(content.cbegin(), content.cend(), match, expression))
-  {
+  while (
+    std::regex_search(content.cbegin(), content.cend(), match, expression)) {
     // Find the backmost chunk's end line, and use it to find the number of
     // lines excluded from the next chunk for the current file.
     int includeLine = GetLineNumber(match[0].first - content.begin(), content);
@@ -196,8 +188,7 @@ Shader::IncludeResult Shader::HandleIncludes(
     chunk.mExcludedLines += includeLine - result.mChunks.Top().mStartLine + 1;
 
     // Remove the backmost chunk if it doesn't contain content.
-    if (result.mChunks.Top().mStartLine == result.mChunks.Top().mEndLine)
-    {
+    if (result.mChunks.Top().mStartLine == result.mChunks.Top().mEndLine) {
       result.mChunks.Pop();
     }
 
@@ -206,8 +197,7 @@ Shader::IncludeResult Shader::HandleIncludes(
     includeFilename.append(match[1].str());
     std::ifstream file;
     file.open(includeFilename);
-    if (!file.is_open())
-    {
+    if (!file.is_open()) {
       result.mSuccess = false;
       std::stringstream error;
       error << shaderFile << "(" << chunk.mExcludedLines << "): "
@@ -223,8 +213,7 @@ Shader::IncludeResult Shader::HandleIncludes(
     // the include statement in the content with the included content.
     IncludeResult subResult =
       HandleIncludes(includeFilename.c_str(), includeContent);
-    if (!subResult.mSuccess)
-    {
+    if (!subResult.mSuccess) {
       return subResult;
     }
     content.replace(
@@ -235,8 +224,7 @@ Shader::IncludeResult Shader::HandleIncludes(
 
     // Take the returned subchunks and offset both their start and end lines
     // by the line the chunk was included on.
-    for (SourceChunk& subChunk : subResult.mChunks)
-    {
+    for (SourceChunk& subChunk : subResult.mChunks) {
       result.mChunks.Push(subChunk);
       result.mChunks.Top().mStartLine += includeLine - 1;
       result.mChunks.Top().mEndLine += includeLine - 1;
@@ -258,8 +246,7 @@ Result Shader::Compile(
   // Read the content of the provided file.
   std::ifstream file;
   file.open(shaderFile);
-  if (!file.is_open())
-  {
+  if (!file.is_open()) {
     std::stringstream reason;
     reason << "Failed to open " << shaderFile;
     return Result(reason.str());
@@ -270,8 +257,7 @@ Result Shader::Compile(
 
   // Handle all of the include statements within the file content.
   IncludeResult includeResult = HandleIncludes(shaderFile, fileContentStr);
-  if (!includeResult.mSuccess)
-  {
+  if (!includeResult.mSuccess) {
     std::stringstream reason;
     reason << "Failed to compile " << shaderFile << "." << std::endl
            << includeResult.mError;
@@ -285,8 +271,7 @@ Result Shader::Compile(
   glCompileShader(*shaderId);
   int success;
   glGetShaderiv(*shaderId, GL_COMPILE_STATUS, &success);
-  if (success)
-  {
+  if (success) {
     return Result();
   }
 
@@ -305,14 +290,11 @@ Result Shader::Compile(
   std::smatch match;
   std::string::const_iterator mItB = logStr.cbegin();
   std::string::const_iterator mItE = logStr.cbegin();
-  while (std::regex_search(mItE, logStr.cend(), match, expression))
-  {
+  while (std::regex_search(mItE, logStr.cend(), match, expression)) {
     error << logStr.substr(mItE - logStr.cbegin(), match[0].first - mItE);
     int completeLine = std::stoi(match[1].str());
-    for (const SourceChunk& chunk : includeResult.mChunks)
-    {
-      if (completeLine < chunk.mEndLine)
-      {
+    for (const SourceChunk& chunk : includeResult.mChunks) {
+      if (completeLine < chunk.mEndLine) {
         int chunkLineNumber = (completeLine - chunk.mStartLine) + 1;
         int trueLine = chunk.mExcludedLines + chunkLineNumber;
         error << chunk.mFile << "(" << trueLine << ")";

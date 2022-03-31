@@ -9,10 +9,8 @@
 Math::Matrix<float, 5> CreateGenericMat5()
 {
   Math::Matrix<float, 5> matrix;
-  for (int r = 0; r < 5; ++r)
-  {
-    for (int c = 0; c < 5; ++c)
-    {
+  for (int r = 0; r < 5; ++r) {
+    for (int c = 0; c < 5; ++c) {
       matrix[r][c] = (float)r * 5.0f + (float)c + 1.0f;
     }
   }
@@ -171,8 +169,7 @@ void NoInverseZeroRow()
   std::cout << "<= ZeroRow =>" << std::endl;
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   // Make a zero row.
-  for (int col = 0; col < 5; ++col)
-  {
+  for (int col = 0; col < 5; ++col) {
     matrix[1][col] = 0.0f;
   }
   std::cout << matrix;
@@ -184,8 +181,7 @@ void NoInverseZeroColumn()
   std::cout << "<= ZeroColumn =>" << std::endl;
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   // Make a zero column.
-  for (int row = 0; row < 5; ++row)
-  {
+  for (int row = 0; row < 5; ++row) {
     matrix[row][2] = 0.0f;
   }
   std::cout << matrix;
@@ -197,8 +193,7 @@ void NoInverseDependentRow()
   std::cout << "<= DependentRow =>" << std::endl;
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   // Create a linearly dependent row.
-  for (int col = 0; col < 5; ++col)
-  {
+  for (int col = 0; col < 5; ++col) {
     matrix[1][col] = matrix[3][col] * 4.0f;
   }
   std::cout << matrix;
@@ -210,8 +205,7 @@ void NoInverseDependentColumn()
   std::cout << "<= DependentColumn =>" << std::endl;
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   // Create a linearly dependent column.
-  for (int row = 0; row < 5; ++row)
-  {
+  for (int row = 0; row < 5; ++row) {
     matrix[row][2] = matrix[row][0] * 3.0f;
   }
   std::cout << matrix;

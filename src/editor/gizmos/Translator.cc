@@ -25,8 +25,7 @@ Translator::Translator(): mOperation(Operation::None)
   // Create all of the handles.
   mParent = nSpace.CreateMember();
   nSpace.AddComponent<Comp::Transform>(mParent);
-  for (int i = 0; i < smHandleCount; ++i)
-  {
+  for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = nSpace.CreateChildMember(mParent);
     Comp::AlphaColor& alphaColorComp =
       nSpace.AddComponent<Comp::AlphaColor>(mHandles[i]);
@@ -113,8 +112,7 @@ void Translator::SetNextOperation(
   Vec3 xRotated = referenceFrame.Rotate({1.0f, 0.0f, 0.0f});
   Vec3 yRotated = referenceFrame.Rotate({0.0f, 1.0f, 0.0f});
   Vec3 zRotated = referenceFrame.Rotate({0.0f, 0.0f, 1.0f});
-  switch (mOperation)
-  {
+  switch (mOperation) {
   case Operation::X: mTranslationRay.Direction(xRotated); break;
   case Operation::Y: mTranslationRay.Direction(yRotated); break;
   case Operation::Z: mTranslationRay.Direction(zRotated); break;
@@ -128,19 +126,16 @@ void Translator::SetNextOperation(
   // during the following frames.
   Math::Ray mouseRay =
     nCamera.StandardPositionToRay(Input::StandardMousePosition());
-  if (mOperation < Operation::Xy)
-  {
-    if (!mTranslationRay.HasClosestTo(mouseRay))
-    {
+  if (mOperation < Operation::Xy) {
+    if (!mTranslationRay.HasClosestTo(mouseRay)) {
       mOperation = Operation::None;
       return;
     }
     mMouseOffset = mTranslationRay.ClosestPointTo(mouseRay) - translation;
     return;
-  } else if (mOperation <= Operation::Xyz)
-  {
-    if (!Math::HasIntersection(mouseRay, mTranslationPlane))
-    {
+  }
+  else if (mOperation <= Operation::Xyz) {
+    if (!Math::HasIntersection(mouseRay, mTranslationPlane)) {
       mOperation = Operation::None;
       return;
     }
@@ -158,19 +153,16 @@ Vec3 Translator::Run(
   SetParentTransformation(mParent, translation, referenceFrame);
 
   // Handle any switching between operations.
-  if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None)
-  {
+  if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
     Comp::AlphaColor& colorComp =
       *nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
     colorComp.mAlphaColor = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return translation;
   }
-  if (Input::MousePressed(Input::Mouse::Left))
-  {
+  if (Input::MousePressed(Input::Mouse::Left)) {
     SetNextOperation(translation, referenceFrame);
-    if (mOperation == Operation::None)
-    {
+    if (mOperation == Operation::None) {
       return translation;
     }
     Editor::nSuppressObjectPicking |= true;
@@ -183,33 +175,28 @@ Vec3 Translator::Run(
   // Find a new translation depending on the active operation.
   Math::Ray mouseRay =
     nCamera.StandardPositionToRay(Input::StandardMousePosition());
-  if (mOperation < Operation::Xy)
-  {
+  if (mOperation < Operation::Xy) {
     // Perform translation on an axis.
-    if (!mTranslationRay.HasClosestTo(mouseRay))
-    {
+    if (!mTranslationRay.HasClosestTo(mouseRay)) {
       return translation;
     }
     Vec3 mousePoint = mTranslationRay.ClosestPointTo(mouseRay);
     Vec3 newTranslation = mousePoint - mMouseOffset;
-    if (!snapping)
-    {
+    if (!snapping) {
       return newTranslation;
     }
     Vec3 delta = newTranslation - translation;
     delta = Math::ScaleToInterval(delta, snapInterval);
     return translation + delta;
-  } else if (mOperation < Operation::Xyz)
-  {
+  }
+  else if (mOperation < Operation::Xyz) {
     // Perform translation on a plane.
-    if (!Math::HasIntersection(mouseRay, mTranslationPlane))
-    {
+    if (!Math::HasIntersection(mouseRay, mTranslationPlane)) {
       return translation;
     }
     Vec3 mousePoint = Math::Intersection(mouseRay, mTranslationPlane);
     Vec3 newTranslation = mousePoint - mMouseOffset;
-    if (!snapping)
-    {
+    if (!snapping) {
       return newTranslation;
     }
 
@@ -218,17 +205,15 @@ Vec3 Translator::Run(
     // reference frame to the delta.
     Vec3 delta = newTranslation - translation;
     delta = referenceFrame.Conjugate().Rotate(delta);
-    for (int i = 0; i < 3; ++i)
-    {
+    for (int i = 0; i < 3; ++i) {
       delta[i] = Math::RoundToNearest(delta[i], snapInterval);
     }
     delta = referenceFrame.Rotate(delta);
     return translation + delta;
-  } else if (mOperation == Operation::Xyz)
-  {
+  }
+  else if (mOperation == Operation::Xyz) {
     // Perform translation on the camera defined plane.
-    if (Math::HasIntersection(mouseRay, mTranslationPlane))
-    {
+    if (Math::HasIntersection(mouseRay, mTranslationPlane)) {
       Vec3 mousePoint = Math::Intersection(mouseRay, mTranslationPlane);
       Vec3 newTranslation = mousePoint - mMouseOffset;
       return newTranslation;

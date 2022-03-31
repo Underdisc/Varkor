@@ -106,8 +106,7 @@ template<typename K, typename V>
 V* Map<K, V>::Find(const K& key) const
 {
   Node* node = FindNode<K>(key);
-  if (node == nullptr)
-  {
+  if (node == nullptr) {
     return nullptr;
   }
   return &node->mValue.mValue;

@@ -30,8 +30,7 @@ void SetParentTransformation(
   cameraRay.StartDirection(nCamera.Position(), nCamera.Forward());
   Vec3 projection = cameraRay.ClosestPointTo(translation);
   Vec3 projectionDistance = projection - nCamera.Position();
-  if (Math::Near(projectionDistance, {0.0f, 0.0f, 0.0f}))
-  {
+  if (Math::Near(projectionDistance, {0.0f, 0.0f, 0.0f})) {
     return;
   }
   Comp::Transform& parentTransform =

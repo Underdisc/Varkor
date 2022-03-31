@@ -26,15 +26,13 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
   ImGui::PushItemWidth(-60.0f);
   bool translationDragged =
     ImGui::DragFloat3("Translation", translation.mD, 0.01f);
-  if (translationDragged)
-  {
+  if (translationDragged) {
     transform->SetTranslation(translation);
   }
 
   Vec3 scale = transform->GetScale();
   bool scaleDragged = ImGui::DragFloat3("Scale", scale.mD, 0.01f);
-  if (scaleDragged)
-  {
+  if (scaleDragged) {
     transform->SetScale(scale);
   }
 
@@ -43,8 +41,7 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
   Vec3 newAngles = eulerAngles;
   bool rotationDragged =
     ImGui::DragFloat3("Rotation", newAngles.mD, 0.01f, 0.0f, 0.0f, "%.3f");
-  if (rotationDragged)
-  {
+  if (rotationDragged) {
     Math::Quaternion xDelta, yDelta, zDelta;
     xDelta.AngleAxis(newAngles[0], {1.0f, 0.0f, 0.0f});
     yDelta.AngleAxis(newAngles[1], {0.0f, 1.0f, 0.0f});
@@ -54,28 +51,25 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
   }
 
   // Handle all hotkeys for switching between modes and reference frames.
-  if (Input::KeyDown(Input::Key::LeftControl))
-  {
-    if (Input::KeyPressed(Input::Key::Z))
-    {
+  if (Input::KeyDown(Input::Key::LeftControl)) {
+    if (Input::KeyPressed(Input::Key::Z)) {
       mReferenceFrame = ReferenceFrame::World;
-    } else if (Input::KeyPressed(Input::Key::X))
-    {
+    }
+    else if (Input::KeyPressed(Input::Key::X)) {
       mReferenceFrame = ReferenceFrame::Parent;
-    } else if (Input::KeyPressed(Input::Key::C))
-    {
+    }
+    else if (Input::KeyPressed(Input::Key::C)) {
       mReferenceFrame = ReferenceFrame::Relative;
     }
-  } else
-  {
-    if (Input::KeyPressed(Input::Key::Z))
-    {
+  }
+  else {
+    if (Input::KeyPressed(Input::Key::Z)) {
       mMode = Mode::Translate;
-    } else if (Input::KeyPressed(Input::Key::X))
-    {
+    }
+    else if (Input::KeyPressed(Input::Key::X)) {
       mMode = Mode::Scale;
-    } else if (Input::KeyPressed(Input::Key::C))
-    {
+    }
+    else if (Input::KeyPressed(Input::Key::C)) {
       mMode = Mode::Rotate;
     }
   }
@@ -92,8 +86,7 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
   ImGui::Combo("Reference Frame", &intFrame, frameNames, frameNameCount);
   mReferenceFrame = (ReferenceFrame)intFrame;
   ImGui::Checkbox("Snapping", &mSnapping);
-  switch (mMode)
-  {
+  switch (mMode) {
   case Mode::Translate:
     ImGui::InputFloat("Snap Distance", &mTranslateSnapInterval, 0.1f);
     break;
@@ -108,8 +101,7 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
 
   // Get a rotation depending on the current reference frame.
   Quat referenceFrameRotation;
-  switch (mReferenceFrame)
-  {
+  switch (mReferenceFrame) {
   case ReferenceFrame::World:
     referenceFrameRotation = {1.0f, 0.0f, 0.0f, 0.0f};
     break;
@@ -123,19 +115,17 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
 
   // Display the gizmo for the current mode that the hook is in.
   Vec3 worldTranslation = transform->GetWorldTranslation(object);
-  if (mMode == Mode::Translate)
-  {
+  if (mMode == Mode::Translate) {
     Vec3 newTranslation = Gizmos::Translate(
       worldTranslation,
       referenceFrameRotation,
       mSnapping,
       mTranslateSnapInterval);
-    if (!Math::Near(newTranslation, worldTranslation))
-    {
+    if (!Math::Near(newTranslation, worldTranslation)) {
       transform->SetWorldTranslation(newTranslation, object);
     }
-  } else if (mMode == Mode::Scale)
-  {
+  }
+  else if (mMode == Mode::Scale) {
     referenceFrameRotation = transform->GetWorldRotation(object);
     Vec3 newScale = Gizmos::Scale(
       scale,
@@ -143,12 +133,11 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
       referenceFrameRotation,
       mSnapping,
       mScaleSnapInterval);
-    if (!Math::Near(newScale, scale))
-    {
+    if (!Math::Near(newScale, scale)) {
       transform->SetScale(newScale);
     }
-  } else
-  {
+  }
+  else {
     Quat worldRotation = transform->GetWorldRotation(object);
     Quat newWorldRotation = Gizmos::Rotate(
       worldRotation,
@@ -156,8 +145,7 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
       referenceFrameRotation,
       mSnapping,
       mRotateSnapInterval);
-    if (!Math::Near(worldRotation.mVec, newWorldRotation.mVec))
-    {
+    if (!Math::Near(worldRotation.mVec, newWorldRotation.mVec)) {
       transform->SetWorldRotation(newWorldRotation, object);
     }
   }

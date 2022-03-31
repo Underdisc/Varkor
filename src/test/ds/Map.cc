@@ -17,11 +17,9 @@ void InsertRemoveFind()
   int insertedValues[maxInsertions];
   int insertionCount = 0;
   srand(1);
-  while (insertionCount < maxInsertions)
-  {
+  while (insertionCount < maxInsertions) {
     int value = rand() % 1000;
-    if (!map.Contains(value))
-    {
+    if (!map.Contains(value)) {
       map.Insert(value, insertionCount);
       insertedValues[insertionCount] = value;
       ++insertionCount;
@@ -32,8 +30,7 @@ void InsertRemoveFind()
 
   // Remove half of the values that were just inserted.
   int removalCount = maxInsertions / 2;
-  for (int i = 0; i < removalCount; ++i)
-  {
+  for (int i = 0; i < removalCount; ++i) {
     map.Remove(insertedValues[i]);
   }
   PrintMap(map);
@@ -41,15 +38,13 @@ void InsertRemoveFind()
 
   // Attempt to find values for keys that have been either removed or not
   // removed from the map.
-  for (int i = 0; i < maxInsertions; i += 2)
-  {
+  for (int i = 0; i < maxInsertions; i += 2) {
     std::cout << i << "->" << insertedValues[i] << ": ";
     int* value = map.Find(insertedValues[i]);
-    if (value == nullptr)
-    {
+    if (value == nullptr) {
       std::cout << "not found" << std::endl;
-    } else
-    {
+    }
+    else {
       std::cout << *value << std::endl;
     }
   }
@@ -64,8 +59,7 @@ void StringMap()
   const char* sequence[] = {
     "here", "are", "some", "values", "to", "insert", "into", "the", "map"};
   int sequenceSize = sizeof(sequence) / sizeof(char*);
-  for (int i = 0; i < sequenceSize; ++i)
-  {
+  for (int i = 0; i < sequenceSize; ++i) {
     map.Insert(sequence[i], i);
   }
   PrintMap(map);
@@ -76,23 +70,20 @@ void StringMap()
   const char* findSequence[] = {
     "here", "are", "some", "values", "to", "search", "for", "in", "the", "map"};
   int findSequenceSize = sizeof(findSequence) / sizeof(char*);
-  for (int i = 0; i < findSequenceSize; ++i)
-  {
+  for (int i = 0; i < findSequenceSize; ++i) {
     std::cout << findSequence[i] << ": ";
     int* value = map.Find(findSequence[i]);
-    if (value == nullptr)
-    {
+    if (value == nullptr) {
       std::cout << " not found" << std::endl;
-    } else
-    {
+    }
+    else {
       std::cout << *value << std::endl;
     }
   }
   std::cout << "--- 1 ---" << std::endl;
 
   // Remove all of the values in the map.
-  for (int i = 0; i < sequenceSize; ++i)
-  {
+  for (int i = 0; i < sequenceSize; ++i) {
     map.Remove(sequence[i]);
   }
   PrintMap(map);
@@ -105,25 +96,21 @@ void InsertEmplace()
   // This will test the usage of move, copy, and special constructors when
   // inserting or emplacing. It will also test writing to newly added elements.
   Ds::Map<int, TestType> map;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     TestType& newTestType = map.Insert(i, TestType(0));
     newTestType.Set(i);
   }
-  for (int i = 10; i < 15; ++i)
-  {
+  for (int i = 10; i < 15; ++i) {
     TestType toInsert(0);
     TestType& newTestType = map.Insert(i, toInsert);
     newTestType.Set(i);
   }
-  for (int i = 15; i < 20; ++i)
-  {
+  for (int i = 15; i < 20; ++i) {
     TestType toEmplace(0);
     TestType& newTestType = map.Emplace(i, toEmplace);
     newTestType.Set(i);
   }
-  for (int i = 20; i < 30; ++i)
-  {
+  for (int i = 20; i < 30; ++i) {
     map.Emplace(i, i, (float)i);
   }
   PrintMap(map);
@@ -146,11 +133,9 @@ void Iterator()
   Ds::Map<int, int> map;
   int insertionCount = 0;
   srand(20);
-  while (insertionCount < 20)
-  {
+  while (insertionCount < 20) {
     int key = rand() % 100;
-    if (!map.Contains(key))
-    {
+    if (!map.Contains(key)) {
       map.Insert(key, insertionCount);
       ++insertionCount;
     }
@@ -161,8 +146,7 @@ void Iterator()
   auto it = map.begin();
   auto itE = map.end();
   int iterationCount = 0;
-  while (it != itE)
-  {
+  while (it != itE) {
     it->mValue = iterationCount;
     ++iterationCount;
     ++it;
@@ -174,8 +158,7 @@ void Iterator()
   std::cout << "--- 1 ---" << std::endl;
   auto cIt = map.cbegin();
   auto cItE = map.cend();
-  while (cIt != cItE)
-  {
+  while (cIt != cItE) {
     std::cout << cIt->Key() << ": " << *cIt << std::endl;
     ++cIt;
   }

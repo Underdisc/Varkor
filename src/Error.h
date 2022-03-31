@@ -25,15 +25,13 @@ extern bool nUseCout;
 
 #define LogError(reason) Error::Log(__FILE__, __LINE__, __FUNCTION__, reason)
 #define LogErrorIf(cond, reason) \
-  if (cond)                      \
-  {                              \
+  if (cond) {                    \
     LogError(reason);            \
   }
 
 #define LogAbort(reason) Error::Abort(__FILE__, __LINE__, __FUNCTION__, reason)
 #define LogAbortIf(cond, reason) \
-  if (cond)                      \
-  {                              \
+  if (cond) {                    \
     LogAbort(reason);            \
   }
 

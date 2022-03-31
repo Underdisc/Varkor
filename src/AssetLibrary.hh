@@ -21,16 +21,13 @@ Result Asset<T>::Init()
   // relative to the working directory (consider files within vres/) or a
   // project's resource directory.
   std::string paths[T::smInitPathCount];
-  for (int i = 0; i < T::smInitPathCount; ++i)
-  {
-    if (std::filesystem::exists(mPaths[i]))
-    {
+  for (int i = 0; i < T::smInitPathCount; ++i) {
+    if (std::filesystem::exists(mPaths[i])) {
       paths[i] = mPaths[i];
       continue;
     }
     std::string projectAssetPath = Options::PrependResDirectory(mPaths[i]);
-    if (!std::filesystem::exists(projectAssetPath))
-    {
+    if (!std::filesystem::exists(projectAssetPath)) {
       std::stringstream error;
       error << "Failed to open \"" << mPaths[i] << "\".";
       return Result(error.str());
@@ -86,8 +83,7 @@ AssetId Create(const std::string& name, bool includeId)
   AssetId id = AssetBin<T>::NextId();
   std::stringstream ss;
   ss << name;
-  if (includeId)
-  {
+  if (includeId) {
     ss << id;
   }
   AssetBin<T>::smAssets.Emplace(id, ss.str(), Status::Unneeded);
@@ -158,16 +154,13 @@ template<typename T>
 T* TryGetLive(AssetId id)
 {
   Asset<T>* asset = TryGetAsset<T>(id);
-  if (asset == nullptr || asset->mStatus == Status::Failed)
-  {
+  if (asset == nullptr || asset->mStatus == Status::Failed) {
     return &AssetBin<T>::smAssets.Find(nDefaultAssetId)->mResource;
   }
-  if (asset->mStatus == Status::Initializing)
-  {
+  if (asset->mStatus == Status::Initializing) {
     return nullptr;
   }
-  if (asset->mStatus == Status::Unneeded)
-  {
+  if (asset->mStatus == Status::Unneeded) {
     asset->mStatus = Status::Initializing;
     InitBin<T>::Queue(id);
     return nullptr;
@@ -214,17 +207,14 @@ void InitBin<T>::Queue(AssetId id)
 template<typename T>
 void InitBin<T>::AssessInitQueue()
 {
-  if (nInitThread == nullptr)
-  {
-    if (smInitQueue.Size() > 0)
-    {
+  if (nInitThread == nullptr) {
+    if (smInitQueue.Size() > 0) {
       nInitThread = new std::thread(InitThreadMain);
     }
     return;
   }
 
-  if (nRemainingInits == 0)
-  {
+  if (nRemainingInits == 0) {
     nInitThread->join();
     delete nInitThread;
     nInitThread = nullptr;
@@ -236,20 +226,17 @@ void InitBin<Gfx::Model>::HandleInitQueue();
 template<typename T>
 void InitBin<T>::HandleInitQueue()
 {
-  while (smInitQueue.Size() > 0)
-  {
-    if (nStopInitThread)
-    {
+  while (smInitQueue.Size() > 0) {
+    if (nStopInitThread) {
       break;
     }
 
     AssLib::Asset<T>& asset = AssLib::AssetBin<T>::smAssets.Get(CurrentId());
     Result result = asset.Init();
-    if (result.Success())
-    {
+    if (result.Success()) {
       asset.mStatus = Status::Live;
-    } else
-    {
+    }
+    else {
       LogError(result.mError.c_str());
       asset.mStatus = Status::Failed;
     }

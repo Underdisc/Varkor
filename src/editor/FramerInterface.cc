@@ -21,12 +21,10 @@ void FramerInterface::Show()
   ImGui::Separator();
   bool vSync = Framer::VSyncEnabled();
   ImGui::Checkbox("VSync", &vSync);
-  if (vSync != Framer::VSyncEnabled())
-  {
+  if (vSync != Framer::VSyncEnabled()) {
     Framer::SetVSync(vSync);
   }
-  if (vSync == true)
-  {
+  if (vSync == true) {
     ImGui::End();
     return;
   }
@@ -34,24 +32,20 @@ void FramerInterface::Show()
   // Display the option for uncapping the framerate.
   bool uncappedStatus = Framer::FramerateUncapped();
   ImGui::Checkbox("Uncapped Framerate", &uncappedStatus);
-  if (uncappedStatus != Framer::FramerateUncapped())
-  {
-    if (uncappedStatus == true)
-    {
+  if (uncappedStatus != Framer::FramerateUncapped()) {
+    if (uncappedStatus == true) {
       Framer::SetFramerate(0);
-    } else
-    {
+    }
+    else {
       Framer::SetDefaultFramerate();
     }
   }
 
   // Display the framerate slider.
-  if (uncappedStatus == false)
-  {
+  if (uncappedStatus == false) {
     int framerate = Framer::GetFramerate();
     ImGui::SliderInt("Framerate", &framerate, 1, 120);
-    if (framerate != Framer::GetFramerate())
-    {
+    if (framerate != Framer::GetFramerate()) {
       Framer::SetFramerate(framerate);
     }
   }

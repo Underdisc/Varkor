@@ -16,20 +16,16 @@ void PrintRegistration()
   std::cout << "-" << Comp::Type<T>::smId << "-"
             << "\nName: " << typeData.mName << "\nSize: " << typeData.mSize
             << "\nDependencies: [";
-  for (size_t i = 0; i < typeData.mDependencies.Size(); ++i)
-  {
+  for (size_t i = 0; i < typeData.mDependencies.Size(); ++i) {
     std::cout << typeData.mDependencies[i];
-    if (i < typeData.mDependencies.Size() - 1)
-    {
+    if (i < typeData.mDependencies.Size() - 1) {
       std::cout << ", ";
     }
   }
   std::cout << "]\nDependants: [";
-  for (size_t i = 0; i < typeData.mDependants.Size(); ++i)
-  {
+  for (size_t i = 0; i < typeData.mDependants.Size(); ++i) {
     std::cout << typeData.mDependants[i];
-    if (i < typeData.mDependants.Size() - 1)
-    {
+    if (i < typeData.mDependants.Size() - 1) {
       std::cout << ", ";
     }
   }
@@ -46,11 +42,9 @@ void PrintTableStats(const World::Table& table)
 void PrintTableOwners(const World::Table& table)
 {
   std::cout << "-TableOwners-\n[";
-  for (size_t i = 0; i < table.Size(); ++i)
-  {
+  for (size_t i = 0; i < table.Size(); ++i) {
     std::cout << table.GetOwner(i);
-    if (i < table.Size() - 1)
-    {
+    if (i < table.Size() - 1) {
       std::cout << ", ";
     }
   }
@@ -61,11 +55,9 @@ template<typename T>
 void PrintTable(const World::Table& table)
 {
   std::cout << "-TableData-\n";
-  for (size_t i = 0; i < table.Size(); ++i)
-  {
+  for (size_t i = 0; i < table.Size(); ++i) {
     World::MemberId owner = table.GetOwner(i);
-    if (owner == World::nInvalidMemberId)
-    {
+    if (owner == World::nInvalidMemberId) {
       continue;
     }
     std::cout << table.GetOwner(i) << ": ";
@@ -110,8 +102,7 @@ void PrintSpaceTestTypeComponentData(const World::Space& space)
 void PrintSpaceTablesStats(const World::Space& space)
 {
   std::cout << "-TableStats-\n";
-  for (const auto& tablePair : space.Tables())
-  {
+  for (const auto& tablePair : space.Tables()) {
     const World::Table& table = tablePair.mValue;
     std::cout << tablePair.Key() << ": Stride: " << table.Stride()
               << ", Size: " << table.Size()
@@ -122,15 +113,12 @@ void PrintSpaceTablesStats(const World::Space& space)
 void PrintSpaceTablesOwners(const World::Space& space)
 {
   std::cout << "-TableOwners-\n";
-  for (const auto& tablePair : space.Tables())
-  {
+  for (const auto& tablePair : space.Tables()) {
     std::cout << tablePair.Key() << ": [";
     const World::Table& table = tablePair.mValue;
-    for (size_t i = 0; i < table.Size(); ++i)
-    {
+    for (size_t i = 0; i < table.Size(); ++i) {
       std::cout << table.GetOwner(i);
-      if (i < table.Size() - 1)
-      {
+      if (i < table.Size() - 1) {
         std::cout << ", ";
       }
     }
@@ -143,24 +131,20 @@ void PrintSpaceRelationships(const World::Space& space)
   std::cout << "-Relationships-";
   bool noRelationships = true;
   const Ds::Vector<World::Member>& members = space.Members();
-  for (World::MemberId memberId = 0; memberId < members.Size(); ++memberId)
-  {
+  for (World::MemberId memberId = 0; memberId < members.Size(); ++memberId) {
     const World::Member& member = members[memberId];
     const Ds::Vector<World::MemberId> childrenIds = member.Children();
-    if (childrenIds.Size() == 0)
-    {
+    if (childrenIds.Size() == 0) {
       continue;
     }
     noRelationships = false;
     std::cout << '\n' << std::setfill('0') << std::setw(2) << memberId << ":";
-    for (World::MemberId childId : childrenIds)
-    {
+    for (World::MemberId childId : childrenIds) {
       const World::Member& child = members[childId];
       std::cout << " [" << childId << "|" << child.Parent() << "]";
     }
   }
-  if (noRelationships)
-  {
+  if (noRelationships) {
     std::cout << "\nNone";
   }
   std::cout << '\n';
@@ -171,25 +155,22 @@ void PrintSpaceMembers(const World::Space& space)
   std::cout << "-MemberBin-";
   const Ds::Vector<World::Member>& members = space.Members();
   const size_t rowSize = 5;
-  for (World::MemberId memberId = 0; memberId < members.Size(); ++memberId)
-  {
-    if (memberId % rowSize == 0)
-    {
+  for (World::MemberId memberId = 0; memberId < members.Size(); ++memberId) {
+    if (memberId % rowSize == 0) {
       std::cout << "\n"
                 << std::setfill('0') << std::setw(2) << memberId << ": ";
-    } else
-    {
+    }
+    else {
       std::cout << " ";
     }
     const World::Member& member = members[memberId];
-    if (!member.InUse())
-    {
+    if (!member.InUse()) {
       std::cout << "[ inv ]";
-    } else if (member.DescriptorCount() == 0)
-    {
+    }
+    else if (member.DescriptorCount() == 0) {
       std::cout << "[empty]";
-    } else
-    {
+    }
+    else {
       std::cout << "[" << std::setfill('0') << std::setw(2)
                 << member.FirstDescriptorId() << "|" << std::setfill('0')
                 << std::setw(2) << member.LastDescriptorId() << "]";
@@ -204,21 +185,18 @@ void PrintSpaceDescriptorBin(const World::Space& space)
     space.DescriptorBin();
   const size_t rowSize = 5;
   std::cout << "-DescriptorBin-";
-  for (size_t i = 0; i < descriptorBin.Size(); ++i)
-  {
-    if (i % rowSize == 0)
-    {
+  for (size_t i = 0; i < descriptorBin.Size(); ++i) {
+    if (i % rowSize == 0) {
       std::cout << "\n" << std::setfill('0') << std::setw(2) << i << ": ";
-    } else
-    {
+    }
+    else {
       std::cout << " ";
     }
     const World::ComponentDescriptor& desc = descriptorBin[i];
-    if (!desc.InUse())
-    {
+    if (!desc.InUse()) {
       std::cout << "[inv]";
-    } else
-    {
+    }
+    else {
       std::cout << "[" << desc.mTypeId << "|" << desc.mTableIndex << "]";
     }
   }
@@ -229,14 +207,12 @@ void PrintSpaceUnusedMemberIds(const World::Space& space)
 {
   const Ds::Vector<World::MemberId>& unusedMemberIds = space.UnusedMemberIds();
   std::cout << "UnusedMemberIds: ";
-  if (unusedMemberIds.Size() == 0)
-  {
+  if (unusedMemberIds.Size() == 0) {
     std::cout << "None" << std::endl;
     return;
   }
   std::cout << unusedMemberIds[0];
-  for (size_t i = 1; i < unusedMemberIds.Size(); ++i)
-  {
+  for (size_t i = 1; i < unusedMemberIds.Size(); ++i) {
     std::cout << ", " << unusedMemberIds[i];
   }
   std::cout << std::endl;

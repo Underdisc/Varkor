@@ -24,14 +24,12 @@ Camera::Camera()
 void Camera::Update()
 {
   // LeftControl disables camera motion because it's the editor's modifier key.
-  if (Input::KeyDown(Input::Key::LeftControl))
-  {
+  if (Input::KeyDown(Input::Key::LeftControl)) {
     return;
   }
 
   // Change the camera's yaw and pitch depending on input.
-  if (Input::MouseDown(Input::Mouse::Right))
-  {
+  if (Input::MouseDown(Input::Mouse::Right)) {
     Vec2 mouseMotion = Input::MouseMotion();
     mYaw -= mouseMotion[0] * mSensitivity;
     mPitch -= mouseMotion[1] * mSensitivity;
@@ -47,35 +45,28 @@ void Camera::Update()
   constexpr float scrollSensitivity = 0.1f;
   mSpeed = mSpeed + scroll[1] * scrollSensitivity * mSpeed;
   constexpr float minCameraSpeed = 0.1f;
-  if (mSpeed < minCameraSpeed)
-  {
+  if (mSpeed < minCameraSpeed) {
     mSpeed = minCameraSpeed;
   }
 
   // Change the camera position depending on input.
   Vec3 translation = mTransform.GetTranslation();
-  if (Input::KeyDown(Input::Key::W))
-  {
+  if (Input::KeyDown(Input::Key::W)) {
     translation += Forward() * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::S))
-  {
+  if (Input::KeyDown(Input::Key::S)) {
     translation -= Forward() * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::D))
-  {
+  if (Input::KeyDown(Input::Key::D)) {
     translation += Right() * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::A))
-  {
+  if (Input::KeyDown(Input::Key::A)) {
     translation -= Right() * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::E))
-  {
+  if (Input::KeyDown(Input::Key::E)) {
     translation += Up() * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::Q))
-  {
+  if (Input::KeyDown(Input::Key::Q)) {
     translation -= Up() * Temporal::DeltaTime() * mSpeed;
   }
   mTransform.SetTranslation(translation);
@@ -124,8 +115,7 @@ Math::Ray Camera::StandardPositionToRay(const Vec2& standardPosition)
   Vec3 worldPosition =
     mCamera.StandardToWorldPosition(standardPosition, InverseView());
   Math::Ray ray;
-  switch (mCamera.mProjectionType)
-  {
+  switch (mCamera.mProjectionType) {
   case Comp::Camera::ProjectionType::Perspective:
     ray.StartDirection(Position(), worldPosition - Position());
     break;

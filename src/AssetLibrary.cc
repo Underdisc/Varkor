@@ -68,17 +68,14 @@ void SerializeAssets(Vlk::Value& rootVal)
 {
   std::string resourceTypeName = Util::GetShortTypename<T>();
   Vlk::Value& assetsVal = rootVal(resourceTypeName);
-  for (const auto& idAssetPair : AssetBin<T>::smAssets)
-  {
-    if (IsRequiredId(idAssetPair.Key()))
-    {
+  for (const auto& idAssetPair : AssetBin<T>::smAssets) {
+    if (IsRequiredId(idAssetPair.Key())) {
       continue;
     }
     Vlk::Value& assetVal = assetsVal(idAssetPair.mValue.mName);
     assetVal("Id") = idAssetPair.Key();
     Vlk::Value& pathsVal = assetVal("Paths")[{T::smInitPathCount}];
-    for (int i = 0; i < T::smInitPathCount; ++i)
-    {
+    for (int i = 0; i < T::smInitPathCount; ++i) {
       pathsVal[i] = idAssetPair.mValue.GetPath(i);
     }
   }
@@ -89,24 +86,20 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
 {
   std::string resourceTypename = Util::GetShortTypename<T>();
   Vlk::Explorer assetArrayEx = rootEx(resourceTypename);
-  if (!assetArrayEx.Valid())
-  {
+  if (!assetArrayEx.Valid()) {
     return;
   }
-  for (int i = 0; i < assetArrayEx.Size(); ++i)
-  {
+  for (int i = 0; i < assetArrayEx.Size(); ++i) {
     // Ensure we have a valid Id so the new asset can be added to the bin.
     Vlk::Explorer assetEx = assetArrayEx(i);
     AssetId id = assetEx("Id").As<int>(AssLib::nDefaultAssetId);
-    if (IsRequiredId(id))
-    {
+    if (IsRequiredId(id)) {
       std::stringstream error;
       error << assetEx.Path() << " asset omitted because it has a required Id.";
       LogError(error.str().c_str());
       continue;
     }
-    if (AssetBin<T>::smAssets.Contains(id))
-    {
+    if (AssetBin<T>::smAssets.Contains(id)) {
       std::stringstream error;
       error << assetEx.Path()
             << " asset omitted because its Id is already in use by another "
@@ -118,13 +111,11 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
     // Add the asset to the bin.
     Asset<T>& asset =
       AssetBin<T>::smAssets.Emplace(id, assetEx.Key(), Status::Unneeded);
-    if (id >= AssetBin<T>::smIdHandout)
-    {
+    if (id >= AssetBin<T>::smIdHandout) {
       AssetBin<T>::smIdHandout = id + 1;
     }
     Vlk::Explorer pathsEx = assetEx("Paths");
-    for (int i = 0; i < T::smInitPathCount; ++i)
-    {
+    for (int i = 0; i < T::smInitPathCount; ++i) {
       asset.SetPath(i, pathsEx[i].As<std::string>(""));
     }
   }
@@ -143,8 +134,7 @@ bool InitThreadOpen()
 
 void Purge()
 {
-  if (nInitThread != nullptr)
-  {
+  if (nInitThread != nullptr) {
     nStopInitThread = true;
     nInitThread->join();
     delete nInitThread;
@@ -159,8 +149,7 @@ void DeserializeAssets()
   Vlk::Value rootVal;
   std::string assetsFile = Options::PrependResDirectory(nAssetsFilename);
   Result result = rootVal.Read(assetsFile.c_str());
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     LogError(result.mError.c_str());
     return;
   }
@@ -195,19 +184,16 @@ void HandleAssetLoading()
   InitBin<Gfx::Model>::AssessInitQueue();
   InitBin<Gfx::Shader>::AssessInitQueue();
 
-  if (nAllModelFInfo.Size() == 0)
-  {
+  if (nAllModelFInfo.Size() == 0) {
     return;
   }
   nModelFInfoMutex.lock();
-  for (const ModelFInfo& fInfo : nAllModelFInfo)
-  {
+  for (const ModelFInfo& fInfo : nAllModelFInfo) {
     Asset<Gfx::Model>& asset = GetAsset<Gfx::Model>(fInfo.mId);
-    if (fInfo.mMeshIndex == ModelFInfo::smInvalidMeshIndex)
-    {
+    if (fInfo.mMeshIndex == ModelFInfo::smInvalidMeshIndex) {
       asset.mStatus = Status::Live;
-    } else
-    {
+    }
+    else {
       asset.mResource.FinalizeMesh(fInfo);
     }
   }
@@ -225,8 +211,7 @@ void AddModelFInfo(const ModelFInfo& fInfo)
 void InitThreadMain()
 {
   Viewport::InitContextSharing();
-  while (nRemainingInits > 0 && !nStopInitThread)
-  {
+  while (nRemainingInits > 0 && !nStopInitThread) {
     InitBin<Gfx::Shader>::HandleInitQueue();
     InitBin<Gfx::Font>::HandleInitQueue();
     InitBin<Gfx::Image>::HandleInitQueue();
@@ -265,18 +250,15 @@ AssetId AssetBin<Gfx::Model>::Require(const std::string& name, Args&&... args)
 template<>
 void InitBin<Gfx::Model>::HandleInitQueue()
 {
-  while (smInitQueue.Size() > 0)
-  {
-    if (nStopInitThread)
-    {
+  while (smInitQueue.Size() > 0) {
+    if (nStopInitThread) {
       break;
     }
 
     AssLib::Asset<Gfx::Model>& asset =
       AssLib::AssetBin<Gfx::Model>::smAssets.Get(CurrentId());
     Result result = asset.Init();
-    if (!result.Success())
-    {
+    if (!result.Success()) {
       LogError(result.mError.c_str());
       asset.mStatus = AssLib::Status::Failed;
     }

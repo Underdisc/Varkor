@@ -33,13 +33,11 @@ void Init(const char* logFile)
   signal(SIGSEGV, SignalHandler);
   signal(SIGTERM, SignalHandler);
 
-  if (logFile == nullptr)
-  {
+  if (logFile == nullptr) {
     return;
   }
   nFile.open(logFile);
-  if (!nFile.is_open())
-  {
+  if (!nFile.is_open()) {
     std::cout << "Error log file " << logFile << " failed to open."
               << std::endl;
   }
@@ -47,8 +45,7 @@ void Init(const char* logFile)
 
 void Purge()
 {
-  if (nFile.is_open())
-  {
+  if (nFile.is_open()) {
     nFile.close();
   }
 }
@@ -154,12 +151,10 @@ void LogString(const char* string)
   logStream << string << '\n';
   nLogMutex.lock();
   nLog += logStream.str();
-  if (nFile.is_open())
-  {
+  if (nFile.is_open()) {
     nFile << logStream.str();
   }
-  if (nUseCout)
-  {
+  if (nUseCout) {
     std::cout << logStream.str();
   }
   nLogMutex.unlock();
@@ -170,10 +165,8 @@ std::string FormatFileName(const char* file)
   std::string filename(file);
   size_t index = filename.find("src");
   filename = filename.substr(index);
-  for (unsigned int i = 0; i < filename.size(); ++i)
-  {
-    if (filename[i] == '\\')
-    {
+  for (unsigned int i = 0; i < filename.size(); ++i) {
+    if (filename[i] == '\\') {
       filename[i] = '/';
     }
   }
@@ -182,8 +175,7 @@ std::string FormatFileName(const char* file)
 
 void SignalHandler(int signal)
 {
-  switch (signal)
-  {
+  switch (signal) {
   case SIGABRT: LogString("SIGABRT: Abort"); break;
   case SIGFPE: LogString("SIGFPE: Floating-Point Exception"); break;
   case SIGILL: LogString("SIGILL: Illegal Instruction"); break;

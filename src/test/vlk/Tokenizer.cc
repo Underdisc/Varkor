@@ -6,8 +6,7 @@
 
 std::ostream& operator<<(std::ostream& os, Vlk::Token::Type tokenType)
 {
-  switch (tokenType)
-  {
+  switch (tokenType) {
   case Vlk::Token::Type::Key: os << "Key"; break;
   case Vlk::Token::Type::TrueValue: os << "TrueValue"; break;
   case Vlk::Token::Type::OpenBracket: os << "OpenBracket"; break;
@@ -23,17 +22,14 @@ void PrintTokens(const char* text)
 {
   // Tokenize the text and print the results.
   ValueResult<Ds::Vector<Vlk::Token>> result = Vlk::Tokenize(text);
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     std::cout << result.mError << std::endl;
     return;
   }
   size_t tokenIndex = 0;
-  while (result.mValue[(int)tokenIndex].mType != Vlk::Token::Type::Terminator)
-  {
+  while (result.mValue[(int)tokenIndex].mType != Vlk::Token::Type::Terminator) {
     const Vlk::Token& currentToken = result.mValue[(int)tokenIndex];
-    if (currentToken.mType != Vlk::Token::Type::Whitespace)
-    {
+    if (currentToken.mType != Vlk::Token::Type::Whitespace) {
       const Vlk::Token& nextToken = result.mValue[(int)tokenIndex + 1];
       size_t tokenLength = nextToken.mText - currentToken.mText;
       std::string tokenText(currentToken.mText, tokenLength);

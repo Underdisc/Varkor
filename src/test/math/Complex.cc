@@ -63,7 +63,6 @@ void PolarComplex()
   std::cout << "c: " << c << std::endl;
   std::cout << "d: " << d << std::endl;
   std::cout << "e: " << e << std::endl << std::endl;
-
 }
 
 int main(void)

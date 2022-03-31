@@ -48,8 +48,7 @@ Result Image::Init(const std::string& file)
   int channels;
   unsigned char* data =
     stbi_load(file.c_str(), &mWidth, &mHeight, &channels, 0);
-  if (!data)
-  {
+  if (!data) {
     std::stringstream error;
     error << "Failed to load " << file << ": " << stbi_failure_reason() << ".";
     return Result(error.str());
@@ -63,11 +62,10 @@ Result Image::Init(const std::string& file)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   GLenum format;
-  if (channels == 4)
-  {
+  if (channels == 4) {
     format = GL_RGBA;
-  } else
-  {
+  }
+  else {
     format = GL_RGB;
   }
   glPixelStorei(GL_UNPACK_ALIGNMENT, 4);

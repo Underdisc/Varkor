@@ -33,8 +33,7 @@ Ds::Vector<Block> nBlocks;
 
 void Start(const char* name)
 {
-  if (nBlockChain.Size() == 0)
-  {
+  if (nBlockChain.Size() == 0) {
     nBlocks.Emplace(name, Clock::now());
     nBlockChain.Push(&nBlocks.Top());
     return;
@@ -83,16 +82,14 @@ void ShowBlock(const Block& block, const std::string& indent)
             << std::setw(3) << std::setfill('0') << nanos << " " << block.mName;
 
   // Handle all of the block's sub-blocks if it has any.
-  if (block.mSubBlocks.Size() == 0)
-  {
+  if (block.mSubBlocks.Size() == 0) {
     std::cout << std::endl;
     return;
   }
 
   std::string subBlockIndent = indent + "| ";
   std::cout << " {" << std::endl;
-  for (const Block& subBlock : block.mSubBlocks)
-  {
+  for (const Block& subBlock : block.mSubBlocks) {
     ShowBlock(subBlock, subBlockIndent);
   }
   std::cout << indent << "}" << std::endl;
@@ -103,8 +100,7 @@ void Show()
   LogAbortIf(
     nBlockChain.Size() != 0,
     "ShowBlocks can only be called if all blocks have been closed.");
-  for (const Block& block : nBlocks)
-  {
+  for (const Block& block : nBlocks) {
     ShowBlock(block, "");
   }
 }

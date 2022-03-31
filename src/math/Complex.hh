@@ -93,8 +93,7 @@ template<typename T>
 std::ostream& operator<<(std::ostream& os, const Complex<T>& value)
 {
   os << value.mReal;
-  if (value.mImaginary >= (T)0)
-  {
+  if (value.mImaginary >= (T)0) {
     os << "+";
   }
   os << value.mImaginary << "i";

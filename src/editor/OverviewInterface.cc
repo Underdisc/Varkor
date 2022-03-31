@@ -14,12 +14,10 @@ void OverviewInterface::Show()
 {
   // Handle object picking.
   InspectorInterface* inspector = FindInterface<InspectorInterface>();
-  if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left))
-  {
+  if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left)) {
     World::MemberId clickedMemberId =
       Gfx::Renderer::HoveredMemberId(*mSpace, nCamera.View(), nCamera.Proj());
-    if (clickedMemberId != World::nInvalidMemberId)
-    {
+    if (clickedMemberId != World::nInvalidMemberId) {
       World::Object clickedObject(mSpace, clickedMemberId);
       inspector = OpenInterface<InspectorInterface>(clickedObject);
     }
@@ -32,27 +30,23 @@ void OverviewInterface::Show()
   // onto the camera widget.
   std::stringstream cameraLabel;
   cameraLabel << "Camera: ";
-  if (mSpace->mCameraId != World::nInvalidMemberId)
-  {
+  if (mSpace->mCameraId != World::nInvalidMemberId) {
     const World::Member& camera = mSpace->GetMember(mSpace->mCameraId);
     cameraLabel << camera.mName;
-  } else
-  {
+  }
+  else {
     cameraLabel << "None" << std::endl;
   }
   ImGui::Button(cameraLabel.str().c_str(), ImVec2(-1, 0));
-  if (ImGui::BeginDragDropTarget())
-  {
+  if (ImGui::BeginDragDropTarget()) {
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
-    if (payload != nullptr)
-    {
+    if (payload != nullptr) {
       mSpace->mCameraId = *(const World::MemberId*)payload->Data;
     }
   }
 
   // Display a selectable list of all members in the space.
-  if (ImGui::Button("Create Member", ImVec2(-1, 0)))
-  {
+  if (ImGui::Button("Create Member", ImVec2(-1, 0))) {
     mSpace->CreateMember();
   }
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
@@ -64,15 +58,12 @@ void OverviewInterface::Show()
   ImGui::EndChild();
 
   // Make the member window a drag drop target for ending parent relationships.
-  if (ImGui::BeginDragDropTarget())
-  {
+  if (ImGui::BeginDragDropTarget()) {
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
-    if (payload != nullptr)
-    {
+    if (payload != nullptr) {
       World::MemberId childId = *(const World::MemberId*)payload->Data;
       World::Member& member = mSpace->GetMember(childId);
-      if (member.HasParent())
-      {
+      if (member.HasParent()) {
         mSpace->RemoveParent(childId);
       }
     }
@@ -88,13 +79,11 @@ void OverviewInterface::DisplayMember(
   bool selected =
     inspector != nullptr && memberId == inspector->mObject.mMemberId;
   ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
-  if (selected)
-  {
+  if (selected) {
     flags |= ImGuiTreeNodeFlags_Selected;
   }
   World::Member& member = mSpace->GetMember(memberId);
-  if (member.Children().Size() == 0)
-  {
+  if (member.Children().Size() == 0) {
     flags |= ImGuiTreeNodeFlags_Leaf;
   }
   ImGui::PushID(memberId);
@@ -102,17 +91,14 @@ void OverviewInterface::DisplayMember(
   ImGui::PopID();
 
   // Make the node a source and target for parenting drag drop operations.
-  if (ImGui::BeginDragDropSource())
-  {
+  if (ImGui::BeginDragDropSource()) {
     ImGui::SetDragDropPayload("MemberId", &memberId, sizeof(World::MemberId));
     ImGui::Text(member.mName.c_str());
     ImGui::EndDragDropSource();
   }
-  if (ImGui::BeginDragDropTarget())
-  {
+  if (ImGui::BeginDragDropTarget()) {
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
-    if (payload != nullptr)
-    {
+    if (payload != nullptr) {
       World::MemberId childId = *(const World::MemberId*)payload->Data;
       mSpace->MakeParent(memberId, childId);
     }
@@ -120,25 +106,21 @@ void OverviewInterface::DisplayMember(
   }
 
   // Open an InspectInterface for the Member if it is clicked.
-  if (ImGui::IsItemClicked())
-  {
+  if (ImGui::IsItemClicked()) {
     World::Object object(mSpace, memberId);
     OpenInterface<InspectorInterface>(object);
   }
 
   // Display a text box for changing the Member's name.
-  if (selected)
-  {
+  if (selected) {
     ImGui::PushItemWidth(-1);
     InputText("Name", &member.mName);
     ImGui::PopItemWidth();
   }
 
   // Display all of the children if the Member's tree node is opened.
-  if (memberOpened)
-  {
-    for (World::MemberId childId : member.Children())
-    {
+  if (memberOpened) {
+    for (World::MemberId childId : member.Children()) {
       DisplayMember(childId, inspector);
     }
     ImGui::TreePop();

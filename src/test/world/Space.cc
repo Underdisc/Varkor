@@ -23,8 +23,7 @@ void CreateMember()
 {
   std::cout << "<= CreateMember =>" << std::endl;
   World::Space space;
-  for (size_t i = 0; i < 20; ++i)
-  {
+  for (size_t i = 0; i < 20; ++i) {
     space.CreateMember();
   }
   PrintSpaceMembers(space);
@@ -36,13 +35,11 @@ void DeleteMember()
   std::cout << "<= DeleteMember =>" << std::endl;
   World::Space space;
   World::MemberId memberIds[10];
-  for (size_t i = 0; i < 10; ++i)
-  {
+  for (size_t i = 0; i < 10; ++i) {
     memberIds[i] = space.CreateMember();
   }
 
-  for (size_t i = 0; i < 10; i += 2)
-  {
+  for (size_t i = 0; i < 10; i += 2) {
     space.DeleteMember(memberIds[i]);
   }
   PrintSpaceMembers(space);
@@ -55,8 +52,7 @@ void ParentChildMembers()
   std::cout << "<= ParentChildMembers =>" << std::endl;
   World::Space space;
   World::MemberId memberIds[10];
-  for (size_t i = 0; i < 10; ++i)
-  {
+  for (size_t i = 0; i < 10; ++i) {
     memberIds[i] = space.CreateMember();
   }
   space.MakeParent(memberIds[0], memberIds[1]);
@@ -76,8 +72,7 @@ void ParentChildMembers()
   // Delete the member with children and create members that take the MemberIds
   // that were once used by the children.
   space.DeleteMember(memberIds[0]);
-  for (size_t i = 0; i < 11; ++i)
-  {
+  for (size_t i = 0; i < 11; ++i) {
     space.CreateMember();
   }
   PrintSpaceMembers(space);
@@ -160,20 +155,16 @@ void DeleteMembersWithComponents()
   std::cout << "<= DeleteMembersWithComponents =>" << std::endl;
   World::Space space;
   World::MemberId memberIds[8];
-  for (size_t i = 0; i < 8; ++i)
-  {
+  for (size_t i = 0; i < 8; ++i) {
     memberIds[i] = space.CreateMember();
     space.AddComponent<Simple0>(memberIds[i]);
-    if (i % 2 == 0)
-    {
+    if (i % 2 == 0) {
       space.AddComponent<Simple1>(memberIds[i]);
     }
-    if (i % 3 == 0)
-    {
+    if (i % 3 == 0) {
       space.AddComponent<Dynamic>(memberIds[i]);
     }
-    if (i % 5 == 0)
-    {
+    if (i % 5 == 0) {
       space.AddComponent<Container>(memberIds[i]);
     }
   }

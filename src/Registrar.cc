@@ -44,8 +44,7 @@ void (*nRegisterCustomTypes)() = nullptr;
 void Init()
 {
   RegisterTypes();
-  if (nRegisterCustomTypes != nullptr)
-  {
+  if (nRegisterCustomTypes != nullptr) {
     nRegisterCustomTypes();
   }
   Comp::AssessComponentsFile();

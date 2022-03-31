@@ -17,19 +17,16 @@ namespace Vlk {
 
 bool Parser::Accept(Token::Type tokenType)
 {
-  if (mTokens[mCurrentToken].mType == Token::Type::Terminator)
-  {
+  if (mTokens[mCurrentToken].mType == Token::Type::Terminator) {
     return false;
   }
-  while (mTokens[mCurrentToken].mType == Token::Type::Whitespace)
-  {
+  while (mTokens[mCurrentToken].mType == Token::Type::Whitespace) {
     const Token& currentToken = mTokens[mCurrentToken];
     const Token& nextToken = mTokens[mCurrentToken + 1];
     mCurrentLine += CountNewLines(currentToken.mText, nextToken.mText);
     ++mCurrentToken;
   }
-  if (mTokens[mCurrentToken].mType == tokenType)
-  {
+  if (mTokens[mCurrentToken].mType == tokenType) {
     ++mCurrentToken;
     return true;
   }
@@ -43,8 +40,7 @@ bool Parser::Expect(Token::Type tokenType, const char* error)
 
 bool Parser::Expect(bool success, const char* error)
 {
-  if (success)
-  {
+  if (success) {
     return true;
   }
   throw error;
@@ -67,20 +63,17 @@ size_t Parser::LastTokenLength()
 Result Parser::Parse(const char* text, Value* root)
 {
   ValueResult<Ds::Vector<Token>> result = Tokenize(text);
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     return Result(result.mError);
   }
   mCurrentToken = 0;
   mCurrentLine = 1;
   mValueStack.Push(root);
   mTokens = Util::Move(result.mValue);
-  try
-  {
+  try {
     Expect(ParseValue(), "Expected Value.");
   }
-  catch (const char* error)
-  {
+  catch (const char* error) {
     std::stringstream errorStream;
     errorStream << "[" << mCurrentLine << "] Parse Error: " << error;
     return Result(errorStream.str());
@@ -90,26 +83,22 @@ Result Parser::Parse(const char* text, Value* root)
 
 bool Parser::ParseValue()
 {
-  if (!Accept(Token::Type::TrueValue))
-  {
+  if (!Accept(Token::Type::TrueValue)) {
     return ParsePairArray() || ParseValueArray();
   }
-  if (mValueStack.Top()->mType == Value::Type::ValueArray)
-  {
+  if (mValueStack.Top()->mType == Value::Type::ValueArray) {
     mValueStack.Top()->mValueArray.Emplace(Value::Type::TrueValue);
     mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
-  } else
-  {
+  }
+  else {
     mValueStack.Top()->Init(Value::Type::TrueValue);
     mValueStack.Push(mValueStack.Top());
   }
   const Token& valueToken = LastToken();
   std::string& trueValue = mValueStack.Top()->mTrueValue;
   size_t trueValueEnd = LastTokenLength() - 1;
-  for (size_t i = 1; i < trueValueEnd; ++i)
-  {
-    if (valueToken.mText[i] == '\\')
-    {
+  for (size_t i = 1; i < trueValueEnd; ++i) {
+    if (valueToken.mText[i] == '\\') {
       trueValue.push_back(valueToken.mText[i + 1]);
       ++i;
       continue;
@@ -122,21 +111,19 @@ bool Parser::ParseValue()
 
 bool Parser::ParsePairArray()
 {
-  if (!Accept(Token::Type::OpenBrace))
-  {
+  if (!Accept(Token::Type::OpenBrace)) {
     return false;
   }
-  if (mValueStack.Top()->mType == Value::Type::ValueArray)
-  {
+  if (mValueStack.Top()->mType == Value::Type::ValueArray) {
     mValueStack.Top()->mValueArray.Emplace(Value::Type::PairArray);
     mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
-  } else
-  {
+  }
+  else {
     mValueStack.Top()->Init(Value::Type::PairArray);
     mValueStack.Push(mValueStack.Top());
   }
-  while (ParsePair())
-  {}
+  while (ParsePair()) {
+  }
   mValueStack.Pop();
   Expect(Token::Type::CloseBrace, "Expected } or Pair.");
   return true;
@@ -144,16 +131,14 @@ bool Parser::ParsePairArray()
 
 bool Parser::ParseValueArray()
 {
-  if (!Accept(Token::Type::OpenBracket))
-  {
+  if (!Accept(Token::Type::OpenBracket)) {
     return false;
   }
-  if (mValueStack.Top()->mType == Value::Type::ValueArray)
-  {
+  if (mValueStack.Top()->mType == Value::Type::ValueArray) {
     mValueStack.Top()->mValueArray.Emplace(Value::Type::ValueArray);
     mValueStack.Push(&mValueStack.Top()->mValueArray.Top());
-  } else
-  {
+  }
+  else {
     mValueStack.Top()->Init(Value::Type::ValueArray);
     mValueStack.Push(mValueStack.Top());
   }
@@ -165,8 +150,7 @@ bool Parser::ParseValueArray()
 
 bool Parser::ParsePair()
 {
-  if (!Accept(Token::Type::Key))
-  {
+  if (!Accept(Token::Type::Key)) {
     return false;
   }
   mValueStack.Top()->HardExpectType(Value::Type::PairArray);
@@ -184,23 +168,21 @@ bool Parser::ParsePair()
 
 bool Parser::ParseValueList()
 {
-  if (!ParseValue())
-  {
+  if (!ParseValue()) {
     return false;
   }
-  while (Accept(Token::Type::Comma) && ParseValue())
-  {}
+  while (Accept(Token::Type::Comma) && ParseValue()) {
+  }
   return true;
 }
 
 bool Parser::ParseValueArrayList()
 {
-  if (!ParseValueArray())
-  {
+  if (!ParseValueArray()) {
     return false;
   }
-  while (Accept(Token::Type::Comma) && ParseValueArray())
-  {}
+  while (Accept(Token::Type::Comma) && ParseValueArray()) {
+  }
   return true;
 }
 

@@ -78,15 +78,13 @@ void Init()
   colors[ImGuiCol_DragDropTarget] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
 
   nCoreInterface.Init();
-  if (!Options::nLoadSpace.empty())
-  {
+  if (!Options::nLoadSpace.empty()) {
     std::string spaceFile = Options::PrependResDirectory(Options::nLoadSpace);
     ValueResult<World::SpaceIt> result = World::LoadSpace(spaceFile.c_str());
-    if (result.Success())
-    {
+    if (result.Success()) {
       nCoreInterface.OpenInterface<OverviewInterface>(&(*result.mValue));
-    } else
-    {
+    }
+    else {
       LogError(result.mError.c_str());
     }
   }
@@ -113,8 +111,7 @@ void StartFrame()
 
 void EndFrame()
 {
-  if (nEditorMode)
-  {
+  if (nEditorMode) {
     nCamera.Update();
   }
   nCoreInterface.HandleInterfaces();

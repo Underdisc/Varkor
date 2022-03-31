@@ -100,8 +100,7 @@ void Type<T>::Register()
 template<typename Dependant, typename Dependency, typename... Rest>
 void TypeData::AddDependencies()
 {
-  if (Type<Dependency>::smId == nInvalidTypeId)
-  {
+  if (Type<Dependency>::smId == nInvalidTypeId) {
     std::stringstream error;
     error << "Dependency of " << mName << " (TypeId: " << Type<Dependant>::smId
           << ") not yet Registered.";

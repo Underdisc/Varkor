@@ -20,8 +20,7 @@ template<typename T>
 Vector<T>::Vector(const Vector<T>& other):
   mSize(other.mSize), mCapacity(other.mSize)
 {
-  if (other.mData == nullptr)
-  {
+  if (other.mData == nullptr) {
     mData = nullptr;
     return;
   }
@@ -42,8 +41,7 @@ template<typename T>
 Vector<T>::~Vector()
 {
   Clear();
-  if (mData != nullptr)
-  {
+  if (mData != nullptr) {
     DeleteAllocation(mData);
   }
 }
@@ -51,8 +49,7 @@ Vector<T>::~Vector()
 template<typename T>
 void Vector<T>::Push(const T& value)
 {
-  if (mSize >= mCapacity)
-  {
+  if (mSize >= mCapacity) {
     Grow();
   }
   new (mData + mSize) T(value);
@@ -62,8 +59,7 @@ void Vector<T>::Push(const T& value)
 template<typename T>
 void Vector<T>::Push(T&& value)
 {
-  if (mSize >= mCapacity)
-  {
+  if (mSize >= mCapacity) {
     Grow();
   }
   new (mData + mSize) T(Util::Forward(value));
@@ -75,16 +71,13 @@ void Vector<T>::Push(const T& value, size_t count)
 {
   size_t newSize = mSize + count;
   size_t newCapacity = mCapacity;
-  if (newCapacity == 0)
-  {
+  if (newCapacity == 0) {
     newCapacity = smStartCapacity;
   }
-  while (newSize > newCapacity)
-  {
+  while (newSize > newCapacity) {
     newCapacity = (size_t)((float)newCapacity * smGrowthFactor);
   }
-  if (newCapacity > mCapacity)
-  {
+  if (newCapacity > mCapacity) {
     Grow(newCapacity);
   }
   Util::Fill<T>(mData + mSize, value, count);
@@ -95,8 +88,7 @@ template<typename T>
 template<typename... Args>
 void Vector<T>::Emplace(Args&&... args)
 {
-  if (mSize >= mCapacity)
-  {
+  if (mSize >= mCapacity) {
     Grow();
   }
   new (mData + mSize) T(Util::Forward(args)...);
@@ -106,19 +98,16 @@ void Vector<T>::Emplace(Args&&... args)
 template<typename T>
 void Vector<T>::Insert(size_t index, const T& value)
 {
-  if (index == mSize)
-  {
+  if (index == mSize) {
     Push(value);
     return;
   }
   VerifyIndex(index);
 
-  if (mSize >= mCapacity)
-  {
+  if (mSize >= mCapacity) {
     Grow();
   }
-  for (size_t i = mSize; i > index; --i)
-  {
+  for (size_t i = mSize; i > index; --i) {
     mData[i] = Util::Move(mData[i - 1]);
   }
   mData[index] = value;
@@ -128,8 +117,7 @@ void Vector<T>::Insert(size_t index, const T& value)
 template<typename T>
 void Vector<T>::Pop()
 {
-  if (mSize != 0)
-  {
+  if (mSize != 0) {
     mData[mSize - 1].~T();
     --mSize;
   }
@@ -138,8 +126,7 @@ void Vector<T>::Pop()
 template<typename T>
 void Vector<T>::Clear()
 {
-  for (size_t i = 0; i < mSize; ++i)
-  {
+  for (size_t i = 0; i < mSize; ++i) {
     mData[i].~T();
   }
   mSize = 0;
@@ -150,8 +137,7 @@ void Vector<T>::Remove(size_t index)
 {
   VerifyIndex(index);
   mData[index].~T();
-  for (size_t i = index + 1; i < mSize; ++i)
-  {
+  for (size_t i = index + 1; i < mSize; ++i) {
     mData[i - 1] = Util::Move(mData[i]);
   }
   --mSize;
@@ -161,8 +147,7 @@ template<typename T>
 void Vector<T>::LazyRemove(size_t index)
 {
   VerifyIndex(index);
-  if (mSize == 1)
-  {
+  if (mSize == 1) {
     Pop();
     return;
   }
@@ -175,16 +160,13 @@ template<typename T>
 template<typename... Args>
 void Vector<T>::Resize(size_t newSize, Args&&... args)
 {
-  for (size_t i = newSize; i < mSize; ++i)
-  {
+  for (size_t i = newSize; i < mSize; ++i) {
     mData[i].~T();
   }
-  if (newSize > mCapacity)
-  {
+  if (newSize > mCapacity) {
     Grow(newSize);
   }
-  for (size_t i = mSize; i < newSize; ++i)
-  {
+  for (size_t i = mSize; i < newSize; ++i) {
     new (mData + i) T(args...);
   }
   mSize = newSize;
@@ -193,8 +175,7 @@ void Vector<T>::Resize(size_t newSize, Args&&... args)
 template<typename T>
 void Vector<T>::Reserve(size_t newCapacity)
 {
-  if (mCapacity >= newCapacity)
-  {
+  if (mCapacity >= newCapacity) {
     return;
   }
   Grow(newCapacity);
@@ -203,8 +184,7 @@ void Vector<T>::Reserve(size_t newCapacity)
 template<typename T>
 void Vector<T>::Shrink()
 {
-  if (mSize == mCapacity)
-  {
+  if (mSize == mCapacity) {
     return;
   }
 
@@ -218,10 +198,8 @@ void Vector<T>::Shrink()
 template<typename T>
 bool Vector<T>::Contains(const T& value) const
 {
-  for (size_t i = 0; i < mSize; ++i)
-  {
-    if (mData[i] == value)
-    {
+  for (size_t i = 0; i < mSize; ++i) {
+    if (mData[i] == value) {
       return true;
     }
   }
@@ -277,15 +255,13 @@ template<typename T>
 Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {
   Clear();
-  if (other.mSize <= mCapacity)
-  {
+  if (other.mSize <= mCapacity) {
     Util::Copy<T>(other.mData, mData, mSize);
     mSize = other.mSize;
     return *this;
   }
 
-  if (mData != nullptr)
-  {
+  if (mData != nullptr) {
     DeleteAllocation(mData);
   }
   mData = CreateAllocation(other.mSize);
@@ -299,8 +275,7 @@ template<typename T>
 Vector<T>& Vector<T>::operator=(Vector<T>&& other)
 {
   Clear();
-  if (mData != nullptr)
-  {
+  if (mData != nullptr) {
     DeleteAllocation(mData);
   }
   mData = other.mData;
@@ -340,8 +315,7 @@ const T* Vector<T>::end() const
 template<typename T>
 void Vector<T>::VerifyIndex(size_t index) const
 {
-  if (index < 0 || index >= mSize)
-  {
+  if (index < 0 || index >= mSize) {
     std::stringstream error;
     error << index << " is not a valid index.";
     LogAbort(error.str().c_str());
@@ -351,12 +325,11 @@ void Vector<T>::VerifyIndex(size_t index) const
 template<typename T>
 void Vector<T>::Grow()
 {
-  if (mData == nullptr)
-  {
+  if (mData == nullptr) {
     mCapacity = smStartCapacity;
     mData = CreateAllocation(mCapacity);
-  } else
-  {
+  }
+  else {
     size_t newCapacity = (size_t)((float)mCapacity * smGrowthFactor);
     Grow(newCapacity);
   }
@@ -370,8 +343,7 @@ void Vector<T>::Grow(size_t newCapacity)
     "The new capacity must be greater than the current capacity.");
 
   T* newData = CreateAllocation(newCapacity);
-  for (size_t i = 0; i < mSize; ++i)
-  {
+  for (size_t i = 0; i < mSize; ++i) {
     new (newData + i) T(Util::Move(mData[i]));
     mData[i].~T();
   }

@@ -14,43 +14,35 @@ std::ostream& operator<<(std::ostream& os, const Math::Matrix<T, N>& matrix)
   // when printed to console. Do note that this does not work if any formatting
   // specifiers are applied to os.
   int longestWidths[N];
-  for (int c = 0; c < N; ++c)
-  {
+  for (int c = 0; c < N; ++c) {
     longestWidths[c] = 1;
-    for (int r = 0; r < N; ++r)
-    {
+    for (int r = 0; r < N; ++r) {
       std::stringstream ss;
       ss << matrix[r][c];
       int width = (int)ss.str().size();
-      if (width > longestWidths[c])
-      {
+      if (width > longestWidths[c]) {
         longestWidths[c] = width;
       }
     }
   }
 
-  for (int r = 0; r < N; ++r)
-  {
-    if (r == 0 || r == N - 1)
-    {
+  for (int r = 0; r < N; ++r) {
+    if (r == 0 || r == N - 1) {
       os << "+ ";
-    } else
-    {
+    }
+    else {
       os << "| ";
     }
-    for (int c = 0; c < N; ++c)
-    {
+    for (int c = 0; c < N; ++c) {
       os << std::setw(longestWidths[c]) << std::right << matrix[r][c];
-      if (c < N - 1)
-      {
+      if (c < N - 1) {
         os << ", ";
       }
     }
-    if (r == 0 || r == N - 1)
-    {
+    if (r == 0 || r == N - 1) {
       os << " +\n";
-    } else
-    {
+    }
+    else {
       os << " |\n";
     }
   }
@@ -62,22 +54,19 @@ std::ostream& operator<<(std::ostream& os, const Quaternion& q)
   bool firstValue = true;
   auto printValue = [&os, &firstValue](float value, const char* basis)
   {
-    if (std::fabs(value) < Math::nEpsilon)
-    {
+    if (std::fabs(value) < Math::nEpsilon) {
       return;
     }
-    if (firstValue)
-    {
+    if (firstValue) {
       os << value << basis;
       firstValue = false;
       return;
     }
-    if (value < 0.0f)
-    {
+    if (value < 0.0f) {
       os << " - ";
       value *= -1.0f;
-    } else
-    {
+    }
+    else {
       os << " + ";
     }
     os << value << basis;

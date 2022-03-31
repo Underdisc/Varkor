@@ -26,8 +26,7 @@ Rotator::Rotator(): mOperation(Operation::None)
   // Create all of the handles.
   mParent = nSpace.CreateMember();
   nSpace.AddComponent<Comp::Transform>(mParent);
-  for (int i = 0; i < smHandleCount; ++i)
-  {
+  for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = nSpace.CreateChildMember(mParent);
     Comp::AlphaColor& alphaColorComp =
       nSpace.AddComponent<Comp::AlphaColor>(mHandles[i]);
@@ -85,8 +84,7 @@ void Rotator::SetNextOperation(
   Vec3 xRotated = referenceFrame.Rotate({1.0f, 0.0f, 0.0f});
   Vec3 yRotated = referenceFrame.Rotate({0.0f, 1.0f, 0.0f});
   Vec3 zRotated = referenceFrame.Rotate({0.0f, 0.0f, 1.0f});
-  switch (mOperation)
-  {
+  switch (mOperation) {
   case Operation::X: mRotationPlane.Normal(xRotated); break;
   case Operation::Y: mRotationPlane.Normal(yRotated); break;
   case Operation::Z: mRotationPlane.Normal(zRotated); break;
@@ -96,11 +94,9 @@ void Rotator::SetNextOperation(
   Math::Ray mouseRay =
     nCamera.StandardPositionToRay(Input::StandardMousePosition());
   bool singleAxisOperation = mOperation != Operation::Xyz;
-  if (singleAxisOperation && Math::HasIntersection(mouseRay, mRotationPlane))
-  {
+  if (singleAxisOperation && Math::HasIntersection(mouseRay, mRotationPlane)) {
     mMouseOffset = Math::Intersection(mouseRay, mRotationPlane) - translation;
-    if (Math::Near(mMouseOffset, {0.0f, 0.0f, 0.0f}))
-    {
+    if (Math::Near(mMouseOffset, {0.0f, 0.0f, 0.0f})) {
       mOperation = Operation::None;
     }
   }
@@ -116,47 +112,40 @@ Quat Rotator::Run(
   SetParentTransformation(mParent, translation, referenceFrame);
 
   // Handle the transitions between all operation types.
-  if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None)
-  {
+  if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
     Comp::AlphaColor& alphaColorComp =
       *nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
     alphaColorComp.mAlphaColor = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return rotation;
   }
-  if (Input::MousePressed(Input::Mouse::Left))
-  {
+  if (Input::MousePressed(Input::Mouse::Left)) {
     SetNextOperation(translation, referenceFrame);
-    if (mOperation == Operation::None)
-    {
+    if (mOperation == Operation::None) {
       return rotation;
     }
     Editor::nSuppressObjectPicking |= true;
     Comp::AlphaColor& alphaColorComp =
       *nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
     alphaColorComp.mAlphaColor = smActiveColor;
-    if (mOperation == Operation::Xyz)
-    {
+    if (mOperation == Operation::Xyz) {
       alphaColorComp.mAlphaColor[3] = 0.8f;
     }
     return rotation;
   }
 
   // Perform the active operation.
-  if (mOperation < Operation::Xyz)
-  {
+  if (mOperation < Operation::Xyz) {
     // We get two rays on the rotation plane and find the angle between them to
     // determine the change in rotation.
     Math::Ray mouseRay =
       nCamera.StandardPositionToRay(Input::StandardMousePosition());
-    if (!Math::HasIntersection(mouseRay, mRotationPlane))
-    {
+    if (!Math::HasIntersection(mouseRay, mRotationPlane)) {
       return rotation;
     }
     Vec3 newMouseOffset = Math::Intersection(mouseRay, mRotationPlane);
     newMouseOffset -= translation;
-    if (Math::Near(Math::MagnitudeSq(newMouseOffset), 0.0f))
-    {
+    if (Math::Near(Math::MagnitudeSq(newMouseOffset), 0.0f)) {
       return rotation;
     }
     Vec3 normOld = Math::Normalize(mMouseOffset);
@@ -164,21 +153,19 @@ Quat Rotator::Run(
     // We need to clamp to avoid nan values from the cosine function.
     float dot = Math::Clamp(-1.0f, 1.0f, Math::Dot(normOld, normNew));
     float angle = std::acosf(dot);
-    if (snapping)
-    {
+    if (snapping) {
       angle = Math::RoundToNearest(angle, snapInterval);
     }
     Vec3 positiveDirection = Math::Cross(mRotationPlane.Normal(), normOld);
-    if (Math::Dot(normNew, positiveDirection) < 0.0f)
-    {
+    if (Math::Dot(normNew, positiveDirection) < 0.0f) {
       angle *= -1.0f;
     }
     Math::Quaternion delta;
     delta.AngleAxis(angle, mRotationPlane.Normal());
     mMouseOffset = delta.Rotate(mMouseOffset);
     return delta * rotation;
-  } else if (mOperation == Operation::Xyz)
-  {
+  }
+  else if (mOperation == Operation::Xyz) {
     const float pixelsPerRadian = 500.0f;
     Vec2 radians = (Input::MouseMotion() / pixelsPerRadian) * Math::nPi;
     Math::Quaternion horizontalRotation, verticalRotation;

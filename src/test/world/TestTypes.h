@@ -121,8 +121,7 @@ struct Dynamic
   }
   void SetData(int value)
   {
-    if (m0 == nullptr)
-    {
+    if (m0 == nullptr) {
       m0 = alloc int;
     }
     *m0 = value;
@@ -146,8 +145,7 @@ struct Container
   void SetData(int value)
   {
     mVector.Clear();
-    for (int i = 0; i < value / 2; ++i)
-    {
+    for (int i = 0; i < value / 2; ++i) {
       mVector.Push(value + i);
     }
   }

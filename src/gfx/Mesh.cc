@@ -6,8 +6,7 @@ namespace Gfx {
 
 size_t AttributeSize(unsigned int attribute)
 {
-  switch (attribute)
-  {
+  switch (attribute) {
   case Attribute::Position: return sizeof(Vec3);
   case Attribute::Normal: return sizeof(Vec3);
   case Attribute::TexCoord: return sizeof(Vec2);
@@ -81,15 +80,13 @@ void Mesh::Finalize(unsigned int attributes, size_t vertexByteCount)
     0, 3, GL_FLOAT, GL_FALSE, (GLsizei)vertexByteCount, (void*)byteOffset);
   glEnableVertexAttribArray(0);
   byteOffset += AttributeSize(Attribute::Position);
-  if (attributes & Attribute::Normal)
-  {
+  if (attributes & Attribute::Normal) {
     glVertexAttribPointer(
       1, 3, GL_FLOAT, GL_FALSE, (GLsizei)vertexByteCount, (void*)byteOffset);
     glEnableVertexAttribArray(1);
     byteOffset += AttributeSize(Attribute::Normal);
   }
-  if (attributes & Attribute::TexCoord)
-  {
+  if (attributes & Attribute::TexCoord) {
     glVertexAttribPointer(
       2, 2, GL_FLOAT, GL_FALSE, (GLsizei)vertexByteCount, (void*)byteOffset);
     glEnableVertexAttribArray(2);

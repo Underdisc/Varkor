@@ -26,8 +26,7 @@ Scalor::Scalor(): mOperation(Operation::None)
   // Create all of the handles.
   mParent = nSpace.CreateMember();
   nSpace.AddComponent<Comp::Transform>(mParent);
-  for (int i = 0; i < smHandleCount; ++i)
-  {
+  for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = nSpace.CreateChildMember(mParent);
     Comp::AlphaColor& colorComp =
       nSpace.AddComponent<Comp::AlphaColor>(mHandles[i]);
@@ -114,8 +113,7 @@ void Scalor::SetNextOperation(
   Vec3 xRotated = referenceFrame.Rotate({1.0f, 0.0f, 0.0f});
   Vec3 yRotated = referenceFrame.Rotate({0.0f, 1.0f, 0.0f});
   Vec3 zRotated = referenceFrame.Rotate({0.0f, 0.0f, 1.0f});
-  switch (mOperation)
-  {
+  switch (mOperation) {
   case Operation::X: mScaleRay.Direction(xRotated); break;
   case Operation::Y: mScaleRay.Direction(yRotated); break;
   case Operation::Z: mScaleRay.Direction(zRotated); break;
@@ -126,24 +124,21 @@ void Scalor::SetNextOperation(
   }
   Math::Ray mouseRay =
     nCamera.StandardPositionToRay(Input::StandardMousePosition());
-  if (mOperation < Operation::Xy)
-  {
-    if (!mScaleRay.HasClosestTo(mouseRay))
-    {
+  if (mOperation < Operation::Xy) {
+    if (!mScaleRay.HasClosestTo(mouseRay)) {
       mOperation = Operation::None;
       return;
     }
     mMousePosition = mScaleRay.ClosestPointTo(mouseRay);
-  } else if (mOperation < Operation::Xyz)
-  {
-    if (!Math::HasIntersection(mouseRay, mScalePlane))
-    {
+  }
+  else if (mOperation < Operation::Xyz) {
+    if (!Math::HasIntersection(mouseRay, mScalePlane)) {
       mOperation = Operation::None;
       return;
     }
     mMousePosition = Math::Intersection(mouseRay, mScalePlane);
-  } else
-  {
+  }
+  else {
     mMousePosition = Math::Intersection(mouseRay, mScalePlane);
     mUniformScaleDirection = Math::Normalize(mMousePosition - translation);
     mNormalizedStartScale = Math::Normalize(scale);
@@ -167,19 +162,16 @@ Vec3 Scalor::Run(
   xyzTransform.SetRotation(xyzRotation);
 
   // Handle any switching between operations.
-  if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None)
-  {
+  if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
     Comp::AlphaColor& colorComp =
       *nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
     colorComp.mAlphaColor = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return scale;
   }
-  if (Input::MousePressed(Input::Mouse::Left))
-  {
+  if (Input::MousePressed(Input::Mouse::Left)) {
     SetNextOperation(scale, translation, referenceFrame);
-    if (mOperation == Operation::None)
-    {
+    if (mOperation == Operation::None) {
       return scale;
     }
     Editor::nSuppressObjectPicking |= true;
@@ -191,8 +183,7 @@ Vec3 Scalor::Run(
 
   // Perform the desired operation.
   Vec3 axes;
-  switch (mOperation)
-  {
+  switch (mOperation) {
   case Operation::X: axes = {1.0, 0.0f, 0.0f}; break;
   case Operation::Y: axes = {0.0f, 1.0f, 0.0f}; break;
   case Operation::Z: axes = {0.0f, 0.0f, 1.0f}; break;
@@ -203,41 +194,36 @@ Vec3 Scalor::Run(
   }
   Math::Ray mouseRay =
     nCamera.StandardPositionToRay(Input::StandardMousePosition());
-  if (mOperation < Operation::Xy)
-  {
-    if (!mScaleRay.HasClosestTo(mouseRay))
-    {
+  if (mOperation < Operation::Xy) {
+    if (!mScaleRay.HasClosestTo(mouseRay)) {
       return scale;
     }
     Vec3 newMousePosition = mScaleRay.ClosestPointTo(mouseRay);
     Vec3 mouseDelta = newMousePosition - mMousePosition;
     float deltaMagnitude = Math::Dot(mouseDelta, mScaleRay.Direction());
-    if (!snapping)
-    {
+    if (!snapping) {
       mMousePosition = newMousePosition;
       return scale + axes * deltaMagnitude;
     }
     deltaMagnitude = Math::RoundToNearest(deltaMagnitude, snapInterval);
     mMousePosition += mScaleRay.Direction() * deltaMagnitude;
     return scale + axes * deltaMagnitude;
-  } else if (mOperation < Operation::Xyz)
-  {
-    if (!Math::HasIntersection(mouseRay, mScalePlane))
-    {
+  }
+  else if (mOperation < Operation::Xyz) {
+    if (!Math::HasIntersection(mouseRay, mScalePlane)) {
       return scale;
     }
     Vec3 newMousePosition = Math::Intersection(mouseRay, mScalePlane);
     Vec3 delta = newMousePosition - mMousePosition;
     delta = referenceFrame.Conjugate().Rotate(delta);
     delta = Math::ComponentwiseProduct(axes, delta);
-    if (snapping)
-    {
+    if (snapping) {
       delta = Math::ScaleComponentsToInterval(delta, snapInterval);
     }
     mMousePosition += referenceFrame.Rotate(delta);
     return scale + delta;
-  } else if (mOperation == Operation::Xyz)
-  {
+  }
+  else if (mOperation == Operation::Xyz) {
     Vec3 newMousePosition = Math::Intersection(mouseRay, mScalePlane);
     Vec3 mouseDelta = newMousePosition - mMousePosition;
     float amount = Math::Dot(mouseDelta, mUniformScaleDirection);

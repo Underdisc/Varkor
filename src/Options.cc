@@ -19,8 +19,7 @@ void ShowHelp()
 Result Init(int argc, char* argv[], const char* projectDirectory)
 {
   nProjectDirectory = projectDirectory;
-  if (!nProjectDirectory.empty() && nProjectDirectory.back() != '/')
-  {
+  if (!nProjectDirectory.empty() && nProjectDirectory.back() != '/') {
     nProjectDirectory += '/';
   }
 
@@ -30,11 +29,9 @@ Result Init(int argc, char* argv[], const char* projectDirectory)
     {"load-editor-space", required_argument, NULL, 's'},
     {0, 0, 0, 0}};
   int currentOp = 0;
-  while (currentOp != -1)
-  {
+  while (currentOp != -1) {
     currentOp = getopt_long(argc, argv, getoptString, allOptions, NULL);
-    switch (currentOp)
-    {
+    switch (currentOp) {
     case 'h': ShowHelp(); return Result("Help requested.");
     case 's': nLoadSpace = optarg; break;
     case '?': return Result("Invalid command line arguments.");

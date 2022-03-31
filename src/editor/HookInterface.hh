@@ -31,15 +31,13 @@ void HookInterface::SelectAssetWidget(AssetId* currentId)
   std::stringstream buttonLabel;
   buttonLabel << Util::GetShortTypename<AssetT>() << ": ";
   AssLib::Asset<AssetT>* asset = AssLib::TryGetAsset<AssetT>(*currentId);
-  if (asset == nullptr)
-  {
+  if (asset == nullptr) {
     buttonLabel << "Invalid";
-  } else
-  {
+  }
+  else {
     buttonLabel << asset->mName;
   }
-  if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f)))
-  {
+  if (ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f))) {
     OpenInterface<SelectAssetInterface<AssetT>>(
       [currentId](AssetId selectedId)
       {

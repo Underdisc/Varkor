@@ -31,8 +31,7 @@ void Framebuffer::Init(int width, int height)
 
   // Create the color attachment.
   GLint internalFormat;
-  switch (mFormat)
-  {
+  switch (mFormat) {
   case GL_RED_INTEGER: internalFormat = GL_R32I; break;
   case GL_RGBA: internalFormat = GL_RGBA; break;
   }
@@ -110,8 +109,7 @@ Ds::Vector<Framebuffer*> Framebuffer::smFullscreens;
 
 void Framebuffer::ResizeFullscreens(int width, int height)
 {
-  for (Framebuffer* framebuffer : smFullscreens)
-  {
+  for (Framebuffer* framebuffer : smFullscreens) {
     framebuffer->Resize(width, height);
   }
 }
@@ -123,10 +121,8 @@ void Framebuffer::AddFullscreen(Framebuffer* framebuffer)
 
 void Framebuffer::RemoveFullscreen(Framebuffer* framebuffer)
 {
-  for (int i = 0; i < smFullscreens.Size(); ++i)
-  {
-    if (smFullscreens[i] == framebuffer)
-    {
+  for (int i = 0; i < smFullscreens.Size(); ++i) {
+    if (smFullscreens[i] == framebuffer) {
       smFullscreens.LazyRemove(i);
       return;
     }

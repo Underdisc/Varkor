@@ -31,11 +31,10 @@ void Quaternion::FromTo(Vec3 from, Vec3 to)
   LogAbortIf(magSqProduct == 0.0f, "One of the vectors is a zero vector.");
   mA = std::sqrtf(magSqProduct) + Math::Dot(from, to);
   Vec3 axis;
-  if (Near(mA, 0.0f))
-  {
+  if (Near(mA, 0.0f)) {
     axis = Math::PerpendicularTo(from);
-  } else
-  {
+  }
+  else {
     axis = Math::Cross(from, to);
   }
   mB = axis[0];
@@ -55,8 +54,7 @@ void Quaternion::BasisVectors(
   // that and the quaternion rotation matrix representation, we can calculate
   // the quaternion coefficients.
   float wSquared = (xAxis[0] + yAxis[1] + zAxis[2] + 1.0f) * 0.25f;
-  if (wSquared > 0.0f)
-  {
+  if (wSquared > 0.0f) {
     mA = std::sqrtf(wSquared);
     float w4 = mA * 4.0f;
     mB = (yAxis[2] - zAxis[1]) / w4;
@@ -65,8 +63,7 @@ void Quaternion::BasisVectors(
     return;
   }
   float xSquared = (xAxis[0] - yAxis[1] - zAxis[2] + 1.0f) * 0.25f;
-  if (xSquared > 0.0f)
-  {
+  if (xSquared > 0.0f) {
     mB = std::sqrtf(xSquared);
     float x4 = mB * 4.0f;
     mA = (yAxis[2] - zAxis[1]) / x4;
@@ -75,8 +72,7 @@ void Quaternion::BasisVectors(
     return;
   }
   float ySquared = (yAxis[1] - xAxis[0] - zAxis[2] + 1.0f) * 0.25f;
-  if (ySquared > 0.0f)
-  {
+  if (ySquared > 0.0f) {
     mC = std::sqrtf(ySquared);
     float y4 = mC * 4.0f;
     mA = (zAxis[0] - xAxis[2]) / y4;
@@ -137,8 +133,7 @@ Vec3 Quaternion::Axis() const
 {
   Vec3 axis = {mB, mC, mD};
   float magnitude = Math::Magnitude(axis);
-  if (magnitude == 0.0f)
-  {
+  if (magnitude == 0.0f) {
     axis = {0.0f, 0.0f, 0.0f};
     return axis;
   }

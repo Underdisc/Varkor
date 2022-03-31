@@ -34,12 +34,10 @@ template<unsigned int M>
 Vector<T, N>::operator Vector<T, M>() const
 {
   Vector<T, M> result;
-  for (int i = 0; i < N && i < M; ++i)
-  {
+  for (int i = 0; i < N && i < M; ++i) {
     result[i] = mD[i];
   }
-  for (int i = M - 1; i >= N; --i)
-  {
+  for (int i = M - 1; i >= N; --i) {
     result[i] = (T)0;
   }
   return result;
@@ -49,8 +47,7 @@ template<typename T, unsigned int N>
 Vector<T, N> operator+(const Vector<T, N>& a, const Vector<T, N>& b)
 {
   Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     result[i] = a[i] + b[i];
   }
   return result;
@@ -60,8 +57,7 @@ template<typename T, unsigned int N>
 Vector<T, N> operator-(const Vector<T, N>& a, const Vector<T, N>& b)
 {
   Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     result[i] = a[i] - b[i];
   }
   return result;
@@ -71,8 +67,7 @@ template<typename T, unsigned int N>
 Vector<T, N> operator*(const Vector<T, N>& vector, T scalar)
 {
   Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     result[i] = vector[i] * scalar;
   }
   return result;
@@ -88,8 +83,7 @@ template<typename T, unsigned int N>
 Vector<T, N> operator/(const Vector<T, N>& vector, T scalar)
 {
   Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     result[i] = vector[i] / scalar;
   }
   return result;
@@ -99,8 +93,7 @@ template<typename T, unsigned int N>
 Vector<T, N> operator/(T scalar, const Vector<T, N>& vector)
 {
   Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     result[i] = scalar / vector[i];
   }
   return result;
@@ -109,8 +102,7 @@ Vector<T, N> operator/(T scalar, const Vector<T, N>& vector)
 template<typename T, unsigned int N>
 Vector<T, N>& operator+=(Vector<T, N>& a, const Vector<T, N>& b)
 {
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     a[i] += b[i];
   }
   return a;
@@ -119,8 +111,7 @@ Vector<T, N>& operator+=(Vector<T, N>& a, const Vector<T, N>& b)
 template<typename T, unsigned int N>
 Vector<T, N>& operator-=(Vector<T, N>& a, const Vector<T, N>& b)
 {
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     a[i] -= b[i];
   }
   return a;
@@ -129,8 +120,7 @@ Vector<T, N>& operator-=(Vector<T, N>& a, const Vector<T, N>& b)
 template<typename T, unsigned int N>
 Vector<T, N>& operator*=(Vector<T, N>& vector, T scalar)
 {
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     vector[i] *= scalar;
   }
   return vector;
@@ -139,8 +129,7 @@ Vector<T, N>& operator*=(Vector<T, N>& vector, T scalar)
 template<typename T, unsigned int N>
 Vector<T, N>& operator/=(Vector<T, N>& vector, T scaler)
 {
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     vector[i] /= scaler;
   }
   return vector;
@@ -150,8 +139,7 @@ template<typename T, unsigned int N>
 Vector<T, N> operator-(const Vector<T, N>& vector)
 {
   Vector<T, N> negated;
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     negated[i] = -vector[i];
   }
   return negated;
@@ -160,10 +148,8 @@ Vector<T, N> operator-(const Vector<T, N>& vector)
 template<typename T, unsigned int N>
 bool operator==(const Vector<T, N>& a, const Vector<T, N>& b)
 {
-  for (int i = 0; i < N; ++i)
-  {
-    if (a[i] != b[i])
-    {
+  for (int i = 0; i < N; ++i) {
+    if (a[i] != b[i]) {
       return false;
     }
   }
@@ -173,10 +159,8 @@ bool operator==(const Vector<T, N>& a, const Vector<T, N>& b)
 template<typename T, unsigned int N>
 bool Near(const Vector<T, N>& a, const Vector<T, N>& b)
 {
-  for (int i = 0; i < N; ++i)
-  {
-    if (!Near(a[i], b[i]))
-    {
+  for (int i = 0; i < N; ++i) {
+    if (!Near(a[i], b[i])) {
       return false;
     }
   }
@@ -187,11 +171,9 @@ template<typename T, unsigned int N>
 std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec)
 {
   os << "[";
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     os << vec[i];
-    if (i < N - 1)
-    {
+    if (i < N - 1) {
       os << ", ";
     }
   }
@@ -234,8 +216,7 @@ template<typename T, unsigned int N>
 T Dot(const Vector<T, N>& a, const Vector<T, N>& b)
 {
   T dot = (T)0;
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     dot += a[i] * b[i];
   }
   return dot;
@@ -245,8 +226,7 @@ template<typename T, unsigned int N>
 Vector<T, N> ComponentwiseProduct(const Vector<T, N>& a, const Vector<T, N>& b)
 {
   Vector<T, N> result;
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     result[i] = a[i] * b[i];
   }
   return result;
@@ -256,11 +236,10 @@ template<typename T>
 Vector<T, 3> PerpendicularTo(const Vector<T, 3>& vector)
 {
   Vector<T, 3> result;
-  if (vector[0] == 0.0f && vector[2] == 0.0f)
-  {
+  if (vector[0] == 0.0f && vector[2] == 0.0f) {
     result = {1.0f, 0.0f, 0.0f};
-  } else
-  {
+  }
+  else {
     result = {-vector[2], 0.0f, vector[0]};
   }
   return result;
@@ -270,8 +249,7 @@ template<typename T, unsigned int N>
 Vector<T, N> ScaleToInterval(Vector<T, N> vector, float interval)
 {
   float length = Math::Magnitude(vector);
-  if (Math::Near(length, 0.0f))
-  {
+  if (Math::Near(length, 0.0f)) {
     Vector<T, N> zeroVector {};
     return zeroVector;
   }
@@ -284,8 +262,7 @@ template<typename T, unsigned int N>
 Vector<T, N> ScaleComponentsToInterval(Vector<T, N> vector, float interval)
 {
   Vector<T, N> newVector;
-  for (int i = 0; i < N; ++i)
-  {
+  for (int i = 0; i < N; ++i) {
     newVector[i] = RoundToNearest(vector[i], interval);
   }
   return newVector;

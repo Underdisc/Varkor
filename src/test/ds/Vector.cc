@@ -11,8 +11,7 @@ void CopyConstructor()
   std::cout << "<= CopyConstructor =>" << std::endl;
   const int elementCount = 15;
   Ds::Vector<int> testVector;
-  for (int i = 0; i < elementCount; ++i)
-  {
+  for (int i = 0; i < elementCount; ++i) {
     testVector.Push(elementCount - i);
   }
   Ds::Vector<int> copyVector(testVector);
@@ -25,8 +24,7 @@ void MoveConstructor()
 {
   std::cout << "<= MoveConstructor =>" << std::endl;
   Ds::Vector<int> ogVector;
-  for (int i = 0; i < 20; ++i)
-  {
+  for (int i = 0; i < 20; ++i) {
     ogVector.Push(i);
   }
   const int* ogVectorPtr = ogVector.CData();
@@ -43,13 +41,11 @@ void SinglePush()
   std::cout << "<= SinglePush =>" << std::endl;
   Ds::Vector<int> testVector;
   PrintVector(testVector);
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     testVector.Push(i);
   }
   PrintVector(testVector);
-  for (int i = 0; i < 20; ++i)
-  {
+  for (int i = 0; i < 20; ++i) {
     testVector.Push(i);
   }
   PrintVector(testVector);
@@ -64,11 +60,9 @@ void MovePush()
   Ds::Vector<Ds::Vector<int>> testVector;
   const int innerVectorCount = 6;
   const int* ogInnerPtrs[innerVectorCount];
-  for (int i = 0; i < innerVectorCount; ++i)
-  {
+  for (int i = 0; i < innerVectorCount; ++i) {
     Ds::Vector<int> innerVector;
-    for (int j = 0; j < 10; ++j)
-    {
+    for (int j = 0; j < 10; ++j) {
       innerVector.Push(i + j);
     }
     ogInnerPtrs[i] = innerVector.CData();
@@ -79,14 +73,12 @@ void MovePush()
   // pointers for the inner vectors are still the same as the pointers in use
   // when the inner vectors were first created.
   const int* movedInnerPtrs[innerVectorCount];
-  for (int i = 0; i < innerVectorCount; ++i)
-  {
+  for (int i = 0; i < innerVectorCount; ++i) {
     movedInnerPtrs[i] = testVector[i].CData();
     PrintVector(testVector[i], false);
   }
   std::cout << "Moved: ";
-  for (int i = 0; i < innerVectorCount; ++i)
-  {
+  for (int i = 0; i < innerVectorCount; ++i) {
     std::cout << (ogInnerPtrs[i] == movedInnerPtrs[i]);
   }
   std::cout << std::endl << std::endl;
@@ -107,8 +99,7 @@ void Emplace()
 {
   std::cout << "<= Emplace =>" << std::endl;
   Ds::Vector<TestType> testVector;
-  for (int i = 0; i < 15; ++i)
-  {
+  for (int i = 0; i < 15; ++i) {
     testVector.Emplace(i, (float)i);
   }
   PrintVector(testVector);
@@ -119,8 +110,7 @@ void Insert()
 {
   std::cout << "<= Insert =>" << std::endl;
   Ds::Vector<int> testVector;
-  for (int i = 0; i < Ds::Vector<int>::smStartCapacity; ++i)
-  {
+  for (int i = 0; i < Ds::Vector<int>::smStartCapacity; ++i) {
     testVector.Push(i);
   }
   testVector.Insert(Ds::Vector<int>::smStartCapacity, -1);
@@ -137,14 +127,12 @@ void Pop()
 {
   std::cout << "<= Pop =>" << std::endl;
   Ds::Vector<TestType> testVector;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     testVector.Emplace(i, (float)i);
   }
 
   TestType::ResetCounts();
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     testVector.Pop();
   }
   PrintVector(testVector);
@@ -156,8 +144,7 @@ void Clear()
 {
   std::cout << "<= Clear =>" << std::endl;
   Ds::Vector<TestType> testVector;
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     testVector.Emplace(i, (float)i);
   }
 
@@ -173,18 +160,15 @@ void Remove()
   std::cout << "<= Remove =>" << std::endl;
   TestType::ResetCounts();
   Ds::Vector<TestType> testVector;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     testVector.Emplace(i, (float)i);
   }
   PrintVector(testVector, false);
-  for (int i = 8; i >= 0; i -= 2)
-  {
+  for (int i = 8; i >= 0; i -= 2) {
     testVector.Remove(i);
   }
   PrintVector(testVector, false);
-  for (int i = 4; i >= 0; --i)
-  {
+  for (int i = 4; i >= 0; --i) {
     testVector.Remove(i);
   }
   PrintVector(testVector, false);
@@ -199,19 +183,16 @@ void LazyRemove()
 {
   std::cout << "<= LazyRemove =>" << std::endl;
   Ds::Vector<TestType> testVector;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     testVector.Emplace(i, (float)i);
   }
 
   TestType::ResetCounts();
-  for (int i = 8; i >= 0; i -= 2)
-  {
+  for (int i = 8; i >= 0; i -= 2) {
     testVector.LazyRemove(i);
   }
   PrintVector(testVector, false);
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     testVector.LazyRemove(0);
   }
   PrintVector(testVector, false);
@@ -225,8 +206,7 @@ void IndexOperator()
 {
   std::cout << "<= IndexOperator =>" << std::endl;
   Ds::Vector<int> testVector;
-  for (int i = 0; i < 20; ++i)
-  {
+  for (int i = 0; i < 20; ++i) {
     testVector.Push(i);
   }
 
@@ -245,8 +225,7 @@ void CopyAssignment()
   // We first test the case where the vector being copied from has a size larger
   // than the capacity of the vector being copied to.
   Ds::Vector<int> ogVector;
-  for (int i = 0; i < 15; ++i)
-  {
+  for (int i = 0; i < 15; ++i) {
     ogVector.Push(i);
   }
   // We push one value into the copy vector so it allocates some memory. That
@@ -260,8 +239,7 @@ void CopyAssignment()
   // We then test the case where the vector being copied to already has enough
   // space to copy all of the elements from the other vector.
   ogVector.Clear();
-  for (int i = 0; i < 7; ++i)
-  {
+  for (int i = 0; i < 7; ++i) {
     ogVector.Push(i);
   }
   copyVector = ogVector;
@@ -276,13 +254,11 @@ void MoveAssignment()
   // We push values into the vector being moved from and the vector being moved
   // to to ensure that the data in the vector being moved to is deallocated.
   Ds::Vector<int> ogVector;
-  for (int i = 0; i < 20; ++i)
-  {
+  for (int i = 0; i < 20; ++i) {
     ogVector.Push(i);
   }
   Ds::Vector<int> moveVector;
-  for (int i = 20; i > 0; --i)
-  {
+  for (int i = 20; i > 0; --i) {
     moveVector.Push(i);
   }
   const int* ogVectorPtr = ogVector.CData();
@@ -298,8 +274,7 @@ void Contains()
 {
   std::cout << "<= Contains =>" << std::endl;
   Ds::Vector<int> testVector;
-  for (int i = 0; i < 20; ++i)
-  {
+  for (int i = 0; i < 20; ++i) {
     testVector.Push(i);
   }
   std::cout << "10: " << testVector.Contains(10) << std::endl;
@@ -352,8 +327,7 @@ void Reserve()
   // We then test reserving on a vector that already has values in it and will
   // need a new allocation for the reservation.
   Ds::Vector<int> test1;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     test1.Push(i);
   }
   test1.Reserve(30);
@@ -365,14 +339,12 @@ void CData()
 {
   std::cout << "<= CData =>" << std::endl;
   Ds::Vector<int> test;
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     test.Push(i);
   }
   const int* data = test.CData();
   std::cout << "[";
-  for (int i = 0; i < 4; ++i)
-  {
+  for (int i = 0; i < 4; ++i) {
     std::cout << data[i] << ", ";
   }
   std::cout << data[4] << "]" << std::endl;
@@ -383,13 +355,11 @@ void Top()
 {
   std::cout << "<= Top =>" << std::endl;
   Ds::Vector<int> test;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     test.Push(i * 2);
   }
   std::cout << test.Top() << std::endl;
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     test.Pop();
   }
   std::cout << test.Top() << std::endl;
@@ -404,19 +374,16 @@ void InnerVector()
   std::cout << "<= InnerVector =>" << std::endl;
   Ds::Vector<Ds::Vector<TestType>> testVector;
 
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     Ds::Vector<TestType> innerTest;
-    for (int j = 0; j < 5; ++j)
-    {
+    for (int j = 0; j < 5; ++j) {
       int value = i + j;
       innerTest.Push(TestType(value, (float)value));
     }
     testVector.Push(innerTest);
   }
 
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     PrintVector(testVector[i], false);
   }
   std::cout << std::endl;
@@ -430,11 +397,9 @@ void BigInnerVector()
   // ensures that the outer vector grows without crashing or losing any of the
   // data in the subvectors.
   Ds::Vector<Ds::Vector<TestType>> testVector;
-  for (int i = 0; i < 100; ++i)
-  {
+  for (int i = 0; i < 100; ++i) {
     Ds::Vector<TestType> innerTest;
-    for (int j = 0; j < 100; ++j)
-    {
+    for (int j = 0; j < 100; ++j) {
       int value = i + j;
       innerTest.Push(TestType(value, (float)value));
     }
@@ -458,11 +423,9 @@ void ConstructionDestructionCounts()
   // operations to see how many times constructors and destructors are called.
   TestType::ResetCounts();
   Ds::Vector<Ds::Vector<TestType>> testVector;
-  for (int i = 0; i < 30; ++i)
-  {
+  for (int i = 0; i < 30; ++i) {
     Ds::Vector<TestType> inner;
-    for (int j = 0; j < 100; ++j)
-    {
+    for (int j = 0; j < 100; ++j) {
       int value = i + j;
       inner.Emplace(value, (float)value);
     }

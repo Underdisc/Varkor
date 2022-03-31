@@ -38,33 +38,27 @@ void CoreInterface::Show()
   ImGui::Checkbox("Editor Mode", &nEditorMode);
 
   // Display a button for space creation and display all of the existing spaces.
-  if (ImGui::Button("Create Space", ImVec2(-1, 0)))
-  {
+  if (ImGui::Button("Create Space", ImVec2(-1, 0))) {
     World::CreateTopSpace();
   }
   ImGui::BeginChild("Spaces", ImVec2(0, 0), true);
   World::Space* activeSpace = nullptr;
   OverviewInterface* overview = FindInterface<OverviewInterface>();
-  if (overview != nullptr)
-  {
+  if (overview != nullptr) {
     activeSpace = overview->mSpace;
   }
-  for (World::Space& space : World::nSpaces)
-  {
+  for (World::Space& space : World::nSpaces) {
     bool selected = activeSpace == &space;
     ImGui::PushID((void*)&space);
-    if (ImGui::Selectable(space.mName.c_str(), selected))
-    {
-      if (!selected)
-      {
+    if (ImGui::Selectable(space.mName.c_str(), selected)) {
+      if (!selected) {
         OpenInterface<OverviewInterface>(&space);
-      } else
-      {
+      }
+      else {
         CloseInterface<OverviewInterface>();
       }
     }
-    if (selected)
-    {
+    if (selected) {
       ImGui::PushItemWidth(-1);
       InputText("Name", &space.mName);
       ImGui::PopItemWidth();
@@ -77,20 +71,17 @@ void CoreInterface::Show()
 
 void CoreInterface::FileMenu()
 {
-  if (!ImGui::BeginMenu("File"))
-  {
+  if (!ImGui::BeginMenu("File")) {
     return;
   }
 
   // Allow a user to load a Space from file.
-  if (ImGui::MenuItem("Load Space"))
-  {
+  if (ImGui::MenuItem("Load Space")) {
     OpenInterface<FileInterface>(
       [this](const std::string& filename)
       {
         ValueResult<World::SpaceIt> result = World::LoadSpace(filename.c_str());
-        if (!result.Success())
-        {
+        if (!result.Success()) {
           LogError(result.mError.c_str());
           return;
         }
@@ -102,12 +93,10 @@ void CoreInterface::FileMenu()
   // Allow a user to save a Space to file if one is selected.
   bool spaceSelected = false;
   OverviewInterface* overview = FindInterface<OverviewInterface>();
-  if (overview != nullptr)
-  {
+  if (overview != nullptr) {
     spaceSelected = true;
   }
-  if (ImGui::MenuItem("Save Selected Space", nullptr, false, spaceSelected))
-  {
+  if (ImGui::MenuItem("Save Selected Space", nullptr, false, spaceSelected)) {
     OpenInterface<FileInterface>(
       [overview](const std::string& filename)
       {
@@ -119,12 +108,10 @@ void CoreInterface::FileMenu()
       FileInterface::AccessType::Save,
       overview->mSpace->mName + ".vlk");
   }
-  if (ImGui::MenuItem("Save Assets File"))
-  {
+  if (ImGui::MenuItem("Save Assets File")) {
     AssetLibrary::SerializeAssets();
   }
-  if (ImGui::MenuItem("Save Components File"))
-  {
+  if (ImGui::MenuItem("Save Components File")) {
     Comp::SaveComponentsFile();
   }
   ImGui::EndMenu();
@@ -132,35 +119,27 @@ void CoreInterface::FileMenu()
 
 void CoreInterface::ViewMenu()
 {
-  if (!ImGui::BeginMenu("View"))
-  {
+  if (!ImGui::BeginMenu("View")) {
     return;
   }
 
-  if (ImGui::MenuItem("Error"))
-  {
+  if (ImGui::MenuItem("Error")) {
     OpenInterface<ErrorInterface>();
   }
-  if (ImGui::MenuItem("Framer"))
-  {
+  if (ImGui::MenuItem("Framer")) {
     OpenInterface<FramerInterface>();
   }
-  if (ImGui::BeginMenu("Assets"))
-  {
-    if (ImGui::MenuItem("Fonts"))
-    {
+  if (ImGui::BeginMenu("Assets")) {
+    if (ImGui::MenuItem("Fonts")) {
       OpenInterface<AssetInterface<Gfx::Font>>();
     }
-    if (ImGui::MenuItem("Images"))
-    {
+    if (ImGui::MenuItem("Images")) {
       OpenInterface<AssetInterface<Gfx::Image>>();
     }
-    if (ImGui::MenuItem("Models"))
-    {
+    if (ImGui::MenuItem("Models")) {
       OpenInterface<AssetInterface<Gfx::Model>>();
     }
-    if (ImGui::MenuItem("Shaders"))
-    {
+    if (ImGui::MenuItem("Shaders")) {
       OpenInterface<AssetInterface<Gfx::Shader>>();
     }
     ImGui::EndMenu();

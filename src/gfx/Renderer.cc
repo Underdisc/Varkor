@@ -92,12 +92,10 @@ void Clear()
 {
   // Remove any space framebuffers that were not used during the last render and
   // clear those that were used.
-  for (size_t i = nNextSpaceFramebuffer; i < nSpaceFramebuffers.Size(); ++i)
-  {
+  for (size_t i = nNextSpaceFramebuffer; i < nSpaceFramebuffers.Size(); ++i) {
     nSpaceFramebuffers.Pop();
   }
-  for (size_t i = 0; i < nSpaceFramebuffers.Size(); ++i)
-  {
+  for (size_t i = 0; i < nSpaceFramebuffers.Size(); ++i) {
     glBindFramebuffer(GL_FRAMEBUFFER, nSpaceFramebuffers[i].Fbo());
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -112,13 +110,11 @@ void Clear()
 void Render()
 {
   Clear();
-  if (Editor::nEditorMode)
-  {
+  if (Editor::nEditorMode) {
     // Render only the selected space and the editor space.
     Editor::OverviewInterface* overviewInterface =
       Editor::nCoreInterface.FindInterface<Editor::OverviewInterface>();
-    if (overviewInterface == nullptr)
-    {
+    if (overviewInterface == nullptr) {
       return;
     }
     const Mat4& view = Editor::nCamera.View();
@@ -128,11 +124,10 @@ void Render()
     RenderSpace(Editor::nSpace, view, proj, position);
     RenderFramebuffers();
     Debug::Draw::Render(Editor::nCamera.View(), Editor::nCamera.Proj());
-  } else
-  {
+  }
+  else {
     Result result = RenderWorld();
-    if (!result.Success())
-    {
+    if (!result.Success()) {
       LogError(result.mError.c_str());
       Editor::nEditorMode = true;
     }
@@ -143,8 +138,7 @@ void Render()
 Mat4 GetTransformation(const World::Object& object)
 {
   Comp::Transform* transform = object.GetComponent<Comp::Transform>();
-  if (transform == nullptr)
-  {
+  if (transform == nullptr) {
     Mat4 identity;
     Math::Identity(&identity);
     return identity;
@@ -174,8 +168,7 @@ void RenderMemberIds(
 {
   const Gfx::Shader* memberIdShader =
     AssLib::TryGetLive<Gfx::Shader>(AssLib::nMemberIdShaderId);
-  if (memberIdShader == nullptr)
-  {
+  if (memberIdShader == nullptr) {
     return;
   }
 
@@ -194,16 +187,14 @@ void RenderMemberIds(
     {
       const Gfx::Model* model =
         AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
-      if (model == nullptr)
-      {
+      if (model == nullptr) {
         return;
       }
 
       glUniform1i(memberIdLoc, (int)owner);
       World::Object object(const_cast<World::Space*>(&space), owner);
       Mat4 memberTransformation = GetTransformation(object);
-      for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo())
-      {
+      for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo()) {
         Mat4 transformation = memberTransformation * drawInfo.mTransformation;
         glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
         const Gfx::Mesh& mesh = model->GetMesh(drawInfo.mMeshIndex);
@@ -221,8 +212,7 @@ void RenderMemberIds(
     {
       const Gfx::Image* image =
         AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
-      if (image == nullptr)
-      {
+      if (image == nullptr) {
         return;
       }
 
@@ -240,8 +230,7 @@ void RenderMemberIds(
       World::Object object(const_cast<World::Space*>(&space), owner);
       Mat4 baseTransformation = GetTransformation(object);
       Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
-      for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo)
-      {
+      for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo) {
         Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
         glUniform1i(memberIdLoc, (int)owner);
         glUniformMatrix4fv(modelLoc, 1, true, glyphTransformation.CData());
@@ -279,16 +268,14 @@ World::MemberId HoveredMemberId(
 Result RenderSpace(const World::Space& space)
 {
   // Make sure the space has a camera.
-  if (space.mCameraId == World::nInvalidMemberId)
-  {
+  if (space.mCameraId == World::nInvalidMemberId) {
     std::stringstream error;
     error << "Space \"" << space.mName << "\" has no assigned camera.";
     return Result(error.str());
   }
   // Make sure the camera has a camera component.
   Comp::Camera* cameraComp = space.GetComponent<Comp::Camera>(space.mCameraId);
-  if (cameraComp == nullptr)
-  {
+  if (cameraComp == nullptr) {
     std::stringstream error;
     error << "Space \"" << space.mName
           << "\"'s camera does not have a camera component";
@@ -313,8 +300,7 @@ void RenderSpace(
   const Vec3& viewPos)
 {
   // Get the next space framebuffer that hasn't been rendered to and bind it.
-  if (nNextSpaceFramebuffer >= nSpaceFramebuffers.Size())
-  {
+  if (nNextSpaceFramebuffer >= nSpaceFramebuffers.Size()) {
     nSpaceFramebuffers.Emplace(GL_RGBA, GL_UNSIGNED_BYTE);
   }
   const Framebuffer& framebuffer = nSpaceFramebuffers[nNextSpaceFramebuffer];
@@ -329,8 +315,7 @@ void RenderSpace(
         AssLib::TryGetLive<Gfx::Shader>(modelComp.mShaderId);
       const Gfx::Model* model =
         AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
-      if (shader == nullptr || model == nullptr)
-      {
+      if (shader == nullptr || model == nullptr) {
         return;
       }
 
@@ -349,8 +334,7 @@ void RenderSpace(
       glUniform1f(timeLoc, Temporal::TotalTime());
       Comp::AlphaColor* alphaColorComp =
         space.GetComponent<Comp::AlphaColor>(owner);
-      if (alphaColorComp != nullptr)
-      {
+      if (alphaColorComp != nullptr) {
         GLint alphaColorLoc =
           shader->UniformLocation(Uniform::Type::AlphaColor);
         glUniform4fv(alphaColorLoc, 1, alphaColorComp->mAlphaColor.CData());
@@ -358,24 +342,20 @@ void RenderSpace(
 
       World::Object object(const_cast<World::Space*>(&space), owner);
       Mat4 memberTransformation = GetTransformation(object);
-      for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo())
-      {
+      for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo()) {
         // Prepare all of the textures.
         const Material& material = model->GetMaterial(drawInfo.mMaterialIndex);
         int textureCounter = 0;
         Ds::Vector<GLint> indices;
-        for (const Material::TextureGroup& group : material.mGroups)
-        {
+        for (const Material::TextureGroup& group : material.mGroups) {
           indices.Reserve(group.mImages.Size());
-          for (const Image& image : group.mImages)
-          {
+          for (const Image& image : group.mImages) {
             glActiveTexture(GL_TEXTURE0 + textureCounter);
             glBindTexture(GL_TEXTURE_2D, image.Id());
             indices.Push(textureCounter);
             ++textureCounter;
           }
-          switch (group.mType)
-          {
+          switch (group.mType) {
           case Material::TextureType::Diffuse:
             glUniform1iv(diffuseLoc, (GLsizei)indices.Size(), indices.CData());
             break;
@@ -406,8 +386,7 @@ void RenderSpace(
         AssLib::TryGetLive<Gfx::Shader>(spriteComp.mShaderId);
       const Gfx::Image* image =
         AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
-      if (shader == nullptr || image == nullptr)
-      {
+      if (shader == nullptr || image == nullptr) {
         return;
       }
 
@@ -437,8 +416,7 @@ void RenderSpace(
     {
       const Gfx::Shader* shader =
         AssLib::TryGetLive<Gfx::Shader>(textComp.mShaderId);
-      if (shader == nullptr)
-      {
+      if (shader == nullptr) {
         shader = AssLib::TryGetLive<Gfx::Shader>(AssLib::nDefaultTextShaderId);
       }
 
@@ -459,8 +437,7 @@ void RenderSpace(
       World::Object object(const_cast<World::Space*>(&space), owner);
       Mat4 baseTransformation = GetTransformation(object);
       Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
-      for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo)
-      {
+      for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo) {
         Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
         glUniformMatrix4fv(modelLoc, 1, true, glyphTransformation.CData());
         glActiveTexture(GL_TEXTURE0);
@@ -475,11 +452,9 @@ void RenderSpace(
 
 Result RenderWorld()
 {
-  for (const World::Space& space : World::nSpaces)
-  {
+  for (const World::Space& space : World::nSpaces) {
     Result result = RenderSpace(space);
-    if (!result.Success())
-    {
+    if (!result.Success()) {
       return result;
     }
   }
@@ -490,8 +465,7 @@ void RenderFramebuffers()
 {
   const Gfx::Shader* shader =
     AssLib::TryGetLive<Gfx::Shader>(AssLib::nFramebufferShaderId);
-  if (shader == nullptr)
-  {
+  if (shader == nullptr) {
     return;
   }
 
@@ -500,8 +474,7 @@ void RenderFramebuffers()
   glUniform1i(samplerLoc, 0);
 
   glDisable(GL_DEPTH_TEST);
-  for (size_t i = 0; i < nNextSpaceFramebuffer; ++i)
-  {
+  for (size_t i = 0; i < nNextSpaceFramebuffer; ++i) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, nSpaceFramebuffers[i].ColorTbo());
     RenderQuad(nFullscreenVao);

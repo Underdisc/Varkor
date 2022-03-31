@@ -32,8 +32,7 @@ void Space::VisitTableComponents(
   std::function<void(World::MemberId, T&)> visit) const
 {
   Table* table = mTables.Find(Comp::Type<T>::smId);
-  if (table == nullptr)
-  {
+  if (table == nullptr) {
     return;
   }
   table->VisitActiveIndices(

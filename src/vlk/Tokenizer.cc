@@ -40,17 +40,13 @@ public:
 
   bool Qualify(char c) const
   {
-    for (char whitelistChar : mCharWhitelist)
-    {
-      if (c == whitelistChar)
-      {
+    for (char whitelistChar : mCharWhitelist) {
+      if (c == whitelistChar) {
         return true;
       }
     }
-    for (const Range& range : mRangeWhitelist)
-    {
-      if (range.Contains(c))
-      {
+    for (const Range& range : mRangeWhitelist) {
+      if (range.Contains(c)) {
         return true;
       }
     }
@@ -88,15 +84,12 @@ struct State
 
   StateIndex NextState(char c)
   {
-    for (const Edge& edge : mEdges)
-    {
-      if (edge.mQ.Qualify(c))
-      {
+    for (const Edge& edge : mEdges) {
+      if (edge.mQ.Qualify(c)) {
         return edge.mTo;
       }
     }
-    if (c == '\0')
-    {
+    if (c == '\0') {
       return nInvalidTerminal;
     }
     return mDefault;
@@ -109,8 +102,7 @@ StateIndex nRoot;
 
 StateIndex AddStates(Token::Type tokenType, size_t amount)
 {
-  for (size_t i = 0; i < amount; ++i)
-  {
+  for (size_t i = 0; i < amount; ++i) {
     nStates.Emplace(tokenType);
   }
   return (StateIndex)(nStates.Size() - amount);
@@ -196,8 +188,7 @@ Token ReadNextToken(const char** text)
   const char* start = *text;
   StateIndex currentState = nRoot;
   StateIndex nextState = nStates[nRoot].NextState(**text);
-  while (nextState != nInvalidTerminal)
-  {
+  while (nextState != nInvalidTerminal) {
     ++(*text);
     currentState = nextState;
     nextState = nStates[currentState].NextState(**text);
@@ -205,8 +196,7 @@ Token ReadNextToken(const char** text)
 
   // When first character does not qualify for any edges leading from the root,
   // it is an invalid Token consisting of one character.
-  if (currentState == nRoot)
-  {
+  if (currentState == nRoot) {
     ++(*text);
     Token token = {start, Token::Type::Invalid};
     return token;
@@ -218,8 +208,7 @@ Token ReadNextToken(const char** text)
 ValueResult<Ds::Vector<Token>> Tokenize(const char* text)
 {
   // Initialize the Tokenizer if it hasn't been.
-  if (nStates.Empty())
-  {
+  if (nStates.Empty()) {
     InitTokenizer();
   }
 
@@ -227,11 +216,9 @@ ValueResult<Ds::Vector<Token>> Tokenize(const char* text)
   size_t lineNumber = 1;
   std::stringstream error;
   Ds::Vector<Token> tokens;
-  while (*text != '\0')
-  {
+  while (*text != '\0') {
     Token token = ReadNextToken(&text);
-    switch (token.mType)
-    {
+    switch (token.mType) {
     case Token::Type::Invalid:
       error << "[" << lineNumber << "] Invalid token: "
             << std::string(token.mText, text - token.mText);
@@ -249,10 +236,8 @@ size_t CountNewLines(const char* start, const char* end)
 {
   size_t newLineCount = 0;
   const char* currentChar = start;
-  while (currentChar < end)
-  {
-    if (*currentChar == '\n')
-    {
+  while (currentChar < end) {
+    if (*currentChar == '\n') {
       ++newLineCount;
     }
     ++currentChar;

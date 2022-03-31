@@ -30,8 +30,7 @@ std::string GetShortTypename()
 {
   std::string fullName(typeid(T).name());
   std::string::size_type start = fullName.find_last_of(" :");
-  if (start == std::string::npos)
-  {
+  if (start == std::string::npos) {
     return fullName;
   }
   return fullName.substr(start + 1);

@@ -31,8 +31,7 @@ bool Gizmo<GizmoType>::smDestruct = false;
 template<typename GizmoType>
 GizmoType* GetInstance()
 {
-  if (Gizmo<GizmoType>::smInstance == nullptr)
-  {
+  if (Gizmo<GizmoType>::smInstance == nullptr) {
     Gizmo<GizmoType>::smInstance = new GizmoType;
   }
   // We prevent gizmo deletion during the next purge attempt.
@@ -43,8 +42,7 @@ GizmoType* GetInstance()
 template<typename GizmoType>
 void Purge()
 {
-  if (Gizmo<GizmoType>::smInstance != nullptr)
-  {
+  if (Gizmo<GizmoType>::smInstance != nullptr) {
     delete Gizmo<GizmoType>::smInstance;
     Gizmo<GizmoType>::smInstance = nullptr;
     Gizmo<GizmoType>::smDestruct = false;
@@ -54,8 +52,7 @@ void Purge()
 template<typename GizmoType>
 void TryPurge()
 {
-  if (Gizmo<GizmoType>::smDestruct)
-  {
+  if (Gizmo<GizmoType>::smDestruct) {
     Purge<GizmoType>();
   }
   // If the gizmo instance is not requested between now and the next purge

@@ -17,8 +17,7 @@ Value::Value(Value::Type type): mType(Type::Invalid)
 
 Value::Value(Value&& other): mType(other.mType)
 {
-  switch (other.mType)
-  {
+  switch (other.mType) {
   case Type::TrueValue:
     new (&mTrueValue) std::string(Util::Move(other.mTrueValue));
     break;
@@ -33,8 +32,7 @@ Value::Value(Value&& other): mType(other.mType)
 
 Value::~Value()
 {
-  switch (mType)
-  {
+  switch (mType) {
   case Type::TrueValue: mTrueValue.~basic_string(); break;
   case Type::ValueArray: mValueArray.~Vector(); break;
   case Type::PairArray: mPairArray.~Vector(); break;
@@ -46,8 +44,7 @@ void Value::Init(Type type)
   LogAbortIf(
     mType != Type::Invalid, "This Value has already been initialized.");
   mType = type;
-  switch (mType)
-  {
+  switch (mType) {
   case Type::TrueValue: new (&mTrueValue) std::string(); break;
   case Type::ValueArray: new (&mValueArray) Ds::Vector<Value>(); break;
   case Type::PairArray: new (&mPairArray) Ds::Vector<Pair>(); break;
@@ -56,8 +53,7 @@ void Value::Init(Type type)
 
 void Value::ExpectType(Type type)
 {
-  if (mType == Type::Invalid)
-  {
+  if (mType == Type::Invalid) {
     Init(type);
     return;
   }
@@ -66,8 +62,7 @@ void Value::ExpectType(Type type)
 
 void Value::HardExpectType(Type type) const
 {
-  if (mType != type)
-  {
+  if (mType != type) {
     std::stringstream error;
     error << "Function expects a " << type << " Type.";
     LogAbort(error.str().c_str());
@@ -77,19 +72,16 @@ void Value::HardExpectType(Type type) const
 void Value::AddDimension(size_t size, bool leaf)
 {
   ExpectType(Type::ValueArray);
-  if (mValueArray.Size() == 0)
-  {
-    if (leaf)
-    {
+  if (mValueArray.Size() == 0) {
+    if (leaf) {
       mValueArray.Resize(size);
-    } else
-    {
+    }
+    else {
       mValueArray.Resize(size, Value::Type::ValueArray);
     }
     return;
   }
-  for (Value& subValue : mValueArray)
-  {
+  for (Value& subValue : mValueArray) {
     subValue.AddDimension(size, leaf);
   }
 }
@@ -103,13 +95,10 @@ bool Value::BelowPackThreshold() const
 bool Value::ReachedThreshold(size_t& elementCount) const
 {
   const size_t countThreshold = 5;
-  switch (mType)
-  {
+  switch (mType) {
   case Type::ValueArray:
-    for (const Value& subValue : mValueArray)
-    {
-      if (subValue.ReachedThreshold(elementCount))
-      {
+    for (const Value& subValue : mValueArray) {
+      if (subValue.ReachedThreshold(elementCount)) {
         return true;
       }
     }
@@ -125,8 +114,7 @@ Result Value::Read(const char* filename)
 {
   // Read the file's content.
   std::ifstream stream(filename, std::ifstream::in);
-  if (!stream.is_open())
-  {
+  if (!stream.is_open()) {
     std::stringstream error;
     error << filename << " failed to open.";
     return Result(error.str());
@@ -137,8 +125,7 @@ Result Value::Read(const char* filename)
 
   // Parse the content.
   Result result = Parse(content.str().c_str());
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     std::stringstream error;
     error << filename << result.mError;
     return Result(error.str());
@@ -149,8 +136,7 @@ Result Value::Read(const char* filename)
 Result Value::Write(const char* filename)
 {
   std::ofstream stream(filename, std::ofstream::out);
-  if (!stream.is_open())
-  {
+  if (!stream.is_open()) {
     std::stringstream error;
     error << filename << " failed to open while writing.";
     return Result(error.str());
@@ -191,15 +177,13 @@ std::string Value::As<std::string>() const
 
 size_t Value::Size() const
 {
-  if (mType != Type::ValueArray && mType != Type::PairArray)
-  {
+  if (mType != Type::ValueArray && mType != Type::PairArray) {
     std::stringstream error;
     error << "Size expects a " << Type::ValueArray << " or " << Type::PairArray
           << "type.";
     LogAbort(error.str().c_str());
   }
-  if (mType == Type::ValueArray)
-  {
+  if (mType == Type::ValueArray) {
     return mValueArray.Size();
   }
   return mPairArray.Size();
@@ -208,10 +192,8 @@ size_t Value::Size() const
 const Pair* Value::TryGetPair(const std::string& key) const
 {
   HardExpectType(Type::PairArray);
-  for (const Pair& pair : mPairArray)
-  {
-    if (key == pair.Key())
-    {
+  for (const Pair& pair : mPairArray) {
+    if (key == pair.Key()) {
       return &pair;
     }
   }
@@ -221,8 +203,7 @@ const Pair* Value::TryGetPair(const std::string& key) const
 const Pair* Value::TryGetPair(size_t index) const
 {
   HardExpectType(Type::PairArray);
-  if (index < 0 || mPairArray.Size() <= index)
-  {
+  if (index < 0 || mPairArray.Size() <= index) {
     return nullptr;
   }
   return &mPairArray[index];
@@ -231,8 +212,7 @@ const Pair* Value::TryGetPair(size_t index) const
 const Value* Value::TryGetValue(size_t index) const
 {
   HardExpectType(Type::ValueArray);
-  if (index < 0 || mValueArray.Size() <= index)
-  {
+  if (index < 0 || mValueArray.Size() <= index) {
     return nullptr;
   }
   return &mValueArray[index];
@@ -261,8 +241,7 @@ Value& Value::operator[](std::initializer_list<size_t> sizes)
 {
   auto it = sizes.begin();
   auto itE = sizes.end();
-  while (it < itE)
-  {
+  while (it < itE) {
     bool leafArray = it == itE - 1;
     AddDimension(*it, leafArray);
     ++it;
@@ -297,8 +276,7 @@ void Value::operator=(const std::string& value)
 
 std::ostream& operator<<(std::ostream& os, Value::Type valueType)
 {
-  switch (valueType)
-  {
+  switch (valueType) {
   case Value::Type::Invalid: os << "Invalid"; break;
   case Value::Type::TrueValue: os << "TrueValue"; break;
   case Value::Type::ValueArray: os << "ValueArray"; break;
@@ -317,8 +295,7 @@ std::ostream& operator<<(std::ostream& os, const Value& value)
 void Value::PrintValue(std::ostream& os, std::string& indent) const
 {
   // Invalid values will always become empty pair arrays.
-  switch (mType)
-  {
+  switch (mType) {
   case Type::Invalid: os << "{}"; break;
   case Type::TrueValue: PrintTrueValue(os); break;
   case Type::ValueArray: PrintValueArray(os, indent); break;
@@ -330,10 +307,8 @@ void Value::PrintTrueValue(std::ostream& os) const
 {
   std::string trueText;
   trueText.push_back('\'');
-  for (size_t i = 0; i < mTrueValue.size(); ++i)
-  {
-    switch (mTrueValue[i])
-    {
+  for (size_t i = 0; i < mTrueValue.size(); ++i) {
+    switch (mTrueValue[i]) {
     case '\'': trueText.append("\\\'"); break;
     case '\\': trueText.append("\\\\"); break;
     default: trueText.push_back(mTrueValue[i]);
@@ -345,17 +320,14 @@ void Value::PrintTrueValue(std::ostream& os) const
 
 void Value::PrintValueArray(std::ostream& os, std::string& indent) const
 {
-  if (mValueArray.Empty())
-  {
+  if (mValueArray.Empty()) {
     os << "[]";
     return;
   }
-  if (BelowPackThreshold())
-  {
+  if (BelowPackThreshold()) {
     os << "[";
     mValueArray[0].PrintValue(os, indent);
-    for (size_t i = 1; i < mValueArray.Size(); ++i)
-    {
+    for (size_t i = 1; i < mValueArray.Size(); ++i) {
       os << ", ";
       mValueArray[i].PrintValue(os, indent);
     }
@@ -365,8 +337,7 @@ void Value::PrintValueArray(std::ostream& os, std::string& indent) const
   indent += "  ";
   os << "[\n" << indent;
   mValueArray[0].PrintValue(os, indent);
-  for (size_t i = 1; i < mValueArray.Size(); ++i)
-  {
+  for (size_t i = 1; i < mValueArray.Size(); ++i) {
     os << ",\n" << indent;
     mValueArray[i].PrintValue(os, indent);
   }
@@ -376,15 +347,13 @@ void Value::PrintValueArray(std::ostream& os, std::string& indent) const
 
 void Value::PrintPairArray(std::ostream& os, std::string& indent) const
 {
-  if (mPairArray.Empty())
-  {
+  if (mPairArray.Empty()) {
     os << "{}";
     return;
   }
   os << "{\n";
   indent += "  ";
-  for (const Pair& pair : mPairArray)
-  {
+  for (const Pair& pair : mPairArray) {
     pair.PrintPair(os, indent);
   }
   indent.erase(indent.size() - 2);

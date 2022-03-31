@@ -16,8 +16,7 @@ Result VarkorInit(
   int argc, char* argv[], const char* windowName, const char* projectDirectory)
 {
   Result result = Options::Init(argc, argv, projectDirectory);
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     return result;
   }
   Error::Init("log.err");
@@ -34,8 +33,7 @@ Result VarkorInit(
 
 void VarkorRun()
 {
-  while (Viewport::Active() || AssetLibrary::InitThreadOpen())
-  {
+  while (Viewport::Active() || AssetLibrary::InitThreadOpen()) {
     Framer::Start();
 
     Temporal::Update();
@@ -67,8 +65,7 @@ void VarkorPurge()
 int main(int argc, char* argv[])
 {
   Result result = VarkorInit(argc, argv, "Varkor Standalone", "");
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     return 0;
   }
   VarkorRun();

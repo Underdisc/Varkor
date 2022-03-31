@@ -23,8 +23,7 @@ void Init(const char* windowName, bool visible)
   glfwWindowHint(GLFW_SAMPLES, 4);
   glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
   glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-  if (!visible)
-  {
+  if (!visible) {
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
   }
   // We use 1 for the starting window width and height because it will be

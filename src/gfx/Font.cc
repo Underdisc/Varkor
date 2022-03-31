@@ -15,14 +15,12 @@ Result Font::Init(std::string paths[smInitPathCount])
 
 void Font::Purge()
 {
-  if (mFontInfo.data == nullptr)
-  {
+  if (mFontInfo.data == nullptr) {
     return;
   }
   delete[] mFontInfo.data;
   mFontInfo.data = nullptr;
-  for (size_t i = 0; i < smGlyphCount; ++i)
-  {
+  for (size_t i = 0; i < smGlyphCount; ++i) {
     glDeleteTextures(1, &mTextureIds[i]);
   }
 }
@@ -41,8 +39,7 @@ Font& Font::operator=(Font&& other)
 {
   mFontInfo.data = other.mFontInfo.data;
   mNewlineOffset = other.mNewlineOffset;
-  for (size_t i = 0; i < smGlyphCount; ++i)
-  {
+  for (size_t i = 0; i < smGlyphCount; ++i) {
     mAllGlyphMetrics[i] = other.mAllGlyphMetrics[i];
     mTextureIds[i] = other.mTextureIds[i];
   }
@@ -62,8 +59,7 @@ Result Font::Init(const std::string& file)
   // Read the font file into a buffer.
   std::ifstream stream;
   stream.open(file, std::ifstream::binary);
-  if (!stream.is_open())
-  {
+  if (!stream.is_open()) {
     std::stringstream error;
     error << file << " could not be opened.";
     return Result(error.str());
@@ -77,8 +73,7 @@ Result Font::Init(const std::string& file)
 
   // Initialize the font with the buffer and initialize the glyphs.
   int initResult = stbtt_InitFont(&mFontInfo, (unsigned char*)data, 0);
-  if (initResult == 0)
-  {
+  if (initResult == 0) {
     std::stringstream error;
     error << "Font within " << file << " could not be initialized.";
     Purge();
@@ -103,8 +98,7 @@ void Font::InitGlyphs()
   const int pixelHeight = 64;
   const float renderScale =
     stbtt_ScaleForPixelHeight(&mFontInfo, (float)pixelHeight);
-  for (size_t i = 0; i < smGlyphCount; ++i)
-  {
+  for (size_t i = 0; i < smGlyphCount; ++i) {
     const int padding = 4;
     const int onEdgeValue = 120;
     const float pixelDistance = 40.0f;
@@ -122,8 +116,7 @@ void Font::InitGlyphs()
       nullptr,
       nullptr);
 
-    if (textureData != nullptr)
-    {
+    if (textureData != nullptr) {
       // Upload the glyph sdf texture.
       glGenTextures(1, &mTextureIds[i]);
       glBindTexture(GL_TEXTURE_2D, mTextureIds[i]);
@@ -144,8 +137,8 @@ void Font::InitGlyphs()
         textureData);
       glGenerateMipmap(GL_TEXTURE_2D);
       stbtt_FreeBitmap(textureData, nullptr);
-    } else
-    {
+    }
+    else {
       mTextureIds[i] = 0;
     }
 

@@ -1,8 +1,7 @@
 template<typename T>
 void PrintVector(const Ds::Vector<T>& vector, bool stats)
 {
-  if (stats)
-  {
+  if (stats) {
     std::cout << "Size: " << vector.Size() << std::endl;
     std::cout << "Capactiy: " << vector.Capacity() << std::endl;
   }
@@ -12,14 +11,12 @@ void PrintVector(const Ds::Vector<T>& vector, bool stats)
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector)
 {
-  if (vector.Size() == 0)
-  {
+  if (vector.Size() == 0) {
     os << "[]";
     return os;
   }
   os << "[";
-  for (int i = 0; i < vector.Size() - 1; ++i)
-  {
+  for (int i = 0; i < vector.Size() - 1; ++i) {
     os << vector[i] << ", ";
   }
   os << vector[vector.Size() - 1] << "]";
@@ -33,15 +30,13 @@ void PrintList(const Ds::List<T>& list)
   std::cout << "Size: " << list.Size();
   const size_t rowCount = 5;
   size_t elementIndex = 0;
-  for (const T& value : list)
-  {
+  for (const T& value : list) {
     size_t columnIndex = elementIndex % rowCount;
-    if (columnIndex == 0)
-    {
+    if (columnIndex == 0) {
       std::cout << "\n"
                 << std::setfill('0') << std::setw(2) << elementIndex << ": ";
-    } else
-    {
+    }
+    else {
       std::cout << ", ";
     }
     std::cout << value;
@@ -83,8 +78,7 @@ struct BTreeIndenter
 
   friend std::ostream& operator<<(std::ostream& os, BTreeIndenter& indenter)
   {
-    if (indenter.mDepth > 0)
-    {
+    if (indenter.mDepth > 0) {
       indenter.mIndent[indenter.mIndent.size() - 1] = '\\';
       os << indenter.mIndent;
       indenter.mIndent[indenter.mIndent.size() - 1] = ' ';
@@ -102,30 +96,26 @@ void PrintRbTreeNode(
 {
   // We first print the current node we are on with the proper indent.
   std::cout << indenter;
-  if (node.mColor == Ds::RbTree<T>::Node::Color::Red)
-  {
+  if (node.mColor == Ds::RbTree<T>::Node::Color::Red) {
     std::cout << "R: " << node.mValue << std::endl;
-  } else
-  {
+  }
+  else {
     std::cout << "B: " << node.mValue << std::endl;
   }
 
   // We then print out the right and left nodes and apply an indent that depends
   // on the side of the tree that is traversed.
-  if (node.mRight != nullptr)
-  {
-    if (node.mLeft == nullptr)
-    {
+  if (node.mRight != nullptr) {
+    if (node.mLeft == nullptr) {
       indenter.PushRightNullLeft();
-    } else
-    {
+    }
+    else {
       indenter.PushRight();
     }
     PrintRbTreeNode<T>(*node.mRight, indenter);
     indenter.PopRight();
   }
-  if (node.mLeft != nullptr)
-  {
+  if (node.mLeft != nullptr) {
     indenter.PushLeft();
     PrintRbTreeNode<T>(*node.mLeft, indenter);
     indenter.PopLeft();
@@ -136,8 +126,7 @@ template<typename T>
 void PrintRbTree(const Ds::RbTree<T>& rbTree)
 {
   const Ds::RbTree<T>::Node* head = rbTree.GetHead();
-  if (head == nullptr)
-  {
+  if (head == nullptr) {
     std::cout << "Empty Tree" << std::endl;
     return;
   }
@@ -156,8 +145,7 @@ template<typename K, typename V>
 void PrintMap(const Ds::Map<K, V>& map)
 {
   const Ds::RbTree<Ds::KvPair<K, V>>::Node* head = map.GetHead();
-  if (head == nullptr)
-  {
+  if (head == nullptr) {
     std::cout << "Empty Map" << std::endl;
     return;
   }

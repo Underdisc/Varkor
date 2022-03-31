@@ -87,8 +87,7 @@ const Vec3& Plane::Normal() const
 // Functions ///////////////////////////////////////////////////////////////////
 bool HasIntersection(const Ray& ray, const Plane& plane)
 {
-  if (Math::Dot(plane.Normal(), ray.Direction()) == 0.0f)
-  {
+  if (Math::Dot(plane.Normal(), ray.Direction()) == 0.0f) {
     return false;
   }
   return true;

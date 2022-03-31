@@ -27,8 +27,7 @@ std::string Explorer::Path() const
   // visited starting at the root. This Explorer is also considered an ancestor.
   Ds::Vector<const Explorer*> ancestors;
   const Explorer* current = this;
-  while (current->mParent != nullptr)
-  {
+  while (current->mParent != nullptr) {
     ancestors.Push(current);
     current = current->mParent;
   }
@@ -36,15 +35,13 @@ std::string Explorer::Path() const
   // Create the path by traversing this Explorer's lineage.
   std::stringstream path;
   path << "{}";
-  while (!ancestors.Empty())
-  {
+  while (!ancestors.Empty()) {
     const Explorer& ancestor = *ancestors.Top();
-    if (ancestor.mIsPair)
-    {
+    if (ancestor.mIsPair) {
       const Pair* pair = (Pair*)ancestor.mValue;
       path << "{" << pair->Key() << "}";
-    } else
-    {
+    }
+    else {
       path << "[" << ancestor.mIndex << "]";
     }
     ancestors.Pop();
@@ -55,8 +52,7 @@ std::string Explorer::Path() const
 const std::string& Explorer::Key() const
 {
   LogAbortIf(!Valid(), "Key of an invalid Explorer cannot be optained.");
-  if (!mIsPair)
-  {
+  if (!mIsPair) {
     std::stringstream error;
     error << Path() << " is not a Pair.";
     LogAbort(error.str().c_str());
@@ -67,8 +63,7 @@ const std::string& Explorer::Key() const
 
 size_t Explorer::Size() const
 {
-  if (!Valid())
-  {
+  if (!Valid()) {
     return 0;
   }
   return mValue->Size();
@@ -81,13 +76,11 @@ bool Explorer::Valid() const
 
 Explorer Explorer::operator()(const std::string& key) const
 {
-  if (!Valid())
-  {
+  if (!Valid()) {
     return Explorer(this);
   }
   const Pair* pair = mValue->TryGetPair(key);
-  if (pair == nullptr)
-  {
+  if (pair == nullptr) {
     std::stringstream error;
     error << Path() << " did not contain Pair with key :" << key << ":";
     LogError(error.str().c_str());
@@ -98,13 +91,11 @@ Explorer Explorer::operator()(const std::string& key) const
 
 Explorer Explorer::operator()(size_t index) const
 {
-  if (!Valid())
-  {
+  if (!Valid()) {
     return Explorer(this);
   }
   const Pair* pair = mValue->TryGetPair(index);
-  if (pair == nullptr)
-  {
+  if (pair == nullptr) {
     std::stringstream error;
     error << Path() << " did not contain Pair at (" << index << ")";
     LogError(error.str().c_str());
@@ -115,13 +106,11 @@ Explorer Explorer::operator()(size_t index) const
 
 Explorer Explorer::operator[](size_t index) const
 {
-  if (!Valid())
-  {
+  if (!Valid()) {
     return Explorer(this);
   }
   const Value* value = mValue->TryGetValue(index);
-  if (value == nullptr)
-  {
+  if (value == nullptr) {
     std::stringstream error;
     error << Path() << " did not contain Value at [" << index << "]";
     LogError(error.str().c_str());

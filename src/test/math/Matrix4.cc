@@ -8,10 +8,8 @@
 Mat4 CreateGenericMat4()
 {
   Mat4 matrix;
-  for (int r = 0; r < 4; ++r)
-  {
-    for (int c = 0; c < 4; ++c)
-    {
+  for (int r = 0; r < 4; ++r) {
+    for (int c = 0; c < 4; ++c) {
       matrix[r][c] = (float)r * 4.0f + (float)c + 1.0f;
     }
   }

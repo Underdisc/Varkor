@@ -19,18 +19,15 @@ void Purge()
 
 void Update()
 {
-  if (nCentralUpdate != nullptr)
-  {
+  if (nCentralUpdate != nullptr) {
     nCentralUpdate();
   }
 
   SpaceIt it = nSpaces.begin();
   SpaceIt itE = nSpaces.end();
-  while (it != itE)
-  {
+  while (it != itE) {
     it->Update();
-    if (nSpaceUpdate != nullptr)
-    {
+    if (nSpaceUpdate != nullptr) {
       nSpaceUpdate(it);
     }
     ++it;
@@ -49,8 +46,7 @@ ValueResult<SpaceIt> LoadSpace(const char* filename)
 {
   Vlk::Value rootVal;
   Result result = rootVal.Read(filename);
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     return ValueResult<SpaceIt>(Util::Move(result), nSpaces.end());
   }
   SpaceIt newSpaceIt = CreateTopSpace();

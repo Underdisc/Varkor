@@ -25,10 +25,8 @@ size_t TypeDataCount()
 
 TypeId GetTypeId(const std::string& typeName)
 {
-  for (TypeId typeId = 0; typeId < nTypeData.Size(); ++typeId)
-  {
-    if (typeName == GetTypeData(typeId).mName)
-    {
+  for (TypeId typeId = 0; typeId < nTypeData.Size(); ++typeId) {
+    if (typeName == GetTypeData(typeId).mName) {
       return typeId;
     }
   }
@@ -53,8 +51,7 @@ std::string DifferenceHeader(TypeId id)
 void AssessName(TypeId id, const Vlk::Explorer& compEx)
 {
   Vlk::Explorer nameEx = compEx("Name");
-  if (!nameEx.Valid())
-  {
+  if (!nameEx.Valid()) {
     std::stringstream error;
     error << AssessmentHeader(id) << "Missing Name field.";
     LogError(error.str().c_str());
@@ -63,8 +60,7 @@ void AssessName(TypeId id, const Vlk::Explorer& compEx)
 
   const TypeData& typeData = GetTypeData(id);
   std::string name = nameEx.As<std::string>();
-  if (typeData.mName != name)
-  {
+  if (typeData.mName != name) {
     std::stringstream error;
     error << DifferenceHeader(id) << "Live Name: " << typeData.mName
           << ", Saved Name: " << name;
@@ -75,8 +71,7 @@ void AssessName(TypeId id, const Vlk::Explorer& compEx)
 void AssessSize(TypeId id, const Vlk::Explorer& compEx)
 {
   Vlk::Explorer sizeEx = compEx("Size");
-  if (!sizeEx.Valid())
-  {
+  if (!sizeEx.Valid()) {
     std::stringstream error;
     error << AssessmentHeader(id) << "Missing Size field.";
     LogError(error.str().c_str());
@@ -85,8 +80,7 @@ void AssessSize(TypeId id, const Vlk::Explorer& compEx)
 
   const TypeData& typeData = GetTypeData(id);
   size_t size = sizeEx.As<size_t>();
-  if (typeData.mSize != size)
-  {
+  if (typeData.mSize != size) {
     std::stringstream error;
     error << DifferenceHeader(id) << "Live Size: " << typeData.mSize
           << ", Saved Size: " << size;
@@ -97,8 +91,7 @@ void AssessSize(TypeId id, const Vlk::Explorer& compEx)
 void AssessDependencies(TypeId id, const Vlk::Explorer& compEx)
 {
   Vlk::Explorer dependenciesEx = compEx("Dependencies");
-  if (!dependenciesEx.Valid())
-  {
+  if (!dependenciesEx.Valid()) {
     std::stringstream error;
     error << AssessmentHeader(id) << "Missing Dependencies field.";
     LogError(error.str().c_str());
@@ -108,12 +101,10 @@ void AssessDependencies(TypeId id, const Vlk::Explorer& compEx)
   const TypeData& typeData = GetTypeData(id);
   // Find saved dependencies that do not exist on the live component.
   Ds::Vector<TypeId> savedIds;
-  for (int i = 0; i < dependenciesEx.Size(); ++i)
-  {
+  for (int i = 0; i < dependenciesEx.Size(); ++i) {
     const std::string& dependencyName = dependenciesEx[i].As<std::string>();
     TypeId savedId = GetTypeId(dependencyName);
-    if (savedId == nInvalidTypeId)
-    {
+    if (savedId == nInvalidTypeId) {
       std::stringstream error;
       error << AssessmentHeader(id) << "Saved " << dependencyName
             << " dependency is not an existing component's name.";
@@ -121,8 +112,7 @@ void AssessDependencies(TypeId id, const Vlk::Explorer& compEx)
       continue;
     }
     savedIds.Push(savedId);
-    if (!typeData.mDependencies.Contains(savedId))
-    {
+    if (!typeData.mDependencies.Contains(savedId)) {
       std::stringstream error;
       error << DifferenceHeader(id) << "Live missing " << savedId << " ("
             << dependencyName << ") dependency.";
@@ -131,10 +121,8 @@ void AssessDependencies(TypeId id, const Vlk::Explorer& compEx)
   }
 
   // Find live dependencies that do not exist of the saved component.
-  for (TypeId liveId : typeData.mDependencies)
-  {
-    if (!savedIds.Contains(liveId))
-    {
+  for (TypeId liveId : typeData.mDependencies) {
+    if (!savedIds.Contains(liveId)) {
       const TypeData& dependencyTypeData = GetTypeData(liveId);
       std::stringstream error;
       error << DifferenceHeader(id) << "Saved missing " << liveId << " ("
@@ -153,24 +141,21 @@ void AssessComponentsFile()
   std::string componentsFile =
     Options::PrependResDirectory(nComponentsFilename);
   Result result = rootVal.Read(componentsFile.c_str());
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     LogError(result.mError.c_str());
     return;
   }
   Vlk::Explorer rootEx(rootVal);
   Vlk::Explorer versionEx = rootEx("Version");
   Vlk::Explorer componentsEx = rootEx("Components");
-  if (!versionEx.Valid() || !componentsEx.Valid())
-  {
+  if (!versionEx.Valid() || !componentsEx.Valid()) {
     std::stringstream error;
     error << "The root Value must contain a :Version: and a :Components: Pair.";
     LogAbort(error.str().c_str());
   }
   nVersion = versionEx.As<int>();
 
-  if (componentsEx.Size() != TypeDataCount())
-  {
+  if (componentsEx.Size() != TypeDataCount()) {
     std::stringstream error;
     error << "Component assessment: Live and saved difference: "
           << TypeDataCount() << " live components and " << componentsEx.Size()
@@ -179,8 +164,7 @@ void AssessComponentsFile()
   }
 
   // Display errors that show missing information and component differences.
-  for (TypeId id = 0; id < componentsEx.Size(); ++id)
-  {
+  for (TypeId id = 0; id < componentsEx.Size(); ++id) {
     Vlk::Explorer compEx = componentsEx[id];
     AssessName(id, compEx);
     AssessSize(id, compEx);
@@ -193,8 +177,7 @@ void SaveComponentsFile()
   Vlk::Value rootVal;
   rootVal("Version") = nVersion;
   Vlk::Value& componentsVal = rootVal("Components")[{TypeDataCount()}];
-  for (TypeId id = 0; id < TypeDataCount(); ++id)
-  {
+  for (TypeId id = 0; id < TypeDataCount(); ++id) {
     const TypeData& typeData = GetTypeData(id);
     Vlk::Value& compVal = componentsVal[id];
     compVal("Id") = id;
@@ -204,8 +187,7 @@ void SaveComponentsFile()
     // inferred from the dependencies.
     Vlk::Value& dependenciesVal =
       compVal("Dependencies")[{typeData.mDependencies.Size()}];
-    for (size_t i = 0; i < typeData.mDependencies.Size(); ++i)
-    {
+    for (size_t i = 0; i < typeData.mDependencies.Size(); ++i) {
       TypeId typeId = typeData.mDependencies[i];
       const TypeData& dependencyTypeData = GetTypeData(typeId);
       dependenciesVal[i] = dependencyTypeData.mName;

@@ -8,8 +8,7 @@ namespace Editor {
 void ErrorInterface::Show()
 {
   ImGui::Begin("Error", &mOpen);
-  if (ImGui::Button("Clear", ImVec2(-1, 0)))
-  {
+  if (ImGui::Button("Clear", ImVec2(-1, 0))) {
     Error::nLogMutex.lock();
     Error::nLog.clear();
     Error::nLogMutex.unlock();

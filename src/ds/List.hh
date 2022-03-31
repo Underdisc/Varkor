@@ -197,8 +197,7 @@ void List<T>::PopBack()
 {
   LogAbortIf(mTail == nullptr, "The list is empty");
   --mSize;
-  if (mTail->mPrev == nullptr)
-  {
+  if (mTail->mPrev == nullptr) {
     delete mTail;
     mTail = nullptr;
     mHead = nullptr;
@@ -215,8 +214,7 @@ void List<T>::PopFront()
 {
   LogAbortIf(mHead == nullptr, "The list is empty");
   --mSize;
-  if (mHead->mNext == nullptr)
-  {
+  if (mHead->mNext == nullptr) {
     delete mHead;
     mHead = nullptr;
     mTail = nullptr;
@@ -233,8 +231,7 @@ typename List<T>::Iter List<T>::Erase(Iter it)
 {
   it.VerifyCurrent();
   --mSize;
-  if (it.mCurrent->mNext == nullptr && it.mCurrent->mPrev == nullptr)
-  {
+  if (it.mCurrent->mNext == nullptr && it.mCurrent->mPrev == nullptr) {
     LogAbortIf(
       it.mCurrent != mHead, "Erasing only element of a different list.");
     mTail = nullptr;
@@ -242,16 +239,14 @@ typename List<T>::Iter List<T>::Erase(Iter it)
     delete it.mCurrent;
     return end();
   }
-  if (it.mCurrent->mPrev == nullptr)
-  {
+  if (it.mCurrent->mPrev == nullptr) {
     LogAbortIf(it.mCurrent != mHead, "Erasing head of a different list.");
     mHead = it.mCurrent->mNext;
     mHead->mPrev = nullptr;
     delete it.mCurrent;
     return begin();
   }
-  if (it.mCurrent->mNext == nullptr)
-  {
+  if (it.mCurrent->mNext == nullptr) {
     LogAbortIf(it.mCurrent != mTail, "Erasing tail of a different list.");
     mTail = it.mCurrent->mPrev;
     mTail->mNext = nullptr;
@@ -270,8 +265,7 @@ void List<T>::Clear()
 {
   Node* current = mHead;
   Node* next = nullptr;
-  while (current != nullptr)
-  {
+  while (current != nullptr) {
     next = current->mNext;
     delete current;
     current = next;
@@ -291,19 +285,18 @@ template<typename T>
 void List<T>::InsertNode(Iter it, Node* newNode)
 {
   ++mSize;
-  if (mHead == nullptr)
-  {
+  if (mHead == nullptr) {
     mHead = newNode;
     mTail = newNode;
     return;
-  } else if (it.mCurrent == mHead)
-  {
+  }
+  else if (it.mCurrent == mHead) {
     mHead->mPrev = newNode;
     newNode->mNext = mHead;
     mHead = newNode;
     return;
-  } else if (it.mCurrent == nullptr)
-  {
+  }
+  else if (it.mCurrent == nullptr) {
     mTail->mNext = newNode;
     newNode->mPrev = mTail;
     mTail = newNode;

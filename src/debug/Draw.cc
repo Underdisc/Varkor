@@ -96,8 +96,7 @@ void Render(const Mat4& view, const Mat4& projection)
 {
   Gfx::Shader* shader =
     AssLib::TryGetLive<Gfx::Shader>(AssLib::nDebugDrawShaderId);
-  if (shader == nullptr)
-  {
+  if (shader == nullptr) {
     return;
   }
 
@@ -107,18 +106,16 @@ void Render(const Mat4& view, const Mat4& projection)
   glUseProgram(shader->Id());
   glUniformMatrix4fv(viewLoc, 1, true, view.CData());
   glUniformMatrix4fv(projLoc, 1, true, projection.CData());
-  for (int i = 0; i < nRenderables.Size(); ++i)
-  {
+  for (int i = 0; i < nRenderables.Size(); ++i) {
     const Renderable& renderable = nRenderables[i];
     Vec4 fullColor = (Vec4)renderable.mColor;
     fullColor[3] = 1.0f;
     glUniform4fv(alphaColorLoc, 1, fullColor.CData());
     glBindVertexArray(renderable.mVao);
-    if (renderable.mCount == 1)
-    {
+    if (renderable.mCount == 1) {
       glDrawArrays(GL_POINTS, 0, renderable.mCount);
-    } else
-    {
+    }
+    else {
       glDrawArrays(GL_LINES, 0, renderable.mCount);
     }
     glBindVertexArray(0);

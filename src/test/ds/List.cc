@@ -11,8 +11,7 @@ void Push()
 {
   std::cout << "<= Push =>\n";
   Ds::List<TestType> list;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     TestType testType(i);
     list.PushBack(testType);
     list.PushFront(testType);
@@ -27,24 +26,20 @@ void Pop()
 {
   std::cout << "<= Pop =>\n";
   Ds::List<TestType> list;
-  for (int i = 0; i < 20; ++i)
-  {
+  for (int i = 0; i < 20; ++i) {
     list.PushBack(TestType(i));
     list.PushFront(TestType(i));
   }
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     list.PopBack();
     list.PopFront();
   }
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     list.PushBack(TestType(i));
     list.PushFront(TestType(i));
   }
   PrintList(list);
-  for (int i = 0; i < 30; ++i)
-  {
+  for (int i = 0; i < 30; ++i) {
     list.PopBack();
   }
   PrintList(list);
@@ -55,8 +50,7 @@ void Iter()
 {
   std::cout << "<= Iter =>\n";
   Ds::List<TestType> list;
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     list.EmplaceFront(i);
   }
 
@@ -65,8 +59,7 @@ void Iter()
   auto cItE = list.cend();
   std::cout << "List: [" << *cIt;
   ++cIt;
-  while (cIt != cItE)
-  {
+  while (cIt != cItE) {
     std::cout << ", " << cIt->mA;
     ++cIt;
   }
@@ -77,15 +70,13 @@ void Iter()
   auto itE = list.end();
   std::cout << "List: [" << *it;
   ++it;
-  while (it != itE)
-  {
+  while (it != itE) {
     std::cout << ", " << it->mA;
     ++it;
   }
   std::cout << "]\n";
 
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     list.PopFront();
   }
   std::cout << "Empty: " << (list.begin() == list.end()) << "\n";
@@ -95,8 +86,7 @@ void EmplaceBackFront()
 {
   std::cout << "<= EmplaceBackFront =>\n";
   Ds::List<TestType> list;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(i);
     list.EmplaceFront(i);
   }
@@ -109,8 +99,7 @@ void MovePush()
 {
   std::cout << "<= MovePush =>\n";
   Ds::List<TestType> list;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     TestType testType(i);
     list.PushBack(Util::Move(testType));
     list.PushFront(Util::Move(testType));
@@ -124,21 +113,18 @@ void Insert()
 {
   std::cout << "<= Insert =>\n";
   Ds::List<TestType> list;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(i);
   }
   auto it = list.begin();
   auto itE = list.end();
-  while (it != itE)
-  {
+  while (it != itE) {
     TestType testType(*it);
     list.Insert(it, testType);
     list.Insert(it, Util::Move(testType));
     ++it;
   }
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 5; ++i) {
     list.Insert(list.end(), TestType(i));
   }
   PrintList(list);
@@ -150,15 +136,13 @@ void Emplace()
 {
   std::cout << "<= Emplace =>\n";
   Ds::List<TestType> list;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(TestType(i));
   }
   int newValue = 9;
   auto it = list.begin();
   auto itE = list.end();
-  while (it != itE)
-  {
+  while (it != itE) {
     list.Emplace(it, newValue);
     ++it;
     --newValue;
@@ -172,16 +156,14 @@ void Erase()
 {
   std::cout << "<= Erase =>\n";
   Ds::List<TestType> list;
-  for (int i = 0; i < 10; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(i);
   }
 
   // Erase every other element.
   auto it = list.begin();
   auto itE = list.end();
-  while (it != itE)
-  {
+  while (it != itE) {
     it = list.Erase(it);
     ++it;
   }
@@ -189,8 +171,7 @@ void Erase()
 
   // Erase the last element.
   it = list.begin();
-  for (int i = 0; i < 4; ++i)
-  {
+  for (int i = 0; i < 4; ++i) {
     ++it;
   }
   it = list.Erase(it);
@@ -199,8 +180,7 @@ void Erase()
 
   // Erase the remaining elements.
   it = list.begin();
-  while (it != itE)
-  {
+  while (it != itE) {
     it = list.Erase(it);
   }
   PrintList(list);

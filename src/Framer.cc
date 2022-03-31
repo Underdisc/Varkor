@@ -76,8 +76,7 @@ void Start()
 void End()
 {
   Clock::time_point endTime = Clock::now();
-  if (!VSyncEnabled() && !FramerateUncapped())
-  {
+  if (!VSyncEnabled() && !FramerateUncapped()) {
     Nanoseconds timePassed = endTime - nStartTime;
     Nanoseconds remainingTime = nTargetFrameTimeNano - timePassed;
 
@@ -85,8 +84,7 @@ void End()
     // we convert our remaining time from nanoseconds to milliseconds.
     constexpr int nanoInMilli = 1000000;
     Milliseconds remainingTimeMilli(remainingTime.count() / nanoInMilli);
-    if (remainingTimeMilli.count() > 0)
-    {
+    if (remainingTimeMilli.count() > 0) {
       std::this_thread::sleep_for(remainingTimeMilli);
     }
     endTime = Clock::now();
@@ -95,8 +93,8 @@ void End()
       (float)timePassed.count() / (float)nTargetFrameTimeNano.count();
     nPreviousFrameUsages.Pop();
     nPreviousFrameUsages.Insert(0, frameUsage);
-  } else
-  {
+  }
+  else {
     nPreviousFrameUsages.Pop();
     nPreviousFrameUsages.Insert(0, 1.0f);
   }
@@ -110,8 +108,7 @@ void End()
   Nanoseconds sinceAverageUpdate = endTime - nLastAverageUpdateTime;
   float AverageUpdateDelta =
     (float)sinceAverageUpdate.count() / (float)Nanoseconds::period::den;
-  if (AverageUpdateDelta >= nAverageUpdatePeriod)
-  {
+  if (AverageUpdateDelta >= nAverageUpdatePeriod) {
     CalculateAverages();
     nLastAverageUpdateTime = Clock::now();
   }
@@ -119,8 +116,7 @@ void End()
 
 void SetVSync(bool active)
 {
-  if (active)
-  {
+  if (active) {
     glfwSwapInterval(1);
     nFramerate = nVSyncValue;
     nTargetFrameTimeNano = Nanoseconds(0);
@@ -136,8 +132,7 @@ void SetVSync(bool active)
 void SetFramerate(int framerate)
 {
   LogAbortIf(VSyncEnabled(), "VSync must be disabled to set a framerate.");
-  if (framerate == nUncappedValue)
-  {
+  if (framerate == nUncappedValue) {
     nFramerate = nUncappedValue;
     nTargetFrameTimeNano = Nanoseconds(0);
     return;
@@ -192,15 +187,13 @@ int GetFramerate()
 void CalculateAverages()
 {
   nAverageFrameUsage = 0.0f;
-  for (float prevFrameUsage : nPreviousFrameUsages)
-  {
+  for (float prevFrameUsage : nPreviousFrameUsages) {
     nAverageFrameUsage += prevFrameUsage;
   }
   nAverageFrameUsage /= nPreviousFrameUsages.Size();
 
   nAverageFps = 0.0f;
-  for (float prevFpsValue : nPreviousFpsValues)
-  {
+  for (float prevFpsValue : nPreviousFpsValues) {
     nAverageFps += prevFpsValue;
   }
   nAverageFps /= nPreviousFpsValues.Size();

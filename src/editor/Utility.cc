@@ -41,8 +41,7 @@ void HelpMarker(const char* text)
 {
   ImGui::SameLine();
   ImGui::TextDisabled("(?)");
-  if (ImGui::IsItemHovered())
-  {
+  if (ImGui::IsItemHovered()) {
     ImGui::BeginTooltip();
     ImGui::TextUnformatted(text);
     ImGui::EndTooltip();

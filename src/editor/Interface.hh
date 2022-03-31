@@ -8,8 +8,7 @@ T* Interface::OpenInterface(Args&&... args)
   // If an instance of the interface exists, we make it known that it's no
   // longer needed and stage a new instance.
   T* interface = FindInterface<T>();
-  if (interface != nullptr)
-  {
+  if (interface != nullptr) {
     interface->mOpen = false;
   }
   interface = alloc T(args...);
@@ -29,8 +28,7 @@ template<typename T>
 T* Interface::FindInterface()
 {
   Interface** interface = mInterfaces.Find(Util::GetFullTypename<T>());
-  if (interface == nullptr)
-  {
+  if (interface == nullptr) {
     return nullptr;
   }
   return (T*)*interface;

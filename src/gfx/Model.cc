@@ -52,13 +52,12 @@ Result Model::Init(const std::string& file)
     aiProcess_FlipUVs | aiProcess_SortByPType;
   const aiScene* scene = importer.ReadFile(file, flags);
   bool sceneCreated = scene != nullptr && scene->mRootNode != nullptr;
-  if (!sceneCreated || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE)
-  {
+  if (!sceneCreated || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) {
     std::stringstream error;
     error << "Failed to load \"" << file << "\": " << importer.GetErrorString();
     return Result(error.str());
-  } else if (scene->mNumMeshes == 0)
-  {
+  }
+  else if (scene->mNumMeshes == 0) {
     std::stringstream error;
     error << "Failed to load \"" << file << "\": There was no model data.";
     return Result(error.str());
@@ -71,22 +70,18 @@ Result Model::Init(const std::string& file)
 
   // Register all of the model's meshes.
   mMeshes.Reserve(scene->mNumMeshes);
-  for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
-  {
+  for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
     const aiMesh& assimpMesh = *scene->mMeshes[meshIndex];
-    if (assimpMesh.mPrimitiveTypes == (unsigned int)aiPrimitiveType_TRIANGLE)
-    {
+    if (assimpMesh.mPrimitiveTypes == (unsigned int)aiPrimitiveType_TRIANGLE) {
       RegisterMesh(assimpMesh);
     }
   }
 
   // Register all of the model's materials.
   std::string fileDir = file.substr(0, file.find_last_of('/') + 1);
-  for (unsigned int m = 0; m < scene->mNumMaterials; ++m)
-  {
+  for (unsigned int m = 0; m < scene->mNumMaterials; ++m) {
     Result result = RegisterMaterial(*scene->mMaterials[m], fileDir);
-    if (!result.Success())
-    {
+    if (!result.Success()) {
       Purge();
       std::stringstream error;
       error << "Failed to load " << file << ": " << result.mError;
@@ -127,14 +122,12 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
   // Find the size of a single vertex and all of its attributes.
   unsigned int attributes = Attribute::Position;
   size_t vertexByteCount = AttributeSize(Attribute::Position);
-  if (assimpMesh.mNormals != nullptr)
-  {
+  if (assimpMesh.mNormals != nullptr) {
     attributes = attributes | Attribute::Normal;
     vertexByteCount += AttributeSize(Attribute::Normal);
   }
   size_t texCoordCount = 0;
-  while (assimpMesh.mTextureCoords[texCoordCount] != nullptr)
-  {
+  while (assimpMesh.mTextureCoords[texCoordCount] != nullptr) {
     attributes = attributes | Attribute::TexCoord;
     ++texCoordCount;
     vertexByteCount += AttributeSize(Attribute::TexCoord);
@@ -147,8 +140,7 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
   size_t byteOffset = 0;
   size_t currentByte = byteOffset;
   // Add positions.
-  for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v)
-  {
+  for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v) {
     const aiVector3D& assimpVertex = assimpMesh.mVertices[v];
     Vec3* vertex = (Vec3*)&vertexBuffer[currentByte];
     (*vertex)[0] = assimpVertex.x;
@@ -158,11 +150,9 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
   }
   byteOffset += AttributeSize(Attribute::Position);
   // Add normals.
-  if (attributes & Attribute::Normal)
-  {
+  if (attributes & Attribute::Normal) {
     currentByte = byteOffset;
-    for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v)
-    {
+    for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v) {
       const aiVector3D& assimpNormal = assimpMesh.mNormals[v];
       Vec3* normal = (Vec3*)&vertexBuffer[currentByte];
       (*normal)[0] = assimpNormal.x;
@@ -173,13 +163,10 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
     byteOffset += AttributeSize(Attribute::Position);
   }
   // Add texture coordinates.
-  if (attributes & Attribute::TexCoord)
-  {
-    for (size_t t = 0; t < texCoordCount; ++t)
-    {
+  if (attributes & Attribute::TexCoord) {
+    for (size_t t = 0; t < texCoordCount; ++t) {
       currentByte = byteOffset + AttributeSize(Attribute::TexCoord) * t;
-      for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v)
-      {
+      for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v) {
         const aiVector3D& assimpTexCoord = assimpMesh.mTextureCoords[t][v];
         Vec2* texCoord = (Vec2*)&vertexBuffer[currentByte];
         (*texCoord)[0] = assimpTexCoord.x;
@@ -196,11 +183,9 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
   Ds::Vector<unsigned int> elementBuffer;
   elementBuffer.Resize(indexCount);
   size_t currentIndex = 0;
-  for (size_t f = 0; f < assimpMesh.mNumFaces; ++f)
-  {
+  for (size_t f = 0; f < assimpMesh.mNumFaces; ++f) {
     const aiFace& assimpFace = assimpMesh.mFaces[f];
-    for (size_t i = 0; i < indicesPerFace; ++i)
-    {
+    for (size_t i = 0; i < indicesPerFace; ++i) {
       elementBuffer[currentIndex] = assimpFace.mIndices[i];
       ++currentIndex;
     }
@@ -223,8 +208,7 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
 
 Material::TextureType ConvertAiTextureType(const aiTextureType& type)
 {
-  switch (type)
-  {
+  switch (type) {
   case aiTextureType_DIFFUSE: return Material::TextureType::Diffuse;
   case aiTextureType_SPECULAR: return Material::TextureType::Specular;
   }
@@ -242,11 +226,9 @@ Result Model::RegisterMaterial(
     Material::TextureGroup group;
     group.mType = ConvertAiTextureType(type);
     unsigned int textureCount = assimpMat.GetTextureCount(type);
-    for (unsigned int i = 0; i < textureCount; ++i)
-    {
+    for (unsigned int i = 0; i < textureCount; ++i) {
       aiString filename;
-      if (assimpMat.Get(AI_MATKEY_TEXTURE(type, i), filename) != AI_SUCCESS)
-      {
+      if (assimpMat.Get(AI_MATKEY_TEXTURE(type, i), filename) != AI_SUCCESS) {
         std::stringstream error;
         error << "Failed to get the filename of texture "
               << TextureTypeToString(type) << "[" << i << "].";
@@ -256,8 +238,7 @@ Result Model::RegisterMaterial(
       fullPath << fileDir << filename.C_Str();
       Image image;
       Result result = image.Init(fullPath.str());
-      if (!result.Success())
-      {
+      if (!result.Success()) {
         std::stringstream error;
         error << "Failed to initiazlize a texture: " << result.mError;
         return Result(error.str());
@@ -270,13 +251,11 @@ Result Model::RegisterMaterial(
 
   // Add all of the material's textures and create the material.
   Result result = addTextureGroup(aiTextureType_DIFFUSE);
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     return result;
   }
   result = addTextureGroup(aiTextureType_SPECULAR);
-  if (!result.Success())
-  {
+  if (!result.Success()) {
     return result;
   }
   mMaterials.Emplace(Util::Move(material));
@@ -295,8 +274,7 @@ void Model::RegisterNode(
   constexpr size_t elementCount = sizeof(Mat4) / sizeof(float);
   Util::Copy<float>(assimpTransformStart, nodeTransformStart, elementCount);
   nodeTransformation = parentTransformation * nodeTransformation;
-  for (unsigned int i = 0; i < assimpNode.mNumMeshes; ++i)
-  {
+  for (unsigned int i = 0; i < assimpNode.mNumMeshes; ++i) {
     DrawInfo newDrawInfo;
     newDrawInfo.mTransformation = nodeTransformation;
     newDrawInfo.mMeshIndex = assimpNode.mMeshes[i];
@@ -305,8 +283,7 @@ void Model::RegisterNode(
     mAllDrawInfo.Push(newDrawInfo);
   }
 
-  for (unsigned int i = 0; i < assimpNode.mNumChildren; ++i)
-  {
+  for (unsigned int i = 0; i < assimpNode.mNumChildren; ++i) {
     RegisterNode(assimpScene, *assimpNode.mChildren[i], nodeTransformation);
   }
 }

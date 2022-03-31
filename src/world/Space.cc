@@ -95,12 +95,10 @@ void Space::Clear()
 void Space::Update()
 {
   Object currentObject(this);
-  for (const Ds::KvPair<Comp::TypeId, Table>& tablePair : mTables)
-  {
+  for (const Ds::KvPair<Comp::TypeId, Table>& tablePair : mTables) {
     const Table& table = tablePair.mValue;
     const Comp::TypeData& typeData = Comp::GetTypeData(table.TypeId());
-    if (!typeData.mVUpdate.Open())
-    {
+    if (!typeData.mVUpdate.Open()) {
       continue;
     }
 
@@ -125,8 +123,7 @@ MemberId Space::CreateMember()
 
   // If we have unused member ids, we use those for the new member before using
   // member ids that have yet to be used.
-  if (mUnusedMemberIds.Size() > 0)
-  {
+  if (mUnusedMemberIds.Size() > 0) {
     MemberId newMemberId = mUnusedMemberIds.Top();
     Member& newMember = mMembers[newMemberId];
     name << "Member" << newMemberId;
@@ -149,8 +146,7 @@ MemberId Space::Duplicate(MemberId ogMemberId, bool duplicationRoot)
   MemberId newMemberId = CreateMember();
   const Member& ogMember = mMembers[ogMemberId];
   DescriptorId ogDescId = ogMember.mFirstDescriptorId;
-  while (ogDescId < ogMember.EndDescriptorId())
-  {
+  while (ogDescId < ogMember.EndDescriptorId()) {
     ComponentDescriptor newDesc;
     const ComponentDescriptor& ogDesc = mDescriptorBin[ogDescId];
     newDesc.mTypeId = ogDesc.mTypeId;
@@ -162,12 +158,10 @@ MemberId Space::Duplicate(MemberId ogMemberId, bool duplicationRoot)
 
   // Make the new member a child if we are duplicating a child and duplicate all
   // of the member's children.
-  if (duplicationRoot && ogMember.HasParent())
-  {
+  if (duplicationRoot && ogMember.HasParent()) {
     MakeParent(ogMember.Parent(), newMemberId);
   }
-  for (MemberId childId : ogMember.mChildren)
-  {
+  for (MemberId childId : ogMember.mChildren) {
     MemberId newChildId = Duplicate(childId, false);
     MakeParent(newMemberId, newChildId);
   }
@@ -186,15 +180,13 @@ void Space::DeleteMember(MemberId memberId)
   // Delete all of the member's children.
   VerifyMemberId(memberId);
   Member& member = mMembers[memberId];
-  for (MemberId childId : member.mChildren)
-  {
+  for (MemberId childId : member.mChildren) {
     DeleteMember(childId);
   }
 
   // Remove all of the member's components and end its use.
   DescriptorId descId = member.mFirstDescriptorId;
-  while (descId < member.EndDescriptorId())
-  {
+  while (descId < member.EndDescriptorId()) {
     ComponentDescriptor& desc = mDescriptorBin[descId];
     Table& table = mTables.Get(desc.mTypeId);
     table.Rem(desc.mTableIndex);
@@ -215,8 +207,7 @@ void Space::MakeParent(MemberId parentId, MemberId childId)
 
   // If the child already has a parent, remove that parent relationship and
   // create a new one.
-  if (childMember.HasParent())
-  {
+  if (childMember.HasParent()) {
     RemoveParent(childId);
   }
   parentMember.mChildren.Push(childId);
@@ -233,10 +224,8 @@ void Space::RemoveParent(MemberId childId)
   // End the relationship by removing the child from the parent's children and
   // removing the parent from the child.
   Member& parent = mMembers[childMember.mParent];
-  for (size_t i = 0; i < parent.mChildren.Size(); ++i)
-  {
-    if (parent.mChildren[i] == childId)
-    {
+  for (size_t i = 0; i < parent.mChildren.Size(); ++i) {
+    if (parent.mChildren[i] == childId) {
       parent.mChildren.LazyRemove(i);
       break;
     }
@@ -261,15 +250,13 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
   // Create the component table if necessary and make sure the member doesn't
   // already have the component.
   Table* table = mTables.Find(typeId);
-  if (table == nullptr)
-  {
+  if (table == nullptr) {
     Table newTable(typeId);
     mTables.Insert(typeId, newTable);
     table = mTables.Find(typeId);
   }
   const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-  if (HasComponent(typeId, memberId))
-  {
+  if (HasComponent(typeId, memberId)) {
     const Member& member = mMembers[memberId];
     std::stringstream error;
     error << member.mName << " (MemberId: " << memberId << ") already has a "
@@ -278,10 +265,8 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
   }
 
   // Add any missing dependencies.
-  for (Comp::TypeId dependencyId : typeData.mDependencies)
-  {
-    if (!HasComponent(dependencyId, memberId))
-    {
+  for (Comp::TypeId dependencyId : typeData.mDependencies) {
+    if (!HasComponent(dependencyId, memberId)) {
       AddComponent(dependencyId, memberId, init);
     }
   }
@@ -294,8 +279,7 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
 
   // Initialize the component if requested.
   void* component = table->GetComponent(newDesc.mTableIndex);
-  if (init && typeData.mVInit.Open())
-  {
+  if (init && typeData.mVInit.Open()) {
     Object owner(this, memberId);
     typeData.mVInit.Invoke(component, owner);
   }
@@ -307,20 +291,17 @@ void Space::AddDescriptorToMember(
 {
   Member& member = mMembers[memberId];
   DescriptorId nextDescId = member.EndDescriptorId();
-  if (nextDescId >= mDescriptorBin.Size())
-  {
+  if (nextDescId >= mDescriptorBin.Size()) {
     mDescriptorBin.Push(descriptor);
     ++member.mDescriptorCount;
     return;
   }
-  if (!mDescriptorBin[nextDescId].InUse())
-  {
+  if (!mDescriptorBin[nextDescId].InUse()) {
     mDescriptorBin[nextDescId] = descriptor;
     ++member.mDescriptorCount;
     return;
   }
-  for (size_t i = 0; i < member.mDescriptorCount; ++i)
-  {
+  for (size_t i = 0; i < member.mDescriptorCount; ++i) {
     DescriptorId ogDescId = member.mFirstDescriptorId + (DescriptorId)i;
     ComponentDescriptor ogDesc = mDescriptorBin[ogDescId];
     mDescriptorBin.Push(ogDesc);
@@ -339,17 +320,14 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
   Member& member = mMembers[memberId];
   DescriptorId descId = member.mFirstDescriptorId;
   DescriptorId endDescId = member.EndDescriptorId();
-  while (descId < endDescId)
-  {
-    if (mDescriptorBin[descId].mTypeId == typeId)
-    {
+  while (descId < endDescId) {
+    if (mDescriptorBin[descId].mTypeId == typeId) {
       break;
     }
     ++descId;
   }
   const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-  if (descId == endDescId)
-  {
+  if (descId == endDescId) {
     std::stringstream error;
     error << member.mName << " (MemberId: " << memberId << ") does not have a "
           << typeData.mName << " (TypeId: " << typeId << ") component.";
@@ -357,10 +335,8 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
   }
 
   // Remove all of the dependant components.
-  for (Comp::TypeId dependantId : typeData.mDependants)
-  {
-    if (HasComponent(dependantId, memberId))
-    {
+  for (Comp::TypeId dependantId : typeData.mDependants) {
+    if (HasComponent(dependantId, memberId)) {
       RemComponent(dependantId, memberId);
     }
   }
@@ -369,11 +345,10 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
   Table& table = mTables.Get(typeId);
   ComponentDescriptor& desc = mDescriptorBin[descId];
   table.Rem(desc.mTableIndex);
-  if (descId == member.LastDescriptorId())
-  {
+  if (descId == member.LastDescriptorId()) {
     desc.EndUse();
-  } else
-  {
+  }
+  else {
     ComponentDescriptor& lastDesc = mDescriptorBin[member.LastDescriptorId()];
     desc = lastDesc;
     lastDesc.EndUse();
@@ -383,17 +358,14 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
 
 void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
 {
-  if (!ValidMemberId(memberId))
-  {
+  if (!ValidMemberId(memberId)) {
     return nullptr;
   }
   const Member& member = mMembers[memberId];
-  for (size_t i = 0; i < member.mDescriptorCount; ++i)
-  {
+  for (size_t i = 0; i < member.mDescriptorCount; ++i) {
     const ComponentDescriptor& desc =
       mDescriptorBin[member.mFirstDescriptorId + i];
-    if (desc.mTypeId == typeId)
-    {
+    if (desc.mTypeId == typeId) {
       Table& table = mTables.Get(typeId);
       return table.GetComponent(desc.mTableIndex);
     }
@@ -403,8 +375,7 @@ void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
 
 bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
 {
-  if (!ValidMemberId(memberId))
-  {
+  if (!ValidMemberId(memberId)) {
     return false;
   }
   void* component = GetComponent(typeId, memberId);
@@ -413,11 +384,9 @@ bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
 
 void Space::VisitRootMemberIds(std::function<void(World::MemberId)> visit) const
 {
-  for (MemberId i = 0; i < mMembers.Size(); ++i)
-  {
+  for (MemberId i = 0; i < mMembers.Size(); ++i) {
     const Member& member = mMembers[i];
-    if (member.InUseRootMember())
-    {
+    if (member.InUseRootMember()) {
       visit(i);
     }
   }
@@ -429,8 +398,7 @@ void Space::VisitMemberComponents(
   VerifyMemberId(memberId);
   const Member& member = mMembers[memberId];
   DescriptorId descId = member.mFirstDescriptorId;
-  while (descId < member.EndDescriptorId())
-  {
+  while (descId < member.EndDescriptorId()) {
     const ComponentDescriptor& desc = mDescriptorBin[descId];
     visit(desc.mTypeId, desc.mTableIndex);
     ++descId;
@@ -462,12 +430,10 @@ void Space::Serialize(Vlk::Value& spaceVal) const
   spaceVal("Name") = mName;
   spaceVal("CameraId") = mCameraId;
   Vlk::Value& membersVal = spaceVal("Members");
-  for (MemberId memberId = 0; memberId < mMembers.Size(); ++memberId)
-  {
+  for (MemberId memberId = 0; memberId < mMembers.Size(); ++memberId) {
     // We only handle members that are in use.
     const Member& member = mMembers[memberId];
-    if (!member.InUse())
-    {
+    if (!member.InUse()) {
       continue;
     }
 
@@ -476,8 +442,7 @@ void Space::Serialize(Vlk::Value& spaceVal) const
     memberVal("Id") = memberId;
     memberVal("Parent") = member.mParent;
     Vlk::Value& childrenVal = memberVal("Children")[{member.mChildren.Size()}];
-    for (size_t i = 0; i < member.mChildren.Size(); ++i)
-    {
+    for (size_t i = 0; i < member.mChildren.Size(); ++i) {
       childrenVal[i] = member.mChildren[i];
     }
     Vlk::Value& componentsVal = memberVal("Components");
@@ -486,8 +451,7 @@ void Space::Serialize(Vlk::Value& spaceVal) const
       [&](Comp::TypeId typeId, size_t tableIndex)
       {
         const Comp::TypeData& typeData = Comp::nTypeData[typeId];
-        if (!typeData.mVSerialize.Open())
-        {
+        if (!typeData.mVSerialize.Open()) {
           return;
         }
 
@@ -503,49 +467,41 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
   mName = spaceEx("Name").As<std::string>("DefaultName");
   mCameraId = spaceEx("CameraId").As<int>(nInvalidMemberId);
   Vlk::Explorer membersEx = spaceEx("Members");
-  if (!membersEx.Valid())
-  {
+  if (!membersEx.Valid()) {
     LogError("Spaces should have a list of Members.");
     return;
   }
-  for (size_t i = 0; i < membersEx.Size(); ++i)
-  {
+  for (size_t i = 0; i < membersEx.Size(); ++i) {
     // Ensure that the current member is valid.
     Vlk::Explorer memberEx = membersEx(i);
     MemberId memberId = memberEx("Id").As<int>(nInvalidMemberId);
-    if (memberId == nInvalidMemberId)
-    {
+    if (memberId == nInvalidMemberId) {
       LogError("A Member should have a valid Id.");
       continue;
     }
 
     // Deserialize the member's data.
-    if (memberId >= mMembers.Size())
-    {
+    if (memberId >= mMembers.Size()) {
       mMembers.Resize(memberId + 1);
     }
     Member& member = mMembers[memberId];
     member.StartUse((DescriptorId)mDescriptorBin.Size(), memberEx.Key());
     member.mParent = memberEx("Parent").As<int>(nInvalidMemberId);
     Vlk::Explorer childrenEx = memberEx("Children");
-    for (size_t i = 0; i < childrenEx.Size(); ++i)
-    {
+    for (size_t i = 0; i < childrenEx.Size(); ++i) {
       member.mChildren.Push(childrenEx[i].As<int>());
     }
     Vlk::Explorer componentsEx = memberEx("Components");
-    for (size_t i = 0; i < componentsEx.Size(); ++i)
-    {
+    for (size_t i = 0; i < componentsEx.Size(); ++i) {
       Vlk::Explorer componentEx = componentsEx(i);
       Comp::TypeId typeId = Comp::GetTypeId(componentEx.Key());
-      if (typeId == Comp::nInvalidTypeId)
-      {
+      if (typeId == Comp::nInvalidTypeId) {
         std::stringstream error;
         error << "There is no component named " << componentEx.Key() << ".";
         LogAbort(error.str().c_str());
       }
       const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-      if (!typeData.mVDeserialize.Open())
-      {
+      if (!typeData.mVDeserialize.Open()) {
         std::stringstream error;
         error << "The " << typeData.mName
               << " component does not have a VDeserialize function.";
@@ -553,8 +509,7 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
       }
 
       void* component = GetComponent(typeId, memberId);
-      if (component == nullptr)
-      {
+      if (component == nullptr) {
         component = AddComponent(typeId, memberId, false);
       }
       typeData.mVDeserialize.Invoke(component, componentEx);
@@ -570,8 +525,7 @@ bool Space::ValidMemberId(MemberId memberId) const
 
 void Space::VerifyMemberId(MemberId memberId) const
 {
-  if (ValidMemberId(memberId))
-  {
+  if (ValidMemberId(memberId)) {
     return;
   }
   std::stringstream error;
