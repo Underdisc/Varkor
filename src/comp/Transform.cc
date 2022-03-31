@@ -39,32 +39,51 @@ void Transform::VDeserialize(const Vlk::Explorer& transformEx)
   mUpdated = false;
 }
 
-const Vec3& Transform::GetScale() const
-{
-  return mScale;
-}
-
-const Quat& Transform::GetRotation() const
-{
-  return mRotation;
-}
-
 const Vec3& Transform::GetTranslation() const
 {
   return mTranslation;
-}
-
-Quat Transform::GetWorldRotation(const World::Object& object) const
-{
-  Quat worldRotation = GetParentWorldRotation(object) * mRotation;
-  worldRotation.Normalize();
-  return worldRotation;
 }
 
 Vec3 Transform::GetWorldTranslation(const World::Object& object)
 {
   Mat4 worldMatrix = GetWorldMatrix(object);
   return Math::ApplyToPoint(worldMatrix, {0.0f, 0.0f, 0.0f});
+}
+
+void Transform::SetTranslation(const Vec3& newTranslation)
+{
+  mTranslation = newTranslation;
+  mUpdated = false;
+}
+
+void Transform::SetWorldTranslation(
+  const Vec3& worldTranslation, const World::Object& object)
+{
+  SetTranslation(WorldToLocalTranslation(worldTranslation, object));
+}
+
+Vec3 Transform::WorldToLocalTranslation(
+  const Vec3& worldTranslation, const World::Object& object)
+{
+  World::Object pObject = object.Parent();
+  Transform* pTransform = pObject.GetComponent<Transform>();
+  if (pTransform == nullptr)
+  {
+    return worldTranslation;
+  }
+  Mat4 pInverseWorldMatrix = pTransform->GetInverseWorldMatrix(pObject);
+  return Math::ApplyToPoint(pInverseWorldMatrix, worldTranslation);
+}
+
+const Vec3& Transform::GetScale() const
+{
+  return mScale;
+}
+
+void Transform::SetScale(const Vec3& newScale)
+{
+  mScale = newScale;
+  mUpdated = false;
 }
 
 void Transform::SetUniformScale(float newUniformScale)
@@ -75,22 +94,33 @@ void Transform::SetUniformScale(float newUniformScale)
   mUpdated = false;
 }
 
-void Transform::SetScale(const Vec3& newScale)
+const Quat& Transform::GetRotation() const
 {
-  mScale = newScale;
-  mUpdated = false;
+  return mRotation;
+}
+
+Quat Transform::GetWorldRotation(const World::Object& object) const
+{
+  Quat worldRotation = GetParentWorldRotation(object) * mRotation;
+  worldRotation.Normalize();
+  return worldRotation;
+}
+
+Quat Transform::GetParentWorldRotation(const World::Object& object) const
+{
+  World::Object pObject = object.Parent();
+  Transform* pTransform = pObject.GetComponent<Transform>();
+  if (pTransform == nullptr)
+  {
+    return Math::Quaternion(1.0f, 0.0, 0.0f, 0.0f);
+  }
+  return pTransform->GetWorldRotation(pObject);
 }
 
 void Transform::SetRotation(const Quat& newRotation)
 {
   mRotation = newRotation;
   mRotation.Normalize();
-  mUpdated = false;
-}
-
-void Transform::SetTranslation(const Vec3& newTranslation)
-{
-  mTranslation = newTranslation;
   mUpdated = false;
 }
 
@@ -109,36 +139,6 @@ void Transform::SetWorldRotation(
   }
   mRotation.Normalize();
   mUpdated = false;
-}
-
-void Transform::SetWorldTranslation(
-  const Vec3& worldTranslation, const World::Object& object)
-{
-  SetTranslation(WorldToLocalTranslation(worldTranslation, object));
-}
-
-Quat Transform::GetParentWorldRotation(const World::Object& object) const
-{
-  World::Object pObject = object.Parent();
-  Transform* pTransform = pObject.GetComponent<Transform>();
-  if (pTransform == nullptr)
-  {
-    return Math::Quaternion(1.0f, 0.0, 0.0f, 0.0f);
-  }
-  return pTransform->GetWorldRotation(pObject);
-}
-
-Vec3 Transform::WorldToLocalTranslation(
-  const Vec3& worldTranslation, const World::Object& object)
-{
-  World::Object pObject = object.Parent();
-  Transform* pTransform = pObject.GetComponent<Transform>();
-  if (pTransform == nullptr)
-  {
-    return worldTranslation;
-  }
-  Mat4 pInverseWorldMatrix = pTransform->GetInverseWorldMatrix(pObject);
-  return Math::ApplyToPoint(pInverseWorldMatrix, worldTranslation);
 }
 
 const Mat4& Transform::GetLocalMatrix()

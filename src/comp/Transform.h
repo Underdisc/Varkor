@@ -15,23 +15,23 @@ struct Transform
   void VSerialize(Vlk::Value& transformVal);
   void VDeserialize(const Vlk::Explorer& transformEx);
 
-  const Vec3& GetScale() const;
-  const Quat& GetRotation() const;
   const Vec3& GetTranslation() const;
-  Quat GetWorldRotation(const World::Object& object) const;
   Vec3 GetWorldTranslation(const World::Object& object);
-
-  void SetUniformScale(float newUniformScale);
-  void SetScale(const Vec3& newScale);
-  void SetRotation(const Quat& newRotation);
   void SetTranslation(const Vec3& newTranslation);
-  void SetWorldRotation(const Quat& worldRotation, const World::Object& object);
   void SetWorldTranslation(
     const Vec3& worldTranslation, const World::Object& object);
-
-  Quat GetParentWorldRotation(const World::Object& object) const;
   Vec3 WorldToLocalTranslation(
     const Vec3& worldTranslation, const World::Object& object);
+
+  const Vec3& GetScale() const;
+  void SetScale(const Vec3& newScale);
+  void SetUniformScale(float newUniformScale);
+
+  const Quat& GetRotation() const;
+  Quat GetWorldRotation(const World::Object& object) const;
+  Quat GetParentWorldRotation(const World::Object& object) const;
+  void SetRotation(const Quat& newRotation);
+  void SetWorldRotation(const Quat& worldRotation, const World::Object& object);
 
   const Mat4& GetLocalMatrix();
   Mat4 GetInverseLocalMatrix() const;
