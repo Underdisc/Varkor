@@ -5,6 +5,12 @@
 namespace Math {
 
 // Ray /////////////////////////////////////////////////////////////////////////
+void Ray::InitNormalized(const Vec3& start, const Vec3& normalizedDirection)
+{
+  mStart = start;
+  mDirection = normalizedDirection;
+}
+
 void Ray::StartDirection(const Vec3& start, const Vec3& direction)
 {
   mStart = start;

@@ -14,6 +14,7 @@ private:
   Vec3 mDirection;
 
 public:
+  void InitNormalized(const Vec3& start, const Vec3& normalizedDirection);
   void StartDirection(const Vec3& start, const Vec3& direction);
   void Direction(const Vec3& direction);
   const Vec3& Direction() const;
