@@ -5,8 +5,9 @@
 #include "math/Matrix4.h"
 #include "world/Space.h"
 
-namespace Gfx {
-namespace Renderer {
+namespace Gfx::Renderer {
+
+extern void (*nCustomRender)();
 
 void Init();
 void Purge();
@@ -24,5 +25,4 @@ void RenderSpace(
 Result RenderWorld();
 void RenderFramebuffers();
 
-} // namespace Renderer
-} // namespace Gfx
+} // namespace Gfx::Renderer

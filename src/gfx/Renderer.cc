@@ -25,8 +25,7 @@
 #include "world/Space.h"
 #include "world/World.h"
 
-namespace Gfx {
-namespace Renderer {
+namespace Gfx::Renderer {
 
 constexpr size_t nQuadVertexArraySize = 12;
 GLuint nFullscreenVao;
@@ -36,6 +35,8 @@ GLuint nSpriteVbo;
 
 size_t nNextSpaceFramebuffer;
 Ds::Vector<Framebuffer> nSpaceFramebuffers;
+
+void (*nCustomRender)();
 
 void Init()
 {
@@ -76,6 +77,8 @@ void Init()
 
   nNextSpaceFramebuffer = 0;
 
+  nCustomRender = nullptr;
+
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
@@ -110,6 +113,9 @@ void Clear()
 void Render()
 {
   Clear();
+  if (nCustomRender != nullptr) {
+    nCustomRender();
+  }
   if (Editor::nEditorMode) {
     // Render only the selected space and the editor space.
     Editor::OverviewInterface* overviewInterface =
@@ -483,5 +489,4 @@ void RenderFramebuffers()
   glEnable(GL_DEPTH_TEST);
 }
 
-} // namespace Renderer
-} // namespace Gfx
+} // namespace Gfx::Renderer
