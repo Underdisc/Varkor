@@ -25,7 +25,7 @@ const char* Uniform::smTypeStrings[Uniform::Type::Count] = {
   "uMaterial.mSpecular"};
 bool Shader::smLogMissingUniforms = false;
 
-Result Shader::Init(std::string paths[smInitPathCount])
+Result Shader::Init(const Ds::Vector<std::string>& paths)
 {
   return Init(paths[0].c_str(), paths[1].c_str());
 }

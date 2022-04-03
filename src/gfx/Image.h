@@ -4,15 +4,15 @@
 #include <glad/glad.h>
 
 #include "Result.h"
+#include "ds/Vector.h"
 
 namespace Gfx {
 
 struct Image
 {
 public:
-  static constexpr size_t smInitPathCount = 1;
-  static constexpr const char* smPathNames[smInitPathCount] = {"Image"};
-  Result Init(std::string paths[smInitPathCount]);
+  Result Init(const Ds::Vector<std::string>& paths);
+  void Finalize() {};
   void Purge();
 
   Image();
@@ -21,6 +21,7 @@ public:
   ~Image();
 
   Result Init(const std::string& file);
+
   GLuint Id() const;
   float Aspect() const;
 

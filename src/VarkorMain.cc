@@ -44,7 +44,7 @@ void VarkorRun()
     Editor::EndFrame();
     Viewport::SwapBuffers();
     Viewport::Update();
-    AssetLibrary::HandleAssetLoading();
+    AssetLibrary::HandleLoading();
 
     Framer::End();
   }

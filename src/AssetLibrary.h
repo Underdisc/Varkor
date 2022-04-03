@@ -13,63 +13,49 @@ namespace AssetLibrary {
 
 void Init();
 void Purge();
-void HandleAssetLoading();
+void HandleLoading();
 bool InitThreadOpen();
 void DeserializeAssets();
 void SerializeAssets();
 
 // AssetIds refer to an Asset within an AssetBin. Positive AssetIds refer to
-// typical user Assets. Negative AssetIds and 0 refer to required Assets. If any
-// required Asset fails initialization, an abort will occur.
+// typical user Assets. Negative AssetIds and 0 refer to required Assets.
 typedef int AssetId;
 constexpr AssetId nDefaultAssetId = 0;
 bool IsRequiredId(AssetId id);
 
-// The current Status of Assets must be tracked since they are loaded on a
-// different thread. Live indicates that an Asset is ready to be used.
+// Assets have a status to indicate whether they are ready for use or not.
 enum class Status
 {
   Unneeded,
-  Initializing,
+  Loading,
   Failed,
   Live,
 };
 
-// Types can be used as Assets if they provide specific members. These types are
-// asset resources. Compiler errors will highlight the necessary members if an
-// incompatible type is used.
+// Any type can be an Asset, but the type needs to have an Init function that
+// takes a vector of paths, a Finalize function, and a Purge function. The
+// functions must be defined, but can have empty definitions.
 template<typename T>
 struct Asset
 {
-public:
   std::string mName;
   T mResource;
-  Asset(const std::string& name, Status status);
-  Result Init();
-  template<typename... Paths>
-  void SetPaths(const Paths&... paths);
-  void SetPath(int index, const std::string& newPath);
-  const std::string& GetPath(int index) const;
-
   Status mStatus;
+  Ds::Vector<std::string> mPaths;
 
-private:
-  std::string mPaths[T::smInitPathCount];
-
-  template<typename Path>
-  void SetPaths(int currentPathIndex, const Path& path);
-  template<typename Path, typename... RemainingPaths>
-  void SetPaths(
-    int currentPathIndex,
-    const Path& path,
-    const RemainingPaths&... remainingPaths);
+  Asset(const std::string& name);
+  Result Init();
+  void Finalize();
+  template<typename... Args>
+  Result Init(Args&&... args);
 };
 
-// These functions serve as the primary interface for the AssetLibrary.
+// These functions are the primary interface for the AssetLibrary.
 template<typename T>
-AssetId Create(const std::string& name, bool includeId = false);
-template<typename T, typename... Paths>
-AssetId Create(const std::string& name, const Paths&... paths);
+AssetId CreateEmpty(const std::string& name, bool includeId = false);
+template<typename T, typename... Args>
+AssetId CreateInit(const std::string& name, Args&&... args);
 template<typename T>
 void Remove(AssetId id);
 template<typename T>
@@ -84,13 +70,13 @@ template<typename T>
 struct AssetBin
 {
   static Ds::Map<AssetId, Asset<T>> smAssets;
-  static AssetId smIdHandout;
-  static AssetId smRequiredIdHandout;
-
   template<typename... Args>
-  static void InitDefault(Args&&... args);
+  static void Default(Args&&... args);
   template<typename... Args>
   static AssetId Require(const std::string& name, Args&&... args);
+
+  static AssetId smIdHandout;
+  static AssetId smRequiredIdHandout;
   static AssetId NextId();
   static AssetId NextRequiredId();
 };
@@ -102,33 +88,20 @@ template<typename T>
 AssetId AssetBin<T>::smRequiredIdHandout = -1;
 
 // Every Asset type has a bin for queueing the ids of Assets that need to be
-// initialized on the initialization thread.
+// initialized on the init thread and finalized.
 template<typename T>
-struct InitBin
+struct LoadBin
 {
   static Ds::Vector<AssetId> smInitQueue;
-  static AssetId CurrentId();
+  static Ds::Vector<AssetId> smFinalizeQueue;
   static void Queue(AssetId id);
-  static void AssessInitQueue();
-  static void HandleInitQueue();
+  static void HandleFinalization();
+  static void HandleInitialization();
 };
 template<typename T>
-Ds::Vector<AssetId> InitBin<T>::smInitQueue;
-
-// FInfo means FinalizeInfo. Meshes within Gfx::Model must be finalized before
-// they can be rendered. This stores the information needed for finalization.
-struct ModelFInfo
-{
-  AssetId mId;
-  int mMeshIndex;
-  unsigned int mAttributes;
-  size_t mVertexByteCount;
-
-  // If mMeshIndex equals smInvalidMeshIndex, all of the meshes owned by the
-  // Gfx::Model have been finalized and it's ready for rendering.
-  static const int smInvalidMeshIndex;
-};
-void AddModelFInfo(const ModelFInfo& fInfo);
+Ds::Vector<AssetId> LoadBin<T>::smInitQueue;
+template<typename T>
+Ds::Vector<AssetId> LoadBin<T>::smFinalizeQueue;
 
 // All required AssetIds
 // Shader

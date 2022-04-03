@@ -10,9 +10,16 @@
 
 namespace Gfx {
 
-Result Model::Init(std::string paths[smInitPathCount])
+Result Model::Init(const Ds::Vector<std::string>& paths)
 {
   return Init(paths[0]);
+}
+
+void Model::Finalize()
+{
+  for (Mesh& mesh : mMeshes) {
+    mesh.Finalize();
+  }
 }
 
 void Model::Purge()
@@ -88,18 +95,7 @@ Result Model::Init(const std::string& file)
       return Result(error.str());
     }
   }
-
-  AssLib::ModelFInfo fInfo;
-  fInfo.mId = AssLib::InitBin<Gfx::Model>::CurrentId();
-  fInfo.mMeshIndex = AssLib::ModelFInfo::smInvalidMeshIndex;
-  AssLib::AddModelFInfo(fInfo);
   return Result();
-}
-
-void Model::FinalizeMesh(const AssLib::ModelFInfo& fInfo)
-{
-  Mesh& mesh = mMeshes[fInfo.mMeshIndex];
-  mesh.Finalize(fInfo.mAttributes, fInfo.mVertexByteCount);
 }
 
 const Ds::Vector<Model::DrawInfo>& Model::GetAllDrawInfo() const
@@ -121,17 +117,15 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
 {
   // Find the size of a single vertex and all of its attributes.
   unsigned int attributes = Attribute::Position;
-  size_t vertexByteCount = AttributeSize(Attribute::Position);
   if (assimpMesh.mNormals != nullptr) {
     attributes = attributes | Attribute::Normal;
-    vertexByteCount += AttributeSize(Attribute::Normal);
   }
   size_t texCoordCount = 0;
   while (assimpMesh.mTextureCoords[texCoordCount] != nullptr) {
     attributes = attributes | Attribute::TexCoord;
     ++texCoordCount;
-    vertexByteCount += AttributeSize(Attribute::TexCoord);
   }
+  size_t vertexByteCount = AttributesSize(attributes);
 
   // Create the vertex buffer.
   // The order of the vertex data and Attribute enum values are the same.
@@ -148,7 +142,7 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
     (*vertex)[2] = assimpVertex.z;
     currentByte += vertexByteCount;
   }
-  byteOffset += AttributeSize(Attribute::Position);
+  byteOffset += AttributesSize(Attribute::Position);
   // Add normals.
   if (attributes & Attribute::Normal) {
     currentByte = byteOffset;
@@ -160,12 +154,12 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
       (*normal)[2] = assimpNormal.z;
       currentByte += vertexByteCount;
     }
-    byteOffset += AttributeSize(Attribute::Position);
+    byteOffset += AttributesSize(Attribute::Position);
   }
   // Add texture coordinates.
   if (attributes & Attribute::TexCoord) {
     for (size_t t = 0; t < texCoordCount; ++t) {
-      currentByte = byteOffset + AttributeSize(Attribute::TexCoord) * t;
+      currentByte = byteOffset + AttributesSize(Attribute::TexCoord) * t;
       for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v) {
         const aiVector3D& assimpTexCoord = assimpMesh.mTextureCoords[t][v];
         Vec2* texCoord = (Vec2*)&vertexBuffer[currentByte];
@@ -174,7 +168,7 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
         currentByte += vertexByteCount;
       }
     }
-    byteOffset += AttributeSize(Attribute::TexCoord) * texCoordCount;
+    byteOffset += AttributesSize(Attribute::TexCoord) * texCoordCount;
   }
 
   // Create the index buffer.
@@ -191,19 +185,10 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
     }
   }
 
-  // Upload the buffer data for the new mesh.
+  // Initialize the new mesh.
   Mesh newMesh;
-  newMesh.Upload(vertexBuffer, elementBuffer);
+  newMesh.Init(attributes, vertexBuffer, elementBuffer);
   mMeshes.Emplace(Util::Move(newMesh));
-
-  // The info needed to finalize one of the meshes on this model is needed by
-  // the loader so finalization can be peformed on the main thread.
-  AssLib::ModelFInfo fInfo;
-  fInfo.mId = AssLib::InitBin<Gfx::Model>::CurrentId();
-  fInfo.mMeshIndex = (int)mMeshes.Size() - 1;
-  fInfo.mAttributes = attributes;
-  fInfo.mVertexByteCount = vertexByteCount;
-  AssLib::AddModelFInfo(fInfo);
 }
 
 Material::TextureType ConvertAiTextureType(const aiTextureType& type)

@@ -4,17 +4,22 @@
 
 namespace Gfx {
 
-size_t AttributeSize(unsigned int attribute)
+unsigned int AttributesSize(unsigned int attributes)
 {
-  switch (attribute) {
-  case Attribute::Position: return sizeof(Vec3);
-  case Attribute::Normal: return sizeof(Vec3);
-  case Attribute::TexCoord: return sizeof(Vec2);
+  unsigned int size = 0;
+  if (attributes & Attribute::Position) {
+    size += sizeof(Vec3);
   }
-  return 0;
+  if (attributes & Attribute::Normal) {
+    size += sizeof(Vec3);
+  }
+  if (attributes & Attribute::TexCoord) {
+    size += sizeof(Vec2);
+  }
+  return size;
 }
 
-Mesh::Mesh(): mVao(0), mVbo(0), mEbo(0), mIndexCount(0) {}
+Mesh::Mesh(): mVao(0), mVbo(0), mEbo(0), mIndexCount(0), mAttributes(0) {}
 
 Mesh::Mesh(Mesh&& other)
 {
@@ -27,6 +32,7 @@ Mesh& Mesh::operator=(Mesh&& other)
   mVbo = other.mVbo;
   mEbo = other.mEbo;
   mIndexCount = other.mIndexCount;
+  mAttributes = other.mAttributes;
 
   other.mVao = 0;
   other.mVbo = 0;
@@ -43,10 +49,13 @@ Mesh::~Mesh()
   glDeleteBuffers(1, &mEbo);
 }
 
-void Mesh::Upload(
+void Mesh::Init(
+  unsigned int attributes,
   const Ds::Vector<char>& vertexBuffer,
   const Ds::Vector<unsigned int>& elementBuffer)
 {
+  mAttributes = attributes;
+
   // Upload the vertex buffer.
   glGenBuffers(1, &mVbo);
   glBindBuffer(GL_ARRAY_BUFFER, mVbo);
@@ -68,7 +77,7 @@ void Mesh::Upload(
   glFinish();
 }
 
-void Mesh::Finalize(unsigned int attributes, size_t vertexByteCount)
+void Mesh::Finalize()
 {
   // Specify the vertex buffer's attribute layout.
   glGenVertexArrays(1, &mVao);
@@ -76,21 +85,22 @@ void Mesh::Finalize(unsigned int attributes, size_t vertexByteCount)
   glBindBuffer(GL_ARRAY_BUFFER, mVbo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEbo);
   size_t byteOffset = 0;
+  GLsizei vertexByteCount = AttributesSize(mAttributes);
   glVertexAttribPointer(
-    0, 3, GL_FLOAT, GL_FALSE, (GLsizei)vertexByteCount, (void*)byteOffset);
+    0, 3, GL_FLOAT, GL_FALSE, vertexByteCount, (void*)byteOffset);
   glEnableVertexAttribArray(0);
-  byteOffset += AttributeSize(Attribute::Position);
-  if (attributes & Attribute::Normal) {
+  byteOffset += AttributesSize(Attribute::Position);
+  if (mAttributes & Attribute::Normal) {
     glVertexAttribPointer(
-      1, 3, GL_FLOAT, GL_FALSE, (GLsizei)vertexByteCount, (void*)byteOffset);
+      1, 3, GL_FLOAT, GL_FALSE, vertexByteCount, (void*)byteOffset);
     glEnableVertexAttribArray(1);
-    byteOffset += AttributeSize(Attribute::Normal);
+    byteOffset += AttributesSize(Attribute::Normal);
   }
-  if (attributes & Attribute::TexCoord) {
+  if (mAttributes & Attribute::TexCoord) {
     glVertexAttribPointer(
-      2, 2, GL_FLOAT, GL_FALSE, (GLsizei)vertexByteCount, (void*)byteOffset);
+      2, 2, GL_FLOAT, GL_FALSE, vertexByteCount, (void*)byteOffset);
     glEnableVertexAttribArray(2);
-    byteOffset += AttributeSize(Attribute::TexCoord);
+    byteOffset += AttributesSize(Attribute::TexCoord);
   }
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);

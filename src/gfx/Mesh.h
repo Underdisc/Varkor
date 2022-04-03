@@ -13,7 +13,7 @@ enum Attribute : unsigned int
   Normal = 1 << 1,
   TexCoord = 1 << 2,
 };
-size_t AttributeSize(unsigned int attribute);
+unsigned int AttributesSize(unsigned int attributes);
 
 struct Mesh
 {
@@ -22,10 +22,11 @@ struct Mesh
   Mesh& operator=(Mesh&& other);
   ~Mesh();
 
-  void Upload(
+  void Init(
+    unsigned int attributes,
     const Ds::Vector<char>& vertexBuffer,
     const Ds::Vector<unsigned int>& elementBuffer);
-  void Finalize(unsigned int attributes, size_t vertexByteCount);
+  void Finalize();
 
   GLuint Vao() const;
   GLuint Ebo() const;
@@ -34,6 +35,7 @@ struct Mesh
 private:
   GLuint mVao, mVbo, mEbo;
   size_t mIndexCount;
+  unsigned int mAttributes;
 };
 
 } // namespace Gfx

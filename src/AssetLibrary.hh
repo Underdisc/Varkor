@@ -3,15 +3,10 @@
 
 #include "Options.h"
 
-namespace Gfx {
-struct Model;
-}
-
 namespace AssetLibrary {
 
 template<typename T>
-Asset<T>::Asset(const std::string& name, Status status):
-  mName(name), mStatus(status)
+Asset<T>::Asset(const std::string& name): mName(name), mStatus(Status::Unneeded)
 {}
 
 template<typename T>
@@ -20,10 +15,10 @@ Result Asset<T>::Init()
   // These path checks and conversions are necessary because a path may be
   // relative to the working directory (consider files within vres/) or a
   // project's resource directory.
-  std::string paths[T::smInitPathCount];
-  for (int i = 0; i < T::smInitPathCount; ++i) {
+  Ds::Vector<std::string> paths;
+  for (size_t i = 0; i < mPaths.Size(); ++i) {
     if (std::filesystem::exists(mPaths[i])) {
-      paths[i] = mPaths[i];
+      paths.Push(mPaths[i]);
       continue;
     }
     std::string projectAssetPath = Options::PrependResDirectory(mPaths[i]);
@@ -32,53 +27,26 @@ Result Asset<T>::Init()
       error << "Failed to open \"" << mPaths[i] << "\".";
       return Result(error.str());
     }
-    paths[i] = projectAssetPath;
+    paths.Push(projectAssetPath);
   }
   return mResource.Init(paths);
 }
 
 template<typename T>
-template<typename Path>
-void Asset<T>::SetPaths(int currentPathIndex, const Path& path)
+template<typename... Args>
+Result Asset<T>::Init(Args&&... args)
 {
-  mPaths[currentPathIndex] = path;
+  return mResource.Init(args...);
 }
 
 template<typename T>
-template<typename Path, typename... RemainingPaths>
-void Asset<T>::SetPaths(
-  int currentPathIndex,
-  const Path& path,
-  const RemainingPaths&... remainingPaths)
+void Asset<T>::Finalize()
 {
-  mPaths[currentPathIndex] = path;
-  ++currentPathIndex;
-  SetPaths(currentPathIndex, remainingPaths...);
+  mResource.Finalize();
 }
 
 template<typename T>
-template<typename... Paths>
-void Asset<T>::SetPaths(const Paths&... paths)
-{
-  SetPaths(0, paths...);
-}
-
-template<typename T>
-void Asset<T>::SetPath(int index, const std::string& newPath)
-{
-  mPaths[index] = newPath;
-  mResource.Purge();
-  mStatus = Status::Unneeded;
-}
-
-template<typename T>
-const std::string& Asset<T>::GetPath(int index) const
-{
-  return mPaths[index];
-}
-
-template<typename T>
-AssetId Create(const std::string& name, bool includeId)
+AssetId CreateEmpty(const std::string& name, bool includeId)
 {
   AssetId id = AssetBin<T>::NextId();
   std::stringstream ss;
@@ -86,16 +54,19 @@ AssetId Create(const std::string& name, bool includeId)
   if (includeId) {
     ss << id;
   }
-  AssetBin<T>::smAssets.Emplace(id, ss.str(), Status::Unneeded);
+  AssetBin<T>::smAssets.Emplace(id, ss.str());
   return id;
 }
 
-template<typename T, typename... Paths>
-AssetId Create(const std::string& name, const Paths&... paths)
+template<typename T, typename... Args>
+AssetId CreateInit(const std::string& name, Args&&... args)
 {
   AssetId id = AssetBin<T>::NextId();
-  Asset<T>& asset = AssetBin<T>::smAssets.Emplace(id, name, Status::Unneeded);
-  asset.SetPaths(paths...);
+  Asset<T>& asset = AssetBin<T>::smAssets.Emplace(id, name);
+  Result result = asset.Init(args...);
+  LogAbortIf(!result.Success(), result.mError.c_str());
+  asset.Finalize();
+  asset.mStatus = Status::Live;
   return id;
 }
 
@@ -105,36 +76,27 @@ void Remove(AssetId id)
   AssetBin<T>::smAssets.Remove(id);
 }
 
-template<>
-template<typename... Args>
-void AssetBin<Gfx::Model>::InitDefault(Args&&... args);
 template<typename T>
 template<typename... Args>
-void AssetBin<T>::InitDefault(Args&&... args)
+void AssetBin<T>::Default(Args&&... args)
 {
-  Asset<T>& defaultAsset =
-    AssetBin<T>::smAssets.Emplace(nDefaultAssetId, "Default", Status::Live);
-  defaultAsset.SetPaths(args...);
-  InitBin<T>::smInitQueue.Push(nDefaultAssetId);
-  Result result = defaultAsset.Init();
-  InitBin<T>::smInitQueue.Pop();
+  Asset<T>& defaultAsset = smAssets.Emplace(nDefaultAssetId, "Default");
+  Result result = defaultAsset.Init(args...);
   LogAbortIf(!result.Success(), result.mError.c_str());
+  defaultAsset.Finalize();
+  defaultAsset.mStatus = Status::Live;
 }
 
-template<>
-template<typename... Args>
-AssetId AssetBin<Gfx::Model>::Require(const std::string& name, Args&&... args);
 template<typename T>
 template<typename... Args>
 AssetId AssetBin<T>::Require(const std::string& name, Args&&... args)
 {
   AssetId id = NextRequiredId();
-  Asset<T>& newAsset = smAssets.Emplace(id, name, Status::Live);
-  newAsset.SetPaths(args...);
-  InitBin<T>::smInitQueue.Push(id);
-  Result result = newAsset.Init();
-  InitBin<T>::smInitQueue.Pop();
+  Asset<T>& newAsset = smAssets.Emplace(id, name);
+  Result result = newAsset.Init(args...);
   LogAbortIf(!result.Success(), result.mError.c_str());
+  newAsset.Finalize();
+  newAsset.mStatus = Status::Live;
   return id;
 }
 
@@ -155,14 +117,14 @@ T* TryGetLive(AssetId id)
 {
   Asset<T>* asset = TryGetAsset<T>(id);
   if (asset == nullptr || asset->mStatus == Status::Failed) {
-    return &AssetBin<T>::smAssets.Find(nDefaultAssetId)->mResource;
+    return &GetAsset<T>(nDefaultAssetId).mResource;
   }
-  if (asset->mStatus == Status::Initializing) {
+  if (asset->mStatus == Status::Loading) {
     return nullptr;
   }
   if (asset->mStatus == Status::Unneeded) {
-    asset->mStatus = Status::Initializing;
-    InitBin<T>::Queue(id);
+    asset->mStatus = Status::Loading;
+    LoadBin<T>::Queue(id);
     return nullptr;
   }
   return &asset->mResource;
@@ -183,20 +145,12 @@ Asset<T>* TryGetAsset(AssetId id)
 extern std::thread* nInitThread;
 extern bool nStopInitThread;
 extern std::mutex nInitQueueMutex;
+extern std::mutex nFinalizeQueueMutex;
 extern size_t nRemainingInits;
 void InitThreadMain();
 
 template<typename T>
-AssetId InitBin<T>::CurrentId()
-{
-  nInitQueueMutex.lock();
-  AssetId frontId = smInitQueue[0];
-  nInitQueueMutex.unlock();
-  return frontId;
-}
-
-template<typename T>
-void InitBin<T>::Queue(AssetId id)
+void LoadBin<T>::Queue(AssetId id)
 {
   nInitQueueMutex.lock();
   smInitQueue.Push(id);
@@ -204,47 +158,45 @@ void InitBin<T>::Queue(AssetId id)
   nInitQueueMutex.unlock();
 }
 
+// Finalization happens on the main thread.
 template<typename T>
-void InitBin<T>::AssessInitQueue()
+void LoadBin<T>::HandleFinalization()
 {
-  if (nInitThread == nullptr) {
-    if (smInitQueue.Size() > 0) {
-      nInitThread = new std::thread(InitThreadMain);
-    }
-    return;
-  }
-
-  if (nRemainingInits == 0) {
-    nInitThread->join();
-    delete nInitThread;
-    nInitThread = nullptr;
+  while (smFinalizeQueue.Size() > 0) {
+    AssLib::Asset<T>& asset = GetAsset<T>(smFinalizeQueue[0]);
+    asset.Finalize();
+    asset.mStatus = Status::Live;
+    nFinalizeQueueMutex.lock();
+    smFinalizeQueue.Remove(0);
+    nFinalizeQueueMutex.unlock();
   }
 }
 
-template<>
-void InitBin<Gfx::Model>::HandleInitQueue();
+// Initialization happens on the init thread.
 template<typename T>
-void InitBin<T>::HandleInitQueue()
+void LoadBin<T>::HandleInitialization()
 {
   while (smInitQueue.Size() > 0) {
     if (nStopInitThread) {
       break;
     }
 
-    AssLib::Asset<T>& asset = AssLib::AssetBin<T>::smAssets.Get(CurrentId());
+    Asset<T>& asset = GetAsset<T>(smInitQueue[0]);
     Result result = asset.Init();
     if (result.Success()) {
-      asset.mStatus = Status::Live;
+      nFinalizeQueueMutex.lock();
+      smFinalizeQueue.Push(smInitQueue[0]);
+      nFinalizeQueueMutex.unlock();
     }
     else {
       LogError(result.mError.c_str());
       asset.mStatus = Status::Failed;
     }
-
     nInitQueueMutex.lock();
     smInitQueue.Remove(0);
     --nRemainingInits;
     nInitQueueMutex.unlock();
   }
 }
+
 } // namespace AssetLibrary

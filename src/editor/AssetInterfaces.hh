@@ -18,7 +18,7 @@ void AssetInterface<T>::Show()
   std::stringstream createLabel;
   createLabel << "Create " << assetTypename;
   if (ImGui::Button(createLabel.str().c_str(), ImVec2(-1, 0))) {
-    AssLib::Create<T>(assetTypename, true);
+    AssLib::CreateEmpty<T>(assetTypename, true);
   }
 
   // Display a list of all existing Assets.
@@ -82,7 +82,7 @@ void AssetInterface<T>::ShowStatus(const AssLib::Asset<T>& asset)
   const ImVec4 white(1.0, 1.0f, 1.0f, 1.0f);
   switch (asset.mStatus) {
   case AssLib::Status::Unneeded: ImGui::TextColored(white, "|"); break;
-  case AssLib::Status::Initializing: ImGui::TextColored(blue, ">"); break;
+  case AssLib::Status::Loading: ImGui::TextColored(blue, ">"); break;
   case AssLib::Status::Failed: ImGui::TextColored(red, "-"); break;
   case AssLib::Status::Live: ImGui::TextColored(green, "+"); break;
   }
@@ -92,29 +92,32 @@ void AssetInterface<T>::ShowStatus(const AssLib::Asset<T>& asset)
 template<typename T>
 void AssetInterface<T>::EditAssetPaths(AssetId id)
 {
-  for (int i = 0; i < T::smInitPathCount; ++i) {
-    std::stringstream buttonLabel;
-    buttonLabel << T::smPathNames[i] << ": ";
-    const std::string& currentPath = AssLib::GetAsset<T>(id).GetPath(i);
-    if (currentPath.empty()) {
-      buttonLabel << "None";
-    }
-    else {
-      buttonLabel << currentPath;
-    }
-    if (!ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1.0f, 0.0f))) {
+  AssLib::Asset<T>& asset = AssLib::GetAsset<T>(id);
+  ImGui::PushItemWidth(-1.0);
+  for (size_t i = 0; i < asset.mPaths.Size(); ++i) {
+    if (!ImGui::Button(asset.mPaths[i].c_str())) {
       continue;
     }
     OpenInterface<FileInterface>(
       [id, i](const std::string& newPath)
       {
+        // We fetch the asset again because we don't know if it still exists.
         AssLib::Asset<T>* asset = AssLib::TryGetAsset<T>(id);
-        if (asset != nullptr) {
-          asset->SetPath(i, newPath);
+        if (asset != nullptr && i < asset->mPaths.Size()) {
+          asset->mPaths[i] = newPath;
         }
       },
       FileInterface::AccessType::Select);
   }
+  if (ImGui::Button("+")) {
+    asset.mPaths.Push("NewPath");
+    asset.mStatus = AssLib::Status::Unneeded;
+  }
+  if (ImGui::Button("-")) {
+    asset.mPaths.Pop();
+    asset.mStatus = AssLib::Status::Unneeded;
+  }
+  ImGui::PopItemWidth();
 }
 
 template<typename T>

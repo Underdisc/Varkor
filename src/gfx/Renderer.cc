@@ -452,7 +452,6 @@ void RenderSpace(
       }
     });
   glEnable(GL_CULL_FACE);
-
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

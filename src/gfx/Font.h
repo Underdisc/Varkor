@@ -5,6 +5,7 @@
 #include <stb_truetype.h>
 
 #include "Result.h"
+#include "ds/Vector.h"
 #include "math/Vector.h"
 
 namespace Gfx {
@@ -12,9 +13,8 @@ namespace Gfx {
 struct Font
 {
 public:
-  static constexpr size_t smInitPathCount = 1;
-  static constexpr const char* smPathNames[smInitPathCount] = {"Font"};
-  Result Init(std::string paths[smInitPathCount]);
+  Result Init(const Ds::Vector<std::string>& paths);
+  void Finalize() {};
   void Purge();
 
   Font();
@@ -23,6 +23,7 @@ public:
   ~Font();
 
   Result Init(const std::string& file);
+
   struct GlyphMetrics
   {
     Vec2 mStartOffset, mEndOffset;

@@ -8,9 +8,9 @@
 
 namespace Gfx {
 
-Result Image::Init(std::string paths[smInitPathCount])
+Result Image::Init(const Ds::Vector<std::string>& paths)
 {
-  return Image::Init(paths[0]);
+  return Init(paths[0]);
 }
 
 void Image::Purge()

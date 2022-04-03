@@ -16,9 +16,8 @@ namespace Gfx {
 struct Model
 {
 public:
-  static constexpr int smInitPathCount = 1;
-  static constexpr const char* smPathNames[smInitPathCount] = {"Model"};
-  Result Init(std::string paths[smInitPathCount]);
+  Result Init(const Ds::Vector<std::string>& paths);
+  void Finalize();
   void Purge();
 
   Model();
@@ -27,7 +26,6 @@ public:
   ~Model();
 
   Result Init(const std::string& file);
-  void FinalizeMesh(const AssLib::ModelFInfo& fInfo);
 
   struct DrawInfo
   {

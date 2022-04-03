@@ -35,10 +35,8 @@ struct Uniform
 struct Shader
 {
 public:
-  static constexpr int smInitPathCount = 2;
-  static constexpr const char* smPathNames[smInitPathCount] = {
-    "Vertex", "Fragment"};
-  Result Init(std::string paths[smInitPathCount]);
+  Result Init(const Ds::Vector<std::string>& paths);
+  void Finalize() {};
   void Purge();
 
   Shader();

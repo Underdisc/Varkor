@@ -8,7 +8,7 @@
 
 namespace Gfx {
 
-Result Font::Init(std::string paths[smInitPathCount])
+Result Font::Init(const Ds::Vector<std::string>& paths)
 {
   return Init(paths[0]);
 }
