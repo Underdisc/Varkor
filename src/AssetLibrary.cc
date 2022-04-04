@@ -185,7 +185,7 @@ void HandleLoading()
   // Create the thread when there are initializations to perform and delete it
   // when there are no initializations left.
   if (nRemainingInits > 0 && nInitThread == nullptr) {
-    nInitThread = new std::thread(LoadThreadMain);
+    nInitThread = new std::thread(InitThreadMain);
   }
   else if (nRemainingInits == 0 && nInitThread != nullptr) {
     nInitThread->join();
