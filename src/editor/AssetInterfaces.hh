@@ -93,9 +93,8 @@ template<typename T>
 void AssetInterface<T>::EditAssetPaths(AssetId id)
 {
   AssLib::Asset<T>& asset = AssLib::GetAsset<T>(id);
-  ImGui::PushItemWidth(-1.0);
   for (size_t i = 0; i < asset.mPaths.Size(); ++i) {
-    if (!ImGui::Button(asset.mPaths[i].c_str())) {
+    if (!ImGui::Button(asset.mPaths[i].c_str(), ImVec2(-1, 0))) {
       continue;
     }
     OpenInterface<FileInterface>(
@@ -109,15 +108,17 @@ void AssetInterface<T>::EditAssetPaths(AssetId id)
       },
       FileInterface::AccessType::Select);
   }
-  if (ImGui::Button("+")) {
+  if (ImGui::Button("+", ImVec2(-1, 0))) {
     asset.mPaths.Push("NewPath");
     asset.mStatus = AssLib::Status::Unneeded;
   }
-  if (ImGui::Button("-")) {
+  if (ImGui::Button("-", ImVec2(-1, 0))) {
     asset.mPaths.Pop();
     asset.mStatus = AssLib::Status::Unneeded;
   }
-  ImGui::PopItemWidth();
+  if (ImGui::Button("Refresh", ImVec2(-1, 0))) {
+    asset.mStatus = AssLib::Status::Unneeded;
+  }
 }
 
 template<typename T>
