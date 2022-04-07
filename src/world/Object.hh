@@ -3,9 +3,9 @@
 namespace World {
 
 template<typename T>
-void Object::AddComponent() const
+T& Object::AddComponent() const
 {
-  AddComponent(Comp::Type<T>::smId);
+  return *(T*)AddComponent(Comp::Type<T>::smId);
 }
 
 template<typename T>

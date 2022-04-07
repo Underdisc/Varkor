@@ -18,7 +18,7 @@ struct Object
   Object(Space* space, MemberId memberId);
 
   template<typename T>
-  void AddComponent() const;
+  T& AddComponent() const;
   template<typename T>
   void RemComponent() const;
   template<typename T>
@@ -26,11 +26,12 @@ struct Object
   template<typename T>
   bool HasComponent() const;
 
-  void AddComponent(Comp::TypeId typeId) const;
+  void* AddComponent(Comp::TypeId typeId) const;
   void RemComponent(Comp::TypeId typeId) const;
   void* GetComponent(Comp::TypeId typeId) const;
   bool HasComponent(Comp::TypeId typeId) const;
 
+  Object CreateChild() const;
   Object Duplicate() const;
   Member& GetMember() const;
   std::string& GetName() const;

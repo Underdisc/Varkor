@@ -12,9 +12,9 @@ Object::Object(Space* space, MemberId memberId):
   mSpace(space), mMemberId(memberId)
 {}
 
-void Object::AddComponent(Comp::TypeId typeId) const
+void* Object::AddComponent(Comp::TypeId typeId) const
 {
-  mSpace->AddComponent(typeId, mMemberId);
+  return mSpace->AddComponent(typeId, mMemberId);
 }
 
 void Object::RemComponent(Comp::TypeId typeId) const
@@ -30,6 +30,12 @@ void* Object::GetComponent(Comp::TypeId typeId) const
 bool Object::HasComponent(Comp::TypeId typeId) const
 {
   return mSpace->HasComponent(typeId, mMemberId);
+}
+
+Object Object::CreateChild() const
+{
+  MemberId childId = mSpace->CreateChildMember(mMemberId);
+  return Object(mSpace, childId);
 }
 
 Object Object::Duplicate() const
