@@ -80,8 +80,7 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [this](const std::string& filename)
       {
-        std::string path = Options::PrependResDirectory(filename);
-        ValueResult<World::SpaceIt> result = World::LoadSpace(path.c_str());
+        ValueResult<World::SpaceIt> result = World::LoadSpace(filename.c_str());
         if (!result.Success()) {
           LogError(result.mError.c_str());
           return;
