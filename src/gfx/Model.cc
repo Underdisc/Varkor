@@ -55,8 +55,8 @@ Result Model::Init(const std::string& file)
 
   // Import the model and record any errors.
   Assimp::Importer importer;
-  unsigned int flags = aiProcess_GenNormals | aiProcess_Triangulate |
-    aiProcess_FlipUVs | aiProcess_SortByPType;
+  unsigned int flags =
+    aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_SortByPType;
   const aiScene* scene = importer.ReadFile(file, flags);
   bool sceneCreated = scene != nullptr && scene->mRootNode != nullptr;
   if (!sceneCreated || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) {
