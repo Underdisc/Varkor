@@ -129,7 +129,6 @@ Result Model::Init(
   newDrawInfo.mMaterialIndex = 0;
   mAllDrawInfo.Push(newDrawInfo);
 
-  Finalize();
   return Result();
 }
 

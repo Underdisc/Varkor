@@ -48,7 +48,7 @@ struct Asset
   Result Init();
   void Finalize();
   template<typename... Args>
-  Result Init(Args&&... args);
+  Result FullInit(Args&&... args);
 };
 
 // These functions are the primary interface for the AssetLibrary.

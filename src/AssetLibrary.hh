@@ -34,7 +34,7 @@ Result Asset<T>::Init()
 
 template<typename T>
 template<typename... Args>
-Result Asset<T>::Init(Args&&... args)
+Result Asset<T>::FullInit(Args&&... args)
 {
   Result result = mResource.Init(args...);
   if (!result.Success()) {
@@ -42,6 +42,7 @@ Result Asset<T>::Init(Args&&... args)
     mStatus = Status::Failed;
   }
   else {
+    Finalize();
     mStatus = Status::Live;
   }
   return result;
@@ -71,10 +72,8 @@ AssetId CreateInit(const std::string& name, Args&&... args)
 {
   AssetId id = AssetBin<T>::NextId();
   Asset<T>& asset = AssetBin<T>::smAssets.Emplace(id, name);
-  Result result = asset.Init(args...);
-  LogAbortIf(!result.Success(), result.mError.c_str());
-  asset.Finalize();
-  asset.mStatus = Status::Live;
+  Result result = asset.FullInit(args...);
+  LogAbortIf(!result.Success(), "Asset failed initialization.");
   return id;
 }
 
@@ -89,10 +88,8 @@ template<typename... Args>
 void AssetBin<T>::Default(Args&&... args)
 {
   Asset<T>& defaultAsset = smAssets.Emplace(nDefaultAssetId, "Default");
-  Result result = defaultAsset.Init(args...);
-  LogAbortIf(!result.Success(), result.mError.c_str());
-  defaultAsset.Finalize();
-  defaultAsset.mStatus = Status::Live;
+  Result result = defaultAsset.FullInit(args...);
+  LogAbortIf(!result.Success(), "Default Asset failed initialization.");
 }
 
 template<typename T>
@@ -101,10 +98,8 @@ AssetId AssetBin<T>::Require(const std::string& name, Args&&... args)
 {
   AssetId id = NextRequiredId();
   Asset<T>& newAsset = smAssets.Emplace(id, name);
-  Result result = newAsset.Init(args...);
-  LogAbortIf(!result.Success(), result.mError.c_str());
-  newAsset.Finalize();
-  newAsset.mStatus = Status::Live;
+  Result result = newAsset.FullInit(args...);
+  LogAbortIf(!result.Success(), "Required Asset failed initialization.");
   return id;
 }
 
