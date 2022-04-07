@@ -26,6 +26,13 @@ public:
   ~Model();
 
   Result Init(const std::string& file);
+  Result Init(
+    void* vertexBuffer,
+    void* elementBuffer,
+    unsigned int vertexBufferSize,
+    unsigned int elementBufferSize,
+    unsigned int attributes,
+    unsigned int elementCount);
 
   struct DrawInfo
   {
@@ -46,9 +53,9 @@ private:
     const aiNode& assimpNode,
     const Mat4& parentTransformation);
 
-  Ds::Vector<DrawInfo> mAllDrawInfo;
   Ds::Vector<Mesh> mMeshes;
   Ds::Vector<Material> mMaterials;
+  Ds::Vector<DrawInfo> mAllDrawInfo;
 };
 
 } // namespace Gfx

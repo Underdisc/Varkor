@@ -54,23 +54,36 @@ void Mesh::Init(
   const Ds::Vector<char>& vertexBuffer,
   const Ds::Vector<unsigned int>& elementBuffer)
 {
+  Init(
+    (void*)vertexBuffer.CData(),
+    (void*)elementBuffer.CData(),
+    (unsigned int)vertexBuffer.Size(),
+    (unsigned int)(sizeof(unsigned int) * elementBuffer.Size()),
+    attributes,
+    (unsigned int)elementBuffer.Size());
+}
+
+void Mesh::Init(
+  void* vertexBuffer,
+  void* elementBuffer,
+  unsigned int vertexBufferSize,
+  unsigned int elementBufferSize,
+  unsigned int attributes,
+  unsigned int elementCount)
+{
   mAttributes = attributes;
 
   // Upload the vertex buffer.
   glGenBuffers(1, &mVbo);
   glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-  glBufferData(
-    GL_ARRAY_BUFFER, vertexBuffer.Size(), vertexBuffer.CData(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, vertexBuffer, GL_STATIC_DRAW);
 
   // Upload the element buffer.
-  mIndexCount = elementBuffer.Size();
+  mIndexCount = elementCount;
   glGenBuffers(1, &mEbo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEbo);
   glBufferData(
-    GL_ELEMENT_ARRAY_BUFFER,
-    sizeof(unsigned int) * elementBuffer.Size(),
-    elementBuffer.CData(),
-    GL_STATIC_DRAW);
+    GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, elementBuffer, GL_STATIC_DRAW);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

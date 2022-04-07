@@ -26,6 +26,13 @@ struct Mesh
     unsigned int attributes,
     const Ds::Vector<char>& vertexBuffer,
     const Ds::Vector<unsigned int>& elementBuffer);
+  void Init(
+    void* vertexBuffer,
+    void* elementBuffer,
+    unsigned int vertexBufferSize,
+    unsigned int elementBufferSize,
+    unsigned int attributes,
+    unsigned int elementCount);
   void Finalize();
 
   GLuint Vao() const;

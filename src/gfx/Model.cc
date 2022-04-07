@@ -98,6 +98,41 @@ Result Model::Init(const std::string& file)
   return Result();
 }
 
+// Initialize a model with only a single mesh.
+Result Model::Init(
+  void* vertexBuffer,
+  void* elementBuffer,
+  unsigned int vertexBufferSize,
+  unsigned int elementBufferSize,
+  unsigned int attributes,
+  unsigned int elementCount)
+{
+  Purge();
+
+  Mesh newMesh;
+  newMesh.Init(
+    vertexBuffer,
+    elementBuffer,
+    vertexBufferSize,
+    elementBufferSize,
+    attributes,
+    elementCount);
+  mMeshes.Emplace(Util::Move(newMesh));
+
+  // The model needs a material so the index on the draw info refers to a valid
+  // material. This material, however, is empty.
+  mMaterials.Emplace();
+
+  DrawInfo newDrawInfo;
+  Math::Identity(&newDrawInfo.mTransformation);
+  newDrawInfo.mMeshIndex = 0;
+  newDrawInfo.mMaterialIndex = 0;
+  mAllDrawInfo.Push(newDrawInfo);
+
+  Finalize();
+  return Result();
+}
+
 const Ds::Vector<Model::DrawInfo>& Model::GetAllDrawInfo() const
 {
   return mAllDrawInfo;
