@@ -36,7 +36,15 @@ template<typename T>
 template<typename... Args>
 Result Asset<T>::Init(Args&&... args)
 {
-  return mResource.Init(args...);
+  Result result = mResource.Init(args...);
+  if (!result.Success()) {
+    LogError(result.mError.c_str());
+    mStatus = Status::Failed;
+  }
+  else {
+    mStatus = Status::Live;
+  }
+  return result;
 }
 
 template<typename T>
