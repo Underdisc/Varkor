@@ -20,8 +20,4 @@ if "%generator%" == "" (
   echo Error: The "generator" environment variable must be set in buildSpecs.bat.
   exit /b 1
 )
-if "%target%" == "" (
-  echo Error: The "target" environment variable must be set in buildSpecs.bat.
-  exit /b 1
-)
 exit /b 0
