@@ -47,6 +47,7 @@ struct Asset
   Asset(const std::string& name);
   Result Init();
   void Finalize();
+  Result FullInit();
   template<typename... Args>
   Result FullInit(Args&&... args);
 };

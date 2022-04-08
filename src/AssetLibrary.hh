@@ -33,6 +33,27 @@ Result Asset<T>::Init()
 }
 
 template<typename T>
+void Asset<T>::Finalize()
+{
+  mResource.Finalize();
+}
+
+template<typename T>
+Result Asset<T>::FullInit()
+{
+  Result result = Init();
+  if (!result.Success()) {
+    LogError(result.mError.c_str());
+    mStatus = Status::Failed;
+  }
+  else {
+    Finalize();
+    mStatus = Status::Live;
+  }
+  return result;
+}
+
+template<typename T>
 template<typename... Args>
 Result Asset<T>::FullInit(Args&&... args)
 {
@@ -46,12 +67,6 @@ Result Asset<T>::FullInit(Args&&... args)
     mStatus = Status::Live;
   }
   return result;
-}
-
-template<typename T>
-void Asset<T>::Finalize()
-{
-  mResource.Finalize();
 }
 
 template<typename T>
