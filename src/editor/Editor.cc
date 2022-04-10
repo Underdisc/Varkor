@@ -17,6 +17,7 @@ CoreInterface nCoreInterface;
 ImGuiContext* nImGuiContext;
 bool nSuppressObjectPicking = false;
 bool nEditorMode = true;
+bool nHideInterface = false;
 World::Space nSpace;
 Camera nCamera;
 
@@ -114,7 +115,12 @@ void EndFrame()
   if (nEditorMode) {
     nCamera.Update();
   }
-  nCoreInterface.HandleInterfaces();
+  if (Input::KeyPressed(Input::Key::GraveAccent)) {
+    nHideInterface = !nHideInterface;
+  }
+  if (!nHideInterface) {
+    nCoreInterface.HandleInterfaces();
+  }
   Gizmos::PurgeUnneeded();
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
