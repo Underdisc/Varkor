@@ -6,7 +6,7 @@ in vec2 iTextureCoords;
 out vec4 iFinalColor;
 
 uniform sampler2D uTexture;
-uniform vec3 uColor;
+uniform vec4 uColor;
 uniform float uFillAmount;
 
 void main()

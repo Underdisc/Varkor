@@ -25,10 +25,10 @@ float ContributionDiscard(float value, float edgeValue)
   return contribution;
 }
 
-vec4 BasicText(float value, vec3 color, float edgeValue)
+vec4 BasicText(float value, vec4 color, float edgeValue)
 {
   float contribution = ContributionDiscard(value, edgeValue);
-  return vec4(color, contribution);
+  return vec4(color.xyz, color.w * contribution);
 }
 
 vec4 StrokeText(float value, float width, vec3 strokeColor, vec3 fillColor)

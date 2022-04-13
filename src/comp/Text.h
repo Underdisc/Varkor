@@ -47,7 +47,6 @@ struct Text
   };
   Alignment mAlign;
   float mWidth;
-  Vec3 mColor;
   float mFillAmount;
 };
 #pragma pack(pop)

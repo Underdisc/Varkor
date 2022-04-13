@@ -437,8 +437,17 @@ void RenderSpace(
       glUniformMatrix4fv(viewLoc, 1, true, view.CData());
       glUniformMatrix4fv(projLoc, 1, true, proj.CData());
       glUniform1i(samplerLoc, 0);
-      glUniform3fv(colorLoc, 1, textComp.mColor.CData());
       glUniform1f(fillAmountLoc, textComp.mFillAmount);
+
+      Comp::AlphaColor* alphaColorComp =
+        space.GetComponent<Comp::AlphaColor>(owner);
+      if (alphaColorComp != nullptr) {
+        glUniform4fv(colorLoc, 1, alphaColorComp->mAlphaColor.CData());
+      }
+      else {
+        Vec4 defaultColor = {0.0f, 1.0f, 0.0f, 1.0f};
+        glUniform4fv(colorLoc, 1, defaultColor.CData());
+      }
 
       World::Object object(const_cast<World::Space*>(&space), owner);
       Mat4 baseTransformation = GetTransformation(object);

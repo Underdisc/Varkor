@@ -15,7 +15,6 @@ void Text::VInit(const World::Object& owner)
   mText = "";
   mAlign = Alignment::Left;
   mWidth = 10.0f;
-  mColor = {1.0f, 1.0f, 1.0f};
   mFillAmount = 1.0f;
 }
 
@@ -26,10 +25,6 @@ void Text::VSerialize(Vlk::Value& textVal)
   textVal("Text") = mText;
   textVal("Alignment") = mAlign;
   textVal("Width") = mWidth;
-  Vlk::Value& colorVal = textVal("Color")[{3}];
-  for (int i = 0; i < 3; ++i) {
-    colorVal[i] = mColor[i];
-  }
 }
 
 void Text::VDeserialize(const Vlk::Explorer& textEx)
@@ -39,10 +34,6 @@ void Text::VDeserialize(const Vlk::Explorer& textEx)
   mText = textEx("Text").As<std::string>("");
   mAlign = textEx("Alignment").As<Alignment>(Alignment::Left);
   mWidth = textEx("Width").As<float>(10.0f);
-  const Vlk::Explorer& colorEx = textEx("Color");
-  for (int i = 0; i < 3; ++i) {
-    mColor[i] = colorEx[i].As<float>(1.0f);
-  }
   mFillAmount = 1.0f;
 }
 
