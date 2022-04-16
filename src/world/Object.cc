@@ -2,6 +2,8 @@
 
 namespace World {
 
+Object::Object(): mSpace(nullptr), mMemberId(nInvalidMemberId) {}
+
 Object::Object(const Object& other):
   mSpace(other.mSpace), mMemberId(other.mMemberId)
 {}

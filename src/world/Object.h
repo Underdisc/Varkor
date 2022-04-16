@@ -13,6 +13,7 @@ namespace World {
 // object.
 struct Object
 {
+  Object();
   Object(const Object& other);
   Object(Space* space);
   Object(Space* space, MemberId memberId);

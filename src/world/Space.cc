@@ -139,6 +139,17 @@ MemberId Space::CreateMember()
   return newMemberId;
 }
 
+Object Space::CreateObject()
+{
+  return Object(this, CreateMember());
+}
+
+Object Space::CreateChildObject(const Object& parent)
+{
+  LogAbortIf(this != parent.mSpace, "The parent points to a different space.");
+  return Object(this, CreateChildMember(parent.mMemberId));
+}
+
 MemberId Space::Duplicate(MemberId ogMemberId, bool duplicationRoot)
 {
   // Duplicate all of the components from the original member.
