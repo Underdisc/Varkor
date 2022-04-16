@@ -34,7 +34,7 @@ void SetParentTransformation(
     return;
   }
   Comp::Transform& parentTransform =
-    *nSpace.GetComponent<Comp::Transform>(parentId);
+    nSpace.GetComponent<Comp::Transform>(parentId);
   parentTransform.SetTranslation(translation);
   parentTransform.SetUniformScale(Math::Magnitude(projectionDistance) * 0.3f);
   parentTransform.SetRotation(referenceFrame);

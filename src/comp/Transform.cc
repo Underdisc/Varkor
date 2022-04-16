@@ -64,7 +64,7 @@ Vec3 Transform::WorldToLocalTranslation(
   const Vec3& worldTranslation, const World::Object& object)
 {
   World::Object pObject = object.Parent();
-  Transform* pTransform = pObject.GetComponent<Transform>();
+  Transform* pTransform = pObject.TryGetComponent<Transform>();
   if (pTransform == nullptr) {
     return worldTranslation;
   }
@@ -106,7 +106,7 @@ Quat Transform::GetWorldRotation(const World::Object& object) const
 Quat Transform::GetParentWorldRotation(const World::Object& object) const
 {
   World::Object pObject = object.Parent();
-  Transform* pTransform = pObject.GetComponent<Transform>();
+  Transform* pTransform = pObject.TryGetComponent<Transform>();
   if (pTransform == nullptr) {
     return Math::Quaternion(1.0f, 0.0, 0.0f, 0.0f);
   }
@@ -124,7 +124,7 @@ void Transform::SetWorldRotation(
   const Quat& newWorldRotation, const World::Object& object)
 {
   World::Object pObject = object.Parent();
-  Transform* pTransform = pObject.GetComponent<Transform>();
+  Transform* pTransform = pObject.TryGetComponent<Transform>();
   if (pTransform == nullptr) {
     mRotation = newWorldRotation;
   }
@@ -164,7 +164,7 @@ Mat4 Transform::GetInverseLocalMatrix() const
 Mat4 Transform::GetWorldMatrix(const World::Object& object)
 {
   World::Object pObject = object.Parent();
-  Transform* pTransform = pObject.GetComponent<Transform>();
+  Transform* pTransform = pObject.TryGetComponent<Transform>();
   if (pTransform == nullptr) {
     return GetLocalMatrix();
   }
@@ -176,7 +176,7 @@ Mat4 Transform::GetWorldMatrix(const World::Object& object)
 Mat4 Transform::GetInverseWorldMatrix(const World::Object& object)
 {
   World::Object pObject = object.Parent();
-  Transform* pTransform = pObject.GetComponent<Transform>();
+  Transform* pTransform = pObject.TryGetComponent<Transform>();
   if (pTransform == nullptr) {
     return GetInverseLocalMatrix();
   }

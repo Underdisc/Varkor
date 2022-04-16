@@ -155,7 +155,7 @@ Vec3 Translator::Run(
   // Handle any switching between operations.
   if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
     Comp::AlphaColor& colorComp =
-      *nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
+      nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
     colorComp.mAlphaColor = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return translation;
@@ -167,7 +167,7 @@ Vec3 Translator::Run(
     }
     Editor::nSuppressObjectPicking |= true;
     Comp::AlphaColor& colorComp =
-      *nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
+      nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
     colorComp.mAlphaColor = smActiveColor;
     return translation;
   }

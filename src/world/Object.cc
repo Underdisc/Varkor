@@ -29,6 +29,11 @@ void* Object::GetComponent(Comp::TypeId typeId) const
   return mSpace->GetComponent(typeId, mMemberId);
 }
 
+void* Object::TryGetComponent(Comp::TypeId typeId) const
+{
+  return mSpace->TryGetComponent(typeId, mMemberId);
+}
+
 bool Object::HasComponent(Comp::TypeId typeId) const
 {
   return mSpace->HasComponent(typeId, mMemberId);

@@ -23,13 +23,16 @@ struct Object
   template<typename T>
   void RemComponent() const;
   template<typename T>
-  T* GetComponent() const;
+  T& GetComponent() const;
+  template<typename T>
+  T* TryGetComponent() const;
   template<typename T>
   bool HasComponent() const;
 
   void* AddComponent(Comp::TypeId typeId) const;
   void RemComponent(Comp::TypeId typeId) const;
   void* GetComponent(Comp::TypeId typeId) const;
+  void* TryGetComponent(Comp::TypeId typeId) const;
   bool HasComponent(Comp::TypeId typeId) const;
 
   Object CreateChild() const;

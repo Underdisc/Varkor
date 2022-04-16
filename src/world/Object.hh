@@ -5,25 +5,31 @@ namespace World {
 template<typename T>
 T& Object::AddComponent() const
 {
-  return *(T*)AddComponent(Comp::Type<T>::smId);
+  return mSpace->AddComponent<T>(mMemberId);
 }
 
 template<typename T>
 void Object::RemComponent() const
 {
-  RemComponent(Comp::Type<T>::smId);
+  mSpace->RemComponent<T>(mMemberId);
 }
 
 template<typename T>
-T* Object::GetComponent() const
+T& Object::GetComponent() const
 {
-  return (T*)GetComponent(Comp::Type<T>::smId);
+  return mSpace->GetComponent<T>(mMemberId);
+}
+
+template<typename T>
+T* Object::TryGetComponent() const
+{
+  return mSpace->TryGetComponent<T>(mMemberId);
 }
 
 template<typename T>
 bool Object::HasComponent() const
 {
-  return HasComponent(Comp::Type<T>::smId);
+  return mSpace->HasComponent<T>(mMemberId);
 }
 
 } // namespace World

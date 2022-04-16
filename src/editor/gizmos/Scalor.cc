@@ -158,13 +158,13 @@ Vec3 Scalor::Run(
   Math::Quaternion xyzRotation;
   xyzRotation.FromTo({1.0f, 0.0f, 0.0f}, torusDirection);
   xyzRotation = referenceFrame.Conjugate() * xyzRotation;
-  Comp::Transform& xyzTransform = *nSpace.GetComponent<Comp::Transform>(mXyz);
+  Comp::Transform& xyzTransform = nSpace.GetComponent<Comp::Transform>(mXyz);
   xyzTransform.SetRotation(xyzRotation);
 
   // Handle any switching between operations.
   if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
     Comp::AlphaColor& colorComp =
-      *nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
+      nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
     colorComp.mAlphaColor = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return scale;
@@ -176,7 +176,7 @@ Vec3 Scalor::Run(
     }
     Editor::nSuppressObjectPicking |= true;
     Comp::AlphaColor& colorComp =
-      *nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
+      nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
     colorComp.mAlphaColor = smActiveColor;
     return scale;
   }

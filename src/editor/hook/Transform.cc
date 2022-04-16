@@ -21,22 +21,22 @@ Hook<Comp::Transform>::Hook():
 bool Hook<Comp::Transform>::Edit(const World::Object& object)
 {
   // Display all of the transformation component's parameters.
-  Comp::Transform* transform = object.GetComponent<Comp::Transform>();
-  Vec3 translation = transform->GetTranslation();
+  Comp::Transform& transform = object.GetComponent<Comp::Transform>();
+  Vec3 translation = transform.GetTranslation();
   ImGui::PushItemWidth(-60.0f);
   bool translationDragged =
     ImGui::DragFloat3("Translation", translation.mD, 0.01f);
   if (translationDragged) {
-    transform->SetTranslation(translation);
+    transform.SetTranslation(translation);
   }
 
-  Vec3 scale = transform->GetScale();
+  Vec3 scale = transform.GetScale();
   bool scaleDragged = ImGui::DragFloat3("Scale", scale.mD, 0.01f);
   if (scaleDragged) {
-    transform->SetScale(scale);
+    transform.SetScale(scale);
   }
 
-  Quat rotation = transform->GetRotation();
+  Quat rotation = transform.GetRotation();
   Vec3 eulerAngles = rotation.EulerAngles();
   Vec3 newAngles = eulerAngles;
   bool rotationDragged =
@@ -47,7 +47,7 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
     yDelta.AngleAxis(newAngles[1], {0.0f, 1.0f, 0.0f});
     zDelta.AngleAxis(newAngles[2], {0.0f, 0.0f, 1.0f});
     rotation = zDelta * yDelta * xDelta;
-    transform->SetRotation(rotation);
+    transform.SetRotation(rotation);
   }
 
   // Handle all hotkeys for switching between modes and reference frames.
@@ -106,15 +106,15 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
     referenceFrameRotation = {1.0f, 0.0f, 0.0f, 0.0f};
     break;
   case ReferenceFrame::Parent:
-    referenceFrameRotation = transform->GetParentWorldRotation(object);
+    referenceFrameRotation = transform.GetParentWorldRotation(object);
     break;
   case ReferenceFrame::Relative:
-    referenceFrameRotation = transform->GetWorldRotation(object);
+    referenceFrameRotation = transform.GetWorldRotation(object);
     break;
   }
 
   // Display the gizmo for the current mode that the hook is in.
-  Vec3 worldTranslation = transform->GetWorldTranslation(object);
+  Vec3 worldTranslation = transform.GetWorldTranslation(object);
   if (mMode == Mode::Translate) {
     Vec3 newTranslation = Gizmos::Translate(
       worldTranslation,
@@ -122,11 +122,11 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
       mSnapping,
       mTranslateSnapInterval);
     if (!Math::Near(newTranslation, worldTranslation)) {
-      transform->SetWorldTranslation(newTranslation, object);
+      transform.SetWorldTranslation(newTranslation, object);
     }
   }
   else if (mMode == Mode::Scale) {
-    referenceFrameRotation = transform->GetWorldRotation(object);
+    referenceFrameRotation = transform.GetWorldRotation(object);
     Vec3 newScale = Gizmos::Scale(
       scale,
       worldTranslation,
@@ -134,11 +134,11 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
       mSnapping,
       mScaleSnapInterval);
     if (!Math::Near(newScale, scale)) {
-      transform->SetScale(newScale);
+      transform.SetScale(newScale);
     }
   }
   else {
-    Quat worldRotation = transform->GetWorldRotation(object);
+    Quat worldRotation = transform.GetWorldRotation(object);
     Quat newWorldRotation = Gizmos::Rotate(
       worldRotation,
       worldTranslation,
@@ -146,7 +146,7 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
       mSnapping,
       mRotateSnapInterval);
     if (!Math::Near(worldRotation.mVec, newWorldRotation.mVec)) {
-      transform->SetWorldRotation(newWorldRotation, object);
+      transform.SetWorldRotation(newWorldRotation, object);
     }
   }
   return false;

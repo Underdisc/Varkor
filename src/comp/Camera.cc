@@ -60,7 +60,7 @@ void Camera::VDeserialize(const Vlk::Explorer& cameraEx)
 void Camera::LocalLookAt(
   const Vec3& localPosition, const Vec3& localUp, const World::Object& owner)
 {
-  Transform& transform = *owner.GetComponent<Transform>();
+  Transform& transform = owner.GetComponent<Transform>();
   LogAbortIf(
     Math::Near(localPosition, transform.GetTranslation()),
     "The Camera cannot look at its current position.");
@@ -84,12 +84,12 @@ void Camera::WorldLookAt(
     LocalLookAt(worldPosition, worldUp, owner);
     return;
   }
-  Transform* parentTransform = parent.GetComponent<Transform>();
+  Transform* parentTransform = parent.TryGetComponent<Transform>();
   if (parentTransform == nullptr) {
     LocalLookAt(worldPosition, worldUp, owner);
     return;
   }
-  Transform& transform = *owner.GetComponent<Transform>();
+  Transform& transform = owner.GetComponent<Transform>();
   Vec3 localPosition = transform.WorldToLocalTranslation(worldPosition, owner);
   Quaternion parentWorldRotation = parentTransform->GetWorldRotation(parent);
   // Consider worldUp's direction if it were in local space. If we undo the
@@ -140,54 +140,54 @@ namespace Editor {
 
 bool Hook<Comp::Camera>::Edit(const World::Object& object)
 {
-  Comp::Camera* cameraComp = object.GetComponent<Comp::Camera>();
+  Comp::Camera& cameraComp = object.GetComponent<Comp::Camera>();
   const int projectionNameCount =
     sizeof(Comp::Camera::smProjectionTypeNames) / sizeof(const char*);
-  int intProj = (int)cameraComp->mProjectionType;
+  int intProj = (int)cameraComp.mProjectionType;
   ImGui::Combo(
     "Projection Type",
     &intProj,
     Comp::Camera::smProjectionTypeNames,
     projectionNameCount);
   Comp::Camera::ProjectionType newType = (Comp::Camera::ProjectionType)intProj;
-  if (newType != cameraComp->mProjectionType) {
-    cameraComp->mProjectionType = newType;
+  if (newType != cameraComp.mProjectionType) {
+    cameraComp.mProjectionType = newType;
     switch (newType) {
     case Comp::Camera::ProjectionType::Perspective:
-      cameraComp->mFov = Comp::Camera::smDefaultFov;
-      cameraComp->mNear = Comp::Camera::smMinimumPerspectiveNear;
+      cameraComp.mFov = Comp::Camera::smDefaultFov;
+      cameraComp.mNear = Comp::Camera::smMinimumPerspectiveNear;
       break;
     case Comp::Camera::ProjectionType::Orthographic:
-      cameraComp->mHeight = Comp::Camera::smDefaultHeight;
-      cameraComp->mNear = Comp::Camera::smMinimumOrthographicNear;
+      cameraComp.mHeight = Comp::Camera::smDefaultHeight;
+      cameraComp.mNear = Comp::Camera::smMinimumOrthographicNear;
       break;
     }
   }
-  switch (cameraComp->mProjectionType) {
+  switch (cameraComp.mProjectionType) {
   case Comp::Camera::ProjectionType::Perspective:
-    ImGui::DragFloat("FoV", &cameraComp->mFov, 0.001f, 0.1f, Math::nPi - 0.1f);
+    ImGui::DragFloat("FoV", &cameraComp.mFov, 0.001f, 0.1f, Math::nPi - 0.1f);
     ImGui::DragFloat(
       "Near",
-      &cameraComp->mNear,
+      &cameraComp.mNear,
       0.1f,
       Comp::Camera::smMinimumPerspectiveNear,
-      cameraComp->mFar);
+      cameraComp.mFar);
     break;
   case Comp::Camera::ProjectionType::Orthographic:
-    ImGui::DragFloat("Height", &cameraComp->mHeight, 0.01f, 0.1f, 1000.0f);
+    ImGui::DragFloat("Height", &cameraComp.mHeight, 0.01f, 0.1f, 1000.0f);
     ImGui::DragFloat(
       "Near",
-      &cameraComp->mNear,
+      &cameraComp.mNear,
       0.1f,
       Comp::Camera::smMinimumOrthographicNear,
-      cameraComp->mFar);
+      cameraComp.mFar);
     break;
   }
   ImGui::DragFloat(
     "Far",
-    &cameraComp->mFar,
+    &cameraComp.mFar,
     0.1f,
-    cameraComp->mNear,
+    cameraComp.mNear,
     Comp::Camera::smMaximumFar);
   return false;
 }

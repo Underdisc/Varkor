@@ -114,7 +114,7 @@ Quat Rotator::Run(
   // Handle the transitions between all operation types.
   if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
     Comp::AlphaColor& alphaColorComp =
-      *nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
+      nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
     alphaColorComp.mAlphaColor = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return rotation;
@@ -126,7 +126,7 @@ Quat Rotator::Run(
     }
     Editor::nSuppressObjectPicking |= true;
     Comp::AlphaColor& alphaColorComp =
-      *nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
+      nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
     alphaColorComp.mAlphaColor = smActiveColor;
     if (mOperation == Operation::Xyz) {
       alphaColorComp.mAlphaColor[3] = 0.8f;

@@ -143,7 +143,7 @@ void Render()
 
 Mat4 GetTransformation(const World::Object& object)
 {
-  Comp::Transform* transform = object.GetComponent<Comp::Transform>();
+  Comp::Transform* transform = object.TryGetComponent<Comp::Transform>();
   if (transform == nullptr) {
     Mat4 identity;
     Math::Identity(&identity);
@@ -280,7 +280,8 @@ Result RenderSpace(const World::Space& space)
     return Result(error.str());
   }
   // Make sure the camera has a camera component.
-  Comp::Camera* cameraComp = space.GetComponent<Comp::Camera>(space.mCameraId);
+  const Comp::Camera* cameraComp =
+    space.TryGetComponent<Comp::Camera>(space.mCameraId);
   if (cameraComp == nullptr) {
     std::stringstream error;
     error << "Space \"" << space.mName
@@ -290,7 +291,7 @@ Result RenderSpace(const World::Space& space)
 
   // Find the view matrix using the space's camera and render the space.
   Comp::Transform& transformComp =
-    *space.GetComponent<Comp::Transform>(space.mCameraId);
+    space.GetComponent<Comp::Transform>(space.mCameraId);
   World::Object object(const_cast<World::Space*>(&space), space.mCameraId);
   Mat4 view = transformComp.GetInverseWorldMatrix(object);
   Mat4 proj = cameraComp->Proj();
@@ -342,7 +343,7 @@ void RenderSpace(
       glUniform3fv(viewPosLoc, 1, viewPos.CData());
       glUniform1f(timeLoc, Temporal::TotalTime());
       Comp::AlphaColor* alphaColorComp =
-        space.GetComponent<Comp::AlphaColor>(owner);
+        space.TryGetComponent<Comp::AlphaColor>(owner);
       if (alphaColorComp != nullptr) {
         GLint alphaColorLoc =
           shader->UniformLocation(Uniform::Type::AlphaColor);
@@ -446,7 +447,7 @@ void RenderSpace(
       glUniform1f(fillAmountLoc, textComp.mFillAmount);
 
       Comp::AlphaColor* alphaColorComp =
-        space.GetComponent<Comp::AlphaColor>(owner);
+        space.TryGetComponent<Comp::AlphaColor>(owner);
       if (alphaColorComp != nullptr) {
         glUniform4fv(colorLoc, 1, alphaColorComp->mAlphaColor.CData());
       }

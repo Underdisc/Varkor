@@ -6,9 +6,9 @@ namespace Editor {
 
 bool Hook<Comp::Sprite>::Edit(const World::Object& object)
 {
-  Comp::Sprite* sprite = object.GetComponent<Comp::Sprite>();
-  SelectAssetWidget<Gfx::Image>(&sprite->mImageId);
-  SelectAssetWidget<Gfx::Shader>(&sprite->mShaderId);
+  Comp::Sprite& sprite = object.GetComponent<Comp::Sprite>();
+  SelectAssetWidget<Gfx::Image>(&sprite.mImageId);
+  SelectAssetWidget<Gfx::Shader>(&sprite.mShaderId);
   return false;
 }
 

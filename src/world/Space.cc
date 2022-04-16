@@ -369,6 +369,21 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
 
 void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
 {
+  VerifyMemberId(memberId);
+  void* component = TryGetComponent(typeId, memberId);
+  if (component == nullptr) {
+    const Member& member = mMembers[memberId];
+    const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
+    std::stringstream error;
+    error << member.mName << " (" << memberId << ") did not contain a "
+          << typeData.mName << " (" << typeId << ") component.";
+    LogAbort(error.str().c_str());
+  }
+  return component;
+}
+
+void* Space::TryGetComponent(Comp::TypeId typeId, MemberId memberId) const
+{
   if (!ValidMemberId(memberId)) {
     return nullptr;
   }
@@ -378,7 +393,7 @@ void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
       mDescriptorBin[member.mFirstDescriptorId + i];
     if (desc.mTypeId == typeId) {
       Table& table = mTables.Get(typeId);
-      return table.GetComponent(desc.mTableIndex);
+      return table[desc.mTableIndex];
     }
   }
   return nullptr;
@@ -389,7 +404,7 @@ bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
   if (!ValidMemberId(memberId)) {
     return false;
   }
-  void* component = GetComponent(typeId, memberId);
+  void* component = TryGetComponent(typeId, memberId);
   return component != nullptr;
 }
 
@@ -519,7 +534,7 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
         LogAbort(error.str().c_str());
       }
 
-      void* component = GetComponent(typeId, memberId);
+      void* component = TryGetComponent(typeId, memberId);
       if (component == nullptr) {
         component = AddComponent(typeId, memberId, false);
       }

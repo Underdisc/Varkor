@@ -215,20 +215,20 @@ void GetComponent()
   space.AddComponent<Simple1>(mem1);
   space.AddComponent<Dynamic>(mem1);
 
-  Simple0* mem0comp0 = space.GetComponent<Simple0>(mem0);
-  mem0comp0->SetData(0);
-  Simple1* mem0comp1 = space.GetComponent<Simple1>(mem0);
-  mem0comp1->SetData(1);
-  Dynamic* mem0comp2 = space.GetComponent<Dynamic>(mem0);
-  mem0comp2->SetData(2);
-  Container* mem0comp3 = space.GetComponent<Container>(mem0);
-  mem0comp3->SetData(3);
-  Simple0* mem1comp0 = space.GetComponent<Simple0>(mem1);
-  mem1comp0->SetData(1);
-  Simple1* mem1comp1 = space.GetComponent<Simple1>(mem1);
-  mem1comp1->SetData(2);
-  Dynamic* mem1comp2 = space.GetComponent<Dynamic>(mem1);
-  mem1comp2->SetData(3);
+  Simple0& mem0comp0 = space.GetComponent<Simple0>(mem0);
+  mem0comp0.SetData(0);
+  Simple1& mem0comp1 = space.GetComponent<Simple1>(mem0);
+  mem0comp1.SetData(1);
+  Dynamic& mem0comp2 = space.GetComponent<Dynamic>(mem0);
+  mem0comp2.SetData(2);
+  Container& mem0comp3 = space.GetComponent<Container>(mem0);
+  mem0comp3.SetData(3);
+  Simple0& mem1comp0 = space.GetComponent<Simple0>(mem1);
+  mem1comp0.SetData(1);
+  Simple1& mem1comp1 = space.GetComponent<Simple1>(mem1);
+  mem1comp1.SetData(2);
+  Dynamic& mem1comp2 = space.GetComponent<Dynamic>(mem1);
+  mem1comp2.SetData(3);
 
   PrintSpace(space);
   PrintSpaceTestTypeComponentData(space);
