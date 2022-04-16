@@ -317,6 +317,9 @@ void RenderSpace(
   space.VisitTableComponents<Comp::Model>(
     [&](World::MemberId owner, const Comp::Model& modelComp)
     {
+      if (!modelComp.mVisible) {
+        return;
+      }
       const Gfx::Shader* shader =
         AssLib::TryGetLive<Gfx::Shader>(modelComp.mShaderId);
       const Gfx::Model* model =
@@ -420,6 +423,9 @@ void RenderSpace(
   space.VisitTableComponents<Comp::Text>(
     [&](World::MemberId owner, Comp::Text& textComp)
     {
+      if (!textComp.mVisible) {
+        return;
+      }
       const Gfx::Shader* shader =
         AssLib::TryGetLive<Gfx::Shader>(textComp.mShaderId);
       if (shader == nullptr) {

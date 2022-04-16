@@ -16,6 +16,7 @@ struct Model
 
   AssetLibrary::AssetId mModelId;
   AssetLibrary::AssetId mShaderId;
+  bool mVisible;
 };
 #pragma pack(pop)
 

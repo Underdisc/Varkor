@@ -47,6 +47,7 @@ struct Text
   };
   Alignment mAlign;
   float mWidth;
+  bool mVisible;
   float mFillAmount;
 };
 #pragma pack(pop)

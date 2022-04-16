@@ -25,6 +25,7 @@ void Text::VSerialize(Vlk::Value& textVal)
   textVal("Text") = mText;
   textVal("Alignment") = mAlign;
   textVal("Width") = mWidth;
+  textVal("Visible") = mVisible;
 }
 
 void Text::VDeserialize(const Vlk::Explorer& textEx)
@@ -33,6 +34,7 @@ void Text::VDeserialize(const Vlk::Explorer& textEx)
   mShaderId = textEx("ShaderId").As<AssetId>(AssLib::nDefaultAssetId);
   mText = textEx("Text").As<std::string>("");
   mAlign = textEx("Alignment").As<Alignment>(Alignment::Left);
+  mVisible = textEx("Visible").As<bool>(true);
   mWidth = textEx("Width").As<float>(10.0f);
   mFillAmount = 1.0f;
 }
