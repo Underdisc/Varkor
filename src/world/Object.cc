@@ -54,6 +54,11 @@ std::string& Object::GetName() const
   return mSpace->mMembers[mMemberId].mName;
 }
 
+const Ds::Vector<World::MemberId>& Object::Children() const
+{
+  return mSpace->mMembers[mMemberId].Children();
+}
+
 bool Object::HasParent() const
 {
   return mSpace->mMembers[mMemberId].HasParent();
