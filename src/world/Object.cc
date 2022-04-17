@@ -41,14 +41,12 @@ bool Object::HasComponent(Comp::TypeId typeId) const
 
 Object Object::CreateChild() const
 {
-  MemberId childId = mSpace->CreateChildMember(mMemberId);
-  return Object(mSpace, childId);
+  return Object(mSpace, mSpace->CreateChildMember(mMemberId));
 }
 
 Object Object::Duplicate() const
 {
-  MemberId newMemberId = mSpace->Duplicate(mMemberId);
-  return Object(mSpace, newMemberId);
+  return Object(mSpace, mSpace->Duplicate(mMemberId));
 }
 
 Member& Object::GetMember() const
@@ -73,8 +71,7 @@ bool Object::HasParent() const
 
 Object Object::Parent() const
 {
-  Object parent(mSpace, mSpace->mMembers[mMemberId].Parent());
-  return parent;
+  return Object(mSpace, mSpace->mMembers[mMemberId].Parent());
 }
 
 bool Object::Valid() const

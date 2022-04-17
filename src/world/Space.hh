@@ -34,6 +34,36 @@ bool Space::HasComponent(MemberId memberId) const
 }
 
 template<typename T>
+inline T& Space::Add(MemberId memberId)
+{
+  return AddComponent<T>(memberId);
+}
+
+template<typename T>
+inline void Space::Rem(MemberId memberId)
+{
+  RemComponent<T>(memberId);
+}
+
+template<typename T>
+inline T& Space::Get(MemberId memberId) const
+{
+  return GetComponent<T>(memberId);
+}
+
+template<typename T>
+inline T* Space::TryGet(MemberId memberId) const
+{
+  return TryGetComponent<T>(memberId);
+}
+
+template<typename T>
+inline bool Space::Has(MemberId memberId) const
+{
+  return HasComponent<T>(memberId);
+}
+
+template<typename T>
 void Space::VisitTableComponents(
   std::function<void(World::MemberId, T&)> visit) const
 {

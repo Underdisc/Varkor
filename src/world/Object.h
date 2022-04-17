@@ -29,6 +29,17 @@ struct Object
   template<typename T>
   bool HasComponent() const;
 
+  template<typename T>
+  T& Add() const;
+  template<typename T>
+  void Rem() const;
+  template<typename T>
+  T& Get() const;
+  template<typename T>
+  T* TryGet() const;
+  template<typename T>
+  bool Has() const;
+
   void* AddComponent(Comp::TypeId typeId) const;
   void RemComponent(Comp::TypeId typeId) const;
   void* GetComponent(Comp::TypeId typeId) const;

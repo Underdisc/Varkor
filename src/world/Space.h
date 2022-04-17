@@ -84,6 +84,17 @@ struct Space
   template<typename T>
   bool HasComponent(MemberId memberId) const;
 
+  template<typename T>
+  T& Add(MemberId memberId);
+  template<typename T>
+  void Rem(MemberId memberId);
+  template<typename T>
+  T& Get(MemberId memberId) const;
+  template<typename T>
+  T* TryGet(MemberId memberId) const;
+  template<typename T>
+  bool Has(MemberId memberId) const;
+
   void* AddComponent(Comp::TypeId typeId, MemberId memberId, bool init = true);
   void RemComponent(Comp::TypeId typeId, MemberId memberId);
   void* GetComponent(Comp::TypeId typeId, MemberId memberId) const;
