@@ -288,20 +288,18 @@ Result Shader::Compile(
   // We need to modify the retrieved error log so it has proper line numbers.
   std::regex expression("0\\(([0-9]+)\\)");
   std::smatch match;
-  std::string::const_iterator mItB = logStr.cbegin();
   std::string::const_iterator mItE = logStr.cbegin();
   while (std::regex_search(mItE, logStr.cend(), match, expression)) {
     error << logStr.substr(mItE - logStr.cbegin(), match[0].first - mItE);
-    int completeLine = std::stoi(match[1].str());
+    int errorLineNumber = std::stoi(match[1].str());
     for (const SourceChunk& chunk : includeResult.mChunks) {
-      if (completeLine < chunk.mEndLine) {
-        int chunkLineNumber = (completeLine - chunk.mStartLine) + 1;
-        int trueLine = chunk.mExcludedLines + chunkLineNumber;
-        error << chunk.mFile << "(" << trueLine << ")";
+      if (errorLineNumber < chunk.mEndLine) {
+        int chunkLineNumber = (errorLineNumber - chunk.mStartLine) + 1;
+        int trueLineNumber = chunk.mExcludedLines + chunkLineNumber;
+        error << chunk.mFile << "(" << trueLineNumber << ")";
         break;
       }
     }
-    mItB = match[0].first;
     mItE = match[0].second;
   }
   error << logStr.substr(mItE - logStr.cbegin());
