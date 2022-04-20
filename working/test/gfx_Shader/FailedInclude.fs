@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "FailedInclude0.glsl"
 
 out vec4 finalColor;

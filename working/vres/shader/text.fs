@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "text.glsl"
 
 in vec2 iTextureCoords;

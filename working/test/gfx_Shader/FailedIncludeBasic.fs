@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "notafile"
 
 out vec4 finalColor;

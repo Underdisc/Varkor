@@ -1,5 +1,3 @@
-#version 330 core
-
 out int iMemberId;
 
 uniform int uMemberId;

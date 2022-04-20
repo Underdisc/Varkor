@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "fis0/FailedIncludeSubdirectory0.glsl"
 
 out vec4 finalColor;

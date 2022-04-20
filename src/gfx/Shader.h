@@ -55,6 +55,7 @@ private:
 
   static bool smLogMissingUniforms;
   static constexpr GLint smInvalidLocation = -1;
+  static constexpr char* smVersionHeader = "#version 330 core\n";
 
   struct SourceChunk
   {

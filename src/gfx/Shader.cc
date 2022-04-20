@@ -255,7 +255,8 @@ Result Shader::Compile(
   fileContentStream << file.rdbuf();
   std::string fileContentStr = fileContentStream.str();
 
-  // Handle all of the include statements within the file content.
+  // Handle all of the include statements within the file content and prepend
+  // the version header.
   IncludeResult includeResult = HandleIncludes(shaderFile, fileContentStr);
   if (!includeResult.mSuccess) {
     std::stringstream reason;
@@ -263,6 +264,7 @@ Result Shader::Compile(
            << includeResult.mError;
     return Result(reason.str());
   }
+  fileContentStr = smVersionHeader + fileContentStr;
 
   // Compile the source read from the file.
   *shaderId = glCreateShader(shaderType);
@@ -291,7 +293,8 @@ Result Shader::Compile(
   std::string::const_iterator mItE = logStr.cbegin();
   while (std::regex_search(mItE, logStr.cend(), match, expression)) {
     error << logStr.substr(mItE - logStr.cbegin(), match[0].first - mItE);
-    int errorLineNumber = std::stoi(match[1].str());
+    // Subtracting 1 ignores the version header line.
+    int errorLineNumber = std::stoi(match[1].str()) - 1;
     for (const SourceChunk& chunk : includeResult.mChunks) {
       if (errorLineNumber < chunk.mEndLine) {
         int chunkLineNumber = (errorLineNumber - chunk.mStartLine) + 1;
