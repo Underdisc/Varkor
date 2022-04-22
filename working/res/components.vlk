@@ -10,7 +10,7 @@
     {
       :Id: '1'
       :Name: 'Model'
-      :Size: '8'
+      :Size: '9'
       :Dependencies: ['Transform']
     },
     {
@@ -22,7 +22,7 @@
     {
       :Id: '3'
       :Name: 'Text'
-      :Size: '72'
+      :Size: '61'
       :Dependencies: ['Transform']
     },
     {
