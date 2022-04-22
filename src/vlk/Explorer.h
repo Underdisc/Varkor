@@ -8,13 +8,13 @@
 namespace Vlk {
 
 // The Explorer's purpose is to browse through the Value tree and keep track of
-// where in the Value tree the Explorer is. Unlike the Pair, the Explorer
-// provides functions that log errors any time a value access attempt is made
+// where in the Value tree the Explorer is. Unlike the Value, the Explorer
+// provides functions that logs errors any time a value access attempt is made
 // and does not succeed. Imagine Value's as files and directories. Explorers are
 // similar to the browser used to explore those files and directories.
 
-// Explorers should be used when deserializing data whereas Pairs should be used
-// when serializing data.
+// Explorers should be used when deserializing data whereas Values should be
+// used when serializing data.
 
 struct Explorer
 {
