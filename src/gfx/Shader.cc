@@ -13,8 +13,6 @@ namespace Gfx {
 
 const char* Uniform::smTypeStrings[Uniform::Type::Count] = {
   "uModel",
-  "uProj",
-  "uView",
   "uViewPos",
   "uTexture",
   "uColor",
@@ -136,10 +134,7 @@ void Shader::InitializeUniforms()
       mUniforms.Push(newUniform);
     }
   };
-
   tryAddUniform(Uniform::Type::Model);
-  tryAddUniform(Uniform::Type::Proj);
-  tryAddUniform(Uniform::Type::View);
   tryAddUniform(Uniform::Type::ViewPos);
   tryAddUniform(Uniform::Type::Sampler);
   tryAddUniform(Uniform::Type::Color);
@@ -149,6 +144,15 @@ void Shader::InitializeUniforms()
   tryAddUniform(Uniform::Type::FillAmount);
   tryAddUniform(Uniform::Type::ADiffuse);
   tryAddUniform(Uniform::Type::ASpecular);
+
+  auto tryBindUniformBlock = [this](const char* name, GLuint binding)
+  {
+    GLuint index = glGetUniformBlockIndex(mProgram, name);
+    if (index != GL_INVALID_INDEX) {
+      glUniformBlockBinding(mProgram, index, binding);
+    }
+  };
+  tryBindUniformBlock("Matrices", 0);
 }
 
 int GetLineNumber(size_t until, const std::string& string)

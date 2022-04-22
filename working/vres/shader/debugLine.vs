@@ -1,7 +1,6 @@
-layout (location = 0) in vec3 aPos;
+#include "uniformBuffers/matrices.glsl"
 
-uniform mat4 uView;
-uniform mat4 uProj;
+layout (location = 0) in vec3 aPos;
 
 void main()
 {

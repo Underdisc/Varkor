@@ -4,6 +4,7 @@
 #include "Error.h"
 #include "debug/Draw.h"
 #include "ds/Vector.h"
+#include "gfx/Renderer.h"
 #include "gfx/Shader.h"
 #include "math/Geometry.h"
 #include "math/Matrix4.h"
@@ -92,20 +93,17 @@ void CartesianAxes()
   Line(o, z, z);
 }
 
-void Render(const Mat4& view, const Mat4& projection)
+void Render(const Mat4& view, const Mat4& proj)
 {
   Gfx::Shader* shader =
     AssLib::TryGetLive<Gfx::Shader>(AssLib::nDebugDrawShaderId);
   if (shader == nullptr) {
     return;
   }
+  Gfx::Renderer::InitializeMatricesUniformBuffer(view, proj);
 
-  GLint viewLoc = shader->UniformLocation(Gfx::Uniform::Type::View);
-  GLint projLoc = shader->UniformLocation(Gfx::Uniform::Type::Proj);
   GLint alphaColorLoc = shader->UniformLocation(Gfx::Uniform::Type::AlphaColor);
   glUseProgram(shader->Id());
-  glUniformMatrix4fv(viewLoc, 1, true, view.CData());
-  glUniformMatrix4fv(projLoc, 1, true, projection.CData());
   for (int i = 0; i < nRenderables.Size(); ++i) {
     const Renderable& renderable = nRenderables[i];
     Vec4 fullColor = (Vec4)renderable.mColor;

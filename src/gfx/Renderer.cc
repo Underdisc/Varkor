@@ -32,6 +32,7 @@ GLuint nFullscreenVao;
 GLuint nFullscreenVbo;
 GLuint nSpriteVao;
 GLuint nSpriteVbo;
+GLuint nMatricesUniformBufferVbo;
 
 size_t nNextSpaceFramebuffer;
 Ds::Vector<Framebuffer> nSpaceFramebuffers;
@@ -74,6 +75,13 @@ void Init()
   };
   uploadQuadVertexArray(fullscreenVertices, &nFullscreenVao, &nFullscreenVbo);
   uploadQuadVertexArray(spriteVertices, &nSpriteVao, &nSpriteVbo);
+
+  // Create the Matrices uniform buffer.
+  glGenBuffers(1, &nMatricesUniformBufferVbo);
+  glBindBuffer(GL_UNIFORM_BUFFER, nMatricesUniformBufferVbo);
+  glBufferData(GL_UNIFORM_BUFFER, 128, nullptr, GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+  glBindBufferBase(GL_UNIFORM_BUFFER, 0, nMatricesUniformBufferVbo);
 
   nNextSpaceFramebuffer = 0;
 
@@ -169,6 +177,16 @@ void RenderQuad(GLuint vao)
   glBindVertexArray(0);
 }
 
+void InitializeMatricesUniformBuffer(const Mat4& view, const Mat4& proj)
+{
+  Mat4 viewTranspose = Math::Transpose(view);
+  Mat4 projTranspose = Math::Transpose(proj);
+  glBindBuffer(GL_UNIFORM_BUFFER, nMatricesUniformBufferVbo);
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Mat4), viewTranspose.CData());
+  glBufferSubData(GL_UNIFORM_BUFFER, 64, sizeof(Mat4), projTranspose.CData());
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
 void RenderMemberIds(
   const World::Space& space, const Mat4& view, const Mat4& proj)
 {
@@ -177,16 +195,12 @@ void RenderMemberIds(
   if (memberIdShader == nullptr) {
     return;
   }
+  InitializeMatricesUniformBuffer(view, proj);
 
-  GLint viewLoc = memberIdShader->UniformLocation(Uniform::Type::View);
-  GLint projLoc = memberIdShader->UniformLocation(Uniform::Type::Proj);
   GLint modelLoc = memberIdShader->UniformLocation(Uniform::Type::Model);
   GLint memberIdLoc = memberIdShader->UniformLocation(Uniform::Type::MemberId);
 
   glUseProgram(memberIdShader->Id());
-  glUniformMatrix4fv(viewLoc, 1, true, view.CData());
-  glUniformMatrix4fv(projLoc, 1, true, proj.CData());
-
   // Render MemberIds for every model.
   space.VisitTableComponents<Comp::Model>(
     [&](World::MemberId owner, const Comp::Model& modelComp)
@@ -306,6 +320,8 @@ void RenderSpace(
   const Mat4& proj,
   const Vec3& viewPos)
 {
+  InitializeMatricesUniformBuffer(view, proj);
+
   // Get the next space framebuffer that hasn't been rendered to and bind it.
   if (nNextSpaceFramebuffer >= nSpaceFramebuffers.Size()) {
     nSpaceFramebuffers.Emplace(GL_RGBA, GL_UNSIGNED_BYTE);
@@ -329,8 +345,6 @@ void RenderSpace(
         return;
       }
 
-      GLint viewLoc = shader->UniformLocation(Uniform::Type::View);
-      GLint projLoc = shader->UniformLocation(Uniform::Type::Proj);
       GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
       GLint viewPosLoc = shader->UniformLocation(Uniform::Type::ViewPos);
       GLint timeLoc = shader->UniformLocation(Uniform::Type::Time);
@@ -338,8 +352,6 @@ void RenderSpace(
       GLint specLoc = shader->UniformLocation(Uniform::Type::ASpecular);
 
       glUseProgram(shader->Id());
-      glUniformMatrix4fv(viewLoc, 1, true, view.CData());
-      glUniformMatrix4fv(projLoc, 1, true, proj.CData());
       glUniform3fv(viewPosLoc, 1, viewPos.CData());
       glUniform1f(timeLoc, Temporal::TotalTime());
       Comp::AlphaColor* alphaColorComp =
@@ -400,16 +412,11 @@ void RenderSpace(
         return;
       }
 
-      GLint viewLoc = shader->UniformLocation(Uniform::Type::View);
-      GLint projLoc = shader->UniformLocation(Uniform::Type::Proj);
       GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
       GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
 
       glUseProgram(shader->Id());
-      glUniformMatrix4fv(viewLoc, 1, true, view.CData());
-      glUniformMatrix4fv(projLoc, 1, true, proj.CData());
       glUniform1i(samplerLoc, 0);
-
       World::Object object(const_cast<World::Space*>(&space), owner);
       Mat4 transformation = GetImageTransformation(object, *image);
       glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
@@ -433,16 +440,12 @@ void RenderSpace(
         shader = AssLib::TryGetLive<Gfx::Shader>(AssLib::nDefaultTextShaderId);
       }
 
-      GLint viewLoc = shader->UniformLocation(Uniform::Type::View);
-      GLint projLoc = shader->UniformLocation(Uniform::Type::Proj);
       GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
       GLint colorLoc = shader->UniformLocation(Uniform::Type::Color);
       GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
       GLint fillAmountLoc = shader->UniformLocation(Uniform::Type::FillAmount);
 
       glUseProgram(shader->Id());
-      glUniformMatrix4fv(viewLoc, 1, true, view.CData());
-      glUniformMatrix4fv(projLoc, 1, true, proj.CData());
       glUniform1i(samplerLoc, 0);
       glUniform1f(fillAmountLoc, textComp.mFillAmount);
 

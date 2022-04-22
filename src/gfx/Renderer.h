@@ -25,4 +25,7 @@ void RenderSpace(
 Result RenderWorld();
 void RenderFramebuffers();
 
+// todo: This really shouldn't be exposed by the Renderer.
+void InitializeMatricesUniformBuffer(const Mat4& view, const Mat4& proj);
+
 } // namespace Gfx::Renderer

@@ -1,9 +1,9 @@
+#include "uniformBuffers/matrices.glsl"
+
 layout(location = 0) in vec2 aPos;
 out vec2 iTextureCoords;
 
 uniform mat4 uModel;
-uniform mat4 uView;
-uniform mat4 uProj;
 
 void main()
 {
