@@ -123,6 +123,16 @@ void Insert()
   std::cout << std::endl;
 }
 
+void InsertString()
+{
+  std::cout << "<= InsertString =>" << std::endl;
+  Ds::Vector<std::string> test;
+  test.Push("string 1");
+  test.Insert(0, "string 0");
+  PrintVector(test);
+  std::cout << '\n';
+}
+
 void Pop()
 {
   std::cout << "<= Pop =>" << std::endl;
@@ -461,6 +471,7 @@ int main(void)
   MultiplePush();
   Emplace();
   Insert();
+  InsertString();
   Pop();
   Clear();
   Remove();
