@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 #include <glad/glad.h>
 #include <regex>
@@ -195,14 +196,19 @@ Shader::IncludeResult Shader::HandleIncludes(
     int chunkIndex = GetChunkIndex(includeLine, result.mChunks);
     SourceChunk& currentChunk = result.mChunks[chunkIndex];
 
-    // Read the content of the included file.
+    // Find a full path to the file that is relative to the executable.
+    std::string includeFilename;
     std::size_t pathEnd = currentChunk.mFile.find_last_of('/');
     std::string path(currentChunk.mFile.substr(0, pathEnd + 1));
-    std::string includeFilename(path);
-    includeFilename.append(match[1].str());
-    std::ifstream file;
-    file.open(includeFilename);
-    if (!file.is_open()) {
+    // First we check relative to the path of the current chunk's file.
+    if (std::filesystem::exists(path + match[1].str())) {
+      includeFilename = path + match[1].str();
+    }
+    // Then we check the path relative to the executable.
+    else if (std::filesystem::exists(match[1].str())) {
+      includeFilename = match[1].str();
+    }
+    else {
       result.mSuccess = false;
       int chunkLine = currentChunk.mExcludedLines +
         (includeLine - currentChunk.mStartLine) + 1;
@@ -212,6 +218,10 @@ Shader::IncludeResult Shader::HandleIncludes(
       result.mError = error.str();
       return result;
     }
+
+    // Read the file's content.
+    std::ifstream file;
+    file.open(includeFilename);
     std::stringstream includeFileStream;
     includeFileStream << file.rdbuf();
     std::string includeContent = includeFileStream.str();
