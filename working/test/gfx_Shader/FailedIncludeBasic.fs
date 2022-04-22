@@ -6,4 +6,3 @@ void main()
 {
   finalColor = (1.0, 1.0, 1.0, 1.0);
 }
-

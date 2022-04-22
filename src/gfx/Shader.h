@@ -75,8 +75,9 @@ private:
     std::string mError;
     Ds::Vector<SourceChunk> mChunks;
   };
+  int GetChunkIndex(int lineNumber, const Ds::Vector<SourceChunk>& chunks);
   Shader::IncludeResult HandleIncludes(
-    const char* shaderFile, std::string& content);
+    const std::string& file, std::string* content);
   Result Compile(
     const char* shaderSource, int shaderType, unsigned int* shaderId);
   void InitializeUniforms();

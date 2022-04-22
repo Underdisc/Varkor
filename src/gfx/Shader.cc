@@ -161,46 +161,53 @@ int GetLineNumber(size_t until, const std::string& string)
   return lineNumber;
 }
 
-Shader::IncludeResult Shader::HandleIncludes(
-  const char* shaderFile, std::string& content)
+int Shader::GetChunkIndex(int lineNumber, const Ds::Vector<SourceChunk>& chunks)
 {
-  // Extract the path of the file.
-  std::string fileStr(shaderFile);
-  std::size_t pathEnd = fileStr.find_last_of('/');
-  std::string path(fileStr.substr(0, pathEnd + 1));
+  for (int i = 0; i < chunks.Size(); ++i) {
+    if (lineNumber < chunks[i].mEndLine) {
+      return i;
+    }
+  }
+  std::stringstream error;
+  error << "No chunk contains the line number " << lineNumber;
+  LogAbort(error.str().c_str());
+  return -1;
+}
 
+Shader::IncludeResult Shader::HandleIncludes(
+  const std::string& file, std::string* content)
+{
   // The first source chunk is the file we are currently in.
-  SourceChunk chunk;
-  chunk.mFile = shaderFile;
-  chunk.mExcludedLines = 0;
-  chunk.mStartLine = 1;
   IncludeResult result;
-  result.mChunks.Push(chunk);
+  SourceChunk startChunk;
+  startChunk.mFile = file;
+  startChunk.mExcludedLines = 0;
+  startChunk.mStartLine = 1;
+  startChunk.mEndLine = GetLineNumber(content->size(), *content) + 1;
+  result.mChunks.Push(startChunk);
 
+  // We repeatedly search for include statements until there are none left.
+  std::string& text = *content;
   std::regex expression("#include \"([^\"]*)\"");
   std::smatch match;
-  while (
-    std::regex_search(content.cbegin(), content.cend(), match, expression)) {
-    // Find the backmost chunk's end line, and use it to find the number of
-    // lines excluded from the next chunk for the current file.
-    int includeLine = GetLineNumber(match[0].first - content.begin(), content);
-    result.mChunks.Top().mEndLine = includeLine;
-    chunk.mExcludedLines += includeLine - result.mChunks.Top().mStartLine + 1;
+  while (std::regex_search(text.cbegin(), text.cend(), match, expression)) {
+    int includeLine = GetLineNumber(match[0].first - text.begin(), text);
+    int chunkIndex = GetChunkIndex(includeLine, result.mChunks);
+    SourceChunk& currentChunk = result.mChunks[chunkIndex];
 
-    // Remove the backmost chunk if it doesn't contain content.
-    if (result.mChunks.Top().mStartLine == result.mChunks.Top().mEndLine) {
-      result.mChunks.Pop();
-    }
-
-    // Open and read the content of the included file.
+    // Read the content of the included file.
+    std::size_t pathEnd = currentChunk.mFile.find_last_of('/');
+    std::string path(currentChunk.mFile.substr(0, pathEnd + 1));
     std::string includeFilename(path);
     includeFilename.append(match[1].str());
     std::ifstream file;
     file.open(includeFilename);
     if (!file.is_open()) {
       result.mSuccess = false;
+      int chunkLine = currentChunk.mExcludedLines +
+        (includeLine - currentChunk.mStartLine) + 1;
       std::stringstream error;
-      error << shaderFile << "(" << chunk.mExcludedLines << "): "
+      error << currentChunk.mFile << "(" << chunkLine << "): "
             << "Failed to include \"" << match[1].str() << "\".";
       result.mError = error.str();
       return result;
@@ -208,34 +215,40 @@ Shader::IncludeResult Shader::HandleIncludes(
     std::stringstream includeFileStream;
     includeFileStream << file.rdbuf();
     std::string includeContent = includeFileStream.str();
+    int includeLineCount = GetLineNumber(includeContent.size(), includeContent);
 
-    // Handle any includes that show up within the included content and replace
-    // the include statement in the content with the included content.
-    IncludeResult subResult =
-      HandleIncludes(includeFilename.c_str(), includeContent);
-    if (!subResult.mSuccess) {
-      return subResult;
+    // Two new chunks are added for any inclusion. The first chunk is for the
+    // code from the included file.
+    SourceChunk includeChunk;
+    includeChunk.mFile = includeFilename;
+    includeChunk.mStartLine = includeLine;
+    includeChunk.mEndLine = includeLine + includeLineCount;
+    includeChunk.mExcludedLines = 0;
+    result.mChunks.Insert(chunkIndex + 1, includeChunk);
+
+    // The other chunk is for the code that comes after the inclusion.
+    int addedNewlineCount = includeLineCount - 1;
+    SourceChunk splitChunk;
+    splitChunk.mFile = currentChunk.mFile;
+    splitChunk.mStartLine = includeChunk.mEndLine;
+    splitChunk.mEndLine = currentChunk.mEndLine + addedNewlineCount;
+    splitChunk.mExcludedLines = currentChunk.mExcludedLines;
+    splitChunk.mExcludedLines += includeLine + 1 - currentChunk.mStartLine;
+    result.mChunks.Insert(chunkIndex + 2, splitChunk);
+
+    // Modify existing chunks to account for the new inclusion.
+    currentChunk.mEndLine = includeLine;
+    for (int i = chunkIndex + 3; i < result.mChunks.Size(); ++i) {
+      result.mChunks[i].mStartLine += addedNewlineCount;
+      result.mChunks[i].mEndLine += addedNewlineCount;
     }
-    content.replace(
+
+    text.replace(
       match[0].first,
       match[0].second,
       includeContent.begin(),
-      includeContent.end() - 1);
-
-    // Take the returned subchunks and offset both their start and end lines
-    // by the line the chunk was included on.
-    for (SourceChunk& subChunk : subResult.mChunks) {
-      result.mChunks.Push(subChunk);
-      result.mChunks.Top().mStartLine += includeLine - 1;
-      result.mChunks.Top().mEndLine += includeLine - 1;
-    }
-
-    // Now that we've handled all the sub chunks, we make the current file the
-    // backmost chunk again.
-    chunk.mStartLine = result.mChunks.Top().mEndLine;
-    result.mChunks.Push(chunk);
+      includeContent.end());
   }
-  result.mChunks.Top().mEndLine = GetLineNumber(content.size(), content);
   result.mSuccess = true;
   return result;
 }
@@ -257,7 +270,7 @@ Result Shader::Compile(
 
   // Handle all of the include statements within the file content and prepend
   // the version header.
-  IncludeResult includeResult = HandleIncludes(shaderFile, fileContentStr);
+  IncludeResult includeResult = HandleIncludes(shaderFile, &fileContentStr);
   if (!includeResult.mSuccess) {
     std::stringstream reason;
     reason << "Failed to compile " << shaderFile << "." << std::endl
@@ -295,14 +308,11 @@ Result Shader::Compile(
     error << logStr.substr(mItE - logStr.cbegin(), match[0].first - mItE);
     // Subtracting 1 ignores the version header line.
     int errorLineNumber = std::stoi(match[1].str()) - 1;
-    for (const SourceChunk& chunk : includeResult.mChunks) {
-      if (errorLineNumber < chunk.mEndLine) {
-        int chunkLineNumber = (errorLineNumber - chunk.mStartLine) + 1;
-        int trueLineNumber = chunk.mExcludedLines + chunkLineNumber;
-        error << chunk.mFile << "(" << trueLineNumber << ")";
-        break;
-      }
-    }
+    int chunkIndex = GetChunkIndex(errorLineNumber, includeResult.mChunks);
+    const SourceChunk& chunk = includeResult.mChunks[chunkIndex];
+    int chunkLineNumber = (errorLineNumber - chunk.mStartLine) + 1;
+    int trueLineNumber = chunk.mExcludedLines + chunkLineNumber;
+    error << chunk.mFile << "(" << trueLineNumber << ")";
     mItE = match[0].second;
   }
   error << logStr.substr(mItE - logStr.cbegin());
