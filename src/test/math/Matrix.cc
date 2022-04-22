@@ -67,6 +67,19 @@ void Identity()
   std::cout << "identity matrix" << std::endl << matrix << std::endl;
 }
 
+void Transpose()
+{
+  std::cout << "<= Transpose =>" << std::endl;
+  Math::Matrix<float, 5> matrix;
+  for (int i = 0; i < 5; ++i) {
+    for (int j = 0; j < 5; ++j) {
+      matrix[i][j] = (float)(i * 5 + j);
+    }
+  }
+  Math::Matrix<float, 5> transpose = Math::Transpose(matrix);
+  std::cout << transpose << '\n';
+}
+
 void Scale()
 {
   std::cout << "<= Scale =>" << std::endl;
@@ -220,6 +233,7 @@ int main(void)
   MultiplyVector();
   Zero();
   Identity();
+  Transpose();
   Scale();
   Translate();
   ApplyToPointVector();

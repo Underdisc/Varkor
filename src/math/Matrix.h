@@ -28,6 +28,8 @@ void Zero(Matrix<T, N>* matrix);
 template<typename T, unsigned int N>
 void Identity(Matrix<T, N>* matrix);
 template<typename T, unsigned int N>
+Matrix<T, N> Transpose(const Matrix<T, N>& matrix);
+template<typename T, unsigned int N>
 void Scale(Matrix<T, N>* matrix, const Vector<T, N - 1>& scale);
 template<typename T, unsigned int N>
 void Translate(Matrix<T, N>* matrix, const Vector<T, N - 1>& translation);

@@ -98,6 +98,18 @@ void Translate(Matrix<T, N>* matrix, const Vector<T, N - 1>& translation)
 }
 
 template<typename T, unsigned int N>
+Matrix<T, N> Transpose(const Matrix<T, N>& matrix)
+{
+  Matrix<T, N> newMatrix;
+  for (int i = 0; i < N; ++i) {
+    for (int j = 0; j < N; ++j) {
+      newMatrix[j][i] = matrix[i][j];
+    }
+  }
+  return newMatrix;
+}
+
+template<typename T, unsigned int N>
 Vector<T, N - 1> ApplyToPoint(
   const Matrix<T, N>& matrix, const Vector<T, N - 1>& point)
 {
