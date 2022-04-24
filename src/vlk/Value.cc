@@ -154,27 +154,6 @@ Result Value::Parse(const char* text)
   return parser.Parse(text, this);
 }
 
-template<>
-int Value::As<int>() const
-{
-  HardExpectType(Type::TrueValue);
-  return std::stoi(mTrueValue);
-}
-
-template<>
-float Value::As<float>() const
-{
-  HardExpectType(Type::TrueValue);
-  return std::stof(mTrueValue);
-}
-
-template<>
-std::string Value::As<std::string>() const
-{
-  HardExpectType(Type::TrueValue);
-  return mTrueValue;
-}
-
 size_t Value::Size() const
 {
   if (mType != Type::ValueArray && mType != Type::PairArray) {
@@ -259,19 +238,6 @@ const Value& Value::operator[](size_t index) const
 {
   HardExpectType(Type::ValueArray);
   return mValueArray[index];
-}
-
-void Value::operator=(const char* value)
-{
-  ExpectType(Type::TrueValue);
-  std::stringstream ss;
-  ss << value;
-  mTrueValue = ss.str();
-}
-
-void Value::operator=(const std::string& value)
-{
-  *this = value.c_str();
 }
 
 std::ostream& operator<<(std::ostream& os, Value::Type valueType)

@@ -31,8 +31,6 @@ public:
   Result Write(const char* filename);
   Result Parse(const char* text);
 
-  template<typename T>
-  T As() const;
   size_t Size() const;
 
   const Pair* TryGetPair(const std::string& key) const;
@@ -48,9 +46,9 @@ public:
   const Value& operator[](size_t index) const;
 
   template<typename T>
+  T As() const;
+  template<typename T>
   void operator=(const T& value);
-  void operator=(const char* value);
-  void operator=(const std::string& value);
 
 private:
   enum class Type
@@ -99,12 +97,6 @@ T Value::As() const
   ss >> value;
   return value;
 }
-template<>
-int Value::As<int>() const;
-template<>
-float Value::As<float>() const;
-template<>
-std::string Value::As<std::string>() const;
 
 template<typename T>
 void Value::operator=(const T& value)
