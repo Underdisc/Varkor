@@ -8,11 +8,11 @@
 }
 
 <= Vec3Deserialize =>
-Error|src/vlk/Explorer.cc(116)|Vlk::Explorer::operator []: {}{test0} did not contain Value at [0]
+Error|Vlk::Explorer::operator []: {}{test0} did not contain Value at [0]
 [0, 1, 2]
-Error|src/vlk/Explorer.cc(116)|Vlk::Explorer::operator []: {}{test1} did not contain Value at [1]
+Error|Vlk::Explorer::operator []: {}{test1} did not contain Value at [1]
 [3, 4, 5]
-Error|src/vlk/Explorer.cc(116)|Vlk::Explorer::operator []: {}{test2} did not contain Value at [2]
+Error|Vlk::Explorer::operator []: {}{test2} did not contain Value at [2]
 [6, 7, 8]
 [4, 5, 6]
 

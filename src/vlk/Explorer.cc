@@ -83,7 +83,7 @@ Explorer Explorer::operator()(const std::string& key) const
   if (pair == nullptr) {
     std::stringstream error;
     error << Path() << " did not contain Pair with key :" << key << ":";
-    LogError(error.str().c_str());
+    Error::Log(__FUNCTION__, error.str().c_str());
     return Explorer(this);
   }
   return Explorer(this, pair);
@@ -98,7 +98,7 @@ Explorer Explorer::operator()(size_t index) const
   if (pair == nullptr) {
     std::stringstream error;
     error << Path() << " did not contain Pair at (" << index << ")";
-    LogError(error.str().c_str());
+    Error::Log(__FUNCTION__, error.str().c_str());
     return Explorer(this);
   }
   return Explorer(this, pair);
@@ -113,7 +113,7 @@ Explorer Explorer::operator[](size_t index) const
   if (value == nullptr) {
     std::stringstream error;
     error << Path() << " did not contain Value at [" << index << "]";
-    LogError(error.str().c_str());
+    Error::Log(__FUNCTION__, error.str().c_str());
     return Explorer(this);
   }
   return Explorer(this, value, index);
