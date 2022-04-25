@@ -1,3 +1,5 @@
+#include "SurfaceData.glsl"
+
 struct PointLight
 {
   vec3 position;
@@ -9,15 +11,6 @@ struct PointLight
   float constant;
   float linear;
   float quadratic;
-};
-
-struct DirectionalLight
-{
-  vec3 direction;
-
-  vec3 ambient;
-  vec3 diffuse;
-  vec3 specular;
 };
 
 struct SpotLight
@@ -37,14 +30,6 @@ struct SpotLight
   float outerCutoff;
 };
 
-struct SurfaceData
-{
-  vec3 normal;
-  vec3 diffuse;
-  vec3 specular;
-  float exponent;
-};
-
 vec3 CalcDiffuse(
   vec3 normal, vec3 lightDir, vec3 diffuseColor, vec3 diffuseSample);
 vec3 CalcSpecular(
@@ -61,7 +46,6 @@ vec3 CalcPointLight(
   PointLight light, SurfaceData surface, vec3 viewDir, vec3 fragPos);
 vec3 CalcSpotLight(
   SpotLight light, SurfaceData surface, vec3 viewDir, vec3 fragPos);
-vec3 CalcDirLight(DirectionalLight light, SurfaceData surface, vec3 viewDir);
 
 vec3 CalcDiffuse(
   vec3 normal, vec3 lightDir, vec3 diffuseColor, vec3 diffuseSample)
@@ -149,24 +133,6 @@ vec3 CalcSpotLight(
   intensity = clamp(intensity, 0.0, 1.0);
   diffuse *= intensity;
   specular *= intensity;
-
-  return ambient + diffuse + specular;
-}
-
-vec3 CalcDirLight(DirectionalLight light, SurfaceData surface, vec3 viewDir)
-{
-  vec3 lightDir = normalize(-light.direction);
-
-  vec3 ambient = light.ambient * surface.diffuse;
-  vec3 diffuse =
-    CalcDiffuse(surface.normal, lightDir, light.diffuse, surface.diffuse);
-  vec3 specular = CalcSpecular(
-    surface.normal,
-    lightDir,
-    viewDir,
-    light.specular,
-    surface.specular,
-    surface.exponent);
 
   return ambient + diffuse + specular;
 }

@@ -153,6 +153,7 @@ void Shader::InitializeUniforms()
     }
   };
   tryBindUniformBlock("Matrices", 0);
+  tryBindUniformBlock("Lights", 1);
 }
 
 int GetLineNumber(size_t until, const std::string& string)

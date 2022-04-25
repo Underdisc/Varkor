@@ -7,6 +7,7 @@
 #include "Viewport.h"
 #include "comp/AlphaColor.h"
 #include "comp/Camera.h"
+#include "comp/DirectionalLight.h"
 #include "comp/Model.h"
 #include "comp/Sprite.h"
 #include "comp/Text.h"
@@ -32,7 +33,9 @@ GLuint nFullscreenVao;
 GLuint nFullscreenVbo;
 GLuint nSpriteVao;
 GLuint nSpriteVbo;
+
 GLuint nMatricesUniformBufferVbo;
+GLuint nLightsUniformBufferVbo;
 
 size_t nNextSpaceFramebuffer;
 Ds::Vector<Framebuffer> nSpaceFramebuffers;
@@ -76,12 +79,16 @@ void Init()
   uploadQuadVertexArray(fullscreenVertices, &nFullscreenVao, &nFullscreenVbo);
   uploadQuadVertexArray(spriteVertices, &nSpriteVao, &nSpriteVbo);
 
-  // Create the Matrices uniform buffer.
-  glGenBuffers(1, &nMatricesUniformBufferVbo);
-  glBindBuffer(GL_UNIFORM_BUFFER, nMatricesUniformBufferVbo);
-  glBufferData(GL_UNIFORM_BUFFER, 128, nullptr, GL_DYNAMIC_DRAW);
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  glBindBufferBase(GL_UNIFORM_BUFFER, 0, nMatricesUniformBufferVbo);
+  auto CreateUniformBuffer = [](GLuint* vbo, GLsizeiptr size, GLuint binding)
+  {
+    glGenBuffers(1, vbo);
+    glBindBuffer(GL_UNIFORM_BUFFER, *vbo);
+    glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, binding, *vbo);
+  };
+  CreateUniformBuffer(&nMatricesUniformBufferVbo, 128, 0);
+  CreateUniformBuffer(&nLightsUniformBufferVbo, 64, 1);
 
   nNextSpaceFramebuffer = 0;
 
@@ -185,6 +192,21 @@ void InitializeMatricesUniformBuffer(const Mat4& view, const Mat4& proj)
   glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Mat4), viewTranspose.CData());
   glBufferSubData(GL_UNIFORM_BUFFER, 64, sizeof(Mat4), projTranspose.CData());
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void InitializeLightsUniformBuffer(const World::Space& space)
+{
+  GLenum buffer = GL_UNIFORM_BUFFER;
+  glBindBuffer(buffer, nLightsUniformBufferVbo);
+  space.VisitTableComponents<Comp::DirectionalLight>(
+    [&](World::MemberId owner, const Comp::DirectionalLight& light)
+    {
+      glBufferSubData(buffer, 0, sizeof(Vec3), light.mDirection.CData());
+      glBufferSubData(buffer, 16, sizeof(Vec3), light.mAmbient.CData());
+      glBufferSubData(buffer, 32, sizeof(Vec3), light.mDiffuse.CData());
+      glBufferSubData(buffer, 48, sizeof(Vec3), light.mSpecular.CData());
+    });
+  glBindBuffer(buffer, 0);
 }
 
 void RenderMemberIds(
@@ -321,6 +343,7 @@ void RenderSpace(
   const Vec3& viewPos)
 {
   InitializeMatricesUniformBuffer(view, proj);
+  InitializeLightsUniformBuffer(space);
 
   // Get the next space framebuffer that hasn't been rendered to and bind it.
   if (nNextSpaceFramebuffer >= nSpaceFramebuffers.Size()) {

@@ -25,6 +25,7 @@
 #include "editor/hook/Text.h"
 #include "comp/AlphaColor.h"
 #include "comp/Camera.h"
+#include "comp/DirectionalLight.h"
 // clang-format on
 
 namespace Registrar {
@@ -38,6 +39,7 @@ void RegisterTypes()
   Register<Text, Transform>();
   Register<AlphaColor>();
   Register<Camera, Transform>();
+  Register<DirectionalLight>();
 }
 
 void (*nRegisterCustomTypes)() = nullptr;
