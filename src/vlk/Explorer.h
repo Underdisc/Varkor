@@ -39,6 +39,9 @@ private:
   Explorer(const Explorer* parent, const Pair* pair);
   Explorer(const Explorer* parent, const Value* value, size_t index);
 
+  template<typename T>
+  T AsInternal(const T& defaultValue) const;
+
   const Explorer* mParent;
   const Value* mValue;
   size_t mIndex;
@@ -60,6 +63,12 @@ T Explorer::As(const T& defaultValue) const
   if (!Valid()) {
     return defaultValue;
   }
+  return AsInternal(defaultValue);
+}
+
+template<typename T>
+T Explorer::AsInternal(const T& defaultValue) const
+{
   return mValue->As<T>();
 }
 

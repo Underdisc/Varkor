@@ -2,16 +2,8 @@
 #include <iostream>
 
 #include "debug/MemLeak.h"
+#include "test/vlk/Util.h"
 #include "vlk/Value.h"
-
-void PrintParsePrint(const Vlk::Value& rootVal)
-{
-  std::stringstream rootText;
-  rootText << rootVal;
-  Vlk::Value rootValCopy;
-  rootValCopy.Parse(rootText.str().c_str());
-  std::cout << rootValCopy << std::endl;
-}
 
 void PrintParseError(const char* text)
 {
