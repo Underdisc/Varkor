@@ -13,6 +13,9 @@ Success: 0
 Failed to compile FailedIncludeSubdirectory.fs.
 fis0/fis1/FailedIncludeSubdirectory1.glsl(6): Failed to include "nota/file".
 
+<= IncludeGuard =>
+Success: 1
+
 <= CompilerErrors =>
 Success: 0
 Failed to compile CompilerErrors.fs.

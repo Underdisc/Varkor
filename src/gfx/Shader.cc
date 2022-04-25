@@ -223,6 +223,19 @@ Shader::IncludeResult Shader::HandleIncludes(
       return result;
     }
 
+    // Ignore the inclusion if the file has already been included.
+    bool includedGuarded = false;
+    for (const SourceChunk& chunk : result.mChunks) {
+      if (includeFilename == chunk.mFile) {
+        text.replace(match[0].first, match[0].second, "");
+        includedGuarded = true;
+        break;
+      }
+    }
+    if (includedGuarded) {
+      continue;
+    }
+
     // Read the file's content.
     std::ifstream file;
     file.open(includeFilename);

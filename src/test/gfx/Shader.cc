@@ -34,6 +34,12 @@ void FailedIncludeSub()
   std::cout << std::endl;
 }
 
+void IncludeGuard()
+{
+  std::cout << "<= IncludeGuard =>\n";
+  PrintShaderInitResults("test.vs", "IncludeGuard.fs");
+}
+
 void CompilerErrors()
 {
   std::cout << "<= CompilerErrors =>" << std::endl;
@@ -47,6 +53,7 @@ int main()
   FailedIncludeBasic();
   FailedInclude();
   FailedIncludeSub();
+  IncludeGuard();
   CompilerErrors();
   Viewport::Purge();
 }
