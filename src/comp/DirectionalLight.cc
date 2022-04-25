@@ -32,14 +32,13 @@ void DirectionalLight::VDeserialize(const Vlk::Explorer& ex)
 
 namespace Editor {
 
-bool Hook<Comp::DirectionalLight>::Edit(const World::Object& object)
+void Hook<Comp::DirectionalLight>::Edit(const World::Object& object)
 {
   auto& light = object.Get<Comp::DirectionalLight>();
   ImGui::DragFloat3("Direction", light.mDirection.mD, 0.01f, -1.0f, 1.0f);
   ImGui::ColorEdit3("Ambient", light.mAmbient.mD, ImGuiColorEditFlags_Float);
   ImGui::ColorEdit3("Diffuse", light.mDiffuse.mD, ImGuiColorEditFlags_Float);
   ImGui::ColorEdit3("Specular", light.mSpecular.mD, ImGuiColorEditFlags_Float);
-  return false;
 }
 
 } // namespace Editor

@@ -138,7 +138,7 @@ Vec3 Camera::StandardToWorldPosition(
 
 namespace Editor {
 
-bool Hook<Comp::Camera>::Edit(const World::Object& object)
+void Hook<Comp::Camera>::Edit(const World::Object& object)
 {
   Comp::Camera& cameraComp = object.GetComponent<Comp::Camera>();
   const int projectionNameCount =
@@ -189,7 +189,6 @@ bool Hook<Comp::Camera>::Edit(const World::Object& object)
     0.1f,
     cameraComp.mNear,
     Comp::Camera::smMaximumFar);
-  return false;
 }
 
 } // namespace Editor

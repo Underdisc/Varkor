@@ -62,9 +62,7 @@ void RegisterHook()
 }
 
 template<typename T>
-bool Hook<T>::Edit(const World::Object& object)
-{
-  return false;
-}
+void Hook<T>::Edit(const World::Object& object)
+{}
 
 } // namespace Editor

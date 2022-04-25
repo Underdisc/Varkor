@@ -13,7 +13,7 @@ struct Hook<Comp::Transform>: public HookInterface
 {
 public:
   Hook();
-  bool Edit(const World::Object& object);
+  void Edit(const World::Object& object);
 
 private:
   enum class Mode

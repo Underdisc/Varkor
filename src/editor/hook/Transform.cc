@@ -18,7 +18,7 @@ Hook<Comp::Transform>::Hook():
   mRotateSnapInterval(Math::nPi / 4.0f)
 {}
 
-bool Hook<Comp::Transform>::Edit(const World::Object& object)
+void Hook<Comp::Transform>::Edit(const World::Object& object)
 {
   // Display all of the transformation component's parameters.
   Comp::Transform& transform = object.GetComponent<Comp::Transform>();
@@ -149,7 +149,6 @@ bool Hook<Comp::Transform>::Edit(const World::Object& object)
       transform.SetWorldRotation(newWorldRotation, object);
     }
   }
-  return false;
 }
 
 } // namespace Editor

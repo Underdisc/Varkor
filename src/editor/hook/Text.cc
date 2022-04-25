@@ -5,7 +5,7 @@
 
 namespace Editor {
 
-bool Hook<Comp::Text>::Edit(const World::Object& object)
+void Hook<Comp::Text>::Edit(const World::Object& object)
 {
   Comp::Text& textComp = object.GetComponent<Comp::Text>();
   SelectAssetWidget<Gfx::Font>(&textComp.mFontId);
@@ -19,7 +19,6 @@ bool Hook<Comp::Text>::Edit(const World::Object& object)
   ImGui::PushID(0);
   InputTextMultiline("", {-1.0f, 100.0f}, &textComp.mText);
   ImGui::PopID();
-  return false;
 }
 
 } // namespace Editor

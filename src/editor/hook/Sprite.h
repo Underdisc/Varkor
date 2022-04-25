@@ -9,7 +9,7 @@ namespace Editor {
 template<>
 struct Hook<Comp::Sprite>: public HookInterface
 {
-  bool Edit(const World::Object& object);
+  void Edit(const World::Object& object);
 };
 
 } // namespace Editor

@@ -11,7 +11,7 @@ struct HookInterface: public Interface
 {
 public:
   virtual ~HookInterface();
-  virtual bool Edit(const World::Object& object) = 0;
+  virtual void Edit(const World::Object& object) = 0;
 
   template<typename T>
   static HookInterface* OpenHookInterface(Interface* interface);
@@ -44,7 +44,7 @@ struct Hook: public HookInterface
 {
   // The value returned from this function indicates whether the hook should
   // suppress object picking.
-  bool Edit(const World::Object& object);
+  void Edit(const World::Object& object);
 };
 
 } // namespace Editor
