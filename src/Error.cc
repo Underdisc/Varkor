@@ -50,6 +50,13 @@ void Purge()
   }
 }
 
+void Log(const char* reason)
+{
+  std::stringstream ss;
+  ss << "Error: " << reason;
+  LogString(ss.str().c_str());
+}
+
 void Log(const char* function, const char* reason)
 {
   std::stringstream ss;
@@ -63,13 +70,6 @@ void Log(const char* file, int line, const char* function, const char* reason)
   std::string filename = FormatFileName(file);
   ss << "Error|" << filename << "(" << line << ")|" << function << ": "
      << reason;
-  LogString(ss.str().c_str());
-}
-
-void Log(const char* reason)
-{
-  std::stringstream ss;
-  ss << "Error: " << reason;
   LogString(ss.str().c_str());
 }
 
