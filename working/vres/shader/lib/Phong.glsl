@@ -1,18 +1,5 @@
 #include "SurfaceData.glsl"
 
-struct PointLight
-{
-  vec3 position;
-
-  vec3 ambient;
-  vec3 diffuse;
-  vec3 specular;
-
-  float constant;
-  float linear;
-  float quadratic;
-};
-
 struct SpotLight
 {
   vec3 position;
@@ -29,23 +16,6 @@ struct SpotLight
   float innerCutoff;
   float outerCutoff;
 };
-
-vec3 CalcDiffuse(
-  vec3 normal, vec3 lightDir, vec3 diffuseColor, vec3 diffuseSample);
-vec3 CalcSpecular(
-  vec3 normal,
-  vec3 lightDir,
-  vec3 viewDir,
-  vec3 lightColor,
-  vec3 sample,
-  float exponent);
-float CalcAttenuation(
-  float dist, float constant, float linear, float quadratic);
-
-vec3 CalcPointLight(
-  PointLight light, SurfaceData surface, vec3 viewDir, vec3 fragPos);
-vec3 CalcSpotLight(
-  SpotLight light, SurfaceData surface, vec3 viewDir, vec3 fragPos);
 
 vec3 CalcDiffuse(
   vec3 normal, vec3 lightDir, vec3 diffuseColor, vec3 diffuseSample)
@@ -73,33 +43,6 @@ float CalcAttenuation(float dist, float constant, float linear, float quadratic)
   float linearTerm = linear * dist;
   float quadraticTerm = quadratic * dist * dist;
   return 1.0 / (constant + linearTerm + quadraticTerm);
-}
-
-vec3 CalcPointLight(
-  PointLight light, SurfaceData surface, vec3 viewDir, vec3 fragPos)
-{
-  vec3 lightVector = light.position - fragPos;
-  float lightDist = length(lightVector);
-  vec3 lightDir = normalize(lightVector);
-
-  vec3 ambient = light.ambient * surface.diffuse;
-  vec3 diffuse =
-    CalcDiffuse(surface.normal, lightDir, light.diffuse, surface.diffuse);
-  vec3 specular = CalcSpecular(
-    surface.normal,
-    lightDir,
-    viewDir,
-    light.specular,
-    surface.specular,
-    surface.exponent);
-
-  float attenuation =
-    CalcAttenuation(lightDist, light.constant, light.linear, light.quadratic);
-  ambient *= attenuation;
-  diffuse *= attenuation;
-  specular *= attenuation;
-
-  return ambient + diffuse + specular;
 }
 
 vec3 CalcSpotLight(

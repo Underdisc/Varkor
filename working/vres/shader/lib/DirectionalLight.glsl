@@ -3,12 +3,11 @@
 
 struct DirectionalLight
 {
-  vec3 direction;
-
-  vec3 ambient;
-  vec3 diffuse;
-  vec3 specular;
-};
+  vec3 direction; // 0
+  vec3 ambient; // 16
+  vec3 diffuse; // 32
+  vec3 specular; // 48
+}; // 64
 
 vec3 CalcDirLight(DirectionalLight light, SurfaceData surface, vec3 viewDir)
 {

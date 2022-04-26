@@ -9,6 +9,7 @@
 #include "comp/Camera.h"
 #include "comp/DirectionalLight.h"
 #include "comp/Model.h"
+#include "comp/PointLight.h"
 #include "comp/Sprite.h"
 #include "comp/Text.h"
 #include "comp/Transform.h"
@@ -88,7 +89,7 @@ void Init()
     glBindBufferBase(GL_UNIFORM_BUFFER, binding, *vbo);
   };
   CreateUniformBuffer(&nMatricesUniformBufferVbo, 128, 0);
-  CreateUniformBuffer(&nLightsUniformBufferVbo, 64, 1);
+  CreateUniformBuffer(&nLightsUniformBufferVbo, 8080, 1);
 
   nNextSpaceFramebuffer = 0;
 
@@ -198,14 +199,46 @@ void InitializeLightsUniformBuffer(const World::Space& space)
 {
   GLenum buffer = GL_UNIFORM_BUFFER;
   glBindBuffer(buffer, nLightsUniformBufferVbo);
+
+  const unsigned int maxDirectionalLights = 1;
+  unsigned int directionalLightCount = 0;
+  GLintptr offset = 16;
   space.VisitTableComponents<Comp::DirectionalLight>(
     [&](World::MemberId owner, const Comp::DirectionalLight& light)
     {
-      glBufferSubData(buffer, 0, sizeof(Vec3), light.mDirection.CData());
-      glBufferSubData(buffer, 16, sizeof(Vec3), light.mAmbient.CData());
-      glBufferSubData(buffer, 32, sizeof(Vec3), light.mDiffuse.CData());
-      glBufferSubData(buffer, 48, sizeof(Vec3), light.mSpecular.CData());
+      if (directionalLightCount >= maxDirectionalLights) {
+        return;
+      }
+      glBufferSubData(buffer, offset, sizeof(Vec3), light.mDirection.mD);
+      glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mAmbient.mD);
+      glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mDiffuse.mD);
+      glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mSpecular.mD);
+      offset += 64;
+      ++directionalLightCount;
     });
+
+  const unsigned int maxPointLights = 100;
+  unsigned int pointLightCount = 0;
+  offset = 16 + maxDirectionalLights * 64;
+  space.VisitTableComponents<Comp::PointLight>(
+    [&](World::MemberId owner, const Comp::PointLight& light)
+    {
+      if (pointLightCount >= maxPointLights) {
+        return;
+      }
+      glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
+      glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mAmbient.mD);
+      glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mDiffuse.mD);
+      glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mSpecular.mD);
+      glBufferSubData(buffer, offset + 64, sizeof(float), &light.mConstant);
+      glBufferSubData(buffer, offset + 68, sizeof(float), &light.mLinear);
+      glBufferSubData(buffer, offset + 72, sizeof(float), &light.mQuadratic);
+      offset += 80;
+      ++pointLightCount;
+    });
+  glBufferSubData(buffer, 0, sizeof(unsigned int), &directionalLightCount);
+  glBufferSubData(buffer, 4, sizeof(unsigned int), &pointLightCount);
+
   glBindBuffer(buffer, 0);
 }
 
