@@ -14,7 +14,6 @@ struct Uniform
   enum class Type
   {
     Model,
-    ViewPos,
     Sampler,
     Color,
     AlphaColor,

@@ -13,7 +13,6 @@ namespace Gfx {
 
 const char* Uniform::smTypeStrings[Uniform::Type::Count] = {
   "uModel",
-  "uViewPos",
   "uTexture",
   "uColor",
   "uAlphaColor",
@@ -135,7 +134,6 @@ void Shader::InitializeUniforms()
     }
   };
   tryAddUniform(Uniform::Type::Model);
-  tryAddUniform(Uniform::Type::ViewPos);
   tryAddUniform(Uniform::Type::Sampler);
   tryAddUniform(Uniform::Type::Color);
   tryAddUniform(Uniform::Type::AlphaColor);
@@ -152,7 +150,7 @@ void Shader::InitializeUniforms()
       glUniformBlockBinding(mProgram, index, binding);
     }
   };
-  tryBindUniformBlock("Matrices", 0);
+  tryBindUniformBlock("Universal", 0);
   tryBindUniformBlock("Lights", 1);
 }
 

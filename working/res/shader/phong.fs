@@ -1,4 +1,5 @@
 #include "vres/shader/uniformBuffers/Lights.glsl"
+#include "vres/shader/uniformBuffers/Universal.glsl"
 
 in vec3 iFragPos;
 in vec3 iNormal;
@@ -16,13 +17,11 @@ struct Material
   float specularExponent;
 };
 
-uniform vec3 viewPos;
-
 uniform Material uMaterial;
 
 void main()
 {
-  vec3 viewDir = normalize(viewPos - iFragPos);
+  vec3 viewDir = normalize(uViewPos - iFragPos);
   SurfaceData surface;
   surface.normal = normalize(iNormal);
   surface.diffuse = vec3(texture(uMaterial.mDiffuse[0], iTexCoord));

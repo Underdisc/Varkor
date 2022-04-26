@@ -1,4 +1,4 @@
-#include "vres/shader/uniformBuffers/matrices.glsl"
+#include "vres/shader/uniformBuffers/Universal.glsl"
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;

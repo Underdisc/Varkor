@@ -36,7 +36,7 @@ GLuint nFullscreenVbo;
 GLuint nSpriteVao;
 GLuint nSpriteVbo;
 
-GLuint nMatricesUniformBufferVbo;
+GLuint nUniversalUniformBufferVbo;
 GLuint nLightsUniformBufferVbo;
 
 size_t nNextSpaceFramebuffer;
@@ -89,7 +89,7 @@ void Init()
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferBase(GL_UNIFORM_BUFFER, binding, *vbo);
   };
-  CreateUniformBuffer(&nMatricesUniformBufferVbo, 128, 0);
+  CreateUniformBuffer(&nUniversalUniformBufferVbo, 144, 0);
   CreateUniformBuffer(&nLightsUniformBufferVbo, 17680, 1);
 
   nNextSpaceFramebuffer = 0;
@@ -186,13 +186,15 @@ void RenderQuad(GLuint vao)
   glBindVertexArray(0);
 }
 
-void InitializeMatricesUniformBuffer(const Mat4& view, const Mat4& proj)
+void InitializeUniversalUniformBuffer(
+  const Mat4& view, const Mat4& proj, const Vec3& viewPos)
 {
   Mat4 viewTranspose = Math::Transpose(view);
   Mat4 projTranspose = Math::Transpose(proj);
-  glBindBuffer(GL_UNIFORM_BUFFER, nMatricesUniformBufferVbo);
+  glBindBuffer(GL_UNIFORM_BUFFER, nUniversalUniformBufferVbo);
   glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Mat4), viewTranspose.CData());
   glBufferSubData(GL_UNIFORM_BUFFER, 64, sizeof(Mat4), projTranspose.CData());
+  glBufferSubData(GL_UNIFORM_BUFFER, 128, sizeof(Vec3), viewPos.CData());
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -275,7 +277,7 @@ void RenderMemberIds(
   if (memberIdShader == nullptr) {
     return;
   }
-  InitializeMatricesUniformBuffer(view, proj);
+  InitializeUniversalUniformBuffer(view, proj);
 
   GLint modelLoc = memberIdShader->UniformLocation(Uniform::Type::Model);
   GLint memberIdLoc = memberIdShader->UniformLocation(Uniform::Type::MemberId);
@@ -400,7 +402,7 @@ void RenderSpace(
   const Mat4& proj,
   const Vec3& viewPos)
 {
-  InitializeMatricesUniformBuffer(view, proj);
+  InitializeUniversalUniformBuffer(view, proj, viewPos);
   InitializeLightsUniformBuffer(space);
 
   // Get the next space framebuffer that hasn't been rendered to and bind it.
@@ -427,13 +429,11 @@ void RenderSpace(
       }
 
       GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
-      GLint viewPosLoc = shader->UniformLocation(Uniform::Type::ViewPos);
       GLint timeLoc = shader->UniformLocation(Uniform::Type::Time);
       GLint diffuseLoc = shader->UniformLocation(Uniform::Type::ADiffuse);
       GLint specLoc = shader->UniformLocation(Uniform::Type::ASpecular);
 
       glUseProgram(shader->Id());
-      glUniform3fv(viewPosLoc, 1, viewPos.CData());
       glUniform1f(timeLoc, Temporal::TotalTime());
       Comp::AlphaColor* alphaColorComp =
         space.TryGetComponent<Comp::AlphaColor>(owner);

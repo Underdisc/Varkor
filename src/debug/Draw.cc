@@ -100,7 +100,7 @@ void Render(const Mat4& view, const Mat4& proj)
   if (shader == nullptr) {
     return;
   }
-  Gfx::Renderer::InitializeMatricesUniformBuffer(view, proj);
+  Gfx::Renderer::InitializeUniversalUniformBuffer(view, proj);
 
   GLint alphaColorLoc = shader->UniformLocation(Gfx::Uniform::Type::AlphaColor);
   glUseProgram(shader->Id());

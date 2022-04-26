@@ -26,6 +26,7 @@ Result RenderWorld();
 void RenderFramebuffers();
 
 // todo: This really shouldn't be exposed by the Renderer.
-void InitializeMatricesUniformBuffer(const Mat4& view, const Mat4& proj);
+void InitializeUniversalUniformBuffer(
+  const Mat4& view, const Mat4& proj, const Vec3& viewPos = {0.0f, 0.0f, 0.0f});
 
 } // namespace Gfx::Renderer

@@ -1,4 +1,4 @@
-#include "uniformBuffers/matrices.glsl";
+#include "uniformBuffers/Universal.glsl";
 
 layout(location = 0) in vec3 aPos;
 

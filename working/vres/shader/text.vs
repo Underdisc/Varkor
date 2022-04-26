@@ -1,4 +1,4 @@
-#include "uniformBuffers/matrices.glsl"
+#include "uniformBuffers/Universal.glsl"
 
 layout(location = 0) in vec2 aPos;
 out vec2 iTextureCoords;
