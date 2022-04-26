@@ -18,8 +18,6 @@ struct Material
 
 uniform vec3 viewPos;
 
-uniform SpotLight spotLight;
-
 uniform Material uMaterial;
 
 void main()
@@ -33,10 +31,12 @@ void main()
 
   // Sum the contributions from all of the light types.
   vec3 fragColor = vec3(0.0, 0.0, 0.0);
+  fragColor += CalcDirLight(uDirectionalLights[0], surface, viewDir);
   for (uint i = uint(0); i < uPointLightCount; ++i) {
     fragColor += CalcPointLight(uPointLights[i], surface, viewDir, iFragPos);
   }
-  // fragColor += CalcSpotLight(spotLight, surface, viewDir, iFragPos);
-  fragColor += CalcDirLight(uDirectionalLights[0], surface, viewDir);
+  for (uint i = uint(0); i < uSpotLightCount; ++i) {
+    fragColor += CalcSpotLight(uSpotLights[i], surface, viewDir, iFragPos);
+  }
   iFinalColor = vec4(fragColor, 1.0);
 }

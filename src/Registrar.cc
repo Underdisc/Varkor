@@ -27,6 +27,7 @@
 #include "comp/Camera.h"
 #include "comp/DirectionalLight.h"
 #include "comp/PointLight.h"
+#include "comp/SpotLight.h"
 // clang-format on
 
 namespace Registrar {
@@ -42,6 +43,7 @@ void RegisterTypes()
   Register<Camera, Transform>();
   Register<DirectionalLight>();
   Register<PointLight>();
+  Register<SpotLight>();
 }
 
 void (*nRegisterCustomTypes)() = nullptr;

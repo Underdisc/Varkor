@@ -10,6 +10,7 @@
 #include "comp/DirectionalLight.h"
 #include "comp/Model.h"
 #include "comp/PointLight.h"
+#include "comp/SpotLight.h"
 #include "comp/Sprite.h"
 #include "comp/Text.h"
 #include "comp/Transform.h"
@@ -89,7 +90,7 @@ void Init()
     glBindBufferBase(GL_UNIFORM_BUFFER, binding, *vbo);
   };
   CreateUniformBuffer(&nMatricesUniformBufferVbo, 128, 0);
-  CreateUniformBuffer(&nLightsUniformBufferVbo, 8080, 1);
+  CreateUniformBuffer(&nLightsUniformBufferVbo, 17680, 1);
 
   nNextSpaceFramebuffer = 0;
 
@@ -236,9 +237,33 @@ void InitializeLightsUniformBuffer(const World::Space& space)
       offset += 80;
       ++pointLightCount;
     });
+
+  const unsigned int maxSpotLights = 100;
+  unsigned int spotLightCount = 0;
+  offset = 16 + maxDirectionalLights * 64 + maxPointLights * 80;
+  space.VisitTableComponents<Comp::SpotLight>(
+    [&](World::MemberId owner, const Comp::SpotLight& light)
+    {
+      if (spotLightCount >= maxSpotLights) {
+        return;
+      }
+      glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
+      glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mDirection.mD);
+      glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mAmbient.mD);
+      glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mDiffuse.mD);
+      glBufferSubData(buffer, offset + 64, sizeof(Vec3), light.mSpecular.mD);
+      glBufferSubData(buffer, offset + 76, sizeof(float), &light.mConstant);
+      glBufferSubData(buffer, offset + 80, sizeof(float), &light.mLinear);
+      glBufferSubData(buffer, offset + 84, sizeof(float), &light.mQuadratic);
+      glBufferSubData(buffer, offset + 88, sizeof(float), &light.mInnerCutoff);
+      glBufferSubData(buffer, offset + 92, sizeof(float), &light.mOuterCutoff);
+      offset += 96;
+      ++spotLightCount;
+    });
+
   glBufferSubData(buffer, 0, sizeof(unsigned int), &directionalLightCount);
   glBufferSubData(buffer, 4, sizeof(unsigned int), &pointLightCount);
-
+  glBufferSubData(buffer, 8, sizeof(unsigned int), &spotLightCount);
   glBindBuffer(buffer, 0);
 }
 
