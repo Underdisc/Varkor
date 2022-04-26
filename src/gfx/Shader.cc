@@ -198,8 +198,8 @@ Shader::IncludeResult Shader::HandleIncludes(
   std::smatch match;
   while (std::regex_search(text.cbegin(), text.cend(), match, expression)) {
     int includeLine = GetLineNumber(match[0].first - text.begin(), text);
-    int chunkIndex = GetChunkIndex(includeLine, result.mChunks);
-    SourceChunk& currentChunk = result.mChunks[chunkIndex];
+    int currentChunkIndex = GetChunkIndex(includeLine, result.mChunks);
+    SourceChunk currentChunk = result.mChunks[currentChunkIndex];
 
     // Find a full path to the file that is relative to the executable.
     std::string includeFilename;
@@ -252,7 +252,7 @@ Shader::IncludeResult Shader::HandleIncludes(
     includeChunk.mStartLine = includeLine;
     includeChunk.mEndLine = includeLine + includeLineCount;
     includeChunk.mExcludedLines = 0;
-    result.mChunks.Insert(chunkIndex + 1, includeChunk);
+    result.mChunks.Insert(currentChunkIndex + 1, includeChunk);
 
     // The other chunk is for the code that comes after the inclusion.
     int addedNewlineCount = includeLineCount - 1;
@@ -262,11 +262,11 @@ Shader::IncludeResult Shader::HandleIncludes(
     splitChunk.mEndLine = currentChunk.mEndLine + addedNewlineCount;
     splitChunk.mExcludedLines = currentChunk.mExcludedLines;
     splitChunk.mExcludedLines += includeLine + 1 - currentChunk.mStartLine;
-    result.mChunks.Insert(chunkIndex + 2, splitChunk);
+    result.mChunks.Insert(currentChunkIndex + 2, splitChunk);
 
     // Modify existing chunks to account for the new inclusion.
-    currentChunk.mEndLine = includeLine;
-    for (int i = chunkIndex + 3; i < result.mChunks.Size(); ++i) {
+    result.mChunks[currentChunkIndex].mEndLine = includeLine;
+    for (int i = currentChunkIndex + 3; i < result.mChunks.Size(); ++i) {
       result.mChunks[i].mStartLine += addedNewlineCount;
       result.mChunks[i].mEndLine += addedNewlineCount;
     }
