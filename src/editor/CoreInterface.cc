@@ -47,7 +47,11 @@ void CoreInterface::Show()
   if (overview != nullptr) {
     activeSpace = overview->mSpace;
   }
-  for (World::Space& space : World::nSpaces) {
+
+  World::SpaceIt it = World::nSpaces.begin();
+  World::SpaceIt itE = World::nSpaces.end();
+  while (it != itE) {
+    World::Space& space = *it;
     bool selected = activeSpace == &space;
     ImGui::PushID((void*)&space);
     if (ImGui::Selectable(space.mName.c_str(), selected)) {
@@ -58,12 +62,31 @@ void CoreInterface::Show()
         CloseInterface<OverviewInterface>();
       }
     }
+    ImGui::PopID();
+
+    bool deleteSpace = false;
+    if (ImGui::BeginPopupContextItem()) {
+      if (ImGui::Selectable("Delete")) {
+        deleteSpace = true;
+      }
+      ImGui::EndPopup();
+    }
+
     if (selected) {
       ImGui::PushItemWidth(-1);
       InputText("Name", &space.mName);
       ImGui::PopItemWidth();
     }
-    ImGui::PopID();
+
+    World::SpaceIt nextIt = it;
+    ++nextIt;
+    if (deleteSpace) {
+      World::DeleteSpace(it);
+      if (selected) {
+        CloseInterface<OverviewInterface>();
+      }
+    }
+    it = nextIt;
   }
   ImGui::EndChild();
   ImGui::End();

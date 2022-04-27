@@ -42,6 +42,11 @@ SpaceIt CreateTopSpace()
   return newSpaceIt;
 }
 
+void DeleteSpace(SpaceIt it)
+{
+  nSpaces.Erase(it);
+}
+
 ValueResult<SpaceIt> LoadSpace(const char* filename)
 {
   Vlk::Value rootVal;

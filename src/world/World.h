@@ -17,6 +17,7 @@ extern void (*nSpaceUpdate)(SpaceIt spaceIt);
 void Purge();
 void Update();
 SpaceIt CreateTopSpace();
+void DeleteSpace(SpaceIt it);
 ValueResult<SpaceIt> LoadSpace(const char* filename);
 
 } // namespace World
