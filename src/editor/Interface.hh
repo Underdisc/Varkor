@@ -31,6 +31,9 @@ T* Interface::FindInterface()
   if (interface == nullptr) {
     return nullptr;
   }
+  if ((*interface)->mOpen == false) {
+    return nullptr;
+  }
   return (T*)*interface;
 }
 
