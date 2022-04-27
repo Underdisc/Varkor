@@ -15,7 +15,7 @@ public:
   World::Space* mSpace;
 
 private:
-  void DisplayMember(World::MemberId memberId, InspectorInterface* inspector);
+  void DisplayMember(World::MemberId memberId, InspectorInterface** inspector);
 };
 
 } // namespace Editor

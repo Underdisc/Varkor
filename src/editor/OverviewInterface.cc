@@ -51,9 +51,9 @@ void OverviewInterface::Show()
   }
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
   mSpace->VisitRootMemberIds(
-    [this, inspector](World::MemberId memberId)
+    [this, &inspector](World::MemberId memberId)
     {
-      DisplayMember(memberId, inspector);
+      DisplayMember(memberId, &inspector);
     });
   ImGui::EndChild();
 
@@ -73,11 +73,11 @@ void OverviewInterface::Show()
 }
 
 void OverviewInterface::DisplayMember(
-  World::MemberId memberId, InspectorInterface* inspector)
+  World::MemberId memberId, InspectorInterface** inspector)
 {
   // Create the Member's tree node.
   bool selected =
-    inspector != nullptr && memberId == inspector->mObject.mMemberId;
+    *inspector != nullptr && memberId == (*inspector)->mObject.mMemberId;
   ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
   if (selected) {
     flags |= ImGuiTreeNodeFlags_Selected;
@@ -108,7 +108,22 @@ void OverviewInterface::DisplayMember(
   // Open an InspectInterface for the Member if it is clicked.
   if (ImGui::IsItemClicked()) {
     World::Object object(mSpace, memberId);
-    OpenInterface<InspectorInterface>(object);
+    if (!selected) {
+      *inspector = OpenInterface<InspectorInterface>(object);
+    }
+    else {
+      CloseInterface<InspectorInterface>();
+      *inspector = nullptr;
+    }
+  }
+
+  // Determine whether the user wants to delete the member.
+  bool deleteMember = false;
+  if (ImGui::BeginPopupContextItem()) {
+    if (ImGui::Selectable("Delete")) {
+      deleteMember = true;
+    }
+    ImGui::EndPopup();
   }
 
   // Display a text box for changing the Member's name.
@@ -124,6 +139,16 @@ void OverviewInterface::DisplayMember(
       DisplayMember(childId, inspector);
     }
     ImGui::TreePop();
+  }
+
+  if (deleteMember) {
+    mSpace->DeleteMember(memberId);
+    // We must close the inspector if it's displaying the now deleted member.
+    if (selected) {
+      CloseInterface<InspectorInterface>();
+      *inspector = nullptr;
+    }
+    return;
   }
 }
 
