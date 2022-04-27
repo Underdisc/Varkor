@@ -32,6 +32,7 @@ void Shader::Purge()
 {
   glDeleteProgram(mProgram);
   mProgram = 0;
+  mUniforms.Clear();
 }
 
 Shader::Shader(): mProgram(0) {}
