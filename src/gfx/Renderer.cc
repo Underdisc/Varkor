@@ -233,9 +233,9 @@ void InitializeLightsUniformBuffer(const World::Space& space)
       glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mAmbient.mD);
       glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mDiffuse.mD);
       glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mSpecular.mD);
-      glBufferSubData(buffer, offset + 64, sizeof(float), &light.mConstant);
-      glBufferSubData(buffer, offset + 68, sizeof(float), &light.mLinear);
-      glBufferSubData(buffer, offset + 72, sizeof(float), &light.mQuadratic);
+      glBufferSubData(buffer, offset + 60, sizeof(float), &light.mConstant);
+      glBufferSubData(buffer, offset + 64, sizeof(float), &light.mLinear);
+      glBufferSubData(buffer, offset + 68, sizeof(float), &light.mQuadratic);
       offset += 80;
       ++pointLightCount;
     });

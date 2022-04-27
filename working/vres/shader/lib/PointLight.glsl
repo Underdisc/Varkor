@@ -7,9 +7,9 @@ struct PointLight
   vec3 ambient; // 16
   vec3 diffuse; // 32
   vec3 specular; // 48
-  float constant; // 64
-  float linear; // 68
-  float quadratic; // 72
+  float constant; // 60
+  float linear; // 64
+  float quadratic; // 68
 }; // 80
 
 vec3 CalcPointLight(
