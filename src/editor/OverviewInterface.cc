@@ -50,11 +50,10 @@ void OverviewInterface::Show()
     mSpace->CreateMember();
   }
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
-  mSpace->VisitRootMemberIds(
-    [this, &inspector](World::MemberId memberId)
-    {
-      DisplayMember(memberId, &inspector);
-    });
+  Ds::Vector<World::MemberId> rootMemberIds = mSpace->RootMemberIds();
+  for (int i = 0; i < rootMemberIds.Size(); ++i) {
+    DisplayMember(rootMemberIds[i], &inspector);
+  }
   ImGui::EndChild();
 
   // Make the member window a drag drop target for ending parent relationships.

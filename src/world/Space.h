@@ -104,9 +104,10 @@ struct Space
   template<typename T>
   void VisitTableComponents(
     std::function<void(World::MemberId, T&)> visit) const;
-  void VisitRootMemberIds(std::function<void(World::MemberId)> visit) const;
   void VisitMemberComponents(
     MemberId memberId, std::function<void(Comp::TypeId, size_t)> visit) const;
+
+  Ds::Vector<MemberId> RootMemberIds() const;
 
   // Private member access.
   const Ds::Map<Comp::TypeId, Table>& Tables() const;

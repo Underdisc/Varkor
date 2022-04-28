@@ -408,16 +408,6 @@ bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
   return component != nullptr;
 }
 
-void Space::VisitRootMemberIds(std::function<void(World::MemberId)> visit) const
-{
-  for (MemberId i = 0; i < mMembers.Size(); ++i) {
-    const Member& member = mMembers[i];
-    if (member.InUseRootMember()) {
-      visit(i);
-    }
-  }
-}
-
 void Space::VisitMemberComponents(
   MemberId memberId, std::function<void(Comp::TypeId, size_t)> visit) const
 {
@@ -429,6 +419,18 @@ void Space::VisitMemberComponents(
     visit(desc.mTypeId, desc.mTableIndex);
     ++descId;
   }
+}
+
+Ds::Vector<MemberId> Space::RootMemberIds() const
+{
+  Ds::Vector<MemberId> rootMembers;
+  for (MemberId i = 0; i < mMembers.Size(); ++i) {
+    const Member& member = mMembers[i];
+    if (member.InUseRootMember()) {
+      rootMembers.Push(i);
+    }
+  }
+  return rootMembers;
 }
 
 const Ds::Map<Comp::TypeId, Table>& Space::Tables() const
