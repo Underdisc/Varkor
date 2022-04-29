@@ -485,8 +485,8 @@ void RenderSpace(
   space.VisitTableComponents<Comp::Sprite>(
     [&](World::MemberId owner, const Comp::Sprite& spriteComp)
     {
-      const Gfx::Shader* shader =
-        AssLib::TryGetLive<Gfx::Shader>(spriteComp.mShaderId);
+      const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(
+        spriteComp.mShaderId, AssLib::nDefaultSpriteShaderId);
       const Gfx::Image* image =
         AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
       if (shader == nullptr || image == nullptr) {
@@ -515,10 +515,10 @@ void RenderSpace(
       if (!textComp.mVisible) {
         return;
       }
-      const Gfx::Shader* shader =
-        AssLib::TryGetLive<Gfx::Shader>(textComp.mShaderId);
+      const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(
+        textComp.mShaderId, AssLib::nDefaultTextShaderId);
       if (shader == nullptr) {
-        shader = AssLib::TryGetLive<Gfx::Shader>(AssLib::nDefaultTextShaderId);
+        return;
       }
 
       GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);

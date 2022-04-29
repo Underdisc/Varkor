@@ -131,11 +131,11 @@ AssetId AssetBin<T>::NextRequiredId()
 }
 
 template<typename T>
-T* TryGetLive(AssetId id)
+T* TryGetLive(AssetId id, AssetId defaultId)
 {
   Asset<T>* asset = TryGetAsset<T>(id);
   if (asset == nullptr || asset->mStatus == Status::Failed) {
-    return &GetAsset<T>(nDefaultAssetId).mResource;
+    return &GetAsset<T>(defaultId).mResource;
   }
   if (asset->mStatus == Status::Loading) {
     return nullptr;

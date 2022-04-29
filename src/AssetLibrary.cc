@@ -17,6 +17,7 @@ AssetId nDebugDrawShaderId;
 AssetId nDefaultTextShaderId;
 AssetId nFramebufferShaderId;
 AssetId nMemberIdShaderId;
+AssetId nDefaultSpriteShaderId;
 AssetId nArrowModelId;
 AssetId nCubeModelId;
 AssetId nScaleModelId;
@@ -43,6 +44,8 @@ void InitRequiredAssets()
     "Framebuffer", "vres/shader/fullscreen.vs", "vres/shader/fullscreen.fs");
   nMemberIdShaderId = AssetBin<Gfx::Shader>::Require(
     "MemberId", "vres/shader/default.vs", "vres/shader/memberId.fs");
+  nDefaultSpriteShaderId = AssetBin<Gfx::Shader>::Require(
+    "DefaultSprite", "vres/shader/sprite.vs", "vres/shader/sprite.fs");
   nArrowModelId =
     AssetBin<Gfx::Model>::Require("Arrow", "vres/model/arrow.obj");
   nCubeModelId = AssetBin<Gfx::Model>::Require("Cube", "vres/model/cube.obj");
