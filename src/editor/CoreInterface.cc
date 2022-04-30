@@ -103,7 +103,8 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [this](const std::string& filename)
       {
-        ValueResult<World::SpaceIt> result = World::LoadSpace(filename.c_str());
+        std::string path = Options::PrependResDirectory(filename);
+        ValueResult<World::SpaceIt> result = World::LoadSpace(path.c_str());
         if (!result.Success()) {
           LogError(result.mError.c_str());
           return;
@@ -123,9 +124,10 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [overview](const std::string& filename)
       {
+        std::string path = Options::PrependResDirectory(filename);
         Vlk::Value rootVal;
         overview->mSpace->Serialize(rootVal);
-        Result result = rootVal.Write(filename.c_str());
+        Result result = rootVal.Write(path.c_str());
         LogErrorIf(!result.Success(), result.mError.c_str());
       },
       FileInterface::AccessType::Save,

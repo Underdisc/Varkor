@@ -87,7 +87,7 @@ void FileInterface::Show()
     break;
   }
   if (ImGui::Button(buttonLabel, ImVec2(-1, 0))) {
-    mCallback(Options::PrependResDirectory(path.substr(2) + "/" + mFile));
+    mCallback(path.substr(2) + "/" + mFile);
     mOpen = false;
   }
   ImGui::End();
