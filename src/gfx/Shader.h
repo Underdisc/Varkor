@@ -40,7 +40,6 @@ public:
   Shader(Shader&& other);
   Shader& operator=(Shader&& other);
   ~Shader();
-  Shader(const char* vertexFile, const char* fragmentFile);
 
   Result Init(const char* vertexFile, const char* fragmentFile);
   GLuint Id() const;

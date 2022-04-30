@@ -54,12 +54,6 @@ Shader::~Shader()
   Purge();
 }
 
-Shader::Shader(const char* vertexFile, const char* fragmentFile): mProgram(0)
-{
-  Result result = Init(vertexFile, fragmentFile);
-  LogAbortIf(!result.Success(), result.mError.c_str());
-}
-
 Result Shader::Init(const char* vertexFile, const char* fragmentFile)
 {
   Purge();
