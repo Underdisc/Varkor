@@ -11,7 +11,6 @@ extern std::string nLoadSpace;
 extern std::string nProjectDirectory;
 
 Result Init(int argc, char* argv[], const char* projectDirectory);
-std::string PrependResDirectory(const std::string& path);
 
 } // namespace Options
 

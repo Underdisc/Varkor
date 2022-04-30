@@ -18,6 +18,9 @@ bool InitThreadOpen();
 void DeserializeAssets();
 void SerializeAssets();
 
+std::string PrependResDirectory(const std::string& path);
+ValueResult<std::string> ResolveResourcePath(const std::string& path);
+
 // AssetIds refer to an Asset within an AssetBin. Positive AssetIds refer to
 // typical user Assets. Negative AssetIds and 0 refer to required Assets.
 typedef int AssetId;
@@ -51,7 +54,6 @@ struct Asset
   template<typename... Args>
   Result FullInit(Args&&... args);
 };
-ValueResult<std::string> ResolveResourcePath(const std::string& path);
 
 // These functions are the primary interface for the AssetLibrary.
 template<typename T>

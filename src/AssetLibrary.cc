@@ -137,7 +137,7 @@ const char* nAssetsFilename = "assets.vlk";
 void DeserializeAssets()
 {
   Vlk::Value rootVal;
-  std::string assetsFile = Options::PrependResDirectory(nAssetsFilename);
+  std::string assetsFile = PrependResDirectory(nAssetsFilename);
   Result result = rootVal.Read(assetsFile.c_str());
   if (!result.Success()) {
     LogError(result.mError.c_str());
@@ -157,14 +157,14 @@ void SerializeAssets()
   SerializeAssets<Gfx::Image>(rootVal);
   SerializeAssets<Gfx::Model>(rootVal);
   SerializeAssets<Gfx::Shader>(rootVal);
-  std::string assetsFile = Options::PrependResDirectory(nAssetsFilename);
+  std::string assetsFile = PrependResDirectory(nAssetsFilename);
   Result result = rootVal.Write(assetsFile.c_str());
   LogErrorIf(!result.Success(), result.mError.c_str());
 }
 
-bool IsRequiredId(AssetId id)
+std::string PrependResDirectory(const std::string& path)
 {
-  return id < 1;
+  return Options::nProjectDirectory + "res/" + path;
 }
 
 // A resource path can be next to the executable or within a project's res/
@@ -175,13 +175,18 @@ ValueResult<std::string> ResolveResourcePath(const std::string& path)
   if (std::filesystem::exists(path)) {
     return ValueResult<std::string>(path);
   }
-  std::string inResPath = Options::PrependResDirectory(path);
+  std::string inResPath = PrependResDirectory(path);
   if (std::filesystem::exists(inResPath)) {
     return ValueResult<std::string>(inResPath);
   }
   std::stringstream error;
   error << "Failed to resolve \"" << path << "\".";
   return ValueResult<std::string>(error.str(), "");
+}
+
+bool IsRequiredId(AssetId id)
+{
+  return id < 1;
 }
 
 // Threaded Asset Loading //////////////////////////////////////////////////////

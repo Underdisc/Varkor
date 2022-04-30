@@ -2,6 +2,7 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
+#include "AssetLibrary.h"
 #include "Input.h"
 #include "Options.h"
 #include "Viewport.h"
@@ -80,7 +81,7 @@ void Init()
 
   nCoreInterface.Init();
   if (!Options::nLoadSpace.empty()) {
-    std::string spaceFile = Options::PrependResDirectory(Options::nLoadSpace);
+    std::string spaceFile = AssLib::PrependResDirectory(Options::nLoadSpace);
     ValueResult<World::SpaceIt> result = World::LoadSpace(spaceFile.c_str());
     if (result.Success()) {
       nCoreInterface.OpenInterface<OverviewInterface>(&(*result.mValue));

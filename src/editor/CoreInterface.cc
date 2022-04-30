@@ -103,7 +103,7 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [this](const std::string& filename)
       {
-        std::string path = Options::PrependResDirectory(filename);
+        std::string path = AssLib::PrependResDirectory(filename);
         ValueResult<World::SpaceIt> result = World::LoadSpace(path.c_str());
         if (!result.Success()) {
           LogError(result.mError.c_str());
@@ -124,7 +124,7 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [overview](const std::string& filename)
       {
-        std::string path = Options::PrependResDirectory(filename);
+        std::string path = AssLib::PrependResDirectory(filename);
         Vlk::Value rootVal;
         overview->mSpace->Serialize(rootVal);
         Result result = rootVal.Write(path.c_str());

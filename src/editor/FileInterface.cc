@@ -1,7 +1,7 @@
 #include <dirent/dirent.h>
 #include <imgui/imgui.h>
 
-#include "Options.h"
+#include "AssetLibrary.h"
 #include "editor/FileInterface.h"
 #include "editor/Utility.h"
 
@@ -24,7 +24,7 @@ void FileInterface::Show()
   // Open the currently selected directory. We unroll the path to handle cases
   // where directories may have been deleted or renamed.
   static std::string path = ".";
-  std::string fullPath = Options::PrependResDirectory(path);
+  std::string fullPath = AssLib::PrependResDirectory(path);
   DIR* directory = opendir(fullPath.c_str());
   while (directory == nullptr) {
     path.erase(path.find_last_of('/'));

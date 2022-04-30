@@ -40,9 +40,4 @@ Result Init(int argc, char* argv[], const char* projectDirectory)
   return Result();
 }
 
-std::string PrependResDirectory(const std::string& path)
-{
-  return nProjectDirectory + "res/" + path;
-}
-
 } // namespace Options
