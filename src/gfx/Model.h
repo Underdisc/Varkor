@@ -10,13 +10,20 @@
 #include "gfx/Material.h"
 #include "gfx/Mesh.h"
 #include "math/Matrix4.h"
+#include "vlk/Valkor.h"
 
 namespace Gfx {
 
 struct Model
 {
 public:
-  Result Init(const Ds::Vector<std::string>& paths);
+  struct InitInfo
+  {
+    std::string mFile;
+    void Serialize(Vlk::Value& val) const;
+    void Deserialize(const Vlk::Explorer& ex);
+  };
+  Result Init(const InitInfo& info);
   void Finalize();
   void Purge();
 

@@ -56,10 +56,10 @@ void AssetInterface<T>::Show()
 
     // Display edit options for the selected Asset.
     if (selected) {
-      ImGui::PushItemWidth(-1);
+      ImGui::Separator();
       InputText("Name", &asset.mName);
-      EditAssetPaths(mSelectedId);
-      ImGui::PopItemWidth();
+      EditInitInfo(id);
+      ImGui::Separator();
     }
   }
   ImGui::EndChild();
@@ -87,38 +87,6 @@ void AssetInterface<T>::ShowStatus(const AssLib::Asset<T>& asset)
   case AssLib::Status::Live: ImGui::TextColored(green, "+"); break;
   }
   ImGui::PopItemWidth();
-}
-
-template<typename T>
-void AssetInterface<T>::EditAssetPaths(AssetId id)
-{
-  AssLib::Asset<T>& asset = AssLib::GetAsset<T>(id);
-  for (size_t i = 0; i < asset.mPaths.Size(); ++i) {
-    if (!ImGui::Button(asset.mPaths[i].c_str(), ImVec2(-1, 0))) {
-      continue;
-    }
-    OpenInterface<FileInterface>(
-      [id, i](const std::string& newPath)
-      {
-        // We fetch the asset again because we don't know if it still exists.
-        AssLib::Asset<T>* asset = AssLib::TryGetAsset<T>(id);
-        if (asset != nullptr && i < asset->mPaths.Size()) {
-          asset->mPaths[i] = newPath;
-        }
-      },
-      FileInterface::AccessType::Select);
-  }
-  if (ImGui::Button("+", ImVec2(-1, 0))) {
-    asset.mPaths.Push("NewPath");
-    asset.mStatus = AssLib::Status::Unneeded;
-  }
-  if (ImGui::Button("-", ImVec2(-1, 0))) {
-    asset.mPaths.Pop();
-    asset.mStatus = AssLib::Status::Unneeded;
-  }
-  if (ImGui::Button("Refresh", ImVec2(-1, 0))) {
-    asset.mStatus = AssLib::Status::Unneeded;
-  }
 }
 
 template<typename T>

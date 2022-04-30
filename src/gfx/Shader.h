@@ -6,6 +6,7 @@
 
 #include "Result.h"
 #include "ds/Vector.h"
+#include "vlk/Valkor.h"
 
 namespace Gfx {
 
@@ -32,7 +33,14 @@ struct Uniform
 struct Shader
 {
 public:
-  Result Init(const Ds::Vector<std::string>& paths);
+  struct InitInfo
+  {
+    std::string mVertexFile;
+    std::string mFragmentFile;
+    void Serialize(Vlk::Value& val) const;
+    void Deserialize(const Vlk::Explorer& ex);
+  };
+  Result Init(const InitInfo& info);
   void Finalize() {};
   void Purge();
 
@@ -75,7 +83,7 @@ private:
   Shader::IncludeResult HandleIncludes(
     const std::string& file, std::string* content);
   Result Compile(
-    const char* shaderSource, int shaderType, unsigned int* shaderId);
+    const std::string& filename, int shaderType, unsigned int* shaderId);
   void InitializeUniforms();
 };
 

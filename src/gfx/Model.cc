@@ -1,8 +1,10 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <filesystem>
 #include <sstream>
 
+#include "AssetLibrary.h"
 #include "Error.h"
 #include "Model.h"
 #include "util/Memory.h"
@@ -10,9 +12,14 @@
 
 namespace Gfx {
 
-Result Model::Init(const Ds::Vector<std::string>& paths)
+void Model::InitInfo::Serialize(Vlk::Value& val) const
 {
-  return Init(paths[0]);
+  val("File") = mFile;
+}
+
+void Model::InitInfo::Deserialize(const Vlk::Explorer& ex)
+{
+  mFile = ex("File").As<std::string>("");
 }
 
 void Model::Finalize()
@@ -49,24 +56,39 @@ Model::~Model()
   Purge();
 }
 
-Result Model::Init(const std::string& file)
+Result Model::Init(const InitInfo& info)
 {
   Purge();
+
+  // Resolve the resource path.
+  ValueResult<std::string> resolutionResult =
+    AssLib::ResolveResourcePath(info.mFile);
+  if (!resolutionResult.Success()) {
+    return Result(resolutionResult.mError);
+  }
+  std::string path = resolutionResult.mValue;
+  // We perform this check because the importer will cause a crash if the path
+  // does not reference a regular file.
+  if (!std::filesystem::is_regular_file(path)) {
+    std::stringstream error;
+    error << "Failed to load \"" << path << "\": Not a regular file.";
+    return Result(error.str());
+  }
 
   // Import the model and record any errors.
   Assimp::Importer importer;
   unsigned int flags =
     aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_SortByPType;
-  const aiScene* scene = importer.ReadFile(file, flags);
+  const aiScene* scene = importer.ReadFile(path, flags);
   bool sceneCreated = scene != nullptr && scene->mRootNode != nullptr;
   if (!sceneCreated || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) {
     std::stringstream error;
-    error << "Failed to load \"" << file << "\": " << importer.GetErrorString();
+    error << "Failed to load \"" << path << "\": " << importer.GetErrorString();
     return Result(error.str());
   }
   else if (scene->mNumMeshes == 0) {
     std::stringstream error;
-    error << "Failed to load \"" << file << "\": There was no model data.";
+    error << "Failed to load \"" << path << "\": There was no model data.";
     return Result(error.str());
   }
 
@@ -85,17 +107,24 @@ Result Model::Init(const std::string& file)
   }
 
   // Register all of the model's materials.
-  std::string fileDir = file.substr(0, file.find_last_of('/') + 1);
+  std::string fileDir = path.substr(0, path.find_last_of('/') + 1);
   for (unsigned int m = 0; m < scene->mNumMaterials; ++m) {
     Result result = RegisterMaterial(*scene->mMaterials[m], fileDir);
     if (!result.Success()) {
       Purge();
       std::stringstream error;
-      error << "Failed to load " << file << ": " << result.mError;
+      error << "Failed to load " << path << ": " << result.mError;
       return Result(error.str());
     }
   }
   return Result();
+}
+
+Result Model::Init(const std::string& file)
+{
+  InitInfo info;
+  info.mFile = file;
+  return Init(info);
 }
 
 // Initialize a model with only a single mesh.

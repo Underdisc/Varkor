@@ -4,13 +4,19 @@
 #define STBI_FAILURE_USERMSG
 #include <stb_image.h>
 
+#include "AssetLibrary.h"
 #include "gfx/Image.h"
 
 namespace Gfx {
 
-Result Image::Init(const Ds::Vector<std::string>& paths)
+void Image::InitInfo::Serialize(Vlk::Value& val) const
 {
-  return Init(paths[0]);
+  val("File") = mFile;
+}
+
+void Image::InitInfo::Deserialize(const Vlk::Explorer& ex)
+{
+  mFile = ex("File").As<std::string>("");
 }
 
 void Image::Purge()
@@ -42,15 +48,23 @@ Image::~Image()
   Purge();
 }
 
-Result Image::Init(const std::string& file)
+Result Image::Init(const InitInfo& info)
 {
+  // Resolve the resource path.
+  ValueResult<std::string> resolutionResult =
+    AssLib::ResolveResourcePath(info.mFile);
+  if (!resolutionResult.Success()) {
+    return Result(resolutionResult.mError);
+  }
+  std::string path = resolutionResult.mValue;
+
   stbi_set_flip_vertically_on_load(true);
   int channels;
   unsigned char* data =
-    stbi_load(file.c_str(), &mWidth, &mHeight, &channels, 0);
+    stbi_load(path.c_str(), &mWidth, &mHeight, &channels, 0);
   if (!data) {
     std::stringstream error;
-    error << "Failed to load " << file << ": " << stbi_failure_reason() << ".";
+    error << "Failed to load " << path << ": " << stbi_failure_reason() << ".";
     return Result(error.str());
   }
 
@@ -83,6 +97,13 @@ Result Image::Init(const std::string& file)
   stbi_image_free(data);
   glFinish();
   return Result();
+}
+
+Result Image::Init(const std::string& file)
+{
+  InitInfo info;
+  info.mFile = file;
+  return Init(info);
 }
 
 GLuint Image::Id() const

@@ -1,4 +1,5 @@
 target_sources(${varkorTarget} PRIVATE
+  AssetInterfaces.cc
   Camera.cc
   CoreInterface.cc
   Editor.cc

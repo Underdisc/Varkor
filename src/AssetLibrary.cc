@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 
 #include "AssetLibrary.h"
@@ -68,16 +69,9 @@ void SerializeAssets(Vlk::Value& rootVal)
       continue;
     }
     const Asset<T>& asset = idAssetPair.mValue;
-    if (asset.mPaths.Size() == 0) {
-      continue;
-    }
-
     Vlk::Value& assetVal = assetsVal(asset.mName);
     assetVal("Id") = idAssetPair.Key();
-    Vlk::Value& pathsVal = assetVal("Paths")[{asset.mPaths.Size()}];
-    for (size_t i = 0; i < asset.mPaths.Size(); ++i) {
-      pathsVal[i] = asset.mPaths[i];
-    }
+    asset.mInitInfo.Serialize(assetVal);
   }
 }
 
@@ -113,10 +107,7 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
     if (id >= AssetBin<T>::smIdHandout) {
       AssetBin<T>::smIdHandout = id + 1;
     }
-    Vlk::Explorer pathsEx = assetEx("Paths");
-    for (size_t i = 0; i < pathsEx.Size(); ++i) {
-      asset.mPaths.Push(pathsEx[i].As<std::string>(""));
-    }
+    asset.mInitInfo.Deserialize(assetEx);
   }
 }
 
@@ -174,6 +165,23 @@ void SerializeAssets()
 bool IsRequiredId(AssetId id)
 {
   return id < 1;
+}
+
+// A resource path can be next to the executable or within a project's res/
+// directory. This function will take a resource path and return a path to where
+// the resource is located or, if the path references nothing, an error.
+ValueResult<std::string> ResolveResourcePath(const std::string& path)
+{
+  if (std::filesystem::exists(path)) {
+    return ValueResult<std::string>(path);
+  }
+  std::string inResPath = Options::PrependResDirectory(path);
+  if (std::filesystem::exists(inResPath)) {
+    return ValueResult<std::string>(inResPath);
+  }
+  std::stringstream error;
+  error << "Failed to resolve \"" << path << "\".";
+  return ValueResult<std::string>(error.str(), "");
 }
 
 // Threaded Asset Loading //////////////////////////////////////////////////////

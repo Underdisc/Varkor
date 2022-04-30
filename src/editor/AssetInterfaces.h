@@ -15,7 +15,7 @@ public:
   AssetInterface();
   void Show();
   void ShowStatus(const AssLib::Asset<T>& asset);
-  void EditAssetPaths(AssetId id);
+  void EditInitInfo(AssetId id);
   AssetId mSelectedId;
 };
 

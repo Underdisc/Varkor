@@ -4,13 +4,19 @@
 #include <stb_truetype.h>
 #undef STB_TRUETYPE_IMPLEMENTATION
 
+#include "AssetLibrary.h"
 #include "gfx/Font.h"
 
 namespace Gfx {
 
-Result Font::Init(const Ds::Vector<std::string>& paths)
+void Font::InitInfo::Serialize(Vlk::Value& val) const
 {
-  return Init(paths[0]);
+  val("File") = mFile;
+}
+
+void Font::InitInfo::Deserialize(const Vlk::Explorer& ex)
+{
+  mFile = ex("File").As<std::string>("");
 }
 
 void Font::Purge()
@@ -54,14 +60,22 @@ Font::~Font()
   Purge();
 }
 
-Result Font::Init(const std::string& file)
+Result Font::Init(const InitInfo& info)
 {
+  // Resolve the resource path.
+  ValueResult<std::string> resolutionResult =
+    AssLib::ResolveResourcePath(info.mFile);
+  if (!resolutionResult.Success()) {
+    return Result(resolutionResult.mError);
+  }
+  std::string path = resolutionResult.mValue;
+
   // Read the font file into a buffer.
   std::ifstream stream;
-  stream.open(file, std::ifstream::binary);
+  stream.open(path, std::ifstream::binary);
   if (!stream.is_open()) {
     std::stringstream error;
-    error << file << " could not be opened.";
+    error << path << " could not be opened.";
     return Result(error.str());
   }
   std::filebuf* fileBuffer = stream.rdbuf();
@@ -75,12 +89,19 @@ Result Font::Init(const std::string& file)
   int initResult = stbtt_InitFont(&mFontInfo, (unsigned char*)data, 0);
   if (initResult == 0) {
     std::stringstream error;
-    error << "Font within " << file << " could not be initialized.";
+    error << "Font within " << path << " could not be initialized.";
     Purge();
     return Result(error.str());
   }
   InitGlyphs();
   return Result();
+}
+
+Result Font::Init(const std::string& file)
+{
+  InitInfo info;
+  info.mFile = file;
+  return Init(info);
 }
 
 void Font::InitGlyphs()

@@ -1,4 +1,3 @@
-#include <filesystem>
 #include <sstream>
 
 #include "Options.h"
@@ -12,24 +11,7 @@ Asset<T>::Asset(const std::string& name): mName(name), mStatus(Status::Unneeded)
 template<typename T>
 Result Asset<T>::Init()
 {
-  // These path checks and conversions are necessary because a path may be
-  // relative to the working directory (consider files within vres/) or a
-  // project's resource directory.
-  Ds::Vector<std::string> paths;
-  for (size_t i = 0; i < mPaths.Size(); ++i) {
-    if (std::filesystem::exists(mPaths[i])) {
-      paths.Push(mPaths[i]);
-      continue;
-    }
-    std::string projectAssetPath = Options::PrependResDirectory(mPaths[i]);
-    if (!std::filesystem::exists(projectAssetPath)) {
-      std::stringstream error;
-      error << "Failed to open \"" << mPaths[i] << "\".";
-      return Result(error.str());
-    }
-    paths.Push(projectAssetPath);
-  }
-  return mResource.Init(paths);
+  return mResource.Init(mInitInfo);
 }
 
 template<typename T>
@@ -158,6 +140,18 @@ template<typename T>
 Asset<T>* TryGetAsset(AssetId id)
 {
   return AssetBin<T>::smAssets.Find(id);
+}
+
+template<typename T>
+void TryUpdateInitInfo(AssetId id, const typename T::InitInfo& info)
+{
+  Asset<T>* asset = TryGetAsset<T>(id);
+  if (asset == nullptr) {
+    return;
+  }
+  asset->mInitInfo = info;
+  asset->mResource.Purge();
+  asset->mStatus = AssLib::Status::Unneeded;
 }
 
 extern std::thread* nInitThread;

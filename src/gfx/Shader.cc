@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string.h>
 
+#include "AssetLibrary.h"
 #include "Error.h"
 #include "Shader.h"
 #include "util/Utility.h"
@@ -23,9 +24,16 @@ const char* Uniform::smTypeStrings[Uniform::Type::Count] = {
   "uMaterial.mSpecular"};
 bool Shader::smLogMissingUniforms = false;
 
-Result Shader::Init(const Ds::Vector<std::string>& paths)
+void Shader::InitInfo::Serialize(Vlk::Value& val) const
 {
-  return Init(paths[0].c_str(), paths[1].c_str());
+  val("VertexFile") = mVertexFile;
+  val("FragmentFile") = mFragmentFile;
+}
+
+void Shader::InitInfo::Deserialize(const Vlk::Explorer& ex)
+{
+  mVertexFile = ex("VertexFile").As<std::string>("");
+  mFragmentFile = ex("FragmentFile").As<std::string>("");
 }
 
 void Shader::Purge()
@@ -54,17 +62,30 @@ Shader::~Shader()
   Purge();
 }
 
-Result Shader::Init(const char* vertexFile, const char* fragmentFile)
+Result Shader::Init(const InitInfo& info)
 {
   Purge();
 
+  // Resolve resource paths.
+  ValueResult<std::string> resolutionResult =
+    AssLib::ResolveResourcePath(info.mVertexFile);
+  if (!resolutionResult.Success()) {
+    return Result(resolutionResult.mError);
+  }
+  std::string vertexPath = resolutionResult.mValue;
+  resolutionResult = AssLib::ResolveResourcePath(info.mFragmentFile);
+  if (!resolutionResult.Success()) {
+    return Result(resolutionResult.mError);
+  }
+  std::string fragmentPath = resolutionResult.mValue;
+
   // Compile the provided shader files.
   unsigned int vertexId, fragmentId;
-  Result result = Compile(vertexFile, GL_VERTEX_SHADER, &vertexId);
+  Result result = Compile(vertexPath, GL_VERTEX_SHADER, &vertexId);
   if (!result.Success()) {
     return result;
   }
-  result = Compile(fragmentFile, GL_FRAGMENT_SHADER, &fragmentId);
+  result = Compile(fragmentPath, GL_FRAGMENT_SHADER, &fragmentId);
   if (!result.Success()) {
     return result;
   }
@@ -83,7 +104,7 @@ Result Shader::Init(const char* vertexFile, const char* fragmentFile)
     char errorLog[errorLogLen];
     glGetProgramInfoLog(mProgram, errorLogLen, NULL, errorLog);
     std::stringstream reason;
-    reason << " shader files " << vertexFile << " and " << fragmentFile
+    reason << " shader files " << vertexPath << " and " << fragmentPath
            << " failed to link." << std::endl
            << errorLog;
     result.mError = reason.str();
@@ -92,6 +113,14 @@ Result Shader::Init(const char* vertexFile, const char* fragmentFile)
   InitializeUniforms();
   glFinish();
   return result;
+}
+
+Result Shader::Init(const char* vertexFile, const char* fragmentFile)
+{
+  InitInfo info;
+  info.mVertexFile = vertexFile;
+  info.mFragmentFile = fragmentFile;
+  return Init(info);
 }
 
 GLuint Shader::Id() const
@@ -275,14 +304,14 @@ Shader::IncludeResult Shader::HandleIncludes(
 }
 
 Result Shader::Compile(
-  const char* shaderFile, int shaderType, unsigned int* shaderId)
+  const std::string& filename, int shaderType, unsigned int* shaderId)
 {
   // Read the content of the provided file.
   std::ifstream file;
-  file.open(shaderFile);
+  file.open(filename);
   if (!file.is_open()) {
     std::stringstream reason;
-    reason << "Failed to open " << shaderFile;
+    reason << "Failed to open " << filename;
     return Result(reason.str());
   }
   std::stringstream fileContentStream;
@@ -291,10 +320,10 @@ Result Shader::Compile(
 
   // Handle all of the include statements within the file content and prepend
   // the version header.
-  IncludeResult includeResult = HandleIncludes(shaderFile, &fileContentStr);
+  IncludeResult includeResult = HandleIncludes(filename, &fileContentStr);
   if (!includeResult.mSuccess) {
     std::stringstream reason;
-    reason << "Failed to compile " << shaderFile << "." << std::endl
+    reason << "Failed to compile " << filename << "." << std::endl
            << includeResult.mError;
     return Result(reason.str());
   }
@@ -319,7 +348,7 @@ Result Shader::Compile(
   // Subtracting 1 removes the last newline character.
   std::string logStr(log, logLength - 1);
   std::stringstream error;
-  error << "Failed to compile " << shaderFile << ".\n";
+  error << "Failed to compile " << filename << ".\n";
 
   // We need to modify the retrieved error log so it has proper line numbers.
   std::regex expression("0\\(([0-9]+)\\)");

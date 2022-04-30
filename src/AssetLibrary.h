@@ -42,7 +42,7 @@ struct Asset
   std::string mName;
   T mResource;
   Status mStatus;
-  Ds::Vector<std::string> mPaths;
+  typename T::InitInfo mInitInfo;
 
   Asset(const std::string& name);
   Result Init();
@@ -51,6 +51,7 @@ struct Asset
   template<typename... Args>
   Result FullInit(Args&&... args);
 };
+ValueResult<std::string> ResolveResourcePath(const std::string& path);
 
 // These functions are the primary interface for the AssetLibrary.
 template<typename T>
@@ -65,6 +66,8 @@ template<typename T>
 Asset<T>& GetAsset(AssetId id);
 template<typename T>
 Asset<T>* TryGetAsset(AssetId id);
+template<typename T>
+void TryUpdateInitInfo(AssetId id, const typename T::InitInfo& info);
 
 // Every Asset type has a bin that stores all Assets of that type.
 template<typename T>

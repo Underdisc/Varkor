@@ -7,13 +7,20 @@
 #include "Result.h"
 #include "ds/Vector.h"
 #include "math/Vector.h"
+#include "vlk/Valkor.h"
 
 namespace Gfx {
 
 struct Font
 {
 public:
-  Result Init(const Ds::Vector<std::string>& paths);
+  struct InitInfo
+  {
+    std::string mFile;
+    void Serialize(Vlk::Value& val) const;
+    void Deserialize(const Vlk::Explorer& ex);
+  };
+  Result Init(const InitInfo& info);
   void Finalize() {};
   void Purge();
 
