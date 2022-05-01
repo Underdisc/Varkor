@@ -88,6 +88,8 @@ private:
   friend Ds::Vector<Value>;
 };
 
+template<>
+std::string Value::As<std::string>() const;
 template<typename T>
 T Value::As() const
 {

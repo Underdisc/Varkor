@@ -172,6 +172,7 @@ Floats:
   1
   11.34
   -3.1415
+SentenceString: This is a longer test string.
 Strings: 
   oh
   look

@@ -126,6 +126,7 @@ void SerializeDeserialize()
     floats[2] = -3.1415f;
 
     Vlk::Value& containerVal = rootVal("Container");
+    containerVal("SentenceString") = "This is a longer test string.";
     Vlk::Value& stringsVal = containerVal("Strings")[{3}];
     stringsVal[0][{2}];
     stringsVal[0][0] = "oh";
@@ -163,8 +164,11 @@ void SerializeDeserialize()
       std::cout << "  " << floats.TryGetValue(i)->As<float>() << std::endl;
     }
 
-    const Vlk::Pair& strings =
-      *rootVal.TryGetPair("Container")->TryGetPair("Strings");
+    const Vlk::Pair& container = *rootVal.TryGetPair("Container");
+    const Vlk::Pair& sentenceString = *container.TryGetPair("SentenceString");
+    std::cout << sentenceString.Key() << ": "
+              << sentenceString.As<std::string>() << std::endl;
+    const Vlk::Pair& strings = *container.TryGetPair("Strings");
     std::cout << strings.Key() << ": " << std::endl;
     for (size_t i = 0; i < strings.Size(); ++i) {
       for (size_t j = 0; j < strings[i].Size(); ++j) {

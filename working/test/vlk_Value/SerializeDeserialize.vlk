@@ -2,6 +2,7 @@
   :Integer: '5'
   :Floats: ['1', '11.34', '-3.1415']
   :Container: {
+    :SentenceString: 'This is a longer test string.'
     :Strings: [['oh', 'look'], ['a', 'stringy'], ['thingy']]
   }
   :PairArray: {

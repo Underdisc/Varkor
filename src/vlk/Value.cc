@@ -240,6 +240,13 @@ const Value& Value::operator[](size_t index) const
   return mValueArray[index];
 }
 
+template<>
+std::string Value::As<std::string>() const
+{
+  HardExpectType(Type::TrueValue);
+  return mTrueValue;
+}
+
 std::ostream& operator<<(std::ostream& os, Value::Type valueType)
 {
   switch (valueType) {
