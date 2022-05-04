@@ -64,7 +64,7 @@ Result Image::Init(const InitInfo& info)
     stbi_load(path.c_str(), &mWidth, &mHeight, &channels, 0);
   if (!data) {
     std::stringstream error;
-    error << "Failed to load " << path << ": " << stbi_failure_reason() << ".";
+    error << "Failed to load \"" << path << "\": " << stbi_failure_reason();
     return Result(error.str());
   }
 
