@@ -87,7 +87,12 @@ void FileInterface::Show()
     break;
   }
   if (ImGui::Button(buttonLabel, ImVec2(-1, 0))) {
-    mCallback(path.substr(2) + "/" + mFile);
+    if (2 > path.size()) {
+      mCallback(mFile);
+    }
+    else {
+      mCallback(path.substr(2) + "/" + mFile);
+    }
     mOpen = false;
   }
   ImGui::End();
