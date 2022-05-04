@@ -24,9 +24,18 @@ struct Uniform
     SkyboxSampler,
     ADiffuse,
     ASpecular,
-    Count,
   };
-  static const char* smTypeStrings[Type::Count];
+  constexpr static char* smTypeStrings[] {
+    "uModel",
+    "uTexture",
+    "uColor",
+    "uAlphaColor",
+    "uMemberId",
+    "uTime",
+    "uFillAmount",
+    "uSkyboxSampler",
+    "uMateial.mDiffuse",
+    "uMaterial.mSpecular"};
   Type mType;
   GLint mLocation;
 };

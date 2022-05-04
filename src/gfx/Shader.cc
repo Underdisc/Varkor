@@ -12,17 +12,6 @@
 
 namespace Gfx {
 
-const char* Uniform::smTypeStrings[Uniform::Type::Count] = {
-  "uModel",
-  "uTexture",
-  "uColor",
-  "uAlphaColor",
-  "uMemberId",
-  "uTime",
-  "uFillAmount",
-  "uSkyboxSampler",
-  "uMateial.mDiffuse",
-  "uMaterial.mSpecular"};
 bool Shader::smLogMissingUniforms = false;
 
 void Shader::InitInfo::Serialize(Vlk::Value& val) const
