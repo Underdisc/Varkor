@@ -14,7 +14,7 @@ struct Uniform
 {
   enum class Type
   {
-    Model,
+    Model = 0,
     Sampler,
     Color,
     AlphaColor,
@@ -24,6 +24,7 @@ struct Uniform
     SkyboxSampler,
     ADiffuse,
     ASpecular,
+    Count
   };
   constexpr static char* smTypeStrings[] {
     "uModel",

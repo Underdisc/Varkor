@@ -136,27 +136,17 @@ GLint Shader::UniformLocation(Uniform::Type type) const
 
 void Shader::InitializeUniforms()
 {
-  auto tryAddUniform = [this](Uniform::Type type)
-  {
-    const char* typeString = Uniform::smTypeStrings[(int)type];
+  for (int i = 0; i < (int)Uniform::Type::Count; ++i) {
+    Uniform::Type uniformType = (Uniform::Type)i;
+    const char* typeString = Uniform::smTypeStrings[i];
     int location = glGetUniformLocation(mProgram, typeString);
     if (location != smInvalidLocation) {
       Uniform newUniform;
-      newUniform.mType = type;
+      newUniform.mType = uniformType;
       newUniform.mLocation = location;
       mUniforms.Push(newUniform);
     }
-  };
-  tryAddUniform(Uniform::Type::Model);
-  tryAddUniform(Uniform::Type::Sampler);
-  tryAddUniform(Uniform::Type::Color);
-  tryAddUniform(Uniform::Type::AlphaColor);
-  tryAddUniform(Uniform::Type::MemberId);
-  tryAddUniform(Uniform::Type::Time);
-  tryAddUniform(Uniform::Type::FillAmount);
-  tryAddUniform(Uniform::Type::SkyboxSampler);
-  tryAddUniform(Uniform::Type::ADiffuse);
-  tryAddUniform(Uniform::Type::ASpecular);
+  }
 
   auto tryBindUniformBlock = [this](const char* name, GLuint binding)
   {
