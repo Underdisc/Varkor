@@ -21,6 +21,7 @@ struct Uniform
     MemberId,
     Time,
     FillAmount,
+    SkyboxSampler,
     ADiffuse,
     ASpecular,
     Count,

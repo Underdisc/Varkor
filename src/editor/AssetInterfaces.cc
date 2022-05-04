@@ -2,12 +2,46 @@
 
 #include "editor/AssetInterfaces.h"
 #include "editor/FileInterface.h"
+#include "gfx/Cubemap.h"
 #include "gfx/Font.h."
 #include "gfx/Image.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
 
 namespace Editor {
+
+template<>
+void AssetInterface<Gfx::Cubemap>::EditInitInfo(AssetId id)
+{
+  // Options for the different image files.
+  Gfx::Cubemap::InitInfo& info = AssLib::GetAsset<Gfx::Cubemap>(id).mInitInfo;
+  for (int i = 0; i < 6; ++i) {
+    if (ImGui::Button(info.mFiles[i].c_str(), ImVec2(-50, 0))) {
+      OpenInterface<FileInterface>(
+        [=](const std::string& path) mutable
+        {
+          info.mFiles[i] = path;
+          AssLib::TryUpdateInitInfo<Gfx::Cubemap>(id, info);
+        },
+        FileInterface::AccessType::Select);
+    }
+    ImGui::SameLine();
+    ImGui::Text(Gfx::Cubemap::InitInfo::smFileDescriptors[i]);
+  }
+
+  // Drop down box for the different filter types.
+  int currentFilterIndex = info.mFilter - GL_NEAREST;
+  int newFilterIndex = currentFilterIndex;
+  constexpr auto filterTypes = Gfx::Cubemap::InitInfo::smFilterTypes;
+  const int filterCount = sizeof(filterTypes) / sizeof(const char*);
+  ImGui::PushItemWidth(-80);
+  ImGui::Combo("Filter Type", &newFilterIndex, filterTypes, 2);
+  if (newFilterIndex != currentFilterIndex) {
+    info.mFilter = newFilterIndex + GL_NEAREST;
+    AssLib::TryUpdateInitInfo<Gfx::Cubemap>(id, info);
+  }
+  ImGui::PopItemWidth();
+}
 
 template<>
 void AssetInterface<Gfx::Shader>::EditInitInfo(AssetId id)

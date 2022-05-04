@@ -28,6 +28,7 @@
 #include "comp/DirectionalLight.h"
 #include "comp/PointLight.h"
 #include "comp/SpotLight.h"
+#include "comp/Skybox.h"
 // clang-format on
 
 namespace Registrar {
@@ -44,6 +45,7 @@ void RegisterTypes()
   Register<DirectionalLight>();
   Register<PointLight>();
   Register<SpotLight>();
+  Register<Skybox>();
 }
 
 void (*nRegisterCustomTypes)() = nullptr;

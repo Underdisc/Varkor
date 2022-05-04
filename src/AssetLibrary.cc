@@ -4,6 +4,7 @@
 #include "AssetLibrary.h"
 #include "Options.h"
 #include "Viewport.h"
+#include "gfx/Cubemap.h"
 #include "gfx/Font.h"
 #include "gfx/Image.h"
 #include "gfx/Mesh.h"
@@ -19,6 +20,7 @@ AssetId nDefaultTextShaderId;
 AssetId nFramebufferShaderId;
 AssetId nMemberIdShaderId;
 AssetId nDefaultSpriteShaderId;
+AssetId nDefaultSkyboxShaderId;
 AssetId nArrowModelId;
 AssetId nCubeModelId;
 AssetId nScaleModelId;
@@ -28,6 +30,7 @@ AssetId nTorusModelId;
 void InitRequiredAssets()
 {
   // Initialize all defaults.
+  AssetBin<Gfx::Cubemap>::Default("vres/image/whiteBox.png");
   AssetBin<Gfx::Font>::Default("vres/font/novaMono/font.ttf");
   AssetBin<Gfx::Image>::Default("vres/image/questionmarkSquare.png");
   AssetBin<Gfx::Model>::Default("vres/model/questionmarkCube.obj");
@@ -47,6 +50,8 @@ void InitRequiredAssets()
     "MemberId", "vres/shader/default.vs", "vres/shader/memberId.fs");
   nDefaultSpriteShaderId = AssetBin<Gfx::Shader>::Require(
     "DefaultSprite", "vres/shader/sprite.vs", "vres/shader/sprite.fs");
+  nDefaultSkyboxShaderId = AssetBin<Gfx::Shader>::Require(
+    "DefaultSkybox", "vres/shader/Skybox.vs", "vres/shader/Skybox.fs");
   nArrowModelId =
     AssetBin<Gfx::Model>::Require("Arrow", "vres/model/arrow.obj");
   nCubeModelId = AssetBin<Gfx::Model>::Require("Cube", "vres/model/cube.obj");
@@ -144,6 +149,7 @@ void DeserializeAssets()
     return;
   }
   Vlk::Explorer rootEx(rootVal);
+  DeserializeAssets<Gfx::Cubemap>(rootEx);
   DeserializeAssets<Gfx::Font>(rootEx);
   DeserializeAssets<Gfx::Image>(rootEx);
   DeserializeAssets<Gfx::Model>(rootEx);
@@ -153,6 +159,7 @@ void DeserializeAssets()
 void SerializeAssets()
 {
   Vlk::Value rootVal;
+  SerializeAssets<Gfx::Cubemap>(rootVal);
   SerializeAssets<Gfx::Font>(rootVal);
   SerializeAssets<Gfx::Image>(rootVal);
   SerializeAssets<Gfx::Model>(rootVal);
@@ -210,6 +217,7 @@ void HandleLoading()
   }
 
   // Handle the finalization of any assets that have completed initialization.
+  LoadBin<Gfx::Cubemap>::HandleFinalization();
   LoadBin<Gfx::Font>::HandleFinalization();
   LoadBin<Gfx::Image>::HandleFinalization();
   LoadBin<Gfx::Model>::HandleFinalization();
@@ -220,6 +228,7 @@ void InitThreadMain()
 {
   Viewport::InitContextSharing();
   while (nRemainingInits > 0 && !nStopInitThread) {
+    LoadBin<Gfx::Cubemap>::HandleInitialization();
     LoadBin<Gfx::Shader>::HandleInitialization();
     LoadBin<Gfx::Font>::HandleInitialization();
     LoadBin<Gfx::Image>::HandleInitialization();

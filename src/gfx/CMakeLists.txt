@@ -1,4 +1,5 @@
 target_sources(${varkorTarget} PRIVATE
+  Cubemap.cc
   Font.cc
   Framebuffer.cc
   Image.cc

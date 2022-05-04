@@ -10,6 +10,7 @@
 #include "comp/DirectionalLight.h"
 #include "comp/Model.h"
 #include "comp/PointLight.h"
+#include "comp/Skybox.h"
 #include "comp/SpotLight.h"
 #include "comp/Sprite.h"
 #include "comp/Text.h"
@@ -18,6 +19,7 @@
 #include "ds/Vector.h"
 #include "editor/Editor.h"
 #include "editor/OverviewInterface.h"
+#include "gfx/Cubemap.h"
 #include "gfx/Framebuffer.h"
 #include "gfx/Image.h"
 #include "gfx/Model.h"
@@ -35,6 +37,11 @@ GLuint nFullscreenVao;
 GLuint nFullscreenVbo;
 GLuint nSpriteVao;
 GLuint nSpriteVbo;
+
+GLuint nSkyboxVao;
+GLuint nSkyboxVbo;
+GLuint nSkyboxEbo;
+GLsizei nSkyboxElementCount;
 
 GLuint nUniversalUniformBufferVbo;
 GLuint nLightsUniformBufferVbo;
@@ -81,6 +88,54 @@ void Init()
   uploadQuadVertexArray(fullscreenVertices, &nFullscreenVao, &nFullscreenVbo);
   uploadQuadVertexArray(spriteVertices, &nSpriteVao, &nSpriteVbo);
 
+  // Initialize the buffers used for skybox rendering.
+  // clang-format off
+  float skyboxVertices[] = {
+     1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+  };
+  unsigned int skyboxElements[] = {
+    0, 1, 2,
+    0, 2, 3,
+    0, 7, 4,
+    0, 3, 7,
+    0, 4, 5,
+    0, 5, 1,
+    6, 4, 7,
+    6, 5, 4,
+    6, 3, 2,
+    6, 7, 3,
+    6, 1, 5,
+    6, 2, 1,
+  };
+  // clang-format on
+  nSkyboxElementCount = sizeof(skyboxElements) / sizeof(unsigned int);
+  glGenVertexArrays(1, &nSkyboxVao);
+  glBindVertexArray(nSkyboxVao);
+  glGenBuffers(1, &nSkyboxVbo);
+  glBindBuffer(GL_ARRAY_BUFFER, nSkyboxVbo);
+  glBufferData(
+    GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+  glGenBuffers(1, &nSkyboxEbo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nSkyboxEbo);
+  glBufferData(
+    GL_ELEMENT_ARRAY_BUFFER,
+    sizeof(skyboxElements),
+    skyboxElements,
+    GL_STATIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+  // Create the uniform buffers.
   auto CreateUniformBuffer = [](GLuint* vbo, GLsizeiptr size, GLuint binding)
   {
     glGenBuffers(1, vbo);
@@ -412,6 +467,33 @@ void RenderSpace(
   const Framebuffer& framebuffer = nSpaceFramebuffers[nNextSpaceFramebuffer];
   ++nNextSpaceFramebuffer;
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo());
+
+  // Render the skybox.
+  // todo: It's not necessary to render more than a single skybox.
+  space.VisitTableComponents<Comp::Skybox>(
+    [&](World::MemberId owner, const Comp::Skybox& skyboxComp)
+    {
+      const Gfx::Cubemap* cubemap =
+        AssLib::TryGetLive<Gfx::Cubemap>(skyboxComp.mCubemapId);
+      const Gfx::Shader* shader =
+        AssLib::TryGetLive<Gfx::Shader>(skyboxComp.mShaderId);
+      if (cubemap == nullptr || shader == nullptr) {
+        return;
+      }
+
+      GLint skyboxSamplerLoc =
+        shader->UniformLocation(Uniform::Type::SkyboxSampler);
+      glUseProgram(shader->Id());
+      glUniform1i(skyboxSamplerLoc, 0);
+
+      glBindVertexArray(nSkyboxVao);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->Id());
+      glDepthMask(GL_FALSE);
+      glDrawElements(GL_TRIANGLES, nSkyboxElementCount, GL_UNSIGNED_INT, 0);
+      glDepthMask(GL_TRUE);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+      glBindVertexArray(0);
+    });
 
   // Render all of the Model components.
   space.VisitTableComponents<Comp::Model>(

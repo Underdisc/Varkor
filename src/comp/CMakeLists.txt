@@ -4,6 +4,7 @@ target_sources(${varkorTarget} PRIVATE
   DirectionalLight.cc
   Model.cc
   PointLight.cc
+  Skybox.cc
   SpotLight.cc
   Sprite.cc
   Text.cc

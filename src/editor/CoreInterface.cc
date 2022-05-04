@@ -9,6 +9,7 @@
 #include "editor/FramerInterface.h"
 #include "editor/OverviewInterface.h"
 #include "editor/Utility.h"
+#include "gfx/Cubemap.h"
 #include "gfx/Font.h"
 #include "gfx/Image.h"
 #include "gfx/Model.h"
@@ -21,6 +22,7 @@ namespace Editor {
 void CoreInterface::Init()
 {
   OpenInterface<ErrorInterface>();
+  OpenInterface<AssetInterface<Gfx::Cubemap>>();
   OpenInterface<AssetInterface<Gfx::Font>>();
   OpenInterface<AssetInterface<Gfx::Image>>();
   OpenInterface<AssetInterface<Gfx::Model>>();
@@ -155,6 +157,9 @@ void CoreInterface::ViewMenu()
     OpenInterface<FramerInterface>();
   }
   if (ImGui::BeginMenu("Assets")) {
+    if (ImGui::MenuItem("Cubemaps")) {
+      OpenInterface<AssetInterface<Gfx::Cubemap>>();
+    }
     if (ImGui::MenuItem("Fonts")) {
       OpenInterface<AssetInterface<Gfx::Font>>();
     }
