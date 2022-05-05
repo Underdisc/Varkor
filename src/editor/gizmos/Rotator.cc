@@ -30,7 +30,7 @@ Rotator::Rotator(): mOperation(Operation::None)
     mHandles[i] = nSpace.CreateChildMember(mParent);
     Comp::AlphaColor& alphaColorComp =
       nSpace.AddComponent<Comp::AlphaColor>(mHandles[i]);
-    alphaColorComp.mAlphaColor = smHandleColors[i];
+    alphaColorComp.mColor = smHandleColors[i];
   }
 
   nSpace.AddComponent<Comp::Transform>(mX);
@@ -115,7 +115,7 @@ Quat Rotator::Run(
   if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
     Comp::AlphaColor& alphaColorComp =
       nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
-    alphaColorComp.mAlphaColor = smHandleColors[(int)mOperation];
+    alphaColorComp.mColor = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return rotation;
   }
@@ -127,9 +127,9 @@ Quat Rotator::Run(
     Editor::nSuppressObjectPicking |= true;
     Comp::AlphaColor& alphaColorComp =
       nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
-    alphaColorComp.mAlphaColor = smActiveColor;
+    alphaColorComp.mColor = smActiveColor;
     if (mOperation == Operation::Xyz) {
-      alphaColorComp.mAlphaColor[3] = 0.8f;
+      alphaColorComp.mColor[3] = 0.8f;
     }
     return rotation;
   }

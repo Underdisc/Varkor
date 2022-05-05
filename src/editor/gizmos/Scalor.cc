@@ -30,7 +30,7 @@ Scalor::Scalor(): mOperation(Operation::None)
     mHandles[i] = nSpace.CreateChildMember(mParent);
     Comp::AlphaColor& colorComp =
       nSpace.AddComponent<Comp::AlphaColor>(mHandles[i]);
-    colorComp.mAlphaColor = smHandleColors[i];
+    colorComp.mColor = smHandleColors[i];
   }
 
   Comp::Transform& xT = nSpace.AddComponent<Comp::Transform>(mX);
@@ -165,7 +165,7 @@ Vec3 Scalor::Run(
   if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
     Comp::AlphaColor& colorComp =
       nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
-    colorComp.mAlphaColor = smHandleColors[(int)mOperation];
+    colorComp.mColor = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return scale;
   }
@@ -177,7 +177,7 @@ Vec3 Scalor::Run(
     Editor::nSuppressObjectPicking |= true;
     Comp::AlphaColor& colorComp =
       nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
-    colorComp.mAlphaColor = smActiveColor;
+    colorComp.mColor = smActiveColor;
     return scale;
   }
 

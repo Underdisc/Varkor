@@ -522,7 +522,7 @@ void RenderSpace(
       if (alphaColorComp != nullptr) {
         GLint alphaColorLoc =
           shader->UniformLocation(Uniform::Type::AlphaColor);
-        glUniform4fv(alphaColorLoc, 1, alphaColorComp->mAlphaColor.CData());
+        glUniform4fv(alphaColorLoc, 1, alphaColorComp->mColor.CData());
       }
 
       World::Object object(const_cast<World::Space*>(&space), owner);
@@ -615,7 +615,7 @@ void RenderSpace(
       Comp::AlphaColor* alphaColorComp =
         space.TryGetComponent<Comp::AlphaColor>(owner);
       if (alphaColorComp != nullptr) {
-        glUniform4fv(colorLoc, 1, alphaColorComp->mAlphaColor.CData());
+        glUniform4fv(colorLoc, 1, alphaColorComp->mColor.CData());
       }
       else {
         Vec4 defaultColor = {0.0f, 1.0f, 0.0f, 1.0f};

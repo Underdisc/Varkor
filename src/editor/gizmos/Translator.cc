@@ -29,7 +29,7 @@ Translator::Translator(): mOperation(Operation::None)
     mHandles[i] = nSpace.CreateChildMember(mParent);
     Comp::AlphaColor& alphaColorComp =
       nSpace.AddComponent<Comp::AlphaColor>(mHandles[i]);
-    alphaColorComp.mAlphaColor = smHandleColors[i];
+    alphaColorComp.mColor = smHandleColors[i];
   }
 
   Comp::Transform& xT = nSpace.AddComponent<Comp::Transform>(mX);
@@ -156,7 +156,7 @@ Vec3 Translator::Run(
   if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
     Comp::AlphaColor& colorComp =
       nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
-    colorComp.mAlphaColor = smHandleColors[(int)mOperation];
+    colorComp.mColor = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return translation;
   }
@@ -168,7 +168,7 @@ Vec3 Translator::Run(
     Editor::nSuppressObjectPicking |= true;
     Comp::AlphaColor& colorComp =
       nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
-    colorComp.mAlphaColor = smActiveColor;
+    colorComp.mColor = smActiveColor;
     return translation;
   }
 
