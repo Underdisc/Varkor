@@ -1,18 +1,30 @@
-<= Vec3Serialize =>
+<= VectorSerialize =>
 {
-  :test0: ['0', '1', '2']
-  :test1: ['3', '4', '5']
-  :test2: ['6', '7', '8']
-  :test3: ['9', '10', '11']
-  :test4: ['12', '13', '14']
+  :vec2: ['0', '1']
+  :vec3: ['0', '1', '2']
+  :vec4: ['0', '1', '2', '3']
 }
 
-<= Vec3Deserialize =>
-Error|Vlk::Explorer::operator []: {}{test0} did not contain Value at [0]
+<= VectorDeserialize =>
+Error|Vlk::Explorer::operator []: {}{vec2}{0} did not contain Value at [0]
+[0, 1]
+Error|Vlk::Explorer::operator []: {}{vec2}{1} did not contain Value at [1]
+[2, 3]
+[2, 3]
+Error|Vlk::Explorer::operator []: {}{vec3}{0} did not contain Value at [0]
 [0, 1, 2]
-Error|Vlk::Explorer::operator []: {}{test1} did not contain Value at [1]
+Error|Vlk::Explorer::operator []: {}{vec3}{1} did not contain Value at [1]
 [3, 4, 5]
-Error|Vlk::Explorer::operator []: {}{test2} did not contain Value at [2]
+Error|Vlk::Explorer::operator []: {}{vec3}{2} did not contain Value at [2]
 [6, 7, 8]
 [4, 5, 6]
+Error|Vlk::Explorer::operator []: {}{vec4}{0} did not contain Value at [0]
+[0, 1, 2, 3]
+Error|Vlk::Explorer::operator []: {}{vec4}{1} did not contain Value at [1]
+[4, 5, 6, 7]
+Error|Vlk::Explorer::operator []: {}{vec4}{2} did not contain Value at [2]
+[8, 9, 10, 11]
+Error|Vlk::Explorer::operator []: {}{vec4}{3} did not contain Value at [3]
+[12, 13, 14, 15]
+[7, 8, 9, 10]
 

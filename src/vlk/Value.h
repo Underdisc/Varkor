@@ -12,6 +12,8 @@ namespace Vlk {
 
 struct Pair;
 struct Parser;
+template<typename T>
+struct Serializer;
 
 // Everything in Valkor is a Value. Pairs are a special type of Value that have
 // a key string in addition to the Value. This distinction exists because not
@@ -85,6 +87,8 @@ private:
 
   friend Pair;
   friend Parser;
+  template<typename>
+  friend struct Serializer;
   friend Ds::Vector<Value>;
 };
 
@@ -101,12 +105,21 @@ T Value::As() const
 }
 
 template<typename T>
+struct Serializer
+{
+  static void Serialize(Value& val, const T& value)
+  {
+    val.ExpectType(Value::Type::TrueValue);
+    std::stringstream ss;
+    ss << value;
+    val.mTrueValue = ss.str();
+  }
+};
+
+template<typename T>
 void Value::operator=(const T& value)
 {
-  ExpectType(Type::TrueValue);
-  std::stringstream ss;
-  ss << value;
-  mTrueValue = ss.str();
+  Serializer<T>::Serialize(*this, value);
 }
 
 struct Pair: public Value

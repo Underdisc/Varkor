@@ -7,6 +7,9 @@
 
 namespace Vlk {
 
+template<typename T>
+struct Deserializer;
+
 // The Explorer's purpose is to browse through the Value tree and keep track of
 // where in the Value tree the Explorer is. Unlike the Value, the Explorer
 // provides functions that logs errors any time a value access attempt is made
@@ -39,22 +42,33 @@ private:
   Explorer(const Explorer* parent, const Pair* pair);
   Explorer(const Explorer* parent, const Value* value, size_t index);
 
-  template<typename T>
-  T AsInternal(const T& defaultValue) const;
-
   const Explorer* mParent;
   const Value* mValue;
   size_t mIndex;
   bool mIsPair;
+
+  template<typename>
+  friend struct Deserializer;
+};
+
+template<typename T>
+struct Deserializer
+{
+  static bool Deserialize(const Explorer& ex, T* value)
+  {
+    *value = ex.mValue->As<T>();
+    return true;
+  }
 };
 
 template<typename T>
 T Explorer::As() const
 {
-  LogAbortIf(
-    !Valid(),
-    "As can only be used on invalid Explorers if a default value is provided.");
-  return mValue->As<T>();
+  LogAbortIf(!Valid(), "As without a default used on an invalid Explorer.");
+  T value;
+  bool deserialized = Deserializer<T>::Deserialize(*this, &value);
+  LogAbortIf(!deserialized, "As without a default failed deserialization.");
+  return value;
 }
 
 template<typename T>
@@ -63,13 +77,12 @@ T Explorer::As(const T& defaultValue) const
   if (!Valid()) {
     return defaultValue;
   }
-  return AsInternal(defaultValue);
-}
-
-template<typename T>
-T Explorer::AsInternal(const T& defaultValue) const
-{
-  return mValue->As<T>();
+  T value;
+  bool deserialized = Deserializer<T>::Deserialize(*this, &value);
+  if (!deserialized) {
+    return defaultValue;
+  }
+  return value;
 }
 
 } // namespace Vlk
