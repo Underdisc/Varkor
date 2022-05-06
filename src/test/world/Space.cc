@@ -320,11 +320,50 @@ void Dependencies()
   CallCounter::Reset();
 }
 
+void Slice()
+{
+  std::cout << "<= Slice =>\n";
+  World::Space space;
+  for (int i = 0; i < 20; ++i) {
+    World::MemberId memberId = space.CreateMember();
+    if (i < 10) {
+      space.AddComponent<Simple0>(memberId);
+    }
+    if (i % 2 == 0) {
+      space.AddComponent<Simple1>(memberId);
+    }
+    if (i >= 10) {
+      space.AddComponent<Dynamic>(memberId);
+    }
+  }
+
+  auto printMemberVector = [](const Ds::Vector<World::MemberId>& ids)
+  {
+    for (int i = 0; i < ids.Size(); ++i) {
+      std::cout << ' ' << ids[i];
+    }
+    std::cout << '\n';
+  };
+  Ds::Vector<World::MemberId> simple0Slice = space.Slice<Simple0>();
+  std::cout << "Simple0:";
+  printMemberVector(simple0Slice);
+  Ds::Vector<World::MemberId> simple1Slice = space.Slice<Simple1>();
+  std::cout << "Simple1:";
+  printMemberVector(simple1Slice);
+  Ds::Vector<World::MemberId> dynamicSlice = space.Slice<Dynamic>();
+  std::cout << "Dynamic:";
+  printMemberVector(dynamicSlice);
+}
+
 void RunTest(void (*test)())
 {
-  CallCounter::Reset();
+  static bool firstTest = true;
+  if (!firstTest) {
+    std::cout << '\n';
+    CallCounter::Reset();
+  }
   test();
-  std::cout << '\n';
+  firstTest = false;
 }
 
 int main(void)

@@ -261,62 +261,62 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   const unsigned int maxDirectionalLights = 1;
   unsigned int directionalLightCount = 0;
   GLintptr offset = 16;
-  space.VisitTableComponents<Comp::DirectionalLight>(
-    [&](World::MemberId owner, const Comp::DirectionalLight& light)
-    {
-      if (directionalLightCount >= maxDirectionalLights) {
-        return;
-      }
-      glBufferSubData(buffer, offset, sizeof(Vec3), light.mDirection.mD);
-      glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mAmbient.mD);
-      glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mDiffuse.mD);
-      glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mSpecular.mD);
-      offset += 64;
-      ++directionalLightCount;
-    });
+  Ds::Vector<World::MemberId> slice = space.Slice<Comp::DirectionalLight>();
+  for (int i = 0; i < slice.Size(); ++i) {
+    auto& light = space.Get<Comp::DirectionalLight>(slice[i]);
+    if (directionalLightCount >= maxDirectionalLights) {
+      break;
+    }
+    glBufferSubData(buffer, offset, sizeof(Vec3), light.mDirection.mD);
+    glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mAmbient.mD);
+    glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mDiffuse.mD);
+    glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mSpecular.mD);
+    offset += 64;
+    ++directionalLightCount;
+  }
 
   const unsigned int maxPointLights = 100;
   unsigned int pointLightCount = 0;
   offset = 16 + maxDirectionalLights * 64;
-  space.VisitTableComponents<Comp::PointLight>(
-    [&](World::MemberId owner, const Comp::PointLight& light)
-    {
-      if (pointLightCount >= maxPointLights) {
-        return;
-      }
-      glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
-      glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mAmbient.mD);
-      glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mDiffuse.mD);
-      glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mSpecular.mD);
-      glBufferSubData(buffer, offset + 60, sizeof(float), &light.mConstant);
-      glBufferSubData(buffer, offset + 64, sizeof(float), &light.mLinear);
-      glBufferSubData(buffer, offset + 68, sizeof(float), &light.mQuadratic);
-      offset += 80;
-      ++pointLightCount;
-    });
+  slice = Util::Move(space.Slice<Comp::PointLight>());
+  for (int i = 0; i < slice.Size(); ++i) {
+    auto& light = space.Get<Comp::PointLight>(slice[i]);
+    if (pointLightCount >= maxPointLights) {
+      return;
+    }
+    glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
+    glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mAmbient.mD);
+    glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mDiffuse.mD);
+    glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mSpecular.mD);
+    glBufferSubData(buffer, offset + 60, sizeof(float), &light.mConstant);
+    glBufferSubData(buffer, offset + 64, sizeof(float), &light.mLinear);
+    glBufferSubData(buffer, offset + 68, sizeof(float), &light.mQuadratic);
+    offset += 80;
+    ++pointLightCount;
+  }
 
   const unsigned int maxSpotLights = 100;
   unsigned int spotLightCount = 0;
   offset = 16 + maxDirectionalLights * 64 + maxPointLights * 80;
-  space.VisitTableComponents<Comp::SpotLight>(
-    [&](World::MemberId owner, const Comp::SpotLight& light)
-    {
-      if (spotLightCount >= maxSpotLights) {
-        return;
-      }
-      glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
-      glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mDirection.mD);
-      glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mAmbient.mD);
-      glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mDiffuse.mD);
-      glBufferSubData(buffer, offset + 64, sizeof(Vec3), light.mSpecular.mD);
-      glBufferSubData(buffer, offset + 76, sizeof(float), &light.mConstant);
-      glBufferSubData(buffer, offset + 80, sizeof(float), &light.mLinear);
-      glBufferSubData(buffer, offset + 84, sizeof(float), &light.mQuadratic);
-      glBufferSubData(buffer, offset + 88, sizeof(float), &light.mInnerCutoff);
-      glBufferSubData(buffer, offset + 92, sizeof(float), &light.mOuterCutoff);
-      offset += 96;
-      ++spotLightCount;
-    });
+  slice = Util::Move(space.Slice<Comp::SpotLight>());
+  for (int i = 0; i < slice.Size(); ++i) {
+    auto& light = space.Get<Comp::SpotLight>(slice[i]);
+    if (spotLightCount >= maxSpotLights) {
+      return;
+    }
+    glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
+    glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mDirection.mD);
+    glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mAmbient.mD);
+    glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mDiffuse.mD);
+    glBufferSubData(buffer, offset + 64, sizeof(Vec3), light.mSpecular.mD);
+    glBufferSubData(buffer, offset + 76, sizeof(float), &light.mConstant);
+    glBufferSubData(buffer, offset + 80, sizeof(float), &light.mLinear);
+    glBufferSubData(buffer, offset + 84, sizeof(float), &light.mQuadratic);
+    glBufferSubData(buffer, offset + 88, sizeof(float), &light.mInnerCutoff);
+    glBufferSubData(buffer, offset + 92, sizeof(float), &light.mOuterCutoff);
+    offset += 96;
+    ++spotLightCount;
+  }
 
   glBufferSubData(buffer, 0, sizeof(unsigned int), &directionalLightCount);
   glBufferSubData(buffer, 4, sizeof(unsigned int), &pointLightCount);
@@ -338,62 +338,65 @@ void RenderMemberIds(
   GLint memberIdLoc = memberIdShader->UniformLocation(Uniform::Type::MemberId);
 
   glUseProgram(memberIdShader->Id());
-  // Render MemberIds for every model.
-  space.VisitTableComponents<Comp::Model>(
-    [&](World::MemberId owner, const Comp::Model& modelComp)
-    {
-      const Gfx::Model* model =
-        AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
-      if (model == nullptr) {
-        return;
-      }
 
-      glUniform1i(memberIdLoc, (int)owner);
-      World::Object object(const_cast<World::Space*>(&space), owner);
-      Mat4 memberTransformation = GetTransformation(object);
-      for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo()) {
-        Mat4 transformation = memberTransformation * drawInfo.mTransformation;
-        glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
-        const Gfx::Mesh& mesh = model->GetMesh(drawInfo.mMeshIndex);
-        glBindVertexArray(mesh.Vao());
-        glDrawElements(
-          GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-      }
-    });
+  // Render MemberIds for every model.
+  Ds::Vector<World::MemberId> slice = space.Slice<Comp::Model>();
+  for (int i = 0; i < slice.Size(); ++i) {
+    auto& modelComp = space.Get<Comp::Model>(slice[i]);
+    const Gfx::Model* model =
+      AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
+    if (model == nullptr) {
+      return;
+    }
+
+    glUniform1i(memberIdLoc, (int)slice[i]);
+    World::Object object(const_cast<World::Space*>(&space), slice[i]);
+    Mat4 memberTransformation = GetTransformation(object);
+    for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo()) {
+      Mat4 transformation = memberTransformation * drawInfo.mTransformation;
+      glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
+      const Gfx::Mesh& mesh = model->GetMesh(drawInfo.mMeshIndex);
+      glBindVertexArray(mesh.Vao());
+      glDrawElements(
+        GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
+      glBindVertexArray(0);
+    }
+  }
+
+  glDisable(GL_CULL_FACE);
 
   // Render MemberIds for every sprite.
-  glDisable(GL_CULL_FACE);
-  space.VisitTableComponents<Comp::Sprite>(
-    [&](World::MemberId owner, const Comp::Sprite& spriteComp)
-    {
-      const Gfx::Image* image =
-        AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
-      if (image == nullptr) {
-        return;
-      }
+  slice = Util::Move(space.Slice<Comp::Sprite>());
+  for (int i = 0; i < slice.Size(); ++i) {
+    auto& spriteComp = space.Get<Comp::Sprite>(slice[i]);
+    const Gfx::Image* image =
+      AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
+    if (image == nullptr) {
+      return;
+    }
 
-      World::Object object(const_cast<World::Space*>(&space), owner);
-      Mat4 transformation = GetImageTransformation(object, *image);
-      glUniform1i(memberIdLoc, (int)owner);
-      glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
-      RenderQuad(nSpriteVao);
-    });
+    World::Object object(const_cast<World::Space*>(&space), slice[i]);
+    Mat4 transformation = GetImageTransformation(object, *image);
+    glUniform1i(memberIdLoc, (int)slice[i]);
+    glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
+    RenderQuad(nSpriteVao);
+  }
 
   // Render MemberIds for every text component.
-  space.VisitTableComponents<Comp::Text>(
-    [&](World::MemberId owner, const Comp::Text& textComp)
-    {
-      World::Object object(const_cast<World::Space*>(&space), owner);
-      Mat4 baseTransformation = GetTransformation(object);
-      Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
-      for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo) {
-        Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
-        glUniform1i(memberIdLoc, (int)owner);
-        glUniformMatrix4fv(modelLoc, 1, true, glyphTransformation.CData());
-        RenderQuad(nSpriteVao);
-      }
-    });
+  slice = Util::Move(space.Slice<Comp::Text>());
+  for (int i = 0; i < slice.Size(); ++i) {
+    World::Object object(const_cast<World::Space*>(&space), slice[i]);
+    Mat4 baseTransformation = GetTransformation(object);
+    auto& textComp = object.Get<Comp::Text>();
+    Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
+    for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo) {
+      Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
+      glUniform1i(memberIdLoc, (int)slice[i]);
+      glUniformMatrix4fv(modelLoc, 1, true, glyphTransformation.CData());
+      RenderQuad(nSpriteVao);
+    }
+  }
+
   glEnable(GL_CULL_FACE);
 }
 
@@ -460,7 +463,8 @@ void RenderSpace(
   InitializeUniversalUniformBuffer(view, proj, viewPos);
   InitializeLightsUniformBuffer(space);
 
-  // Get the next space framebuffer that hasn't been rendered to and bind it.
+  // Get the next space framebuffer that hasn't been rendered to and bind
+  // it.
   if (nNextSpaceFramebuffer >= nSpaceFramebuffers.Size()) {
     nSpaceFramebuffers.Emplace(GL_RGBA, GL_UNSIGNED_BYTE);
   }
@@ -470,169 +474,170 @@ void RenderSpace(
 
   // Render the skybox.
   // todo: It's not necessary to render more than a single skybox.
-  space.VisitTableComponents<Comp::Skybox>(
-    [&](World::MemberId owner, const Comp::Skybox& skyboxComp)
-    {
-      const Gfx::Cubemap* cubemap =
-        AssLib::TryGetLive<Gfx::Cubemap>(skyboxComp.mCubemapId);
-      const Gfx::Shader* shader =
-        AssLib::TryGetLive<Gfx::Shader>(skyboxComp.mShaderId);
-      if (cubemap == nullptr || shader == nullptr) {
-        return;
-      }
+  Ds::Vector<World::MemberId> slice = space.Slice<Comp::Skybox>();
+  for (int i = 0; i < slice.Size(); ++i) {
+    const Comp::Skybox& skyboxComp = space.Get<Comp::Skybox>(slice[i]);
+    const Gfx::Cubemap* cubemap =
+      AssLib::TryGetLive<Gfx::Cubemap>(skyboxComp.mCubemapId);
+    const Gfx::Shader* shader =
+      AssLib::TryGetLive<Gfx::Shader>(skyboxComp.mShaderId);
+    if (cubemap == nullptr || shader == nullptr) {
+      return;
+    }
 
-      GLint skyboxSamplerLoc =
-        shader->UniformLocation(Uniform::Type::SkyboxSampler);
-      glUseProgram(shader->Id());
-      glUniform1i(skyboxSamplerLoc, 0);
+    GLint skyboxSamplerLoc =
+      shader->UniformLocation(Uniform::Type::SkyboxSampler);
+    glUseProgram(shader->Id());
+    glUniform1i(skyboxSamplerLoc, 0);
 
-      glBindVertexArray(nSkyboxVao);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->Id());
-      glDepthMask(GL_FALSE);
-      glDrawElements(GL_TRIANGLES, nSkyboxElementCount, GL_UNSIGNED_INT, 0);
-      glDepthMask(GL_TRUE);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-      glBindVertexArray(0);
-    });
+    glBindVertexArray(nSkyboxVao);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->Id());
+    glDepthMask(GL_FALSE);
+    glDrawElements(GL_TRIANGLES, nSkyboxElementCount, GL_UNSIGNED_INT, 0);
+    glDepthMask(GL_TRUE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    glBindVertexArray(0);
+  }
 
   // Render all of the Model components.
-  space.VisitTableComponents<Comp::Model>(
-    [&](World::MemberId owner, const Comp::Model& modelComp)
-    {
-      if (!modelComp.mVisible) {
-        return;
-      }
-      const Gfx::Shader* shader =
-        AssLib::TryGetLive<Gfx::Shader>(modelComp.mShaderId);
-      const Gfx::Model* model =
-        AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
-      if (shader == nullptr || model == nullptr) {
-        return;
-      }
+  slice = Util::Move(space.Slice<Comp::Model>());
+  for (int i = 0; i < slice.Size(); ++i) {
+    auto& modelComp = space.Get<Comp::Model>(slice[i]);
+    if (!modelComp.mVisible) {
+      return;
+    }
+    const Gfx::Shader* shader =
+      AssLib::TryGetLive<Gfx::Shader>(modelComp.mShaderId);
+    const Gfx::Model* model =
+      AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
+    if (shader == nullptr || model == nullptr) {
+      return;
+    }
 
-      GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
-      GLint timeLoc = shader->UniformLocation(Uniform::Type::Time);
-      GLint diffuseLoc = shader->UniformLocation(Uniform::Type::ADiffuse);
-      GLint specLoc = shader->UniformLocation(Uniform::Type::ASpecular);
+    GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
+    GLint timeLoc = shader->UniformLocation(Uniform::Type::Time);
+    GLint diffuseLoc = shader->UniformLocation(Uniform::Type::ADiffuse);
+    GLint specLoc = shader->UniformLocation(Uniform::Type::ASpecular);
 
-      glUseProgram(shader->Id());
-      glUniform1f(timeLoc, Temporal::TotalTime());
-      Comp::AlphaColor* alphaColorComp =
-        space.TryGetComponent<Comp::AlphaColor>(owner);
-      if (alphaColorComp != nullptr) {
-        GLint alphaColorLoc =
-          shader->UniformLocation(Uniform::Type::AlphaColor);
-        glUniform4fv(alphaColorLoc, 1, alphaColorComp->mColor.CData());
-      }
+    glUseProgram(shader->Id());
+    glUniform1f(timeLoc, Temporal::TotalTime());
+    Comp::AlphaColor* alphaColorComp =
+      space.TryGetComponent<Comp::AlphaColor>(slice[i]);
+    if (alphaColorComp != nullptr) {
+      GLint alphaColorLoc = shader->UniformLocation(Uniform::Type::AlphaColor);
+      glUniform4fv(alphaColorLoc, 1, alphaColorComp->mColor.CData());
+    }
 
-      World::Object object(const_cast<World::Space*>(&space), owner);
-      Mat4 memberTransformation = GetTransformation(object);
-      for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo()) {
-        // Prepare all of the textures.
-        const Material& material = model->GetMaterial(drawInfo.mMaterialIndex);
-        int textureCounter = 0;
-        Ds::Vector<GLint> indices;
-        for (const Material::TextureGroup& group : material.mGroups) {
-          indices.Reserve(group.mImages.Size());
-          for (const Image& image : group.mImages) {
-            glActiveTexture(GL_TEXTURE0 + textureCounter);
-            glBindTexture(GL_TEXTURE_2D, image.Id());
-            indices.Push(textureCounter);
-            ++textureCounter;
-          }
-          switch (group.mType) {
-          case Material::TextureType::Diffuse:
-            glUniform1iv(diffuseLoc, (GLsizei)indices.Size(), indices.CData());
-            break;
-          case Material::TextureType::Specular:
-            glUniform1iv(specLoc, (GLsizei)indices.Size(), indices.CData());
-            break;
-          }
-          indices.Clear();
+    World::Object object(const_cast<World::Space*>(&space), slice[i]);
+    Mat4 memberTransformation = GetTransformation(object);
+    for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo()) {
+      // Prepare all of the textures.
+      const Material& material = model->GetMaterial(drawInfo.mMaterialIndex);
+      int textureCounter = 0;
+      Ds::Vector<GLint> indices;
+      for (const Material::TextureGroup& group : material.mGroups) {
+        indices.Reserve(group.mImages.Size());
+        for (const Image& image : group.mImages) {
+          glActiveTexture(GL_TEXTURE0 + textureCounter);
+          glBindTexture(GL_TEXTURE_2D, image.Id());
+          indices.Push(textureCounter);
+          ++textureCounter;
         }
-
-        // Render the mesh.
-        Mat4 transformation = memberTransformation * drawInfo.mTransformation;
-        glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
-        const Mesh& mesh = model->GetMesh(drawInfo.mMeshIndex);
-        glBindVertexArray(mesh.Vao());
-        glDrawElements(
-          GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        switch (group.mType) {
+        case Material::TextureType::Diffuse:
+          glUniform1iv(diffuseLoc, (GLsizei)indices.Size(), indices.CData());
+          break;
+        case Material::TextureType::Specular:
+          glUniform1iv(specLoc, (GLsizei)indices.Size(), indices.CData());
+          break;
+        }
+        indices.Clear();
       }
-    });
+
+      // Render the mesh.
+      Mat4 transformation = memberTransformation * drawInfo.mTransformation;
+      glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
+      const Mesh& mesh = model->GetMesh(drawInfo.mMeshIndex);
+      glBindVertexArray(mesh.Vao());
+      glDrawElements(
+        GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
+      glBindVertexArray(0);
+    }
+  }
 
   glDisable(GL_CULL_FACE);
+
   // Render all of the Sprite components.
-  space.VisitTableComponents<Comp::Sprite>(
-    [&](World::MemberId owner, const Comp::Sprite& spriteComp)
-    {
-      const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(
-        spriteComp.mShaderId, AssLib::nDefaultSpriteShaderId);
-      const Gfx::Image* image =
-        AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
-      if (shader == nullptr || image == nullptr) {
-        return;
-      }
+  slice = Util::Move(space.Slice<Comp::Sprite>());
+  for (int i = 0; i < slice.Size(); ++i) {
+    const Comp::Sprite& spriteComp = space.Get<Comp::Sprite>(slice[i]);
+    const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(
+      spriteComp.mShaderId, AssLib::nDefaultSpriteShaderId);
+    const Gfx::Image* image =
+      AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
+    if (shader == nullptr || image == nullptr) {
+      return;
+    }
 
-      GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
-      GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
+    GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
+    GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
 
-      glUseProgram(shader->Id());
-      glUniform1i(samplerLoc, 0);
-      World::Object object(const_cast<World::Space*>(&space), owner);
-      Mat4 transformation = GetImageTransformation(object, *image);
-      glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
+    glUseProgram(shader->Id());
+    glUniform1i(samplerLoc, 0);
+    World::Object object(const_cast<World::Space*>(&space), slice[i]);
+    Mat4 transformation = GetImageTransformation(object, *image);
+    glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
 
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, image->Id());
-      RenderQuad(nSpriteVao);
-      glBindTexture(GL_TEXTURE_2D, 0);
-    });
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, image->Id());
+    RenderQuad(nSpriteVao);
+    glBindTexture(GL_TEXTURE_2D, 0);
+  }
 
   // Render all of the Text components.
-  space.VisitTableComponents<Comp::Text>(
-    [&](World::MemberId owner, Comp::Text& textComp)
-    {
-      if (!textComp.mVisible) {
-        return;
-      }
-      const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(
-        textComp.mShaderId, AssLib::nDefaultTextShaderId);
-      if (shader == nullptr) {
-        return;
-      }
+  slice = Util::Move(space.Slice<Comp::Text>());
+  for (int i = 0; i < slice.Size(); ++i) {
+    const Comp::Text& textComp = space.Get<Comp::Text>(slice[i]);
+    if (!textComp.mVisible) {
+      return;
+    }
+    const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(
+      textComp.mShaderId, AssLib::nDefaultTextShaderId);
+    if (shader == nullptr) {
+      return;
+    }
 
-      GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
-      GLint colorLoc = shader->UniformLocation(Uniform::Type::Color);
-      GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
-      GLint fillAmountLoc = shader->UniformLocation(Uniform::Type::FillAmount);
+    GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
+    GLint colorLoc = shader->UniformLocation(Uniform::Type::Color);
+    GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
+    GLint fillAmountLoc = shader->UniformLocation(Uniform::Type::FillAmount);
 
-      glUseProgram(shader->Id());
-      glUniform1i(samplerLoc, 0);
-      glUniform1f(fillAmountLoc, textComp.mFillAmount);
+    glUseProgram(shader->Id());
+    glUniform1i(samplerLoc, 0);
+    glUniform1f(fillAmountLoc, textComp.mFillAmount);
 
-      Comp::AlphaColor* alphaColorComp =
-        space.TryGetComponent<Comp::AlphaColor>(owner);
-      if (alphaColorComp != nullptr) {
-        glUniform4fv(colorLoc, 1, alphaColorComp->mColor.CData());
-      }
-      else {
-        Vec4 defaultColor = {0.0f, 1.0f, 0.0f, 1.0f};
-        glUniform4fv(colorLoc, 1, defaultColor.CData());
-      }
+    Comp::AlphaColor* alphaColorComp =
+      space.TryGetComponent<Comp::AlphaColor>(slice[i]);
+    if (alphaColorComp != nullptr) {
+      glUniform4fv(colorLoc, 1, alphaColorComp->mColor.CData());
+    }
+    else {
+      Vec4 defaultColor = {0.0f, 1.0f, 0.0f, 1.0f};
+      glUniform4fv(colorLoc, 1, defaultColor.CData());
+    }
 
-      World::Object object(const_cast<World::Space*>(&space), owner);
-      Mat4 baseTransformation = GetTransformation(object);
-      Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
-      for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo) {
-        Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
-        glUniformMatrix4fv(modelLoc, 1, true, glyphTransformation.CData());
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, drawInfo.mId);
-        RenderQuad(nSpriteVao);
-      }
-    });
+    World::Object object(const_cast<World::Space*>(&space), slice[i]);
+    Mat4 baseTransformation = GetTransformation(object);
+    Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
+    for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo) {
+      Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
+      glUniformMatrix4fv(modelLoc, 1, true, glyphTransformation.CData());
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, drawInfo.mId);
+      RenderQuad(nSpriteVao);
+    }
+  }
+
   glEnable(GL_CULL_FACE);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

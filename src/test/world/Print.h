@@ -82,11 +82,10 @@ template<typename T>
 void PrintSpaceComponentData(const World::Space& space)
 {
   std::cout << Comp::Type<T>::smId << ": ";
-  space.VisitTableComponents<T>(
-    [](World::MemberId memberId, T& component)
-    {
-      component.PrintData();
-    });
+  Ds::Vector<World::MemberId> slice = space.Slice<T>();
+  for (int i = 0; i < slice.Size(); ++i) {
+    space.Get<T>(slice[i]).PrintData();
+  }
   std::cout << std::endl;
 }
 

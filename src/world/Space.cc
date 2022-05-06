@@ -102,12 +102,12 @@ void Space::Update()
       continue;
     }
 
-    table.VisitActiveIndices(
-      [&](size_t index)
-      {
-        currentObject.mMemberId = table.GetOwner(index);
-        typeData.mVUpdate.Invoke(table[index], currentObject);
-      });
+    for (int i = 0; i < table.Size(); ++i) {
+      if (table.ActiveIndex(i)) {
+        currentObject.mMemberId = table.GetOwner(i);
+        typeData.mVUpdate.Invoke(table[i], currentObject);
+      }
+    }
   }
 }
 
@@ -408,17 +408,17 @@ bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
   return component != nullptr;
 }
 
-void Space::VisitMemberComponents(
-  MemberId memberId, std::function<void(Comp::TypeId, size_t)> visit) const
+Ds::Vector<ComponentDescriptor> Space::GetDescriptors(MemberId memberId) const
 {
   VerifyMemberId(memberId);
+  Ds::Vector<ComponentDescriptor> descriptors;
   const Member& member = mMembers[memberId];
   DescriptorId descId = member.mFirstDescriptorId;
   while (descId < member.EndDescriptorId()) {
-    const ComponentDescriptor& desc = mDescriptorBin[descId];
-    visit(desc.mTypeId, desc.mTableIndex);
+    descriptors.Push(mDescriptorBin[descId]);
     ++descId;
   }
+  return descriptors;
 }
 
 Ds::Vector<MemberId> Space::RootMemberIds() const
@@ -474,19 +474,18 @@ void Space::Serialize(Vlk::Value& spaceVal) const
       childrenVal[i] = member.mChildren[i];
     }
     Vlk::Value& componentsVal = memberVal("Components");
-    VisitMemberComponents(
-      memberId,
-      [&](Comp::TypeId typeId, size_t tableIndex)
-      {
-        const Comp::TypeData& typeData = Comp::nTypeData[typeId];
-        if (!typeData.mVSerialize.Open()) {
-          return;
-        }
+    Ds::Vector<ComponentDescriptor> descriptors = GetDescriptors(memberId);
+    for (int i = 0; i < descriptors.Size(); ++i) {
+      const ComponentDescriptor& desc = descriptors[i];
+      const Comp::TypeData& typeData = Comp::nTypeData[desc.mTypeId];
+      if (!typeData.mVSerialize.Open()) {
+        return;
+      }
 
-        Vlk::Value& componentVal = componentsVal(typeData.mName);
-        Table& table = mTables.Get(typeId);
-        typeData.mVSerialize.Invoke(table[tableIndex], componentVal);
-      });
+      Vlk::Value& componentVal = componentsVal(typeData.mName);
+      Table& table = mTables.Get(desc.mTypeId);
+      typeData.mVSerialize.Invoke(table[desc.mTableIndex], componentVal);
+    }
   }
 }
 

@@ -25,36 +25,35 @@ void InspectorInterface::Show()
   }
 
   // Display all of the Member's components and the active component hooks.
-  World::Member& member = mObject.GetMember();
-  mObject.mSpace->VisitMemberComponents(
-    mObject.mMemberId,
-    [this](Comp::TypeId typeId, size_t tableIndex)
-    {
-      bool removeComponent = false;
-      const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-      const HookFunctions& hookFunctions = GetHookFunctions(typeId);
-      bool inspecting = ImGui::CollapsingHeader(typeData.mName.c_str());
-      if (ImGui::BeginPopupContextItem()) {
-        if (ImGui::Selectable("Remove")) {
-          removeComponent = true;
-        }
-        ImGui::EndPopup();
+  Ds::Vector<World::ComponentDescriptor> descriptors =
+    mObject.mSpace->GetDescriptors(mObject.mMemberId);
+  for (int i = 0; i < descriptors.Size(); ++i) {
+    bool removeComponent = false;
+    const World::ComponentDescriptor& desc = descriptors[i];
+    const Comp::TypeData& typeData = Comp::GetTypeData(desc.mTypeId);
+    const HookFunctions& hookFunctions = GetHookFunctions(desc.mTypeId);
+    bool inspecting = ImGui::CollapsingHeader(typeData.mName.c_str());
+    if (ImGui::BeginPopupContextItem()) {
+      if (ImGui::Selectable("Remove")) {
+        removeComponent = true;
       }
-      HookInterface* hook = hookFunctions.mFinder(this);
-      if (inspecting) {
-        if (hook == nullptr) {
-          hook = hookFunctions.mOpener(this);
-        }
-        hook->Edit(mObject);
+      ImGui::EndPopup();
+    }
+    HookInterface* hook = hookFunctions.mFinder(this);
+    if (inspecting) {
+      if (hook == nullptr) {
+        hook = hookFunctions.mOpener(this);
       }
-      else if (hook != nullptr) {
-        hookFunctions.mCloser(this);
-      }
-      if (removeComponent == true) {
-        hookFunctions.mCloser(this);
-        mObject.RemComponent(typeId);
-      }
-    });
+      hook->Edit(mObject);
+    }
+    else if (hook != nullptr) {
+      hookFunctions.mCloser(this);
+    }
+    if (removeComponent == true) {
+      hookFunctions.mCloser(this);
+      mObject.RemComponent(desc.mTypeId);
+    }
+  }
   ImGui::End();
 }
 

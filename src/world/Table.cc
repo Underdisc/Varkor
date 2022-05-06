@@ -12,11 +12,11 @@ Table::Table(Comp::TypeId typeId):
 Table::~Table()
 {
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
-  VisitComponents(
-    [&typeData](void* component)
-    {
-      typeData.mDestruct(component);
-    });
+  for (int i = 0; i < mSize; ++i) {
+    if (ActiveIndex(i)) {
+      typeData.mDestruct(GetComponent(i));
+    }
+  }
   if (mData != nullptr) {
     delete[] mData;
   }
@@ -80,6 +80,11 @@ MemberId Table::GetOwner(size_t index) const
   return mOwners[index];
 }
 
+bool Table::ActiveIndex(size_t index) const
+{
+  return mOwners[index] != nInvalidMemberId;
+}
+
 Comp::TypeId Table::TypeId() const
 {
   return mTypeId;
@@ -106,24 +111,6 @@ size_t Table::Capacity() const
   return mCapacity;
 }
 
-void Table::VisitComponents(std::function<void(void*)> visit) const
-{
-  VisitActiveIndices(
-    [&](size_t index)
-    {
-      visit(GetComponent(index));
-    });
-}
-
-void Table::VisitActiveIndices(std::function<void(size_t)> visit) const
-{
-  for (size_t i = 0; i < mSize; ++i) {
-    if (GetOwner(i) != nInvalidMemberId) {
-      visit(i);
-    }
-  }
-}
-
 void Table::Grow()
 {
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
@@ -135,14 +122,15 @@ void Table::Grow()
     char* oldData = mData;
     mCapacity = (size_t)((float)mCapacity * smGrowthFactor);
     char* newData = alloc char[mCapacity * typeData.mSize];
-    VisitActiveIndices(
-      [&](size_t index)
-      {
-        void* oldComponent = (void*)(oldData + index * typeData.mSize);
-        void* newComponent = (void*)(newData + index * typeData.mSize);
-        typeData.mMoveConstruct(oldComponent, newComponent);
-        typeData.mDestruct(oldComponent);
-      });
+    for (int i = 0; i < mSize; ++i) {
+      if (!ActiveIndex(i)) {
+        continue;
+      }
+      void* oldComponent = (void*)(oldData + i * typeData.mSize);
+      void* newComponent = (void*)(newData + i * typeData.mSize);
+      typeData.mMoveConstruct(oldComponent, newComponent);
+      typeData.mDestruct(oldComponent);
+    }
     mData = newData;
     delete[] oldData;
   }

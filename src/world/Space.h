@@ -102,11 +102,8 @@ struct Space
   bool HasComponent(Comp::TypeId typeId, MemberId memberId) const;
 
   template<typename T>
-  void VisitTableComponents(
-    std::function<void(World::MemberId, T&)> visit) const;
-  void VisitMemberComponents(
-    MemberId memberId, std::function<void(Comp::TypeId, size_t)> visit) const;
-
+  Ds::Vector<MemberId> Slice() const;
+  Ds::Vector<ComponentDescriptor> GetDescriptors(MemberId memberId) const;
   Ds::Vector<MemberId> RootMemberIds() const;
 
   // Private member access.

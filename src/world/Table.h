@@ -25,6 +25,7 @@ public:
   void* operator[](size_t index) const;
   void* GetComponent(size_t index) const;
   MemberId GetOwner(size_t index) const;
+  bool ActiveIndex(size_t index) const;
 
   // Access private members that allow the component table to function.
   Comp::TypeId TypeId() const;
@@ -32,9 +33,6 @@ public:
   size_t Stride() const;
   size_t Size() const;
   size_t Capacity() const;
-
-  void VisitComponents(std::function<void(void*)> visit) const;
-  void VisitActiveIndices(std::function<void(size_t)> visit) const;
 
   static constexpr size_t smStartCapacity = 10;
   static constexpr float smGrowthFactor = 2.0f;
