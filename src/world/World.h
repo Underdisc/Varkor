@@ -8,6 +8,7 @@
 
 namespace World {
 
+extern bool nPause;
 extern Ds::List<Space> nSpaces;
 typedef Ds::List<Space>::Iter SpaceIt;
 

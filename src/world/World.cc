@@ -6,6 +6,7 @@
 
 namespace World {
 
+bool nPause = true;
 Ds::List<Space> nSpaces;
 
 // Function pointers for calling into project code.
@@ -19,10 +20,12 @@ void Purge()
 
 void Update()
 {
+  if (nPause) {
+    return;
+  }
   if (nCentralUpdate != nullptr) {
     nCentralUpdate();
   }
-
   SpaceIt it = nSpaces.begin();
   SpaceIt itE = nSpaces.end();
   while (it != itE) {

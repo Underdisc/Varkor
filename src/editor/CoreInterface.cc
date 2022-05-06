@@ -38,6 +38,7 @@ void CoreInterface::Show()
   ImGui::EndMenuBar();
 
   ImGui::Checkbox("Editor Mode", &nEditorMode);
+  ImGui::Checkbox("Pause World", &World::nPause);
 
   // Display a button for space creation and display all of the existing spaces.
   if (ImGui::Button("Create Space", ImVec2(-1, 0))) {
