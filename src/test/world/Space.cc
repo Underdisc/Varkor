@@ -16,7 +16,6 @@ void Registration()
   PrintRegistration<Dynamic>();
   PrintRegistration<Container>();
   PrintRegistration<Dependant>();
-  std::cout << "\n";
 }
 
 void CreateMember()
@@ -27,7 +26,6 @@ void CreateMember()
     space.CreateMember();
   }
   PrintSpaceMembers(space);
-  std::cout << std::endl;
 }
 
 void DeleteMember()
@@ -44,7 +42,6 @@ void DeleteMember()
   }
   PrintSpaceMembers(space);
   PrintSpaceUnusedMemberIds(space);
-  std::cout << std::endl;
 }
 
 void ParentChildMembers()
@@ -77,7 +74,6 @@ void ParentChildMembers()
   }
   PrintSpaceMembers(space);
   PrintSpaceRelationships(space);
-  std::cout << std::endl;
 }
 
 void AddComponent()
@@ -105,7 +101,6 @@ void AddComponent()
 
   PrintSpace(space);
   PrintSpaceTestTypeComponentData(space);
-  std::cout << std::endl;
 }
 
 void RemComponent()
@@ -147,7 +142,6 @@ void RemComponent()
   PrintSpaceDescriptorBin(space);
   PrintSpaceTablesStats(space);
   PrintSpaceTablesOwners(space);
-  std::cout << std::endl;
 }
 
 void DeleteMembersWithComponents()
@@ -198,7 +192,6 @@ void DeleteMembersWithComponents()
   PrintSpaceDescriptorBin(space);
   PrintSpaceUnusedMemberIds(space);
   PrintSpaceTablesOwners(space);
-  std::cout << std::endl;
 }
 
 void GetComponent()
@@ -232,7 +225,6 @@ void GetComponent()
 
   PrintSpace(space);
   PrintSpaceTestTypeComponentData(space);
-  std::cout << std::endl;
 }
 
 void HasComponent()
@@ -257,8 +249,7 @@ void HasComponent()
             << space.HasComponent<Simple1>(mem1)
             << space.HasComponent<Dynamic>(mem1)
             << space.HasComponent<Container>(mem1)
-            << space.HasComponent<Simple0>(World::nInvalidMemberId) << std::endl
-            << std::endl;
+            << space.HasComponent<Simple0>(World::nInvalidMemberId) << '\n';
 }
 
 void Duplicate()
@@ -300,7 +291,6 @@ void Duplicate()
   PrintSpaceDescriptorBin(space);
   PrintSpaceRelationships(space);
   PrintSpaceTestTypeComponentData(space);
-  std::cout << "\n";
 }
 
 void Dependencies()
@@ -330,21 +320,29 @@ void Dependencies()
   CallCounter::Reset();
 }
 
+void RunTest(void (*test)())
+{
+  CallCounter::Reset();
+  test();
+  std::cout << '\n';
+}
+
 int main(void)
 {
   EnableLeakOutput();
   RegisterComponentTypes();
   PrintKey();
 
-  Registration();
-  CreateMember();
-  DeleteMember();
-  ParentChildMembers();
-  AddComponent();
-  RemComponent();
-  DeleteMembersWithComponents();
-  GetComponent();
-  HasComponent();
-  Duplicate();
-  Dependencies();
+  RunTest(Registration);
+  RunTest(CreateMember);
+  RunTest(DeleteMember);
+  RunTest(ParentChildMembers);
+  RunTest(AddComponent);
+  RunTest(RemComponent);
+  RunTest(DeleteMembersWithComponents);
+  RunTest(GetComponent);
+  RunTest(HasComponent);
+  RunTest(Duplicate);
+  RunTest(Dependencies);
+  RunTest(Slice);
 }
