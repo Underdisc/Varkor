@@ -42,6 +42,7 @@ BindableTypeFunction(Init, void, const World::Object&);
 BindableTypeFunction(Update, void, const World::Object&);
 BindableTypeFunction(Serialize, void, Vlk::Value&);
 BindableTypeFunction(Deserialize, void, const Vlk::Explorer&);
+BindableTypeFunction(Edit, void);
 
 template<typename T>
 TypeId Type<T>::smId = nInvalidTypeId;
@@ -93,6 +94,7 @@ void Type<T>::Register()
   BindVUpdate<T>(&data.mVUpdate);
   BindVSerialize<T>(&data.mVSerialize);
   BindVDeserialize<T>(&data.mVDeserialize);
+  BindVEdit<T>(&data.mVEdit);
 
   nTypeData.Push(data);
 }

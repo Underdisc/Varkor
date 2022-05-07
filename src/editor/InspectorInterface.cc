@@ -41,10 +41,16 @@ void InspectorInterface::Show()
     }
     HookInterface* hook = hookFunctions.mFinder(this);
     if (inspecting) {
-      if (hook == nullptr) {
-        hook = hookFunctions.mOpener(this);
+      if (typeData.mVEdit.Open()) {
+        void* component = mObject.GetComponent(desc.mTypeId);
+        typeData.mVEdit.Invoke(component);
       }
-      hook->Edit(mObject);
+      else {
+        if (hook == nullptr) {
+          hook = hookFunctions.mOpener(this);
+        }
+        hook->Edit(mObject);
+      }
     }
     else if (hook != nullptr) {
       hookFunctions.mCloser(this);

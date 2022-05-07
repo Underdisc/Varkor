@@ -42,6 +42,7 @@ struct TypeData
   Util::Delegate<void, const World::Object&> mVUpdate;
   Util::Delegate<void, Vlk::Value&> mVSerialize;
   Util::Delegate<void, const Vlk::Explorer&> mVDeserialize;
+  Util::Delegate<void> mVEdit;
 
   template<typename Dependant, typename Dependency, typename... Rest>
   void AddDependencies();
