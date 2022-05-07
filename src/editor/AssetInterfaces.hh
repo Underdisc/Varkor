@@ -59,6 +59,9 @@ void AssetInterface<T>::Show()
       ImGui::Separator();
       InputText("Name", &asset.mName);
       EditInitInfo(id);
+      if (ImGui::Button("Refresh", ImVec2(-1, 0))) {
+        asset.mStatus = AssLib::Status::Unneeded;
+      }
       ImGui::Separator();
     }
   }
