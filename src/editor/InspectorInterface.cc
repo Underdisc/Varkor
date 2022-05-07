@@ -50,7 +50,9 @@ void InspectorInterface::Show()
       hookFunctions.mCloser(this);
     }
     if (removeComponent == true) {
-      hookFunctions.mCloser(this);
+      if (hook != nullptr) {
+        hookFunctions.mCloser(this);
+      }
       mObject.RemComponent(desc.mTypeId);
     }
   }
