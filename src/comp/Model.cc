@@ -6,6 +6,7 @@ void Model::VInit(const World::Object& owner)
 {
   mModelId = AssLib::nDefaultAssetId;
   mShaderId = AssLib::nDefaultAssetId;
+  mVisible = true;
 }
 
 void Model::VSerialize(Vlk::Value& modelVal)
