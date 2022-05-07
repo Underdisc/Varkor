@@ -479,7 +479,7 @@ void Space::Serialize(Vlk::Value& spaceVal) const
       const ComponentDescriptor& desc = descriptors[i];
       const Comp::TypeData& typeData = Comp::nTypeData[desc.mTypeId];
       if (!typeData.mVSerialize.Open()) {
-        return;
+        continue;
       }
 
       Vlk::Value& componentVal = componentsVal(typeData.mName);

@@ -282,7 +282,7 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   for (int i = 0; i < slice.Size(); ++i) {
     auto& light = space.Get<Comp::PointLight>(slice[i]);
     if (pointLightCount >= maxPointLights) {
-      return;
+      break;
     }
     glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
     glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mAmbient.mD);
@@ -302,7 +302,7 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   for (int i = 0; i < slice.Size(); ++i) {
     auto& light = space.Get<Comp::SpotLight>(slice[i]);
     if (spotLightCount >= maxSpotLights) {
-      return;
+      break;
     }
     glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
     glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mDirection.mD);
@@ -346,7 +346,7 @@ void RenderMemberIds(
     const Gfx::Model* model =
       AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
     if (model == nullptr) {
-      return;
+      continue;
     }
 
     glUniform1i(memberIdLoc, (int)slice[i]);
@@ -372,7 +372,7 @@ void RenderMemberIds(
     const Gfx::Image* image =
       AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
     if (image == nullptr) {
-      return;
+      continue;
     }
 
     World::Object object(const_cast<World::Space*>(&space), slice[i]);
@@ -482,7 +482,7 @@ void RenderSpace(
     const Gfx::Shader* shader =
       AssLib::TryGetLive<Gfx::Shader>(skyboxComp.mShaderId);
     if (cubemap == nullptr || shader == nullptr) {
-      return;
+      continue;
     }
 
     GLint skyboxSamplerLoc =
@@ -504,14 +504,14 @@ void RenderSpace(
   for (int i = 0; i < slice.Size(); ++i) {
     auto& modelComp = space.Get<Comp::Model>(slice[i]);
     if (!modelComp.mVisible) {
-      return;
+      continue;
     }
     const Gfx::Shader* shader =
       AssLib::TryGetLive<Gfx::Shader>(modelComp.mShaderId);
     const Gfx::Model* model =
       AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
     if (shader == nullptr || model == nullptr) {
-      return;
+      continue;
     }
 
     GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
@@ -576,7 +576,7 @@ void RenderSpace(
     const Gfx::Image* image =
       AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
     if (shader == nullptr || image == nullptr) {
-      return;
+      continue;
     }
 
     GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
@@ -599,12 +599,12 @@ void RenderSpace(
   for (int i = 0; i < slice.Size(); ++i) {
     const Comp::Text& textComp = space.Get<Comp::Text>(slice[i]);
     if (!textComp.mVisible) {
-      return;
+      continue;
     }
     const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(
       textComp.mShaderId, AssLib::nDefaultTextShaderId);
     if (shader == nullptr) {
-      return;
+      continue;
     }
 
     GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
