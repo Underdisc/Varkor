@@ -473,30 +473,26 @@ void RenderSpace(
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo());
 
   // Render the skybox.
-  // todo: It's not necessary to render more than a single skybox.
   Ds::Vector<World::MemberId> slice = space.Slice<Comp::Skybox>();
-  for (int i = 0; i < slice.Size(); ++i) {
-    const Comp::Skybox& skyboxComp = space.Get<Comp::Skybox>(slice[i]);
+  if (slice.Size() > 0) {
+    const Comp::Skybox& skyboxComp = space.Get<Comp::Skybox>(slice[0]);
     const Gfx::Cubemap* cubemap =
       AssLib::TryGetLive<Gfx::Cubemap>(skyboxComp.mCubemapId);
     const Gfx::Shader* shader =
       AssLib::TryGetLive<Gfx::Shader>(skyboxComp.mShaderId);
-    if (cubemap == nullptr || shader == nullptr) {
-      continue;
+    if (cubemap != nullptr && shader != nullptr) {
+      GLint skyboxSamplerLoc =
+        shader->UniformLocation(Uniform::Type::SkyboxSampler);
+      glUseProgram(shader->Id());
+      glUniform1i(skyboxSamplerLoc, 0);
+
+      glBindVertexArray(nSkyboxVao);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->Id());
+      glDepthMask(GL_FALSE);
+      glDrawElements(GL_TRIANGLES, nSkyboxElementCount, GL_UNSIGNED_INT, 0);
+      glDepthMask(GL_TRUE);
+      glBindVertexArray(0);
     }
-
-    GLint skyboxSamplerLoc =
-      shader->UniformLocation(Uniform::Type::SkyboxSampler);
-    glUseProgram(shader->Id());
-    glUniform1i(skyboxSamplerLoc, 0);
-
-    glBindVertexArray(nSkyboxVao);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->Id());
-    glDepthMask(GL_FALSE);
-    glDrawElements(GL_TRIANGLES, nSkyboxElementCount, GL_UNSIGNED_INT, 0);
-    glDepthMask(GL_TRUE);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    glBindVertexArray(0);
   }
 
   // Render all of the Model components.
@@ -518,6 +514,8 @@ void RenderSpace(
     GLint timeLoc = shader->UniformLocation(Uniform::Type::Time);
     GLint diffuseLoc = shader->UniformLocation(Uniform::Type::ADiffuse);
     GLint specLoc = shader->UniformLocation(Uniform::Type::ASpecular);
+    GLint skyboxSamplerLoc =
+      shader->UniformLocation(Uniform::Type::SkyboxSampler);
 
     glUseProgram(shader->Id());
     glUniform1f(timeLoc, Temporal::TotalTime());
@@ -527,6 +525,7 @@ void RenderSpace(
       GLint alphaColorLoc = shader->UniformLocation(Uniform::Type::AlphaColor);
       glUniform4fv(alphaColorLoc, 1, alphaColorComp->mColor.CData());
     }
+    glUniform1i(skyboxSamplerLoc, 0);
 
     World::Object object(const_cast<World::Space*>(&space), slice[i]);
     Mat4 memberTransformation = GetTransformation(object);
@@ -639,6 +638,7 @@ void RenderSpace(
   }
 
   glEnable(GL_CULL_FACE);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
