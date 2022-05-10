@@ -26,6 +26,7 @@ public:
   void Reserve(size_t newCapacity);
   void Shrink();
 
+  size_t Find(const T& value) const;
   bool Contains(const T& value) const;
   size_t Size() const;
   bool Empty() const;

@@ -280,6 +280,20 @@ void MoveAssignment()
   std::cout << std::endl;
 }
 
+void Find()
+{
+  std::cout << "<= Find =>" << std::endl;
+  Ds::Vector<int> test;
+  for (int i = 0; i < 20; ++i) {
+    if (i % 2 == 0) {
+      test.Push(i);
+    }
+  }
+  std::cout << "4: " << test.Find(4) << '\n';
+  std::cout << "12: " << test.Find(12) << '\n';
+  std::cout << "13: " << test.Find(13) << "\n\n";
+}
+
 void Contains()
 {
   std::cout << "<= Contains =>" << std::endl;
@@ -479,6 +493,7 @@ int main(void)
   IndexOperator();
   CopyAssignment();
   MoveAssignment();
+  Find();
   Contains();
   ResizeAndShrink();
   Reserve();

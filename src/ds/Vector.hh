@@ -197,14 +197,24 @@ void Vector<T>::Shrink()
 }
 
 template<typename T>
-bool Vector<T>::Contains(const T& value) const
+size_t Vector<T>::Find(const T& value) const
 {
   for (size_t i = 0; i < mSize; ++i) {
     if (mData[i] == value) {
-      return true;
+      return i;
     }
   }
-  return false;
+  return mSize;
+}
+
+template<typename T>
+bool Vector<T>::Contains(const T& value) const
+{
+  size_t index = Find(value);
+  if (index == mSize) {
+    return false;
+  }
+  return true;
 }
 
 template<typename T>
