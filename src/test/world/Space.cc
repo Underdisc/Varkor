@@ -55,14 +55,21 @@ void ParentChildMembers()
   space.MakeParent(memberIds[0], memberIds[1]);
   space.MakeParent(memberIds[0], memberIds[2]);
   space.MakeParent(memberIds[0], memberIds[3]);
+  space.CreateChildMember(memberIds[0]);
+
   space.MakeParent(memberIds[1], memberIds[4]);
+  space.CreateChildMember(memberIds[1]);
+
   space.MakeParent(memberIds[2], memberIds[5]);
+  space.CreateChildMember(memberIds[2]);
+
   space.MakeParent(memberIds[3], memberIds[6]);
   space.MakeParent(memberIds[3], memberIds[7]);
-  space.CreateChildMember(memberIds[0]);
-  space.CreateChildMember(memberIds[1]);
-  space.CreateChildMember(memberIds[2]);
   space.CreateChildMember(memberIds[3]);
+
+  space.MakeParent(memberIds[8], memberIds[9]);
+  space.CreateChildMember(memberIds[8]);
+
   PrintSpaceMembers(space);
   PrintSpaceRelationships(space);
 
@@ -72,6 +79,10 @@ void ParentChildMembers()
   for (size_t i = 0; i < 11; ++i) {
     space.CreateMember();
   }
+
+  // Delete a member that has a parent.
+  space.DeleteMember(memberIds[9]);
+
   PrintSpaceMembers(space);
   PrintSpaceRelationships(space);
 }

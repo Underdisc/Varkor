@@ -61,18 +61,19 @@ UnusedMemberIds: 0, 2, 4, 6, 8
 -MemberBin-
 00: [empty] [empty] [empty] [empty] [empty]
 05: [empty] [empty] [empty] [empty] [empty]
-10: [empty] [empty] [empty] [empty]
+10: [empty] [empty] [empty] [empty] [empty]
 -Relationships-
 00: [1|0] [2|0] [3|0] [10|0]
 01: [4|1] [11|1]
 02: [5|2] [12|2]
 03: [6|3] [7|3] [13|3]
+08: [9|8] [14|8]
 -MemberBin-
 00: [empty] [empty] [empty] [empty] [ inv ]
-05: [empty] [empty] [empty] [empty] [empty]
-10: [empty] [empty] [empty] [empty]
+05: [empty] [empty] [empty] [empty] [ inv ]
+10: [empty] [empty] [empty] [empty] [empty]
 -Relationships-
-None
+08: [14|8]
 
 <= AddComponent =>
 -MemberBin-

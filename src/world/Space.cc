@@ -195,7 +195,7 @@ void Space::DeleteMember(MemberId memberId)
     DeleteMember(childId);
   }
 
-  // Remove all of the member's components and end its use.
+  // Remove all of the member's components.
   DescriptorId descId = member.mFirstDescriptorId;
   while (descId < member.EndDescriptorId()) {
     ComponentDescriptor& desc = mDescriptorBin[descId];
@@ -204,6 +204,16 @@ void Space::DeleteMember(MemberId memberId)
     desc.EndUse();
     ++descId;
   }
+
+  // Remove the parent's reference to the child.
+  if (member.mParent != nInvalidMemberId) {
+    Member& parent = mMembers[member.mParent];
+    size_t index = parent.mChildren.Find(memberId);
+    if (index != parent.mChildren.Size()) {
+      parent.mChildren.LazyRemove(index);
+    }
+  }
+
   member.EndUse();
   mUnusedMemberIds.Push(memberId);
 }
