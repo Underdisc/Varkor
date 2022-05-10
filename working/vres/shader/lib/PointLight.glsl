@@ -22,7 +22,7 @@ vec3 CalcPointLight(
   vec3 ambient = light.ambient * surface.diffuse;
   vec3 diffuse =
     CalcDiffuse(surface.normal, lightDir, light.diffuse, surface.diffuse);
-  vec3 specular = CalcSpecular(
+  vec3 specular = BlinnSpecular(
     surface.normal,
     lightDir,
     viewDir,

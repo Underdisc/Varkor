@@ -7,6 +7,20 @@ vec3 CalcDiffuse(
   return diffuseFactor * diffuseColor * diffuseSample;
 }
 
+vec3 BlinnSpecular(
+  vec3 normal,
+  vec3 lightDir,
+  vec3 viewDir,
+  vec3 lightColor,
+  vec3 sample,
+  float exponent)
+{
+  vec3 halfway = normalize(lightDir + viewDir);
+  float factor = max(dot(normal, halfway), 0.0);
+  factor = pow(factor, exponent);
+  return factor * lightColor * sample;
+}
+
 vec3 CalcSpecular(
   vec3 normal,
   vec3 lightDir,
