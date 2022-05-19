@@ -16,6 +16,7 @@ void Text::VInit(const World::Object& owner)
   mAlign = Alignment::Left;
   mWidth = 10.0f;
   mFillAmount = 1.0f;
+  mVisible = true;
 }
 
 void Text::VSerialize(Vlk::Value& textVal)
