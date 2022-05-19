@@ -9,6 +9,7 @@ namespace Editor {
 
 extern bool nEditorMode;
 extern bool nSuppressObjectPicking;
+extern bool nHideInterface;
 extern World::Space nSpace;
 extern Camera nCamera;
 extern CoreInterface nCoreInterface;
