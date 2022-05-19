@@ -39,6 +39,11 @@ bool Object::HasComponent(Comp::TypeId typeId) const
   return mSpace->HasComponent(typeId, mMemberId);
 }
 
+void Object::Delete() const
+{
+  mSpace->DeleteMember(mMemberId);
+}
+
 Object Object::CreateChild() const
 {
   return Object(mSpace, mSpace->CreateChildMember(mMemberId));

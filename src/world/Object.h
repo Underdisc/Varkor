@@ -46,6 +46,7 @@ struct Object
   void* TryGetComponent(Comp::TypeId typeId) const;
   bool HasComponent(Comp::TypeId typeId) const;
 
+  void Delete() const;
   Object CreateChild() const;
   Object Duplicate() const;
   Member& GetMember() const;
