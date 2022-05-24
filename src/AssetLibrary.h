@@ -22,10 +22,12 @@ std::string PrependResDirectory(const std::string& path);
 ValueResult<std::string> ResolveResourcePath(const std::string& path);
 
 // AssetIds refer to an Asset within an AssetBin. Positive AssetIds refer to
-// typical user Assets. Negative AssetIds and 0 refer to required Assets.
+// assets that will be serialized. Negative AssetIds and 0 refer to assets that
+// won't be serialized.
 typedef int AssetId;
 constexpr AssetId nDefaultAssetId = 0;
-bool IsRequiredId(AssetId id);
+constexpr AssetId nInvalidAssetId = -1;
+bool SerializableId(AssetId id);
 
 // Assets have a status to indicate whether they are ready for use or not.
 enum class Status
@@ -36,9 +38,18 @@ enum class Status
   Live,
 };
 
-// Any type can be an Asset, but the type needs to have an Init function that
-// takes a vector of paths, a Finalize function, and a Purge function. The
-// functions must be defined, but can have empty definitions.
+// Any type can be an Asset, but the type needs to define these things in order
+// to make full use of the AssetLibrary's functionality.
+/*
+struct InitInfo {
+  void Prep(...) {...}
+  void Serialize(Vlk::Value&) {...}
+  void Deserialize(const Vlk::Explorer&) {...}
+};
+Result Init(const InitInfo&) {...}
+void Finalize() {...}
+void Purge() {...}
+*/
 template<typename T>
 struct Asset
 {
@@ -48,6 +59,8 @@ struct Asset
   typename T::InitInfo mInitInfo;
 
   Asset(const std::string& name);
+  template<typename... Args>
+  void Prep(Args&&... args);
   Result Init();
   void Finalize();
   Result FullInit();
@@ -56,10 +69,12 @@ struct Asset
 };
 
 // These functions are the primary interface for the AssetLibrary.
-template<typename T>
-AssetId CreateEmpty(const std::string& name, bool includeId = false);
 template<typename T, typename... Args>
-AssetId CreateInit(const std::string& name, Args&&... args);
+AssetId Require(const std::string& name, Args&&... args);
+template<typename T, typename... Args>
+AssetId Create(const std::string& name, Args&&... args);
+template<typename T>
+AssetId CreateSerializable(const std::string& name);
 template<typename T>
 void Remove(AssetId id);
 template<typename T>
@@ -80,18 +95,21 @@ struct AssetBin
   static void Default(Args&&... args);
   template<typename... Args>
   static AssetId Require(const std::string& name, Args&&... args);
+  template<typename... Args>
+  static AssetId Create(const std::string& name, Args&&... args);
+  static AssetId CreateSerializable(const std::string& name);
 
-  static AssetId smIdHandout;
-  static AssetId smRequiredIdHandout;
-  static AssetId NextId();
-  static AssetId NextRequiredId();
+  static AssetId smSerializableIdHandout;
+  static AssetId NextSerializableId();
+  static AssetId smNonserializableIdHandout;
+  static AssetId NextNonserializableId();
 };
 template<typename T>
 Ds::Map<AssetId, Asset<T>> AssetBin<T>::smAssets;
 template<typename T>
-AssetId AssetBin<T>::smIdHandout = 1;
+AssetId AssetBin<T>::smSerializableIdHandout = 1;
 template<typename T>
-AssetId AssetBin<T>::smRequiredIdHandout = -1;
+AssetId AssetBin<T>::smNonserializableIdHandout = -2;
 
 // Every Asset type has a bin for queueing the ids of Assets that need to be
 // initialized on the init thread and finalized.

@@ -48,6 +48,7 @@ public:
   {
     std::string mVertexFile;
     std::string mFragmentFile;
+    void Prep(const char* vertexFile, const char* fragmentFile);
     void Serialize(Vlk::Value& val) const;
     void Deserialize(const Vlk::Explorer& ex);
   };

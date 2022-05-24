@@ -9,6 +9,13 @@ Asset<T>::Asset(const std::string& name): mName(name), mStatus(Status::Unneeded)
 {}
 
 template<typename T>
+template<typename... Args>
+void Asset<T>::Prep(Args&&... args)
+{
+  mInitInfo.Prep(args...);
+}
+
+template<typename T>
 Result Asset<T>::Init()
 {
   return mResource.Init(mInitInfo);
@@ -52,26 +59,21 @@ Result Asset<T>::FullInit(Args&&... args)
 }
 
 template<typename T>
-AssetId CreateEmpty(const std::string& name, bool includeId)
+AssetId CreateSerializable(const std::string& name)
 {
-  AssetId id = AssetBin<T>::NextId();
-  std::stringstream ss;
-  ss << name;
-  if (includeId) {
-    ss << id;
-  }
-  AssetBin<T>::smAssets.Emplace(id, ss.str());
-  return id;
+  return AssetBin<T>::CreateSerializable(name);
 }
 
 template<typename T, typename... Args>
-AssetId CreateInit(const std::string& name, Args&&... args)
+AssetId Create(const std::string& name, Args&&... args)
 {
-  AssetId id = AssetBin<T>::NextId();
-  Asset<T>& asset = AssetBin<T>::smAssets.Emplace(id, name);
-  Result result = asset.FullInit(args...);
-  LogAbortIf(!result.Success(), "Asset failed initialization.");
-  return id;
+  return AssetBin<T>::Create(name, args...);
+}
+
+template<typename T, typename... Args>
+AssetId Require(const std::string& name, Args&&... args)
+{
+  return AssetBin<T>::Require(name, args...);
 }
 
 template<typename T>
@@ -84,8 +86,8 @@ template<typename T>
 template<typename... Args>
 void AssetBin<T>::Default(Args&&... args)
 {
-  Asset<T>& defaultAsset = smAssets.Emplace(nDefaultAssetId, "Default");
-  Result result = defaultAsset.FullInit(args...);
+  Asset<T>& asset = smAssets.Emplace(nDefaultAssetId, "Default");
+  Result result = asset.FullInit(args...);
   LogAbortIf(!result.Success(), "Default Asset failed initialization.");
 }
 
@@ -93,23 +95,43 @@ template<typename T>
 template<typename... Args>
 AssetId AssetBin<T>::Require(const std::string& name, Args&&... args)
 {
-  AssetId id = NextRequiredId();
-  Asset<T>& newAsset = smAssets.Emplace(id, name);
-  Result result = newAsset.FullInit(args...);
+  AssetId id = NextNonserializableId();
+  Asset<T>& asset = smAssets.Emplace(id, name);
+  Result result = asset.FullInit(args...);
   LogAbortIf(!result.Success(), "Required Asset failed initialization.");
   return id;
 }
 
 template<typename T>
-AssetId AssetBin<T>::NextId()
+template<typename... Args>
+static AssetId AssetBin<T>::Create(const std::string& name, Args&&... args)
 {
-  return smIdHandout++;
+  AssetId id = NextNonserializableId();
+  Asset<T>& asset = smAssets.Emplace(id, name);
+  asset.Prep(args...);
+  return id;
 }
 
 template<typename T>
-AssetId AssetBin<T>::NextRequiredId()
+AssetId AssetBin<T>::CreateSerializable(const std::string& name)
 {
-  return smRequiredIdHandout--;
+  AssetId id = NextSerializableId();
+  std::stringstream ss;
+  ss << name << id;
+  Asset<T>& asset = smAssets.Emplace(id, ss.str());
+  return id;
+}
+
+template<typename T>
+AssetId AssetBin<T>::NextSerializableId()
+{
+  return smSerializableIdHandout++;
+}
+
+template<typename T>
+AssetId AssetBin<T>::NextNonserializableId()
+{
+  return smNonserializableIdHandout--;
 }
 
 template<typename T>

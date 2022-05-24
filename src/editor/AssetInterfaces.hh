@@ -3,7 +3,7 @@
 namespace Editor {
 
 template<typename T>
-AssetInterface<T>::AssetInterface(): mSelectedId(AssLib::nDefaultAssetId)
+AssetInterface<T>::AssetInterface(): mSelectedId(AssLib::nInvalidAssetId)
 {}
 
 template<typename T>
@@ -18,32 +18,34 @@ void AssetInterface<T>::Show()
   std::stringstream createLabel;
   createLabel << "Create " << assetTypename;
   if (ImGui::Button(createLabel.str().c_str(), ImVec2(-1, 0))) {
-    AssLib::CreateEmpty<T>(assetTypename, true);
+    AssLib::CreateSerializable<T>(assetTypename);
   }
 
   // Display a list of all existing Assets.
   ImGui::BeginChild("List", ImVec2(-1, -1), true);
   AssetId removeAssetId = AssLib::nDefaultAssetId;
-  AssetId nextAssetId = mSelectedId;
+  AssetId lastId = AssLib::nInvalidAssetId;
+  AssetId nextSelectedId = mSelectedId;
   for (auto& assetPair : AssLib::AssetBin<T>::smAssets) {
-    // Ensure we are not on a required Asset.
+    // Display a line between serializable and nonserializable assets.
+    AssLib::Asset<T>& asset = assetPair.mValue;
     AssetId id = assetPair.Key();
-    if (AssLib::IsRequiredId(id)) {
-      continue;
+    if (AssLib::SerializableId(id) && !AssLib::SerializableId(lastId)) {
+      ImGui::Separator();
     }
+    lastId = id;
 
     // Display an entry in the Asset list.
-    AssLib::Asset<T>& asset = assetPair.mValue;
-    ShowStatus(asset);
+    ShowStatus(asset.mStatus);
     ImGui::SameLine();
     bool selected = id == mSelectedId;
     ImGui::PushID(id);
     if (ImGui::Selectable(asset.mName.c_str(), selected)) {
       if (selected) {
-        nextAssetId = AssLib::nDefaultAssetId;
+        nextSelectedId = AssLib::nInvalidAssetId;
       }
       else {
-        nextAssetId = id;
+        nextSelectedId = id;
       }
     }
     ImGui::PopID();
@@ -57,8 +59,10 @@ void AssetInterface<T>::Show()
     // Display edit options for the selected Asset.
     if (selected) {
       ImGui::Separator();
-      InputText("Name", &asset.mName);
-      EditInitInfo(id);
+      if (AssLib::SerializableId(id)) {
+        InputText("Name", &asset.mName);
+        EditInitInfo(id);
+      }
       if (ImGui::Button("Refresh", ImVec2(-1, 0))) {
         asset.mStatus = AssLib::Status::Unneeded;
       }
@@ -68,7 +72,7 @@ void AssetInterface<T>::Show()
   ImGui::EndChild();
 
   // Update the selected AssetId and remove an Asset if requested.
-  mSelectedId = nextAssetId;
+  mSelectedId = nextSelectedId;
   if (removeAssetId != AssLib::nDefaultAssetId) {
     AssLib::Remove<T>(removeAssetId);
   }
@@ -76,7 +80,7 @@ void AssetInterface<T>::Show()
 }
 
 template<typename T>
-void AssetInterface<T>::ShowStatus(const AssLib::Asset<T>& asset)
+void AssetInterface<T>::ShowStatus(AssLib::Status status)
 {
   ImGui::PushItemWidth(-1);
   const ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);

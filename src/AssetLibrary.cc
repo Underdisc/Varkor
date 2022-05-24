@@ -69,8 +69,8 @@ void SerializeAssets(Vlk::Value& rootVal)
   std::string resourceTypeName = Util::GetShortTypename<T>();
   Vlk::Value& assetsVal = rootVal(resourceTypeName);
   for (const auto& idAssetPair : AssetBin<T>::smAssets) {
-    // We ignore required assets and assets without any paths.
-    if (IsRequiredId(idAssetPair.Key())) {
+    // We ignore any assets that aren't serializable.
+    if (!SerializableId(idAssetPair.Key())) {
       continue;
     }
     const Asset<T>& asset = idAssetPair.mValue;
@@ -92,9 +92,10 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
     // Ensure we have a valid Id so the new asset can be added to the bin.
     Vlk::Explorer assetEx = assetArrayEx(i);
     AssetId id = assetEx("Id").As<int>(AssLib::nDefaultAssetId);
-    if (IsRequiredId(id)) {
+    if (!SerializableId(id)) {
       std::stringstream error;
-      error << assetEx.Path() << " asset omitted because it has a required Id.";
+      error << assetEx.Path()
+            << " asset omitted because it has a nonserialiable Id.";
       LogError(error.str().c_str());
       continue;
     }
@@ -109,8 +110,8 @@ void DeserializeAssets(const Vlk::Explorer& rootEx)
 
     // Add the asset to the bin.
     Asset<T>& asset = AssetBin<T>::smAssets.Emplace(id, assetEx.Key());
-    if (id >= AssetBin<T>::smIdHandout) {
-      AssetBin<T>::smIdHandout = id + 1;
+    if (id >= AssetBin<T>::smSerializableIdHandout) {
+      AssetBin<T>::smSerializableIdHandout = id + 1;
     }
     asset.mInitInfo.Deserialize(assetEx);
   }
@@ -191,9 +192,9 @@ ValueResult<std::string> ResolveResourcePath(const std::string& path)
   return ValueResult<std::string>(error.str(), "");
 }
 
-bool IsRequiredId(AssetId id)
+bool SerializableId(AssetId id)
 {
-  return id < 1;
+  return id > nDefaultAssetId;
 }
 
 // Threaded Asset Loading //////////////////////////////////////////////////////

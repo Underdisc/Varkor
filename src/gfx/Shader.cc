@@ -14,6 +14,12 @@ namespace Gfx {
 
 bool Shader::smLogMissingUniforms = false;
 
+void Shader::InitInfo::Prep(const char* vertexFile, const char* fragmentFile)
+{
+  mVertexFile = vertexFile;
+  mFragmentFile = fragmentFile;
+}
+
 void Shader::InitInfo::Serialize(Vlk::Value& val) const
 {
   val("VertexFile") = mVertexFile;

@@ -14,7 +14,7 @@ struct AssetInterface: public WindowInterface
 public:
   AssetInterface();
   void Show();
-  void ShowStatus(const AssLib::Asset<T>& asset);
+  void ShowStatus(AssLib::Status status);
   void EditInitInfo(AssetId id);
   AssetId mSelectedId;
 };
