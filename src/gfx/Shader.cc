@@ -134,6 +134,40 @@ GLint Shader::UniformLocation(Uniform::Type type) const
   return smInvalidLocation;
 }
 
+GLint Shader::UniformLocation(const char* name) const
+{
+  GLint location = glGetUniformLocation(mProgram, name);
+  if (location == -1 && smLogMissingUniforms) {
+    std::stringstream error;
+    error << "Shader " << mProgram << " has no \"" << name << "\" uniform.";
+    LogError(error.str().c_str());
+  }
+  return location;
+}
+
+void Shader::Use() const
+{
+  glUseProgram(mProgram);
+}
+
+void Shader::SetUniform(const char* name, float value) const
+{
+  GLint location = UniformLocation(name);
+  glUniform1f(location, value);
+}
+
+void Shader::SetUniform(const char* name, int value) const
+{
+  GLint location = UniformLocation(name);
+  glUniform1i(location, value);
+}
+
+void Shader::SetUniform(const char* name, Vec3 value) const
+{
+  GLint location = UniformLocation(name);
+  glUniform3fv(location, 1, value.mD);
+}
+
 void Shader::InitializeUniforms()
 {
   for (int i = 0; i < (int)Uniform::Type::Count; ++i) {

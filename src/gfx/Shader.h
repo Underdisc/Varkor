@@ -63,6 +63,11 @@ public:
   Result Init(const char* vertexFile, const char* fragmentFile);
   GLuint Id() const;
   GLint UniformLocation(Uniform::Type type) const;
+  GLint UniformLocation(const char* name) const;
+  void Use() const;
+  void SetUniform(const char* name, float value) const;
+  void SetUniform(const char* name, int value) const;
+  void SetUniform(const char* name, Vec3 value) const;
 
 private:
   GLuint mProgram;
