@@ -418,6 +418,21 @@ bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
   return component != nullptr;
 }
 
+Ds::Vector<MemberId> Space::Slice(Comp::TypeId typeId) const
+{
+  Ds::Vector<MemberId> members;
+  Table* table = mTables.Find(typeId);
+  if (table == nullptr) {
+    return members;
+  }
+  for (int i = 0; i < table->Size(); ++i) {
+    if (table->ActiveIndex(i)) {
+      members.Push(table->GetOwner(i));
+    }
+  }
+  return members;
+}
+
 Ds::Vector<ComponentDescriptor> Space::GetDescriptors(MemberId memberId) const
 {
   VerifyMemberId(memberId);

@@ -103,6 +103,7 @@ struct Space
 
   template<typename T>
   Ds::Vector<MemberId> Slice() const;
+  Ds::Vector<MemberId> Slice(Comp::TypeId typeId) const;
   Ds::Vector<ComponentDescriptor> GetDescriptors(MemberId memberId) const;
   Ds::Vector<MemberId> RootMemberIds() const;
 

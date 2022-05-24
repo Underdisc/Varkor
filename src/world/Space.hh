@@ -66,17 +66,7 @@ inline bool Space::Has(MemberId memberId) const
 template<typename T>
 Ds::Vector<MemberId> Space::Slice() const
 {
-  Ds::Vector<MemberId> members;
-  Table* table = mTables.Find(Comp::Type<T>::smId);
-  if (table == nullptr) {
-    return members;
-  }
-  for (int i = 0; i < table->Size(); ++i) {
-    if (table->ActiveIndex(i)) {
-      members.Push(table->GetOwner(i));
-    }
-  }
-  return members;
+  return Slice(Comp::Type<T>::smId);
 }
 
 } // namespace World
