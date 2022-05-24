@@ -112,7 +112,7 @@ template<typename T>
 AssetId AssetBin<T>::smNonserializableIdHandout = -2;
 
 // Every Asset type has a bin for queueing the ids of Assets that need to be
-// initialized on the init thread and finalized.
+// initialized on the init thread and finalized on the main thread.
 template<typename T>
 struct LoadBin
 {
