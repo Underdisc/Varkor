@@ -21,10 +21,10 @@ Result VarkorInit(
   }
   Error::Init("log.err");
   Viewport::Init(windowName);
+  AssetLibrary::Init();
   Registrar::Init();
   Editor::Init();
   Framer::Init();
-  AssetLibrary::Init();
   Input::Init();
   Gfx::Renderer::Init();
   Debug::Draw::Init();

@@ -38,6 +38,7 @@ namespace Comp {
     delegate->BindNull();                                                       \
   }
 // clang-format on
+BindableTypeFunction(StaticInit, void);
 BindableTypeFunction(Init, void, const World::Object&);
 BindableTypeFunction(Update, void, const World::Object&);
 BindableTypeFunction(Serialize, void, Vlk::Value&);
@@ -90,6 +91,7 @@ void Type<T>::Register()
   data.mCopyConstruct = &CopyConstruct<T>;
   data.mMoveConstruct = &MoveConstruct<T>;
   data.mDestruct = &Destruct<T>;
+  BindVStaticInit<T>(&data.mVStaticInit);
   BindVInit<T>(&data.mVInit);
   BindVUpdate<T>(&data.mVUpdate);
   BindVSerialize<T>(&data.mVSerialize);
