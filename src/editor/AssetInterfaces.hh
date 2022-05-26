@@ -87,7 +87,7 @@ void AssetInterface<T>::ShowStatus(AssLib::Status status)
   const ImVec4 red(1.0f, 0.0f, 0.0f, 1.0f);
   const ImVec4 blue(0.0f, 0.5f, 1.0f, 1.0f);
   const ImVec4 white(1.0, 1.0f, 1.0f, 1.0f);
-  switch (asset.mStatus) {
+  switch (status) {
   case AssLib::Status::Unneeded: ImGui::TextColored(white, "|"); break;
   case AssLib::Status::Loading: ImGui::TextColored(blue, ">"); break;
   case AssLib::Status::Failed: ImGui::TextColored(red, "-"); break;
