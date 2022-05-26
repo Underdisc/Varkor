@@ -135,6 +135,12 @@ AssetId AssetBin<T>::NextNonserializableId()
 }
 
 template<typename T>
+T& Get(AssetId id)
+{
+  return GetAsset<T>(id).mResource;
+}
+
+template<typename T>
 T* TryGetLive(AssetId id, AssetId defaultId)
 {
   Asset<T>* asset = TryGetAsset<T>(id);

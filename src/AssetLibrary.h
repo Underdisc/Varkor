@@ -78,6 +78,8 @@ AssetId CreateSerializable(const std::string& name);
 template<typename T>
 void Remove(AssetId id);
 template<typename T>
+T& Get(AssetId id);
+template<typename T>
 T* TryGetLive(AssetId id, AssetId defaultId = nDefaultAssetId);
 template<typename T>
 Asset<T>& GetAsset(AssetId id);
