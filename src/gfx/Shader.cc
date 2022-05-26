@@ -168,10 +168,22 @@ void Shader::SetUniform(const char* name, int value) const
   glUniform1i(location, value);
 }
 
-void Shader::SetUniform(const char* name, Vec3 value) const
+void Shader::SetUniform(const char* name, const Vec3& value) const
 {
   GLint location = UniformLocation(name);
-  glUniform3fv(location, 1, value.mD);
+  glUniform3fv(location, 1, value.CData());
+}
+
+void Shader::SetUniform(const char* name, const Vec4& value) const
+{
+  GLint location = UniformLocation(name);
+  glUniform4fv(location, 1, value.CData());
+}
+
+void Shader::SetUniform(const char* name, const Mat4& value) const
+{
+  GLint location = UniformLocation(name);
+  glUniformMatrix4fv(location, 1, true, value.CData());
 }
 
 void Shader::InitializeUniforms()

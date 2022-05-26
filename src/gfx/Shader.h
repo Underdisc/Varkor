@@ -6,6 +6,8 @@
 
 #include "Result.h"
 #include "ds/Vector.h"
+#include "math/Matrix4.h"
+#include "math/Vector.h"
 #include "vlk/Valkor.h"
 
 namespace Gfx {
@@ -68,7 +70,9 @@ public:
   void Use() const;
   void SetUniform(const char* name, float value) const;
   void SetUniform(const char* name, int value) const;
-  void SetUniform(const char* name, Vec3 value) const;
+  void SetUniform(const char* name, const Vec3& value) const;
+  void SetUniform(const char* name, const Vec4& value) const;
+  void SetUniform(const char* name, const Mat4& value) const;
 
 private:
   GLuint mProgram;
