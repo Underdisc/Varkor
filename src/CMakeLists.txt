@@ -1,4 +1,4 @@
-target_sources(${varkorTarget} PRIVATE
+target_sources(varkor PRIVATE
   AssetLibrary.cc
   Error.cc
   Framer.cc

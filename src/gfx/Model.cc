@@ -101,7 +101,7 @@ Result Model::Init(const InitInfo& info)
   mMeshes.Reserve(scene->mNumMeshes);
   for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
     const aiMesh& assimpMesh = *scene->mMeshes[meshIndex];
-    if (assimpMesh.mPrimitiveTypes == (unsigned int)aiPrimitiveType_TRIANGLE) {
+    if (assimpMesh.mPrimitiveTypes & (unsigned int)aiPrimitiveType_TRIANGLE) {
       RegisterMesh(assimpMesh);
     }
   }
@@ -279,7 +279,7 @@ Result Model::RegisterMaterial(
       if (assimpMat.Get(AI_MATKEY_TEXTURE(type, i), filename) != AI_SUCCESS) {
         std::stringstream error;
         error << "Failed to get the filename of texture "
-              << TextureTypeToString(type) << "[" << i << "].";
+              << aiTextureTypeToString(type) << "[" << i << "].";
         return Result(error.str());
       }
       std::stringstream fullPath;

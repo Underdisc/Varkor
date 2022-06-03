@@ -5,7 +5,8 @@ function(AddTest target)
   add_dependencies(tests ${target})
   target_sources(${target} PRIVATE ${ARGN})
   target_include_directories(${target} PRIVATE "../" "../../ext/local")
-  target_link_libraries(${target} varkorLibrary ${glfw} ${OPENGL_gl_LIBRARY})
+  target_link_libraries(${target} varkor ${glfw} ${OPENGL_gl_LIBRARY})
+  target_link_options(${target} PRIVATE /MANIFEST:NO)
   set_target_properties(${target} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working/test/${target}"
     OUTPUT_NAME "test")

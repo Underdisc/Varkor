@@ -1,4 +1,4 @@
-target_sources(${varkorTarget} PRIVATE
+target_sources(varkor PRIVATE
   Model.cc
   Sprite.cc
   Text.cc
