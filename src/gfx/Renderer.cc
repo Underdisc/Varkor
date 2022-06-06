@@ -602,6 +602,12 @@ void RenderSpace(
     World::Object object(const_cast<World::Space*>(&space), slice[i]);
     Mat4 transformation = GetImageTransformation(object, *image);
     glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
+    Comp::AlphaColor* alphaColorComp =
+      space.TryGetComponent<Comp::AlphaColor>(slice[i]);
+    if (alphaColorComp != nullptr) {
+      GLint alphaColorLoc = shader->UniformLocation(Uniform::Type::AlphaColor);
+      glUniform4fv(alphaColorLoc, 1, alphaColorComp->mColor.CData());
+    }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, image->Id());
