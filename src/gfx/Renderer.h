@@ -1,11 +1,16 @@
+#ifndef gfx_Renderer_h
+#define gfx_Renderer_h
+
+#include <glad/glad.h>
+
 #include "Result.h"
-#include "comp/Model.h"
-#include "gfx/Framebuffer.h"
-#include "gfx/Shader.h"
 #include "math/Matrix4.h"
 #include "world/Space.h"
 
 namespace Gfx::Renderer {
+
+extern GLuint nSkyboxVao;
+extern GLsizei nSkyboxElementCount;
 
 extern void (*nCustomRender)();
 
@@ -30,3 +35,5 @@ void InitializeUniversalUniformBuffer(
   const Mat4& view, const Mat4& proj, const Vec3& viewPos = {0.0f, 0.0f, 0.0f});
 
 } // namespace Gfx::Renderer
+
+#endif

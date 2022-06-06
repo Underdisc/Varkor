@@ -472,6 +472,22 @@ void RenderSpace(
   ++nNextSpaceFramebuffer;
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo());
 
+  // Perform all of the component renders.
+  // todo: Users should be able to specify the order components are rendered in.
+  World::Object owner(const_cast<World::Space*>(&space));
+  for (Comp::TypeId typeId = 0; typeId < Comp::TypeDataCount(); ++typeId) {
+    const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
+    if (!typeData.mVRender.Open()) {
+      continue;
+    }
+    Ds::Vector<World::MemberId> slice = space.Slice(typeId);
+    for (int i = 0; i < slice.Size(); ++i) {
+      void* component = space.GetComponent(typeId, slice[i]);
+      owner.mMemberId = slice[i];
+      typeData.mVRender.Invoke(component, owner);
+    }
+  }
+
   // Render the skybox.
   Ds::Vector<World::MemberId> slice = space.Slice<Comp::Skybox>();
   if (slice.Size() > 0) {
