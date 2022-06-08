@@ -49,6 +49,8 @@ GLuint nLightsUniformBufferVbo;
 size_t nNextSpaceFramebuffer;
 Ds::Vector<Framebuffer> nSpaceFramebuffers;
 
+Ds::Vector<Comp::TypeId> nRenderOrder;
+
 void (*nCustomRender)();
 
 void Init()
@@ -156,6 +158,9 @@ void Init()
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  nRenderOrder.Push(Comp::Type<Comp::Skybox>::smId);
+  nRenderOrder.Push(Comp::Type<Comp::Model>::smId);
 }
 
 void Purge()
@@ -477,7 +482,7 @@ void RenderSpace(
   // Perform all of the component renders.
   // todo: Users should be able to specify the order components are rendered in.
   World::Object owner(const_cast<World::Space*>(&space));
-  for (Comp::TypeId typeId = 0; typeId < Comp::TypeDataCount(); ++typeId) {
+  for (Comp::TypeId typeId : nRenderOrder) {
     const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
     if (!typeData.mVRender.Open()) {
       continue;
@@ -490,102 +495,10 @@ void RenderSpace(
     }
   }
 
-  // Render the skybox.
-  Ds::Vector<World::MemberId> slice = space.Slice<Comp::Skybox>();
-  if (slice.Size() > 0) {
-    const Comp::Skybox& skyboxComp = space.Get<Comp::Skybox>(slice[0]);
-    const Gfx::Cubemap* cubemap =
-      AssLib::TryGetLive<Gfx::Cubemap>(skyboxComp.mCubemapId);
-    const Gfx::Shader* shader =
-      AssLib::TryGetLive<Gfx::Shader>(skyboxComp.mShaderId);
-    if (cubemap != nullptr && shader != nullptr) {
-      GLint skyboxSamplerLoc =
-        shader->UniformLocation(Uniform::Type::SkyboxSampler);
-      glUseProgram(shader->Id());
-      glUniform1i(skyboxSamplerLoc, 0);
-
-      glBindVertexArray(nSkyboxVao);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->Id());
-      glDepthMask(GL_FALSE);
-      glDrawElements(GL_TRIANGLES, nSkyboxElementCount, GL_UNSIGNED_INT, 0);
-      glDepthMask(GL_TRUE);
-      glBindVertexArray(0);
-    }
-  }
-
-  // Render all of the Model components.
-  slice = Util::Move(space.Slice<Comp::Model>());
-  for (int i = 0; i < slice.Size(); ++i) {
-    auto& modelComp = space.Get<Comp::Model>(slice[i]);
-    if (!modelComp.mVisible) {
-      continue;
-    }
-    const Gfx::Shader* shader =
-      AssLib::TryGetLive<Gfx::Shader>(modelComp.mShaderId);
-    const Gfx::Model* model =
-      AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
-    if (shader == nullptr || model == nullptr) {
-      continue;
-    }
-
-    GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
-    GLint timeLoc = shader->UniformLocation(Uniform::Type::Time);
-    GLint diffuseLoc = shader->UniformLocation(Uniform::Type::ADiffuse);
-    GLint specLoc = shader->UniformLocation(Uniform::Type::ASpecular);
-    GLint skyboxSamplerLoc =
-      shader->UniformLocation(Uniform::Type::SkyboxSampler);
-
-    glUseProgram(shader->Id());
-    glUniform1f(timeLoc, Temporal::TotalTime());
-    Comp::AlphaColor* alphaColorComp =
-      space.TryGetComponent<Comp::AlphaColor>(slice[i]);
-    if (alphaColorComp != nullptr) {
-      GLint alphaColorLoc = shader->UniformLocation(Uniform::Type::AlphaColor);
-      glUniform4fv(alphaColorLoc, 1, alphaColorComp->mColor.CData());
-    }
-    glUniform1i(skyboxSamplerLoc, 0);
-
-    World::Object object(const_cast<World::Space*>(&space), slice[i]);
-    Mat4 memberTransformation = GetTransformation(object);
-    for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo()) {
-      // Prepare all of the textures.
-      const Material& material = model->GetMaterial(drawInfo.mMaterialIndex);
-      int textureCounter = 0;
-      Ds::Vector<GLint> indices;
-      for (const Material::TextureGroup& group : material.mGroups) {
-        indices.Reserve(group.mImages.Size());
-        for (const Image& image : group.mImages) {
-          glActiveTexture(GL_TEXTURE0 + textureCounter);
-          glBindTexture(GL_TEXTURE_2D, image.Id());
-          indices.Push(textureCounter);
-          ++textureCounter;
-        }
-        switch (group.mType) {
-        case Material::TextureType::Diffuse:
-          glUniform1iv(diffuseLoc, (GLsizei)indices.Size(), indices.CData());
-          break;
-        case Material::TextureType::Specular:
-          glUniform1iv(specLoc, (GLsizei)indices.Size(), indices.CData());
-          break;
-        }
-        indices.Clear();
-      }
-
-      // Render the mesh.
-      Mat4 transformation = memberTransformation * drawInfo.mTransformation;
-      glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
-      const Mesh& mesh = model->GetMesh(drawInfo.mMeshIndex);
-      glBindVertexArray(mesh.Vao());
-      glDrawElements(
-        GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
-      glBindVertexArray(0);
-    }
-  }
-
   glDisable(GL_CULL_FACE);
 
   // Render all of the Sprite components.
-  slice = Util::Move(space.Slice<Comp::Sprite>());
+  Ds::Vector<World::MemberId> slice = space.Slice<Comp::Sprite>();
   for (int i = 0; i < slice.Size(); ++i) {
     const Comp::Sprite& spriteComp = space.Get<Comp::Sprite>(slice[i]);
     const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(

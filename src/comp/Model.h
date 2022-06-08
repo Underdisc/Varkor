@@ -13,6 +13,7 @@ struct Model
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& modelVal);
   void VDeserialize(const Vlk::Explorer& modelEx);
+  void VRender(const World::Object& owner);
 
   AssetLibrary::AssetId mModelId;
   AssetLibrary::AssetId mShaderId;

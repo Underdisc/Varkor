@@ -14,6 +14,7 @@ struct Skybox
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& val);
   void VDeserialize(const Vlk::Explorer& ex);
+  void VRender(const World::Object& owner);
 
   AssetId mCubemapId;
   AssetId mShaderId;
