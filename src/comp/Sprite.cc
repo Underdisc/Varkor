@@ -29,23 +29,39 @@ void Sprite::VRender(const World::Object& owner)
 {
   const Gfx::Shader* shader =
     AssLib::TryGetLive<Gfx::Shader>(mShaderId, AssLib::nDefaultSpriteShaderId);
-  const Gfx::Image* image = AssLib::TryGetLive<Gfx::Image>(mImageId);
-  if (shader == nullptr || image == nullptr) {
+  if (shader == nullptr) {
     return;
   }
 
-  GLint modelLoc = shader->UniformLocation(Gfx::Uniform::Type::Model);
-  GLint samplerLoc = shader->UniformLocation(Gfx::Uniform::Type::Sampler);
+  RenderOptions options;
+  options.mShader = shader;
+  Render(owner, options);
+}
+void Sprite::Render(
+  const World::Object& owner, const RenderOptions& options) const
+{
+  const Gfx::Image* image = AssLib::TryGetLive<Gfx::Image>(mImageId);
+  if (image == nullptr) {
+    return;
+  }
 
-  glUseProgram(shader->Id());
+  const Gfx::Shader& shader = *options.mShader;
+  GLint modelLoc = shader.UniformLocation(Gfx::Uniform::Type::Model);
+  GLint samplerLoc = shader.UniformLocation(Gfx::Uniform::Type::Sampler);
+
+  glUseProgram(shader.Id());
   glUniform1i(samplerLoc, 0);
+
   auto& transform = owner.Get<Comp::Transform>();
-  Mat4 transformation = transform.GetWorldMatrix(owner);
+  Mat4 aspectScale;
+  Math::Scale(&aspectScale, {image->Aspect(), 1.0f, 1.0f});
+  Mat4 transformation = transform.GetWorldMatrix(owner) * aspectScale;
   glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
+
   auto* alphaColorComp = owner.TryGet<Comp::AlphaColor>();
   if (alphaColorComp != nullptr) {
     GLint alphaColorLoc =
-      shader->UniformLocation(Gfx::Uniform::Type::AlphaColor);
+      shader.UniformLocation(Gfx::Uniform::Type::AlphaColor);
     glUniform4fv(alphaColorLoc, 1, alphaColorComp->mColor.CData());
   }
 
