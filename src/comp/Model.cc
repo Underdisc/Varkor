@@ -71,14 +71,8 @@ void Model::Render(
   }
   glUniform1i(skyboxSamplerLoc, 0);
 
-  Mat4 memberTransformation;
-  auto* transform = owner.TryGet<Comp::Transform>();
-  if (transform != nullptr) {
-    memberTransformation = transform->GetWorldMatrix(owner);
-  }
-  else {
-    Math::Identity(&memberTransformation);
-  }
+  auto& transform = owner.Get<Comp::Transform>();
+  Mat4 memberTransformation = transform.GetWorldMatrix(owner);
 
   for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo()) {
     // Prepare all of the textures.
