@@ -9,6 +9,9 @@
 
 namespace Gfx::Renderer {
 
+extern GLuint nSpriteVao;
+extern GLuint nSpriteVbo;
+
 extern GLuint nSkyboxVao;
 extern GLsizei nSkyboxElementCount;
 
@@ -28,6 +31,7 @@ void RenderSpace(
   const Mat4& proj,
   const Vec3& viewPos);
 Result RenderWorld();
+void RenderQuad(GLuint vao);
 void RenderFramebuffers();
 
 // todo: This really shouldn't be exposed by the Renderer.

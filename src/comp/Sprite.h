@@ -13,6 +13,7 @@ struct Sprite
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& spriteVal);
   void VDeserialize(const Vlk::Explorer& spriteEx);
+  void VRender(const World::Object& owner);
 
   AssetId mImageId;
   AssetId mShaderId;

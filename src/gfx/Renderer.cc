@@ -161,6 +161,7 @@ void Init()
 
   nRenderOrder.Push(Comp::Type<Comp::Skybox>::smId);
   nRenderOrder.Push(Comp::Type<Comp::Model>::smId);
+  nRenderOrder.Push(Comp::Type<Comp::Sprite>::smId);
 }
 
 void Purge()
@@ -497,41 +498,8 @@ void RenderSpace(
 
   glDisable(GL_CULL_FACE);
 
-  // Render all of the Sprite components.
-  Ds::Vector<World::MemberId> slice = space.Slice<Comp::Sprite>();
-  for (int i = 0; i < slice.Size(); ++i) {
-    const Comp::Sprite& spriteComp = space.Get<Comp::Sprite>(slice[i]);
-    const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(
-      spriteComp.mShaderId, AssLib::nDefaultSpriteShaderId);
-    const Gfx::Image* image =
-      AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
-    if (shader == nullptr || image == nullptr) {
-      continue;
-    }
-
-    GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
-    GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
-
-    glUseProgram(shader->Id());
-    glUniform1i(samplerLoc, 0);
-    World::Object object(const_cast<World::Space*>(&space), slice[i]);
-    Mat4 transformation = GetImageTransformation(object, *image);
-    glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
-    Comp::AlphaColor* alphaColorComp =
-      space.TryGetComponent<Comp::AlphaColor>(slice[i]);
-    if (alphaColorComp != nullptr) {
-      GLint alphaColorLoc = shader->UniformLocation(Uniform::Type::AlphaColor);
-      glUniform4fv(alphaColorLoc, 1, alphaColorComp->mColor.CData());
-    }
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, image->Id());
-    RenderQuad(nSpriteVao);
-    glBindTexture(GL_TEXTURE_2D, 0);
-  }
-
   // Render all of the Text components.
-  slice = Util::Move(space.Slice<Comp::Text>());
+  Ds::Vector<World::MemberId> slice = Util::Move(space.Slice<Comp::Text>());
   for (int i = 0; i < slice.Size(); ++i) {
     const Comp::Text& textComp = space.Get<Comp::Text>(slice[i]);
     if (!textComp.mVisible) {
