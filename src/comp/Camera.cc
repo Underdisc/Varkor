@@ -171,7 +171,7 @@ void Hook<Comp::Camera>::Edit(const World::Object& object)
       &cameraComp.mNear,
       0.1f,
       Comp::Camera::smMinimumPerspectiveNear,
-      cameraComp.mFar);
+      cameraComp.mFar - Math::nEpsilonL);
     break;
   case Comp::Camera::ProjectionType::Orthographic:
     ImGui::DragFloat("Height", &cameraComp.mHeight, 0.01f, 0.1f, 1000.0f);
@@ -180,14 +180,14 @@ void Hook<Comp::Camera>::Edit(const World::Object& object)
       &cameraComp.mNear,
       0.1f,
       Comp::Camera::smMinimumOrthographicNear,
-      cameraComp.mFar);
+      cameraComp.mFar - Math::nEpsilonL);
     break;
   }
   ImGui::DragFloat(
     "Far",
     &cameraComp.mFar,
     0.1f,
-    cameraComp.mNear,
+    cameraComp.mNear + Math::nEpsilonL,
     Comp::Camera::smMaximumFar);
 }
 
