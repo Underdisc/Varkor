@@ -33,26 +33,40 @@ void Model::VDeserialize(const Vlk::Explorer& modelEx)
 
 void Model::VRender(const World::Object& owner)
 {
+  const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(mShaderId);
+  if (shader == nullptr) {
+    return;
+  }
+
+  RenderOptions options;
+  options.mShader = shader;
+  Render(owner, options);
+}
+
+void Model::Render(
+  const World::Object& owner, const RenderOptions& options) const
+{
   if (!mVisible) {
     return;
   }
-  const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(mShaderId);
+
   const Gfx::Model* model = AssLib::TryGetLive<Gfx::Model>(mModelId);
-  if (shader == nullptr || model == nullptr) {
+  if (model == nullptr) {
     return;
   }
 
-  GLint modelLoc = shader->UniformLocation(Gfx::Uniform::Type::Model);
-  GLint diffuseLoc = shader->UniformLocation(Gfx::Uniform::Type::ADiffuse);
-  GLint specLoc = shader->UniformLocation(Gfx::Uniform::Type::ASpecular);
+  const Gfx::Shader& shader = *options.mShader;
+  GLint modelLoc = shader.UniformLocation(Gfx::Uniform::Type::Model);
+  GLint diffuseLoc = shader.UniformLocation(Gfx::Uniform::Type::ADiffuse);
+  GLint specLoc = shader.UniformLocation(Gfx::Uniform::Type::ASpecular);
   GLint skyboxSamplerLoc =
-    shader->UniformLocation(Gfx::Uniform::Type::SkyboxSampler);
+    shader.UniformLocation(Gfx::Uniform::Type::SkyboxSampler);
 
-  glUseProgram(shader->Id());
+  glUseProgram(shader.Id());
   Comp::AlphaColor* alphaColorComp = owner.TryGet<Comp::AlphaColor>();
   if (alphaColorComp != nullptr) {
     GLint alphaColorLoc =
-      shader->UniformLocation(Gfx::Uniform::Type::AlphaColor);
+      shader.UniformLocation(Gfx::Uniform::Type::AlphaColor);
     glUniform4fv(alphaColorLoc, 1, alphaColorComp->mColor.CData());
   }
   glUniform1i(skyboxSamplerLoc, 0);
