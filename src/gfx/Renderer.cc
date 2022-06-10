@@ -481,7 +481,6 @@ void RenderSpace(
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo());
 
   // Perform all of the component renders.
-  // todo: Users should be able to specify the order components are rendered in.
   World::Object owner(const_cast<World::Space*>(&space));
   for (Comp::TypeId typeId : nRenderOrder) {
     const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
