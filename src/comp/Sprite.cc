@@ -67,8 +67,9 @@ void Sprite::Render(
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, image->Id());
+  Gfx::Renderer::PrepShadowState(*owner.mSpace, shader, 1, 1);
   Gfx::Renderer::RenderQuad(Gfx::Renderer::nSpriteVao);
-  glBindTexture(GL_TEXTURE_2D, 0);
+  Gfx::Renderer::UnbindTextures(0, 2);
 }
 
 } // namespace Comp

@@ -10,6 +10,7 @@
 #include "comp/DirectionalLight.h"
 #include "comp/Model.h"
 #include "comp/PointLight.h"
+#include "comp/ShadowMap.h"
 #include "comp/Skybox.h"
 #include "comp/SpotLight.h"
 #include "comp/Sprite.h"
@@ -47,6 +48,7 @@ GLuint nUniversalUniformBufferVbo;
 GLuint nLightsUniformBufferVbo;
 
 size_t nNextSpaceFramebuffer;
+size_t nCurrentSpaceFramebuffer;
 Ds::Vector<Framebuffer> nSpaceFramebuffers;
 
 Ds::Vector<Comp::TypeId> nRenderOrder;
@@ -150,6 +152,7 @@ void Init()
   CreateUniformBuffer(&nLightsUniformBufferVbo, 17680, 1);
 
   nNextSpaceFramebuffer = 0;
+  nCurrentSpaceFramebuffer = 0;
 
   nCustomRender = nullptr;
 
@@ -159,6 +162,7 @@ void Init()
   glEnable(GL_CULL_FACE);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+  nRenderOrder.Push(Comp::Type<ShadowMap>::smId);
   nRenderOrder.Push(Comp::Type<Comp::Skybox>::smId);
   nRenderOrder.Push(Comp::Type<Comp::Model>::smId);
   nRenderOrder.Push(Comp::Type<Comp::Sprite>::smId);
@@ -183,6 +187,7 @@ void Clear()
   }
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   nNextSpaceFramebuffer = 0;
+  nCurrentSpaceFramebuffer = 0;
 
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -476,7 +481,8 @@ void RenderSpace(
   if (nNextSpaceFramebuffer >= nSpaceFramebuffers.Size()) {
     nSpaceFramebuffers.Emplace(GL_RGBA, GL_UNSIGNED_BYTE);
   }
-  const Framebuffer& framebuffer = nSpaceFramebuffers[nNextSpaceFramebuffer];
+  nCurrentSpaceFramebuffer = nNextSpaceFramebuffer;
+  const Framebuffer& framebuffer = nSpaceFramebuffers[nCurrentSpaceFramebuffer];
   ++nNextSpaceFramebuffer;
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo());
 
@@ -555,6 +561,40 @@ Result RenderWorld()
     }
   }
   return Result();
+}
+
+void PrepShadowState(
+  const World::Space& space,
+  const Gfx::Shader& shader,
+  int firstTextureIndex,
+  int shadowCount)
+{
+  GLenum firstTextureUnit = GL_TEXTURE0 + firstTextureIndex;
+  auto slice = space.Slice<ShadowMap>();
+  for (int i = 0; i < shadowCount && i < slice.Size(); ++i) {
+    World::Object shadowMapOwner(const_cast<World::Space*>(&space), slice[i]);
+    const auto& shadowMap = shadowMapOwner.Get<ShadowMap>();
+    shader.SetUniform("uShadowBias", shadowMap.mBias);
+    shader.SetUniform("uShadowProjView", shadowMap.ProjView(shadowMapOwner));
+    shader.SetUniform("uShadowTexture", firstTextureIndex + i);
+    glActiveTexture(firstTextureUnit + i);
+    glBindTexture(GL_TEXTURE_2D, shadowMap.mTbo);
+  }
+}
+
+void UnbindTextures(int firstTextureIndex, int count)
+{
+  GLenum firstTextureUnit = GL_TEXTURE0 + firstTextureIndex;
+  for (int i = 0; i < count; ++i) {
+    glActiveTexture(firstTextureUnit + i);
+    glBindTexture(GL_TEXTURE_2D, 0);
+  }
+}
+
+void BindCurrentSpaceFramebuffer()
+{
+  glBindFramebuffer(
+    GL_FRAMEBUFFER, nSpaceFramebuffers[nCurrentSpaceFramebuffer].Fbo());
 }
 
 void RenderFramebuffers()

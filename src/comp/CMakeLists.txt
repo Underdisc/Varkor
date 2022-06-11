@@ -4,6 +4,7 @@ target_sources(varkor PRIVATE
   DirectionalLight.cc
   Model.cc
   PointLight.cc
+  ShadowMap.cc
   Skybox.cc
   SpotLight.cc
   Sprite.cc

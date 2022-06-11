@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 
 #include "Result.h"
+#include "gfx/Shader.h"
 #include "math/Matrix4.h"
 #include "world/Space.h"
 
@@ -32,6 +33,13 @@ void RenderSpace(
   const Vec3& viewPos);
 Result RenderWorld();
 void RenderQuad(GLuint vao);
+void PrepShadowState(
+  const World::Space& space,
+  const Gfx::Shader& shader,
+  int firstTextureIndex,
+  int shadowCount);
+void UnbindTextures(int firstTextureIndex, int count);
+void BindCurrentSpaceFramebuffer();
 void RenderFramebuffers();
 
 // todo: This really shouldn't be exposed by the Renderer.
