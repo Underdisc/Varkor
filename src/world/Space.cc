@@ -503,11 +503,10 @@ void Space::Serialize(Vlk::Value& spaceVal) const
     for (int i = 0; i < descriptors.Size(); ++i) {
       const ComponentDescriptor& desc = descriptors[i];
       const Comp::TypeData& typeData = Comp::nTypeData[desc.mTypeId];
+      Vlk::Value& componentVal = componentsVal(typeData.mName);
       if (!typeData.mVSerialize.Open()) {
         continue;
       }
-
-      Vlk::Value& componentVal = componentsVal(typeData.mName);
       Table& table = mTables.Get(desc.mTypeId);
       typeData.mVSerialize.Invoke(table[desc.mTableIndex], componentVal);
     }
@@ -531,6 +530,7 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
       LogError("A Member should have a valid Id.");
       continue;
     }
+    World::Object owner(this, memberId);
 
     // Deserialize the member's data.
     if (memberId >= mMembers.Size()) {
@@ -552,19 +552,18 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
         error << "There is no component named " << componentEx.Key() << ".";
         LogAbort(error.str().c_str());
       }
-      const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-      if (!typeData.mVDeserialize.Open()) {
-        std::stringstream error;
-        error << "The " << typeData.mName
-              << " component does not have a VDeserialize function.";
-        LogAbort(error.str().c_str());
-      }
-
       void* component = TryGetComponent(typeId, memberId);
       if (component == nullptr) {
         component = AddComponent(typeId, memberId, false);
       }
-      typeData.mVDeserialize.Invoke(component, componentEx);
+
+      const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
+      if (typeData.mVDeserialize.Open()) {
+        typeData.mVDeserialize.Invoke(component, componentEx);
+      }
+      else if (typeData.mVInit.Open()) {
+        typeData.mVInit.Invoke(component, owner);
+      }
     }
   }
 }
