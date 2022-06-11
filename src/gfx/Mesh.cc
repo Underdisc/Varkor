@@ -1,6 +1,7 @@
+#include <utility>
+
 #include "gfx/Mesh.h"
 #include "math/Vector.h"
-#include "util/Utility.h"
 
 namespace Gfx {
 
@@ -23,7 +24,7 @@ Mesh::Mesh(): mVao(0), mVbo(0), mEbo(0), mIndexCount(0), mAttributes(0) {}
 
 Mesh::Mesh(Mesh&& other)
 {
-  *this = Util::Forward(other);
+  *this = std::forward<Mesh>(other);
 }
 
 Mesh& Mesh::operator=(Mesh&& other)

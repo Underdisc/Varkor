@@ -1,4 +1,5 @@
 #include <fstream>
+#include <utility>
 
 #include "Error.h"
 #include "vlk/Parser.h"
@@ -19,13 +20,13 @@ Value::Value(Value&& other): mType(other.mType)
 {
   switch (other.mType) {
   case Type::TrueValue:
-    new (&mTrueValue) std::string(Util::Move(other.mTrueValue));
+    new (&mTrueValue) std::string(std::move(other.mTrueValue));
     break;
   case Type::ValueArray:
-    new (&mValueArray) Ds::Vector<Value>(Util::Move(other.mValueArray));
+    new (&mValueArray) Ds::Vector<Value>(std::move(other.mValueArray));
     break;
   case Type::PairArray:
-    new (&mPairArray) Ds::Vector<Pair>(Util::Move(other.mPairArray));
+    new (&mPairArray) Ds::Vector<Pair>(std::move(other.mPairArray));
     break;
   }
 }

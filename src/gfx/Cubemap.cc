@@ -1,4 +1,5 @@
 #include <stb_image.h>
+#include <utility>
 
 #include "AssetLibrary.h"
 #include "gfx/Cubemap.h"
@@ -101,7 +102,7 @@ Cubemap::Cubemap(): mId(0) {}
 
 Cubemap::Cubemap(Cubemap&& other)
 {
-  *this = Util::Forward(other);
+  *this = std::forward<Cubemap>(other);
 }
 
 Cubemap& Cubemap::operator=(Cubemap&& other)

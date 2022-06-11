@@ -3,12 +3,12 @@
 #include <assimp/scene.h>
 #include <filesystem>
 #include <sstream>
+#include <utility>
 
 #include "AssetLibrary.h"
 #include "Error.h"
 #include "Model.h"
 #include "util/Memory.h"
-#include "util/Utility.h"
 
 namespace Gfx {
 
@@ -40,14 +40,14 @@ Model::Model() {}
 
 Model::Model(Model&& other)
 {
-  *this = Util::Forward(other);
+  *this = std::forward<Model>(other);
 }
 
 Model& Model::operator=(Model&& other)
 {
-  mAllDrawInfo = Util::Move(other.mAllDrawInfo);
-  mMeshes = Util::Move(other.mMeshes);
-  mMaterials = Util::Move(other.mMaterials);
+  mAllDrawInfo = std::move(other.mAllDrawInfo);
+  mMeshes = std::move(other.mMeshes);
+  mMaterials = std::move(other.mMaterials);
   return *this;
 }
 
@@ -146,7 +146,7 @@ Result Model::Init(
     elementBufferSize,
     attributes,
     elementCount);
-  mMeshes.Emplace(Util::Move(newMesh));
+  mMeshes.Emplace(std::move(newMesh));
 
   // The model needs a material so the index on the draw info refers to a valid
   // material. This material, however, is empty.
@@ -251,7 +251,7 @@ void Model::RegisterMesh(const aiMesh& assimpMesh)
   // Initialize the new mesh.
   Mesh newMesh;
   newMesh.Init(attributes, vertexBuffer, elementBuffer);
-  mMeshes.Emplace(Util::Move(newMesh));
+  mMeshes.Emplace(std::move(newMesh));
 }
 
 Material::TextureType ConvertAiTextureType(const aiTextureType& type)
@@ -291,9 +291,9 @@ Result Model::RegisterMaterial(
         error << "Failed to initiazlize a texture: " << result.mError;
         return Result(error.str());
       }
-      group.mImages.Emplace(Util::Move(image));
+      group.mImages.Emplace(std::move(image));
     }
-    material.mGroups.Emplace(Util::Move(group));
+    material.mGroups.Emplace(std::move(group));
     return Result();
   };
 
@@ -306,7 +306,7 @@ Result Model::RegisterMaterial(
   if (!result.Success()) {
     return result;
   }
-  mMaterials.Emplace(Util::Move(material));
+  mMaterials.Emplace(std::move(material));
   return Result();
 }
 

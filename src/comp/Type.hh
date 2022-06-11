@@ -1,4 +1,5 @@
 #include <sstream>
+#include <utility>
 
 #include "util/Utility.h"
 
@@ -64,7 +65,7 @@ void CopyConstruct(void* from, void* to)
 template<typename T>
 void MoveConstruct(void* from, void* to)
 {
-  new (to) T(Util::Move(*(T*)from));
+  new (to) T(std::move(*(T*)from));
 }
 
 template<typename T>

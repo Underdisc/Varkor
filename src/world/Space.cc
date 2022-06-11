@@ -1,4 +1,5 @@
 #include <sstream>
+#include <utility>
 
 #include "Error.h"
 #include "vlk/Valkor.h"
@@ -135,7 +136,7 @@ MemberId Space::CreateMember()
   MemberId newMemberId = (MemberId)mMembers.Size();
   name << "Member" << newMemberId;
   newMember.StartUse(newDescId, name.str());
-  mMembers.Push(Util::Move(newMember));
+  mMembers.Push(std::move(newMember));
   return newMemberId;
 }
 

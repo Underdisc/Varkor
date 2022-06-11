@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <utility>
 
 #include "debug/MemLeak.h"
 #include "test/vlk/Util.h"
@@ -203,7 +204,7 @@ void Move()
   std::cout << "<= Move =>" << std::endl;
   auto movePrint = [](Vlk::Value& val)
   {
-    Vlk::Value movedVal(Util::Move(val));
+    Vlk::Value movedVal(std::move(val));
     std::cout << movedVal << std::endl;
   };
   // Value

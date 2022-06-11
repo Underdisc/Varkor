@@ -1,5 +1,7 @@
 #include <fstream>
 #include <sstream>
+#include <utility>
+
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
 #undef STB_TRUETYPE_IMPLEMENTATION
@@ -38,7 +40,7 @@ Font::Font()
 
 Font::Font(Font&& other)
 {
-  *this = Util::Forward(other);
+  *this = std::forward<Font>(other);
 }
 
 Font& Font::operator=(Font&& other)

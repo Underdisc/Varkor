@@ -1,6 +1,7 @@
+#include <utility>
+
 #include "Error.h"
 #include "debug/MemLeak.h"
-#include "util/Utility.h"
 
 namespace Ds {
 
@@ -15,7 +16,7 @@ RbTree<T>::Node::Node(const T& value):
 
 template<typename T>
 RbTree<T>::Node::Node(T&& value):
-  mValue(Util::Forward(value)),
+  mValue(std::forward<T>(value)),
   mParent(nullptr),
   mLeft(nullptr),
   mRight(nullptr),
@@ -25,7 +26,7 @@ RbTree<T>::Node::Node(T&& value):
 template<typename T>
 template<typename... Args>
 RbTree<T>::Node::Node(Args&&... args):
-  mValue(Util::Forward<Args>(args)...),
+  mValue(std::forward<Args>(args)...),
   mParent(nullptr),
   mLeft(nullptr),
   mRight(nullptr),
@@ -96,25 +97,25 @@ bool RbTree<T>::IterBase::operator!=(const IterBase& other)
 template<typename T>
 T& RbTree<T>::Iter::operator*()
 {
-  return mCurrent->mValue;
+  return this->mCurrent->mValue;
 }
 
 template<typename T>
 T* RbTree<T>::Iter::operator->()
 {
-  return &mCurrent->mValue;
+  return &this->mCurrent->mValue;
 }
 
 template<typename T>
 const T& RbTree<T>::CIter::operator*()
 {
-  return mCurrent->mValue;
+  return this->mCurrent->mValue;
 }
 
 template<typename T>
 const T* RbTree<T>::CIter::operator->()
 {
-  return &mCurrent->mValue;
+  return &this->mCurrent->mValue;
 }
 
 template<typename T>
@@ -176,7 +177,7 @@ void RbTree<T>::Insert(const T& value)
 template<typename T>
 void RbTree<T>::Insert(T&& value)
 {
-  Node* newNode = alloc Node(Util::Forward(value));
+  Node* newNode = alloc Node(std::forward<T>(value));
   InsertNode(newNode);
 }
 
@@ -184,7 +185,7 @@ template<typename T>
 template<typename... Args>
 void RbTree<T>::Emplace(Args&&... args)
 {
-  Node* newNode = alloc Node(Util::Forward<Args>(args)...);
+  Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(newNode);
 }
 
@@ -206,7 +207,7 @@ void RbTree<T>::RemoveNode(Node* node)
     replace = node->mRight;
   }
   if (replace != nullptr) {
-    node->mValue = Util::Move(replace->mValue);
+    node->mValue = std::move(replace->mValue);
     node = replace;
   }
 
@@ -578,7 +579,7 @@ void RbTree<T>::SwapNodes(Node* a, Node* b)
     SwapDetachedNodePointers(a, b);
   }
 
-  Node::Color aColor = a->mColor;
+  typename Node::Color aColor = a->mColor;
   a->mColor = b->mColor;
   b->mColor = aColor;
   if (a == mHead) {

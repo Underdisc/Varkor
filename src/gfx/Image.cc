@@ -1,4 +1,5 @@
 #include <sstream>
+#include <utility>
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
@@ -29,7 +30,7 @@ Image::Image(): mId(0) {}
 
 Image::Image(Image&& other)
 {
-  *this = Util::Forward(other);
+  *this = std::forward<Image>(other);
 }
 
 Image& Image::operator=(Image&& other)

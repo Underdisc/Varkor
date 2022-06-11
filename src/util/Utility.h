@@ -7,18 +7,6 @@
 namespace Util {
 
 template<typename T>
-constexpr T&& Move(T& arg)
-{
-  return static_cast<T&&>(arg);
-}
-
-template<typename T>
-constexpr T&& Forward(T& arg)
-{
-  return static_cast<T&&>(arg);
-}
-
-template<typename T>
 std::string GetFullTypename()
 {
   std::string fullName(typeid(T).name());

@@ -14,6 +14,8 @@ namespace Gfx {
 
 struct Uniform
 {
+  static const char* smTypeStrings[];
+
   enum class Type
   {
     Model = 0,
@@ -27,16 +29,6 @@ struct Uniform
     ASpecular,
     Count
   };
-  constexpr static char* smTypeStrings[] {
-    "uModel",
-    "uTexture",
-    "uColor",
-    "uAlphaColor",
-    "uMemberId",
-    "uFillAmount",
-    "uSkyboxSampler",
-    "uMateial.mDiffuse",
-    "uMaterial.mSpecular"};
   Type mType;
   GLint mLocation;
 };
@@ -77,8 +69,8 @@ private:
   Ds::Vector<Uniform> mUniforms;
 
   static bool smLogMissingUniforms;
+  static const char* smVersionHeader;
   static constexpr GLint smInvalidLocation = -1;
-  static constexpr char* smVersionHeader = "#version 330 core\n";
 
   struct SourceChunk
   {

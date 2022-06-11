@@ -1,4 +1,5 @@
 #include <sstream>
+#include <utility>
 
 #include "vlk/Valkor.h"
 #include "world/Space.h"
@@ -55,7 +56,7 @@ ValueResult<SpaceIt> LoadSpace(const char* filename)
   Vlk::Value rootVal;
   Result result = rootVal.Read(filename);
   if (!result.Success()) {
-    return ValueResult<SpaceIt>(Util::Move(result), nSpaces.end());
+    return ValueResult<SpaceIt>(std::move(result), nSpaces.end());
   }
   SpaceIt newSpaceIt = CreateTopSpace();
   Vlk::Explorer rootEx(rootVal);

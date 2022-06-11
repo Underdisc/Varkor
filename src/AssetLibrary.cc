@@ -10,6 +10,7 @@
 #include "gfx/Mesh.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
+#include "util/Utility.h"
 #include "vlk/Valkor.h"
 
 namespace AssetLibrary {

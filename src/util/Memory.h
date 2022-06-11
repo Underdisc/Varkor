@@ -1,6 +1,8 @@
 #ifndef util_Memory_h
 #define util_Memory_h
 
+#include <utility>
+
 namespace Util {
 
 template<typename T>
@@ -15,7 +17,7 @@ template<typename T>
 void MoveData(T* from, T* to, size_t amount)
 {
   for (size_t i = 0; i < amount; ++i) {
-    to[i] = Move(from[i]);
+    to[i] = std::move(from[i]);
   }
 }
 

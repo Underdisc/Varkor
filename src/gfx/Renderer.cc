@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 #include <sstream>
+#include <utility>
 
 #include "AssetLibrary.h"
 #include "Input.h"
@@ -291,7 +292,7 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   const unsigned int maxPointLights = 100;
   unsigned int pointLightCount = 0;
   offset = 16 + maxDirectionalLights * 64;
-  slice = Util::Move(space.Slice<Comp::PointLight>());
+  slice = std::move(space.Slice<Comp::PointLight>());
   for (int i = 0; i < slice.Size(); ++i) {
     auto& light = space.Get<Comp::PointLight>(slice[i]);
     if (pointLightCount >= maxPointLights) {
@@ -311,7 +312,7 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   const unsigned int maxSpotLights = 100;
   unsigned int spotLightCount = 0;
   offset = 16 + maxDirectionalLights * 64 + maxPointLights * 80;
-  slice = Util::Move(space.Slice<Comp::SpotLight>());
+  slice = std::move(space.Slice<Comp::SpotLight>());
   for (int i = 0; i < slice.Size(); ++i) {
     auto& light = space.Get<Comp::SpotLight>(slice[i]);
     if (spotLightCount >= maxSpotLights) {
@@ -379,7 +380,7 @@ void RenderMemberIds(
   glDisable(GL_CULL_FACE);
 
   // Render MemberIds for every sprite.
-  slice = Util::Move(space.Slice<Comp::Sprite>());
+  slice = std::move(space.Slice<Comp::Sprite>());
   for (int i = 0; i < slice.Size(); ++i) {
     auto& spriteComp = space.Get<Comp::Sprite>(slice[i]);
     const Gfx::Image* image =
@@ -396,7 +397,7 @@ void RenderMemberIds(
   }
 
   // Render MemberIds for every text component.
-  slice = Util::Move(space.Slice<Comp::Text>());
+  slice = std::move(space.Slice<Comp::Text>());
   for (int i = 0; i < slice.Size(); ++i) {
     World::Object object(const_cast<World::Space*>(&space), slice[i]);
     Mat4 baseTransformation = GetTransformation(object);
@@ -504,7 +505,7 @@ void RenderSpace(
   glDisable(GL_CULL_FACE);
 
   // Render all of the Text components.
-  Ds::Vector<World::MemberId> slice = Util::Move(space.Slice<Comp::Text>());
+  Ds::Vector<World::MemberId> slice = space.Slice<Comp::Text>();
   for (int i = 0; i < slice.Size(); ++i) {
     const Comp::Text& textComp = space.Get<Comp::Text>(slice[i]);
     if (!textComp.mVisible) {

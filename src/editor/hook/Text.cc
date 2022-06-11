@@ -13,7 +13,9 @@ void Hook<Comp::Text>::Edit(const World::Object& object)
   ImGui::PushItemWidth(-40.0f);
   ImGui::DragFloat("Width", &textComp.mWidth, 1.0f, 0.0f, FLT_MAX);
   const char* alignments[] = {"Left", "Center", "Right"};
-  ImGui::Combo("Align", &(int)textComp.mAlign, alignments, 3);
+  int alignment = (int)textComp.mAlign;
+  ImGui::Combo("Align", &alignment, alignments, 3);
+  textComp.mAlign = (Comp::Text::Alignment)alignment;
   ImGui::DragFloat("FillAmount", &textComp.mFillAmount, 0.01f, 0.0f, 1.0f);
   ImGui::PopItemWidth();
   ImGui::PushID(0);

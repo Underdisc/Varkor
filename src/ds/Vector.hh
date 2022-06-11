@@ -1,9 +1,9 @@
 #include <sstream>
+#include <utility>
 
 #include "Error.h"
 #include "debug/MemLeak.h"
 #include "util/Memory.h"
-#include "util/Utility.h"
 
 namespace Ds {
 
@@ -62,7 +62,7 @@ void Vector<T>::Push(T&& value)
   if (mSize >= mCapacity) {
     Grow();
   }
-  new (mData + mSize) T(Util::Forward(value));
+  new (mData + mSize) T(std::forward<T>(value));
   ++mSize;
 }
 
@@ -91,7 +91,7 @@ void Vector<T>::Emplace(Args&&... args)
   if (mSize >= mCapacity) {
     Grow();
   }
-  new (mData + mSize) T(Util::Forward(args)...);
+  new (mData + mSize) T(std::forward<Args>(args)...);
   ++mSize;
 }
 
@@ -109,7 +109,7 @@ void Vector<T>::Insert(size_t index, const T& value)
   }
   new (mData + mSize) T();
   for (size_t i = mSize; i > index; --i) {
-    mData[i] = Util::Move(mData[i - 1]);
+    mData[i] = std::move(mData[i - 1]);
   }
   mData[index] = value;
   ++mSize;
@@ -139,7 +139,7 @@ void Vector<T>::Remove(size_t index)
   VerifyIndex(index);
   mData[index].~T();
   for (size_t i = index + 1; i < mSize; ++i) {
-    mData[i - 1] = Util::Move(mData[i]);
+    mData[i - 1] = std::move(mData[i]);
   }
   --mSize;
 }
@@ -153,7 +153,7 @@ void Vector<T>::LazyRemove(size_t index)
     return;
   }
   mData[index].~T();
-  mData[index] = Util::Move(mData[mSize - 1]);
+  mData[index] = std::move(mData[mSize - 1]);
   --mSize;
 }
 
@@ -355,7 +355,7 @@ void Vector<T>::Grow(size_t newCapacity)
 
   T* newData = CreateAllocation(newCapacity);
   for (size_t i = 0; i < mSize; ++i) {
-    new (newData + i) T(Util::Move(mData[i]));
+    new (newData + i) T(std::move(mData[i]));
     mData[i].~T();
   }
   mCapacity = newCapacity;

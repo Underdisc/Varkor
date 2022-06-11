@@ -4,6 +4,7 @@
 #include <regex>
 #include <sstream>
 #include <string.h>
+#include <utility>
 
 #include "AssetLibrary.h"
 #include "Error.h"
@@ -12,7 +13,19 @@
 
 namespace Gfx {
 
+const char* Uniform::smTypeStrings[] = {
+  "uModel",
+  "uTexture",
+  "uColor",
+  "uAlphaColor",
+  "uMemberId",
+  "uFillAmount",
+  "uSkyboxSampler",
+  "uMateial.mDiffuse",
+  "uMaterial.mSpecular"};
+
 bool Shader::smLogMissingUniforms = false;
+const char* Shader::smVersionHeader = "#version 330 core\n";
 
 void Shader::InitInfo::Prep(const char* vertexFile, const char* fragmentFile)
 {
@@ -43,7 +56,7 @@ Shader::Shader(): mProgram(0) {}
 
 Shader::Shader(Shader&& other)
 {
-  *this = Util::Forward(other);
+  *this = std::forward<Shader>(other);
 }
 
 Shader& Shader::operator=(Shader&& other)

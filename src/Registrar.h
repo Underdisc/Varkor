@@ -11,7 +11,7 @@ void Init();
 template<typename T, typename... Dependencies>
 void Register()
 {
-  Comp::Type<T>::Register<Dependencies...>();
+  Comp::Type<T>::template Register<Dependencies...>();
   const Comp::TypeData& typeData = Comp::GetTypeData(Comp::Type<T>::smId);
   if (typeData.mVStaticInit.Open()) {
     typeData.mVStaticInit.Invoke(nullptr);

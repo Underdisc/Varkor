@@ -1,11 +1,11 @@
 #include <iomanip>
 #include <iostream>
+#include <utility>
 
 #include "debug/MemLeak.h"
 #include "ds/List.h"
 #include "test/ds/Print.h"
 #include "test/ds/TestType.h"
-#include "util/Utility.h"
 
 void Push()
 {
@@ -101,8 +101,8 @@ void MovePush()
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     TestType testType(i);
-    list.PushBack(Util::Move(testType));
-    list.PushFront(Util::Move(testType));
+    list.PushBack(std::move(testType));
+    list.PushFront(std::move(testType));
   }
   PrintList(list);
   list.Clear();
@@ -121,7 +121,7 @@ void Insert()
   while (it != itE) {
     TestType testType(*it);
     list.Insert(it, testType);
-    list.Insert(it, Util::Move(testType));
+    list.Insert(it, std::move(testType));
     ++it;
   }
   for (int i = 0; i < 5; ++i) {

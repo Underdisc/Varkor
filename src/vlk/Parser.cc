@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <utility>
 
 #include "Error.h"
 #include "vlk/Parser.h"
@@ -69,7 +70,7 @@ Result Parser::Parse(const char* text, Value* root)
   mCurrentToken = 0;
   mCurrentLine = 1;
   mValueStack.Push(root);
-  mTokens = Util::Move(result.mValue);
+  mTokens = std::move(result.mValue);
   try {
     Expect(ParseValue(), "Expected Value.");
   }

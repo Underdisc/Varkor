@@ -1,10 +1,10 @@
 #include <iostream>
+#include <utility>
 
 #include "debug/MemLeak.h"
 #include "ds/Vector.h"
 #include "test/ds/Print.h"
 #include "test/ds/TestType.h"
-#include "util/Utility.h"
 
 void CopyConstructor()
 {
@@ -28,7 +28,7 @@ void MoveConstructor()
     ogVector.Push(i);
   }
   const int* ogVectorPtr = ogVector.CData();
-  Ds::Vector<int> moveVector(Util::Move(ogVector));
+  Ds::Vector<int> moveVector(std::move(ogVector));
   const int* moveVectorPtr = moveVector.CData();
   PrintVector(ogVector);
   PrintVector(moveVector);
@@ -66,7 +66,7 @@ void MovePush()
       innerVector.Push(i + j);
     }
     ogInnerPtrs[i] = innerVector.CData();
-    testVector.Push(Util::Move(innerVector));
+    testVector.Push(std::move(innerVector));
   }
 
   // We print out the content of each inner vector and we also make sure that
@@ -272,7 +272,7 @@ void MoveAssignment()
     moveVector.Push(i);
   }
   const int* ogVectorPtr = ogVector.CData();
-  moveVector = Util::Move(ogVector);
+  moveVector = std::move(ogVector);
   const int* moveVectorPtr = moveVector.CData();
   PrintVector(ogVector);
   PrintVector(moveVector);
@@ -427,7 +427,7 @@ void BigInnerVector()
       int value = i + j;
       innerTest.Push(TestType(value, (float)value));
     }
-    testVector.Push(Util::Move(innerTest));
+    testVector.Push(std::move(innerTest));
   }
 
   std::cout << "Main Vector Stats: [" << testVector.Size() << ", "
@@ -453,7 +453,7 @@ void ConstructionDestructionCounts()
       int value = i + j;
       inner.Emplace(value, (float)value);
     }
-    testVector.Push(Util::Move(inner));
+    testVector.Push(std::move(inner));
   }
   testVector.Clear();
 
