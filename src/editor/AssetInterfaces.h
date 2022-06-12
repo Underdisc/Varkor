@@ -1,5 +1,5 @@
-#ifndef editor_AssetInterface_h
-#define editor_AssetInterface_h
+#ifndef editor_AssetInterfaces_h
+#define editor_AssetInterfaces_h
 
 #include <functional>
 
