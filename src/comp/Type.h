@@ -24,8 +24,9 @@ template<typename T>
 struct Type
 {
   static TypeId smId;
-  template<typename... Dependencies>
   static void Register();
+  template<typename... Dependencies>
+  static void AddDependencies();
 };
 
 struct TypeData

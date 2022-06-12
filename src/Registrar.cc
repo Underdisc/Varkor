@@ -38,16 +38,21 @@ void RegisterTypes()
 {
   using namespace Comp;
   Register<Transform>();
-  Register<Model, Transform>();
-  Register<Sprite, Transform>();
-  Register<Text, Transform>();
+  Register<Model>();
+  Type<Model>::AddDependencies<Transform>();
+  Register<Sprite>();
+  Type<Sprite>::AddDependencies<Transform>();
+  Register<Text>();
+  Type<Text>::AddDependencies<Transform>();
   Register<AlphaColor>();
-  Register<Camera, Transform>();
+  Register<Camera>();
+  Type<Camera>::AddDependencies<Transform>();
   Register<DirectionalLight>();
   Register<PointLight>();
   Register<SpotLight>();
   Register<Skybox>();
-  Register<ShadowMap, Camera>();
+  Register<ShadowMap>();
+  Type<ShadowMap>::AddDependencies<Camera>();
 }
 
 void (*nRegisterCustomTypes)() = nullptr;

@@ -78,7 +78,6 @@ int CreateId();
 extern Ds::Vector<TypeData> nTypeData;
 
 template<typename T>
-template<typename... Dependencies>
 void Type<T>::Register()
 {
   LogAbortIf(smId != nInvalidTypeId, "Type already registered.");
@@ -87,8 +86,6 @@ void Type<T>::Register()
   TypeData data;
   data.mName = Util::GetShortTypename<T>();
   data.mSize = sizeof(T);
-  data.AddDependencies<T, Dependencies...>();
-
   data.mDefaultConstruct = &DefaultConstruct<T>;
   data.mCopyConstruct = &CopyConstruct<T>;
   data.mMoveConstruct = &MoveConstruct<T>;
@@ -100,8 +97,19 @@ void Type<T>::Register()
   BindVDeserialize<T>(&data.mVDeserialize);
   BindVRender<T>(&data.mVRender);
   BindVEdit<T>(&data.mVEdit);
-
   nTypeData.Push(data);
+
+  if (data.mVStaticInit.Open()) {
+    data.mVStaticInit.Invoke(nullptr);
+  }
+}
+
+template<typename T>
+template<typename... Dependencies>
+void Type<T>::AddDependencies()
+{
+  TypeData& typeData = nTypeData[smId];
+  typeData.AddDependencies<T, Dependencies...>();
 }
 
 template<typename Dependant, typename Dependency, typename... Rest>
