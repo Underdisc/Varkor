@@ -3,6 +3,7 @@
 #include "comp/AlphaColor.h"
 #include "comp/Model.h"
 #include "comp/Transform.h"
+#include "editor/AssetInterfaces.h"
 #include "gfx/Image.h"
 #include "gfx/Material.h"
 #include "gfx/Model.h"
@@ -41,6 +42,13 @@ void Model::VRender(const World::Object& owner)
   RenderOptions options;
   options.mShader = shader;
   Render(owner, options);
+}
+
+void Model::VEdit(const World::Object& owner)
+{
+  Editor::DropAssetWidget<Gfx::Model>(&mModelId);
+  Editor::DropAssetWidget<Gfx::Shader>(&mShaderId);
+  ImGui::Checkbox("Visible", &mVisible);
 }
 
 void Model::Render(

@@ -20,15 +20,7 @@ public:
 };
 
 template<typename T>
-struct SelectAssetInterface: public WindowInterface
-{
-public:
-  SelectAssetInterface(std::function<void(AssetId)> callback);
-  void Show();
-
-private:
-  std::function<void(AssetId)> mCallback;
-};
+void DropAssetWidget(AssetId* id);
 
 } // namespace Editor
 

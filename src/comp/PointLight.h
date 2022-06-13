@@ -1,8 +1,9 @@
 #ifndef comp_PointLight_h
 #define comp_PointLight_h
 
-#include "editor/HookInterface.h"
 #include "math/Vector.h"
+#include "vlk/Valkor.h"
+#include "world/Object.h"
 
 namespace Comp {
 
@@ -28,19 +29,10 @@ struct PointLight
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& val);
   void VDeserialize(const Vlk::Explorer& ex);
+  void VEdit(const World::Object& owner);
 };
 #pragma pack(pop)
 
 } // namespace Comp
-
-namespace Editor {
-
-template<>
-struct Hook<Comp::PointLight>: public HookInterface
-{
-  void Edit(const World::Object& object);
-};
-
-} // namespace Editor
 
 #endif

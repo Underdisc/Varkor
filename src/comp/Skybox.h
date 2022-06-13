@@ -2,7 +2,6 @@
 #define comp_Skybox_h
 
 #include "AssetLibrary.h"
-#include "editor/HookInterface.h"
 #include "vlk/Valkor.h"
 #include "world/Object.h"
 
@@ -15,6 +14,7 @@ struct Skybox
   void VSerialize(Vlk::Value& val);
   void VDeserialize(const Vlk::Explorer& ex);
   void VRender(const World::Object& owner);
+  void VEdit(const World::Object& owner);
 
   AssetId mCubemapId;
   AssetId mShaderId;
@@ -22,15 +22,5 @@ struct Skybox
 #pragma pack(pop)
 
 } // namespace Comp
-
-namespace Editor {
-
-template<>
-struct Hook<Comp::Skybox>: public HookInterface
-{
-  void Edit(const World::Object& object);
-};
-
-} // namespace Editor
 
 #endif

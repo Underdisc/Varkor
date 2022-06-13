@@ -30,7 +30,7 @@ struct ShadowMap
   void VSerialize(Vlk::Value& val);
   void VDeserialize(const Vlk::Explorer& ex);
   void VRender(const World::Object& owner);
-  void VEdit();
+  void VEdit(const World::Object& owner);
   Mat4 ProjView(const World::Object& owner) const;
 
 private:

@@ -1,6 +1,7 @@
 #ifndef editor_Util_h
 #define editor_Util_h
 
+#include <imgui/imgui.h>
 #include <string>
 
 #include "editor/WindowInterface.h"

@@ -1,7 +1,6 @@
 #ifndef comp_Camera_h
 #define comp_Camera_h
 
-#include "editor/HookInterface.h"
 #include "math/Matrix4.h"
 #include "vlk/Valkor.h"
 #include "world/Object.h"
@@ -14,6 +13,7 @@ struct Camera
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& cameraVal);
   void VDeserialize(const Vlk::Explorer& cameraEx);
+  void VEdit(const World::Object& owner);
   void LocalLookAt(
     const Vec3& localPosition, const Vec3& localUp, const World::Object& owner);
   void WorldLookAt(
@@ -47,15 +47,5 @@ struct Camera
 #pragma pack(pop)
 
 } // namespace Comp
-
-namespace Editor {
-
-template<>
-struct Hook<Comp::Camera>: public HookInterface
-{
-  void Edit(const World::Object& object);
-};
-
-} // namespace Editor
 
 #endif

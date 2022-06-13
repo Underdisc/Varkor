@@ -1,28 +1,16 @@
 // Any component type must be registered within the RegisterTypes function. The
-// order in which components are registered maps directly to their TypeIds. If
-// that component happens to have an editor hook, that hook's header must be
-// included here.
-
-// This is what happens if these bureaucratic rules are not followed.
-// - If a type is not registered in the RegisterTypes function, that type will
-// not be usable as a component. Expect a crash if it's added to a Space Member.
-// - If a registered component has an editor hook, but the hook's header is not
-// included here, there will be a linker error because there will be multiple
-// definitions for the editor hook. Component's are given default editor hooks
-// that do nothing if the hook is not declared.
+// order in which components are registered maps directly to their TypeIds. If a
+// type is not registered in the RegisterTypes function, that type will not be
+// usable as a component. Expect a crash if it's added to a Space Member.
 
 #include "Registrar.h"
 #include "comp/Type.h"
 
 // clang-format off
 #include "comp/Transform.h"
-#include "editor/hook/Transform.h"
 #include "comp/Model.h"
-#include "editor/hook/Model.h"
 #include "comp/Sprite.h"
-#include "editor/hook/Sprite.h"
 #include "comp/Text.h"
-#include "editor/hook/Text.h"
 #include "comp/AlphaColor.h"
 #include "comp/Camera.h"
 #include "comp/DirectionalLight.h"
@@ -37,21 +25,21 @@ namespace Registrar {
 void RegisterTypes()
 {
   using namespace Comp;
-  Register<Transform>();
-  Register<Model>();
+  Type<Transform>::Register();
+  Type<Model>::Register();
   Type<Model>::AddDependencies<Transform>();
-  Register<Sprite>();
+  Type<Sprite>::Register();
   Type<Sprite>::AddDependencies<Transform>();
-  Register<Text>();
+  Type<Text>::Register();
   Type<Text>::AddDependencies<Transform>();
-  Register<AlphaColor>();
-  Register<Camera>();
+  Type<AlphaColor>::Register();
+  Type<Camera>::Register();
   Type<Camera>::AddDependencies<Transform>();
-  Register<DirectionalLight>();
-  Register<PointLight>();
-  Register<SpotLight>();
-  Register<Skybox>();
-  Register<ShadowMap>();
+  Type<DirectionalLight>::Register();
+  Type<PointLight>::Register();
+  Type<SpotLight>::Register();
+  Type<Skybox>::Register();
+  Type<ShadowMap>::Register();
   Type<ShadowMap>::AddDependencies<Camera>();
 }
 

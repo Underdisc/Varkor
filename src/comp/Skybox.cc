@@ -1,4 +1,5 @@
 #include "comp/Skybox.h"
+#include "editor/AssetInterfaces.h"
 #include "gfx/Cubemap.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
@@ -45,15 +46,10 @@ void Skybox::VRender(const World::Object& owner)
   glBindVertexArray(0);
 }
 
-} // namespace Comp
-
-namespace Editor {
-
-void Hook<Comp::Skybox>::Edit(const World::Object& object)
+void Skybox::VEdit(const World::Object& owner)
 {
-  auto& skybox = object.Get<Comp::Skybox>();
-  SelectAssetWidget<Gfx::Cubemap>(&skybox.mCubemapId);
-  SelectAssetWidget<Gfx::Shader>(&skybox.mShaderId);
+  Editor::DropAssetWidget<Gfx::Cubemap>(&mCubemapId);
+  Editor::DropAssetWidget<Gfx::Shader>(&mShaderId);
 }
 
-} // namespace Editor
+} // namespace Comp

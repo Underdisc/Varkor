@@ -1,8 +1,12 @@
+#include <imgui/imgui.h>
 #include <istream>
 #include <ostream>
 
 #include "comp/Text.h"
+#include "editor/AssetInterfaces.h"
+#include "editor/Utility.h"
 #include "gfx/Font.h"
+#include "gfx/Shader.h"
 #include "math/Vector.h"
 #include "util/Utility.h"
 
@@ -38,6 +42,23 @@ void Text::VDeserialize(const Vlk::Explorer& textEx)
   mVisible = textEx("Visible").As<bool>(true);
   mWidth = textEx("Width").As<float>(10.0f);
   mFillAmount = 1.0f;
+}
+
+void Text::VEdit(const World::Object& owner)
+{
+  Editor::DropAssetWidget<Gfx::Font>(&mFontId);
+  Editor::DropAssetWidget<Gfx::Shader>(&mShaderId);
+  ImGui::PushItemWidth(-40.0f);
+  ImGui::DragFloat("Width", &mWidth, 1.0f, 0.0f, FLT_MAX);
+  const char* alignments[] = {"Left", "Center", "Right"};
+  int alignment = (int)mAlign;
+  ImGui::Combo("Align", &alignment, alignments, 3);
+  mAlign = (Comp::Text::Alignment)alignment;
+  ImGui::DragFloat("FillAmount", &mFillAmount, 0.01f, 0.0f, 1.0f);
+  ImGui::PopItemWidth();
+  ImGui::PushID(0);
+  Editor::InputTextMultiline("", {-1.0f, 100.0f}, &mText);
+  ImGui::PopID();
 }
 
 Ds::Vector<Text::Line> Text::GetLines() const

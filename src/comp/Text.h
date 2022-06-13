@@ -18,6 +18,7 @@ struct Text
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& textVal);
   void VDeserialize(const Vlk::Explorer& textEx);
+  void VEdit(const World::Object& owner);
 
   struct Line
   {

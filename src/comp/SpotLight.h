@@ -1,9 +1,9 @@
 #ifndef comp_SpotLight_h
 #define comp_SpotLight_h
 
-#include "editor/HookInterface.h"
 #include "math/Constants.h"
 #include "math/Vector.h"
+#include "world/Object.h"
 
 namespace Comp {
 
@@ -35,6 +35,7 @@ struct SpotLight
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& val);
   void VDeserialize(const Vlk::Explorer& ex);
+  void VEdit(const World::Object& owner);
 
   void SetInnerCutoff(float angle);
   void SetOuterCutoff(float angle);
@@ -44,15 +45,5 @@ struct SpotLight
 #pragma pack(pop)
 
 } // namespace Comp
-
-namespace Editor {
-
-template<>
-struct Hook<Comp::SpotLight>: public HookInterface
-{
-  void Edit(const World::Object& object);
-};
-
-} // namespace Editor
 
 #endif

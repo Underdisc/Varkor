@@ -28,17 +28,12 @@ void DirectionalLight::VDeserialize(const Vlk::Explorer& ex)
   mSpecular = ex("Specular").As<Vec3>(smDefaultSpecular);
 }
 
-} // namespace Comp
-
-namespace Editor {
-
-void Hook<Comp::DirectionalLight>::Edit(const World::Object& object)
+void DirectionalLight::VEdit(const World::Object& owner)
 {
-  auto& light = object.Get<Comp::DirectionalLight>();
-  ImGui::DragFloat3("Direction", light.mDirection.mD, 0.01f, -1.0f, 1.0f);
-  ImGui::ColorEdit3("Ambient", light.mAmbient.mD, ImGuiColorEditFlags_Float);
-  ImGui::ColorEdit3("Diffuse", light.mDiffuse.mD, ImGuiColorEditFlags_Float);
-  ImGui::ColorEdit3("Specular", light.mSpecular.mD, ImGuiColorEditFlags_Float);
+  ImGui::DragFloat3("Direction", mDirection.mD, 0.01f, -1.0f, 1.0f);
+  ImGui::ColorEdit3("Ambient", mAmbient.mD, ImGuiColorEditFlags_Float);
+  ImGui::ColorEdit3("Diffuse", mDiffuse.mD, ImGuiColorEditFlags_Float);
+  ImGui::ColorEdit3("Specular", mSpecular.mD, ImGuiColorEditFlags_Float);
 }
 
-} // namespace Editor
+} // namespace Comp

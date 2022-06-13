@@ -8,7 +8,6 @@
 
 namespace Editor {
 
-struct HookInterface;
 struct WindowInterface;
 
 struct Interface
@@ -42,7 +41,6 @@ private:
 
   friend void Run();
   friend void Purge();
-  friend HookInterface;
   friend WindowInterface;
 };
 

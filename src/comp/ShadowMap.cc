@@ -1,8 +1,10 @@
-#include "comp/ShadowMap.h"
+#include <imgui/imgui.h>
+
 #include "AssetLibrary.h"
 #include "Viewport.h"
 #include "comp/Camera.h"
 #include "comp/Model.h"
+#include "comp/ShadowMap.h"
 #include "comp/Sprite.h"
 #include "comp/Transform.h"
 #include "gfx/Renderer.h"
@@ -82,7 +84,7 @@ void ShadowMap::VRender(const World::Object& owner)
   glViewport(0, 0, Viewport::Width(), Viewport::Height());
 }
 
-void ShadowMap::VEdit()
+void ShadowMap::VEdit(const World::Object& owner)
 {
   ImGui::SliderFloat("Bias", &mBias, -0.1f, 0.1f);
   int newWidth = (int)mWidth;

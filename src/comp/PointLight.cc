@@ -39,22 +39,17 @@ void PointLight::VDeserialize(const Vlk::Explorer& ex)
   mQuadratic = ex("Quadratic").As<float>(smDefaultQuadratic);
 }
 
-} // namespace Comp
-
-namespace Editor {
-
-void Hook<Comp::PointLight>::Edit(const World::Object& object)
+void PointLight::VEdit(const World::Object& owner)
 {
-  auto& light = object.Get<Comp::PointLight>();
   Quat referenceFrame = {1.0f, 0.0f, 0.0f, 0.0f};
-  light.mPosition = Gizmos::Translate(light.mPosition, referenceFrame);
-  ImGui::DragFloat3("Position", light.mPosition.mD);
-  ImGui::ColorEdit3("Ambient", light.mAmbient.mD, ImGuiColorEditFlags_Float);
-  ImGui::ColorEdit3("Diffuse", light.mDiffuse.mD, ImGuiColorEditFlags_Float);
-  ImGui::ColorEdit3("Specular", light.mSpecular.mD, ImGuiColorEditFlags_Float);
-  ImGui::DragFloat("Constant", &light.mConstant, 0.01f, 1.0f, 2.0f);
-  ImGui::DragFloat("Linear", &light.mLinear, 0.01f, 0.0f, 2.0f);
-  ImGui::DragFloat("Quadratic", &light.mQuadratic, 0.01f, 0.0f, 2.0f);
+  mPosition = Editor::Gizmos::Translate(mPosition, referenceFrame);
+  ImGui::DragFloat3("Position", mPosition.mD);
+  ImGui::ColorEdit3("Ambient", mAmbient.mD, ImGuiColorEditFlags_Float);
+  ImGui::ColorEdit3("Diffuse", mDiffuse.mD, ImGuiColorEditFlags_Float);
+  ImGui::ColorEdit3("Specular", mSpecular.mD, ImGuiColorEditFlags_Float);
+  ImGui::DragFloat("Constant", &mConstant, 0.01f, 1.0f, 2.0f);
+  ImGui::DragFloat("Linear", &mLinear, 0.01f, 0.0f, 2.0f);
+  ImGui::DragFloat("Quadratic", &mQuadratic, 0.01f, 0.0f, 2.0f);
 }
 
-} // namespace Editor
+} // namespace Comp

@@ -1,6 +1,7 @@
 #include "comp/Sprite.h"
 #include "comp/AlphaColor.h"
 #include "comp/Transform.h"
+#include "editor/AssetInterfaces.h"
 #include "gfx/Image.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
@@ -37,6 +38,13 @@ void Sprite::VRender(const World::Object& owner)
   options.mShader = shader;
   Render(owner, options);
 }
+
+void Sprite::VEdit(const World::Object& owner)
+{
+  Editor::DropAssetWidget<Gfx::Image>(&mImageId);
+  Editor::DropAssetWidget<Gfx::Shader>(&mShaderId);
+}
+
 void Sprite::Render(
   const World::Object& owner, const RenderOptions& options) const
 {

@@ -1,3 +1,5 @@
+#include <imgui/imgui.h>
+
 #include "comp/AlphaColor.h"
 
 namespace Comp {
@@ -17,14 +19,9 @@ void AlphaColor::VDeserialize(const Vlk::Explorer& ex)
   mColor = ex("Color").As<Vec4>(smDefaultColor);
 }
 
-} // namespace Comp
-
-namespace Editor {
-
-void Hook<Comp::AlphaColor>::Edit(const World::Object& object)
+void AlphaColor::VEdit(const World::Object& owner)
 {
-  auto& colorComp = object.Get<Comp::AlphaColor>();
-  ImGui::ColorEdit4("Color", colorComp.mColor.mD);
+  ImGui::ColorEdit4("Color", mColor.mD);
 }
 
-} // namespace Editor
+} // namespace Comp

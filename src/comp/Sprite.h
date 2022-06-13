@@ -15,6 +15,7 @@ struct Sprite
   void VSerialize(Vlk::Value& spriteVal);
   void VDeserialize(const Vlk::Explorer& spriteEx);
   void VRender(const World::Object& owner);
+  void VEdit(const World::Object& owner);
 
   struct RenderOptions
   {

@@ -15,6 +15,7 @@ struct Model
   void VSerialize(Vlk::Value& modelVal);
   void VDeserialize(const Vlk::Explorer& modelEx);
   void VRender(const World::Object& owner);
+  void VEdit(const World::Object& owner);
 
   struct RenderOptions
   {

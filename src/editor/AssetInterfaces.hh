@@ -55,6 +55,14 @@ void AssetInterface<T>::Show()
       }
       ImGui::EndPopup();
     }
+    if (ImGui::BeginDragDropSource()) {
+      std::stringstream payloadType;
+      payloadType << assetTypename << "AssetId";
+      ImGui::SetDragDropPayload(
+        payloadType.str().c_str(), &id, sizeof(AssLib::AssetId));
+      ImGui::Text(asset.mName.c_str());
+      ImGui::EndDragDropSource();
+    }
 
     // Display edit options for the selected Asset.
     if (selected) {
@@ -97,27 +105,28 @@ void AssetInterface<T>::ShowStatus(AssLib::Status status)
 }
 
 template<typename T>
-SelectAssetInterface<T>::SelectAssetInterface(
-  std::function<void(AssetId)> callback):
-  mCallback(callback)
-{}
-
-template<typename T>
-void SelectAssetInterface<T>::Show()
+void DropAssetWidget(AssetId* currentId)
 {
-  // Display a window of all selectable Assets.
-  std::string windowName = "Select ";
-  windowName += Util::GetShortTypename<T>();
-  ImGui::Begin(windowName.c_str(), &mOpen);
-  for (const auto& assetPair : AssLib::AssetBin<T>::smAssets) {
-    if (ImGui::Selectable(assetPair.mValue.mName.c_str())) {
-      mCallback(assetPair.Key());
+  std::stringstream buttonLabel;
+  buttonLabel << Util::GetShortTypename<T>() << ": ";
+  AssLib::Asset<T>* asset = AssLib::TryGetAsset<T>(*currentId);
+  if (asset == nullptr) {
+    buttonLabel << "Invalid";
+  }
+  else {
+    buttonLabel << asset->mName;
+  }
+  ImGui::Button(buttonLabel.str().c_str(), ImVec2(-1, 0));
+  if (ImGui::BeginDragDropTarget()) {
+    std::stringstream payloadType;
+    payloadType << Util::GetShortTypename<T>() << "AssetId";
+    const ImGuiPayload* payload =
+      ImGui::AcceptDragDropPayload(payloadType.str().c_str());
+    if (payload != nullptr) {
+      *currentId = *(AssetId*)payload->Data;
     }
+    ImGui::EndDragDropTarget();
   }
-  if (ImGui::Selectable("Default")) {
-    mCallback(AssLib::nDefaultAssetId);
-  }
-  ImGui::End();
 }
 
 } // namespace Editor
