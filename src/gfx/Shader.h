@@ -15,7 +15,6 @@ namespace Gfx {
 struct Uniform
 {
   static const char* smTypeStrings[];
-
   enum class Type
   {
     Model = 0,
@@ -38,8 +37,18 @@ struct Shader
 public:
   struct InitInfo
   {
+    static const char* smSchemeStrings[];
+    enum class Scheme
+    {
+      Single,
+      Split,
+      Invalid
+    };
+    Scheme mScheme;
+    std::string mFile;
     std::string mVertexFile;
     std::string mFragmentFile;
+    void Prep(const char* file);
     void Prep(const char* vertexFile, const char* fragmentFile);
     void Serialize(Vlk::Value& val) const;
     void Deserialize(const Vlk::Explorer& ex);
@@ -53,7 +62,8 @@ public:
   Shader& operator=(Shader&& other);
   ~Shader();
 
-  Result Init(const char* vertexFile, const char* fragmentFile);
+  Result Init(const std::string& file);
+  Result Init(const std::string& vertexFile, const std::string& fragmentFile);
   GLuint Id() const;
   GLint UniformLocation(Uniform::Type type) const;
   GLint UniformLocation(const char* name) const;
@@ -65,13 +75,14 @@ public:
   void SetUniform(const char* name, const Mat4& value) const;
 
 private:
-  GLuint mProgram;
+  GLuint mId;
   Ds::Vector<Uniform> mUniforms;
 
   static bool smLogMissingUniforms;
   static const char* smVersionHeader;
   static constexpr GLint smInvalidLocation = -1;
 
+  // Tracks where a chunk of source code came from.
   struct SourceChunk
   {
     // The file that the chunk comes from.
@@ -84,18 +95,30 @@ private:
     // comes from.
     int mExcludedLines;
   };
-  struct IncludeResult
+
+  // The information needed when compiling shader source code.
+  struct CompileInfo
   {
-    bool mSuccess;
-    std::string mError;
-    Ds::Vector<SourceChunk> mChunks;
+    // The source code and the file it comes from.
+    std::string mSource;
+    std::string mFile;
+    // The number of lines above the source code in the file.
+    int mExcludedLines;
+    GLenum mShaderType;
   };
-  int GetChunkIndex(int lineNumber, const Ds::Vector<SourceChunk>& chunks);
-  Shader::IncludeResult HandleIncludes(
-    const std::string& file, std::string* content);
-  Result Compile(
-    const std::string& filename, int shaderType, unsigned int* shaderId);
+
   void InitializeUniforms();
+  std::string ShaderTypeToString(GLenum shaderType);
+  ValueResult<std::string> GetFileContent(const std::string& filename);
+  int GetLineNumber(size_t until, const std::string& string);
+  int GetChunkIndex(int lineNumber, const Ds::Vector<SourceChunk>& chunks);
+  Result HandleIncludes(std::string* content, Ds::Vector<SourceChunk>* chunks);
+  Result Compile(CompileInfo* compileInfo, GLuint shaderId);
+  Result CreateProgram(Ds::Vector<CompileInfo>* allCompileInfo);
+  Result CreateProgram(const std::string& filename);
+  Result CreateProgram(
+    const std::string& vertexFilename, const std::string& fragmentFilename);
+  Result CheckLink();
 };
 
 } // namespace Gfx

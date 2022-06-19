@@ -47,28 +47,56 @@ template<>
 void AssetInterface<Gfx::Shader>::EditInitInfo(AssetId id)
 {
   Gfx::Shader::InitInfo& info = AssLib::GetAsset<Gfx::Shader>(id).mInitInfo;
-  ImGui::Text("Vertex Shader");
-  ImGui::SameLine();
-  if (ImGui::Button(info.mVertexFile.c_str(), ImVec2(-1, 0))) {
-    OpenInterface<FileInterface>(
-      [=](const std::string& path) mutable
-      {
-        info.mVertexFile = path;
-        AssLib::TryUpdateInitInfo<Gfx::Shader>(id, info);
-      },
-      FileInterface::AccessType::Select);
+  int currentScheme = (int)info.mScheme;
+  int newScheme = currentScheme;
+  constexpr auto schemeStrings = Gfx::Shader::InitInfo::smSchemeStrings;
+  const int schemeCount = sizeof(schemeStrings) / sizeof(const char*);
+  ImGui::PushItemWidth(-50);
+  ImGui::Combo("Scheme", &newScheme, schemeStrings, 2);
+  if (newScheme != currentScheme) {
+    info.mScheme = (Gfx::Shader::InitInfo::Scheme)newScheme;
+    AssLib::TryUpdateInitInfo<Gfx::Shader>(id, info);
   }
+  ImGui::PopItemWidth();
 
-  ImGui::Text("Fragment Shader");
-  ImGui::SameLine();
-  if (ImGui::Button(info.mFragmentFile.c_str(), ImVec2(-1, 0))) {
-    OpenInterface<FileInterface>(
-      [=](const std::string& path) mutable
-      {
-        info.mFragmentFile = path;
-        AssLib::TryUpdateInitInfo<Gfx::Shader>(id, info);
-      },
-      FileInterface::AccessType::Select);
+  switch (info.mScheme) {
+  case Gfx::Shader::InitInfo::Scheme::Single:
+    ImGui::Text("File");
+    ImGui::SameLine();
+    if (ImGui::Button(info.mFile.c_str(), ImVec2(-1, 0))) {
+      OpenInterface<FileInterface>(
+        [=](const std::string& path) mutable
+        {
+          info.mFile = path;
+          AssLib::TryUpdateInitInfo<Gfx::Shader>(id, info);
+        },
+        FileInterface::AccessType::Select);
+    }
+    break;
+  case Gfx::Shader::InitInfo::Scheme::Split:
+    ImGui::Text("Vertex Shader");
+    ImGui::SameLine();
+    if (ImGui::Button(info.mVertexFile.c_str(), ImVec2(-1, 0))) {
+      OpenInterface<FileInterface>(
+        [=](const std::string& path) mutable
+        {
+          info.mVertexFile = path;
+          AssLib::TryUpdateInitInfo<Gfx::Shader>(id, info);
+        },
+        FileInterface::AccessType::Select);
+    }
+    ImGui::Text("Fragment Shader");
+    ImGui::SameLine();
+    if (ImGui::Button(info.mFragmentFile.c_str(), ImVec2(-1, 0))) {
+      OpenInterface<FileInterface>(
+        [=](const std::string& path) mutable
+        {
+          info.mFragmentFile = path;
+          AssLib::TryUpdateInitInfo<Gfx::Shader>(id, info);
+        },
+        FileInterface::AccessType::Select);
+    }
+    break;
   }
 }
 

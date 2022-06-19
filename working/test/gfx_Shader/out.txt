@@ -1,27 +1,51 @@
 <= FailedIncludeBasic =>
 Success: 0
-Failed to compile FailedIncludeBasic.fs.
-FailedIncludeBasic.fs(1): Failed to include "notafile".
+Failed shader program creation.
+Failed to compile "FailedIncludeBasic.fs".
+FailedIncludeBasic.fs(1) : Failed to include "notafile".
 
 <= FailedInclude =>
 Success: 0
-Failed to compile FailedInclude.fs.
-FailedInclude0.glsl(6): Failed to include "notafile".
+Failed shader program creation.
+Failed to compile "FailedInclude.fs".
+FailedInclude0.glsl(6) : Failed to include "notafile".
 
 <= FailedIncludeSubdirectory =>
 Success: 0
-Failed to compile FailedIncludeSubdirectory.fs.
-fis0/fis1/FailedIncludeSubdirectory1.glsl(6): Failed to include "nota/file".
+Failed shader program creation.
+Failed to compile "FailedIncludeSubdirectory.fs".
+fis0/fis1/FailedIncludeSubdirectory1.glsl(6) : Failed to include "nota/file".
 
 <= IncludeGuard =>
 Success: 1
 
 <= CompilerErrors =>
 Success: 0
-Failed to compile CompilerErrors.fs.
+Failed shader program creation.
+Failed to compile "CompilerErrors.fs".
 CompilerErrors1.glsl(3) : error C1503: undefined variable "error"
 CompilerErrors0.glsl(2) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
 CompilerErrors0.glsl(6) : error C1503: undefined variable "error"
 CompilerErrors2.glsl(4) : error C1503: undefined variable "error"
 CompilerErrors2.glsl(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
 CompilerErrors.fs(9) : error C1503: undefined variable "error"
+
+<= SingleSource =>
+-SingleSource0.glsl-
+Success: 0
+Failed shader program creation.
+SingleSource0.glsl(4) : Invalid shader type "invalid".
+-SingleSource1.glsl-
+Success: 0
+Failed shader program creation.
+SingleSource1.glsl(6) : Already used shader type "vertex".
+-SingleSource2.glsl-
+Success: 0
+Failed shader program creation.
+Failed to compile "SingleSource2.glsl".
+CompilerErrors1.glsl(3) : error C1503: undefined variable "error"
+CompilerErrors0.glsl(2) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+CompilerErrors0.glsl(6) : error C1503: undefined variable "error"
+CompilerErrors2.glsl(4) : error C1503: undefined variable "error"
+CompilerErrors2.glsl(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+SingleSource2.glsl(8) : error C1503: undefined variable "error"

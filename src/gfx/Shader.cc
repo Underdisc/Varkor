@@ -24,8 +24,16 @@ const char* Uniform::smTypeStrings[] = {
   "uMateial.mDiffuse",
   "uMaterial.mSpecular"};
 
+const char* Shader::InitInfo::smSchemeStrings[] = {
+  "Single", "Split", "Invalid"};
+
 bool Shader::smLogMissingUniforms = false;
 const char* Shader::smVersionHeader = "#version 330 core\n";
+
+void Shader::InitInfo::Prep(const char* file)
+{
+  mFile = file;
+}
 
 void Shader::InitInfo::Prep(const char* vertexFile, const char* fragmentFile)
 {
@@ -35,24 +43,47 @@ void Shader::InitInfo::Prep(const char* vertexFile, const char* fragmentFile)
 
 void Shader::InitInfo::Serialize(Vlk::Value& val) const
 {
-  val("VertexFile") = mVertexFile;
-  val("FragmentFile") = mFragmentFile;
+  switch (mScheme) {
+  case Scheme::Single:
+    val("Scheme") = smSchemeStrings[(int)Scheme::Single];
+    val("File") = mFile;
+    break;
+  case Scheme::Split:
+    val("Scheme") = smSchemeStrings[(int)Scheme::Split];
+    val("VertexFile") = mVertexFile;
+    val("FragmentFile") = mFragmentFile;
+  }
 }
 
 void Shader::InitInfo::Deserialize(const Vlk::Explorer& ex)
 {
-  mVertexFile = ex("VertexFile").As<std::string>("");
-  mFragmentFile = ex("FragmentFile").As<std::string>("");
+  mScheme = Scheme::Invalid;
+  std::string schemeString =
+    ex("Scheme").As<std::string>(smSchemeStrings[(int)Scheme::Invalid]);
+  if (schemeString == smSchemeStrings[(int)Scheme::Single]) {
+    mScheme = Scheme::Single;
+  }
+  else if (schemeString == smSchemeStrings[(int)Scheme::Split]) {
+    mScheme = Scheme::Split;
+  }
+
+  switch (mScheme) {
+  case Scheme::Single: mFile = ex("File").As<std::string>(""); break;
+  case Scheme::Split:
+    mVertexFile = ex("VertexFile").As<std::string>("");
+    mFragmentFile = ex("FragmentFile").As<std::string>("");
+    break;
+  }
 }
 
 void Shader::Purge()
 {
-  glDeleteProgram(mProgram);
-  mProgram = 0;
+  glDeleteProgram(mId);
+  mId = 0;
   mUniforms.Clear();
 }
 
-Shader::Shader(): mProgram(0) {}
+Shader::Shader(): mId(0) {}
 
 Shader::Shader(Shader&& other)
 {
@@ -61,8 +92,8 @@ Shader::Shader(Shader&& other)
 
 Shader& Shader::operator=(Shader&& other)
 {
-  mProgram = other.mProgram;
-  other.mProgram = 0;
+  mId = other.mId;
+  other.mId = 0;
   return *this;
 }
 
@@ -74,59 +105,36 @@ Shader::~Shader()
 Result Shader::Init(const InitInfo& info)
 {
   Purge();
-
-  // Resolve resource paths.
-  ValueResult<std::string> resolutionResult =
-    AssLib::ResolveResourcePath(info.mVertexFile);
-  if (!resolutionResult.Success()) {
-    return Result(resolutionResult.mError);
+  Result result;
+  switch (info.mScheme) {
+  case InitInfo::Scheme::Single: result = CreateProgram(info.mFile); break;
+  case InitInfo::Scheme::Split:
+    result = CreateProgram(info.mVertexFile, info.mFragmentFile);
+    break;
   }
-  std::string vertexPath = resolutionResult.mValue;
-  resolutionResult = AssLib::ResolveResourcePath(info.mFragmentFile);
-  if (!resolutionResult.Success()) {
-    return Result(resolutionResult.mError);
-  }
-  std::string fragmentPath = resolutionResult.mValue;
-
-  // Compile the provided shader files.
-  unsigned int vertexId, fragmentId;
-  Result result = Compile(vertexPath, GL_VERTEX_SHADER, &vertexId);
   if (!result.Success()) {
-    return result;
-  }
-  result = Compile(fragmentPath, GL_FRAGMENT_SHADER, &fragmentId);
-  if (!result.Success()) {
-    return result;
-  }
-
-  // Link the compiled shaders.
-  mProgram = glCreateProgram();
-  glAttachShader(mProgram, vertexId);
-  glAttachShader(mProgram, fragmentId);
-  glLinkProgram(mProgram);
-  glDeleteShader(vertexId);
-  glDeleteShader(fragmentId);
-  int linked;
-  glGetProgramiv(mProgram, GL_LINK_STATUS, &linked);
-  if (!linked) {
-    const int errorLogLen = 512;
-    char errorLog[errorLogLen];
-    glGetProgramInfoLog(mProgram, errorLogLen, NULL, errorLog);
-    std::stringstream reason;
-    reason << " shader files " << vertexPath << " and " << fragmentPath
-           << " failed to link." << std::endl
-           << errorLog;
-    result.mError = reason.str();
-    mProgram = 0;
+    std::stringstream error;
+    error << "Failed shader program creation.\n" << result.mError;
+    return Result(error.str());
   }
   InitializeUniforms();
   glFinish();
   return result;
 }
 
-Result Shader::Init(const char* vertexFile, const char* fragmentFile)
+Result Shader::Init(const std::string& file)
 {
   InitInfo info;
+  info.mScheme = InitInfo::Scheme::Single;
+  info.mFile = file;
+  return Init(info);
+}
+
+Result Shader::Init(
+  const std::string& vertexFile, const std::string& fragmentFile)
+{
+  InitInfo info;
+  info.mScheme = InitInfo::Scheme::Split;
   info.mVertexFile = vertexFile;
   info.mFragmentFile = fragmentFile;
   return Init(info);
@@ -134,7 +142,7 @@ Result Shader::Init(const char* vertexFile, const char* fragmentFile)
 
 GLuint Shader::Id() const
 {
-  return mProgram;
+  return mId;
 }
 
 GLint Shader::UniformLocation(Uniform::Type type) const
@@ -155,10 +163,10 @@ GLint Shader::UniformLocation(Uniform::Type type) const
 
 GLint Shader::UniformLocation(const char* name) const
 {
-  GLint location = glGetUniformLocation(mProgram, name);
+  GLint location = glGetUniformLocation(mId, name);
   if (location == -1 && smLogMissingUniforms) {
     std::stringstream error;
-    error << "Shader " << mProgram << " has no \"" << name << "\" uniform.";
+    error << "Shader " << mId << " has no \"" << name << "\" uniform.";
     LogError(error.str().c_str());
   }
   return location;
@@ -166,7 +174,7 @@ GLint Shader::UniformLocation(const char* name) const
 
 void Shader::Use() const
 {
-  glUseProgram(mProgram);
+  glUseProgram(mId);
 }
 
 void Shader::SetUniform(const char* name, float value) const
@@ -204,7 +212,7 @@ void Shader::InitializeUniforms()
   for (int i = 0; i < (int)Uniform::Type::Count; ++i) {
     Uniform::Type uniformType = (Uniform::Type)i;
     const char* typeString = Uniform::smTypeStrings[i];
-    int location = glGetUniformLocation(mProgram, typeString);
+    int location = glGetUniformLocation(mId, typeString);
     if (location != smInvalidLocation) {
       Uniform newUniform;
       newUniform.mType = uniformType;
@@ -215,16 +223,39 @@ void Shader::InitializeUniforms()
 
   auto tryBindUniformBlock = [this](const char* name, GLuint binding)
   {
-    GLuint index = glGetUniformBlockIndex(mProgram, name);
+    GLuint index = glGetUniformBlockIndex(mId, name);
     if (index != GL_INVALID_INDEX) {
-      glUniformBlockBinding(mProgram, index, binding);
+      glUniformBlockBinding(mId, index, binding);
     }
   };
   tryBindUniformBlock("Universal", 0);
   tryBindUniformBlock("Lights", 1);
 }
 
-int GetLineNumber(size_t until, const std::string& string)
+std::string Shader::ShaderTypeToString(GLenum shaderType)
+{
+  switch (shaderType) {
+  case GL_VERTEX_SHADER: return "vertex";
+  case GL_FRAGMENT_SHADER: return "fragment";
+  }
+  return "invalid";
+}
+
+ValueResult<std::string> Shader::GetFileContent(const std::string& filename)
+{
+  std::ifstream file;
+  file.open(filename);
+  if (!file.is_open()) {
+    std::stringstream reason;
+    reason << "Failed to open \"" << filename << "\"";
+    return ValueResult<std::string>(reason.str(), "");
+  }
+  std::stringstream fileContentStream;
+  fileContentStream << file.rdbuf();
+  return ValueResult<std::string>(fileContentStream.str());
+}
+
+int Shader::GetLineNumber(size_t until, const std::string& string)
 {
   int lineNumber = 1;
   size_t currentChar = string.find('\n', 0);
@@ -248,26 +279,17 @@ int Shader::GetChunkIndex(int lineNumber, const Ds::Vector<SourceChunk>& chunks)
   return -1;
 }
 
-Shader::IncludeResult Shader::HandleIncludes(
-  const std::string& file, std::string* content)
+Result Shader::HandleIncludes(
+  std::string* content, Ds::Vector<SourceChunk>* chunks)
 {
-  // The first source chunk is the file we are currently in.
-  IncludeResult result;
-  SourceChunk startChunk;
-  startChunk.mFile = file;
-  startChunk.mExcludedLines = 0;
-  startChunk.mStartLine = 1;
-  startChunk.mEndLine = GetLineNumber(content->size(), *content) + 1;
-  result.mChunks.Push(startChunk);
-
   // We repeatedly search for include statements until there are none left.
   std::string& text = *content;
   std::regex expression("#include \"([^\"]*)\"");
   std::smatch match;
   while (std::regex_search(text.cbegin(), text.cend(), match, expression)) {
     int includeLine = GetLineNumber(match[0].first - text.begin(), text);
-    int currentChunkIndex = GetChunkIndex(includeLine, result.mChunks);
-    SourceChunk currentChunk = result.mChunks[currentChunkIndex];
+    int currentChunkIndex = GetChunkIndex(includeLine, *chunks);
+    SourceChunk currentChunk = (*chunks)[currentChunkIndex];
 
     // Find a full path to the file that is relative to the executable.
     std::string includeFilename;
@@ -282,19 +304,17 @@ Shader::IncludeResult Shader::HandleIncludes(
       includeFilename = match[1].str();
     }
     else {
-      result.mSuccess = false;
       int chunkLine = currentChunk.mExcludedLines +
         (includeLine - currentChunk.mStartLine) + 1;
       std::stringstream error;
-      error << currentChunk.mFile << "(" << chunkLine << "): "
+      error << currentChunk.mFile << "(" << chunkLine << ") : "
             << "Failed to include \"" << match[1].str() << "\".";
-      result.mError = error.str();
-      return result;
+      return Result(error.str());
     }
 
     // Ignore the inclusion if the file has already been included.
     bool includedGuarded = false;
-    for (const SourceChunk& chunk : result.mChunks) {
+    for (const SourceChunk& chunk : *chunks) {
       if (includeFilename == chunk.mFile) {
         text.replace(match[0].first, match[0].second, "");
         includedGuarded = true;
@@ -320,7 +340,7 @@ Shader::IncludeResult Shader::HandleIncludes(
     includeChunk.mStartLine = includeLine;
     includeChunk.mEndLine = includeLine + includeLineCount;
     includeChunk.mExcludedLines = 0;
-    result.mChunks.Insert(currentChunkIndex + 1, includeChunk);
+    chunks->Insert(currentChunkIndex + 1, includeChunk);
 
     // The other chunk is for the code that comes after the inclusion.
     int addedNewlineCount = includeLineCount - 1;
@@ -330,13 +350,13 @@ Shader::IncludeResult Shader::HandleIncludes(
     splitChunk.mEndLine = currentChunk.mEndLine + addedNewlineCount;
     splitChunk.mExcludedLines = currentChunk.mExcludedLines;
     splitChunk.mExcludedLines += includeLine + 1 - currentChunk.mStartLine;
-    result.mChunks.Insert(currentChunkIndex + 2, splitChunk);
+    chunks->Insert(currentChunkIndex + 2, splitChunk);
 
     // Modify existing chunks to account for the new inclusion.
-    result.mChunks[currentChunkIndex].mEndLine = includeLine;
-    for (int i = currentChunkIndex + 3; i < result.mChunks.Size(); ++i) {
-      result.mChunks[i].mStartLine += addedNewlineCount;
-      result.mChunks[i].mEndLine += addedNewlineCount;
+    (*chunks)[currentChunkIndex].mEndLine = includeLine;
+    for (int i = currentChunkIndex + 3; i < (*chunks).Size(); ++i) {
+      (*chunks)[i].mStartLine += addedNewlineCount;
+      (*chunks)[i].mEndLine += addedNewlineCount;
     }
 
     text.replace(
@@ -345,58 +365,48 @@ Shader::IncludeResult Shader::HandleIncludes(
       includeContent.begin(),
       includeContent.end());
   }
-  result.mSuccess = true;
-  return result;
+  return Result();
 }
 
-Result Shader::Compile(
-  const std::string& filename, int shaderType, unsigned int* shaderId)
+Result Shader::Compile(CompileInfo* compileInfo, GLuint shaderId)
 {
-  // Read the content of the provided file.
-  std::ifstream file;
-  file.open(filename);
-  if (!file.is_open()) {
-    std::stringstream reason;
-    reason << "Failed to open " << filename;
-    return Result(reason.str());
-  }
-  std::stringstream fileContentStream;
-  fileContentStream << file.rdbuf();
-  std::string fileContentStr = fileContentStream.str();
-
   // Handle all of the include statements within the file content and prepend
   // the version header.
-  IncludeResult includeResult = HandleIncludes(filename, &fileContentStr);
-  if (!includeResult.mSuccess) {
-    std::stringstream reason;
-    reason << "Failed to compile " << filename << "." << std::endl
-           << includeResult.mError;
-    return Result(reason.str());
+  SourceChunk firstChunk;
+  firstChunk.mFile = compileInfo->mFile;
+  firstChunk.mStartLine = 1;
+  firstChunk.mEndLine =
+    GetLineNumber(compileInfo->mSource.size(), compileInfo->mSource) + 1;
+  firstChunk.mExcludedLines = compileInfo->mExcludedLines;
+  Ds::Vector<SourceChunk> chunks;
+  chunks.Push(std::move(firstChunk));
+  Result result = HandleIncludes(&compileInfo->mSource, &chunks);
+  if (!result.Success()) {
+    return Result(result.mError);
   }
-  fileContentStr = smVersionHeader + fileContentStr;
+  compileInfo->mSource = smVersionHeader + compileInfo->mSource;
 
-  // Compile the source read from the file.
-  *shaderId = glCreateShader(shaderType);
-  const char* fileContent = fileContentStr.c_str();
-  glShaderSource(*shaderId, 1, &fileContent, NULL);
-  glCompileShader(*shaderId);
+  // Compile the given preprocessed source.
+  const char* sourceCStr = compileInfo->mSource.c_str();
+  glShaderSource(shaderId, 1, &sourceCStr, NULL);
+  glCompileShader(shaderId);
   int success;
-  glGetShaderiv(*shaderId, GL_COMPILE_STATUS, &success);
+  glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
   if (success) {
     return Result();
   }
 
-  // The shader failed to compile and we need to retrieve the errors.
+  // The shader failed to compile. We need to retrieve the errors.
   const int bufferSize = 512;
   char log[bufferSize];
-  glGetShaderInfoLog(*shaderId, bufferSize, NULL, log);
+  glGetShaderInfoLog(shaderId, bufferSize, NULL, log);
   size_t logLength = strlen(log);
   // Subtracting 1 removes the last newline character.
   std::string logStr(log, logLength - 1);
-  std::stringstream error;
-  error << "Failed to compile " << filename << ".\n";
 
-  // We need to modify the retrieved error log so it has proper line numbers.
+  // The log string must be modified to make errors reference the correct files
+  // and line numbers.
+  std::stringstream error;
   std::regex expression("0\\(([0-9]+)\\)");
   std::smatch match;
   std::string::const_iterator mItE = logStr.cbegin();
@@ -404,8 +414,8 @@ Result Shader::Compile(
     error << logStr.substr(mItE - logStr.cbegin(), match[0].first - mItE);
     // Subtracting 1 ignores the version header line.
     int errorLineNumber = std::stoi(match[1].str()) - 1;
-    int chunkIndex = GetChunkIndex(errorLineNumber, includeResult.mChunks);
-    const SourceChunk& chunk = includeResult.mChunks[chunkIndex];
+    int chunkIndex = GetChunkIndex(errorLineNumber, chunks);
+    const SourceChunk& chunk = chunks[chunkIndex];
     int chunkLineNumber = (errorLineNumber - chunk.mStartLine) + 1;
     int trueLineNumber = chunk.mExcludedLines + chunkLineNumber;
     error << chunk.mFile << "(" << trueLineNumber << ")";
@@ -413,6 +423,198 @@ Result Shader::Compile(
   }
   error << logStr.substr(mItE - logStr.cbegin());
   return Result(error.str());
+}
+
+Result Shader::CreateProgram(Ds::Vector<CompileInfo>* allCompileInfo)
+{
+  // Compile all of the shaders.
+  Ds::Vector<GLuint> shaderIds;
+  for (CompileInfo& compileInfo : *allCompileInfo) {
+    GLuint newShaderId = glCreateShader(compileInfo.mShaderType);
+    Result compileResult = Compile(&compileInfo, newShaderId);
+    shaderIds.Push(newShaderId);
+
+    // We need to delete all of the created shaders if a compilation fails.
+    if (!compileResult.Success()) {
+      for (GLuint shaderId : shaderIds) {
+        glDeleteShader(shaderId);
+      }
+      std::stringstream error;
+      error << "Failed to compile \"" << compileInfo.mFile << "\".\n"
+            << compileResult.mError;
+      return Result(error.str());
+    }
+  }
+
+  // Create the shader program.
+  mId = glCreateProgram();
+  for (GLuint shaderId : shaderIds) {
+    glAttachShader(mId, shaderId);
+  }
+  glLinkProgram(mId);
+  for (GLuint shaderId : shaderIds) {
+    glDeleteShader(shaderId);
+  }
+
+  // Ensure that the link was successful.
+  int linked;
+  glGetProgramiv(mId, GL_LINK_STATUS, &linked);
+  if (!linked) {
+    glDeleteProgram(mId);
+    mId = 0;
+
+    const int errorLogLen = 512;
+    char errorLog[errorLogLen];
+    glGetProgramInfoLog(mId, errorLogLen, NULL, errorLog);
+    std::stringstream error;
+    error << errorLog;
+    error << "Failed to link [";
+    error << ShaderTypeToString((*allCompileInfo)[0].mShaderType) << ": \""
+          << (*allCompileInfo)[0].mFile << "\"";
+    for (int i = 1; i < allCompileInfo->Size(); ++i) {
+      error << ", " << ShaderTypeToString((*allCompileInfo)[i].mShaderType)
+            << ": \"" << (*allCompileInfo)[i].mFile << "\"";
+    }
+    error << "].\n" << errorLog;
+    return Result(error.str());
+  }
+  return Result();
+}
+
+Result Shader::CreateProgram(const std::string& filename)
+{
+  // Resolve the filename.
+  ValueResult<std::string> resolutionResult =
+    AssLib::ResolveResourcePath(filename);
+  if (!resolutionResult.Success()) {
+    return Result(resolutionResult.mError);
+  }
+  const std::string& truePath = resolutionResult.mValue;
+
+  // Get the file content.
+  ValueResult<std::string> fileConentResult = GetFileContent(truePath);
+  if (!fileConentResult.Success()) {
+    return Result(fileConentResult.mError);
+  }
+  const std::string& content = fileConentResult.mValue;
+
+  // Define the type ids of supported shader types.
+  const GLenum shaderTypes[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+  size_t shaderTypesCount = sizeof(shaderTypes) / sizeof(GLenum);
+
+  // Used to track the headers for each shader in the file.
+  struct HeaderData
+  {
+    // The range of the header [mStart, mEnd).
+    size_t mStart;
+    size_t mEnd;
+    GLenum mShaderType;
+  };
+  Ds::Vector<HeaderData> allHeaderData;
+
+  // Define the regular expressing for finding the type headers.
+  std::string regexString = "#type (";
+  regexString += ShaderTypeToString(shaderTypes[0]);
+  for (int i = 1; i < shaderTypesCount; ++i) {
+    regexString += "|";
+    regexString += ShaderTypeToString(shaderTypes[i]);
+  }
+  regexString += "|[^\n]*)";
+
+  // Find all of the unique type headers.
+  std::regex expression(regexString.c_str());
+  std::smatch match;
+  std::string::const_iterator searchStart = content.cbegin();
+  while (std::regex_search(searchStart, content.cend(), match, expression)) {
+    HeaderData newHeaderData;
+    newHeaderData.mStart = match[0].first - content.cbegin();
+    newHeaderData.mEnd = match[0].second - content.cbegin();
+
+    // Find the header type.
+    constexpr GLenum invalidShaderType = 0;
+    newHeaderData.mShaderType = invalidShaderType;
+    for (int i = 0; i < shaderTypesCount; ++i) {
+      if (match[1].str() == ShaderTypeToString(shaderTypes[i])) {
+        newHeaderData.mShaderType = shaderTypes[i];
+        break;
+      }
+    }
+
+    // Ensure that the header is both valid and unique.
+    if (newHeaderData.mShaderType == invalidShaderType) {
+      std::stringstream error;
+      error << filename << "(" << GetLineNumber(newHeaderData.mStart, content)
+            << ") : Invalid shader type \"" << match[1].str() << "\".";
+      return Result(error.str());
+    }
+    for (const HeaderData& headerData : allHeaderData) {
+      if (newHeaderData.mShaderType == headerData.mShaderType) {
+        int headerLine = GetLineNumber(newHeaderData.mStart, content);
+        std::stringstream error;
+        error << filename << "(" << headerLine
+              << ") : Already used shader type \""
+              << ShaderTypeToString(newHeaderData.mShaderType) << "\".";
+        return Result(error.str());
+      }
+    }
+    allHeaderData.Push(newHeaderData);
+    searchStart = match[0].second;
+  }
+
+  // Create the CompileInfo for the source under each type header.
+  Ds::Vector<CompileInfo> allCompileInfo;
+  for (int i = 0; i < allHeaderData.Size(); ++i) {
+    const HeaderData& headerData = allHeaderData[i];
+    size_t sourceBegin = headerData.mEnd;
+    size_t sourceSize;
+    if (i == allHeaderData.Size() - 1) {
+      size_t fileSize = content.cend() - content.cbegin();
+      sourceSize = fileSize - sourceBegin;
+    }
+    else {
+      const HeaderData& nextHeaderData = allHeaderData[i + 1];
+      sourceSize = nextHeaderData.mStart - headerData.mEnd;
+    }
+    CompileInfo newCompileInfo;
+    newCompileInfo.mSource = content.substr(sourceBegin, sourceSize);
+    newCompileInfo.mFile = filename;
+    newCompileInfo.mExcludedLines = GetLineNumber(sourceBegin, content) - 1;
+    newCompileInfo.mShaderType = headerData.mShaderType;
+    allCompileInfo.Push(std::move(newCompileInfo));
+  }
+  return CreateProgram(&allCompileInfo);
+}
+
+Result Shader::CreateProgram(
+  const std::string& vertexFilename, const std::string& fragmentFilename)
+{
+  // Start initializing the CompileInfo for the shaders.
+  Ds::Vector<CompileInfo> allCompileInfo;
+  CompileInfo vertexCompileInfo;
+  vertexCompileInfo.mFile = vertexFilename;
+  vertexCompileInfo.mShaderType = GL_VERTEX_SHADER;
+  allCompileInfo.Push(std::move(vertexCompileInfo));
+  CompileInfo fragmentCompileInfo;
+  fragmentCompileInfo.mFile = fragmentFilename;
+  fragmentCompileInfo.mShaderType = GL_FRAGMENT_SHADER;
+  allCompileInfo.Push(std::move(fragmentCompileInfo));
+
+  // Finish initializing the CompileInfos by getting the source code.
+  for (CompileInfo& compileInfo : allCompileInfo) {
+    ValueResult<std::string> resolutionResult =
+      AssLib::ResolveResourcePath(compileInfo.mFile);
+    if (!resolutionResult.Success()) {
+      return Result(resolutionResult.mError);
+    }
+    ValueResult<std::string> contentResult =
+      GetFileContent(resolutionResult.mValue);
+    if (!contentResult.Success()) {
+      return Result(contentResult.mError);
+    }
+    compileInfo.mSource = std::move(contentResult.mValue);
+    compileInfo.mExcludedLines = 0;
+  }
+  return CreateProgram(&allCompileInfo);
 }
 
 } // namespace Gfx
