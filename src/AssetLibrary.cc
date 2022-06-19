@@ -36,23 +36,23 @@ void InitRequiredAssets()
   AssetBin<Gfx::Image>::Default("vres/image/questionmarkSquare.png");
   AssetBin<Gfx::Model>::Default("vres/model/questionmarkCube.obj");
   AssetBin<Gfx::Shader>::Default(
-    "vres/shader/default.vs", "vres/shader/default.fs");
+    "vres/shader/Default.glv", "vres/shader/Default.glf");
 
   // All other required assets.
   nColorShaderId = AssetBin<Gfx::Shader>::Require(
-    "Color", "vres/shader/default.vs", "vres/shader/color.fs");
+    "Color", "vres/shader/Default.glv", "vres/shader/Color.glf");
   nDebugDrawShaderId = AssetBin<Gfx::Shader>::Require(
-    "DebugDraw", "vres/shader/debugLine.vs", "vres/shader/color.fs");
-  nDefaultTextShaderId = AssetBin<Gfx::Shader>::Require(
-    "DefaultText", "vres/shader/DefaultText.glsl");
-  nFramebufferShaderId = AssetBin<Gfx::Shader>::Require(
-    "Framebuffer", "vres/shader/Fullscreen.glsl");
+    "DebugDraw", "vres/shader/DebugLine.glv", "vres/shader/Color.glf");
+  nDefaultTextShaderId =
+    AssetBin<Gfx::Shader>::Require("DefaultText", "vres/shader/DefaultText.gl");
+  nFramebufferShaderId =
+    AssetBin<Gfx::Shader>::Require("Framebuffer", "vres/shader/Fullscreen.gl");
   nMemberIdShaderId = AssetBin<Gfx::Shader>::Require(
-    "MemberId", "vres/shader/default.vs", "vres/shader/memberId.fs");
+    "MemberId", "vres/shader/Default.glv", "vres/shader/MemberId.glf");
   nDefaultSpriteShaderId = AssetBin<Gfx::Shader>::Require(
-    "DefaultSprite", "vres/shader/DefaultSprite.glsl");
+    "DefaultSprite", "vres/shader/DefaultSprite.gl");
   nDefaultSkyboxShaderId = AssetBin<Gfx::Shader>::Require(
-    "DefaultSkybox", "vres/shader/Skybox.vs", "vres/shader/Skybox.fs");
+    "DefaultSkybox", "vres/shader/Skybox.glv", "vres/shader/Skybox.glf");
   nArrowModelId =
     AssetBin<Gfx::Model>::Require("Arrow", "vres/model/arrow.obj");
   nCubeModelId = AssetBin<Gfx::Model>::Require("Cube", "vres/model/cube.obj");

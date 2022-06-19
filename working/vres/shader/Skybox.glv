@@ -1,4 +1,4 @@
-#include "uniformBuffers/Universal.glsl"
+#include "uniformBuffers/Universal.glh"
 
 layout(location = 0) in vec3 aPos;
 out vec3 iTextureCoords;

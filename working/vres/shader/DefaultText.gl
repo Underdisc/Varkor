@@ -1,6 +1,6 @@
 #type vertex
 
-#include "uniformBuffers/Universal.glsl"
+#include "uniformBuffers/Universal.glh"
 
 layout(location = 0) in vec2 aPos;
 out vec2 iTextureCoords;
@@ -17,7 +17,7 @@ void main()
 ////////////////////////////////////////////////////////////////////////////////
 #type fragment
 
-#include "lib/Text.glsl"
+#include "lib/Text.glh"
 
 in vec2 iTextureCoords;
 out vec4 iFinalColor;

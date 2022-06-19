@@ -1,4 +1,4 @@
-#include "SurfaceData.glsl"
+#include "vres/shader/lib/SurfaceData.glh"
 
 vec3 CalcDiffuse(
   vec3 normal, vec3 lightDir, vec3 diffuseColor, vec3 diffuseSample)

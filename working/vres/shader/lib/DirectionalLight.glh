@@ -1,5 +1,5 @@
-#include "Phong.glsl"
-#include "SurfaceData.glsl"
+#include "vres/shader/lib/Phong.glh"
+#include "vres/shader/lib/SurfaceData.glh"
 
 struct DirectionalLight
 {

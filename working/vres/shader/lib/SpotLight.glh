@@ -1,5 +1,5 @@
-#include "vres/shader/lib/Phong.glsl"
-#include "vres/shader/lib/SurfaceData.glsl"
+#include "vres/shader/lib/Phong.glh"
+#include "vres/shader/lib/SurfaceData.glh"
 
 struct SpotLight
 {

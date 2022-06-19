@@ -1,6 +1,6 @@
-#include "vres/shader/lib/DirectionalLight.glsl"
-#include "vres/shader/lib/PointLight.glsl"
-#include "vres/shader/lib/SpotLight.glsl"
+#include "vres/shader/lib/DirectionalLight.glh"
+#include "vres/shader/lib/PointLight.glh"
+#include "vres/shader/lib/SpotLight.glh"
 
 #define MAX_DIRECTIONAL_LIGHTS 1
 #define MAX_POINT_LIGHTS 100
