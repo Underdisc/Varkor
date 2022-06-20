@@ -79,9 +79,7 @@ void ShadowMap::VRender(const World::Object& owner)
     options.mShader = &depthShader;
     spriteComp.Render(spriteOwner, options);
   }
-
   Gfx::Renderer::BindCurrentSpaceFramebuffer();
-  glViewport(0, 0, Viewport::Width(), Viewport::Height());
 }
 
 void ShadowMap::VEdit(const World::Object& owner)

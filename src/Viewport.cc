@@ -92,7 +92,6 @@ bool Active()
 
 void ResizeCallback(GLFWwindow* window, int width, int height)
 {
-  glViewport(0, 0, width, height);
   nWidth = width;
   nHeight = height;
   Gfx::Renderer::ResizeSpaceFramebuffers();

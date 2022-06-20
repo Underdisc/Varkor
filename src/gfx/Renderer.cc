@@ -487,7 +487,7 @@ void RenderSpace(
   nCurrentSpaceFramebuffer = nNextSpaceFramebuffer;
   const Framebuffer& framebuffer = nSpaceFramebuffers[nCurrentSpaceFramebuffer];
   ++nNextSpaceFramebuffer;
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.Fbo());
+  BindCurrentSpaceFramebuffer();
 
   // Perform all of the component renders.
   World::Object owner(const_cast<World::Space*>(&space));
@@ -596,6 +596,7 @@ void UnbindTextures(int firstTextureIndex, int count)
 
 void BindCurrentSpaceFramebuffer()
 {
+  glViewport(0, 0, Viewport::Width(), Viewport::Height());
   glBindFramebuffer(
     GL_FRAMEBUFFER, nSpaceFramebuffers[nCurrentSpaceFramebuffer].Fbo());
 }
