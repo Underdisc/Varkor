@@ -5,17 +5,16 @@
 
 namespace Gfx {
 
-Framebuffer::Framebuffer(unsigned int format, unsigned int pixelType):
+Framebuffer::Framebuffer(
+  int width, int height, unsigned int format, unsigned int pixelType):
   mFormat(format), mPixelType(pixelType)
 {
-  Init(Viewport::Width(), Viewport::Height());
-  AddFullscreen(this);
+  Init(width, height);
 }
 
 Framebuffer::~Framebuffer()
 {
   Purge();
-  RemoveFullscreen(this);
 }
 
 void Framebuffer::Resize(int width, int height)
@@ -97,37 +96,6 @@ unsigned int Framebuffer::Format() const
 unsigned int Framebuffer::PixelType() const
 {
   return mPixelType;
-}
-
-// todo: Storing these as pointers is a terrible way to handle resizing
-// fullscreen framebuffers. We do not have any guarantee that these pointers
-// will stay the same. We should fix this in the future by resizing all of
-// the framebuffers that exist for longer than a single frame explicitly. What
-// makes this difficult is the way transform gizmos are renderered, but it
-// should be addressable once the editor uses its own space.
-Ds::Vector<Framebuffer*> Framebuffer::smFullscreens;
-
-void Framebuffer::ResizeFullscreens(int width, int height)
-{
-  for (Framebuffer* framebuffer : smFullscreens) {
-    framebuffer->Resize(width, height);
-  }
-}
-
-void Framebuffer::AddFullscreen(Framebuffer* framebuffer)
-{
-  smFullscreens.Push(framebuffer);
-}
-
-void Framebuffer::RemoveFullscreen(Framebuffer* framebuffer)
-{
-  for (int i = 0; i < smFullscreens.Size(); ++i) {
-    if (smFullscreens[i] == framebuffer) {
-      smFullscreens.LazyRemove(i);
-      return;
-    }
-  }
-  LogAbort("The framebuffer was never added.");
 }
 
 } // namespace Gfx

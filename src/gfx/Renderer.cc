@@ -418,7 +418,8 @@ World::MemberId HoveredMemberId(
   const World::Space& space, const Mat4& view, const Mat4& proj)
 {
   // Render all of the MemberIds to a framebuffer.
-  Gfx::Framebuffer handlebuffer(GL_RED_INTEGER, GL_INT);
+  Gfx::Framebuffer handlebuffer(
+    Viewport::Width(), Viewport::Height(), GL_RED_INTEGER, GL_INT);
   glBindFramebuffer(GL_FRAMEBUFFER, handlebuffer.Fbo());
   glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
   glClear(GL_DEPTH_BUFFER_BIT);
@@ -480,7 +481,8 @@ void RenderSpace(
   // Get the next space framebuffer that hasn't been rendered to and bind
   // it.
   if (nNextSpaceFramebuffer >= nSpaceFramebuffers.Size()) {
-    nSpaceFramebuffers.Emplace(GL_RGBA, GL_UNSIGNED_BYTE);
+    nSpaceFramebuffers.Emplace(
+      Viewport::Width(), Viewport::Height(), GL_RGBA, GL_UNSIGNED_BYTE);
   }
   nCurrentSpaceFramebuffer = nNextSpaceFramebuffer;
   const Framebuffer& framebuffer = nSpaceFramebuffers[nCurrentSpaceFramebuffer];
@@ -618,6 +620,13 @@ void RenderFramebuffers()
   }
   glBindTexture(GL_TEXTURE_2D, 0);
   glEnable(GL_DEPTH_TEST);
+}
+
+void ResizeSpaceFramebuffers()
+{
+  for (Gfx::Framebuffer& framebuffer : nSpaceFramebuffers) {
+    framebuffer.Resize(Viewport::Width(), Viewport::Height());
+  }
 }
 
 } // namespace Gfx::Renderer

@@ -8,7 +8,8 @@ namespace Gfx {
 class Framebuffer
 {
 public:
-  Framebuffer(unsigned int format, unsigned int pixelType);
+  Framebuffer(
+    int width, int height, unsigned int format, unsigned int pixelType);
   ~Framebuffer();
   void Resize(int width, int height);
   unsigned int Fbo() const;
@@ -24,14 +25,6 @@ private:
   unsigned int mDepthTbo;
   unsigned int mFormat;
   unsigned int mPixelType;
-
-public:
-  static void ResizeFullscreens(int width, int height);
-
-private:
-  static Ds::Vector<Framebuffer*> smFullscreens;
-  static void AddFullscreen(Framebuffer* framebuffer);
-  static void RemoveFullscreen(Framebuffer* framebuffer);
 };
 
 } // namespace Gfx

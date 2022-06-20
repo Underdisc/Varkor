@@ -41,6 +41,7 @@ void PrepShadowState(
 void UnbindTextures(int firstTextureIndex, int count);
 void BindCurrentSpaceFramebuffer();
 void RenderFramebuffers();
+void ResizeSpaceFramebuffers();
 
 // todo: This really shouldn't be exposed by the Renderer.
 void InitializeUniversalUniformBuffer(
