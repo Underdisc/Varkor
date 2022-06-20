@@ -46,7 +46,7 @@ void FileInterface::Show()
   DIR* directory = opendir(fullPath.c_str());
   while (directory == nullptr) {
     path.erase(path.find_last_of('/'));
-    fullPath.erase(path.find_last_of('/'));
+    fullPath.erase(fullPath.find_last_of('/'));
     directory = opendir(fullPath.c_str());
   }
 
