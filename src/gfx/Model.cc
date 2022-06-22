@@ -15,11 +15,13 @@ namespace Gfx {
 void Model::InitInfo::Serialize(Vlk::Value& val) const
 {
   val("File") = mFile;
+  val("FlipUvs") = mFlipUvs;
 }
 
 void Model::InitInfo::Deserialize(const Vlk::Explorer& ex)
 {
   mFile = ex("File").As<std::string>("");
+  mFlipUvs = ex("FlipUvs").As<bool>(false);
 }
 
 void Model::Finalize()
@@ -79,6 +81,9 @@ Result Model::Init(const InitInfo& info)
   Assimp::Importer importer;
   unsigned int flags =
     aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_SortByPType;
+  if (info.mFlipUvs) {
+    flags |= aiProcess_FlipUVs;
+  }
   const aiScene* scene = importer.ReadFile(path, flags);
   bool sceneCreated = scene != nullptr && scene->mRootNode != nullptr;
   if (!sceneCreated || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) {
