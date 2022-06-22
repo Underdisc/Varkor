@@ -12,6 +12,12 @@
 
 namespace Gfx {
 
+void Model::InitInfo::Prep(const std::string& file)
+{
+  mFile = file;
+  mFlipUvs = false;
+}
+
 void Model::InitInfo::Serialize(Vlk::Value& val) const
 {
   val("File") = mFile;

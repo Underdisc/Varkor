@@ -6,7 +6,13 @@
 
 namespace Gfx {
 
-Cubemap::InitInfo::InitInfo(): mFilter(GL_LINEAR) {}
+void Cubemap::InitInfo::Prep(const std::string& file)
+{
+  mFilter = GL_LINEAR;
+  for (int i = 0; i < 6; ++i) {
+    mFiles[i] = file;
+  }
+}
 
 void Cubemap::InitInfo::Serialize(Vlk::Value& val) const
 {

@@ -21,6 +21,7 @@ public:
   {
     std::string mFile;
     bool mFlipUvs;
+    void Prep(const std::string& file);
     void Serialize(Vlk::Value& val) const;
     void Deserialize(const Vlk::Explorer& ex);
   };

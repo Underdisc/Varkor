@@ -17,6 +17,7 @@ public:
   struct InitInfo
   {
     std::string mFile;
+    void Prep(const std::string& file);
     void Serialize(Vlk::Value& val) const;
     void Deserialize(const Vlk::Explorer& ex);
   };

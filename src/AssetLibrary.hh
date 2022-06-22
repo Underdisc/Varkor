@@ -28,27 +28,10 @@ void Asset<T>::Finalize()
 }
 
 template<typename T>
-Result Asset<T>::FullInit()
+Result Asset<T>::InstantInit()
 {
   Result result = Init();
   if (!result.Success()) {
-    LogError(result.mError.c_str());
-    mStatus = Status::Failed;
-  }
-  else {
-    Finalize();
-    mStatus = Status::Live;
-  }
-  return result;
-}
-
-template<typename T>
-template<typename... Args>
-Result Asset<T>::FullInit(Args&&... args)
-{
-  Result result = mResource.Init(args...);
-  if (!result.Success()) {
-    LogError(result.mError.c_str());
     mStatus = Status::Failed;
   }
   else {
@@ -87,7 +70,8 @@ template<typename... Args>
 void AssetBin<T>::Default(Args&&... args)
 {
   Asset<T>& asset = smAssets.Emplace(nDefaultAssetId, "Default");
-  Result result = asset.FullInit(args...);
+  asset.mInitInfo.Prep(args...);
+  Result result = asset.InstantInit();
   LogAbortIf(!result.Success(), "Default Asset failed initialization.");
 }
 
@@ -97,7 +81,8 @@ AssetId AssetBin<T>::Require(const std::string& name, Args&&... args)
 {
   AssetId id = NextNonserializableId();
   Asset<T>& asset = smAssets.Emplace(id, name);
-  Result result = asset.FullInit(args...);
+  asset.mInitInfo.Prep(args...);
+  Result result = asset.InstantInit();
   LogAbortIf(!result.Success(), "Required Asset failed initialization.");
   return id;
 }

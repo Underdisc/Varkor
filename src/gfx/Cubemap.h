@@ -15,11 +15,10 @@ struct Cubemap
     constexpr static const char* smFileDescriptors[6] {
       "Right", "Left", "Top", "Bottom", "Back", "Front"};
     std::string mFiles[6];
-
     constexpr static const char* smFilterTypes[2] {"Nearest", "Linear"};
     GLint mFilter;
 
-    InitInfo();
+    void Prep(const std::string& file);
     void Serialize(Vlk::Value& val) const;
     void Deserialize(const Vlk::Explorer& ex);
   };

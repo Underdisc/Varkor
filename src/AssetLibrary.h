@@ -63,9 +63,7 @@ struct Asset
   void Prep(Args&&... args);
   Result Init();
   void Finalize();
-  Result FullInit();
-  template<typename... Args>
-  Result FullInit(Args&&... args);
+  Result InstantInit();
 };
 
 // These functions are the primary interface for the AssetLibrary.

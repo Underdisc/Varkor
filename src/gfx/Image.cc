@@ -10,6 +10,11 @@
 
 namespace Gfx {
 
+void Image::InitInfo::Prep(const std::string& file)
+{
+  mFile = file;
+}
+
 void Image::InitInfo::Serialize(Vlk::Value& val) const
 {
   val("File") = mFile;

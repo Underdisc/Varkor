@@ -20,7 +20,7 @@ void InitLineModel(
 
   // There is no mesh if the fill is 0.
   if (fill == 0.0f) {
-    modelAsset.FullInit(nullptr, nullptr, 0, 0, 0, 0);
+    modelAsset.mResource.Init(nullptr, nullptr, 0, 0, 0, 0);
     return;
   }
 
@@ -298,7 +298,7 @@ void InitLineModel(
 
   // We can finally initialize the model. Everything needed to do it is ugly,
   // but it works.
-  modelAsset.FullInit(
+  modelAsset.mResource.Init(
     (void*)verts.CData(),
     (void*)elements.CData(),
     (unsigned int)(sizeof(Vec3) * verts.Size()),

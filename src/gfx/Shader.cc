@@ -32,11 +32,13 @@ const char* Shader::smVersionHeader = "#version 330 core\n";
 
 void Shader::InitInfo::Prep(const char* file)
 {
+  mScheme = Scheme::Single;
   mFile = file;
 }
 
 void Shader::InitInfo::Prep(const char* vertexFile, const char* fragmentFile)
 {
+  mScheme = Scheme::Split;
   mVertexFile = vertexFile;
   mFragmentFile = fragmentFile;
 }
@@ -125,8 +127,7 @@ Result Shader::Init(const InitInfo& info)
 Result Shader::Init(const std::string& file)
 {
   InitInfo info;
-  info.mScheme = InitInfo::Scheme::Single;
-  info.mFile = file;
+  info.Prep(file.c_str());
   return Init(info);
 }
 
@@ -134,9 +135,7 @@ Result Shader::Init(
   const std::string& vertexFile, const std::string& fragmentFile)
 {
   InitInfo info;
-  info.mScheme = InitInfo::Scheme::Split;
-  info.mVertexFile = vertexFile;
-  info.mFragmentFile = fragmentFile;
+  info.Prep(vertexFile.c_str(), fragmentFile.c_str());
   return Init(info);
 }
 

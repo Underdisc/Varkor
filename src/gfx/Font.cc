@@ -11,6 +11,11 @@
 
 namespace Gfx {
 
+void Font::InitInfo::Prep(const std::string& file)
+{
+  mFile = file;
+}
+
 void Font::InitInfo::Serialize(Vlk::Value& val) const
 {
   val("File") = mFile;
