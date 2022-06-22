@@ -49,7 +49,7 @@ void AssetInterface<T>::Show()
       }
     }
     ImGui::PopID();
-    if (ImGui::BeginPopupContextItem()) {
+    if (AssLib::SerializableId(id) && ImGui::BeginPopupContextItem()) {
       if (ImGui::Selectable("Remove")) {
         removeAssetId = id;
       }
@@ -65,7 +65,7 @@ void AssetInterface<T>::Show()
     }
 
     // Display edit options for the selected Asset.
-    if (selected) {
+    if (selected && id != AssLib::nDefaultAssetId) {
       ImGui::Separator();
       if (AssLib::SerializableId(id)) {
         InputText("Name", &asset.mName);
