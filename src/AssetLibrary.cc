@@ -45,8 +45,6 @@ void InitRequiredAssets()
     "DebugDraw", "vres/shader/DebugLine.glv", "vres/shader/Color.glf");
   nDefaultTextShaderId =
     AssetBin<Gfx::Shader>::Require("DefaultText", "vres/shader/DefaultText.gl");
-  nFramebufferShaderId =
-    AssetBin<Gfx::Shader>::Require("Framebuffer", "vres/shader/Fullscreen.gl");
   nMemberIdShaderId = AssetBin<Gfx::Shader>::Require(
     "MemberId", "vres/shader/Default.glv", "vres/shader/MemberId.glf");
   nDefaultSpriteShaderId = AssetBin<Gfx::Shader>::Require(

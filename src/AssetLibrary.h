@@ -132,7 +132,6 @@ Ds::Vector<AssetId> LoadBin<T>::smFinalizeQueue;
 extern AssetId nColorShaderId;
 extern AssetId nDebugDrawShaderId;
 extern AssetId nDefaultTextShaderId;
-extern AssetId nFramebufferShaderId;
 extern AssetId nMemberIdShaderId;
 extern AssetId nDefaultSpriteShaderId;
 extern AssetId nDefaultSkyboxShaderId;
