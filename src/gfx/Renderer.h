@@ -40,6 +40,8 @@ void PrepShadowState(
   int shadowCount);
 void UnbindTextures(int firstTextureIndex, int count);
 void BindCurrentSpaceFramebuffer();
+void RenderCurrentSpaceFramebuffer();
+
 void RenderFramebuffers();
 void ResizeSpaceFramebuffers();
 

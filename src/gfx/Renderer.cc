@@ -8,7 +8,9 @@
 #include "Viewport.h"
 #include "comp/AlphaColor.h"
 #include "comp/Camera.h"
+#include "comp/DefaultPostProcess.h"
 #include "comp/DirectionalLight.h"
+#include "comp/ExposurePostProcess.h"
 #include "comp/Model.h"
 #include "comp/PointLight.h"
 #include "comp/ShadowMap.h"
@@ -167,6 +169,8 @@ void Init()
   nRenderOrder.Push(Comp::Type<Comp::Skybox>::smId);
   nRenderOrder.Push(Comp::Type<Comp::Model>::smId);
   nRenderOrder.Push(Comp::Type<Comp::Sprite>::smId);
+  nRenderOrder.Push(Comp::Type<DefaultPostProcess>::smId);
+  nRenderOrder.Push(Comp::Type<ExposurePostProcess>::smId);
 }
 
 void Purge()
@@ -212,7 +216,6 @@ void Render()
     const Vec3& position = Editor::nCamera.Position();
     RenderSpace(*overviewInterface->mSpace, view, proj, position);
     RenderSpace(Editor::nSpace, view, proj, position);
-    RenderFramebuffers();
     Debug::Draw::Render(Editor::nCamera.View(), Editor::nCamera.Proj());
   }
   else {
@@ -221,7 +224,6 @@ void Render()
       LogError(result.mError.c_str());
       Editor::nEditorMode = true;
     }
-    RenderFramebuffers();
   }
 }
 
@@ -276,15 +278,15 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   unsigned int directionalLightCount = 0;
   GLintptr offset = 16;
   Ds::Vector<World::MemberId> slice = space.Slice<Comp::DirectionalLight>();
-  for (int i = 0; i < slice.Size(); ++i) {
+  for (int i = 0; i < slice.Size() && i < maxDirectionalLights; ++i) {
     auto& light = space.Get<Comp::DirectionalLight>(slice[i]);
-    if (directionalLightCount >= maxDirectionalLights) {
-      break;
-    }
+    Vec3 trueAmbient = light.mAmbient.TrueColor();
+    Vec3 trueDiffuse = light.mDiffuse.TrueColor();
+    Vec3 trueSpecular = light.mSpecular.TrueColor();
     glBufferSubData(buffer, offset, sizeof(Vec3), light.mDirection.mD);
-    glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mAmbient.mD);
-    glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mDiffuse.mD);
-    glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mSpecular.mD);
+    glBufferSubData(buffer, offset + 16, sizeof(Vec3), trueAmbient.mD);
+    glBufferSubData(buffer, offset + 32, sizeof(Vec3), trueDiffuse.mD);
+    glBufferSubData(buffer, offset + 48, sizeof(Vec3), trueSpecular.mD);
     offset += 64;
     ++directionalLightCount;
   }
@@ -293,15 +295,15 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   unsigned int pointLightCount = 0;
   offset = 16 + maxDirectionalLights * 64;
   slice = std::move(space.Slice<Comp::PointLight>());
-  for (int i = 0; i < slice.Size(); ++i) {
+  for (int i = 0; i < slice.Size() && i < maxPointLights; ++i) {
     auto& light = space.Get<Comp::PointLight>(slice[i]);
-    if (pointLightCount >= maxPointLights) {
-      break;
-    }
+    Vec3 trueAmbient = light.mAmbient.TrueColor();
+    Vec3 trueDiffuse = light.mDiffuse.TrueColor();
+    Vec3 trueSpecular = light.mSpecular.TrueColor();
     glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
-    glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mAmbient.mD);
-    glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mDiffuse.mD);
-    glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mSpecular.mD);
+    glBufferSubData(buffer, offset + 16, sizeof(Vec3), trueAmbient.mD);
+    glBufferSubData(buffer, offset + 32, sizeof(Vec3), trueDiffuse.mD);
+    glBufferSubData(buffer, offset + 48, sizeof(Vec3), trueSpecular.mD);
     glBufferSubData(buffer, offset + 60, sizeof(float), &light.mConstant);
     glBufferSubData(buffer, offset + 64, sizeof(float), &light.mLinear);
     glBufferSubData(buffer, offset + 68, sizeof(float), &light.mQuadratic);
@@ -313,16 +315,16 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   unsigned int spotLightCount = 0;
   offset = 16 + maxDirectionalLights * 64 + maxPointLights * 80;
   slice = std::move(space.Slice<Comp::SpotLight>());
-  for (int i = 0; i < slice.Size(); ++i) {
+  for (int i = 0; i < slice.Size() && i < maxSpotLights; ++i) {
     auto& light = space.Get<Comp::SpotLight>(slice[i]);
-    if (spotLightCount >= maxSpotLights) {
-      break;
-    }
+    Vec3 trueAmbient = light.mAmbient.TrueColor();
+    Vec3 trueDiffuse = light.mDiffuse.TrueColor();
+    Vec3 trueSpecular = light.mSpecular.TrueColor();
     glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
     glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mDirection.mD);
-    glBufferSubData(buffer, offset + 32, sizeof(Vec3), light.mAmbient.mD);
-    glBufferSubData(buffer, offset + 48, sizeof(Vec3), light.mDiffuse.mD);
-    glBufferSubData(buffer, offset + 64, sizeof(Vec3), light.mSpecular.mD);
+    glBufferSubData(buffer, offset + 32, sizeof(Vec3), trueAmbient.mD);
+    glBufferSubData(buffer, offset + 48, sizeof(Vec3), trueDiffuse.mD);
+    glBufferSubData(buffer, offset + 64, sizeof(Vec3), trueSpecular.mD);
     glBufferSubData(buffer, offset + 76, sizeof(float), &light.mConstant);
     glBufferSubData(buffer, offset + 80, sizeof(float), &light.mLinear);
     glBufferSubData(buffer, offset + 84, sizeof(float), &light.mQuadratic);
@@ -418,12 +420,17 @@ World::MemberId HoveredMemberId(
   const World::Space& space, const Mat4& view, const Mat4& proj)
 {
   // Render all of the MemberIds to a framebuffer.
-  Gfx::Framebuffer handlebuffer(
-    Viewport::Width(), Viewport::Height(), GL_RED_INTEGER, GL_INT);
+  Framebuffer::Options options;
+  options.mWidth = Viewport::Width();
+  options.mHeight = Viewport::Height();
+  options.mInternalFormat = GL_R32I;
+  options.mFormat = GL_RED_INTEGER;
+  options.mPixelType = GL_INT;
+  Framebuffer handlebuffer(options);
   glBindFramebuffer(GL_FRAMEBUFFER, handlebuffer.Fbo());
   glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
   glClear(GL_DEPTH_BUFFER_BIT);
-  Gfx::Renderer::RenderMemberIds(space, view, proj);
+  RenderMemberIds(space, view, proj);
 
   // Find the MemberId at the mouse position.
   World::MemberId memberId;
@@ -481,8 +488,13 @@ void RenderSpace(
   // Get the next space framebuffer that hasn't been rendered to and bind
   // it.
   if (nNextSpaceFramebuffer >= nSpaceFramebuffers.Size()) {
-    nSpaceFramebuffers.Emplace(
-      Viewport::Width(), Viewport::Height(), GL_RGBA, GL_UNSIGNED_BYTE);
+    Framebuffer::Options options;
+    options.mWidth = Viewport::Width();
+    options.mHeight = Viewport::Height();
+    options.mInternalFormat = GL_RGBA16F;
+    options.mFormat = GL_RGBA;
+    options.mPixelType = GL_HALF_FLOAT;
+    nSpaceFramebuffers.Emplace(options);
   }
   nCurrentSpaceFramebuffer = nNextSpaceFramebuffer;
   const Framebuffer& framebuffer = nSpaceFramebuffers[nCurrentSpaceFramebuffer];
@@ -601,24 +613,15 @@ void BindCurrentSpaceFramebuffer()
     GL_FRAMEBUFFER, nSpaceFramebuffers[nCurrentSpaceFramebuffer].Fbo());
 }
 
-void RenderFramebuffers()
+void RenderCurrentSpaceFramebuffer()
 {
-  const Gfx::Shader* shader =
-    AssLib::TryGetLive<Gfx::Shader>(AssLib::nFramebufferShaderId);
-  if (shader == nullptr) {
-    return;
-  }
-
-  GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
-  glUseProgram(shader->Id());
-  glUniform1i(samplerLoc, 0);
-
   glDisable(GL_DEPTH_TEST);
-  for (size_t i = 0; i < nNextSpaceFramebuffer; ++i) {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, nSpaceFramebuffers[i].ColorTbo());
-    RenderQuad(nFullscreenVao);
-  }
+  const Gfx::Framebuffer& currentFramebuffer =
+    nSpaceFramebuffers[nCurrentSpaceFramebuffer];
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, currentFramebuffer.ColorTbo());
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  Gfx::Renderer::RenderQuad(nFullscreenVao);
   glBindTexture(GL_TEXTURE_2D, 0);
   glEnable(GL_DEPTH_TEST);
 }

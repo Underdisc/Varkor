@@ -1,30 +1,37 @@
 #ifndef gfx_Framebuffer_h
 #define gfx_Framebuffer_h
 
-#include "ds/Vector.h"
+#include <glad/glad.h>
 
 namespace Gfx {
 
 class Framebuffer
 {
 public:
-  Framebuffer(
-    int width, int height, unsigned int format, unsigned int pixelType);
+  struct Options
+  {
+    int mWidth;
+    int mHeight;
+    GLint mInternalFormat;
+    GLenum mFormat;
+    GLenum mPixelType;
+  };
+
+  Framebuffer(const Options& options);
   ~Framebuffer();
   void Resize(int width, int height);
-  unsigned int Fbo() const;
-  unsigned int ColorTbo() const;
-  unsigned int Format() const;
-  unsigned int PixelType() const;
+  GLuint Fbo() const;
+  GLuint ColorTbo() const;
+  GLenum Format() const;
+  GLenum PixelType() const;
 
 private:
-  void Init(int width, int height);
+  void Init();
   void Purge();
-  unsigned int mFbo;
-  unsigned int mColorTbo;
-  unsigned int mDepthTbo;
-  unsigned int mFormat;
-  unsigned int mPixelType;
+  GLuint mFbo;
+  GLuint mColorTbo;
+  GLuint mDepthTbo;
+  Options mOptions;
 };
 
 } // namespace Gfx

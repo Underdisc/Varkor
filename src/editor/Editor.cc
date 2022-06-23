@@ -6,6 +6,7 @@
 #include "Input.h"
 #include "Options.h"
 #include "Viewport.h"
+#include "comp/DefaultPostProcess.h"
 #include "editor/Camera.h"
 #include "editor/CoreInterface.h"
 #include "editor/OverviewInterface.h"
@@ -90,6 +91,9 @@ void Init()
       LogError(result.mError.c_str());
     }
   }
+
+  World::Object postObject = nSpace.CreateObject();
+  postObject.Add<DefaultPostProcess>();
 }
 
 void Purge()

@@ -5,11 +5,9 @@
 
 namespace Gfx {
 
-Framebuffer::Framebuffer(
-  int width, int height, unsigned int format, unsigned int pixelType):
-  mFormat(format), mPixelType(pixelType)
+Framebuffer::Framebuffer(const Options& options): mOptions(options)
 {
-  Init(width, height);
+  Init();
 }
 
 Framebuffer::~Framebuffer()
@@ -20,20 +18,17 @@ Framebuffer::~Framebuffer()
 void Framebuffer::Resize(int width, int height)
 {
   Purge();
-  Init(width, height);
+  mOptions.mWidth = width;
+  mOptions.mHeight = height;
+  Init();
 }
 
-void Framebuffer::Init(int width, int height)
+void Framebuffer::Init()
 {
   glGenFramebuffers(1, &mFbo);
   glBindFramebuffer(GL_FRAMEBUFFER, mFbo);
 
   // Create the color attachment.
-  GLint internalFormat;
-  switch (mFormat) {
-  case GL_RED_INTEGER: internalFormat = GL_R32I; break;
-  case GL_RGBA: internalFormat = GL_RGBA; break;
-  }
   glGenTextures(1, &mColorTbo);
   glBindTexture(GL_TEXTURE_2D, mColorTbo);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -41,12 +36,12 @@ void Framebuffer::Init(int width, int height)
   glTexImage2D(
     GL_TEXTURE_2D,
     0,
-    internalFormat,
-    width,
-    height,
+    mOptions.mInternalFormat,
+    mOptions.mWidth,
+    mOptions.mHeight,
     0,
-    mFormat,
-    mPixelType,
+    mOptions.mFormat,
+    mOptions.mPixelType,
     nullptr);
   glFramebufferTexture2D(
     GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorTbo, 0);
@@ -58,8 +53,8 @@ void Framebuffer::Init(int width, int height)
     GL_TEXTURE_2D,
     0,
     GL_DEPTH_COMPONENT,
-    width,
-    height,
+    mOptions.mWidth,
+    mOptions.mHeight,
     0,
     GL_DEPTH_COMPONENT,
     GL_UNSIGNED_INT,
@@ -78,24 +73,24 @@ void Framebuffer::Purge()
   glDeleteTextures(1, &mDepthTbo);
 }
 
-unsigned int Framebuffer::Fbo() const
+GLuint Framebuffer::Fbo() const
 {
   return mFbo;
 }
 
-unsigned int Framebuffer::ColorTbo() const
+GLuint Framebuffer::ColorTbo() const
 {
   return mColorTbo;
 }
 
-unsigned int Framebuffer::Format() const
+GLenum Framebuffer::Format() const
 {
-  return mFormat;
+  return mOptions.mFormat;
 }
 
-unsigned int Framebuffer::PixelType() const
+GLenum Framebuffer::PixelType() const
 {
-  return mPixelType;
+  return mOptions.mPixelType;
 }
 
 } // namespace Gfx

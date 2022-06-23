@@ -18,6 +18,8 @@
 #include "comp/SpotLight.h"
 #include "comp/Skybox.h"
 #include "comp/ShadowMap.h"
+#include "comp/DefaultPostProcess.h"
+#include "comp/ExposurePostProcess.h"
 // clang-format on
 
 namespace Registrar {
@@ -41,6 +43,8 @@ void RegisterTypes()
   Type<Skybox>::Register();
   Type<ShadowMap>::Register();
   Type<ShadowMap>::AddDependencies<Camera>();
+  Type<DefaultPostProcess>::Register();
+  Type<ExposurePostProcess>::Register();
 }
 
 void (*nRegisterCustomTypes)() = nullptr;

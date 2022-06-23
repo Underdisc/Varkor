@@ -1,6 +1,7 @@
 #ifndef comp_DirectionalLight_h
 #define comp_DirectionalLight_h
 
+#include "gfx/HdrColor.h"
 #include "math/Vector.h"
 #include "vlk/Valkor.h"
 #include "world/Object.h"
@@ -11,14 +12,14 @@ namespace Comp {
 struct DirectionalLight
 {
   Vec3 mDirection;
-  Vec3 mAmbient;
-  Vec3 mDiffuse;
-  Vec3 mSpecular;
+  Gfx::HdrColor mAmbient;
+  Gfx::HdrColor mDiffuse;
+  Gfx::HdrColor mSpecular;
 
   static constexpr Vec3 smDefaultDirection = {0.0f, -1.0f, 0.0f};
-  static constexpr Vec3 smDefaultAmbient = {0.1f, 0.1f, 0.1f};
-  static constexpr Vec3 smDefaultDiffuse = {0.5f, 0.5f, 0.5f};
-  static constexpr Vec3 smDefaultSpecular = {1.0f, 1.0f, 1.0f};
+  static constexpr Gfx::HdrColor smDefaultAmbient = {1.0f, 1.0f, 1.0f, 0.1f};
+  static constexpr Gfx::HdrColor smDefaultDiffuse = {1.0f, 1.0f, 1.0f, 0.5f};
+  static constexpr Gfx::HdrColor smDefaultSpecular = {1.0f, 1.0f, 1.0f, 1.0f};
 
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& val);

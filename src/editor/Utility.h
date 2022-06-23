@@ -5,6 +5,7 @@
 #include <string>
 
 #include "editor/WindowInterface.h"
+#include "gfx/HdrColor.h"
 
 namespace Editor {
 
@@ -15,6 +16,7 @@ bool InputTextMultiline(
   const char* label, const ImVec2& size, std::string* str);
 
 void HelpMarker(const char* text);
+void HdrColorEdit(const char* label, Gfx::HdrColor* hdrColor, float colorWidth);
 
 } // namespace Editor
 
