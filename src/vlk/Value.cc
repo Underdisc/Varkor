@@ -171,7 +171,9 @@ size_t Value::Size() const
 
 const Pair* Value::TryGetPair(const std::string& key) const
 {
-  HardExpectType(Type::PairArray);
+  if (mType != Type::PairArray) {
+    return nullptr;
+  }
   for (const Pair& pair : mPairArray) {
     if (key == pair.Key()) {
       return &pair;
@@ -182,7 +184,9 @@ const Pair* Value::TryGetPair(const std::string& key) const
 
 const Pair* Value::TryGetPair(size_t index) const
 {
-  HardExpectType(Type::PairArray);
+  if (mType != Type::PairArray) {
+    return nullptr;
+  }
   if (index < 0 || mPairArray.Size() <= index) {
     return nullptr;
   }
@@ -191,7 +195,9 @@ const Pair* Value::TryGetPair(size_t index) const
 
 const Value* Value::TryGetValue(size_t index) const
 {
-  HardExpectType(Type::ValueArray);
+  if (mType != Type::ValueArray) {
+    return nullptr;
+  }
   if (index < 0 || mValueArray.Size() <= index) {
     return nullptr;
   }
