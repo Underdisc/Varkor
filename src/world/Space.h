@@ -56,7 +56,6 @@ private:
 struct Space
 {
   Space();
-  Space(const std::string& name);
   void Clear();
   void Update();
 
@@ -115,10 +114,6 @@ struct Space
 
   void Serialize(Vlk::Value& spaceVal) const;
   void Deserialize(const Vlk::Explorer& spaceEx);
-
-public:
-  std::string mName;
-  MemberId mCameraId;
 
 private:
   Ds::Map<Comp::TypeId, Table> mTables;

@@ -3,16 +3,16 @@
 
 #include "editor/InspectorInterface.h"
 #include "editor/WindowInterface.h"
-#include "world/Space.h"
+#include "world/World.h"
 
 namespace Editor {
 
 struct OverviewInterface: public WindowInterface
 {
 public:
-  OverviewInterface(World::Space* space);
+  OverviewInterface(World::LayerIt layerIt);
   void Show();
-  World::Space* mSpace;
+  World::LayerIt mLayerIt;
 
 private:
   void DisplayMember(World::MemberId memberId, InspectorInterface** inspector);

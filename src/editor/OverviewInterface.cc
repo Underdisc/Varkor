@@ -5,20 +5,23 @@
 #include "editor/OverviewInterface.h"
 #include "editor/Utility.h"
 #include "gfx/Renderer.h"
+#include "world/Space.h"
 
 namespace Editor {
 
-OverviewInterface::OverviewInterface(World::Space* space): mSpace(space) {}
+OverviewInterface::OverviewInterface(World::LayerIt layerIt): mLayerIt(layerIt)
+{}
 
 void OverviewInterface::Show()
 {
   // Handle object picking.
+  World::Space& space = mLayerIt->mSpace;
   InspectorInterface* inspector = FindInterface<InspectorInterface>();
   if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left)) {
     World::MemberId clickedMemberId =
-      Gfx::Renderer::HoveredMemberId(*mSpace, nCamera.View(), nCamera.Proj());
+      Gfx::Renderer::HoveredMemberId(space, nCamera.View(), nCamera.Proj());
     if (clickedMemberId != World::nInvalidMemberId) {
-      World::Object clickedObject(mSpace, clickedMemberId);
+      World::Object clickedObject(&space, clickedMemberId);
       inspector = OpenInterface<InspectorInterface>(clickedObject);
     }
   }
@@ -26,12 +29,11 @@ void OverviewInterface::Show()
 
   ImGui::Begin("Overview", &mOpen);
 
-  // Allow the user to change the camera used for the space by dragging a member
-  // onto the camera widget.
+  // Allow the user to change the layer's camera with drag and drop.
   std::stringstream cameraLabel;
   cameraLabel << "Camera: ";
-  if (mSpace->mCameraId != World::nInvalidMemberId) {
-    const World::Member& camera = mSpace->GetMember(mSpace->mCameraId);
+  if (mLayerIt->mCameraId != World::nInvalidMemberId) {
+    const World::Member& camera = space.GetMember(mLayerIt->mCameraId);
     cameraLabel << camera.mName;
   }
   else {
@@ -41,16 +43,16 @@ void OverviewInterface::Show()
   if (ImGui::BeginDragDropTarget()) {
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
     if (payload != nullptr) {
-      mSpace->mCameraId = *(const World::MemberId*)payload->Data;
+      mLayerIt->mCameraId = *(const World::MemberId*)payload->Data;
     }
   }
 
-  // Display a selectable list of all members in the space.
+  // Display a selectable list of all members in the layer's space.
   if (ImGui::Button("Create Member", ImVec2(-1, 0))) {
-    mSpace->CreateMember();
+    space.CreateMember();
   }
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
-  Ds::Vector<World::MemberId> rootMemberIds = mSpace->RootMemberIds();
+  Ds::Vector<World::MemberId> rootMemberIds = space.RootMemberIds();
   for (int i = 0; i < rootMemberIds.Size(); ++i) {
     DisplayMember(rootMemberIds[i], &inspector);
   }
@@ -61,9 +63,9 @@ void OverviewInterface::Show()
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
     if (payload != nullptr) {
       World::MemberId childId = *(const World::MemberId*)payload->Data;
-      World::Member& member = mSpace->GetMember(childId);
+      World::Member& member = space.GetMember(childId);
       if (member.HasParent()) {
-        mSpace->RemoveParent(childId);
+        space.RemoveParent(childId);
       }
     }
     ImGui::EndDragDropTarget();
@@ -81,7 +83,8 @@ void OverviewInterface::DisplayMember(
   if (selected) {
     flags |= ImGuiTreeNodeFlags_Selected;
   }
-  World::Member& member = mSpace->GetMember(memberId);
+  World::Space& space = mLayerIt->mSpace;
+  World::Member& member = space.GetMember(memberId);
   if (member.Children().Size() == 0) {
     flags |= ImGuiTreeNodeFlags_Leaf;
   }
@@ -99,14 +102,14 @@ void OverviewInterface::DisplayMember(
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
     if (payload != nullptr) {
       World::MemberId childId = *(const World::MemberId*)payload->Data;
-      mSpace->MakeParent(memberId, childId);
+      space.MakeParent(memberId, childId);
     }
     ImGui::EndDragDropTarget();
   }
 
   // Open an InspectInterface for the Member if it is clicked.
   if (ImGui::IsItemClicked()) {
-    World::Object object(mSpace, memberId);
+    World::Object object(&space, memberId);
     if (!selected) {
       *inspector = OpenInterface<InspectorInterface>(object);
     }
@@ -141,7 +144,7 @@ void OverviewInterface::DisplayMember(
   }
 
   if (deleteMember) {
-    mSpace->DeleteMember(memberId);
+    space.DeleteMember(memberId);
     // We must close the inspector if it's displaying the now deleted member.
     if (selected) {
       CloseInterface<InspectorInterface>();

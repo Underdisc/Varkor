@@ -211,10 +211,11 @@ void Render()
     if (overviewInterface == nullptr) {
       return;
     }
+    const World::Space& space = overviewInterface->mLayerIt->mSpace;
     const Mat4& view = Editor::nCamera.View();
     const Mat4& proj = Editor::nCamera.Proj();
     const Vec3& position = Editor::nCamera.Position();
-    RenderSpace(*overviewInterface->mSpace, view, proj, position);
+    RenderSpace(space, view, proj, position);
     RenderSpace(Editor::nSpace, view, proj, position);
     Debug::Draw::Render(Editor::nCamera.View(), Editor::nCamera.Proj());
   }
@@ -225,6 +226,35 @@ void Render()
       Editor::nEditorMode = true;
     }
   }
+}
+
+Result RenderWorld()
+{
+  for (const World::Layer& layer : World::nLayers) {
+    // Make sure the layer has a camera.
+    if (layer.mCameraId == World::nInvalidMemberId) {
+      std::stringstream error;
+      error << "\"" << layer.mName << "\" layer has no assigned camera.";
+      return Result(error.str());
+    }
+    // Make sure the camera has a camera component.
+    const World::Space& space = layer.mSpace;
+    const auto* cameraComp = space.TryGet<Comp::Camera>(layer.mCameraId);
+    if (cameraComp == nullptr) {
+      std::stringstream error;
+      error << "\"" << layer.mName << "\" layer camera has no camera component";
+      return Result(error.str());
+    }
+
+    // Render the space using the layer camera.
+    auto& transformComp = space.GetComponent<Comp::Transform>(layer.mCameraId);
+    World::Object object(const_cast<World::Space*>(&space), layer.mCameraId);
+    Mat4 view = transformComp.GetInverseWorldMatrix(object);
+    Mat4 proj = cameraComp->Proj();
+    Vec3 viewPos = transformComp.GetWorldTranslation(object);
+    RenderSpace(space, view, proj, viewPos);
+  }
+  return Result();
 }
 
 Mat4 GetTransformation(const World::Object& object)
@@ -447,35 +477,6 @@ World::MemberId HoveredMemberId(
   return memberId;
 }
 
-Result RenderSpace(const World::Space& space)
-{
-  // Make sure the space has a camera.
-  if (space.mCameraId == World::nInvalidMemberId) {
-    std::stringstream error;
-    error << "Space \"" << space.mName << "\" has no assigned camera.";
-    return Result(error.str());
-  }
-  // Make sure the camera has a camera component.
-  const Comp::Camera* cameraComp =
-    space.TryGetComponent<Comp::Camera>(space.mCameraId);
-  if (cameraComp == nullptr) {
-    std::stringstream error;
-    error << "Space \"" << space.mName
-          << "\"'s camera does not have a camera component";
-    return Result(error.str());
-  }
-
-  // Find the view matrix using the space's camera and render the space.
-  Comp::Transform& transformComp =
-    space.GetComponent<Comp::Transform>(space.mCameraId);
-  World::Object object(const_cast<World::Space*>(&space), space.mCameraId);
-  Mat4 view = transformComp.GetInverseWorldMatrix(object);
-  Mat4 proj = cameraComp->Proj();
-  Vec3 viewPos = transformComp.GetWorldTranslation(object);
-  RenderSpace(space, view, proj, viewPos);
-  return Result();
-}
-
 void RenderSpace(
   const World::Space& space,
   const Mat4& view,
@@ -565,17 +566,6 @@ void RenderSpace(
   glEnable(GL_CULL_FACE);
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-Result RenderWorld()
-{
-  for (const World::Space& space : World::nSpaces) {
-    Result result = RenderSpace(space);
-    if (!result.Success()) {
-      return result;
-    }
-  }
-  return Result();
 }
 
 void PrepShadowState(

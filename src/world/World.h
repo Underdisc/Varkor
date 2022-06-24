@@ -8,18 +8,29 @@
 
 namespace World {
 
+struct Layer
+{
+  Layer();
+  Layer(const std::string& name);
+
+  std::string mName;
+  MemberId mCameraId;
+  Space mSpace;
+};
+
 extern bool nPause;
-extern Ds::List<Space> nSpaces;
-typedef Ds::List<Space>::Iter SpaceIt;
+extern Ds::List<Layer> nLayers;
+typedef Ds::List<Layer>::Iter LayerIt;
 
 extern void (*nCentralUpdate)();
-extern void (*nSpaceUpdate)(SpaceIt spaceIt);
+extern void (*nLayerUpdate)(LayerIt layerIt);
 
 void Purge();
 void Update();
-SpaceIt CreateTopSpace();
-void DeleteSpace(SpaceIt it);
-ValueResult<SpaceIt> LoadSpace(const char* filename);
+LayerIt CreateTopLayer();
+void DeleteLayer(LayerIt it);
+ValueResult<LayerIt> LoadLayer(const char* filename);
+Result SaveLayer(LayerIt it, const char* filename);
 
 } // namespace World
 

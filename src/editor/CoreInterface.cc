@@ -40,26 +40,28 @@ void CoreInterface::Show()
   ImGui::Checkbox("Editor Mode", &nEditorMode);
   ImGui::Checkbox("Pause World", &World::nPause);
 
-  // Display a button for space creation and display all of the existing spaces.
-  if (ImGui::Button("Create Space", ImVec2(-1, 0))) {
-    World::CreateTopSpace();
-  }
-  ImGui::BeginChild("Spaces", ImVec2(0, 0), true);
-  World::Space* activeSpace = nullptr;
-  OverviewInterface* overview = FindInterface<OverviewInterface>();
-  if (overview != nullptr) {
-    activeSpace = overview->mSpace;
+  // Display a button for layer creation.
+  if (ImGui::Button("Create Layer", ImVec2(-1, 0))) {
+    World::CreateTopLayer();
   }
 
-  World::SpaceIt it = World::nSpaces.begin();
-  World::SpaceIt itE = World::nSpaces.end();
+  // Display all of the existing layers.
+  ImGui::BeginChild("Layers", ImVec2(0, 0), true);
+  World::LayerIt activeLayerIt = World::nLayers.end();
+  OverviewInterface* overview = FindInterface<OverviewInterface>();
+  if (overview != nullptr) {
+    activeLayerIt = overview->mLayerIt;
+  }
+
+  World::LayerIt it = World::nLayers.begin();
+  World::LayerIt itE = World::nLayers.end();
   while (it != itE) {
-    World::Space& space = *it;
-    bool selected = activeSpace == &space;
-    ImGui::PushID((void*)&space);
-    if (ImGui::Selectable(space.mName.c_str(), selected)) {
+    World::Layer& layer = *it;
+    bool selected = it == activeLayerIt;
+    ImGui::PushID((void*)&layer);
+    if (ImGui::Selectable(layer.mName.c_str(), selected)) {
       if (!selected) {
-        OpenInterface<OverviewInterface>(&space);
+        OpenInterface<OverviewInterface>(it);
       }
       else {
         CloseInterface<OverviewInterface>();
@@ -67,24 +69,24 @@ void CoreInterface::Show()
     }
     ImGui::PopID();
 
-    bool deleteSpace = false;
+    bool deleteLayer = false;
     if (ImGui::BeginPopupContextItem()) {
       if (ImGui::Selectable("Delete")) {
-        deleteSpace = true;
+        deleteLayer = true;
       }
       ImGui::EndPopup();
     }
 
     if (selected) {
       ImGui::PushItemWidth(-1);
-      InputText("Name", &space.mName);
+      InputText("Name", &layer.mName);
       ImGui::PopItemWidth();
     }
 
-    World::SpaceIt nextIt = it;
+    World::LayerIt nextIt = it;
     ++nextIt;
-    if (deleteSpace) {
-      World::DeleteSpace(it);
+    if (deleteLayer) {
+      World::DeleteLayer(it);
       if (selected) {
         CloseInterface<OverviewInterface>();
       }
@@ -101,45 +103,47 @@ void CoreInterface::FileMenu()
     return;
   }
 
-  // Allow a user to load a Space from file.
-  if (ImGui::MenuItem("Load Space")) {
+  // Allow a user to load a Layer from file.
+  if (ImGui::MenuItem("Load Layer")) {
     OpenInterface<FileInterface>(
       [this](const std::string& filename)
       {
         std::string path = AssLib::PrependResDirectory(filename);
-        ValueResult<World::SpaceIt> result = World::LoadSpace(path.c_str());
-        if (!result.Success()) {
-          LogError(result.mError.c_str());
-          return;
+        ValueResult<World::LayerIt> result = World::LoadLayer(path.c_str());
+        if (result.Success()) {
+          OpenInterface<OverviewInterface>(result.mValue);
         }
-        OpenInterface<OverviewInterface>(&(*result.mValue));
+        else {
+          LogError(result.mError.c_str());
+        }
       },
       FileInterface::AccessType::Select);
   }
 
   // Allow a user to save a Space to file if one is selected.
-  bool spaceSelected = false;
+  bool layerSelected = false;
   OverviewInterface* overview = FindInterface<OverviewInterface>();
   if (overview != nullptr) {
-    spaceSelected = true;
+    layerSelected = true;
   }
-  if (ImGui::MenuItem("Save Selected Space", nullptr, false, spaceSelected)) {
+  if (ImGui::MenuItem("Save Layer", nullptr, false, layerSelected)) {
     OpenInterface<FileInterface>(
       [overview](const std::string& filename)
       {
+        if (overview == nullptr) {
+          return;
+        }
         std::string path = AssLib::PrependResDirectory(filename);
-        Vlk::Value rootVal;
-        overview->mSpace->Serialize(rootVal);
-        Result result = rootVal.Write(path.c_str());
+        Result result = World::SaveLayer(overview->mLayerIt, path.c_str());
         LogErrorIf(!result.Success(), result.mError.c_str());
       },
       FileInterface::AccessType::Save,
-      overview->mSpace->mName + ".vlk");
+      overview->mLayerIt->mName + ".vlk");
   }
-  if (ImGui::MenuItem("Save Assets File")) {
+  if (ImGui::MenuItem("Save Assets")) {
     AssetLibrary::SerializeAssets();
   }
-  if (ImGui::MenuItem("Save Components File")) {
+  if (ImGui::MenuItem("Save Components")) {
     Comp::SaveComponentsFile();
   }
   ImGui::EndMenu();

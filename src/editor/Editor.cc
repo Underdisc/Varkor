@@ -82,16 +82,16 @@ void Init()
 
   nCoreInterface.Init();
 
-  // Load in the requested spaces.
+  // Load in the requested layers.
   bool overviewCreated = false;
-  for (std::string spaceFile : Options::nLoadSpaces) {
-    spaceFile = AssLib::PrependResDirectory(spaceFile);
-    ValueResult<World::SpaceIt> result = World::LoadSpace(spaceFile.c_str());
+  for (std::string layerFile : Options::nLoadLayers) {
+    layerFile = AssLib::PrependResDirectory(layerFile);
+    ValueResult<World::LayerIt> result = World::LoadLayer(layerFile.c_str());
     if (!result.Success()) {
       LogError(result.mError.c_str());
     }
     else if (!overviewCreated) {
-      nCoreInterface.OpenInterface<OverviewInterface>(&(*result.mValue));
+      nCoreInterface.OpenInterface<OverviewInterface>(result.mValue);
       overviewCreated = true;
     }
   }

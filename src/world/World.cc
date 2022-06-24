@@ -2,21 +2,25 @@
 #include <utility>
 
 #include "vlk/Valkor.h"
-#include "world/Space.h"
 #include "world/World.h"
 
 namespace World {
 
+Layer::Layer(): mCameraId(nInvalidMemberId) {}
+
+Layer::Layer(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
+{}
+
 bool nPause = true;
-Ds::List<Space> nSpaces;
+Ds::List<Layer> nLayers;
 
 // Function pointers for calling into project code.
 void (*nCentralUpdate)() = nullptr;
-void (*nSpaceUpdate)(SpaceIt spaceIt) = nullptr;
+void (*nLayerUpdate)(LayerIt layerIt) = nullptr;
 
 void Purge()
 {
-  nSpaces.Clear();
+  nLayers.Clear();
 }
 
 void Update()
@@ -27,41 +31,62 @@ void Update()
   if (nCentralUpdate != nullptr) {
     nCentralUpdate();
   }
-  SpaceIt it = nSpaces.begin();
-  SpaceIt itE = nSpaces.end();
+  LayerIt it = nLayers.begin();
+  LayerIt itE = nLayers.end();
   while (it != itE) {
-    it->Update();
-    if (nSpaceUpdate != nullptr) {
-      nSpaceUpdate(it);
+    it->mSpace.Update();
+    if (nLayerUpdate != nullptr) {
+      nLayerUpdate(it);
     }
     ++it;
   }
 }
 
-SpaceIt CreateTopSpace()
+LayerIt CreateTopLayer()
 {
   std::stringstream defaultName;
-  defaultName << "Space" << nSpaces.Size();
-  SpaceIt newSpaceIt = nSpaces.Emplace(nSpaces.end(), defaultName.str());
-  return newSpaceIt;
+  defaultName << "Layer" << nLayers.Size();
+  return nLayers.Emplace(nLayers.end(), defaultName.str());
 }
 
-void DeleteSpace(SpaceIt it)
+void DeleteLayer(LayerIt it)
 {
-  nSpaces.Erase(it);
+  nLayers.Erase(it);
 }
 
-ValueResult<SpaceIt> LoadSpace(const char* filename)
+ValueResult<LayerIt> LoadLayer(const char* filename)
 {
   Vlk::Value rootVal;
   Result result = rootVal.Read(filename);
   if (!result.Success()) {
-    return ValueResult<SpaceIt>(std::move(result), nSpaces.end());
+    return ValueResult<LayerIt>(std::move(result), nLayers.end());
   }
-  SpaceIt newSpaceIt = CreateTopSpace();
   Vlk::Explorer rootEx(rootVal);
-  newSpaceIt->Deserialize(rootEx);
-  return ValueResult<SpaceIt>(newSpaceIt);
+  Vlk::Explorer metadataEx = rootEx("Metadata");
+  nLayers.EmplaceBack();
+  Layer& newLayer = *nLayers.Back();
+  newLayer.mName = metadataEx("Name").As<std::string>("DefaultName");
+  newLayer.mCameraId = metadataEx("CameraId").As<MemberId>(nInvalidMemberId);
+  Vlk::Explorer spaceEx = rootEx("Space");
+  if (!spaceEx.Valid()) {
+    std::stringstream error;
+    error << "\"filename\" did not contain a \"Space\" pair.";
+    return ValueResult<LayerIt>(error.str(), nLayers.end());
+  }
+  newLayer.mSpace.Deserialize(spaceEx);
+  return ValueResult<LayerIt>(nLayers.Back());
+}
+
+Result SaveLayer(LayerIt it, const char* filename)
+{
+  const Layer& layer = *it;
+  Vlk::Value rootVal;
+  Vlk::Value& metadataVal = rootVal("Metadata");
+  metadataVal("Name") = layer.mName;
+  metadataVal("CameraId") = layer.mCameraId;
+  Vlk::Value& spaceVal = rootVal("Space");
+  layer.mSpace.Serialize(spaceVal);
+  return rootVal.Write(filename);
 }
 
 } // namespace World

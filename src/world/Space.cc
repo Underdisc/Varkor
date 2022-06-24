@@ -79,14 +79,10 @@ const Ds::Vector<MemberId>& Member::Children() const
   return mChildren;
 }
 
-Space::Space(): mName("DefaultName"), mCameraId(nInvalidMemberId) {}
-
-Space::Space(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
-{}
+Space::Space() {}
 
 void Space::Clear()
 {
-  mCameraId = nInvalidMemberId;
   mTables.Clear();
   mMembers.Clear();
   mUnusedMemberIds.Clear();
@@ -482,9 +478,6 @@ const Ds::Vector<ComponentDescriptor> Space::DescriptorBin() const
 
 void Space::Serialize(Vlk::Value& spaceVal) const
 {
-  spaceVal("Name") = mName;
-  spaceVal("CameraId") = mCameraId;
-  Vlk::Value& membersVal = spaceVal("Members");
   for (MemberId memberId = 0; memberId < mMembers.Size(); ++memberId) {
     // We only handle members that are in use.
     const Member& member = mMembers[memberId];
@@ -493,7 +486,7 @@ void Space::Serialize(Vlk::Value& spaceVal) const
     }
 
     // Serialize all of the member's data.
-    Vlk::Value& memberVal = membersVal(member.mName.c_str());
+    Vlk::Value& memberVal = spaceVal(member.mName.c_str());
     memberVal("Id") = memberId;
     memberVal("Parent") = member.mParent;
     Vlk::Value& childrenVal = memberVal("Children")[{member.mChildren.Size()}];
@@ -517,16 +510,9 @@ void Space::Serialize(Vlk::Value& spaceVal) const
 
 void Space::Deserialize(const Vlk::Explorer& spaceEx)
 {
-  mName = spaceEx("Name").As<std::string>("DefaultName");
-  mCameraId = spaceEx("CameraId").As<int>(nInvalidMemberId);
-  Vlk::Explorer membersEx = spaceEx("Members");
-  if (!membersEx.Valid()) {
-    LogError("Spaces should have a list of Members.");
-    return;
-  }
-  for (size_t i = 0; i < membersEx.Size(); ++i) {
+  for (size_t i = 0; i < spaceEx.Size(); ++i) {
     // Ensure that the current member is valid.
-    Vlk::Explorer memberEx = membersEx(i);
+    Vlk::Explorer memberEx = spaceEx(i);
     MemberId memberId = memberEx("Id").As<int>(nInvalidMemberId);
     if (memberId == nInvalidMemberId) {
       LogError("A Member should have a valid Id.");
