@@ -5,7 +5,7 @@
 
 namespace Options {
 
-std::string nLoadSpace = "";
+Ds::Vector<std::string> nLoadSpaces;
 std::string nProjectDirectory = "";
 
 void ShowHelp()
@@ -33,7 +33,7 @@ Result Init(int argc, char* argv[], const char* projectDirectory)
     currentOp = getopt_long(argc, argv, getoptString, allOptions, NULL);
     switch (currentOp) {
     case 'h': ShowHelp(); return Result("Help requested.");
-    case 's': nLoadSpace = optarg; break;
+    case 's': nLoadSpaces.Push(optarg); break;
     case '?': return Result("Invalid command line arguments.");
     }
   }

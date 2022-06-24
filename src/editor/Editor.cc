@@ -81,14 +81,18 @@ void Init()
   colors[ImGuiCol_DragDropTarget] = ImVec4(0.00f, 0.59f, 0.00f, 1.00f);
 
   nCoreInterface.Init();
-  if (!Options::nLoadSpace.empty()) {
-    std::string spaceFile = AssLib::PrependResDirectory(Options::nLoadSpace);
+
+  // Load in the requested spaces.
+  bool overviewCreated = false;
+  for (std::string spaceFile : Options::nLoadSpaces) {
+    spaceFile = AssLib::PrependResDirectory(spaceFile);
     ValueResult<World::SpaceIt> result = World::LoadSpace(spaceFile.c_str());
-    if (result.Success()) {
-      nCoreInterface.OpenInterface<OverviewInterface>(&(*result.mValue));
-    }
-    else {
+    if (!result.Success()) {
       LogError(result.mError.c_str());
+    }
+    else if (!overviewCreated) {
+      nCoreInterface.OpenInterface<OverviewInterface>(&(*result.mValue));
+      overviewCreated = true;
     }
   }
 
