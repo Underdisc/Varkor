@@ -130,7 +130,7 @@ T* TryGetLive(AssetId id, AssetId defaultId)
 {
   Asset<T>* asset = TryGetAsset<T>(id);
   if (asset == nullptr || asset->mStatus == Status::Failed) {
-    return &GetAsset<T>(defaultId).mResource;
+    return TryGetLive<T>(defaultId);
   }
   if (asset->mStatus == Status::Loading) {
     return nullptr;
