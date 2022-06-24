@@ -157,6 +157,7 @@ MemberId Space::Duplicate(MemberId ogMemberId, bool duplicationRoot)
   VerifyMemberId(ogMemberId);
   MemberId newMemberId = CreateMember();
   const Member& ogMember = mMembers[ogMemberId];
+  mMembers[newMemberId].mName = ogMember.mName;
   DescriptorId ogDescId = ogMember.mFirstDescriptorId;
   while (ogDescId < ogMember.EndDescriptorId()) {
     ComponentDescriptor newDesc;
