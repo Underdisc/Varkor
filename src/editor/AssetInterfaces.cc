@@ -115,6 +115,10 @@ void AssetInterface<Gfx::Model>::EditInitInfo(AssetId id)
       },
       FileInterface::AccessType::Select);
   }
+
+  if (ImGui::Checkbox("Flip UVs", &info.mFlipUvs)) {
+    AssLib::TryUpdateInitInfo<Gfx::Model>(id, info);
+  }
 }
 
 template<>
