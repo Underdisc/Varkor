@@ -84,6 +84,8 @@ public:
   void PopFront();
   Iter Erase(Iter it);
   void Clear();
+  Iter Front();
+  Iter Back();
   size_t Size() const;
 
 private:

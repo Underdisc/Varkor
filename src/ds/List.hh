@@ -277,6 +277,18 @@ void List<T>::Clear()
 }
 
 template<typename T>
+typename List<T>::Iter List<T>::Front()
+{
+  return Iter(mHead);
+}
+
+template<typename T>
+typename List<T>::Iter List<T>::Back()
+{
+  return Iter(mTail);
+}
+
+template<typename T>
 size_t List<T>::Size() const
 {
   return mSize;
