@@ -17,10 +17,12 @@ void InitLineModel(
     points.Size() < 2,
     "Initialialzing a line model requires two 2 or more points.");
   auto& modelAsset = AssLib::GetAsset<Gfx::Model>(modelId);
+  modelAsset.mStatus = AssLib::Status::Live;
 
   // There is no mesh if the fill is 0.
   if (fill == 0.0f) {
     modelAsset.mResource.Init(nullptr, nullptr, 0, 0, 0, 0);
+    modelAsset.mResource.Finalize();
     return;
   }
 
@@ -305,6 +307,7 @@ void InitLineModel(
     (unsigned int)(sizeof(unsigned int) * elements.Size()),
     Gfx::Attribute::Position,
     (unsigned int)elements.Size());
+  modelAsset.mResource.Finalize();
 }
 
 } // namespace Gfx
