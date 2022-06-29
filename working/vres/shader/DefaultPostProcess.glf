@@ -1,3 +1,5 @@
+#type fragment
+
 in vec2 iUv;
 out vec4 iFinalColor;
 

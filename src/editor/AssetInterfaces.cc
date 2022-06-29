@@ -46,57 +46,37 @@ void AssetInterface<Gfx::Cubemap>::EditInitInfo(AssetId id)
 template<>
 void AssetInterface<Gfx::Shader>::EditInitInfo(AssetId id)
 {
+  // Option for adding new files to the shader.
   Gfx::Shader::InitInfo& info = AssLib::GetAsset<Gfx::Shader>(id).mInitInfo;
-  int currentScheme = (int)info.mScheme;
-  int newScheme = currentScheme;
-  constexpr auto schemeStrings = Gfx::Shader::InitInfo::smSchemeStrings;
-  const int schemeCount = sizeof(schemeStrings) / sizeof(const char*);
-  ImGui::PushItemWidth(-50);
-  ImGui::Combo("Scheme", &newScheme, schemeStrings, 2);
-  if (newScheme != currentScheme) {
-    info.mScheme = (Gfx::Shader::InitInfo::Scheme)newScheme;
-    AssLib::TryUpdateInitInfo<Gfx::Shader>(id, info);
+  float windowWidth = ImGui::GetWindowWidth();
+  if (ImGui::Button("+")) {
+    info.mFiles.Push("");
   }
-  ImGui::PopItemWidth();
+  ImGui::SameLine(0.0f, 4.0f);
+  ImGui::Text("Files");
 
-  switch (info.mScheme) {
-  case Gfx::Shader::InitInfo::Scheme::Single:
-    ImGui::Text("File");
-    ImGui::SameLine();
-    if (ImGui::Button(info.mFile.c_str(), ImVec2(-1, 0))) {
+  // Options for removing and changing file paths.
+  for (int i = 0; i < info.mFiles.Size(); ++i) {
+    bool remove = false;
+    ImGui::PushID(&info.mFiles[i]);
+    if (ImGui::Button("-")) {
+      remove = true;
+    }
+    ImGui::PopID();
+    ImGui::SameLine(0.0f, 4.0f);
+    if (ImGui::Button(info.mFiles[i].c_str(), ImVec2(-1.0f, 0.0f))) {
       OpenInterface<FileInterface>(
-        [=](const std::string& path) mutable
+        [i, id](const std::string& path) mutable
         {
-          info.mFile = path;
-          AssLib::TryUpdateInitInfo<Gfx::Shader>(id, info);
+          auto& asset = AssLib::GetAsset<Gfx::Shader>(id);
+          asset.mInitInfo.mFiles[i] = path;
+          asset.mStatus = AssLib::Status::Unneeded;
         },
         FileInterface::AccessType::Select);
     }
-    break;
-  case Gfx::Shader::InitInfo::Scheme::Split:
-    ImGui::Text("Vertex Shader");
-    ImGui::SameLine();
-    if (ImGui::Button(info.mVertexFile.c_str(), ImVec2(-1, 0))) {
-      OpenInterface<FileInterface>(
-        [=](const std::string& path) mutable
-        {
-          info.mVertexFile = path;
-          AssLib::TryUpdateInitInfo<Gfx::Shader>(id, info);
-        },
-        FileInterface::AccessType::Select);
+    if (remove) {
+      info.mFiles.Remove(i);
     }
-    ImGui::Text("Fragment Shader");
-    ImGui::SameLine();
-    if (ImGui::Button(info.mFragmentFile.c_str(), ImVec2(-1, 0))) {
-      OpenInterface<FileInterface>(
-        [=](const std::string& path) mutable
-        {
-          info.mFragmentFile = path;
-          AssLib::TryUpdateInitInfo<Gfx::Shader>(id, info);
-        },
-        FileInterface::AccessType::Select);
-    }
-    break;
   }
 }
 

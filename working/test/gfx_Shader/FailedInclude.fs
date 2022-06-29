@@ -1,3 +1,5 @@
+#type fragment
+
 #include "FailedInclude0.glsl"
 
 out vec4 finalColor;

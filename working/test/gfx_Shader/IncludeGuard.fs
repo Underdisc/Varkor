@@ -1,3 +1,5 @@
+#type fragment
+
 #include "IncludeGuard0.glsl"
 #include "IncludeGuard1.glsl"
 

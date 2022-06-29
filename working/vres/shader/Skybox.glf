@@ -1,3 +1,5 @@
+#type fragment
+
 in vec3 iTextureCoords;
 out vec4 iFinalColor;
 

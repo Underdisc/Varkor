@@ -1,3 +1,5 @@
+#type fragment
+
 #include "notafile"
 
 out vec4 finalColor;

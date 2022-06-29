@@ -1,3 +1,5 @@
+#type vertex
+
 #include "uniformBuffers/Universal.glh";
 
 layout(location = 0) in vec3 aPos;

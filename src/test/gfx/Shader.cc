@@ -6,8 +6,11 @@
 #include "debug/MemLeak.h"
 #include "gfx/Shader.h"
 
-void PrintShaderInitResults(const Gfx::Shader::InitInfo& info)
+template<typename... Args>
+void PrintShaderInitResults(Args&&... args)
 {
+  Gfx::Shader::InitInfo info;
+  info.Prep(args...);
   Gfx::Shader shader;
   Result result = shader.Init(info);
   std::cout << "Success: " << result.Success() << std::endl;
@@ -16,56 +19,38 @@ void PrintShaderInitResults(const Gfx::Shader::InitInfo& info)
   }
 }
 
-void PrintShaderInitResults(const std::string& file)
-{
-  Gfx::Shader::InitInfo info;
-  info.mScheme = Gfx::Shader::InitInfo::Scheme::Single;
-  info.mFile = file;
-  PrintShaderInitResults(info);
-}
-
-void PrintShaderInitResults(
-  const std::string& vertex, const std::string& fragment)
-{
-  Gfx::Shader::InitInfo info;
-  info.mScheme = Gfx::Shader::InitInfo::Scheme::Split;
-  info.mVertexFile = vertex;
-  info.mFragmentFile = fragment;
-  PrintShaderInitResults(info);
-}
-
 void FailedIncludeBasic()
 {
   std::cout << "<= FailedIncludeBasic =>" << std::endl;
-  PrintShaderInitResults("test.vs", "FailedIncludeBasic.fs");
+  PrintShaderInitResults("Clean.vs", "FailedIncludeBasic.fs");
   std::cout << std::endl;
 }
 
 void FailedInclude()
 {
   std::cout << "<= FailedInclude =>" << std::endl;
-  PrintShaderInitResults("test.vs", "FailedInclude.fs");
+  PrintShaderInitResults("Clean.vs", "FailedInclude.fs");
   std::cout << std::endl;
 }
 
 void FailedIncludeSub()
 {
   std::cout << "<= FailedIncludeSubdirectory =>" << std::endl;
-  PrintShaderInitResults("test.vs", "FailedIncludeSubdirectory.fs");
+  PrintShaderInitResults("Clean.vs", "FailedIncludeSubdirectory.fs");
   std::cout << std::endl;
 }
 
 void IncludeGuard()
 {
   std::cout << "<= IncludeGuard =>\n";
-  PrintShaderInitResults("test.vs", "IncludeGuard.fs");
+  PrintShaderInitResults("Clean.vs", "IncludeGuard.fs");
   std::cout << std::endl;
 }
 
 void CompilerErrors()
 {
   std::cout << "<= CompilerErrors =>" << std::endl;
-  PrintShaderInitResults("test.vs", "CompilerErrors.fs");
+  PrintShaderInitResults("Clean.vs", "CompilerErrors.fs");
   std::cout << std::endl;
 }
 
@@ -77,9 +62,16 @@ void SingleSource()
     std::stringstream ss;
     ss << prefix << i << ".glsl";
     std::string filename = ss.str();
-    std::cout << "-" << filename << "-\n";
+    std::cout << "=" << filename << "=\n";
     PrintShaderInitResults(filename);
   }
+  std::cout << std::endl;
+}
+
+void UndefFunc()
+{
+  std::cout << "<= UndefFunc =>\n";
+  PrintShaderInitResults("UndefFunc.vs", "Clean.fs");
 }
 
 int main()
@@ -92,5 +84,6 @@ int main()
   IncludeGuard();
   CompilerErrors();
   SingleSource();
+  UndefFunc();
   Viewport::Purge();
 }

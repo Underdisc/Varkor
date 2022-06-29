@@ -1,3 +1,5 @@
+#type fragment
+
 out vec4 iFinalColor;
 
 void main()

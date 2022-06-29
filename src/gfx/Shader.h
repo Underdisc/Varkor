@@ -37,19 +37,10 @@ struct Shader
 public:
   struct InitInfo
   {
-    static const char* smSchemeStrings[];
-    enum class Scheme
-    {
-      Single,
-      Split,
-      Invalid
-    };
-    Scheme mScheme;
-    std::string mFile;
-    std::string mVertexFile;
-    std::string mFragmentFile;
-    void Prep(const char* file);
-    void Prep(const char* vertexFile, const char* fragmentFile);
+    Ds::Vector<std::string> mFiles;
+    void Prep(const std::string& file);
+    template<typename... Args>
+    void Prep(const std::string& file, Args&&... args);
     void Serialize(Vlk::Value& val) const;
     void Deserialize(const Vlk::Explorer& ex);
   };
@@ -81,6 +72,9 @@ private:
   static bool smLogMissingUniforms;
   static const char* smVersionHeader;
   static constexpr GLint smInvalidLocation = -1;
+  static const char* smShaderTypeStrings[];
+  static const GLenum smShaderTypes[];
+  static const int smShaderTypeCount;
 
   // Tracks where a chunk of source code came from.
   struct SourceChunk
@@ -108,18 +102,23 @@ private:
   };
 
   void InitializeUniforms();
-  std::string ShaderTypeToString(GLenum shaderType);
   ValueResult<std::string> GetFileContent(const std::string& filename);
   int GetLineNumber(size_t until, const std::string& string);
   int GetChunkIndex(int lineNumber, const Ds::Vector<SourceChunk>& chunks);
   Result HandleIncludes(std::string* content, Ds::Vector<SourceChunk>* chunks);
   Result Compile(CompileInfo* compileInfo, GLuint shaderId);
   Result CreateProgram(Ds::Vector<CompileInfo>* allCompileInfo);
-  Result CreateProgram(const std::string& filename);
-  Result CreateProgram(
-    const std::string& vertexFilename, const std::string& fragmentFilename);
-  Result CheckLink();
+  ValueResult<Ds::Vector<CompileInfo>> CollectCompileInfo(
+    const std::string& file);
+  Result CreateProgram(const Ds::Vector<std::string>& files);
 };
+
+template<typename... Args>
+void Shader::InitInfo::Prep(const std::string& file, Args&&... args)
+{
+  mFiles.Push(file);
+  Prep(args...);
+}
 
 } // namespace Gfx
 
