@@ -31,6 +31,8 @@ struct ValueResult: public Result
 
   ValueResult(const T& value): Result(), mValue(value) {}
   ValueResult(T&& value): Result(), mValue(std::move(value)) {}
+  ValueResult(Result&& result): Result(std::forward<Result>(result)), mValue()
+  {}
   ValueResult(const std::string& error, T&& value):
     Result(error), mValue(std::move(value))
   {}
