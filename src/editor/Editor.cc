@@ -9,7 +9,7 @@
 #include "comp/DefaultPostProcess.h"
 #include "editor/Camera.h"
 #include "editor/CoreInterface.h"
-#include "editor/OverviewInterface.h"
+#include "editor/LayerInterface.h"
 #include "editor/gizmos/Gizmos.h"
 #include "world/World.h"
 
@@ -91,7 +91,7 @@ void Init()
       LogError(result.mError.c_str());
     }
     else if (!overviewCreated) {
-      nCoreInterface.OpenInterface<OverviewInterface>(result.mValue);
+      nCoreInterface.OpenInterface<LayerInterface>(result.mValue);
       overviewCreated = true;
     }
   }

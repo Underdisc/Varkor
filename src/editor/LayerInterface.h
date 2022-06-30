@@ -1,5 +1,5 @@
-#ifndef editor_OverviewInterface_h
-#define editor_OverviewInterface_h
+#ifndef editor_LayerInterface_h
+#define editor_LayerInterface_h
 
 #include "editor/InspectorInterface.h"
 #include "editor/WindowInterface.h"
@@ -7,10 +7,10 @@
 
 namespace Editor {
 
-struct OverviewInterface: public WindowInterface
+struct LayerInterface: public WindowInterface
 {
 public:
-  OverviewInterface(World::LayerIt layerIt);
+  LayerInterface(World::LayerIt layerIt);
   void Show();
   World::LayerIt mLayerIt;
 

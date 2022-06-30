@@ -7,7 +7,7 @@
 #include "editor/ErrorInterface.h"
 #include "editor/FileInterface.h"
 #include "editor/FramerInterface.h"
-#include "editor/OverviewInterface.h"
+#include "editor/LayerInterface.h"
 #include "editor/Utility.h"
 #include "gfx/Cubemap.h"
 #include "gfx/Font.h"
@@ -48,9 +48,9 @@ void CoreInterface::Show()
   // Display all of the existing layers.
   ImGui::BeginChild("Layers", ImVec2(0, 0), true);
   World::LayerIt activeLayerIt = World::nLayers.end();
-  OverviewInterface* overview = FindInterface<OverviewInterface>();
-  if (overview != nullptr) {
-    activeLayerIt = overview->mLayerIt;
+  LayerInterface* layerInterface = FindInterface<LayerInterface>();
+  if (layerInterface != nullptr) {
+    activeLayerIt = layerInterface->mLayerIt;
   }
 
   World::LayerIt it = World::nLayers.begin();
@@ -61,10 +61,10 @@ void CoreInterface::Show()
     ImGui::PushID((void*)&layer);
     if (ImGui::Selectable(layer.mName.c_str(), selected)) {
       if (!selected) {
-        OpenInterface<OverviewInterface>(it);
+        OpenInterface<LayerInterface>(it);
       }
       else {
-        CloseInterface<OverviewInterface>();
+        CloseInterface<LayerInterface>();
       }
     }
     ImGui::PopID();
@@ -88,7 +88,7 @@ void CoreInterface::Show()
     if (deleteLayer) {
       World::DeleteLayer(it);
       if (selected) {
-        CloseInterface<OverviewInterface>();
+        CloseInterface<LayerInterface>();
       }
     }
     it = nextIt;
@@ -111,7 +111,7 @@ void CoreInterface::FileMenu()
         std::string path = AssLib::PrependResDirectory(filename);
         ValueResult<World::LayerIt> result = World::LoadLayer(path.c_str());
         if (result.Success()) {
-          OpenInterface<OverviewInterface>(result.mValue);
+          OpenInterface<LayerInterface>(result.mValue);
         }
         else {
           LogError(result.mError.c_str());
@@ -122,23 +122,24 @@ void CoreInterface::FileMenu()
 
   // Allow a user to save a Space to file if one is selected.
   bool layerSelected = false;
-  OverviewInterface* overview = FindInterface<OverviewInterface>();
-  if (overview != nullptr) {
+  LayerInterface* layerInterface = FindInterface<LayerInterface>();
+  if (layerInterface != nullptr) {
     layerSelected = true;
   }
   if (ImGui::MenuItem("Save Layer", nullptr, false, layerSelected)) {
     OpenInterface<FileInterface>(
-      [overview](const std::string& filename)
+      [layerInterface](const std::string& filename)
       {
-        if (overview == nullptr) {
+        if (layerInterface == nullptr) {
           return;
         }
         std::string path = AssLib::PrependResDirectory(filename);
-        Result result = World::SaveLayer(overview->mLayerIt, path.c_str());
+        Result result =
+          World::SaveLayer(layerInterface->mLayerIt, path.c_str());
         LogErrorIf(!result.Success(), result.mError.c_str());
       },
       FileInterface::AccessType::Save,
-      overview->mLayerIt->mName + ".vlk");
+      layerInterface->mLayerIt->mName + ".vlk");
   }
   if (ImGui::MenuItem("Save Assets")) {
     AssetLibrary::SerializeAssets();

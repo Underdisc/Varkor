@@ -2,17 +2,16 @@
 
 #include "Input.h"
 #include "editor/Editor.h"
-#include "editor/OverviewInterface.h"
+#include "editor/LayerInterface.h"
 #include "editor/Utility.h"
 #include "gfx/Renderer.h"
 #include "world/Space.h"
 
 namespace Editor {
 
-OverviewInterface::OverviewInterface(World::LayerIt layerIt): mLayerIt(layerIt)
-{}
+LayerInterface::LayerInterface(World::LayerIt layerIt): mLayerIt(layerIt) {}
 
-void OverviewInterface::Show()
+void LayerInterface::Show()
 {
   // Handle object picking.
   World::Space& space = mLayerIt->mSpace;
@@ -27,7 +26,7 @@ void OverviewInterface::Show()
   }
   nSuppressObjectPicking = false;
 
-  ImGui::Begin("Overview", &mOpen);
+  ImGui::Begin("Layer", &mOpen);
 
   // Allow the user to change the layer's camera with drag and drop.
   std::stringstream cameraLabel;
@@ -73,7 +72,7 @@ void OverviewInterface::Show()
   ImGui::End();
 }
 
-void OverviewInterface::DisplayMember(
+void LayerInterface::DisplayMember(
   World::MemberId memberId, InspectorInterface** inspector)
 {
   // Create the Member's tree node.

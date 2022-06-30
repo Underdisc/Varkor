@@ -8,7 +8,7 @@ target_sources(varkor PRIVATE
   FramerInterface.cc
   InspectorInterface.cc
   Interface.cc
-  OverviewInterface.cc
+  LayerInterface.cc
   Utility.cc
   WindowInterface.cc)
 add_subdirectory(gizmos)

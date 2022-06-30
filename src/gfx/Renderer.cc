@@ -22,7 +22,7 @@
 #include "debug/Draw.h"
 #include "ds/Vector.h"
 #include "editor/Editor.h"
-#include "editor/OverviewInterface.h"
+#include "editor/LayerInterface.h"
 #include "gfx/Cubemap.h"
 #include "gfx/Framebuffer.h"
 #include "gfx/Image.h"
@@ -206,12 +206,12 @@ void Render()
   }
   if (Editor::nEditorMode) {
     // Render only the selected space and the editor space.
-    Editor::OverviewInterface* overviewInterface =
-      Editor::nCoreInterface.FindInterface<Editor::OverviewInterface>();
-    if (overviewInterface == nullptr) {
+    Editor::LayerInterface* layerInterface =
+      Editor::nCoreInterface.FindInterface<Editor::LayerInterface>();
+    if (layerInterface == nullptr) {
       return;
     }
-    const World::Space& space = overviewInterface->mLayerIt->mSpace;
+    const World::Space& space = layerInterface->mLayerIt->mSpace;
     const Mat4& view = Editor::nCamera.View();
     const Mat4& proj = Editor::nCamera.Proj();
     const Vec3& position = Editor::nCamera.Position();
