@@ -1,4 +1,4 @@
-#include "IncludeGuard1.glsl"
+#include "IncludeGuard1.glh"
 vec3 IncludeGuard0()
 {
   return IncludeGuard1();

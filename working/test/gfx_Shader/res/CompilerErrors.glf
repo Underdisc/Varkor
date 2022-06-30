@@ -1,6 +1,6 @@
 #type fragment
 
-#include "CompilerErrors0.glsl"
+#include "CompilerErrors0.glh"
 
 out vec4 finalColor;
 

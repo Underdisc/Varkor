@@ -1,6 +1,6 @@
 #type fragment
 
-#include "fis0/FailedIncludeSubdirectory0.glsl"
+#include "fis0/FailedIncludeSubdirectory0.glh"
 
 out vec4 finalColor;
 

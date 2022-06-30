@@ -2,7 +2,7 @@
 void main() {}
 
 #type fragment
-#include "CompilerErrors0.glsl"
+#include "CompilerErrors0.glh"
 void main()
 {
   error;

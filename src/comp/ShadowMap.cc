@@ -15,7 +15,7 @@ AssetId ShadowMap::smDepthShaderId = AssLib::nInvalidAssetId;
 void ShadowMap::VStaticInit()
 {
   smDepthShaderId =
-    AssLib::Require<Gfx::Shader>("Depth", "vres/shader/Depth.gl");
+    AssLib::Require<Gfx::Shader>("Depth", "vres/shader/Depth.glvf");
 }
 
 ShadowMap::~ShadowMap()

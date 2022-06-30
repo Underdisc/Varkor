@@ -43,12 +43,12 @@ void InitRequiredAssets()
     "Color", "vres/shader/Default.glv", "vres/shader/Color.glf");
   nDebugDrawShaderId = AssetBin<Gfx::Shader>::Require(
     "DebugDraw", "vres/shader/DebugLine.glv", "vres/shader/Color.glf");
-  nDefaultTextShaderId =
-    AssetBin<Gfx::Shader>::Require("DefaultText", "vres/shader/DefaultText.gl");
+  nDefaultTextShaderId = AssetBin<Gfx::Shader>::Require(
+    "DefaultText", "vres/shader/DefaultText.glvf");
   nMemberIdShaderId = AssetBin<Gfx::Shader>::Require(
     "MemberId", "vres/shader/Default.glv", "vres/shader/MemberId.glf");
   nDefaultSpriteShaderId = AssetBin<Gfx::Shader>::Require(
-    "DefaultSprite", "vres/shader/DefaultSprite.gl");
+    "DefaultSprite", "vres/shader/DefaultSprite.glvf");
   nDefaultSkyboxShaderId = AssetBin<Gfx::Shader>::Require(
     "DefaultSkybox", "vres/shader/Skybox.glv", "vres/shader/Skybox.glf");
   nArrowModelId =

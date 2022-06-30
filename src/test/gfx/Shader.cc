@@ -22,56 +22,56 @@ void PrintShaderInitResults(Args&&... args)
 void FailedIncludeBasic()
 {
   std::cout << "<= FailedIncludeBasic =>" << std::endl;
-  PrintShaderInitResults("Clean.vs", "FailedIncludeBasic.fs");
+  PrintShaderInitResults("res/Clean.glv", "res/FailedIncludeBasic.glf");
   std::cout << std::endl;
 }
 
 void FailedInclude()
 {
   std::cout << "<= FailedInclude =>" << std::endl;
-  PrintShaderInitResults("Clean.vs", "FailedInclude.fs");
+  PrintShaderInitResults("res/Clean.glv", "res/FailedInclude.glf");
   std::cout << std::endl;
 }
 
 void FailedIncludeSub()
 {
   std::cout << "<= FailedIncludeSubdirectory =>" << std::endl;
-  PrintShaderInitResults("Clean.vs", "FailedIncludeSubdirectory.fs");
+  PrintShaderInitResults("res/Clean.glv", "res/FailedIncludeSubdirectory.glf");
   std::cout << std::endl;
 }
 
 void IncludeGuard()
 {
   std::cout << "<= IncludeGuard =>\n";
-  PrintShaderInitResults("Clean.vs", "IncludeGuard.fs");
+  PrintShaderInitResults("res/Clean.glv", "res/IncludeGuard.glf");
   std::cout << std::endl;
 }
 
 void CompilerErrors()
 {
   std::cout << "<= CompilerErrors =>" << std::endl;
-  PrintShaderInitResults("Clean.vs", "CompilerErrors.fs");
+  PrintShaderInitResults("res/Clean.glv", "res/CompilerErrors.glf");
   std::cout << std::endl;
 }
 
 void SingleSource()
 {
   std::cout << "<= SingleSource =>\n";
-  const char* prefix = "SingleSource";
-  for (int i = 0; i <= 2; ++i) {
-    std::stringstream ss;
-    ss << prefix << i << ".glsl";
-    std::string filename = ss.str();
-    std::cout << "=" << filename << "=\n";
-    PrintShaderInitResults(filename);
-  }
+  auto testSingleSource = [](const std::string& file)
+  {
+    std::cout << "=" << file << "=\n";
+    PrintShaderInitResults(file);
+  };
+  testSingleSource("res/SingleSource0.glvif");
+  testSingleSource("res/SingleSource1.glvfv");
+  testSingleSource("res/SingleSource2.glvf");
   std::cout << std::endl;
 }
 
 void UndefFunc()
 {
   std::cout << "<= UndefFunc =>\n";
-  PrintShaderInitResults("UndefFunc.vs", "Clean.fs");
+  PrintShaderInitResults("res/UndefFunc.glv", "res/Clean.glf");
 }
 
 int main()

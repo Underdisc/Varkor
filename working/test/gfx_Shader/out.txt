@@ -1,20 +1,20 @@
 <= FailedIncludeBasic =>
 Success: 0
 Failed shader program creation.
-Failed to compile "FailedIncludeBasic.fs".
-FailedIncludeBasic.fs(3) : Failed to include "notafile"
+Failed to compile "res/FailedIncludeBasic.glf".
+res/FailedIncludeBasic.glf(3) : Failed to include "notafile"
 
 <= FailedInclude =>
 Success: 0
 Failed shader program creation.
-Failed to compile "FailedInclude.fs".
-FailedInclude0.glsl(6) : Failed to include "notafile"
+Failed to compile "res/FailedInclude.glf".
+res/FailedInclude0.glh(6) : Failed to include "notafile"
 
 <= FailedIncludeSubdirectory =>
 Success: 0
 Failed shader program creation.
-Failed to compile "FailedIncludeSubdirectory.fs".
-fis0/fis1/FailedIncludeSubdirectory1.glsl(6) : Failed to include "nota/file"
+Failed to compile "res/FailedIncludeSubdirectory.glf".
+res/fis0/fis1/FailedIncludeSubdirectory1.glh(6) : Failed to include "nota/file"
 
 <= IncludeGuard =>
 Success: 1
@@ -22,34 +22,34 @@ Success: 1
 <= CompilerErrors =>
 Success: 0
 Failed shader program creation.
-Failed to compile "CompilerErrors.fs".
-CompilerErrors1.glsl(3) : error C1503: undefined variable "error"
-CompilerErrors0.glsl(2) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
-CompilerErrors0.glsl(6) : error C1503: undefined variable "error"
-CompilerErrors2.glsl(4) : error C1503: undefined variable "error"
-CompilerErrors2.glsl(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
-CompilerErrors.fs(11) : error C1503: undefined variable "error"
+Failed to compile "res/CompilerErrors.glf".
+res/CompilerErrors1.glh(3) : error C1503: undefined variable "error"
+res/CompilerErrors0.glh(2) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+res/CompilerErrors0.glh(6) : error C1503: undefined variable "error"
+res/CompilerErrors2.glh(4) : error C1503: undefined variable "error"
+res/CompilerErrors2.glh(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+res/CompilerErrors.glf(11) : error C1503: undefined variable "error"
 
 <= SingleSource =>
-=SingleSource0.glsl=
+=res/SingleSource0.glvif=
 Success: 0
 Failed shader program creation.
-SingleSource0.glsl(4) : Invalid shader type "invalid".
-=SingleSource1.glsl=
+res/SingleSource0.glvif(4) : Invalid shader type "invalid".
+=res/SingleSource1.glvfv=
 Success: 0
 Failed shader program creation.
-SingleSource1.glsl(1) : Multiple "vertex" shaders
-SingleSource1.glsl(6) : Multiple "vertex" shaders
-=SingleSource2.glsl=
+res/SingleSource1.glvfv(1) : Multiple "vertex" shaders
+res/SingleSource1.glvfv(6) : Multiple "vertex" shaders
+=res/SingleSource2.glvf=
 Success: 0
 Failed shader program creation.
-Failed to compile "SingleSource2.glsl".
-CompilerErrors1.glsl(3) : error C1503: undefined variable "error"
-CompilerErrors0.glsl(2) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
-CompilerErrors0.glsl(6) : error C1503: undefined variable "error"
-CompilerErrors2.glsl(4) : error C1503: undefined variable "error"
-CompilerErrors2.glsl(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
-SingleSource2.glsl(8) : error C1503: undefined variable "error"
+Failed to compile "res/SingleSource2.glvf".
+res/CompilerErrors1.glh(3) : error C1503: undefined variable "error"
+res/CompilerErrors0.glh(2) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+res/CompilerErrors0.glh(6) : error C1503: undefined variable "error"
+res/CompilerErrors2.glh(4) : error C1503: undefined variable "error"
+res/CompilerErrors2.glh(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+res/SingleSource2.glvf(8) : error C1503: undefined variable "error"
 
 <= UndefFunc =>
 Success: 0

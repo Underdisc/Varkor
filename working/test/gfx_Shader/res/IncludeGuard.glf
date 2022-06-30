@@ -1,7 +1,7 @@
 #type fragment
 
-#include "IncludeGuard0.glsl"
-#include "IncludeGuard1.glsl"
+#include "IncludeGuard0.glh"
+#include "IncludeGuard1.glh"
 
 out vec4 iFinalColor;
 
