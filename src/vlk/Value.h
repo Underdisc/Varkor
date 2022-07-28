@@ -35,11 +35,15 @@ public:
 
   size_t Size() const;
 
-  const Pair* TryGetPair(const std::string& key) const;
-  const Pair* TryGetPair(size_t index) const;
-  const Value* TryGetValue(size_t index) const;
+  constexpr static int smInvalidPairIndex = -1;
+  int TryGetPairIndex(const std::string& key) const;
+  const Pair* TryGetConstPair(const std::string& key) const;
+  const Pair* TryGetConstPair(size_t index) const;
+  Pair* TryGetPair(const std::string& key);
+  Pair* TryGetPair(size_t index);
+  const Value* TryGetConstValue(size_t index) const;
+  Value* TryGetValue(size_t index);
 
-  Value& operator()(const char* key);
   Value& operator()(const std::string& key);
   const Pair& operator()(size_t index) const;
 

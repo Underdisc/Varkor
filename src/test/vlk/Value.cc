@@ -21,7 +21,6 @@ void TrueValue()
   rootVal(std::string("Float")) = 10.5f;
   rootVal(std::string("String")) = "oooweee";
   PrintParsePrint(rootVal);
-  std::cout << std::endl;
 }
 
 void ValueArray()
@@ -50,7 +49,6 @@ void ValueArray()
     }
   }
   PrintParsePrint(rootVal);
-  std::cout << std::endl;
 }
 
 void PairArray()
@@ -69,7 +67,6 @@ void PairArray()
   }
   rootVal("EmptyArray");
   PrintParsePrint(rootVal);
-  std::cout << std::endl;
 }
 
 void MultidimensionalArrays()
@@ -97,7 +94,6 @@ void MultidimensionalArrays()
     }
   }
   PrintParsePrint(rootVal);
-  std::cout << std::endl;
 }
 
 void ValueArrayPairArray()
@@ -110,7 +106,6 @@ void ValueArrayPairArray()
     valueArrayVal[i]("PairB") = "ValueB";
   }
   PrintParsePrint(rootVal);
-  std::cout << "\n";
 }
 
 void SerializeDeserialize()
@@ -162,14 +157,15 @@ void SerializeDeserialize()
     const Vlk::Pair& floats = *rootVal.TryGetPair("Floats");
     std::cout << floats.Key() << ": " << std::endl;
     for (size_t i = 0; i < floats.Size(); ++i) {
-      std::cout << "  " << floats.TryGetValue(i)->As<float>() << std::endl;
+      std::cout << "  " << floats.TryGetConstValue(i)->As<float>() << std::endl;
     }
 
     const Vlk::Pair& container = *rootVal.TryGetPair("Container");
-    const Vlk::Pair& sentenceString = *container.TryGetPair("SentenceString");
+    const Vlk::Pair& sentenceString =
+      *container.TryGetConstPair("SentenceString");
     std::cout << sentenceString.Key() << ": "
               << sentenceString.As<std::string>() << std::endl;
-    const Vlk::Pair& strings = *container.TryGetPair("Strings");
+    const Vlk::Pair& strings = *container.TryGetConstPair("Strings");
     std::cout << strings.Key() << ": " << std::endl;
     for (size_t i = 0; i < strings.Size(); ++i) {
       for (size_t j = 0; j < strings[i].Size(); ++j) {
@@ -180,7 +176,7 @@ void SerializeDeserialize()
     const Vlk::Pair& pairArray = *rootVal.TryGetPair("PairArray");
     std::cout << pairArray.Key() << ": " << std::endl;
     for (size_t i = 0; i < pairArray.Size(); ++i) {
-      std::cout << "  " << pairArray.TryGetPair(i)->Key() << ": "
+      std::cout << "  " << pairArray.TryGetConstPair(i)->Key() << ": "
                 << pairArray(i).As<int>() << std::endl;
     }
 
@@ -191,12 +187,11 @@ void SerializeDeserialize()
       const Vlk::Value& elementPairArray = arrayOfPairArrays[i];
       std::cout << "  PairArray" << i << ":\n";
       for (size_t j = 0; j < elementPairArray.Size(); ++j) {
-        std::cout << "    " << elementPairArray.TryGetPair(j)->Key() << ": "
-                  << elementPairArray(j).As<int>() << "\n";
+        std::cout << "    " << elementPairArray.TryGetConstPair(j)->Key()
+                  << ": " << elementPairArray(j).As<int>() << "\n";
       }
     }
   }
-  std::cout << std::endl;
 }
 
 void Move()
@@ -232,7 +227,6 @@ void Move()
     }
     movePrint(rootVal);
   }
-  std::cout << std::endl;
 }
 
 void Errors()
@@ -253,15 +247,55 @@ void Errors()
   std::cout << result.mError << std::endl;
 }
 
+Vlk::Value CreateTestValue()
+{
+  srand(0);
+  Vlk::Value rootVal;
+  rootVal("TrueValue") = "Value";
+  Vlk::Value& valArrayVal = rootVal("ValueArray")[{5}];
+  for (int i = 0; i < 5; ++i) {
+    std::string value = "Value-";
+    value += (char)('A' + i);
+    valArrayVal[i] = value;
+  }
+  Vlk::Value& pairArrayVal = rootVal("PairArray");
+  for (int i = 0; i < 5; ++i) {
+    std::string key = "Pair-";
+    key += (char)('A' + i);
+    std::string value = "Value-";
+    value += (char)('A' + i);
+    pairArrayVal(key) = value;
+  }
+  return rootVal;
+}
+
+void FindPair()
+{
+  std::cout << "<=FindPair=>\n";
+  Vlk::Value rootVal = CreateTestValue();
+  rootVal("TrueValue") = "Replaced";
+  rootVal("ValueArray")[1] = "Replaced";
+  rootVal("ValueArray")[3] = "Replaced";
+  rootVal("PairArray")("Pair-C") = "Replaced";
+  std::cout << rootVal;
+}
+
+void RunTest(void (*test)())
+{
+  test();
+  std::cout << "\n";
+}
+
 int main()
 {
   EnableLeakOutput();
-  TrueValue();
-  ValueArray();
-  PairArray();
-  MultidimensionalArrays();
-  ValueArrayPairArray();
-  SerializeDeserialize();
-  Move();
-  Errors();
+  RunTest(TrueValue);
+  RunTest(ValueArray);
+  RunTest(PairArray);
+  RunTest(MultidimensionalArrays);
+  RunTest(ValueArrayPairArray);
+  RunTest(SerializeDeserialize);
+  RunTest(Move);
+  RunTest(Errors);
+  RunTest(FindPair);
 }

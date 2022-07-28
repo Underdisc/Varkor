@@ -229,3 +229,16 @@ ArrayOfPairArrays:
 [1] Invalid token: :TokenError
 [1] Invalid token: 'Invalid:Token
 ParserError.vlk[6] Parse Error: Expected Value.
+
+<=FindPair=>
+{
+  :TrueValue: 'Replaced'
+  :ValueArray: ['Value-A', 'Replaced', 'Value-C', 'Replaced', 'Value-E']
+  :PairArray: {
+    :Pair-A: 'Value-A'
+    :Pair-B: 'Value-B'
+    :Pair-C: 'Replaced'
+    :Pair-D: 'Value-D'
+    :Pair-E: 'Value-E'
+  }
+}

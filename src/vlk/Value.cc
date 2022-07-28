@@ -169,52 +169,69 @@ size_t Value::Size() const
   return mPairArray.Size();
 }
 
-const Pair* Value::TryGetPair(const std::string& key) const
+int Value::TryGetPairIndex(const std::string& key) const
 {
   if (mType != Type::PairArray) {
-    return nullptr;
+    return smInvalidPairIndex;
   }
-  for (const Pair& pair : mPairArray) {
-    if (key == pair.Key()) {
-      return &pair;
+  for (size_t i = 0; i < mPairArray.Size(); ++i) {
+    if (key == mPairArray[i].mKey) {
+      return (int)i;
     }
   }
-  return nullptr;
+  return smInvalidPairIndex;
 }
 
-const Pair* Value::TryGetPair(size_t index) const
+const Pair* Value::TryGetConstPair(const std::string& key) const
 {
-  if (mType != Type::PairArray) {
+  int pairIndex = TryGetPairIndex(key);
+  if (pairIndex == smInvalidPairIndex) {
     return nullptr;
   }
-  if (index < 0 || mPairArray.Size() <= index) {
+  return &mPairArray[pairIndex];
+}
+
+const Pair* Value::TryGetConstPair(size_t index) const
+{
+  if (mType != Type::PairArray || index < 0 || mPairArray.Size() <= index) {
     return nullptr;
   }
   return &mPairArray[index];
 }
 
-const Value* Value::TryGetValue(size_t index) const
+Pair* Value::TryGetPair(const std::string& key)
 {
-  if (mType != Type::ValueArray) {
-    return nullptr;
-  }
-  if (index < 0 || mValueArray.Size() <= index) {
+  return const_cast<Pair*>(TryGetConstPair(key));
+}
+
+Pair* Value::TryGetPair(size_t index)
+{
+  return const_cast<Pair*>(TryGetConstPair(index));
+}
+
+const Value* Value::TryGetConstValue(size_t index) const
+{
+  if (mType != Type::ValueArray || index < 0 || mValueArray.Size() <= index) {
     return nullptr;
   }
   return &mValueArray[index];
 }
 
-Value& Value::operator()(const char* key)
+Value* Value::TryGetValue(size_t index)
 {
-  ExpectType(Type::PairArray);
-  LogAbortIf(key[0] == '\0', "Key cannot be an empty string.");
-  mPairArray.Emplace(key);
-  return mPairArray.Top();
+  return const_cast<Value*>(TryGetConstValue(index));
 }
 
 Value& Value::operator()(const std::string& key)
 {
-  return (*this)(key.c_str());
+  ExpectType(Type::PairArray);
+  LogAbortIf(key.empty(), "Key cannot be an empty string.");
+  Pair* pair = TryGetPair(key);
+  if (pair == nullptr) {
+    mPairArray.Emplace(key);
+    return mPairArray.Top();
+  }
+  return *pair;
 }
 
 const Pair& Value::operator()(size_t index) const
