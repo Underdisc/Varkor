@@ -107,8 +107,8 @@ void Vector<T>::Insert(size_t index, const T& value)
   if (mSize >= mCapacity) {
     Grow();
   }
-  new (mData + mSize) T();
-  for (size_t i = mSize; i > index; --i) {
+  new (mData + mSize) T(std::move(*(mData + mSize - 1)));
+  for (size_t i = mSize - 1; i > index; --i) {
     mData[i] = std::move(mData[i - 1]);
   }
   mData[index] = value;

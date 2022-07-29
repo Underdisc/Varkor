@@ -48,21 +48,36 @@ Size: 15
 Capactiy: 20
 [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9], [10, 10], [11, 11], [12, 12], [13, 13], [14, 14]]
 
-<= Insert =>
+<= Insert0 =>
 Size: 11
 Capactiy: 20
-[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1]
-Size: 12
-Capactiy: 22
-[0, 1, 2, 3, 4, -1, 5, 6, 7, 8, 9, -1]
-Size: 13
-Capactiy: 22
-[0, 1, 2, -1, 3, 4, -1, 5, 6, 7, 8, 9, -1]
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9], [-1, -1]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 11
+CopyConstructor: 1
+MoveConstructor: 10
+Destructor: 11
+CopyAssignment: 0
+MoveAssignment: 0
 
-<= InsertString =>
-Size: 2
+<= Insert1 =>
+Size: 15
+Capactiy: 20
+[[-1, -1], [0, 0], [-1, -1], [1, 1], [-1, -1], [2, 2], [-1, -1], [3, 3], [-1, -1], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 15
+CopyConstructor: 0
+MoveConstructor: 15
+Destructor: 15
+CopyAssignment: 5
+MoveAssignment: 35
+
+<= Insert2 =>
+Size: 3
 Capactiy: 10
-[string 0, string 1]
+[string 2, string 1, string 0]
 
 <= Pop =>
 Size: 5

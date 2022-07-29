@@ -107,29 +107,46 @@ void Emplace()
   std::cout << std::endl;
 }
 
-void Insert()
+void Insert0()
 {
-  std::cout << "<= Insert =>" << std::endl;
-  Ds::Vector<int> testVector;
-  for (int i = 0; i < Ds::Vector<int>::smStartCapacity; ++i) {
-    testVector.Push(i);
+  // Test insterting a new element at the end of the vector.
+  std::cout << "<= Insert0 =>" << std::endl;
+  TestType::ResetCounts();
+  Ds::Vector<TestType> test;
+  for (int i = 0; i < Ds::Vector<TestType>::smStartCapacity; ++i) {
+    test.Emplace(i);
   }
-  testVector.Insert(Ds::Vector<int>::smStartCapacity, -1);
-  PrintVector(testVector);
-  testVector.Shrink();
-  testVector.Insert(5, -1);
-  PrintVector(testVector);
-  testVector.Insert(3, -1);
-  PrintVector(testVector);
+  test.Insert(Ds::Vector<int>::smStartCapacity, TestType(-1));
+  PrintVector(test);
+  TestType::PrintCounts();
   std::cout << std::endl;
 }
 
-void InsertString()
+void Insert1()
 {
-  std::cout << "<= InsertString =>" << std::endl;
+  // Test inserting new elments in the middle of the vector.
+  std::cout << "<= Insert1 =>\n";
+  TestType::ResetCounts();
+  Ds::Vector<TestType> test;
+  for (int i = 0; i < Ds::Vector<TestType>::smStartCapacity; ++i) {
+    test.Emplace(i);
+  }
+  for (int i = 0; i < 10; i += 2) {
+    test.Insert(i, TestType(-1));
+  }
+  PrintVector(test);
+  TestType::PrintCounts();
+  std::cout << "\n";
+}
+
+void Insert2()
+{
+  // Insert strings to ensure appropriate construction and destruction.
+  std::cout << "<= Insert2 =>" << std::endl;
   Ds::Vector<std::string> test;
-  test.Push("string 1");
   test.Insert(0, "string 0");
+  test.Insert(0, "string 1");
+  test.Insert(0, "string 2");
   PrintVector(test);
   std::cout << '\n';
 }
@@ -498,8 +515,9 @@ int main(void)
   MovePush();
   MultiplePush();
   Emplace();
-  Insert();
-  InsertString();
+  Insert0();
+  Insert1();
+  Insert2();
   Pop();
   Clear();
   Remove0();
