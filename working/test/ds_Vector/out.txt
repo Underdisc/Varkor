@@ -1,10 +1,30 @@
-<= CopyConstructor =>
+<= CopyConstructor0 =>
+<- test ->
 Size: 15
 Capactiy: 20
-[15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+[[15, 15], [14, 14], [13, 13], [12, 12], [11, 11], [10, 10], [9, 9], [8, 8], [7, 7], [6, 6], [5, 5], [4, 4], [3, 3], [2, 2], [1, 1]]
+<- copy ->
 Size: 15
 Capactiy: 15
-[15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+[[15, 15], [14, 14], [13, 13], [12, 12], [11, 11], [10, 10], [9, 9], [8, 8], [7, 7], [6, 6], [5, 5], [4, 4], [3, 3], [2, 2], [1, 1]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 15
+CopyConstructor: 15
+MoveConstructor: 10
+Destructor: 10
+CopyAssignment: 0
+MoveAssignment: 0
+
+<= CopyConstructor1 =>
+<- test ->
+Size: 10
+Capactiy: 10
+[A, B, C, D, E, F, G, H, I, J]
+<- copy ->
+Size: 10
+Capactiy: 10
+[A, B, C, D, E, F, G, H, I, J]
 
 <= MoveConstructor =>
 Size: 0
@@ -120,19 +140,77 @@ MoveAssignmentCount: 9
 [10]: 10
 [15]: 7
 
-<= CopyAssignment =>
+<= CopyAssignment0 =>
+<- test ->
+Size: 5
+Capactiy: 10
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]]
+<- copy ->
+Size: 5
+Capactiy: 10
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 10
+CopyConstructor: 0
+MoveConstructor: 0
+Destructor: 0
+CopyAssignment: 5
+MoveAssignment: 0
+
+<= CopyAssignment1 =>
+<- test ->
+Size: 5
+Capactiy: 10
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]]
+<- copy ->
+Size: 5
+Capactiy: 10
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 13
+CopyConstructor: 0
+MoveConstructor: 0
+Destructor: 3
+CopyAssignment: 5
+MoveAssignment: 0
+
+<= CopyAssignment2 =>
+<- test ->
+Size: 7
+Capactiy: 10
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6]]
+<- copy ->
+Size: 7
+Capactiy: 10
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 11
+CopyConstructor: 3
+MoveConstructor: 0
+Destructor: 0
+CopyAssignment: 4
+MoveAssignment: 0
+
+<= CopyAssignment3 =>
+<- test ->
 Size: 15
 Capactiy: 20
-[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9], [10, 10], [11, 11], [12, 12], [13, 13], [14, 14]]
+<- copy ->
 Size: 15
 Capactiy: 15
-[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-Size: 7
-Capactiy: 20
-[0, 1, 2, 3, 4, 5, 6]
-Size: 7
-Capactiy: 15
-[0, 1, 2, 3, 4, 5, 6]
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9], [10, 10], [11, 11], [12, 12], [13, 13], [14, 14]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 16
+CopyConstructor: 15
+MoveConstructor: 10
+Destructor: 11
+CopyAssignment: 0
+MoveAssignment: 0
 
 <= MoveAssignment =>
 Size: 0
@@ -152,20 +230,36 @@ Moved: 1
 10: 1
 21: 0
 
-<= ResizeAndShrink =>
-Size: 10
+<= Resize0 =>
+Size: 5
 Capactiy: 10
-[[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 10
+CopyConstructor: 0
+MoveConstructor: 0
+Destructor: 5
+CopyAssignment: 0
+MoveAssignment: 0
+
+<= Resize1 =>
 Size: 20
 Capactiy: 20
-[[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1]]
+[[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 11
+CopyConstructor: 10
+MoveConstructor: 10
+Destructor: 11
+CopyAssignment: 0
+MoveAssignment: 0
+
+<= Resize2 =>
 Size: 10
 Capactiy: 20
-[[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
-DefaultConstructorCount: 10
-CopyConstructorCount: 20
-MoveConstructorCount: 20
-DestructorCount: 32
+[A, B, C, D, E, F, G, H, I, J]
 
 <= Reserve =>
 Size: 0
@@ -177,6 +271,21 @@ Capactiy: 50
 Size: 10
 Capactiy: 30
 [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+<= Shrink0 =>
+-Counts-
+DefaultConstructor: 0
+Constructor: 5
+CopyConstructor: 0
+MoveConstructor: 5
+Destructor: 5
+CopyAssignment: 0
+MoveAssignment: 0
+
+<= Shrink1 =>
+Size: 5
+Capactiy: 5
+[A, B, C, D, E]
 
 <= CData =>
 [0, 1, 2, 3, 4]

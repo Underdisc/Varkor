@@ -7,18 +7,40 @@
 #include "test/ds/Print.h"
 #include "test/ds/TestType.h"
 
-void CopyConstructor()
+void CopyConstructor0()
 {
-  std::cout << "<= CopyConstructor =>" << std::endl;
-  const int elementCount = 15;
-  Ds::Vector<int> testVector;
-  for (int i = 0; i < elementCount; ++i) {
-    testVector.Push(elementCount - i);
+  std::cout << "<= CopyConstructor0 =>" << std::endl;
+  TestType::ResetCounts();
+  Ds::Vector<TestType> test;
+  for (int i = 0; i < 15; ++i) {
+    test.Emplace(15 - i);
   }
-  Ds::Vector<int> copyVector(testVector);
-  PrintVector(testVector);
-  PrintVector(copyVector);
-  std::cout << std::endl;
+  Ds::Vector<TestType> copy(test);
+  std::cout << "<- test ->\n";
+  PrintVector(test);
+  std::cout << "<- copy ->\n";
+  PrintVector(copy);
+  TestType::PrintCounts();
+  std::cout << "\n";
+}
+
+void CopyConstructor1()
+{
+  // This will ensure that copied vector elements are constructed and not merely
+  // assigned to from the original vector.
+  std::cout << "<= CopyConstructor1 =>" << std::endl;
+  Ds::Vector<std::string> test;
+  for (int i = 0; i < 10; ++i) {
+    std::string newElement;
+    newElement += (char)('A' + i);
+    test.Push(newElement);
+  }
+  Ds::Vector<std::string> copy(test);
+  std::cout << "<- test ->\n";
+  PrintVector(test);
+  std::cout << "<- copy ->\n";
+  PrintVector(copy);
+  std::cout << "\n";
 }
 
 void MoveConstructor()
@@ -260,33 +282,88 @@ void IndexOperator()
   std::cout << std::endl;
 }
 
-void CopyAssignment()
+void CopyAssignment0()
 {
-  std::cout << "<= CopyAssignment =>" << std::endl;
-  // We first test the case where the vector being copied from has a size larger
-  // than the capacity of the vector being copied to.
-  Ds::Vector<int> ogVector;
-  for (int i = 0; i < 15; ++i) {
-    ogVector.Push(i);
+  // Test copying a vector to another vector with the same size.
+  std::cout << "<= CopyAssignment0 =>\n";
+  TestType::ResetCounts();
+  Ds::Vector<TestType> test, copy;
+  for (int i = 0; i < 5; ++i) {
+    test.Emplace(i);
+    copy.Emplace(5 - i);
   }
-  // We push one value into the copy vector so it allocates some memory. That
-  // way we can make sure the vector is freeing its old pointer.
-  Ds::Vector<int> copyVector;
-  copyVector.Push(1);
-  copyVector = ogVector;
-  PrintVector(ogVector);
-  PrintVector(copyVector);
+  copy = test;
+  std::cout << "<- test ->\n";
+  PrintVector(test);
+  std::cout << "<- copy ->\n";
+  PrintVector(copy);
+  TestType::PrintCounts();
+  std::cout << "\n";
+}
 
-  // We then test the case where the vector being copied to already has enough
-  // space to copy all of the elements from the other vector.
-  ogVector.Clear();
-  for (int i = 0; i < 7; ++i) {
-    ogVector.Push(i);
+void CopyAssignment1()
+{
+  // Test the case where the size of the vector being copied to is larger than
+  // the size of the vector being copied from.
+  std::cout << "<= CopyAssignment1 =>\n";
+  TestType::ResetCounts();
+  Ds::Vector<TestType> test, copy;
+  for (int i = 0; i < 5; ++i) {
+    test.Emplace(i);
   }
-  copyVector = ogVector;
-  PrintVector(ogVector);
-  PrintVector(copyVector);
-  std::cout << std::endl;
+  for (int i = 0; i < 8; ++i) {
+    copy.Emplace(i);
+  }
+  copy = test;
+  std::cout << "<- test ->\n";
+  PrintVector(test);
+  std::cout << "<- copy ->\n";
+  PrintVector(copy);
+  TestType::PrintCounts();
+  std::cout << "\n";
+}
+
+void CopyAssignment2()
+{
+  // Test the case where the vector being copied to has a smaller size than the
+  // vector being copied from and the capacity of the vector being copied to is
+  // greater than or equal to the size of the vector being copied from.
+  std::cout << "<= CopyAssignment2 =>\n";
+  TestType::ResetCounts();
+  Ds::Vector<TestType> test, copy;
+  for (int i = 0; i < 7; ++i) {
+    test.Emplace(i);
+  }
+  for (int i = 0; i < 4; ++i) {
+    copy.Emplace(i);
+  }
+  copy = test;
+  std::cout << "<- test ->\n";
+  PrintVector(test);
+  std::cout << "<- copy ->\n";
+  PrintVector(copy);
+  TestType::PrintCounts();
+  std::cout << "\n";
+}
+
+void CopyAssignment3()
+{
+  // Test the case where the vector being copied to has a capacity smaller than
+  // the size of the vector being copied from.
+  std::cout << "<= CopyAssignment3 =>\n";
+  TestType::ResetCounts();
+  Ds::Vector<TestType> test, copy;
+  for (int i = 0; i < 15; ++i) {
+    test.Emplace(i);
+  }
+  copy.Emplace(0);
+  copy = test;
+  std::cout << "<- test ->\n";
+  PrintVector(test);
+  std::cout << "<- copy ->\n";
+  PrintVector(copy);
+  TestType::PrintCounts();
+  std::cout << "\n";
 }
 
 void MoveAssignment()
@@ -337,34 +414,50 @@ void Contains()
   std::cout << std::endl;
 }
 
-void ResizeAndShrink()
+void Resize0()
 {
-  std::cout << "<= ResizeAndShrink =>" << std::endl;
+  // Test the case where the new size is smaller than the current size;
+  std::cout << "<= Resize0 =>" << std::endl;
   TestType::ResetCounts();
-  // Make sure the vector grows in the next two Resize calls since the new size
-  // is greater than the capacity in both instances.
   Ds::Vector<TestType> test;
-  test.Resize(10, TestType(0, 0));
+  for (int i = 0; i < 10; ++i) {
+    test.Emplace(i);
+  }
+  test.Resize(5);
   PrintVector(test);
-  test.Resize(20, TestType(1, 1));
-  PrintVector(test);
+  TestType::PrintCounts();
+  std::cout << std::endl;
+}
 
-  // This time the vector's capacity should remain the same after resizing and
-  // we shrink to minimize the capacity.
-  test.Resize(15, 2, 2.0f);
+void Resize1()
+{
+  // Test the case where the new size is larger than the current capacity.
+  std::cout << "<= Resize1 =>\n";
+  TestType::ResetCounts();
+  Ds::Vector<TestType> test;
+  for (int i = 0; i < 10; ++i) {
+    test.Emplace(i);
+  }
+  test.Resize(20, TestType(-1));
+  PrintVector(test);
+  TestType::PrintCounts();
+  std::cout << std::endl;
+}
+
+void Resize2()
+{
+  // Ensure correct construction and destruction usage with std::string.
+  std::cout << "<= Resize2 =>\n";
+  Ds::Vector<std::string> test;
+  for (int i = 0; i < 10; ++i) {
+    std::string newElement;
+    newElement += (char)('A' + i);
+    test.Push(newElement);
+  }
+  test.Resize(20, "a");
   test.Resize(10);
   PrintVector(test);
-  test.Shrink();
-  test.Resize(20);
-  test.Shrink();
-  std::cout << "DefaultConstructorCount: "
-            << TestType::smDefaultConstructorCount << std::endl
-            << "CopyConstructorCount: " << TestType::smCopyConstructorCount
-            << std::endl
-            << "MoveConstructorCount: " << TestType::smMoveConstructorCount
-            << std::endl
-            << "DestructorCount: " << TestType::smDestructorCount << std::endl
-            << std::endl;
+  std::cout << "\n";
 }
 
 void Reserve()
@@ -387,6 +480,38 @@ void Reserve()
   }
   test1.Reserve(30);
   PrintVector(test1);
+  std::cout << std::endl;
+}
+
+void Shrink0()
+{
+  // We perform two consecutive shrinks. The first makes the capacity and size
+  // equal. Since capacity and size are equal, the second does nothing.
+  std::cout << "<= Shrink0 =>\n";
+  TestType::ResetCounts();
+  Ds::Vector<TestType> test;
+  for (int i = 0; i < 5; ++i) {
+    test.Emplace(i);
+  }
+  test.Shrink();
+  test.Shrink();
+  TestType::PrintCounts();
+  std::cout << "\n";
+}
+
+void Shrink1()
+{
+  // This will crash or cause memory leaks without the proper use of
+  // constructors and destructors.
+  std::cout << "<= Shrink1 =>" << std::endl;
+  Ds::Vector<std::string> test;
+  for (int i = 0; i < 5; ++i) {
+    std::string newString;
+    newString += (char)(i + 'A');
+    test.Push(std::move(newString));
+  }
+  test.Shrink();
+  PrintVector(test);
   std::cout << std::endl;
 }
 
@@ -509,7 +634,8 @@ void Empty()
 int main(void)
 {
   EnableLeakOutput();
-  CopyConstructor();
+  CopyConstructor0();
+  CopyConstructor1();
   MoveConstructor();
   SinglePush();
   MovePush();
@@ -524,12 +650,19 @@ int main(void)
   Remove1();
   LazyRemove();
   IndexOperator();
-  CopyAssignment();
+  CopyAssignment0();
+  CopyAssignment1();
+  CopyAssignment2();
+  CopyAssignment3();
   MoveAssignment();
   Find();
   Contains();
-  ResizeAndShrink();
+  Resize0();
+  Resize1();
+  Resize2();
   Reserve();
+  Shrink0();
+  Shrink1();
   CData();
   Top();
   InnerVector();
