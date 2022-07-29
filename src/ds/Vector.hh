@@ -137,10 +137,10 @@ template<typename T>
 void Vector<T>::Remove(size_t index)
 {
   VerifyIndex(index);
-  mData[index].~T();
   for (size_t i = index + 1; i < mSize; ++i) {
     mData[i - 1] = std::move(mData[i]);
   }
+  mData[mSize - 1].~T();
   --mSize;
 }
 

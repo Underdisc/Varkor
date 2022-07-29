@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <utility>
 
 #include "debug/MemLeak.h"
@@ -165,9 +166,9 @@ void Clear()
             << std::endl;
 }
 
-void Remove()
+void Remove0()
 {
-  std::cout << "<= Remove =>" << std::endl;
+  std::cout << "<= Remove0 =>" << std::endl;
   TestType::ResetCounts();
   Ds::Vector<TestType> testVector;
   for (int i = 0; i < 10; ++i) {
@@ -182,11 +183,24 @@ void Remove()
     testVector.Remove(i);
   }
   PrintVector(testVector, false);
-  std::cout << "ConstructorCount: " << TestType::smConstructorCount << std::endl
-            << "DestructorCount: " << TestType::smDestructorCount << std::endl
-            << "MoveAssignmentCount: " << TestType::smMoveAssignmentCount
-            << std::endl
-            << std::endl;
+  TestType::PrintCounts();
+  std::cout << "\n";
+}
+
+void Remove1()
+{
+  std::cout << "<= Remove1 =>\n";
+  Ds::Vector<std::string> test;
+  for (int i = 0; i < 5; ++i) {
+    std::string newElement;
+    newElement += (char)('A' + i);
+    test.Push(newElement);
+  }
+  test.Remove(4);
+  test.Remove(1);
+  test.Remove(0);
+  PrintVector(test);
+  std::cout << "\n";
 }
 
 void LazyRemove()
@@ -488,7 +502,8 @@ int main(void)
   InsertString();
   Pop();
   Clear();
-  Remove();
+  Remove0();
+  Remove1();
   LazyRemove();
   IndexOperator();
   CopyAssignment();
