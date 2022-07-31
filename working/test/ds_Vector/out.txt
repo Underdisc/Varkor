@@ -103,13 +103,27 @@ Capactiy: 10
 Size: 5
 Capactiy: 10
 [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]]
-DestructorCount: 5
+-Counts-
+DefaultConstructor: 0
+Constructor: 10
+CopyConstructor: 0
+MoveConstructor: 0
+Destructor: 5
+CopyAssignment: 0
+MoveAssignment: 0
 
 <= Clear =>
 Size: 0
 Capactiy: 10
 []
-DestructorCount: 5
+-Counts-
+DefaultConstructor: 0
+Constructor: 5
+CopyConstructor: 0
+MoveConstructor: 0
+Destructor: 5
+CopyAssignment: 0
+MoveAssignment: 0
 
 <= Remove0 =>
 [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9]]
@@ -132,8 +146,14 @@ Capactiy: 10
 <= LazyRemove =>
 [[5, 5], [1, 1], [9, 9], [3, 3], [7, 7]]
 []
-DestructorCount: 10
-MoveAssignmentCount: 9
+-Counts-
+DefaultConstructor: 0
+Constructor: 10
+CopyConstructor: 0
+MoveConstructor: 0
+Destructor: 10
+CopyAssignment: 0
+MoveAssignment: 9
 
 <= IndexOperator =>
 [5]: 5
@@ -311,10 +331,14 @@ Main Vector Stats: [100, 160]
 [99][99]: [198, 198]
 
 <= ConstructionDestructionCounts =>
-DefaultConstructorCount: 0
-MoveConstructorCount: 4500
-ConstructorCount: 3000
-DestructorCount: 7500
+-Counts-
+DefaultConstructor: 0
+Constructor: 3000
+CopyConstructor: 0
+MoveConstructor: 4500
+Destructor: 7500
+CopyAssignment: 0
+MoveAssignment: 0
 
 <= Empty =>
 Empty: 1
