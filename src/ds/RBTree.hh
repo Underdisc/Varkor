@@ -183,16 +183,18 @@ void RbTree<T>::Insert(T&& value)
 
 template<typename T>
 template<typename... Args>
-void RbTree<T>::Emplace(Args&&... args)
+T& RbTree<T>::Emplace(Args&&... args)
 {
   Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(newNode);
+  return newNode->mValue;
 }
 
 template<typename T>
-void RbTree<T>::Remove(const T& value)
+template<typename CT>
+void RbTree<T>::Remove(const CT& value)
 {
-  Node* node = FindNode<T>(value);
+  Node* node = FindNode<CT>(value);
   LogAbortIf(node == nullptr, "The RbTree does not contain the value.");
   RemoveNode(node);
 }
@@ -268,10 +270,36 @@ void RbTree<T>::Clear()
 }
 
 template<typename T>
+template<typename CT>
+T& RbTree<T>::Get(const CT& value)
+{
+  Node* node = FindNode<CT>(value);
+  LogAbortIf(node == nullptr, "Value did not represent a tree element.");
+  return node->mValue;
+}
+
+template<typename T>
+template<typename CT>
+T* RbTree<T>::TryGet(const CT& value)
+{
+  Node* node = FindNode<CT>(value);
+  if (node == nullptr) {
+    return nullptr;
+  }
+  return &node->mValue;
+}
+
+template<typename T>
 bool RbTree<T>::Contains(const T& value) const
 {
   Node* node = FindNode<T>(value);
   return node != nullptr;
+}
+
+template<typename T>
+bool RbTree<T>::Empty() const
+{
+  return mHead == nullptr;
 }
 
 template<typename T>
