@@ -93,7 +93,8 @@ bool Parser::ParseValue()
   }
   else {
     mValueStack.Top()->Init(Value::Type::TrueValue);
-    mValueStack.Push(mValueStack.Top());
+    Value* topValue = mValueStack.Top();
+    mValueStack.Push(topValue);
   }
   const Token& valueToken = LastToken();
   std::string& trueValue = mValueStack.Top()->mTrueValue;
@@ -121,7 +122,8 @@ bool Parser::ParsePairArray()
   }
   else {
     mValueStack.Top()->Init(Value::Type::PairArray);
-    mValueStack.Push(mValueStack.Top());
+    Value* topValue = mValueStack.Top();
+    mValueStack.Push(topValue);
   }
   while (ParsePair()) {
   }
@@ -141,7 +143,8 @@ bool Parser::ParseValueArray()
   }
   else {
     mValueStack.Top()->Init(Value::Type::ValueArray);
-    mValueStack.Push(mValueStack.Top());
+    Value* topValue = mValueStack.Top();
+    mValueStack.Push(topValue);
   }
   ParseValueList() || ParseValueArrayList();
   mValueStack.Pop();
