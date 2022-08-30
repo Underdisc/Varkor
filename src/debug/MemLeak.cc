@@ -20,7 +20,7 @@ void DisableLeakOutput()
   _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_DEBUG);
   _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_DEBUG);
   int flags = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
-  flags &= ~(_CRTDB_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+  flags &= ~(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
   _CrtSetDbgFlag(flags);
 #endif
 }
