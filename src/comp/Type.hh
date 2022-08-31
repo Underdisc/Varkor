@@ -1,6 +1,7 @@
 #include <sstream>
 #include <utility>
 
+#include "util/Memory.h"
 #include "util/Utility.h"
 
 namespace Comp {
@@ -50,30 +51,6 @@ BindableTypeFunction(Edit, void, const World::Object&);
 template<typename T>
 TypeId Type<T>::smId = nInvalidTypeId;
 
-template<typename T>
-void DefaultConstruct(void* data)
-{
-  new (data) T;
-}
-
-template<typename T>
-void CopyConstruct(void* from, void* to)
-{
-  new (to) T(*(T*)from);
-}
-
-template<typename T>
-void MoveConstruct(void* from, void* to)
-{
-  new (to) T(std::move(*(T*)from));
-}
-
-template<typename T>
-void Destruct(void* data)
-{
-  (*(T*)data).~T();
-}
-
 int CreateId();
 extern Ds::Vector<TypeData> nTypeData;
 
@@ -86,10 +63,10 @@ void Type<T>::Register()
   TypeData data;
   data.mName = Util::GetShortTypename<T>();
   data.mSize = sizeof(T);
-  data.mDefaultConstruct = &DefaultConstruct<T>;
-  data.mCopyConstruct = &CopyConstruct<T>;
-  data.mMoveConstruct = &MoveConstruct<T>;
-  data.mDestruct = &Destruct<T>;
+  data.mDefaultConstruct = &Util::DefaultConstruct<T>;
+  data.mCopyConstruct = &Util::CopyConstruct<T>;
+  data.mMoveConstruct = &Util::MoveConstruct<T>;
+  data.mDestruct = &Util::Destruct<T>;
   BindVStaticInit<T>(&data.mVStaticInit);
   BindVInit<T>(&data.mVInit);
   BindVUpdate<T>(&data.mVUpdate);

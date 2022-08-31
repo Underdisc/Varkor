@@ -6,6 +6,30 @@
 namespace Util {
 
 template<typename T>
+void DefaultConstruct(void* data)
+{
+  new (data) T;
+}
+
+template<typename T>
+void CopyConstruct(void* from, void* to)
+{
+  new (to) T(*(T*)from);
+}
+
+template<typename T>
+void MoveConstruct(void* from, void* to)
+{
+  new (to) T(std::move(*(T*)from));
+}
+
+template<typename T>
+void Destruct(void* data)
+{
+  (*(T*)data).~T();
+}
+
+template<typename T>
 void CopyConstructRange(const T* from, T* to, size_t amount)
 {
   for (size_t i = 0; i < amount; ++i) {
