@@ -16,8 +16,55 @@ Value::Value(Value::Type type): mType(Type::Invalid)
   Init(type);
 }
 
-Value::Value(Value&& other): mType(other.mType)
+Value::Value(const Value& other): mType(Type::Invalid)
 {
+  *this = other;
+}
+
+Value::Value(Value&& other)
+{
+  *this = std::move(other);
+}
+
+Value::~Value()
+{
+  Clear();
+}
+
+void Value::Clear()
+{
+  switch (mType) {
+  case Type::TrueValue: mTrueValue.~basic_string(); break;
+  case Type::ValueArray: mValueArray.~Vector(); break;
+  case Type::PairArray: mPairArray.~Vector(); break;
+  }
+  mType = Type::Invalid;
+}
+
+Value& Value::operator=(const Value& other)
+{
+  Clear();
+  mType = other.mType;
+  // clang-format off
+  switch (other.mType) {
+  case Type::TrueValue:
+    new (&mTrueValue) std::string(other.mTrueValue);
+    break;
+  case Type::ValueArray:
+    new (&mValueArray) Ds::Vector<Value>(other.mValueArray);
+    break;
+  case Type::PairArray:
+    new (&mPairArray) Ds::Vector<Pair>(other.mPairArray);
+    break;
+  }
+  // clang-format on
+  return *this;
+}
+
+Value& Value::operator=(Value&& other)
+{
+  Clear();
+  mType = other.mType;
   switch (other.mType) {
   case Type::TrueValue:
     new (&mTrueValue) std::string(std::move(other.mTrueValue));
@@ -29,15 +76,48 @@ Value::Value(Value&& other): mType(other.mType)
     new (&mPairArray) Ds::Vector<Pair>(std::move(other.mPairArray));
     break;
   }
+  other.Clear();
+  return *this;
 }
 
-Value::~Value()
+bool Value::operator==(const Value& other) const
 {
-  switch (mType) {
-  case Type::TrueValue: mTrueValue.~basic_string(); break;
-  case Type::ValueArray: mValueArray.~Vector(); break;
-  case Type::PairArray: mPairArray.~Vector(); break;
+  if (mType != other.mType) {
+    return false;
   }
+  switch (mType) {
+  case Type::TrueValue:
+    if (mTrueValue != other.mTrueValue) {
+      return false;
+    }
+    break;
+  case Type::ValueArray:
+    if (mValueArray.Size() != other.mValueArray.Size()) {
+      return false;
+    }
+    for (int i = 0; i < mValueArray.Size(); ++i) {
+      if (mValueArray[i] != other.mValueArray[i]) {
+        return false;
+      }
+    }
+    break;
+  case Type::PairArray:
+    if (mPairArray.Size() != other.mPairArray.Size()) {
+      return false;
+    }
+    for (int i = 0; i < mPairArray.Size(); ++i) {
+      if (mPairArray[i] != other.mPairArray[i]) {
+        return false;
+      }
+    }
+    break;
+  }
+  return true;
+}
+
+bool Value::operator!=(const Value& other) const
+{
+  return !(*this == other);
 }
 
 void Value::Init(Type type)
@@ -234,7 +314,7 @@ Value& Value::operator()(const std::string& key)
   return *pair;
 }
 
-const Pair& Value::operator()(size_t index) const
+Value& Value::operator()(size_t index)
 {
   HardExpectType(Type::PairArray);
   return mPairArray[index];
@@ -358,12 +438,25 @@ void Value::PrintPairArray(std::ostream& os, std::string& indent) const
 }
 
 Pair::Pair() {}
-Pair::Pair(const char* key): mKey(key) {}
+
 Pair::Pair(const std::string& key): mKey(key) {}
 
 const std::string& Pair::Key() const
 {
   return mKey;
+}
+
+bool Pair::operator==(const Pair& other) const
+{
+  if (mKey != other.mKey) {
+    return false;
+  }
+  return Value::operator==(other);
+}
+
+bool Pair::operator!=(const Pair& other) const
+{
+  return !(*this == other);
 }
 
 void Pair::PrintPair(std::ostream& os, std::string& indent) const

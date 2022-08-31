@@ -27,7 +27,15 @@ struct Value
 public:
   Value();
   Value(Value&& other);
+  Value(const Value& other);
   ~Value();
+  void Clear();
+
+  Value& operator=(Value&& other);
+  Value& operator=(const Value& other);
+
+  bool operator==(const Value& other) const;
+  bool operator!=(const Value& other) const;
 
   Result Read(const char* filename);
   Result Write(const char* filename);
@@ -45,7 +53,7 @@ public:
   Value* TryGetValue(size_t index);
 
   Value& operator()(const std::string& key);
-  const Pair& operator()(size_t index) const;
+  Value& operator()(size_t index);
 
   Value& operator[](std::initializer_list<size_t> sizes);
   Value& operator[](size_t index);
@@ -129,12 +137,13 @@ void Value::operator=(const T& value)
 struct Pair: public Value
 {
   const std::string& Key() const;
+  bool operator==(const Pair& other) const;
+  bool operator!=(const Pair& other) const;
 
 private:
   std::string mKey;
 
   Pair();
-  Pair(const char* key);
   Pair(const std::string& key);
 
   void PrintPair(std::ostream& os, std::string& indent) const;

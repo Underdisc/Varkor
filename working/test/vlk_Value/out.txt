@@ -193,31 +193,24 @@ ArrayOfPairArrays:
     Key1: 1
 
 <= Move =>
-'5'
+<- MovedTrueValue ->
+'Value'
+<- MovedValueArray ->
+['Value-A', 'Replaced', 'Value-C', 'Replaced', 'Value-E']
+<- MovedPairArray ->
 {
-  :Key0: '0'
-  :Key1: '1'
-  :Key2: '2'
-  :Key3: '3'
-  :Key4: '4'
-  :Key5: '5'
-  :Key6: '6'
-  :Key7: '7'
-  :Key8: '8'
-  :Key9: '9'
+  :Pair-A: 'Replaced'
+  :Pair-B: 'Value-B'
+  :Pair-C: 'Value-C'
+  :Pair-D: 'Value-D'
+  :Pair-E: 'Value-E'
 }
-[
-  '0',
-  '1',
-  '2',
-  '3',
-  '4',
-  '5',
-  '6',
-  '7',
-  '8',
-  '9'
-]
+<- Original ->
+{
+  :TrueValue: {}
+  :ValueArray: {}
+  :PairArray: {}
+}
 
 <= Errors =>
 [1] Invalid token: .
@@ -230,7 +223,7 @@ ArrayOfPairArrays:
 [1] Invalid token: 'Invalid:Token
 ParserError.vlk[6] Parse Error: Expected Value.
 
-<=FindPair=>
+<= FindPair =>
 {
   :TrueValue: 'Replaced'
   :ValueArray: ['Value-A', 'Replaced', 'Value-C', 'Replaced', 'Value-E']
@@ -242,3 +235,59 @@ ParserError.vlk[6] Parse Error: Expected Value.
     :Pair-E: 'Value-E'
   }
 }
+
+<= Copy =>
+<- Copy ->
+{
+  :TrueValue: 'Replaced'
+  :ValueArray: ['Value-A', 'Value-B', 'Value-C', 'Replaced', 'Value-E']
+  :PairArray: {
+    :Pair-A: 'Value-A'
+    :Pair-B: 'Replaced'
+    :Pair-C: 'Value-C'
+    :Pair-D: 'Value-D'
+    :Pair-E: 'Value-E'
+  }
+}
+<- TrueValueOverwrite ->
+'Value'
+<- ValueArrayOverwrite ->
+['Replaced', 'Value-B', 'Value-C', 'Value-D', 'Replaced']
+<- PairArrayOverwrite ->
+{
+  :Pair-A: 'Replaced'
+  :Pair-B: 'Value-B'
+  :Pair-C: 'Value-C'
+  :Pair-D: 'Value-D'
+  :Pair-E: 'Replaced'
+}
+<- Original ->
+{
+  :TrueValue: 'Value'
+  :ValueArray: ['Value-A', 'Value-B', 'Value-C', 'Value-D', 'Value-E']
+  :PairArray: {
+    :Pair-A: 'Value-A'
+    :Pair-B: 'Value-B'
+    :Pair-C: 'Value-C'
+    :Pair-D: 'Value-D'
+    :Pair-E: 'Value-E'
+  }
+}
+
+<= Comparison =>
+<- Equal ->
+==:1 | !=:0
+<- DifferentType ->
+==:0 | !=:1
+<- DifferentTrueValue ->
+==:0 | !=:1
+<- DifferentValueArraySize ->
+==:0 | !=:1
+<- DifferentValueArray ->
+==:0 | !=:1
+<- DifferentPairArraySize ->
+==:0 | !=:1
+<- DifferentPairArrayValue ->
+==:0 | !=:1
+<- DifferentKey ->
+==:0 | !=:1

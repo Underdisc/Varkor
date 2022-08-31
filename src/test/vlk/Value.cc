@@ -177,7 +177,7 @@ void SerializeDeserialize()
     std::cout << pairArray.Key() << ": " << std::endl;
     for (size_t i = 0; i < pairArray.Size(); ++i) {
       std::cout << "  " << pairArray.TryGetConstPair(i)->Key() << ": "
-                << pairArray(i).As<int>() << std::endl;
+                << pairArray.TryGetConstPair(i)->As<int>() << std::endl;
     }
 
     const Vlk::Pair& arrayOfPairArrays =
@@ -188,63 +188,11 @@ void SerializeDeserialize()
       std::cout << "  PairArray" << i << ":\n";
       for (size_t j = 0; j < elementPairArray.Size(); ++j) {
         std::cout << "    " << elementPairArray.TryGetConstPair(j)->Key()
-                  << ": " << elementPairArray(j).As<int>() << "\n";
+                  << ": " << elementPairArray.TryGetConstPair(j)->As<int>()
+                  << "\n";
       }
     }
   }
-}
-
-void Move()
-{
-  std::cout << "<= Move =>" << std::endl;
-  auto movePrint = [](Vlk::Value& val)
-  {
-    Vlk::Value movedVal(std::move(val));
-    std::cout << movedVal << std::endl;
-  };
-  // Value
-  {
-    Vlk::Value rootVal;
-    rootVal = 5;
-    movePrint(rootVal);
-  }
-  // PairArray
-  {
-    Vlk::Value rootVal;
-    for (size_t i = 0; i < 10; ++i) {
-      std::stringstream ss;
-      ss << "Key" << i;
-      rootVal(ss.str()) = i;
-    }
-    movePrint(rootVal);
-  }
-  // ValueArray
-  {
-    Vlk::Value rootVal;
-    rootVal[{10}];
-    for (size_t i = 0; i < 10; ++i) {
-      rootVal[i] = i;
-    }
-    movePrint(rootVal);
-  }
-}
-
-void Errors()
-{
-  std::cout << "<= Errors =>" << std::endl;
-  PrintParseError(".");
-  PrintParseError("}");
-  PrintParseError("{");
-  PrintParseError("{:NoValue:");
-  PrintParseError("{:ValueArray:[]]");
-  PrintParseError("{:ValueArray:[]{}}");
-  PrintParseError("{:TokenError");
-  PrintParseError("{:ValidToken:\'Invalid:Token");
-
-  // This tests line number information for parser errors.
-  Vlk::Value rootVal;
-  Result result = rootVal.Read("ParserError.vlk");
-  std::cout << result.mError << std::endl;
 }
 
 Vlk::Value CreateTestValue()
@@ -269,21 +217,143 @@ Vlk::Value CreateTestValue()
   return rootVal;
 }
 
+void Move()
+{
+  std::cout << "<= Move =>\n";
+  Vlk::Value rootVal = CreateTestValue();
+
+  Vlk::Value movedVal(std::move(rootVal("TrueValue")));
+  std::cout << "<- MovedTrueValue ->\n" << movedVal << "\n";
+
+  movedVal = std::move(rootVal("ValueArray"));
+  movedVal[1] = "Replaced";
+  movedVal[3] = "Replaced";
+  std::cout << "<- MovedValueArray ->\n" << movedVal << "\n";
+
+  movedVal = std::move(rootVal("PairArray"));
+  movedVal("Pair-A") = "Replaced";
+  std::cout << "<- MovedPairArray ->\n" << movedVal << "\n";
+  std::cout << "<- Original ->\n" << rootVal << "\n";
+}
+
+void Errors()
+{
+  std::cout << "<= Errors =>" << std::endl;
+  PrintParseError(".");
+  PrintParseError("}");
+  PrintParseError("{");
+  PrintParseError("{:NoValue:");
+  PrintParseError("{:ValueArray:[]]");
+  PrintParseError("{:ValueArray:[]{}}");
+  PrintParseError("{:TokenError");
+  PrintParseError("{:ValidToken:\'Invalid:Token");
+
+  // This tests line number information for parser errors.
+  Vlk::Value rootVal;
+  Result result = rootVal.Read("ParserError.vlk");
+  std::cout << result.mError << std::endl;
+}
+
 void FindPair()
 {
-  std::cout << "<=FindPair=>\n";
+  std::cout << "<= FindPair =>\n";
   Vlk::Value rootVal = CreateTestValue();
   rootVal("TrueValue") = "Replaced";
   rootVal("ValueArray")[1] = "Replaced";
   rootVal("ValueArray")[3] = "Replaced";
   rootVal("PairArray")("Pair-C") = "Replaced";
-  std::cout << rootVal;
+  std::cout << rootVal << "\n";
+}
+
+void Copy()
+{
+  std::cout << "<= Copy =>\n";
+  srand(0);
+
+  Vlk::Value rootVal = CreateTestValue();
+  Vlk::Value rootValCopy(rootVal);
+  rootValCopy("TrueValue") = "Replaced";
+  rootValCopy("ValueArray")[3] = "Replaced";
+  rootValCopy("PairArray")("Pair-B") = "Replaced";
+  std::cout << "<- Copy ->\n" << rootValCopy << "\n";
+
+  rootValCopy = rootVal("TrueValue");
+  std::cout << "<- TrueValueOverwrite ->\n" << rootValCopy << "\n";
+
+  rootValCopy = rootVal("ValueArray");
+  rootValCopy[0] = "Replaced";
+  rootValCopy[4] = "Replaced";
+  std::cout << "<- ValueArrayOverwrite ->\n" << rootValCopy << "\n";
+
+  rootValCopy = rootVal("PairArray");
+  rootValCopy("Pair-A") = "Replaced";
+  rootValCopy("Pair-E") = "Replaced";
+  std::cout << "<- PairArrayOverwrite ->\n" << rootValCopy << "\n";
+
+  std::cout << "<- Original ->\n" << rootVal << "\n";
+}
+
+void Comparison()
+{
+  std::cout << "<= Comparison =>\n";
+  auto compare = [](const Vlk::Value& a, const Vlk::Value& b)
+  {
+    std::cout << "==:" << (a == b) << " | !=:" << (a != b) << '\n';
+  };
+  Vlk::Value rootVal = CreateTestValue();
+
+  std::cout << "<- Equal ->\n";
+  Vlk::Value rootValCopy = rootVal;
+  compare(rootVal, rootValCopy);
+
+  std::cout << "<- DifferentType ->\n";
+  Vlk::Value differentType;
+  differentType = "Filler";
+  compare(rootVal, differentType);
+
+  std::cout << "<- DifferentTrueValue ->\n";
+  rootValCopy = rootVal;
+  rootValCopy("TrueValue") = "Replaced";
+  compare(rootVal, rootValCopy);
+
+  std::cout << "<- DifferentValueArraySize ->\n";
+  rootValCopy = rootVal;
+  rootValCopy("ValueArray").PushValue("Filler");
+  compare(rootVal, rootValCopy);
+
+  std::cout << "<- DifferentValueArray ->\n";
+  rootValCopy = rootVal;
+  rootValCopy("ValueArray")[2] = "Replaced";
+  compare(rootVal, rootValCopy);
+
+  std::cout << "<- DifferentPairArraySize ->\n";
+  rootValCopy = rootVal;
+  rootValCopy("PairArray")("Pair-F") = "Filler";
+  compare(rootVal, rootValCopy);
+
+  std::cout << "<- DifferentPairArrayValue ->\n";
+  rootValCopy = rootVal;
+  rootValCopy("PairArray")("Pair-B") = "Replaced";
+  compare(rootVal, rootValCopy);
+
+  std::cout << "<- DifferentKey ->\n";
+  rootValCopy = rootVal;
+  Vlk::Value& pairArrayVal = rootValCopy("PairArray");
+  pairArrayVal.TryRemovePair("Pair-A");
+  pairArrayVal("Pair-F") = "Value-F";
+  compare(rootVal, rootValCopy);
 }
 
 void RunTest(void (*test)())
 {
+  static bool firstTest = true;
+  if (firstTest) {
+    firstTest = false;
+  }
+  else {
+    std::cout << '\n';
+  }
   test();
-  std::cout << "\n";
 }
 
 int main()
@@ -298,4 +368,6 @@ int main()
   RunTest(Move);
   RunTest(Errors);
   RunTest(FindPair);
+  RunTest(Copy);
+  RunTest(Comparison);
 }
