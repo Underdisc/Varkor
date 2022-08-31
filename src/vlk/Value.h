@@ -58,6 +58,10 @@ public:
   Value& operator[](std::initializer_list<size_t> sizes);
   Value& operator[](size_t index);
   const Value& operator[](size_t index) const;
+  template<typename T>
+  void PushValue(const T& Value);
+  void PopValue();
+  void RemoveValue(size_t index);
 
   template<typename T>
   T As() const;
@@ -103,6 +107,14 @@ private:
   friend struct Serializer;
   friend Ds::Vector<Value>;
 };
+
+template<typename T>
+void Value::PushValue(const T& value)
+{
+  ExpectType(Type::ValueArray);
+  mValueArray.Emplace();
+  mValueArray.Top() = value;
+}
 
 template<>
 std::string Value::As<std::string>() const;

@@ -344,6 +344,24 @@ void Comparison()
   compare(rootVal, rootValCopy);
 }
 
+void PushPopRemoveValue()
+{
+  std::cout << "<= PushPopRemoveValue =>\n";
+  Vlk::Value arrayVal;
+  for (int i = 0; i < 20; ++i) {
+    std::stringstream valueStream;
+    valueStream << "Value-" << i;
+    arrayVal.PushValue(valueStream.str());
+  }
+  for (int i = 0; i < 5; ++i) {
+    arrayVal.PopValue();
+  }
+  for (int i = 8; i >= 0; i -= 2) {
+    arrayVal.RemoveValue(i);
+  }
+  std::cout << arrayVal << '\n';
+}
+
 void RunTest(void (*test)())
 {
   static bool firstTest = true;
@@ -370,4 +388,5 @@ int main()
   RunTest(FindPair);
   RunTest(Copy);
   RunTest(Comparison);
+  RunTest(PushPopRemoveValue);
 }

@@ -344,6 +344,18 @@ const Value& Value::operator[](size_t index) const
   return mValueArray[index];
 }
 
+void Value::PopValue()
+{
+  HardExpectType(Type::ValueArray);
+  mValueArray.Pop();
+}
+
+void Value::RemoveValue(size_t index)
+{
+  HardExpectType(Type::ValueArray);
+  mValueArray.Remove(index);
+}
+
 template<>
 std::string Value::As<std::string>() const
 {
