@@ -13,7 +13,7 @@ enum class ResourceTypeId
   Image,
   Material,
   Mesh,
-  Mold,
+  Model,
   Shader,
   Count,
   Invalid,

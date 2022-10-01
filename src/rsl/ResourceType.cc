@@ -4,6 +4,7 @@
 #include "gfx/Image.h"
 #include "gfx/Material.h"
 #include "gfx/Mesh.h"
+#include "gfx/Model.h"
 #include "gfx/Shader.h"
 #include "world/Mold.h"
 
@@ -31,8 +32,8 @@ void RegisterResourceTypes()
   ResourceType<Gfx::Image>::Register(ResTypeId::Image, "Image");
   ResourceType<Gfx::Material>::Register(ResTypeId::Material, "Material");
   ResourceType<Gfx::Mesh>::Register(ResTypeId::Mesh, "Mesh");
+  ResourceType<Gfx::Model>::Register(ResTypeId::Model, "Model");
   ResourceType<Gfx::Shader>::Register(ResTypeId::Shader, "Shader");
-  ResourceType<World::Mold>::Register(ResTypeId::Mold, "Mold");
 }
 
 ResTypeId GetResTypeId(const std::string& resTypeName)
