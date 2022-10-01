@@ -53,6 +53,9 @@ const ResTypeData& GetResTypeData(const std::string& resTypeName);
 template<typename T>
 ResTypeId GetResTypeId()
 {
+  if (ResourceType<T>::smResTypeId == ResTypeId::Invalid) {
+    LogAbort("Resource type not registered.");
+  }
   return ResourceType<T>::smResTypeId;
 }
 
