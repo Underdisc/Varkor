@@ -14,14 +14,17 @@ struct ResourceId
   ResourceId();
   ResourceId(const ResourceId& other);
   ResourceId(ResourceId&& other);
+  ResourceId(const char* id);
   ResourceId(const std::string& id);
   ResourceId(const std::string& assetName, const std::string& resourceName);
   ResourceId& operator=(const ResourceId& other);
-  void Init(const std::string& id);
+  ResourceId& operator=(const char* id);
+  ResourceId& operator=(const std::string& id);
   void Init(const std::string& assetName, const std::string& resourceName);
 
   std::string GetAssetName() const;
   std::string GetResourceName() const;
+  bool operator==(const ResourceId& other) const;
 };
 typedef ResourceId ResId;
 

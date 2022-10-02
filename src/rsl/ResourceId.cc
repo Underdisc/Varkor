@@ -8,10 +8,9 @@ ResourceId::ResourceId(const ResourceId& other): mId(other.mId) {}
 
 ResourceId::ResourceId(ResourceId&& other): mId(std::move(other.mId)) {}
 
-ResourceId::ResourceId(const std::string& id)
-{
-  Init(id);
-}
+ResourceId::ResourceId(const char* id): mId(id) {}
+
+ResourceId::ResourceId(const std::string& id): mId(id) {}
 
 ResourceId::ResourceId(
   const std::string& assetName, const std::string& resourceName)
@@ -25,16 +24,22 @@ ResourceId& ResourceId::operator=(const ResourceId& other)
   return *this;
 }
 
-void ResourceId::Init(const std::string& id)
+ResourceId& ResourceId::operator=(const char* id)
 {
   mId = id;
+  return *this;
+}
+
+ResourceId& ResourceId::operator=(const std::string& id)
+{
+  mId = id;
+  return *this;
 }
 
 void ResourceId::Init(
   const std::string& assetName, const std::string& resourceName)
 {
-  mId = assetName;
-  mId += ':' + resourceName;
+  mId = assetName + ':' + resourceName;
 }
 
 std::string ResourceId::GetAssetName() const
@@ -55,6 +60,11 @@ std::string ResourceId::GetResourceName() const
   size_t resourceNameStart = assetIdEnd + 1;
   size_t count = mId.size() - resourceNameStart;
   return mId.substr(resourceNameStart, count);
+}
+
+bool ResourceId::operator==(const ResId& other) const
+{
+  return mId == other.mId;
 }
 
 } // namespace Rsl
