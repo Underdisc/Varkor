@@ -1,9 +1,10 @@
 # Style Guide
-This only covers the style that is used for naming identifiers. All other formatting should be handled by clang-format and the specifications for the formatting can be found in .clang-format.
+This covers the style of identifiers and conventions commonly used within the codebase.
 
-Besides this, there are no other style rules. The style rules are purely for making all code look consistent. I refuse to use any style rules that encourage the use of certain design patterns over speed. Speed is always the most important factor of any code.
+All formatting is handled by clang-format, for which there is a config file in the root of the repo. Sometimes clang-format is awkward. If something can look a bit nicer without it, turning clang-format off for a block is acceptable.
 
-## Variable Naming Scheme
+## Naming
+### Variables
 Variable names are always camel case and begin with a lowercase letter.
 
 - Local Variables `variableName`
@@ -11,26 +12,16 @@ Variable names are always camel case and begin with a lowercase letter.
 - Static Member Variables `smVariableName`
 - Namespace Variables `nVariableName`
 
-## Function Naming Scheme
-Functions are always camel case and start with an uppercase letter.
+### Other
+All other identifier names are camel case and begin with an uppercase letter. This is subect to change.
 
-- Literally Any Function `FunctionName`
+- Functions 'FunctionName'
+- Structs `StructName`
+- Namespaces `NamespaceName`
+- Enum `EnumName`
+- Enum Members `EnumMemberName`
+- Macros `Macro`
 
-## Class and Struct Naming Scheme
-Classes and Structs are always camel case and start with an uppercase letter.
-
-- Literally Any Class or Struct `ClassOrStructName`
-
-## Namespace Naming Scheme
-Namespaces are always camel case and start with an uppercase letter.
-
-- Literally Any Namespace `NamespaceName`
-
-## Enum Naming Scheme
-Enums are always camel case and start with an uppercase letter. Members of an enum follow the same scheme.
-
-- Literally Any Enum `EnumName`
-- Literally Any Enum Member `EnumMemberName`
-
-## Everything Else
-.clang-format specifies all other style rules.
+## Conventions
+### Modified Args Passed As Pointer
+Functions shouldn't take non-const references. If a function modifies an argument, that function must take it as a pointer. Knowing whether an argument is potentially modified is valuable information.
