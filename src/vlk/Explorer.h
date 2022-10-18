@@ -58,6 +58,9 @@ T Explorer::As() const
 template<typename T>
 T Explorer::As(const T& defaultValue) const
 {
+  if (!Valid()) {
+    return defaultValue;
+  }
   return mValue->As<T>(defaultValue);
 }
 
