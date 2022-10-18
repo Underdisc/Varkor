@@ -307,7 +307,7 @@ Value* Value::TryGetValue(size_t index)
   return const_cast<Value*>(TryGetConstValue(index));
 }
 
-Value& Value::operator()(const std::string& key)
+Pair& Value::operator()(const std::string& key)
 {
   ExpectType(Type::PairArray);
   LogAbortIf(key.empty(), "Key cannot be an empty string.");
@@ -319,7 +319,7 @@ Value& Value::operator()(const std::string& key)
   return *pair;
 }
 
-Value& Value::operator()(size_t index)
+Pair& Value::operator()(size_t index)
 {
   HardExpectType(Type::PairArray);
   return mPairArray[index];

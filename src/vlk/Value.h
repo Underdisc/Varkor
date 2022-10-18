@@ -60,8 +60,8 @@ public:
   const Value* TryGetConstValue(size_t index) const;
   Value* TryGetValue(size_t index);
 
-  Value& operator()(const std::string& key);
-  Value& operator()(size_t index);
+  Pair& operator()(const std::string& key);
+  Pair& operator()(size_t index);
 
   Value& operator[](std::initializer_list<size_t> sizes);
   Value& operator[](size_t index);
@@ -172,6 +172,9 @@ struct Pair: public Value
   bool operator==(const Pair& other) const;
   bool operator!=(const Pair& other) const;
 
+  template<typename T>
+  void operator=(const T& value);
+
 private:
   std::string mKey;
 
@@ -184,6 +187,12 @@ private:
   friend Parser;
   friend Ds::Vector<Pair>;
 };
+
+template<typename T>
+void Pair::operator=(const T& value)
+{
+  (*(Value*)this) = value;
+}
 
 } // namespace Vlk
 
