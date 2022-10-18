@@ -74,6 +74,8 @@ public:
   template<typename T>
   T As() const;
   template<typename T>
+  T As(const T& defaultValue) const;
+  template<typename T>
   void operator=(const T& value);
 
 private:
@@ -104,7 +106,7 @@ private:
   friend Pair;
   friend Parser;
   template<typename>
-  friend struct Serializer;
+  friend struct Converter;
   friend Ds::Vector<Value>;
 };
 
@@ -116,20 +118,34 @@ void Value::PushValue(const T& value)
   mValueArray.Top() = value;
 }
 
-template<>
-std::string Value::As<std::string>() const;
 template<typename T>
 T Value::As() const
 {
-  HardExpectType(Type::TrueValue);
-  std::stringstream ss(mTrueValue);
   T value;
-  ss >> value;
+  bool deserialized = Converter<T>::Deserialize(*this, &value);
+  LogAbortIf(!deserialized, "As without a default failed deserialization.");
   return value;
 }
 
 template<typename T>
-struct Serializer
+T Value::As(const T& defaultValue) const
+{
+  T value;
+  bool deserialzied = Converter<T>::Deserialize(*this, &value);
+  if (!deserialzied) {
+    return defaultValue;
+  }
+  return value;
+}
+
+template<typename T>
+void Value::operator=(const T& value)
+{
+  Converter<T>::Serialize(*this, value);
+}
+
+template<typename T>
+struct Converter
 {
   static void Serialize(Value& val, const T& value)
   {
@@ -138,13 +154,17 @@ struct Serializer
     ss << value;
     val.mTrueValue = ss.str();
   }
-};
 
-template<typename T>
-void Value::operator=(const T& value)
-{
-  Serializer<T>::Serialize(*this, value);
-}
+  static bool Deserialize(const Value& val, T* value)
+  {
+    if (val.mType != Value::Type::TrueValue) {
+      return false;
+    }
+    std::stringstream ss(val.mTrueValue);
+    ss >> *value;
+    return true;
+  }
+};
 
 struct Pair: public Value
 {

@@ -361,13 +361,6 @@ void Value::RemoveValue(size_t index)
   mValueArray.Remove(index);
 }
 
-template<>
-std::string Value::As<std::string>() const
-{
-  HardExpectType(Type::TrueValue);
-  return mTrueValue;
-}
-
 std::ostream& operator<<(std::ostream& os, Value::Type valueType)
 {
   switch (valueType) {

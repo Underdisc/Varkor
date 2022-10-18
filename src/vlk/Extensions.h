@@ -3,12 +3,32 @@
 
 #include "gfx/HdrColor.h"
 #include "math/Vector.h"
+#include "rsl/ResourceId.h"
 #include "vlk/Valkor.h"
 
 namespace Vlk {
 
+template<>
+struct Converter<std::string>
+{
+  static void Serialize(Value& val, const std::string& value)
+  {
+    val.ExpectType(Value::Type::TrueValue);
+    val.mTrueValue = value;
+  }
+
+  static bool Deserialize(const Value& val, std::string* value)
+  {
+    if (val.mType != Value::Type::TrueValue) {
+      return false;
+    }
+    *value = val.mTrueValue;
+    return true;
+  }
+};
+
 template<typename T, unsigned int N>
-struct Serializer<Math::Vector<T, N>>
+struct Converter<Math::Vector<T, N>>
 {
   static void Serialize(Value& val, const Math::Vector<T, N>& value)
   {
@@ -17,11 +37,7 @@ struct Serializer<Math::Vector<T, N>>
       val[i] = value[i];
     }
   }
-};
 
-template<typename T, unsigned int N>
-struct Deserializer<Math::Vector<T, N>>
-{
   static bool Deserialize(const Explorer& ex, Math::Vector<T, N>* value)
   {
     for (int i = 0; i < N; ++i) {
@@ -36,18 +52,14 @@ struct Deserializer<Math::Vector<T, N>>
 };
 
 template<>
-struct Serializer<Gfx::HdrColor>
+struct Converter<Gfx::HdrColor>
 {
   static void Serialize(Value& val, const Gfx::HdrColor& value)
   {
     val("Color") = value.mColor;
     val("Intensity") = value.mIntensity;
   }
-};
 
-template<>
-struct Deserializer<Gfx::HdrColor>
-{
   static bool Deserialize(const Explorer& ex, Gfx::HdrColor* value)
   {
     Explorer colorEx = ex("Color");
@@ -57,6 +69,25 @@ struct Deserializer<Gfx::HdrColor>
     }
     value->mColor = colorEx.As<Vec3>();
     value->mIntensity = intensityEx.As<float>();
+    return true;
+  }
+};
+
+template<>
+struct Converter<Rsl::ResId>
+{
+  static void Serialize(Value& val, const ResId& value)
+  {
+    val.ExpectType(Value::Type::TrueValue);
+    val.mTrueValue = value.mId;
+  }
+
+  static bool Deserialize(const Value& val, ResId* value)
+  {
+    if (val.mType != Value::Type::TrueValue) {
+      return false;
+    }
+    value->mId = val.mTrueValue;
     return true;
   }
 };
