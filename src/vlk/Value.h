@@ -62,6 +62,7 @@ public:
 
   Pair& operator()(const std::string& key);
   Pair& operator()(size_t index);
+  void TryRemovePair(const std::string& key);
 
   Value& operator[](std::initializer_list<size_t> sizes);
   Value& operator[](size_t index);

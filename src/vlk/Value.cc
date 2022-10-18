@@ -325,6 +325,15 @@ Pair& Value::operator()(size_t index)
   return mPairArray[index];
 }
 
+void Value::TryRemovePair(const std::string& key)
+{
+  HardExpectType(Type::PairArray);
+  int pairIndex = TryGetPairIndex(key);
+  if (pairIndex != smInvalidPairIndex) {
+    mPairArray.Remove(pairIndex);
+  }
+}
+
 Value& Value::operator[](std::initializer_list<size_t> sizes)
 {
   auto it = sizes.begin();
