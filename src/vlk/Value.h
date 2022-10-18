@@ -68,7 +68,8 @@ public:
   Value& operator[](size_t index);
   const Value& operator[](size_t index) const;
   template<typename T>
-  void PushValue(const T& Value);
+  void PushValue(const T& value);
+  void PushValue(Value&& value);
   void PopValue();
   void RemoveValue(size_t index);
 
