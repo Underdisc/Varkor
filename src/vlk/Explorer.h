@@ -32,6 +32,7 @@ struct Explorer
   const std::string& Key() const;
   size_t Size() const;
   bool Valid() const;
+  bool Valid(Value::Type type) const;
 
   Explorer operator()(const std::string& key) const;
   Explorer operator()(size_t index) const;

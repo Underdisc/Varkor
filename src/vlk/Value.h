@@ -41,6 +41,14 @@ public:
   Result Write(const char* filename);
   Result Parse(const char* text);
 
+  enum class Type
+  {
+    Invalid,
+    TrueValue,
+    ValueArray,
+    PairArray,
+  };
+  Type GetType() const;
   size_t Size() const;
 
   constexpr static int smInvalidPairIndex = -1;
@@ -69,14 +77,6 @@ public:
   void operator=(const T& value);
 
 private:
-  enum class Type
-  {
-    Invalid,
-    TrueValue,
-    ValueArray,
-    PairArray,
-  };
-
   Type mType;
   union
   {

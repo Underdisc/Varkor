@@ -141,6 +141,11 @@ void Value::ExpectType(Type type)
   HardExpectType(type);
 }
 
+Value::Type Value::GetType() const
+{
+  return mType;
+}
+
 void Value::HardExpectType(Type type) const
 {
   if (mType != type) {

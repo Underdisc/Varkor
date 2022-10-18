@@ -74,6 +74,11 @@ bool Explorer::Valid() const
   return mValue != nullptr;
 }
 
+bool Explorer::Valid(Value::Type type) const
+{
+  return Valid() && mValue->GetType() == type;
+}
+
 Explorer Explorer::operator()(const std::string& key) const
 {
   if (!Valid()) {
