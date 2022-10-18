@@ -202,7 +202,7 @@ Result Value::Read(const char* filename)
   std::ifstream stream(filename, std::ifstream::in);
   if (!stream.is_open()) {
     std::stringstream error;
-    error << filename << " failed to open.";
+    error << "Failed to open \"" << filename << "\".";
     return Result(error.str());
   }
   std::stringstream content;

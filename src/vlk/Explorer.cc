@@ -51,7 +51,7 @@ std::string Explorer::Path() const
 
 const std::string& Explorer::Key() const
 {
-  LogAbortIf(!Valid(), "Key of an invalid Explorer cannot be optained.");
+  LogAbortIf(!Valid(), "Key of an invalid Explorer cannot be obtained.");
   if (!mIsPair) {
     std::stringstream error;
     error << Path() << " is not a Pair.";
