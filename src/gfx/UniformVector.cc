@@ -189,7 +189,7 @@ void UniformVector::BindTexture2DRes(
   const UniformDescriptor& uniformDesc) const
 {
   const ResId& imageId = *(ResId*)(mData + uniformDesc.mByteIndex);
-  Gfx::Image* image = Rsl::TryGetResource<Gfx::Image>(imageId);
+  Gfx::Image* image = Rsl::TryGetRes<Gfx::Image>(imageId);
   if (image == nullptr) {
     return;
   }
@@ -202,7 +202,7 @@ void UniformVector::BindTextureCubemapRes(
   const UniformDescriptor& uniformDesc) const
 {
   const ResId& cubemapId = *(ResId*)(mData + uniformDesc.mByteIndex);
-  Gfx::Cubemap* cubemap = Rsl::TryGetResource<Gfx::Cubemap>(cubemapId);
+  Gfx::Cubemap* cubemap = Rsl::TryGetRes<Gfx::Cubemap>(cubemapId);
   if (cubemap == nullptr) {
     return;
   }
