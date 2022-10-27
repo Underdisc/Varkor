@@ -245,16 +245,12 @@ Result Value::Parse(const char* text)
 
 size_t Value::Size() const
 {
-  if (mType != Type::ValueArray && mType != Type::PairArray) {
-    std::stringstream error;
-    error << "Size expects a " << Type::ValueArray << " or " << Type::PairArray
-          << "type.";
-    LogAbort(error.str().c_str());
+  switch (mType) {
+  case Type::ValueArray: return mValueArray.Size();
+  case Type::PairArray: return mPairArray.Size();
   }
-  if (mType == Type::ValueArray) {
-    return mValueArray.Size();
-  }
-  return mPairArray.Size();
+  LogAbort("Only ValueArray and PairArray Values have a size.");
+  return 0;
 }
 
 int Value::TryGetPairIndex(const std::string& key) const
