@@ -6,7 +6,6 @@
 #include "gfx/Mesh.h"
 #include "gfx/Model.h"
 #include "gfx/Shader.h"
-#include "world/Mold.h"
 
 namespace Rsl {
 
