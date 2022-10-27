@@ -13,7 +13,7 @@ struct Converter<std::string>
 {
   static void Serialize(Value& val, const std::string& value)
   {
-    val.ExpectType(Value::Type::TrueValue);
+    val.EnsureType(Value::Type::TrueValue);
     val.mTrueValue = value;
   }
 
@@ -78,7 +78,7 @@ struct Converter<Rsl::ResId>
 {
   static void Serialize(Value& val, const ResId& value)
   {
-    val.ExpectType(Value::Type::TrueValue);
+    val.EnsureType(Value::Type::TrueValue);
     val.mTrueValue = value.mId;
   }
 

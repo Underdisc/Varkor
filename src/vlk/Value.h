@@ -48,6 +48,7 @@ public:
     ValueArray,
     PairArray,
   };
+  Value& EnsureType(Type type);
   Type GetType() const;
   size_t Size() const;
 
@@ -92,8 +93,7 @@ private:
   Value(Value::Type type);
 
   void Init(Type type);
-  void ExpectType(Type type);
-  void HardExpectType(Type type) const;
+  void ExpectType(Type type) const;
   void AddDimension(size_t size, bool leaf);
   bool BelowPackThreshold() const;
   bool ReachedThreshold(size_t& elementCount) const;
@@ -151,7 +151,7 @@ struct Converter
 {
   static void Serialize(Value& val, const T& value)
   {
-    val.ExpectType(Value::Type::TrueValue);
+    val.EnsureType(Value::Type::TrueValue);
     std::stringstream ss;
     ss << value;
     val.mTrueValue = ss.str();

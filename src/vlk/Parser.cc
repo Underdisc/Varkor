@@ -157,7 +157,7 @@ bool Parser::ParsePair()
   if (!Accept(Token::Type::Key)) {
     return false;
   }
-  mValueStack.Top()->HardExpectType(Value::Type::PairArray);
+  mValueStack.Top()->ExpectType(Value::Type::PairArray);
   mValueStack.Top()->mPairArray.Emplace();
   mValueStack.Push(&mValueStack.Top()->mPairArray.Top());
   const Token& keyToken = LastToken();

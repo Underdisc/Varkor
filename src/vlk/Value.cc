@@ -132,13 +132,16 @@ void Value::Init(Type type)
   }
 }
 
-void Value::ExpectType(Type type)
+Value& Value::EnsureType(Type type)
 {
   if (mType == Type::Invalid) {
     Init(type);
-    return;
   }
-  HardExpectType(type);
+  else if (mType != type) {
+    Clear();
+    Init(type);
+  }
+  return *this;
 }
 
 Value::Type Value::GetType() const
@@ -146,7 +149,7 @@ Value::Type Value::GetType() const
   return mType;
 }
 
-void Value::HardExpectType(Type type) const
+void Value::ExpectType(Type type) const
 {
   if (mType != type) {
     std::stringstream error;
@@ -157,7 +160,7 @@ void Value::HardExpectType(Type type) const
 
 void Value::AddDimension(size_t size, bool leaf)
 {
-  ExpectType(Type::ValueArray);
+  EnsureType(Type::ValueArray);
   if (mValueArray.Size() == 0) {
     if (leaf) {
       mValueArray.Resize(size);
@@ -309,7 +312,7 @@ Value* Value::TryGetValue(size_t index)
 
 Pair& Value::operator()(const std::string& key)
 {
-  ExpectType(Type::PairArray);
+  EnsureType(Type::PairArray);
   LogAbortIf(key.empty(), "Key cannot be an empty string.");
   Pair* pair = TryGetPair(key);
   if (pair == nullptr) {
@@ -321,13 +324,13 @@ Pair& Value::operator()(const std::string& key)
 
 Pair& Value::operator()(size_t index)
 {
-  HardExpectType(Type::PairArray);
+  ExpectType(Type::PairArray);
   return mPairArray[index];
 }
 
 void Value::TryRemovePair(const std::string& key)
 {
-  HardExpectType(Type::PairArray);
+  ExpectType(Type::PairArray);
   int pairIndex = TryGetPairIndex(key);
   if (pairIndex != smInvalidPairIndex) {
     mPairArray.Remove(pairIndex);
@@ -348,13 +351,13 @@ Value& Value::operator[](std::initializer_list<size_t> sizes)
 
 Value& Value::operator[](size_t index)
 {
-  HardExpectType(Type::ValueArray);
+  ExpectType(Type::ValueArray);
   return mValueArray[index];
 }
 
 const Value& Value::operator[](size_t index) const
 {
-  HardExpectType(Type::ValueArray);
+  ExpectType(Type::ValueArray);
   return mValueArray[index];
 }
 
@@ -367,13 +370,13 @@ void Value::PushValue(Value&& value)
 
 void Value::PopValue()
 {
-  HardExpectType(Type::ValueArray);
+  ExpectType(Type::ValueArray);
   mValueArray.Pop();
 }
 
 void Value::RemoveValue(size_t index)
 {
-  HardExpectType(Type::ValueArray);
+  ExpectType(Type::ValueArray);
   mValueArray.Remove(index);
 }
 
