@@ -205,6 +205,7 @@ Result Asset::InitRes(const Vlk::Explorer& resEx)
     result = TryInitRes<Gfx::Shader>(name, configEx);
     break;
   }
+  glFinish();
   if (!result.Success()) {
     const ResTypeData& resTypeData = Rsl::GetResTypeData(resTypeId);
     std::string error = "Resource \"" + resEx.Key() +
