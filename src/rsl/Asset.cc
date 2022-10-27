@@ -55,7 +55,7 @@ const std::string& Asset::GetName() const
 
 std::string Asset::GetFile() const
 {
-  return mName + ".a";
+  return mName + nAssetExtension;
 }
 
 bool Asset::HasFile() const
