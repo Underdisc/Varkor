@@ -94,7 +94,6 @@ void UndefFunc()
 
 int main()
 {
-  EnableLeakOutput();
   Error::Init();
   Viewport::Init("gfx_Shader", false);
   FailedIncludeBasic();
