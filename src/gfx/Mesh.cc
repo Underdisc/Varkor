@@ -92,7 +92,7 @@ Result Mesh::Init(const std::string& file, bool flipUvs)
   const aiScene* scene = importResult.mValue;
 
   if (scene->mNumMeshes != 1) {
-    return Result("File \"" + file + "\" contains more than one mesh.");
+    return Result("File \"" + file + "\" can only contain one mesh.");
   }
   Init(*scene->mMeshes[0]);
   return Result();
