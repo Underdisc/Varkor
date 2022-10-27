@@ -7,12 +7,10 @@
 #include "gfx/Shader.h"
 
 template<typename... Args>
-void PrintShaderInitResults(Args&&... args)
+void PrintShaderInitResults(const Ds::Vector<std::string>& files)
 {
-  Gfx::Shader::InitInfo info;
-  info.Prep(args...);
   Gfx::Shader shader;
-  Result result = shader.Init(info);
+  Result result = shader.Init(files);
   std::cout << "Success: " << result.Success() << std::endl;
   if (!result.Success()) {
     std::cout << result.mError << std::endl;
@@ -22,35 +20,50 @@ void PrintShaderInitResults(Args&&... args)
 void FailedIncludeBasic()
 {
   std::cout << "<= FailedIncludeBasic =>" << std::endl;
-  PrintShaderInitResults("res/Clean.glv", "res/FailedIncludeBasic.glf");
+  Ds::Vector<std::string> files;
+  files.Push("Clean.glv");
+  files.Push("FailedIncludeBasic.glf");
+  PrintShaderInitResults(files);
   std::cout << std::endl;
 }
 
 void FailedInclude()
 {
   std::cout << "<= FailedInclude =>" << std::endl;
-  PrintShaderInitResults("res/Clean.glv", "res/FailedInclude.glf");
+  Ds::Vector<std::string> files;
+  files.Push("Clean.glv");
+  files.Push("FailedInclude.glf");
+  PrintShaderInitResults(files);
   std::cout << std::endl;
 }
 
 void FailedIncludeSub()
 {
   std::cout << "<= FailedIncludeSubdirectory =>" << std::endl;
-  PrintShaderInitResults("res/Clean.glv", "res/FailedIncludeSubdirectory.glf");
+  Ds::Vector<std::string> files;
+  files.Push("Clean.glv");
+  files.Push("FailedIncludeSubdirectory.glf");
+  PrintShaderInitResults(files);
   std::cout << std::endl;
 }
 
 void IncludeGuard()
 {
   std::cout << "<= IncludeGuard =>\n";
-  PrintShaderInitResults("res/Clean.glv", "res/IncludeGuard.glf");
+  Ds::Vector<std::string> files;
+  files.Push("Clean.glv");
+  files.Push("IncludeGuard.glf");
+  PrintShaderInitResults(files);
   std::cout << std::endl;
 }
 
 void CompilerErrors()
 {
   std::cout << "<= CompilerErrors =>" << std::endl;
-  PrintShaderInitResults("res/Clean.glv", "res/CompilerErrors.glf");
+  Ds::Vector<std::string> files;
+  files.Push("Clean.glv");
+  files.Push("CompilerErrors.glf");
+  PrintShaderInitResults(files);
   std::cout << std::endl;
 }
 
@@ -60,23 +73,29 @@ void SingleSource()
   auto testSingleSource = [](const std::string& file)
   {
     std::cout << "=" << file << "=\n";
-    PrintShaderInitResults(file);
+    Ds::Vector<std::string> files;
+    files.Push(file);
+    PrintShaderInitResults(files);
   };
-  testSingleSource("res/SingleSource0.glvif");
-  testSingleSource("res/SingleSource1.glvfv");
-  testSingleSource("res/SingleSource2.glvf");
+  testSingleSource("SingleSource0.glvif");
+  testSingleSource("SingleSource1.glvfv");
+  testSingleSource("SingleSource2.glvf");
   std::cout << std::endl;
 }
 
 void UndefFunc()
 {
   std::cout << "<= UndefFunc =>\n";
-  PrintShaderInitResults("res/UndefFunc.glv", "res/Clean.glf");
+  Ds::Vector<std::string> files;
+  files.Push("UndefFunc.glv");
+  files.Push("Clean.glf");
+  PrintShaderInitResults(files);
 }
 
 int main()
 {
   EnableLeakOutput();
+  Error::Init();
   Viewport::Init("gfx_Shader", false);
   FailedIncludeBasic();
   FailedInclude();

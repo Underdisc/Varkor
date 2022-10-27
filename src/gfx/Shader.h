@@ -34,47 +34,10 @@ struct Uniform
 
 struct Shader
 {
-public:
-  struct InitInfo
-  {
-    Ds::Vector<std::string> mFiles;
-    void Prep(const std::string& file);
-    template<typename... Args>
-    void Prep(const std::string& file, Args&&... args);
-    void Serialize(Vlk::Value& val) const;
-    void Deserialize(const Vlk::Explorer& ex);
-  };
-  Result Init(const InitInfo& info);
-  void Finalize() {};
-  void Purge();
-
   Shader();
   Shader(Shader&& other);
   Shader& operator=(Shader&& other);
   ~Shader();
-
-  Result Init(const std::string& file);
-  Result Init(const std::string& vertexFile, const std::string& fragmentFile);
-  GLuint Id() const;
-  GLint UniformLocation(Uniform::Type type) const;
-  GLint UniformLocation(const char* name) const;
-  void Use() const;
-  void SetUniform(const char* name, float value) const;
-  void SetUniform(const char* name, int value) const;
-  void SetUniform(const char* name, const Vec3& value) const;
-  void SetUniform(const char* name, const Vec4& value) const;
-  void SetUniform(const char* name, const Mat4& value) const;
-
-private:
-  GLuint mId;
-  Ds::Vector<Uniform> mUniforms;
-
-  static bool smLogMissingUniforms;
-  static const char* smVersionHeader;
-  static constexpr GLint smInvalidLocation = -1;
-  static const char* smShaderTypeStrings[];
-  static const GLenum smShaderTypes[];
-  static const int smShaderTypeCount;
 
   // Tracks where a chunk of source code came from.
   struct SourceChunk
@@ -90,35 +53,60 @@ private:
     int mExcludedLines;
   };
 
-  // The information needed when compiling shader source code.
+  enum class SubType
+  {
+    Vertex,
+    Fragment,
+    Count,
+    Invalid,
+  };
+  constexpr static const char* smSubTypeStrings[] = {"vertex", "fragment"};
+  constexpr static GLenum smGlSubTypes[] = {
+    GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+  static SubType GetSubType(const std::string& subTypeString);
+
+  // The information needed to compile subshader source code.
   struct CompileInfo
   {
-    // The source code and the file it comes from.
     std::string mSource;
-    std::string mFile;
-    // The number of lines above the source code in the file.
-    int mExcludedLines;
-    GLenum mShaderType;
+    SubType mSubType;
+    // Chunks describing where each part of the source came from.
+    Ds::Vector<SourceChunk> mChunks;
+    int GetChunkIndex(int lineNumber) const;
   };
 
-  void InitializeUniforms();
-  ValueResult<std::string> GetFileContent(const std::string& filename);
-  int GetLineNumber(size_t until, const std::string& string);
-  int GetChunkIndex(int lineNumber, const Ds::Vector<SourceChunk>& chunks);
-  Result HandleIncludes(std::string* content, Ds::Vector<SourceChunk>* chunks);
-  Result Compile(CompileInfo* compileInfo, GLuint shaderId);
-  Result CreateProgram(Ds::Vector<CompileInfo>* allCompileInfo);
-  ValueResult<Ds::Vector<CompileInfo>> CollectCompileInfo(
-    const std::string& file);
-  Result CreateProgram(const Ds::Vector<std::string>& files);
-};
+  static void EditConfig(Vlk::Value* configValP);
+  Result Init(const Vlk::Explorer& configEx);
+  Result Init(const Ds::Vector<std::string>& files);
+  Result Init(const Ds::Vector<CompileInfo>& allCompileInfo);
 
-template<typename... Args>
-void Shader::InitInfo::Prep(const std::string& file, Args&&... args)
-{
-  mFiles.Push(file);
-  Prep(args...);
-}
+  GLuint Id() const;
+  GLint UniformLocation(Uniform::Type type) const;
+  GLint UniformLocation(const char* name) const;
+  void Use() const;
+  void SetUniform(const char* name, float value) const;
+  void SetUniform(const char* name, int value) const;
+  void SetUniform(const char* name, const Vec3& value) const;
+  void SetUniform(const char* name, const Vec4& value) const;
+  void SetUniform(const char* name, const Mat4& value) const;
+
+  constexpr static bool smLogMissingUniforms = false;
+  constexpr static GLint smInvalidLocation = -1;
+  constexpr static const char* smVersionHeader = "#version 330 core\n";
+
+private:
+  GLuint mId;
+  Ds::Vector<Uniform> mUniforms;
+
+  void InitializeUniforms();
+  Result CompileSubShader(const CompileInfo& compileInfo, GLuint subShaderId);
+  Result CreateProgram(const Ds::Vector<CompileInfo>& allCompileInfo);
+  int GetLineNumber(size_t until, const std::string& string);
+  ValueResult<std::string> GetFileContent(const std::string& filename);
+  Result HandleIncludes(Gfx::Shader::CompileInfo* compileInfo);
+  ValueResult<Ds::Vector<Gfx::Shader::CompileInfo>> CollectCompileInfo(
+    const std::string& file);
+};
 
 } // namespace Gfx
 
