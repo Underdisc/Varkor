@@ -70,7 +70,7 @@ public:
   const Value& operator[](size_t index) const;
   template<typename T>
   void PushValue(const T& value);
-  void PushValue(Value&& value);
+  void PushValue();
   void PopValue();
   void RemoveValue(size_t index);
 
@@ -115,8 +115,7 @@ private:
 template<typename T>
 void Value::PushValue(const T& value)
 {
-  ExpectType(Type::ValueArray);
-  mValueArray.Emplace();
+  PushValue();
   mValueArray.Top() = value;
 }
 

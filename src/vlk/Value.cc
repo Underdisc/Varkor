@@ -357,11 +357,10 @@ const Value& Value::operator[](size_t index) const
   return mValueArray[index];
 }
 
-void Value::PushValue(Value&& value)
+void Value::PushValue()
 {
-  ExpectType(Type::ValueArray);
+  EnsureType(Type::ValueArray);
   mValueArray.Emplace();
-  mValueArray.Top() = std::move(value);
 }
 
 void Value::PopValue()
