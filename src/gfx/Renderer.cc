@@ -313,6 +313,56 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   glBindBuffer(buffer, 0);
 }
 
+void InitializeShadowUniformBuffer(
+  const World::Space& space, Renderable::Collection* collection)
+{
+  // Determine whether the shadow exists.
+  GLenum buffer = GL_UNIFORM_BUFFER;
+  glBindBuffer(buffer, nShadowUniformBufferVbo);
+  Ds::Vector<World::MemberId> slice = space.Slice<Comp::ShadowMap>();
+  bool shadowExists = slice.Size() == 0 ? false : true;
+  glBufferSubData(buffer, 0, sizeof(GLuint), &shadowExists);
+  if (!shadowExists) {
+    glBindBuffer(buffer, 0);
+    return;
+  }
+
+  // Set the shadow bias and proj view matrix.
+  Comp::ShadowMap& shadowMap = space.Get<Comp::ShadowMap>(slice[0]);
+  glBufferSubData(buffer, 4, sizeof(GLfloat), &shadowMap.mBias);
+
+  Comp::Transform& transform = space.Get<Comp::Transform>(slice[0]);
+  Comp::Camera& camera = space.Get<Comp::Camera>(slice[0]);
+  World::Object owner(const_cast<World::Space*>(&space), slice[0]);
+  Mat4 view = transform.GetInverseWorldMatrix(owner);
+  Mat4 proj = camera.Proj();
+  Mat4 projView = proj * view;
+  Mat4 projViewTranspose = Math::Transpose(projView);
+  glBufferSubData(buffer, 16, sizeof(Mat4), projViewTranspose.mD);
+  glBindBuffer(buffer, 0);
+
+  // Render the depth of all renderables to the shadow texture and add that
+  // texture to the collection uniforms.
+  glViewport(0, 0, shadowMap.mWidth, shadowMap.mHeight);
+  glBindFramebuffer(GL_FRAMEBUFFER, shadowMap.mFbo);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  Gfx::Shader& depthShader = Rsl::GetRes<Shader>(nDepthShaderId);
+  depthShader.Use();
+  depthShader.SetUniform("uProjView", projView);
+  const Ds::Vector<Renderable>& renderables =
+    collection->Get(Renderable::Type::Floater);
+  for (const Renderable& renderable : renderables) {
+    const Mesh* mesh = Rsl::TryGetRes<Mesh>(renderable.mMeshId);
+    if (mesh == nullptr) {
+      continue;
+    }
+    depthShader.SetUniform("uModel", renderable.mTransform);
+    mesh->Render();
+  }
+  collection->mUniforms.Add<GLuint>(
+    UniformTypeId::Texture2d, "uShadowTexture", shadowMap.mTbo);
+}
+
 void RenderMemberIds(
   const World::Space& space, const Mat4& view, const Mat4& proj)
 {
@@ -366,56 +416,6 @@ World::MemberId HoveredMemberId(
   return memberId;
 }
 
-void InitializeShadowsUniforms(
-  const World::Space& space, Renderable::Collection* collection)
-{
-  // Determine whether the shadow exists.
-  GLenum buffer = GL_UNIFORM_BUFFER;
-  glBindBuffer(buffer, nShadowUniformBufferVbo);
-  Ds::Vector<World::MemberId> slice = space.Slice<Comp::ShadowMap>();
-  bool shadowExists = slice.Size() == 0 ? false : true;
-  glBufferSubData(buffer, 0, sizeof(GLuint), &shadowExists);
-  if (!shadowExists) {
-    glBindBuffer(buffer, 0);
-    return;
-  }
-
-  // Set the shadow bias and proj view matrix.
-  Comp::ShadowMap& shadowMap = space.Get<Comp::ShadowMap>(slice[0]);
-  glBufferSubData(buffer, 4, sizeof(GLfloat), &shadowMap.mBias);
-
-  Comp::Transform& transform = space.Get<Comp::Transform>(slice[0]);
-  Comp::Camera& camera = space.Get<Comp::Camera>(slice[0]);
-  World::Object owner(const_cast<World::Space*>(&space), slice[0]);
-  Mat4 view = transform.GetInverseWorldMatrix(owner);
-  Mat4 proj = camera.Proj();
-  Mat4 projView = proj * view;
-  Mat4 projViewTranspose = Math::Transpose(projView);
-  glBufferSubData(buffer, 16, sizeof(Mat4), projViewTranspose.mD);
-  glBindBuffer(buffer, 0);
-
-  // Render the depth of all renderables to the shadow texture and add that
-  // texture to the collection uniforms.
-  glViewport(0, 0, shadowMap.mWidth, shadowMap.mHeight);
-  glBindFramebuffer(GL_FRAMEBUFFER, shadowMap.mFbo);
-  glClear(GL_DEPTH_BUFFER_BIT);
-  Gfx::Shader& depthShader = Rsl::GetRes<Shader>(nDepthShaderId);
-  depthShader.Use();
-  depthShader.SetUniform("uProjView", projView);
-  const Ds::Vector<Renderable>& renderables =
-    collection->Get(Renderable::Type::Floater);
-  for (const Renderable& renderable : renderables) {
-    const Mesh* mesh = Rsl::TryGetRes<Mesh>(renderable.mMeshId);
-    if (mesh == nullptr) {
-      continue;
-    }
-    depthShader.SetUniform("uModel", renderable.mTransform);
-    mesh->Render();
-  }
-  collection->mUniforms.Add<GLuint>(
-    UniformTypeId::Texture2d, "uShadowTexture", shadowMap.mTbo);
-}
-
 void RenderSpace(
   const World::Space& space,
   const Mat4& view,
@@ -437,7 +437,7 @@ void RenderSpace(
 
   InitializeUniversalUniformBuffer(view, proj, viewPos);
   InitializeLightsUniformBuffer(space);
-  InitializeShadowsUniforms(space, &collection);
+  InitializeShadowUniformBuffer(space, &collection);
 
   // Get the next space framebuffer that hasn't been rendered to and bind it.
   if (nCurrentSpaceFramebufferIndex >= nSpaceFramebuffers.Size()) {
