@@ -1,6 +1,8 @@
 #ifndef vlk_Extensions_h
 #define vlk_Extensions_h
 
+#include <string>
+
 #include "gfx/HdrColor.h"
 #include "math/Vector.h"
 #include "rsl/ResourceId.h"
@@ -38,14 +40,16 @@ struct Converter<Math::Vector<T, N>>
     }
   }
 
-  static bool Deserialize(const Explorer& ex, Math::Vector<T, N>* value)
+  static bool Deserialize(const Value& val, Math::Vector<T, N>* value)
   {
     for (int i = 0; i < N; ++i) {
-      Explorer element = ex[i];
-      if (!element.Valid()) {
+      const Value* element = val.TryGetConstValue(i);
+      if (element == nullptr) {
         return false;
       }
-      (*value)[i] = element.As<T>();
+      if (!Converter<T>::Deserialize(*element, value->mD + i)) {
+        return false;
+      }
     }
     return true;
   }
@@ -60,16 +64,15 @@ struct Converter<Gfx::HdrColor>
     val("Intensity") = value.mIntensity;
   }
 
-  static bool Deserialize(const Explorer& ex, Gfx::HdrColor* value)
+  static bool Deserialize(const Value& val, Gfx::HdrColor* value)
   {
-    Explorer colorEx = ex("Color");
-    Explorer intensityEx = ex("Intensity");
-    if (!colorEx.Valid() || !intensityEx.Valid()) {
+    const Value* colorVal = val.TryGetConstPair("Color");
+    const Value* intensityVal = val.TryGetConstPair("Intensity");
+    if (colorVal == nullptr || intensityVal == nullptr) {
       return false;
     }
-    value->mColor = colorEx.As<Vec3>();
-    value->mIntensity = intensityEx.As<float>();
-    return true;
+    return Converter<Vec3>::Deserialize(*colorVal, &value->mColor) &&
+      Converter<float>::Deserialize(*intensityVal, &value->mIntensity);
   }
 };
 
