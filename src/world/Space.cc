@@ -508,7 +508,7 @@ void Space::Serialize(Vlk::Value& spaceVal) const
   }
 }
 
-void Space::Deserialize(const Vlk::Explorer& spaceEx)
+Result Space::Deserialize(const Vlk::Explorer& spaceEx)
 {
   for (size_t i = 0; i < spaceEx.Size(); ++i) {
     // Ensure that the current member is valid.
@@ -536,9 +536,9 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
       Vlk::Explorer componentEx = componentsEx(i);
       Comp::TypeId typeId = Comp::GetTypeId(componentEx.Key());
       if (typeId == Comp::nInvalidTypeId) {
-        std::stringstream error;
-        error << "There is no component named " << componentEx.Key() << ".";
-        LogAbort(error.str().c_str());
+        return Result(
+          "Component type \"" + componentEx.Key() + "\" at " +
+          componentEx.Path() + " isn't a valid type.");
       }
       void* component = TryGetComponent(typeId, memberId);
       if (component == nullptr) {
@@ -554,6 +554,7 @@ void Space::Deserialize(const Vlk::Explorer& spaceEx)
       }
     }
   }
+  return Result();
 }
 
 bool Space::ValidMemberId(MemberId memberId) const

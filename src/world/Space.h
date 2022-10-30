@@ -113,7 +113,7 @@ struct Space
   const Ds::Vector<ComponentDescriptor> DescriptorBin() const;
 
   void Serialize(Vlk::Value& spaceVal) const;
-  void Deserialize(const Vlk::Explorer& spaceEx);
+  Result Deserialize(const Vlk::Explorer& spaceEx);
 
 private:
   Ds::Map<Comp::TypeId, Table> mTables;
