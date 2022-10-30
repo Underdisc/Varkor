@@ -36,6 +36,7 @@ Shader::Shader(Shader&& other)
 Shader& Shader::operator=(Shader&& other)
 {
   mId = other.mId;
+  mUniforms = std::move(other.mUniforms);
   other.mId = 0;
   return *this;
 }
