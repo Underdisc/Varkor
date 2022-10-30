@@ -3,6 +3,7 @@
 
 #include "Result.h"
 #include "ds/List.h"
+#include "rsl/ResourceId.h"
 #include "world/Space.h"
 #include "world/Types.h"
 
@@ -15,6 +16,7 @@ struct Layer
 
   std::string mName;
   MemberId mCameraId;
+  ResId mPostMaterialId;
   Space mSpace;
 };
 

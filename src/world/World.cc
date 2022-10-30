@@ -1,6 +1,7 @@
 #include <sstream>
 #include <utility>
 
+#include "gfx/Renderer.h"
 #include "vlk/Valkor.h"
 #include "world/World.h"
 
@@ -67,6 +68,9 @@ ValueResult<LayerIt> LoadLayer(const char* filename)
   Layer& newLayer = *nLayers.Back();
   newLayer.mName = metadataEx("Name").As<std::string>("DefaultName");
   newLayer.mCameraId = metadataEx("CameraId").As<MemberId>(nInvalidMemberId);
+  Vlk::Explorer postMaterialEx = metadataEx("PostMaterialId");
+  newLayer.mPostMaterialId =
+    postMaterialEx.As<ResId>(Gfx::Renderer::nDefaultPostMaterialId);
   Vlk::Explorer spaceEx = rootEx("Space");
   if (!spaceEx.Valid()) {
     std::stringstream error;
