@@ -45,7 +45,7 @@ BindableTypeFunction(Init, void, const World::Object&);
 BindableTypeFunction(Update, void, const World::Object&);
 BindableTypeFunction(Serialize, void, Vlk::Value&);
 BindableTypeFunction(Deserialize, void, const Vlk::Explorer&);
-BindableTypeFunction(Render, void, const World::Object&);
+BindableTypeFunction(Renderable, void, const World::Object&);
 BindableTypeFunction(Edit, void, const World::Object&);
 
 template<typename T>
@@ -72,7 +72,7 @@ void Type<T>::Register()
   BindVUpdate<T>(&data.mVUpdate);
   BindVSerialize<T>(&data.mVSerialize);
   BindVDeserialize<T>(&data.mVDeserialize);
-  BindVRender<T>(&data.mVRender);
+  BindVRenderable<T>(&data.mVRenderable);
   BindVEdit<T>(&data.mVEdit);
   nTypeData.Push(data);
 
