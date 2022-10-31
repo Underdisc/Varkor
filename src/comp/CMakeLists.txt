@@ -1,9 +1,8 @@
 target_sources(varkor PRIVATE
   AlphaColor.cc
   Camera.cc
-  DefaultPostProcess.cc
   DirectionalLight.cc
-  ExposurePostProcess.cc
+  Mesh.cc
   Model.cc
   PointLight.cc
   ShadowMap.cc
