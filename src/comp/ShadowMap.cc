@@ -5,6 +5,7 @@
 #include "comp/ShadowMap.h"
 #include "comp/Sprite.h"
 #include "comp/Transform.h"
+#include "editor/Utility.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
 
@@ -40,6 +41,7 @@ void ShadowMap::VDeserialize(const Vlk::Explorer& ex)
 
 void ShadowMap::VEdit(const World::Object& owner)
 {
+  ImGui::PushItemWidth(-Editor::CalcBufferWidth("Height"));
   ImGui::SliderFloat("Bias", &mBias, -0.1f, 0.1f);
   int newWidth = (int)mWidth;
   ImGui::DragInt(
@@ -53,6 +55,7 @@ void ShadowMap::VEdit(const World::Object& owner)
     DeleteFramebuffer();
     CreateFramebuffer();
   }
+  ImGui::PopItemWidth();
 }
 
 Mat4 ShadowMap::ProjView(const World::Object& owner) const
