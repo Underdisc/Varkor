@@ -3,9 +3,9 @@
 in vec3 iTextureCoords;
 out vec4 iFinalColor;
 
-uniform samplerCube uSkyboxSampler;
+uniform samplerCube uCubemap;
 
 void main()
 {
-  iFinalColor = texture(uSkyboxSampler, iTextureCoords);
+  iFinalColor = texture(uCubemap, iTextureCoords);
 }
