@@ -53,7 +53,7 @@ void Sprite::VRenderable(const World::Object& owner)
 void Sprite::VEdit(const World::Object& owner)
 {
   Editor::DropResourceWidget<Gfx::Material>(&mMaterialId);
-  Editor::DropResourceWidget<Gfx::Image>(&mScalorImageId);
+  Editor::DropResourceWidget<Gfx::Image>(&mScalorImageId, "Scalor");
 }
 
 Mat4 Sprite::GetAspectScale()
