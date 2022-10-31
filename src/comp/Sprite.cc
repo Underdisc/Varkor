@@ -1,83 +1,72 @@
 #include "comp/Sprite.h"
-#include "comp/AlphaColor.h"
 #include "comp/Transform.h"
 #include "editor/AssetInterfaces.h"
 #include "gfx/Image.h"
+#include "gfx/Material.h"
 #include "gfx/Renderer.h"
-#include "gfx/Shader.h"
+#include "rsl/Library.h"
 
 namespace Comp {
 
+const ResId Sprite::smDefaultMaterialId(smDefaultAssetName, "Material");
+
+void Sprite::VStaticInit()
+{
+  Rsl::Asset& asset = Rsl::GetAsset(smDefaultAssetName);
+  asset.InitFinalize();
+}
+
 void Sprite::VInit(const World::Object& owner)
 {
-  mImageId = AssLib::nDefaultAssetId;
-  mShaderId = AssLib::nDefaultAssetId;
+  mMaterialId = smDefaultMaterialId;
+  mScalorImageId = Rsl::GetDefaultResId<Gfx::Image>();
 }
 
 void Sprite::VSerialize(Vlk::Value& spriteVal)
 {
-  spriteVal("ImageId") = mImageId;
-  spriteVal("ShaderId") = mShaderId;
+  spriteVal("MaterialId") = mMaterialId;
+  spriteVal("ScalorImageId") = mScalorImageId;
 }
 
 void Sprite::VDeserialize(const Vlk::Explorer& spriteEx)
 {
-  mImageId = spriteEx("ImageId").As<AssetId>(AssLib::nDefaultAssetId);
-  mShaderId = spriteEx("ShaderId").As<AssetId>(AssLib::nDefaultAssetId);
+  mMaterialId = spriteEx("MaterialId").As<ResId>(smDefaultMaterialId);
+  mScalorImageId =
+    spriteEx("ScalorImageId").As<ResId>(Rsl::GetDefaultResId<Gfx::Image>());
 }
 
-void Sprite::VRender(const World::Object& owner)
+void Sprite::VRenderable(const World::Object& owner)
 {
-  const Gfx::Shader* shader =
-    AssLib::TryGetLive<Gfx::Shader>(mShaderId, AssLib::nDefaultSpriteShaderId);
-  if (shader == nullptr) {
-    return;
-  }
+  auto& transform = owner.Get<Comp::Transform>();
+  Mat4 aspectScale = GetAspectScale();
+  Mat4 transformation = transform.GetWorldMatrix(owner);
 
-  RenderOptions options;
-  options.mShader = shader;
-  Render(owner, options);
+  Gfx::Renderable renderable;
+  renderable.mOwner = owner.mMemberId;
+  renderable.mTransform = transformation * aspectScale;
+  renderable.mMaterialId = mMaterialId;
+  renderable.mMeshId = Gfx::Renderer::nSpriteMeshId;
+  Gfx::Renderable::Collection::Add(
+    Gfx::Renderable::Type::Floater, std::move(renderable));
 }
 
 void Sprite::VEdit(const World::Object& owner)
 {
-  Editor::DropAssetWidget<Gfx::Image>(&mImageId);
-  Editor::DropAssetWidget<Gfx::Shader>(&mShaderId);
+  Editor::DropResourceWidget<Gfx::Material>(&mMaterialId);
+  Editor::DropResourceWidget<Gfx::Image>(&mScalorImageId);
 }
 
-void Sprite::Render(
-  const World::Object& owner, const RenderOptions& options) const
+Mat4 Sprite::GetAspectScale()
 {
-  const Gfx::Image* image = AssLib::TryGetLive<Gfx::Image>(mImageId);
-  if (image == nullptr) {
-    return;
-  }
-
-  const Gfx::Shader& shader = *options.mShader;
-  GLint modelLoc = shader.UniformLocation(Gfx::Uniform::Type::Model);
-  GLint samplerLoc = shader.UniformLocation(Gfx::Uniform::Type::Sampler);
-
-  glUseProgram(shader.Id());
-  glUniform1i(samplerLoc, 0);
-
-  auto& transform = owner.Get<Comp::Transform>();
+  auto* scalorImage = Rsl::TryGetRes<Gfx::Image>(mScalorImageId);
   Mat4 aspectScale;
-  Math::Scale(&aspectScale, {image->Aspect(), 1.0f, 1.0f});
-  Mat4 transformation = transform.GetWorldMatrix(owner) * aspectScale;
-  glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
-
-  auto* alphaColorComp = owner.TryGet<Comp::AlphaColor>();
-  if (alphaColorComp != nullptr) {
-    GLint alphaColorLoc =
-      shader.UniformLocation(Gfx::Uniform::Type::AlphaColor);
-    glUniform4fv(alphaColorLoc, 1, alphaColorComp->mColor.CData());
+  if (scalorImage == nullptr) {
+    Math::Identity(&aspectScale);
+    return aspectScale;
   }
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, image->Id());
-  Gfx::Renderer::PrepShadowState(*owner.mSpace, shader, 1, 1);
-  Gfx::Renderer::RenderQuad(Gfx::Renderer::nSpriteVao);
-  Gfx::Renderer::UnbindTextures(0, 2);
+  Vec3 scale = {scalorImage->Aspect(), 1.0f, 1.0f};
+  Math::Scale(&aspectScale, scale);
+  return aspectScale;
 }
 
 } // namespace Comp
