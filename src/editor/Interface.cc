@@ -31,9 +31,15 @@ void Interface::HandleInterfaces()
     mInterfaces.Remove(closed);
   }
 
-  // Insert all of the StagedInterfaces.
+  // Insert the staged interfaces that are still open.
   for (const StagedInterface& staged : mStagedInterfaces) {
-    mInterfaces.Insert(staged.mName, staged.mInterface);
+    if (staged.mInterface->mOpen) {
+      mInterfaces.Insert(staged.mName, staged.mInterface);
+    }
+    else {
+      staged.mInterface->PurgeInterfaces();
+      delete staged.mInterface;
+    }
   }
   mStagedInterfaces.Clear();
 
