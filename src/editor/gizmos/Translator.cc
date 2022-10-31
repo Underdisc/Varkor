@@ -1,14 +1,16 @@
 #include "editor/gizmos/Translator.h"
 #include "Input.h"
-#include "comp/AlphaColor.h"
-#include "comp/Model.h"
+#include "comp/Mesh.h"
 #include "comp/Transform.h"
 #include "editor/Editor.h"
 #include "editor/gizmos/Gizmos.h"
+#include "gfx/Material.h"
 #include "gfx/Renderer.h"
 #include "math/Constants.h"
+#include "rsl/Library.h"
 
-namespace Editor::Gizmos {
+namespace Editor {
+namespace Gizmos {
 
 Vec3 Translate(
   const Vec3& translation,
@@ -22,71 +24,77 @@ Vec3 Translate(
 
 Translator::Translator(): mOperation(Operation::None)
 {
-  // Create all of the handles.
+  const char* handleNames[] = {"X", "Y", "Z", "Xy", "Xz", "Yz", "Xyz"};
+  Rsl::Asset& translatorAsset = Rsl::CreateAsset(smTranslatorAssetName);
+
+  // Create all of the handles and handle materials.
   mParent = nSpace.CreateMember();
   nSpace.AddComponent<Comp::Transform>(mParent);
   for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = nSpace.CreateChildMember(mParent);
-    Comp::AlphaColor& alphaColorComp =
-      nSpace.AddComponent<Comp::AlphaColor>(mHandles[i]);
-    alphaColorComp.mColor = smHandleColors[i];
+    mHandleMaterialIds[i].Init(smTranslatorAssetName, handleNames[i]);
+    Gfx::Material& material =
+      translatorAsset.InitRes<Gfx::Material>(handleNames[i], nColorShaderId);
+    material.mUniforms.Add<Vec4>("uColor") = smHandleColors[i];
   }
+  translatorAsset.Finalize();
 
   Comp::Transform& xT = nSpace.AddComponent<Comp::Transform>(mX);
   xT.SetTranslation({0.5f, 0.0f, 0.0f});
-  Comp::Model& xM = nSpace.AddComponent<Comp::Model>(mX);
-  xM.mModelId = AssLib::nArrowModelId;
-  xM.mShaderId = AssLib::nColorShaderId;
+  auto& xMesh = nSpace.AddComponent<Comp::Mesh>(mX);
+  xMesh.mMeshId = nArrowMeshId;
+  xMesh.mMaterialId = mHandleMaterialIds[(int)Operation::X];
 
   Comp::Transform& yT = nSpace.AddComponent<Comp::Transform>(mY);
   yT.SetTranslation({0.0f, 0.5f, 0.0f});
   Math::Quaternion yRotation;
   yRotation.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
   yT.SetRotation(yRotation);
-  Comp::Model& yM = nSpace.AddComponent<Comp::Model>(mY);
-  yM.mModelId = AssLib::nArrowModelId;
-  yM.mShaderId = AssLib::nColorShaderId;
+  auto& yMesh = nSpace.AddComponent<Comp::Mesh>(mY);
+  yMesh.mMeshId = nArrowMeshId;
+  yMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Y];
 
   Comp::Transform& zT = nSpace.AddComponent<Comp::Transform>(mZ);
   zT.SetTranslation({0.0f, 0.0f, 0.5f});
   Math::Quaternion zRotation;
   zRotation.AngleAxis(-Math::nPi / 2.0f, {0.0f, 1.0f, 0.0f});
   zT.SetRotation(zRotation);
-  Comp::Model& zM = nSpace.AddComponent<Comp::Model>(mZ);
-  zM.mModelId = AssLib::nArrowModelId;
-  zM.mShaderId = AssLib::nColorShaderId;
+  auto& zMesh = nSpace.AddComponent<Comp::Mesh>(mZ);
+  zMesh.mMeshId = nArrowMeshId;
+  zMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Z];
 
   Comp::Transform& xyT = nSpace.AddComponent<Comp::Transform>(mXy);
   xyT.SetTranslation({0.5f, 0.5f, 0.0f});
   xyT.SetScale({0.15f, 0.15f, 0.01f});
-  Comp::Model& xyM = nSpace.AddComponent<Comp::Model>(mXy);
-  xyM.mModelId = AssLib::nCubeModelId;
-  xyM.mShaderId = AssLib::nColorShaderId;
+  auto& xyMesh = nSpace.AddComponent<Comp::Mesh>(mXy);
+  xyMesh.mMeshId = nCubeMeshId;
+  xyMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Xy];
 
   Comp::Transform& xzT = nSpace.AddComponent<Comp::Transform>(mXz);
   xzT.SetTranslation({0.5f, 0.0f, 0.5f});
   xzT.SetScale({0.15f, 0.01f, 0.15f});
-  Comp::Model& xzM = nSpace.AddComponent<Comp::Model>(mXz);
-  xzM.mModelId = AssLib::nCubeModelId;
-  xzM.mShaderId = AssLib::nColorShaderId;
+  auto& xzMesh = nSpace.AddComponent<Comp::Mesh>(mXz);
+  xzMesh.mMeshId = nCubeMeshId;
+  xzMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Xz];
 
   Comp::Transform& yzT = nSpace.AddComponent<Comp::Transform>(mYz);
   yzT.SetTranslation({0.0f, 0.5f, 0.5f});
   yzT.SetScale({0.01f, 0.15f, 0.15f});
-  Comp::Model& yzM = nSpace.AddComponent<Comp::Model>(mYz);
-  yzM.mModelId = AssLib::nCubeModelId;
-  yzM.mShaderId = AssLib::nColorShaderId;
+  auto& yzMesh = nSpace.AddComponent<Comp::Mesh>(mYz);
+  yzMesh.mMeshId = nCubeMeshId;
+  yzMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Yz];
 
   Comp::Transform& xyzT = nSpace.AddComponent<Comp::Transform>(mXyz);
-  xyzT.SetUniformScale(0.15f);
-  Comp::Model& xyzM = nSpace.AddComponent<Comp::Model>(mXyz);
-  xyzM.mModelId = AssLib::nSphereModelId;
-  xyzM.mShaderId = AssLib::nColorShaderId;
+  xyzT.SetUniformScale(0.13f);
+  auto& xyzMesh = nSpace.AddComponent<Comp::Mesh>(mXyz);
+  xyzMesh.mMeshId = nCubeMeshId;
+  xyzMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Xyz];
 }
 
 Translator::~Translator()
 {
   nSpace.DeleteMember(mParent);
+  Rsl::RemoveAsset(smTranslatorAssetName);
 }
 
 void Translator::SetNextOperation(
@@ -154,9 +162,9 @@ Vec3 Translator::Run(
 
   // Handle any switching between operations.
   if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
-    Comp::AlphaColor& colorComp =
-      nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
-    colorComp.mColor = smHandleColors[(int)mOperation];
+    auto& material =
+      Rsl::GetRes<Gfx::Material>(mHandleMaterialIds[(int)mOperation]);
+    material.mUniforms.Get<Vec4>("uColor") = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return translation;
   }
@@ -166,9 +174,9 @@ Vec3 Translator::Run(
       return translation;
     }
     Editor::nSuppressObjectPicking |= true;
-    Comp::AlphaColor& colorComp =
-      nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
-    colorComp.mColor = smActiveColor;
+    auto& material =
+      Rsl::GetRes<Gfx::Material>(mHandleMaterialIds[(int)mOperation]);
+    material.mUniforms.Get<Vec4>("uColor") = smActiveColor;
     return translation;
   }
 
@@ -222,4 +230,5 @@ Vec3 Translator::Run(
   return translation;
 }
 
-} // namespace Editor::Gizmos
+} // namespace Gizmos
+} // namespace Editor

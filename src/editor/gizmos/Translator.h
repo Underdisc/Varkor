@@ -3,9 +3,11 @@
 
 #include "math/Geometry.h"
 #include "math/Quaternion.h"
+#include "rsl/ResourceId.h"
 #include "world/Types.h"
 
-namespace Editor::Gizmos {
+namespace Editor {
+namespace Gizmos {
 
 Vec3 Translate(
   const Vec3& translation,
@@ -24,6 +26,7 @@ struct Translator
     bool snapping,
     float snapInterval);
 
+  constexpr static const char* smTranslatorAssetName = "vres/translator";
   constexpr static int smHandleCount = 7;
   constexpr static Vec4 smActiveColor = {1.0f, 1.0f, 1.0f, 1.0f};
   constexpr static Vec4 smHandleColors[] = {
@@ -47,19 +50,19 @@ struct Translator
     None = 7,
   };
 
+  World::MemberId mParent;
   union
   {
     struct
     {
-      World::MemberId mParent;
       World::MemberId mX, mY, mZ, mXy, mXz, mYz, mXyz;
     };
     struct
     {
-      World::MemberId mParent;
       World::MemberId mHandles[smHandleCount];
     };
   };
+  ResId mHandleMaterialIds[smHandleCount];
   Operation mOperation;
   // The vector between the translator's center and the mouse ray's closest
   // point to the translation ray or the mouse ray's intersection with the
@@ -71,6 +74,7 @@ struct Translator
   Math::Plane mTranslationPlane;
 };
 
-} // namespace Editor::Gizmos
+} // namespace Gizmos
+} // namespace Editor
 
 #endif

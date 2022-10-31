@@ -3,8 +3,24 @@
 #include "editor/gizmos/Rotator.h"
 #include "editor/gizmos/Scalor.h"
 #include "editor/gizmos/Translator.h"
+#include "rsl/Library.h"
 
-namespace Editor::Gizmos {
+namespace Editor {
+namespace Gizmos {
+
+const char* nGizmoAssetName = "vres/gizmo";
+ResId nArrowMeshId(nGizmoAssetName, "Arrow");
+ResId nCubeMeshId(nGizmoAssetName, "Cube");
+ResId nScaleMeshId(nGizmoAssetName, "Scale");
+ResId nSphereMeshId(nGizmoAssetName, "Sphere");
+ResId nTorusMeshId(nGizmoAssetName, "Torus");
+ResId nColorShaderId(nGizmoAssetName, "ColorShader");
+
+void Init()
+{
+  Rsl::Asset& gizmoAsset = Rsl::GetAsset(nGizmoAssetName);
+  gizmoAsset.InitFinalize();
+}
 
 void PurgeUnneeded()
 {
@@ -40,4 +56,5 @@ void SetParentTransformation(
   parentTransform.SetRotation(referenceFrame);
 }
 
-} // namespace Editor::Gizmos
+} // namespace Gizmos
+} // namespace Editor
