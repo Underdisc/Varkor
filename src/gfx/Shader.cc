@@ -103,8 +103,8 @@ void Shader::EditConfig(Vlk::Value* configValP)
     // A text box that files can be typed into.
     ImGui::TableNextColumn();
     Vlk::Value& fileVal = filesVal[i];
-    std::string file = filesVal[i].As<std::string>();
-    ImGui::PushID(&fileVal[i]);
+    std::string file = fileVal.As<std::string>("");
+    ImGui::PushID(&fileVal);
     // todo: drag and drop.
     Editor::InputText("File", &file);
     ImGui::PopID();
