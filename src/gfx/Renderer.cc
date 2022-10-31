@@ -467,8 +467,9 @@ void RenderSpace(
   glBindTexture(GL_TEXTURE_2D, currentLayerFramebuffer.ColorTbo());
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   auto& fullscreenMesh = Rsl::GetRes<Gfx::Mesh>(nFullscreenMeshId);
-  int textureIndex = 1;
   postShader->Use();
+  postShader->SetUniform("uTexture", 0);
+  int textureIndex = 1;
   postMaterial->mUniforms.Bind(*postShader, &textureIndex);
   fullscreenMesh.Render();
   glBindTexture(GL_TEXTURE_2D, 0);
