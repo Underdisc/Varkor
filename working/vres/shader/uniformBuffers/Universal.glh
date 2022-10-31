@@ -4,4 +4,4 @@ layout(std140) uniform Universal
   mat4 uProj; // 64
   vec3 uViewPos; // 128
   float uTotalTime; // 140
-}; // 148
+}; // 144
