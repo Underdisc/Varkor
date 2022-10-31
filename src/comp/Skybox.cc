@@ -1,55 +1,49 @@
 #include "comp/Skybox.h"
 #include "editor/AssetInterfaces.h"
 #include "gfx/Cubemap.h"
+#include "gfx/Material.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
 
 namespace Comp {
 
+const ResId Skybox::smDefaultMaterialId(Skybox::smDefaultAssetName, "Material");
+
+void Skybox::VStaticInit()
+{
+  Rsl::Asset& defaultAsset = Rsl::GetAsset(smDefaultAssetName);
+  defaultAsset.InitFinalize();
+}
+
 void Skybox::VInit(const World::Object& owner)
 {
-  mCubemapId = AssLib::nDefaultAssetId;
-  mShaderId = AssLib::nDefaultSkyboxShaderId;
+  mMaterialId = smDefaultMaterialId;
 }
 
 void Skybox::VSerialize(Vlk::Value& val)
 {
-  val("CubemapId") = mCubemapId;
-  val("ShaderId") = mShaderId;
+  val("MaterialId") = mMaterialId;
 }
 
 void Skybox::VDeserialize(const Vlk::Explorer& ex)
 {
-  mCubemapId = ex("CubemapId").As<AssetId>(AssLib::nDefaultAssetId);
-  mShaderId = ex("ShaderId").As<AssetId>(AssLib::nDefaultSkyboxShaderId);
+  mMaterialId = ex("MaterialId").As<ResId>(smDefaultMaterialId);
 }
 
-void Skybox::VRender(const World::Object& owner)
+void Skybox::VRenderable(const World::Object& owner)
 {
-  const Gfx::Cubemap* cubemap = AssLib::TryGetLive<Gfx::Cubemap>(mCubemapId);
-  const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(mShaderId);
-  if (cubemap == nullptr || shader == nullptr) {
-    return;
-  }
-
-  GLint skyboxSamplerLoc =
-    shader->UniformLocation(Gfx::Uniform::Type::SkyboxSampler);
-  glUseProgram(shader->Id());
-  glUniform1i(skyboxSamplerLoc, 0);
-
-  glBindVertexArray(Gfx::Renderer::nSkyboxVao);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->Id());
-  glDepthMask(GL_FALSE);
-  glDrawElements(
-    GL_TRIANGLES, Gfx::Renderer::nSkyboxElementCount, GL_UNSIGNED_INT, 0);
-  glDepthMask(GL_TRUE);
-  glBindVertexArray(0);
+  Gfx::Renderable renderable;
+  renderable.mOwner = owner.mMemberId;
+  Math::Identity(&renderable.mTransform);
+  renderable.mMeshId = Gfx::Renderer::nSkyboxMeshId;
+  renderable.mMaterialId = mMaterialId;
+  Gfx::Renderable::Collection::Add(
+    Gfx::Renderable::Type::Skybox, std::move(renderable));
 }
 
 void Skybox::VEdit(const World::Object& owner)
 {
-  Editor::DropAssetWidget<Gfx::Cubemap>(&mCubemapId);
-  Editor::DropAssetWidget<Gfx::Shader>(&mShaderId);
+  Editor::DropResourceWidget<Gfx::Material>(&mMaterialId);
 }
 
 } // namespace Comp
