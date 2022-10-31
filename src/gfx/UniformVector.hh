@@ -72,6 +72,12 @@ void UniformVector::Add(const std::string& name, const T& value)
 }
 
 template<typename T>
+T& UniformVector::Add(UniformTypeId typeId, const std::string& name)
+{
+  return *(T*)Add(typeId, name);
+}
+
+template<typename T>
 void UniformVector::Add(
   UniformTypeId typeId, const std::string& name, const T& value)
 {

@@ -68,6 +68,8 @@ struct UniformVector
   template<typename T>
   void Add(const std::string& name, const T& value);
   template<typename T>
+  T& Add(UniformTypeId typeId, const std::string& name);
+  template<typename T>
   void Add(UniformTypeId typeId, const std::string& name, const T& value);
   void* Add(UniformTypeId typeId, const std::string& name);
   template<typename T>
