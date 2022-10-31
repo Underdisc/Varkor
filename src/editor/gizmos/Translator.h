@@ -53,13 +53,10 @@ struct Translator
   World::MemberId mParent;
   union
   {
+    World::MemberId mHandles[smHandleCount];
     struct
     {
       World::MemberId mX, mY, mZ, mXy, mXz, mYz, mXyz;
-    };
-    struct
-    {
-      World::MemberId mHandles[smHandleCount];
     };
   };
   ResId mHandleMaterialIds[smHandleCount];

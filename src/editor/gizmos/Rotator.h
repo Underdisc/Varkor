@@ -52,13 +52,10 @@ struct Rotator
   ResId mHandleMaterialIds[smHandleCount];
   union
   {
+    World::MemberId mHandles[smHandleCount];
     struct
     {
       World::MemberId mX, mY, mZ, mXyz;
-    };
-    struct
-    {
-      World::MemberId mHandles[smHandleCount];
     };
   };
   Operation mOperation;
