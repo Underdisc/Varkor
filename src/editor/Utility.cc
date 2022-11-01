@@ -6,6 +6,11 @@
 
 namespace Editor {
 
+float CalcBufferWidth(const char* text)
+{
+  return ImGui::CalcTextSize(text).x + 3.0f;
+}
+
 int InputTextCallback(ImGuiInputTextCallbackData* data)
 {
   std::string* str = (std::string*)data->UserData;
