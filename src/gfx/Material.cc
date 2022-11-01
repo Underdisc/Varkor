@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 
-#include "editor/AssetInterfaces.h"
+#include "editor/Utility.h"
 #include "gfx/Cubemap.h"
 #include "gfx/Image.h"
 #include "gfx/Material.h"
@@ -29,7 +29,7 @@ void Material::EditConfig(Vlk::Value* configValP)
   Vlk::Value& configVal = *configValP;
   Vlk::Value& ShaderIdVal = configVal("ShaderId");
   ResId shaderId = ShaderIdVal.As<ResId>(Rsl::GetDefaultResId<Shader>());
-  Editor::DropResourceWidget<Shader>(&shaderId);
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Shader, &shaderId);
   ShaderIdVal = shaderId;
 
   // A widget for changing the drag speed of uniform widgets.
@@ -131,12 +131,14 @@ void Material::EditConfig(Vlk::Value* configValP)
     }
     else if (typeId == UniformTypeId::Texture2dRes) {
       ResId imageId = valueVal.As<ResId>(Rsl::GetDefaultResId<Image>());
-      Editor::DropResourceWidget<Shader>(&imageId, "", FLT_MIN);
+      Editor::DropResourceIdWidget(
+        Rsl::ResTypeId::Image, &imageId, "", FLT_MIN);
       valueVal = imageId;
     }
     else if (typeId == UniformTypeId::TextureCubemapRes) {
       ResId cubemapId = valueVal.As<ResId>(Rsl::GetDefaultResId<Cubemap>());
-      Editor::DropResourceWidget<Cubemap>(&cubemapId, "", FLT_MIN);
+      Editor::DropResourceIdWidget(
+        Rsl::ResTypeId::Cubemap, &cubemapId, "", FLT_MIN);
       valueVal = cubemapId;
     }
     ImGui::PopID();

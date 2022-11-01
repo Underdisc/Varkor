@@ -1,6 +1,6 @@
 #include "comp/Model.h"
 #include "comp/Transform.h"
-#include "editor/AssetInterfaces.h"
+#include "editor/Utility.h"
 #include "gfx/Model.h"
 #include "rsl/Library.h"
 
@@ -46,7 +46,7 @@ void Model::VRenderable(const World::Object& owner)
 
 void Model::VEdit(const World::Object& owner)
 {
-  Editor::DropResourceWidget<Gfx::Model>(&mModelId);
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Model, &mModelId);
   ImGui::Checkbox("Visible", &mVisible);
 }
 

@@ -1,8 +1,7 @@
 #include "comp/Sprite.h"
 #include "comp/Transform.h"
-#include "editor/AssetInterfaces.h"
+#include "editor/Utility.h"
 #include "gfx/Image.h"
-#include "gfx/Material.h"
 #include "gfx/Renderer.h"
 #include "rsl/Library.h"
 
@@ -52,8 +51,9 @@ void Sprite::VRenderable(const World::Object& owner)
 
 void Sprite::VEdit(const World::Object& owner)
 {
-  Editor::DropResourceWidget<Gfx::Material>(&mMaterialId);
-  Editor::DropResourceWidget<Gfx::Image>(&mScalorImageId, "Scalor");
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Material, &mMaterialId);
+  Editor::DropResourceIdWidget(
+    Rsl::ResTypeId::Image, &mScalorImageId, "Scalor");
 }
 
 Mat4 Sprite::GetAspectScale()

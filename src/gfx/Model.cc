@@ -1,7 +1,7 @@
 #include <filesystem>
 #include <imgui/imgui.h>
 
-#include "editor/AssetInterfaces.h"
+#include "editor/Utility.h"
 #include "gfx/Material.h"
 #include "gfx/Mesh.h"
 #include "gfx/Model.h"
@@ -61,7 +61,7 @@ void Model::EditConfig(Vlk::Value* configValP)
   Vlk::Value& configVal = *configValP;
   Vlk::Value& shaderIdVal = configVal("ShaderId");
   ResId shaderId = shaderIdVal.As<ResId>(Rsl::GetDefaultResId<Shader>());
-  Editor::DropResourceWidget<Shader>(&shaderId);
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Shader, &shaderId);
   shaderIdVal = shaderId;
 }
 

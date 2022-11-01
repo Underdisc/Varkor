@@ -1,11 +1,13 @@
 #include <glad/glad.h>
+#include <imgui/imgui.h>
 
 #include "comp/Mesh.h"
 #include "comp/Transform.h"
-#include "editor/AssetInterfaces.h"
+#include "editor/Utility.h"
 #include "gfx/Material.h"
 #include "gfx/Mesh.h"
 #include "gfx/Renderable.h"
+#include "rsl/Library.h"
 
 namespace Comp {
 
@@ -47,8 +49,8 @@ void Mesh::VRenderable(const World::Object& owner)
 
 void Mesh::VEdit(const World::Object& owner)
 {
-  Editor::DropResourceWidget<Gfx::Mesh>(&mMeshId);
-  Editor::DropResourceWidget<Gfx::Material>(&mMaterialId);
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Mesh, &mMeshId);
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Material, &mMaterialId);
   ImGui::Checkbox("Visible", &mVisible);
 }
 

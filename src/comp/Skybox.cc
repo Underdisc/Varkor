@@ -1,9 +1,7 @@
 #include "comp/Skybox.h"
-#include "editor/AssetInterfaces.h"
-#include "gfx/Cubemap.h"
-#include "gfx/Material.h"
+#include "editor/Utility.h"
 #include "gfx/Renderer.h"
-#include "gfx/Shader.h"
+#include "rsl/Library.h"
 
 namespace Comp {
 
@@ -43,7 +41,7 @@ void Skybox::VRenderable(const World::Object& owner)
 
 void Skybox::VEdit(const World::Object& owner)
 {
-  Editor::DropResourceWidget<Gfx::Material>(&mMaterialId);
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Material, &mMaterialId);
 }
 
 } // namespace Comp

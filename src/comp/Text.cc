@@ -4,12 +4,11 @@
 
 #include "comp/Text.h"
 #include "comp/Transform.h"
-#include "editor/AssetInterfaces.h"
 #include "editor/Utility.h"
-#include "gfx/Material.h"
 #include "gfx/Renderer.h"
 #include "gfx/UniformVector.h"
 #include "math/Vector.h"
+#include "rsl/Library.h"
 #include "util/Utility.h"
 
 namespace Comp {
@@ -115,8 +114,8 @@ void Text::VRenderable(const World::Object& owner)
 
 void Text::VEdit(const World::Object& owner)
 {
-  Editor::DropResourceWidget<Gfx::Font>(&mFontId);
-  Editor::DropResourceWidget<Gfx::Material>(&mMaterialId);
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Font, &mFontId);
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Material, &mMaterialId);
   ImGui::PushItemWidth(-Editor::CalcBufferWidth("FillAmount"));
   ImGui::DragFloat("Width", &mWidth, 1.0f, 0.0f, FLT_MAX);
   const char* alignments[] = {"Left", "Center", "Right"};
