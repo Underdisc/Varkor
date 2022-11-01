@@ -2,15 +2,14 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
-#include "AssetLibrary.h"
 #include "Input.h"
 #include "Options.h"
 #include "Viewport.h"
-#include "comp/DefaultPostProcess.h"
 #include "editor/Camera.h"
 #include "editor/CoreInterface.h"
 #include "editor/LayerInterface.h"
 #include "editor/gizmos/Gizmos.h"
+#include "rsl/Library.h"
 #include "world/World.h"
 
 namespace Editor {
@@ -111,7 +110,7 @@ void Init()
   // Load in the requested layers.
   bool overviewCreated = false;
   for (std::string layerFile : Options::nLoadLayers) {
-    layerFile = AssLib::PrependResDirectory(layerFile);
+    layerFile = Rsl::PrependResDirectory(layerFile);
     ValueResult<World::LayerIt> result = World::LoadLayer(layerFile.c_str());
     if (!result.Success()) {
       LogError(result.mError.c_str());
@@ -121,9 +120,6 @@ void Init()
       overviewCreated = true;
     }
   }
-
-  World::Object postObject = nSpace.CreateObject();
-  postObject.Add<DefaultPostProcess>();
 }
 
 void Purge()
