@@ -1,5 +1,5 @@
 target_sources(varkor PRIVATE
-  AssetInterfaces.cc
+  AssetInterface.cc
   Camera.cc
   CoreInterface.cc
   Editor.cc
@@ -9,6 +9,8 @@ target_sources(varkor PRIVATE
   InspectorInterface.cc
   Interface.cc
   LayerInterface.cc
+  LibraryInterface.cc
+  ResourceInterface.cc
   Utility.cc
   WindowInterface.cc)
 add_subdirectory(gizmos)
