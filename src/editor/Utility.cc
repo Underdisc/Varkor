@@ -19,15 +19,18 @@ int InputTextCallback(ImGuiInputTextCallbackData* data)
   return 0;
 }
 
-bool InputText(const char* label, std::string* str)
+bool InputText(const char* label, std::string* str, float itemWidth)
 {
-  return ImGui::InputText(
+  ImGui::PushItemWidth(itemWidth);
+  bool result = ImGui::InputText(
     label,
     (char*)str->data(),
     str->capacity(),
     ImGuiInputTextFlags_CallbackResize,
     InputTextCallback,
     str);
+  ImGui::PopItemWidth();
+  return result;
 }
 
 bool InputTextMultiline(const char* label, const ImVec2& size, std::string* str)
