@@ -1,0 +1,21 @@
+{
+  :Shader: {
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/DefaultSprite.glvf']
+    }
+  }
+  :Material: {
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/spriteDefaults:Shader'
+      :Uniforms: [
+        {
+          :Name: 'uTexture'
+          :Type: 'Texture2dRes'
+          :Value: 'vres/defaults:Image'
+        }
+      ]
+    }
+  }
+}

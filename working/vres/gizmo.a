@@ -1,0 +1,39 @@
+{
+  :Arrow: {
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/arrow.obj'
+    }
+  }
+  :Cube: {
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/cube.obj'
+    }
+  }
+  :Scale: {
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/scale.obj'
+    }
+  }
+  :Sphere: {
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/sphere.obj'
+    }
+  }
+  :Torus: {
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/torus.obj'
+      :FlipUvs: '0'
+    }
+  }
+  :ColorShader: {
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/Default.glv', 'vres/shader/Color.glf']
+    }
+  }
+}

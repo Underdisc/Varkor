@@ -1,0 +1,30 @@
+{
+  :MemberIdShader: {
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/Default.glv', 'vres/shader/MemberId.glf']
+    }
+  }
+  :DepthShader: {
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/Depth.glvf']
+    }
+  }
+  :DefaultPostShader: {
+    :Type: 'Shader'
+    :Config: {
+      :Files: [
+        'vres/shader/FullscreenTexture.glv',
+        'vres/shader/DefaultPostProcess.glf'
+      ]
+    }
+  }
+  :DefaultPostMaterial: {
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/renderer:DefaultPostShader'
+      :Uniforms: []
+    }
+  }
+}
