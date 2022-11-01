@@ -6,6 +6,8 @@
 
 #include "editor/WindowInterface.h"
 #include "gfx/HdrColor.h"
+#include "rsl/ResourceId.h"
+#include "rsl/ResourceType.h"
 
 namespace Editor {
 
@@ -16,6 +18,13 @@ float CalcBufferWidth(const char* text);
 bool InputText(const char* label, std::string* str, float itemWidth = -FLT_MIN);
 bool InputTextMultiline(
   const char* label, const ImVec2& size, std::string* str);
+
+void DragResourceId(Rsl::ResTypeId resTypeId, const Rsl::ResId& resId);
+void DropResourceIdWidget(
+  Rsl::ResTypeId resTypeId,
+  Rsl::ResId* resId,
+  const char* prefix = "",
+  float bufferWidth = 0.0f);
 
 void HelpMarker(const char* text);
 void HdrColorEdit(const char* label, Gfx::HdrColor* hdrColor, float colorWidth);
