@@ -14,6 +14,9 @@ public:
 private:
   void FileMenu();
   void ViewMenu();
+  template<typename T>
+  void InterfaceMenuItem(const char* label);
+  bool mShowImGuiDemo;
 };
 
 } // namespace Editor
