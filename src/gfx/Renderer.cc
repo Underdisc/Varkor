@@ -224,6 +224,7 @@ Result RenderWorld()
     Mat4 proj = cameraComp->Proj();
     Vec3 viewPos = transformComp.GetWorldTranslation(object);
     RenderSpace(space, view, proj, viewPos, layer.mPostMaterialId);
+    Debug::Draw::Render(view, proj);
   }
   return Result();
 }
