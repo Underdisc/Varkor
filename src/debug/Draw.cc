@@ -103,13 +103,12 @@ void Render(const Mat4& view, const Mat4& proj)
   Gfx::Shader& shader = Rsl::GetRes<Gfx::Shader>(nDebugDrawShaderId);
   Gfx::Renderer::InitializeUniversalUniformBuffer(view, proj);
 
-  GLint alphaColorLoc = shader.UniformLocation(Gfx::Uniform::Type::AlphaColor);
   glUseProgram(shader.Id());
   for (int i = 0; i < nRenderables.Size(); ++i) {
     const Renderable& renderable = nRenderables[i];
     Vec4 fullColor = (Vec4)renderable.mColor;
     fullColor[3] = 1.0f;
-    glUniform4fv(alphaColorLoc, 1, fullColor.CData());
+    shader.SetUniform("uColor", fullColor);
     glBindVertexArray(renderable.mVao);
     if (renderable.mCount == 1) {
       glDrawArrays(GL_POINTS, 0, renderable.mCount);
