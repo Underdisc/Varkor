@@ -11,7 +11,9 @@ namespace Gfx {
 
 void RegisterUniformTypes()
 {
+  UniformType<int>::RegisterAttached(UniformTypeId::Int, "Int");
   UniformType<float>::RegisterAttached(UniformTypeId::Float, "Float");
+  UniformType<Vec3>::RegisterAttached(UniformTypeId::Vec3, "Vec3");
   UniformType<Vec4>::RegisterAttached(UniformTypeId::Vec4, "Vec4");
   UniformType<ResId>::RegisterDetached(
     UniformTypeId::Texture2dRes, "Texture2dRes");
@@ -83,7 +85,9 @@ void UniformVector::Bind(const Shader& shader, int* textureIndex) const
 {
   for (const UniformDescriptor& uniformDesc : mUniformDescs) {
     switch (uniformDesc.mTypeId) {
+    case UniformTypeId::Int: BindUniform<int>(shader, uniformDesc); break;
     case UniformTypeId::Float: BindUniform<float>(shader, uniformDesc); break;
+    case UniformTypeId::Vec3: BindUniform<Vec3>(shader, uniformDesc); break;
     case UniformTypeId::Vec4: BindUniform<Vec4>(shader, uniformDesc); break;
     case UniformTypeId::Texture2dRes:
       BindTexture2DRes(shader, textureIndex, uniformDesc);

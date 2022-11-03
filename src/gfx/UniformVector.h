@@ -10,7 +10,9 @@ namespace Gfx {
 
 enum class UniformTypeId
 {
+  Int,
   Float,
+  Vec3,
   Vec4,
   Texture2dRes,
   TextureCubemapRes,
