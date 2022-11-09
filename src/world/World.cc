@@ -9,7 +9,10 @@ namespace World {
 
 Layer::Layer(): mCameraId(nInvalidMemberId) {}
 
-Layer::Layer(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
+Layer::Layer(const std::string& name):
+  mName(name),
+  mCameraId(nInvalidMemberId),
+  mPostMaterialId(Gfx::Renderer::nDefaultPostMaterialId)
 {}
 
 bool nPause = true;
