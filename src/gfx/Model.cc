@@ -26,11 +26,11 @@ Model& Model::operator=(Model&& other)
   return *this;
 }
 
-ValueResult<const aiScene*> Model::Import(
+VResult<const aiScene*> Model::Import(
   const std::string& file, Assimp::Importer* importer, bool flipUvs)
 {
   // Resolve the file to an absolute path.
-  ValueResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
+  VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
     return Result(resolutionResult.mError);
   }
@@ -52,7 +52,7 @@ ValueResult<const aiScene*> Model::Import(
     return Result(
       "Failed to import \"" + file + "\".\n" + importer->GetErrorString());
   }
-  return ValueResult<const aiScene*>(scene);
+  return VResult<const aiScene*>(scene);
 }
 
 void Model::EditConfig(Vlk::Value* configValP)
@@ -65,7 +65,7 @@ void Model::EditConfig(Vlk::Value* configValP)
   shaderIdVal = shaderId;
 }
 
-ValueResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
+VResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
 {
   // Get the file to import.
   Vlk::Explorer fileEx = configEx("File");
@@ -77,7 +77,7 @@ ValueResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
   // Import the model.
   bool flipUvs = configEx("FlipUvs").As<bool>(false);
   Assimp::Importer importer;
-  ValueResult<const aiScene*> result = Import(file, &importer, flipUvs);
+  VResult<const aiScene*> result = Import(file, &importer, flipUvs);
   if (!result.Success()) {
     return result;
   }
@@ -99,7 +99,7 @@ ValueResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
     if (materialName.empty()) {
       materialName = "Material[" + std::to_string(i) + "]";
     }
-    ValueResult<Material> result =
+    VResult<Material> result =
       Material::Init(asset, shaderId, materialName, assimpMat, directory);
     asset.InitRes<Material>(materialName, std::move(result.mValue));
     if (!result.Success()) {
@@ -130,7 +130,7 @@ ValueResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
   Mat4 parentTransform;
   Math::Identity(&parentTransform);
   newModel.CreateRenderables(*scene->mRootNode, parentTransform);
-  return ValueResult<Model>(std::move(newModel));
+  return VResult<Model>(std::move(newModel));
 }
 
 size_t Model::RenderableCount() const

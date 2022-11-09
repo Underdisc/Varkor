@@ -55,12 +55,12 @@ void DeleteLayer(LayerIt it)
   nLayers.Erase(it);
 }
 
-ValueResult<LayerIt> LoadLayer(const char* filename)
+VResult<LayerIt> LoadLayer(const char* filename)
 {
   Vlk::Value rootVal;
   Result result = rootVal.Read(filename);
   if (!result.Success()) {
-    return ValueResult<LayerIt>(std::move(result), nLayers.end());
+    return VResult<LayerIt>(std::move(result), nLayers.end());
   }
   Vlk::Explorer rootEx(rootVal);
   Vlk::Explorer metadataEx = rootEx("Metadata");
@@ -75,15 +75,15 @@ ValueResult<LayerIt> LoadLayer(const char* filename)
   if (!spaceEx.Valid()) {
     std::stringstream error;
     error << "\"" << filename << "\" missing :Space:.";
-    return ValueResult<LayerIt>(error.str(), nLayers.end());
+    return VResult<LayerIt>(error.str(), nLayers.end());
   }
   result = newLayer.mSpace.Deserialize(spaceEx);
   if (!result.Success()) {
     std::stringstream error;
     error << "\"" << filename << "\" failed to deserialize.\n" << result.mError;
-    return ValueResult<LayerIt>(error.str(), nLayers.end());
+    return VResult<LayerIt>(error.str(), nLayers.end());
   }
-  return ValueResult<LayerIt>(nLayers.Back());
+  return VResult<LayerIt>(nLayers.Back());
 }
 
 Result SaveLayer(LayerIt it, const char* filename)

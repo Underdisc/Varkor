@@ -102,9 +102,9 @@ private:
   Result CompileSubShader(const CompileInfo& compileInfo, GLuint subShaderId);
   Result CreateProgram(const Ds::Vector<CompileInfo>& allCompileInfo);
   int GetLineNumber(size_t until, const std::string& string);
-  ValueResult<std::string> GetFileContent(const std::string& filename);
+  VResult<std::string> GetFileContent(const std::string& filename);
   Result HandleIncludes(Gfx::Shader::CompileInfo* compileInfo);
-  ValueResult<Ds::Vector<Gfx::Shader::CompileInfo>> CollectCompileInfo(
+  VResult<Ds::Vector<Gfx::Shader::CompileInfo>> CollectCompileInfo(
     const std::string& file);
 };
 

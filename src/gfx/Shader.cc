@@ -149,8 +149,7 @@ Result Shader::Init(const Ds::Vector<std::string>& files)
   Result result;
   Ds::Vector<CompileInfo> allCompileInfo;
   for (const std::string& file : files) {
-    ValueResult<Ds::Vector<CompileInfo>> collectResult =
-      CollectCompileInfo(file);
+    VResult<Ds::Vector<CompileInfo>> collectResult = CollectCompileInfo(file);
     if (!collectResult.Success()) {
       if (!result.mError.empty()) {
         result.mError += '\n';
@@ -400,20 +399,20 @@ int Shader::GetLineNumber(size_t until, const std::string& string)
   return lineNumber;
 }
 
-ValueResult<std::string> Shader::GetFileContent(const std::string& file)
+VResult<std::string> Shader::GetFileContent(const std::string& file)
 {
-  ValueResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
+  VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
     return resolutionResult;
   }
   std::ifstream fileStream;
   fileStream.open(resolutionResult.mValue);
   if (!fileStream.is_open()) {
-    return ValueResult<std::string>("Failed to open \"" + file + "\".", "");
+    return VResult<std::string>("Failed to open \"" + file + "\".", "");
   }
   std::stringstream fileContentStream;
   fileContentStream << fileStream.rdbuf();
-  return ValueResult<std::string>(fileContentStream.str());
+  return VResult<std::string>(fileContentStream.str());
 }
 
 Result Shader::HandleIncludes(CompileInfo* compileInfo)
@@ -447,7 +446,7 @@ Result Shader::HandleIncludes(CompileInfo* compileInfo)
     size_t pathEnd = currentChunk.mFile.find_last_of('/');
     std::string currentChunkPath(currentChunk.mFile.substr(0, pathEnd + 1));
     includeFile = currentChunkPath + includeFile;
-    ValueResult<std::string> result = GetFileContent(includeFile);
+    VResult<std::string> result = GetFileContent(includeFile);
     if (!result.Success()) {
       includeFile = match[1].str();
       result = GetFileContent(includeFile);
@@ -499,11 +498,11 @@ Result Shader::HandleIncludes(CompileInfo* compileInfo)
   return Result();
 }
 
-ValueResult<Ds::Vector<Shader::CompileInfo>> Shader::CollectCompileInfo(
+VResult<Ds::Vector<Shader::CompileInfo>> Shader::CollectCompileInfo(
   const std::string& file)
 {
   // Get the file content.
-  ValueResult<std::string> fileConentResult = GetFileContent(file);
+  VResult<std::string> fileConentResult = GetFileContent(file);
   if (!fileConentResult.Success()) {
     return Result(fileConentResult.mError);
   }
@@ -581,7 +580,7 @@ ValueResult<Ds::Vector<Shader::CompileInfo>> Shader::CollectCompileInfo(
     }
     collection.Push(std::move(newCompileInfo));
   }
-  return ValueResult<Ds::Vector<CompileInfo>>(std::move(collection));
+  return VResult<Ds::Vector<CompileInfo>>(std::move(collection));
 }
 
 } // namespace Gfx

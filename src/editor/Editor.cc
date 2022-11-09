@@ -111,7 +111,7 @@ void Init()
   bool overviewCreated = false;
   for (std::string layerFile : Options::nLoadLayers) {
     layerFile = Rsl::PrependResDirectory(layerFile);
-    ValueResult<World::LayerIt> result = World::LoadLayer(layerFile.c_str());
+    VResult<World::LayerIt> result = World::LoadLayer(layerFile.c_str());
     if (!result.Success()) {
       LogError(result.mError.c_str());
     }

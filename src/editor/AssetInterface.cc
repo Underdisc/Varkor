@@ -170,7 +170,7 @@ void AssetInterface::ShowInitializedResources(const Rsl::Asset& asset)
 Result AssetInterface::SelectAsset(const std::string& assetName)
 {
   Rsl::Asset& asset = Rsl::GetAsset(assetName);
-  ValueResult<Vlk::Value> result = asset.GetVlkValue();
+  VResult<Vlk::Value> result = asset.GetVlkValue();
   if (!result.Success()) {
     return result;
   }

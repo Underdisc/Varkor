@@ -3,7 +3,7 @@ namespace Rsl {
 template<typename T, typename... Args>
 T& Asset::InitRes(const std::string& name, Args&&... args)
 {
-  ValueResult<T*> result = TryInitRes<T>(name, std::forward<Args>(args)...);
+  VResult<T*> result = TryInitRes<T>(name, std::forward<Args>(args)...);
   if (!result.Success()) {
     std::string error = "Resource \"" + mName + ":" + name +
       "\" failed initialization.\n" + result.mError;
@@ -13,7 +13,7 @@ T& Asset::InitRes(const std::string& name, Args&&... args)
 }
 
 template<typename T, typename... Args>
-ValueResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args)
+VResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args)
 {
   T newRes;
   Result result = newRes.Init(std::forward<Args>(args)...);
@@ -24,7 +24,7 @@ ValueResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args)
   T* newResData = (T*)GetResDescData(newResDesc);
   const ResTypeData& typeData = GetResTypeData<T>();
   typeData.mMoveConstruct(&newRes, newResData);
-  return ValueResult<T*>(std::move(result), newResData);
+  return VResult<T*>(std::move(result), newResData);
 }
 
 template<typename T>

@@ -62,7 +62,7 @@ private:
   struct Face
   {
   public:
-    static ValueResult<Face> Init(const std::string& file);
+    static VResult<Face> Init(const std::string& file);
     unsigned char* mData;
     int mWidth;
     int mHeight;
@@ -72,7 +72,7 @@ private:
     Face();
     Face(Face&& other);
     ~Face();
-    friend ValueResult<Face>;
+    friend VResult<Face>;
   };
 
   GLuint mId;

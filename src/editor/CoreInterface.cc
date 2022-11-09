@@ -106,7 +106,7 @@ void CoreInterface::FileMenu()
       [this](const std::string& filename)
       {
         std::string path = Rsl::PrependResDirectory(filename);
-        ValueResult<World::LayerIt> result = World::LoadLayer(path.c_str());
+        VResult<World::LayerIt> result = World::LoadLayer(path.c_str());
         if (result.Success()) {
           OpenInterface<LayerInterface>(result.mValue);
         }

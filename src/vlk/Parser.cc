@@ -63,7 +63,7 @@ size_t Parser::LastTokenLength()
 
 Result Parser::Parse(const char* text, Value* root)
 {
-  ValueResult<Ds::Vector<Token>> result = Tokenize(text);
+  VResult<Ds::Vector<Token>> result = Tokenize(text);
   if (!result.Success()) {
     return Result(result.mError);
   }

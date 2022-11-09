@@ -232,7 +232,7 @@ Result Material::Init(Material&& other)
   return Result();
 }
 
-ValueResult<Material> Material::Init(
+VResult<Material> Material::Init(
   Rsl::Asset& asset,
   const ResId& shaderResId,
   const std::string& materialName,
@@ -279,7 +279,7 @@ ValueResult<Material> Material::Init(
         UniformTypeId::Texture2dRes, uniformName, imageId);
     }
   }
-  return ValueResult<Material>(std::move(newMaterial));
+  return VResult<Material>(std::move(newMaterial));
 }
 
 const char* Material::GetUniformName(aiTextureType aiType)

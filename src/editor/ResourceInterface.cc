@@ -18,7 +18,7 @@ ResourceInterface::ResourceInterface(const ResId& id)
   mResId = id;
   std::string assetName = mResId.GetAssetName();
   Rsl::Asset& asset = Rsl::GetAsset(assetName);
-  ValueResult<Vlk::Value> result = asset.GetVlkValue();
+  VResult<Vlk::Value> result = asset.GetVlkValue();
   if (!result.Success()) {
     LogError(result.mError.c_str());
     mOpen = false;
@@ -77,7 +77,7 @@ void ResourceInterface::Show()
   Rsl::Asset& asset = Rsl::GetAsset(mResId.GetAssetName());
   bool initializing = asset.GetStatus() == Rsl::Asset::Status::Initializing;
   if (!initializing && mAssetVal != mAssetValCopy) {
-    ValueResult<std::string> result = Rsl::ResolveResPath(asset.GetFile());
+    VResult<std::string> result = Rsl::ResolveResPath(asset.GetFile());
     LogAbortIf(!result.Success(), result.mError.c_str());
     mAssetVal.Write(result.mValue.c_str());
     mAssetValCopy = mAssetVal;

@@ -49,7 +49,7 @@ public:
   const std::string& GetName() const;
   std::string GetFile() const;
   bool HasFile() const;
-  ValueResult<Vlk::Value> GetVlkValue();
+  VResult<Vlk::Value> GetVlkValue();
   Status GetStatus() const;
   const Ds::Vector<ResDesc>& GetResDescs() const;
   template<typename T>
@@ -66,7 +66,7 @@ public:
   template<typename T, typename... Args>
   T& InitRes(const std::string& name, Args&&... args);
   template<typename T, typename... Args>
-  ValueResult<T*> TryInitRes(const std::string& name, Args&&... args);
+  VResult<T*> TryInitRes(const std::string& name, Args&&... args);
   void Finalize();
   void InitFinalize();
   void Sleep();

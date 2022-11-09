@@ -64,10 +64,10 @@ bool Asset::HasFile() const
   return std::filesystem::exists(file);
 }
 
-ValueResult<Vlk::Value> Asset::GetVlkValue()
+VResult<Vlk::Value> Asset::GetVlkValue()
 {
   // Get the path to the asset file.
-  ValueResult<std::string> resolutionResult = ResolveResPath(GetFile());
+  VResult<std::string> resolutionResult = ResolveResPath(GetFile());
   if (!resolutionResult.Success()) {
     return Result(
       "Asset \"" + mName + "\" missing file.\n" + resolutionResult.mError);
@@ -80,7 +80,7 @@ ValueResult<Vlk::Value> Asset::GetVlkValue()
   if (!result.Success()) {
     return Result("Asset \"" + mName + "\" failed read.\n" + result.mError);
   }
-  return ValueResult<Vlk::Value>(std::move(val));
+  return VResult<Vlk::Value>(std::move(val));
 }
 
 Asset::Status Asset::GetStatus() const
@@ -122,7 +122,7 @@ void Asset::Init()
 Result Asset::TryInit()
 {
   mStatus = Status::Initializing;
-  ValueResult<Vlk::Value> result = GetVlkValue();
+  VResult<Vlk::Value> result = GetVlkValue();
   if (!result.Success()) {
     mStatus = Status::Failed;
     return result;
@@ -217,7 +217,7 @@ Result Asset::InitRes(const Vlk::Explorer& resEx)
 
 Result Asset::InitModel(const std::string& name, const Vlk::Explorer& configEx)
 {
-  ValueResult<Gfx::Model> result = Gfx::Model::Init(*this, configEx);
+  VResult<Gfx::Model> result = Gfx::Model::Init(*this, configEx);
   if (!result.Success()) {
     return result;
   }

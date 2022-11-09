@@ -84,7 +84,7 @@ Result Mesh::Init(const Vlk::Explorer& configEx)
 Result Mesh::Init(const std::string& file, bool flipUvs)
 {
   Assimp::Importer importer;
-  ValueResult<const aiScene*> importResult =
+  VResult<const aiScene*> importResult =
     Gfx::Model::Import(file, &importer, flipUvs);
   if (!importResult.Success()) {
     return importResult;

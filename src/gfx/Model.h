@@ -21,12 +21,11 @@ struct Model
   Model(Model&& other);
   Model& operator=(Model&& other);
 
-  static ValueResult<const aiScene*> Import(
+  static VResult<const aiScene*> Import(
     const std::string& file, Assimp::Importer* importer, bool flipUvs);
 
   static void EditConfig(Vlk::Value* configValP);
-  static ValueResult<Model> Init(
-    Rsl::Asset& asset, const Vlk::Explorer& configEx);
+  static VResult<Model> Init(Rsl::Asset& asset, const Vlk::Explorer& configEx);
 
   size_t RenderableCount() const;
   Renderable GetRenderable(size_t renderableDescIndex) const;

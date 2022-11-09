@@ -65,7 +65,7 @@ Result Font::Init(const Vlk::Explorer& configEx)
 Result Font::Init(const std::string& file)
 {
   // Resolve the resource path.
-  ValueResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
+  VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
     return Result(resolutionResult.mError);
   }

@@ -125,7 +125,7 @@ Result Cubemap::Init(const Config& config)
   glBindTexture(GL_TEXTURE_CUBE_MAP, mId);
   if (config.mSpecification == Specification::Split) {
     for (int i = 0; i < smFileDescriptorCount; ++i) {
-      ValueResult<Face> result = Face::Init(config.mFaceFiles[i]);
+      VResult<Face> result = Face::Init(config.mFaceFiles[i]);
       if (!result.Success()) {
         return result;
       }
@@ -136,7 +136,7 @@ Result Cubemap::Init(const Config& config)
     }
   }
   else if (config.mSpecification == Specification::Single) {
-    ValueResult<Face> result = Face::Init(config.mFaceFiles[0]);
+    VResult<Face> result = Face::Init(config.mFaceFiles[0]);
     if (!result.Success()) {
       return result;
     }
@@ -216,10 +216,10 @@ GLuint Cubemap::Id() const
   return mId;
 }
 
-ValueResult<Cubemap::Face> Cubemap::Face::Init(const std::string& file)
+VResult<Cubemap::Face> Cubemap::Face::Init(const std::string& file)
 {
   // Resolve the file path.
-  ValueResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
+  VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
     return resolutionResult;
   }
@@ -233,9 +233,9 @@ ValueResult<Cubemap::Face> Cubemap::Face::Init(const std::string& file)
   if (face.mData == nullptr) {
     std::string error =
       "Loading \"" + file + "\" failed.\n" + stbi_failure_reason();
-    return ValueResult<Face>(Result(error));
+    return VResult<Face>(Result(error));
   }
-  return ValueResult<Face>(std::move(face));
+  return VResult<Face>(std::move(face));
 }
 
 Cubemap::Face::Face(): mData(nullptr) {}

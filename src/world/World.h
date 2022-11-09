@@ -31,7 +31,7 @@ void Purge();
 void Update();
 LayerIt CreateTopLayer();
 void DeleteLayer(LayerIt it);
-ValueResult<LayerIt> LoadLayer(const char* filename);
+VResult<LayerIt> LoadLayer(const char* filename);
 Result SaveLayer(LayerIt it, const char* filename);
 
 } // namespace World

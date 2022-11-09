@@ -47,36 +47,36 @@ std::string PrependResDirectory(const std::string& path)
 // A path can be next to the executable or within a project directory. This
 // function will return a path that is guaranteed to reference a directory entry
 // in one of these two locations or an error when an entry doesn't exist.
-ValueResult<std::string> ResolveProjPath(const std::string& path)
+VResult<std::string> ResolveProjPath(const std::string& path)
 {
   if (std::filesystem::exists(path)) {
-    return ValueResult<std::string>(path);
+    return VResult<std::string>(path);
   }
   std::string projPath = Options::nProjectDirectory + path;
   if (std::filesystem::exists(projPath)) {
-    return ValueResult<std::string>(projPath);
+    return VResult<std::string>(projPath);
   }
   std::string error = "Project path \"" + path + "\" failed resolution.";
-  return ValueResult<std::string>(error, "");
+  return VResult<std::string>(error, "");
 }
 
 // The same as ResolveProjPath, but for a project's res/ directory.
-ValueResult<std::string> ResolveResPath(const std::string& path)
+VResult<std::string> ResolveResPath(const std::string& path)
 {
   if (std::filesystem::exists(path)) {
-    return ValueResult<std::string>(path);
+    return VResult<std::string>(path);
   }
   std::string inResPath = PrependResDirectory(path);
   if (std::filesystem::exists(inResPath)) {
-    return ValueResult<std::string>(inResPath);
+    return VResult<std::string>(inResPath);
   }
   std::string error = "Resource path \"" + path + "\" failed resolution.";
-  return ValueResult<std::string>(error, "");
+  return VResult<std::string>(error, "");
 }
 
 void CollectAssets(const std::string& pathString)
 {
-  ValueResult<std::string> resolutionResult = ResolveProjPath(pathString);
+  VResult<std::string> resolutionResult = ResolveProjPath(pathString);
   LogAbortIf(!resolutionResult.Success(), resolutionResult.mError.c_str());
   const std::string& resolvedPathString = resolutionResult.mValue;
 

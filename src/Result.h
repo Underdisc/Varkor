@@ -53,4 +53,7 @@ struct ValueResult: public Result
   }
 };
 
+template<typename T>
+using VResult = ValueResult<T>;
+
 #endif
