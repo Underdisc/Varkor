@@ -223,7 +223,7 @@ VResult<Ds::Vector<Token>> Tokenize(const char* text)
     case Token::Type::Invalid:
       error << "[" << lineNumber << "] Invalid token: "
             << std::string(token.mText, text - token.mText);
-      return VResult<Ds::Vector<Token>>(error.str(), std::move(tokens));
+      return Result(error.str());
     case Token::Type::Whitespace:
       lineNumber += CountNewLines(token.mText, text);
     default: tokens.Push(token);

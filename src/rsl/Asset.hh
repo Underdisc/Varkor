@@ -24,7 +24,7 @@ VResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args)
   T* newResData = (T*)GetResDescData(newResDesc);
   const ResTypeData& typeData = GetResTypeData<T>();
   typeData.mMoveConstruct(&newRes, newResData);
-  return VResult<T*>(std::move(result), newResData);
+  return VResult<T*>(newResData);
 }
 
 template<typename T>

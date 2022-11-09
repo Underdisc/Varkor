@@ -233,7 +233,7 @@ VResult<Cubemap::Face> Cubemap::Face::Init(const std::string& file)
   if (face.mData == nullptr) {
     std::string error =
       "Loading \"" + file + "\" failed.\n" + stbi_failure_reason();
-    return VResult<Face>(Result(error));
+    return Result(error);
   }
   return VResult<Face>(std::move(face));
 }

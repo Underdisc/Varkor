@@ -60,7 +60,7 @@ VResult<LayerIt> LoadLayer(const char* filename)
   Vlk::Value rootVal;
   Result result = rootVal.Read(filename);
   if (!result.Success()) {
-    return VResult<LayerIt>(std::move(result), nLayers.end());
+    return VResult<LayerIt>(nLayers.end(), std::move(result));
   }
   Vlk::Explorer rootEx(rootVal);
   Vlk::Explorer metadataEx = rootEx("Metadata");
@@ -75,13 +75,13 @@ VResult<LayerIt> LoadLayer(const char* filename)
   if (!spaceEx.Valid()) {
     std::stringstream error;
     error << "\"" << filename << "\" missing :Space:.";
-    return VResult<LayerIt>(error.str(), nLayers.end());
+    return VResult<LayerIt>(nLayers.end(), Result(error.str()));
   }
   result = newLayer.mSpace.Deserialize(spaceEx);
   if (!result.Success()) {
     std::stringstream error;
     error << "\"" << filename << "\" failed to deserialize.\n" << result.mError;
-    return VResult<LayerIt>(error.str(), nLayers.end());
+    return VResult<LayerIt>(nLayers.end(), Result(error.str()));
   }
   return VResult<LayerIt>(nLayers.Back());
 }

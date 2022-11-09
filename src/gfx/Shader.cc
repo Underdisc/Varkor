@@ -408,7 +408,7 @@ VResult<std::string> Shader::GetFileContent(const std::string& file)
   std::ifstream fileStream;
   fileStream.open(resolutionResult.mValue);
   if (!fileStream.is_open()) {
-    return VResult<std::string>("Failed to open \"" + file + "\".", "");
+    return Result("Failed to open \"" + file + "\".");
   }
   std::stringstream fileContentStream;
   fileContentStream << fileStream.rdbuf();

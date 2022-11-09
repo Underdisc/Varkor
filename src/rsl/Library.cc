@@ -56,8 +56,7 @@ VResult<std::string> ResolveProjPath(const std::string& path)
   if (std::filesystem::exists(projPath)) {
     return VResult<std::string>(projPath);
   }
-  std::string error = "Project path \"" + path + "\" failed resolution.";
-  return VResult<std::string>(error, "");
+  return Result("Project path \"" + path + "\" failed resolution.");
 }
 
 // The same as ResolveProjPath, but for a project's res/ directory.
@@ -70,8 +69,7 @@ VResult<std::string> ResolveResPath(const std::string& path)
   if (std::filesystem::exists(inResPath)) {
     return VResult<std::string>(inResPath);
   }
-  std::string error = "Resource path \"" + path + "\" failed resolution.";
-  return VResult<std::string>(error, "");
+  return Result("Resource path \"" + path + "\" failed resolution.");
 }
 
 void CollectAssets(const std::string& pathString)

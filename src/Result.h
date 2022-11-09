@@ -29,21 +29,17 @@ struct ValueResult: public Result
 {
   T mValue;
 
-  ValueResult(const T& value): Result(), mValue(value) {}
-  ValueResult(T&& value): Result(), mValue(std::move(value)) {}
-  ValueResult(Result&& result): Result(std::forward<Result>(result)), mValue()
+  ValueResult(const T& value): mValue(value), Result() {}
+  ValueResult(T&& value): mValue(std::move(value)), Result() {}
+  ValueResult(const T& value, Result&& result):
+    mValue(value), Result(std::move(result))
   {}
-  ValueResult(const std::string& error, T&& value):
-    Result(error), mValue(std::move(value))
+  ValueResult(T&& value, Result&& result):
+    mValue(std::move(value)), Result(std::move(result))
   {}
-  ValueResult(Result&& result, const T& value):
-    Result(std::move(result)), mValue(value)
-  {}
-  ValueResult(Result&& result, T&& value):
-    Result(std::move(result)), mValue(std::move(value))
-  {}
+  ValueResult(Result&& result): mValue(), Result(std::move(result)) {}
   ValueResult(ValueResult<T>&& other):
-    Result(std::move(other.mError)), mValue(std::move(other.mValue))
+    mValue(std::move(other.mValue)), Result(std::move(other.mError))
   {}
   ValueResult<T>& operator=(ValueResult<T>&& other)
   {
