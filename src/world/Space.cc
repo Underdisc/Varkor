@@ -268,11 +268,11 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
 {
   // Create the component table if necessary and make sure the member doesn't
   // already have the component.
-  Table* table = mTables.Find(typeId);
+  Table* table = mTables.TryGet(typeId);
   if (table == nullptr) {
     Table newTable(typeId);
     mTables.Insert(typeId, newTable);
-    table = mTables.Find(typeId);
+    table = mTables.TryGet(typeId);
   }
   const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
   if (HasComponent(typeId, memberId)) {
@@ -419,7 +419,7 @@ bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
 Ds::Vector<MemberId> Space::Slice(Comp::TypeId typeId) const
 {
   Ds::Vector<MemberId> members;
-  Table* table = mTables.Find(typeId);
+  Table* table = mTables.TryGet(typeId);
   if (table == nullptr) {
     return members;
   }

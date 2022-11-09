@@ -47,7 +47,7 @@ public:
   template<typename... Args>
   V& Emplace(const K& key, Args&&... args);
   void Remove(const K& key);
-  V* Find(const K& key) const;
+  V* TryGet(const K& key) const;
   V& Get(const K& key) const;
   bool Contains(const K& key) const;
 };
