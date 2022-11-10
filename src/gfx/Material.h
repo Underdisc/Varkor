@@ -26,7 +26,8 @@ struct Material
     const ResId& shaderResId,
     const std::string& materialName,
     const aiMaterial& assimpMat,
-    const std::string& directory);
+    const std::string& directory,
+    const Ds::Vector<std::string>& embeddedImageNames);
 
   ResId mShaderId;
   UniformVector mUniforms;

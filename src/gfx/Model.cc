@@ -2,6 +2,7 @@
 #include <imgui/imgui.h>
 
 #include "editor/Utility.h"
+#include "gfx/Image.h"
 #include "gfx/Material.h"
 #include "gfx/Mesh.h"
 #include "gfx/Model.h"
@@ -91,6 +92,26 @@ VResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
   ResId shaderId = shaderIdEx.As<ResId>();
   std::string directory = file.substr(0, file.find_last_of('/') + 1);
 
+  // Create all of the image resources that are embedded in the model.
+  Ds::Vector<std::string> embeddedImageNames;
+  for (int i = 0; i < (int)scene->mNumTextures; ++i) {
+    aiTexture* texture = scene->mTextures[i];
+    if (texture->mHeight != 0) {
+      return Result("Uncompressed embedded textures not implemented.");
+    }
+
+    std::string imageName = "Embedded[" + std::to_string(i) + "]";
+    imageName = imageName + "(" + texture->mFilename.C_Str() + ")";
+    Result result = asset.TryInitRes<Image>(
+      imageName, (void*)texture->pcData, texture->mWidth);
+    if (!result.Success()) {
+      result.mError =
+        "Image \"" + imageName + "\" init failed.\n" + result.mError;
+      return result;
+    }
+    embeddedImageNames.Emplace(std::move(imageName));
+  }
+
   // Create all of the materials.
   Model newModel;
   for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
@@ -99,8 +120,8 @@ VResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
     if (materialName.empty()) {
       materialName = "Material[" + std::to_string(i) + "]";
     }
-    VResult<Material> result =
-      Material::Init(asset, shaderId, materialName, assimpMat, directory);
+    VResult<Material> result = Material::Init(
+      asset, shaderId, materialName, assimpMat, directory, embeddedImageNames);
     asset.InitRes<Material>(materialName, std::move(result.mValue));
     if (!result.Success()) {
       return Result(

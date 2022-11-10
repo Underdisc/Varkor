@@ -237,7 +237,8 @@ VResult<Material> Material::Init(
   const ResId& shaderResId,
   const std::string& materialName,
   const aiMaterial& assimpMat,
-  const std::string& directory)
+  const std::string& directory,
+  const Ds::Vector<std::string>& embeddedImageNames)
 {
   Material newMaterial;
   newMaterial.mShaderId = shaderResId;
@@ -250,27 +251,37 @@ VResult<Material> Material::Init(
     const char* preUniformName = GetUniformName(aiType);
     unsigned int textureCount = assimpMat.GetTextureCount(aiType);
     for (unsigned int i = 0; i < textureCount; ++i) {
-      // Create the name for the new image resource and the texture uniform.
       std::string uniformName = preUniformName;
       if (textureCount > 1) {
         uniformName += '[' + std::to_string(i) + ']';
       }
-      std::string imageResName = materialName + '{' + uniformName + '}';
 
-      // Load the image resource from file.
+      // Get the filename where the image is stored.
       aiString filename;
       aiReturn aiResult = assimpMat.Get(AI_MATKEY_TEXTURE(aiType, i), filename);
       if (aiResult != AI_SUCCESS) {
         std::string error =
-          "Failed to get filename for image resource \"" + imageResName + "\".";
+          "Failed to get filename for \"" + uniformName + "\".";
         return Result(error);
       }
-      std::string file = directory + filename.C_Str();
-      Result result = asset.TryInitRes<Image>(imageResName, file);
-      if (!result.Success()) {
-        std::string error = "Failed to initiazlize image resource \"" +
-          imageResName + "\".\n" + result.mError;
-        return Result(error);
+
+      // Get an initialized image resource name.
+      std::string imageResName;
+      if (filename.C_Str()[0] == '*') {
+        std::string indexString = filename.C_Str();
+        indexString.erase(indexString.begin());
+        int embeddedIndex = std::stoi(indexString);
+        imageResName = embeddedImageNames[embeddedIndex];
+      }
+      else {
+        imageResName = materialName + '(' + uniformName + ')';
+        std::string file = directory + filename.C_Str();
+        Result result = asset.TryInitRes<Image>(imageResName, file);
+        if (!result.Success()) {
+          result.mError =
+            "Image \"" + imageResName + "\" init failed.\n" + result.mError;
+          return result;
+        }
       }
 
       // Add the texture uniform.

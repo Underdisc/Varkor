@@ -67,32 +67,53 @@ Result Image::Init(const std::string& file)
   std::string absoluteFile = resolutionResult.mValue;
 
   stbi_set_flip_vertically_on_load(true);
-  Config config;
-  int channels;
-  config.mData = stbi_load(
-    absoluteFile.c_str(), &config.mWidth, &config.mHeight, &channels, 0);
-  if (config.mData == nullptr) {
+  int width, height, channels;
+  void* imageData =
+    stbi_load(absoluteFile.c_str(), &width, &height, &channels, 0);
+  if (imageData == nullptr) {
     return Result(
-      "Failed to load \"" + absoluteFile + "\"\n " + stbi_failure_reason());
+      "File \"" + absoluteFile + "\" failed load.\n " + stbi_failure_reason());
   }
-
-  channels == 4 ? config.mInternalFormat = GL_RGBA :
-                  config.mInternalFormat = GL_RGB;
-  config.mFormat = config.mInternalFormat;
-  config.mPixelAlignment = 4;
-  Init(config);
-  stbi_image_free(config.mData);
+  Init(imageData, width, height, channels);
+  stbi_image_free(imageData);
   return Result();
 }
 
-void Image::Init(const Config& config)
+Result Image::Init(const void* fileData, int size)
 {
-  mHeight = config.mHeight;
-  mWidth = config.mWidth;
+  int width, height, channels;
+  void* imageData = stbi_load_from_memory(
+    (stbi_uc*)fileData, size, &width, &height, &channels, 0);
+  if (imageData == nullptr) {
+    return Result(stbi_failure_reason());
+  }
+  Init(imageData, width, height, channels);
+  stbi_image_free(imageData);
+  return Result();
+}
 
+Result Image::Init(const void* imageData, int width, int height, int channels)
+{
+  GLenum internalFormat;
+  channels == 4 ? internalFormat = GL_RGBA : internalFormat = GL_RGB;
+  GLenum format = internalFormat;
+  GLint pixelAlignment = 4;
+  return Init(imageData, width, height, internalFormat, format, pixelAlignment);
+}
+
+Result Image::Init(
+  const void* imageData,
+  int width,
+  int height,
+  GLenum internalFormat,
+  GLenum format,
+  GLint pixelAlignmet)
+{
+  mWidth = width;
+  mHeight = height;
   glGenTextures(1, &mId);
   glBindTexture(GL_TEXTURE_2D, mId);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, config.mPixelAlignment);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, pixelAlignmet);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -100,14 +121,15 @@ void Image::Init(const Config& config)
   glTexImage2D(
     GL_TEXTURE_2D,
     0,
-    config.mInternalFormat,
+    internalFormat,
     mWidth,
     mHeight,
     0,
-    config.mFormat,
+    format,
     GL_UNSIGNED_BYTE,
-    config.mData);
+    imageData);
   glGenerateMipmap(GL_TEXTURE_2D);
+  return Result();
 }
 
 GLuint Image::Id() const

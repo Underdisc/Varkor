@@ -15,19 +15,18 @@ public:
   Image& operator=(Image&& other);
   ~Image();
 
-  struct Config
-  {
-    unsigned char* mData;
-    int mWidth;
-    int mHeight;
-    GLenum mInternalFormat;
-    GLenum mFormat;
-    GLint mPixelAlignment;
-  };
   static void EditConfig(Vlk::Value* configValP);
   Result Init(const Vlk::Explorer& configEx);
   Result Init(const std::string& file);
-  void Init(const Config& config);
+  Result Init(const void* fileData, int size);
+  Result Init(const void* imageData, int width, int height, int channels);
+  Result Init(
+    const void* imageData,
+    int width,
+    int height,
+    GLenum internalFormat,
+    GLenum format,
+    GLint pixelAlignment);
 
   GLuint Id() const;
   float Aspect() const;

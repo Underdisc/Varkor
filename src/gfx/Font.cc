@@ -115,25 +115,26 @@ void Font::InitGlyphs()
     const int onEdgeValue = 120;
     const float pixelDistance = 40.0f;
     int glyphIndex = stbtt_FindGlyphIndex(&mFontInfo, (int)i);
-    Image::Config imageConfig;
-    imageConfig.mData = stbtt_GetGlyphSDF(
+    int width, height;
+    void* imageData = (void*)stbtt_GetGlyphSDF(
       &mFontInfo,
       renderScale,
       glyphIndex,
       padding,
       onEdgeValue,
       pixelDistance,
-      &imageConfig.mWidth,
-      &imageConfig.mHeight,
+      &width,
+      &height,
       nullptr,
       nullptr);
 
-    if (imageConfig.mData != nullptr) {
-      imageConfig.mInternalFormat = GL_R8;
-      imageConfig.mFormat = GL_RED;
-      imageConfig.mPixelAlignment = 1;
-      glyphData.mImage.Init(imageConfig);
-      stbtt_FreeBitmap(imageConfig.mData, nullptr);
+    if (imageData != nullptr) {
+      GLenum internalFormat = GL_R8;
+      GLenum format = GL_RED;
+      GLint pixelAlignment = 1;
+      glyphData.mImage.Init(
+        imageData, width, height, internalFormat, format, pixelAlignment);
+      stbtt_FreeBitmap((unsigned char*)imageData, nullptr);
     }
 
     // Calculate the glyph's metrics.
@@ -144,8 +145,8 @@ void Font::InitGlyphs()
     // pixel takes when unpadded. This allows us to add padding to the box using
     // the size of a pixel within it.
     int fullPadding = 2 * padding;
-    float pixelHeightRatio = 1.0f / (float)(imageConfig.mHeight - fullPadding);
-    float pixelWidthRatio = 1.0f / (float)(imageConfig.mWidth - fullPadding);
+    float pixelHeightRatio = 1.0f / (float)(height - fullPadding);
+    float pixelWidthRatio = 1.0f / (float)(width - fullPadding);
     float boxWidth = boxEnd[0] - boxStart[0];
     float boxHeight = boxEnd[1] - boxStart[1];
     float pixelWidth = pixelWidthRatio * boxWidth;
