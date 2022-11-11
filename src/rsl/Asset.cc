@@ -131,7 +131,7 @@ Result Asset::TryInit()
 
   // Initialize all of the resources in the value.
   for (int i = 0; i < rootEx.Size(); ++i) {
-    Result result = InitRes(rootEx(i));
+    Result result = TryInitRes(rootEx(i));
     if (!result.Success()) {
       Purge();
       mStatus = Status::Failed;
@@ -164,7 +164,7 @@ void Asset::Sleep()
   mStatus = Status::Dormant;
 }
 
-Result Asset::InitRes(const Vlk::Explorer& resEx)
+Result Asset::TryInitRes(const Vlk::Explorer& resEx)
 {
   // Get the type of the resource.
   Vlk::Explorer resourceTypeEx = resEx("Type");

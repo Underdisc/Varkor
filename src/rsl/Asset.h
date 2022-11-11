@@ -72,7 +72,7 @@ public:
   void Sleep();
 
 private:
-  Result InitRes(const Vlk::Explorer& configEx);
+  Result TryInitRes(const Vlk::Explorer& configEx);
   Result InitModel(const std::string& name, const Vlk::Explorer& configEx);
 
   void Purge();
