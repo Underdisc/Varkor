@@ -217,14 +217,18 @@ Result Asset::InitRes(const Vlk::Explorer& resEx)
 
 Result Asset::InitModel(const std::string& name, const Vlk::Explorer& configEx)
 {
-  VResult<Gfx::Model> result = Gfx::Model::Init(*this, configEx);
-  if (!result.Success()) {
-    return result;
+  VResult<Gfx::Model> initResult = Gfx::Model::Init(*this, configEx);
+  if (!initResult.Success()) {
+    return initResult;
   }
-  ResDesc resDesc = AllocateRes(ResTypeId::Model, name);
-  Gfx::Model* model = (Gfx::Model*)GetResDescData(resDesc);
-  new (model) Gfx::Model(std::move(result.mValue));
-  return result;
+  VResult<ResDesc> allocResult = AllocateRes(ResTypeId::Model, name);
+  if (!allocResult.Success()) {
+    return allocResult;
+  }
+
+  Gfx::Model* model = (Gfx::Model*)GetResDescData(allocResult.mValue);
+  new (model) Gfx::Model(std::move(initResult.mValue));
+  return Result();
 }
 
 void Asset::Purge()
@@ -244,8 +248,17 @@ void* Asset::GetResDescData(const ResDesc& resDesc)
   return (void*)&mResBin[resDesc.mByteIndex];
 }
 
-Asset::ResDesc Asset::AllocateRes(ResTypeId resTypeId, const std::string& name)
+VResult<Asset::ResDesc> Asset::AllocateRes(
+  ResTypeId resTypeId, const std::string& name)
 {
+  // Make sure the supplied resource name is not already in use.
+  for (const ResDesc& resDesc : mResDescs) {
+    if (name == resDesc.mName) {
+      return Result("Resource name \"" + name + "\" already used.");
+    }
+  }
+
+  // Create space for the new resource.
   const ResTypeData& resTypeData = GetResTypeData(resTypeId);
   size_t oldSize = mResBinSize;
   size_t newSize = mResBinSize + resTypeData.mSize;

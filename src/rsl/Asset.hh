@@ -16,15 +16,19 @@ template<typename T, typename... Args>
 VResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args)
 {
   T newRes;
-  Result result = newRes.Init(std::forward<Args>(args)...);
-  if (!result.Success()) {
-    return result;
+  Result initResult = newRes.Init(std::forward<Args>(args)...);
+  if (!initResult.Success()) {
+    return initResult;
   }
-  ResDesc newResDesc = AllocateRes(GetResTypeId<T>(), name);
-  T* newResData = (T*)GetResDescData(newResDesc);
+  VResult<ResDesc> allocResult = AllocateRes(GetResTypeId<T>(), name);
+  if (!allocResult.Success()) {
+    return allocResult;
+  }
+
+  T* newResData = (T*)GetResDescData(allocResult.mValue);
   const ResTypeData& typeData = GetResTypeData<T>();
   typeData.mMoveConstruct(&newRes, newResData);
-  return VResult<T*>(newResData);
+  return newResData;
 }
 
 template<typename T>

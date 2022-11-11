@@ -77,7 +77,7 @@ private:
 
   void Purge();
   void* GetResDescData(const ResDesc& resDesc);
-  ResDesc AllocateRes(ResTypeId resTypeId, const std::string& name);
+  VResult<ResDesc> AllocateRes(ResTypeId resTypeId, const std::string& name);
   void GrowResBin(size_t neededCapacity);
   void MoveResources(char* fromBin, char* toBin);
   void DestructResources();
