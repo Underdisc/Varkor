@@ -23,9 +23,8 @@ struct Model
 
   static VResult<const aiScene*> Import(
     const std::string& file, Assimp::Importer* importer, bool flipUvs);
-
   static void EditConfig(Vlk::Value* configValP);
-  static VResult<Model> Init(Rsl::Asset& asset, const Vlk::Explorer& configEx);
+  Result Init(const Vlk::Explorer& configEx);
 
   size_t RenderableCount() const;
   Renderable GetRenderable(size_t renderableDescIndex) const;

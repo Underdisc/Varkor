@@ -14,6 +14,8 @@
 
 namespace Rsl {
 
+Asset* Asset::smInitAsset = nullptr;
+
 Asset::Asset(const std::string& name):
   mName(name),
   mStatus(Status::Dormant),
@@ -121,7 +123,9 @@ void Asset::Init()
 
 Result Asset::TryInit()
 {
+  smInitAsset = this;
   mStatus = Status::Initializing;
+
   VResult<Vlk::Value> result = GetVlkValue();
   if (!result.Success()) {
     mStatus = Status::Failed;
@@ -138,6 +142,8 @@ Result Asset::TryInit()
       return result;
     }
   }
+
+  smInitAsset = nullptr;
   return Result();
 }
 
@@ -162,6 +168,12 @@ void Asset::Sleep()
 {
   Purge();
   mStatus = Status::Dormant;
+}
+
+Asset& Asset::GetInitAsset()
+{
+  LogAbortIf(smInitAsset == nullptr, "An asset is not being initialized.");
+  return *smInitAsset;
 }
 
 Result Asset::TryInitRes(const Vlk::Explorer& resEx)
@@ -190,21 +202,24 @@ Result Asset::TryInitRes(const Vlk::Explorer& resEx)
   // Initialize the resource.
   const std::string& name = resEx.Key();
   Result result;
+  // clang-format off
   switch (resTypeId) {
   case ResTypeId::Cubemap:
-    result = TryInitRes<Gfx::Cubemap>(name, configEx);
-    break;
-  case ResTypeId::Font: result = TryInitRes<Gfx::Font>(name, configEx); break;
-  case ResTypeId::Image: result = TryInitRes<Gfx::Image>(name, configEx); break;
+    result = TryInitRes<Gfx::Cubemap>(name, configEx); break;
+  case ResTypeId::Font:
+    result = TryInitRes<Gfx::Font>(name, configEx); break;
+  case ResTypeId::Image:
+    result = TryInitRes<Gfx::Image>(name, configEx); break;
   case ResTypeId::Material:
-    result = TryInitRes<Gfx::Material>(name, configEx);
-    break;
-  case ResTypeId::Mesh: result = TryInitRes<Gfx::Mesh>(name, configEx); break;
-  case ResTypeId::Model: result = InitModel(name, configEx); break;
+    result = TryInitRes<Gfx::Material>(name, configEx); break;
+  case ResTypeId::Mesh:
+    result = TryInitRes<Gfx::Mesh>(name, configEx); break;
+  case ResTypeId::Model:
+    result = TryInitRes<Gfx::Model>(name, configEx); break;
   case ResTypeId::Shader:
-    result = TryInitRes<Gfx::Shader>(name, configEx);
-    break;
+    result = TryInitRes<Gfx::Shader>(name, configEx); break;
   }
+  // clang-format on
   glFinish();
   if (!result.Success()) {
     const ResTypeData& resTypeData = Rsl::GetResTypeData(resTypeId);
@@ -213,22 +228,6 @@ Result Asset::TryInitRes(const Vlk::Explorer& resEx)
     return Result(error);
   }
   return result;
-}
-
-Result Asset::InitModel(const std::string& name, const Vlk::Explorer& configEx)
-{
-  VResult<Gfx::Model> initResult = Gfx::Model::Init(*this, configEx);
-  if (!initResult.Success()) {
-    return initResult;
-  }
-  VResult<ResDesc> allocResult = AllocateRes(ResTypeId::Model, name);
-  if (!allocResult.Success()) {
-    return allocResult;
-  }
-
-  Gfx::Model* model = (Gfx::Model*)GetResDescData(allocResult.mValue);
-  new (model) Gfx::Model(std::move(initResult.mValue));
-  return Result();
 }
 
 void Asset::Purge()

@@ -21,8 +21,7 @@ struct Material
   Result Init(const Vlk::Explorer& configEx);
   Result Init(const ResId& shaderResId);
   Result Init(Material&& other);
-  static VResult<Material> Init(
-    Rsl::Asset& asset,
+  Result Init(
     const ResId& shaderResId,
     const std::string& materialName,
     const aiMaterial& assimpMat,

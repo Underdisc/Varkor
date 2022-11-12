@@ -39,6 +39,9 @@ private:
   size_t mResBinCapacity;
   Ds::Vector<ResDesc> mResDescs;
 
+  // The asset currently undergoing initialization.
+  static Asset* smInitAsset;
+
 public:
   explicit Asset(const std::string& name);
   Asset(Asset&& other);
@@ -71,9 +74,10 @@ public:
   void InitFinalize();
   void Sleep();
 
+  static Asset& GetInitAsset();
+
 private:
   Result TryInitRes(const Vlk::Explorer& configEx);
-  Result InitModel(const std::string& name, const Vlk::Explorer& configEx);
 
   void Purge();
   void* GetResDescData(const ResDesc& resDesc);

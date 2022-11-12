@@ -66,7 +66,7 @@ void Model::EditConfig(Vlk::Value* configValP)
   shaderIdVal = shaderId;
 }
 
-VResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
+Result Model::Init(const Vlk::Explorer& configEx)
 {
   // Get the file to import.
   Vlk::Explorer fileEx = configEx("File");
@@ -93,6 +93,7 @@ VResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
   std::string directory = file.substr(0, file.find_last_of('/') + 1);
 
   // Create all of the image resources that are embedded in the model.
+  Rsl::Asset& initAsset = Rsl::Asset::GetInitAsset();
   Ds::Vector<std::string> embeddedImageNames;
   for (int i = 0; i < (int)scene->mNumTextures; ++i) {
     aiTexture* texture = scene->mTextures[i];
@@ -102,7 +103,7 @@ VResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
 
     std::string imageName = "Embedded[" + std::to_string(i) + "]";
     imageName = imageName + "(" + texture->mFilename.C_Str() + ")";
-    Result result = asset.TryInitRes<Image>(
+    Result result = initAsset.TryInitRes<Image>(
       imageName, (void*)texture->pcData, texture->mWidth);
     if (!result.Success()) {
       result.mError =
@@ -113,21 +114,24 @@ VResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
   }
 
   // Create all of the materials.
-  Model newModel;
   for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
     const aiMaterial& assimpMat = *scene->mMaterials[i];
     std::string materialName = assimpMat.GetName().C_Str();
     if (materialName.empty()) {
       materialName = "Material[" + std::to_string(i) + "]";
     }
-    VResult<Material> result = Material::Init(
-      asset, shaderId, materialName, assimpMat, directory, embeddedImageNames);
-    asset.InitRes<Material>(materialName, std::move(result.mValue));
+    Result result = initAsset.TryInitRes<Material>(
+      materialName,
+      shaderId,
+      materialName,
+      assimpMat,
+      directory,
+      embeddedImageNames);
     if (!result.Success()) {
       return Result(
         "Material \"" + materialName + "\" init failed.\n" + result.mError);
     }
-    newModel.mMaterialIds.Emplace(asset.GetName(), materialName);
+    mMaterialIds.Emplace(initAsset.GetName(), materialName);
   }
 
   // Create all of the meshes.
@@ -135,23 +139,23 @@ VResult<Model> Model::Init(Rsl::Asset& asset, const Vlk::Explorer& configEx)
     const aiMesh& assimpMesh = *scene->mMeshes[i];
     if (assimpMesh.mPrimitiveTypes & (unsigned int)aiPrimitiveType_TRIANGLE) {
       std::string meshName = assimpMesh.mName.C_Str();
-      Result result = asset.TryInitRes<Gfx::Mesh>(meshName, assimpMesh);
+      Result result = initAsset.TryInitRes<Gfx::Mesh>(meshName, assimpMesh);
       if (!result.Success()) {
         return Result(
           "Mesh \"" + meshName + "\" init failed.\n" + result.mError);
       }
       MeshDescriptor newMeshDesc;
-      newMeshDesc.mMeshId.Init(asset.GetName(), meshName);
+      newMeshDesc.mMeshId.Init(initAsset.GetName(), meshName);
       newMeshDesc.mMaterialIndex = (size_t)assimpMesh.mMaterialIndex;
-      newModel.mMeshDescs.Push(std::move(newMeshDesc));
+      mMeshDescs.Push(std::move(newMeshDesc));
     }
   }
 
   // Create all of the renderables.
   Mat4 parentTransform;
   Math::Identity(&parentTransform);
-  newModel.CreateRenderables(*scene->mRootNode, parentTransform);
-  return VResult<Model>(std::move(newModel));
+  CreateRenderables(*scene->mRootNode, parentTransform);
+  return Result();
 }
 
 size_t Model::RenderableCount() const

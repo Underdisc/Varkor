@@ -232,18 +232,17 @@ Result Material::Init(Material&& other)
   return Result();
 }
 
-VResult<Material> Material::Init(
-  Rsl::Asset& asset,
+Result Material::Init(
   const ResId& shaderResId,
   const std::string& materialName,
   const aiMaterial& assimpMat,
   const std::string& directory,
   const Ds::Vector<std::string>& embeddedImageNames)
 {
-  Material newMaterial;
-  newMaterial.mShaderId = shaderResId;
+  mShaderId = shaderResId;
 
   // Load textures and create their respective uniforms.
+  Rsl::Asset& initAsset = Rsl::Asset::GetInitAsset();
   aiTextureType textureTypes[2] = {
     aiTextureType_DIFFUSE, aiTextureType_SPECULAR};
   for (int i = 0; i < 2; ++i) {
@@ -276,7 +275,7 @@ VResult<Material> Material::Init(
       else {
         imageResName = materialName + '(' + uniformName + ')';
         std::string file = directory + filename.C_Str();
-        Result result = asset.TryInitRes<Image>(imageResName, file);
+        Result result = initAsset.TryInitRes<Image>(imageResName, file);
         if (!result.Success()) {
           result.mError =
             "Image \"" + imageResName + "\" init failed.\n" + result.mError;
@@ -285,12 +284,11 @@ VResult<Material> Material::Init(
       }
 
       // Add the texture uniform.
-      ResId imageId(asset.GetName(), imageResName);
-      newMaterial.mUniforms.Add<ResId>(
-        UniformTypeId::Texture2dRes, uniformName, imageId);
+      ResId imageId(initAsset.GetName(), imageResName);
+      mUniforms.Add<ResId>(UniformTypeId::Texture2dRes, uniformName, imageId);
     }
   }
-  return VResult<Material>(std::move(newMaterial));
+  return Result();
 }
 
 const char* Material::GetUniformName(aiTextureType aiType)
