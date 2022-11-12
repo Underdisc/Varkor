@@ -116,10 +116,8 @@ Result Model::Init(const Vlk::Explorer& configEx)
   // Create all of the materials.
   for (unsigned int i = 0; i < scene->mNumMaterials; ++i) {
     const aiMaterial& assimpMat = *scene->mMaterials[i];
-    std::string materialName = assimpMat.GetName().C_Str();
-    if (materialName.empty()) {
-      materialName = "Material[" + std::to_string(i) + "]";
-    }
+    std::string materialName = "Material[" + std::to_string(i) + "](" +
+      assimpMat.GetName().C_Str() + ")";
     Result result = initAsset.TryInitRes<Material>(
       materialName,
       shaderId,
@@ -138,7 +136,8 @@ Result Model::Init(const Vlk::Explorer& configEx)
   for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
     const aiMesh& assimpMesh = *scene->mMeshes[i];
     if (assimpMesh.mPrimitiveTypes & (unsigned int)aiPrimitiveType_TRIANGLE) {
-      std::string meshName = assimpMesh.mName.C_Str();
+      std::string meshName =
+        "Mesh[" + std::to_string(i) + "](" + assimpMesh.mName.C_Str() + ")";
       Result result = initAsset.TryInitRes<Gfx::Mesh>(meshName, assimpMesh);
       if (!result.Success()) {
         return Result(
