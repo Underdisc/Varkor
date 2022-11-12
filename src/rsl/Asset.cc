@@ -252,8 +252,10 @@ VResult<Asset::ResDesc> Asset::AllocateRes(
 {
   // Make sure the supplied resource name is not already in use.
   for (const ResDesc& resDesc : mResDescs) {
-    if (name == resDesc.mName) {
-      return Result("Resource name \"" + name + "\" already used.");
+    if (resTypeId == resDesc.mResTypeId && name == resDesc.mName) {
+      const ResTypeData& resTypeData = GetResTypeData(resTypeId);
+      std::string typeName = resTypeData.mName;
+      return Result(typeName + " resource name \"" + name + "\" already used.");
     }
   }
 
