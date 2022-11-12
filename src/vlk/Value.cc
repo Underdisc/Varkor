@@ -363,6 +363,12 @@ void Value::PushValue()
   mValueArray.Emplace();
 }
 
+void Value::EmplaceValue(Value&& value)
+{
+  EnsureType(Type::ValueArray);
+  mValueArray.Emplace(std::move(value));
+}
+
 void Value::PopValue()
 {
   ExpectType(Type::ValueArray);

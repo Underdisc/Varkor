@@ -77,13 +77,14 @@ VResult<LayerIt> LoadLayer(const char* filename)
   Vlk::Explorer spaceEx = rootEx("Space");
   if (!spaceEx.Valid()) {
     std::stringstream error;
-    error << "\"" << filename << "\" missing :Space:.";
+    error << "Layer \"" << filename << "\" missing :Space:.";
     return VResult<LayerIt>(nLayers.end(), Result(error.str()));
   }
   result = newLayer.mSpace.Deserialize(spaceEx);
   if (!result.Success()) {
     std::stringstream error;
-    error << "\"" << filename << "\" failed to deserialize.\n" << result.mError;
+    error << "Layer \"" << filename << "\" failed deserialization.\n"
+          << result.mError;
     return VResult<LayerIt>(nLayers.end(), Result(error.str()));
   }
   return VResult<LayerIt>(nLayers.Back());

@@ -71,6 +71,7 @@ public:
   template<typename T>
   void PushValue(const T& value);
   void PushValue();
+  void EmplaceValue(Value&& value);
   void PopValue();
   void RemoveValue(size_t index);
 

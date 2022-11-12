@@ -486,8 +486,9 @@ void Space::Serialize(Vlk::Value& spaceVal) const
     }
 
     // Serialize all of the member's data.
-    Vlk::Value& memberVal = spaceVal(member.mName.c_str());
+    Vlk::Value memberVal;
     memberVal("Id") = memberId;
+    memberVal("Name") = member.mName;
     memberVal("Parent") = member.mParent;
     Vlk::Value& childrenVal = memberVal("Children")[{member.mChildren.Size()}];
     for (size_t i = 0; i < member.mChildren.Size(); ++i) {
@@ -505,32 +506,46 @@ void Space::Serialize(Vlk::Value& spaceVal) const
       Table& table = mTables.Get(desc.mTypeId);
       typeData.mVSerialize.Invoke(table[desc.mTableIndex], componentVal);
     }
+    spaceVal.EmplaceValue(std::move(memberVal));
   }
 }
 
 Result Space::Deserialize(const Vlk::Explorer& spaceEx)
 {
+  if (!spaceEx.Valid(Vlk::Value::Type::ValueArray)) {
+    return Result("Space Value must be a ValueArray");
+  }
+
   for (size_t i = 0; i < spaceEx.Size(); ++i) {
-    // Ensure that the current member is valid.
-    Vlk::Explorer memberEx = spaceEx(i);
+    // Get the member's id.
+    Vlk::Explorer memberEx = spaceEx[i];
     MemberId memberId = memberEx("Id").As<int>(nInvalidMemberId);
     if (memberId == nInvalidMemberId) {
-      LogError("A Member should have a valid Id.");
-      continue;
+      return Result("Member at " + memberEx.Path() + " has an invalid Id.");
     }
     World::Object owner(this, memberId);
 
-    // Deserialize the member's data.
+    // Get the member's name.
     if (memberId >= mMembers.Size()) {
       mMembers.Resize(memberId + 1);
     }
     Member& member = mMembers[memberId];
-    member.StartUse((DescriptorId)mDescriptorBin.Size(), memberEx.Key());
+    Vlk::Explorer nameEx = memberEx("Name");
+    if (!nameEx.Valid(Vlk::Value::Type::TrueValue)) {
+      return Result(
+        "Member at " + memberEx.Path() + " missing :Name: TrueValue");
+    }
+    DescriptorId firstDescId = (DescriptorId)mDescriptorBin.Size();
+    member.StartUse(firstDescId, nameEx.As<std::string>());
+
+    // Get the member's parent and children ids.
     member.mParent = memberEx("Parent").As<int>(nInvalidMemberId);
     Vlk::Explorer childrenEx = memberEx("Children");
     for (size_t i = 0; i < childrenEx.Size(); ++i) {
       member.mChildren.Push(childrenEx[i].As<int>());
     }
+
+    // Get the member's component data.
     Vlk::Explorer componentsEx = memberEx("Components");
     for (size_t i = 0; i < componentsEx.Size(); ++i) {
       Vlk::Explorer componentEx = componentsEx(i);
@@ -544,7 +559,6 @@ Result Space::Deserialize(const Vlk::Explorer& spaceEx)
       if (component == nullptr) {
         component = AddComponent(typeId, memberId, false);
       }
-
       const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
       if (typeData.mVDeserialize.Open()) {
         typeData.mVDeserialize.Invoke(component, componentEx);
