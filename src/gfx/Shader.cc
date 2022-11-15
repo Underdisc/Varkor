@@ -15,17 +15,6 @@
 
 namespace Gfx {
 
-const char* Uniform::smTypeStrings[] = {
-  "uModel",
-  "uTexture",
-  "uColor",
-  "uAlphaColor",
-  "uMemberId",
-  "uFillAmount",
-  "uSkyboxSampler",
-  "uMateial.mDiffuse",
-  "uMaterial.mSpecular"};
-
 Shader::Shader(): mId(0) {}
 
 Shader::Shader(Shader&& other)
@@ -36,7 +25,6 @@ Shader::Shader(Shader&& other)
 Shader& Shader::operator=(Shader&& other)
 {
   mId = other.mId;
-  mUniforms = std::move(other.mUniforms);
   other.mId = 0;
   return *this;
 }
@@ -45,7 +33,6 @@ Shader::~Shader()
 {
   glDeleteProgram(mId);
   mId = 0;
-  mUniforms.Clear();
 }
 
 Shader::SubType Shader::GetSubType(const std::string& subTypeString)
@@ -183,22 +170,6 @@ GLuint Shader::Id() const
   return mId;
 }
 
-GLint Shader::UniformLocation(Uniform::Type type) const
-{
-  for (const Uniform& uniform : mUniforms) {
-    if (uniform.mType == type) {
-      return uniform.mLocation;
-    }
-  }
-  if (smLogMissingUniforms) {
-    const char* typeString = Uniform::smTypeStrings[(int)type];
-    std::stringstream error;
-    error << "Shader does not contain the " << typeString << " uniform.";
-    LogError(error.str().c_str());
-  }
-  return smInvalidLocation;
-}
-
 GLint Shader::UniformLocation(const char* name) const
 {
   GLint location = glGetUniformLocation(mId, name);
@@ -247,18 +218,6 @@ void Shader::SetUniform(const char* name, const Mat4& value) const
 
 void Shader::InitializeUniforms()
 {
-  for (int i = 0; i < (int)Uniform::Type::Count; ++i) {
-    Uniform::Type uniformType = (Uniform::Type)i;
-    const char* typeString = Uniform::smTypeStrings[i];
-    int location = glGetUniformLocation(mId, typeString);
-    if (location != smInvalidLocation) {
-      Uniform newUniform;
-      newUniform.mType = uniformType;
-      newUniform.mLocation = location;
-      mUniforms.Push(newUniform);
-    }
-  }
-
   auto tryBindUniformBlock = [this](const char* name, GLuint binding)
   {
     GLuint index = glGetUniformBlockIndex(mId, name);

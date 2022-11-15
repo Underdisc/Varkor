@@ -12,26 +12,6 @@
 
 namespace Gfx {
 
-struct Uniform
-{
-  static const char* smTypeStrings[];
-  enum class Type
-  {
-    Model = 0,
-    Sampler,
-    Color,
-    AlphaColor,
-    MemberId,
-    FillAmount,
-    SkyboxSampler,
-    ADiffuse,
-    ASpecular,
-    Count
-  };
-  Type mType;
-  GLint mLocation;
-};
-
 struct Shader
 {
   Shader();
@@ -81,7 +61,6 @@ struct Shader
   Result Init(const Ds::Vector<CompileInfo>& allCompileInfo);
 
   GLuint Id() const;
-  GLint UniformLocation(Uniform::Type type) const;
   GLint UniformLocation(const char* name) const;
   void Use() const;
   void SetUniform(const char* name, float value) const;
@@ -96,7 +75,6 @@ struct Shader
 
 private:
   GLuint mId;
-  Ds::Vector<Uniform> mUniforms;
 
   void InitializeUniforms();
   Result CompileSubShader(const CompileInfo& compileInfo, GLuint subShaderId);
