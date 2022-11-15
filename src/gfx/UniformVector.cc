@@ -81,30 +81,6 @@ UniformVector::~UniformVector()
   delete[] mData;
 }
 
-void UniformVector::Bind(const Shader& shader, int* textureIndex) const
-{
-  for (const UniformDescriptor& uniformDesc : mUniformDescs) {
-    switch (uniformDesc.mTypeId) {
-    case UniformTypeId::Int: BindUniform<int>(shader, uniformDesc); break;
-    case UniformTypeId::Float: BindUniform<float>(shader, uniformDesc); break;
-    case UniformTypeId::Vec3: BindUniform<Vec3>(shader, uniformDesc); break;
-    case UniformTypeId::Vec4: BindUniform<Vec4>(shader, uniformDesc); break;
-    case UniformTypeId::Texture2dRes:
-      BindTexture2DRes(shader, textureIndex, uniformDesc);
-      break;
-    case UniformTypeId::TextureCubemapRes:
-      BindTextureCubemapRes(shader, textureIndex, uniformDesc);
-      break;
-    case UniformTypeId::Texture2d:
-      BindTexture(shader, textureIndex, uniformDesc, GL_TEXTURE_2D);
-      break;
-    case UniformTypeId::TextureCubemap:
-      BindTexture(shader, textureIndex, uniformDesc, GL_TEXTURE_CUBE_MAP);
-      break;
-    }
-  }
-}
-
 void* UniformVector::Add(UniformTypeId typeId, const std::string& name)
 {
   const UniformTypeData& typeData = GetUniformTypeData(typeId);
@@ -152,6 +128,30 @@ void* UniformVector::Get(UniformTypeId typeId, const std::string& name)
     "Uniform \"" + name + "\" of type \"" + typeData.mName + "\" not found.";
   LogAbort(error.c_str());
   return nullptr;
+}
+
+void UniformVector::Bind(const Shader& shader, int* textureIndex) const
+{
+  for (const UniformDescriptor& uniformDesc : mUniformDescs) {
+    switch (uniformDesc.mTypeId) {
+    case UniformTypeId::Int: BindUniform<int>(shader, uniformDesc); break;
+    case UniformTypeId::Float: BindUniform<float>(shader, uniformDesc); break;
+    case UniformTypeId::Vec3: BindUniform<Vec3>(shader, uniformDesc); break;
+    case UniformTypeId::Vec4: BindUniform<Vec4>(shader, uniformDesc); break;
+    case UniformTypeId::Texture2dRes:
+      BindTexture2DRes(shader, textureIndex, uniformDesc);
+      break;
+    case UniformTypeId::TextureCubemapRes:
+      BindTextureCubemapRes(shader, textureIndex, uniformDesc);
+      break;
+    case UniformTypeId::Texture2d:
+      BindTexture(shader, textureIndex, uniformDesc, GL_TEXTURE_2D);
+      break;
+    case UniformTypeId::TextureCubemap:
+      BindTexture(shader, textureIndex, uniformDesc, GL_TEXTURE_CUBE_MAP);
+      break;
+    }
+  }
 }
 
 void UniformVector::DestructUniforms()
