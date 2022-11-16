@@ -42,6 +42,7 @@ VResult<const aiScene*> Model::Import(
   }
 
   // Import the model.
+  importer->SetPropertyInteger(AI_CONFIG_FBX_CONVERT_TO_M, 0);
   unsigned int flags =
     aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_SortByPType;
   if (flipUvs) {
