@@ -52,8 +52,6 @@ void (*nCustomRender)() = nullptr;
 
 void Init()
 {
-  RegisterUniformTypes();
-
   // Initialize all of the resources used by the renderer.
   Rsl::Asset& asset = Rsl::GetAsset(nRendererAssetName);
   // clang-format off

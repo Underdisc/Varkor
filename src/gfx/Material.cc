@@ -288,6 +288,19 @@ Result Material::Init(
       mUniforms.Add<ResId>(UniformTypeId::Texture2dRes, uniformName, imageId);
     }
   }
+
+  // Set the diffuse color uniform.
+  aiColor3D assimpDiffuseColor;
+  aiReturn aiResult =
+    assimpMat.Get(AI_MATKEY_COLOR_DIFFUSE, assimpDiffuseColor);
+  if (aiResult == AI_SUCCESS) {
+    Vec3 diffuseColor;
+    diffuseColor[0] = assimpDiffuseColor.r;
+    diffuseColor[1] = assimpDiffuseColor.g;
+    diffuseColor[2] = assimpDiffuseColor.b;
+    mUniforms.Add<Vec3>("uDiffuseColor", diffuseColor);
+  }
+
   return Result();
 }
 

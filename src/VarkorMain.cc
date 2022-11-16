@@ -9,6 +9,7 @@
 #include "debug/Draw.h"
 #include "editor/Editor.h"
 #include "gfx/Renderer.h"
+#include "gfx/UniformVector.h"
 #include "rsl/Library.h"
 #include "world/World.h"
 
@@ -21,6 +22,7 @@ Result VarkorInit(
   }
   Error::Init("log.err");
   Viewport::Init(windowName);
+  Gfx::UniformVector::Init();
   Rsl::Init();
   Gfx::Renderer::Init();
   Registrar::Init();

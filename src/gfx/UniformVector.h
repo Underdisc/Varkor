@@ -30,7 +30,6 @@ struct UniformType
   // Detached implies a one to many relationship between T and UniformTypeId.
   static void RegisterDetached(UniformTypeId typeId, const char* name);
 };
-void RegisterUniformTypes();
 template<typename T>
 UniformTypeId GetUniformTypeId();
 UniformTypeId GetUniformTypeId(const std::string& name);
@@ -50,6 +49,8 @@ const UniformTypeData& GetUniformTypeData(UniformTypeId typeId);
 
 struct UniformVector
 {
+  static void Init();
+
   struct UniformDescriptor
   {
     std::string mName;

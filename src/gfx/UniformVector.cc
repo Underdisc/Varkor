@@ -9,21 +9,6 @@
 
 namespace Gfx {
 
-void RegisterUniformTypes()
-{
-  UniformType<int>::RegisterAttached(UniformTypeId::Int, "Int");
-  UniformType<float>::RegisterAttached(UniformTypeId::Float, "Float");
-  UniformType<Vec3>::RegisterAttached(UniformTypeId::Vec3, "Vec3");
-  UniformType<Vec4>::RegisterAttached(UniformTypeId::Vec4, "Vec4");
-  UniformType<ResId>::RegisterDetached(
-    UniformTypeId::Texture2dRes, "Texture2dRes");
-  UniformType<ResId>::RegisterDetached(
-    UniformTypeId::TextureCubemapRes, "TextureCubemapRes");
-  UniformType<GLuint>::RegisterDetached(UniformTypeId::Texture2d, "Texture2d");
-  UniformType<GLuint>::RegisterDetached(
-    UniformTypeId::TextureCubemap, "TextureCubemap");
-}
-
 UniformTypeId GetUniformTypeId(const std::string& name)
 {
   for (size_t i = 0; i < (size_t)UniformTypeId::Count; ++i) {
@@ -47,6 +32,21 @@ const UniformTypeData& GetUniformTypeData(UniformTypeId typeId)
     LogAbort(error.str().c_str());
   }
   return nUniformTypeData[(int)typeId];
+}
+
+void UniformVector::Init()
+{
+  UniformType<int>::RegisterAttached(UniformTypeId::Int, "Int");
+  UniformType<float>::RegisterAttached(UniformTypeId::Float, "Float");
+  UniformType<Vec3>::RegisterAttached(UniformTypeId::Vec3, "Vec3");
+  UniformType<Vec4>::RegisterAttached(UniformTypeId::Vec4, "Vec4");
+  UniformType<ResId>::RegisterDetached(
+    UniformTypeId::Texture2dRes, "Texture2dRes");
+  UniformType<ResId>::RegisterDetached(
+    UniformTypeId::TextureCubemapRes, "TextureCubemapRes");
+  UniformType<GLuint>::RegisterDetached(UniformTypeId::Texture2d, "Texture2d");
+  UniformType<GLuint>::RegisterDetached(
+    UniformTypeId::TextureCubemap, "TextureCubemap");
 }
 
 UniformVector::UniformVector()
