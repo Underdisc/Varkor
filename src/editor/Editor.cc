@@ -150,6 +150,8 @@ void EndFrame()
     nHideInterface = !nHideInterface;
   }
   if (!nHideInterface) {
+    ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
+    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), flags);
     nCoreInterface.HandleInterfaces();
   }
   Gizmos::PurgeUnneeded();
