@@ -42,7 +42,6 @@ VResult<const aiScene*> Model::Import(
   }
 
   // Import the model.
-  importer->SetPropertyInteger(AI_CONFIG_FBX_CONVERT_TO_M, 0);
   unsigned int flags =
     aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_SortByPType;
   if (flipUvs) {
@@ -139,7 +138,8 @@ Result Model::Init(const Vlk::Explorer& configEx)
     if (assimpMesh.mPrimitiveTypes & (unsigned int)aiPrimitiveType_TRIANGLE) {
       std::string meshName =
         "Mesh[" + std::to_string(i) + "](" + assimpMesh.mName.C_Str() + ")";
-      Result result = initAsset.TryInitRes<Gfx::Mesh>(meshName, assimpMesh);
+      Result result =
+        initAsset.TryInitRes<Gfx::Mesh>(meshName, assimpMesh, 1.0f);
       if (!result.Success()) {
         return Result(
           "Mesh \"" + meshName + "\" init failed.\n" + result.mError);
@@ -152,8 +152,9 @@ Result Model::Init(const Vlk::Explorer& configEx)
   }
 
   // Create all of the renderables.
+  float scale = configEx("Scale").As<float>(1.0f);
   Mat4 parentTransform;
-  Math::Identity(&parentTransform);
+  Math::Scale(&parentTransform, scale);
   CreateRenderables(*scene->mRootNode, parentTransform);
   return Result();
 }

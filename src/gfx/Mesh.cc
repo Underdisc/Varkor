@@ -68,6 +68,13 @@ void Mesh::EditConfig(Vlk::Value* configValP)
   bool flipUvs = flipUvsVal.As<bool>(false);
   ImGui::Checkbox("Flip Uvs", &flipUvs);
   flipUvsVal = flipUvs;
+
+  Vlk::Value& scaleVal = configVal("Scale");
+  float scale = scaleVal.As<float>(1.0f);
+  ImGui::PushItemWidth(-Editor::CalcBufferWidth("Scale"));
+  ImGui::DragFloat("Scale", &scale, 0.01f);
+  ImGui::PopItemWidth();
+  scaleVal = scale;
 }
 
 Result Mesh::Init(const Vlk::Explorer& configEx)
@@ -78,10 +85,11 @@ Result Mesh::Init(const Vlk::Explorer& configEx)
   }
   std::string file = fileEx.As<std::string>();
   const bool flipUvs = configEx("FlipUvs").As<bool>(false);
-  return Init(file, flipUvs);
+  float scale = configEx("Scale").As<float>(1.0f);
+  return Init(file, flipUvs, scale);
 }
 
-Result Mesh::Init(const std::string& file, bool flipUvs)
+Result Mesh::Init(const std::string& file, bool flipUvs, float scale)
 {
   Assimp::Importer importer;
   VResult<const aiScene*> importResult =
@@ -94,11 +102,11 @@ Result Mesh::Init(const std::string& file, bool flipUvs)
   if (scene->mNumMeshes != 1) {
     return Result("File \"" + file + "\" can only contain one mesh.");
   }
-  Init(*scene->mMeshes[0]);
+  Init(*scene->mMeshes[0], scale);
   return Result();
 }
 
-Result Mesh::Init(const aiMesh& assimpMesh)
+Result Mesh::Init(const aiMesh& assimpMesh, float scale)
 {
   // Find the size of a single vertex and all of its attributes.
   unsigned int attributes = Attribute::Position;
@@ -123,6 +131,7 @@ Result Mesh::Init(const aiMesh& assimpMesh)
     vertex[0] = assimpVertex.x;
     vertex[1] = assimpVertex.y;
     vertex[2] = assimpVertex.z;
+    vertex *= scale;
     currentByte += vertexByteCount;
   }
   byteOffset += AttributesSize(Attribute::Position);
