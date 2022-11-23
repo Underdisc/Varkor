@@ -93,6 +93,19 @@ void SetStyle()
   colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 }
 
+void StartImGuiFrame()
+{
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
+  ImGui::NewFrame();
+}
+
+void EndImGuiFrame()
+{
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
 void Init()
 {
   Gizmos::Init();
@@ -105,7 +118,10 @@ void Init()
   ImGui_ImplOpenGL3_Init("#version 330");
   SetStyle();
 
+  // Initialize the interfaces that are instantly opened.
+  StartImGuiFrame();
   nCoreInterface.Init();
+  EndImGuiFrame();
 
   // Load in the requested layers.
   bool overviewCreated = false;
@@ -132,10 +148,7 @@ void Purge()
 
 void StartFrame()
 {
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
-
+  StartImGuiFrame();
   const ImGuiIO& io = ImGui::GetIO();
   Input::SetMouseFocus(!io.WantCaptureMouse);
   Input::SetKeyboardFocus(!io.WantCaptureKeyboard);
@@ -155,8 +168,7 @@ void EndFrame()
     nCoreInterface.HandleInterfaces();
   }
   Gizmos::PurgeUnneeded();
-  ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  EndImGuiFrame();
 }
 
 } // namespace Editor

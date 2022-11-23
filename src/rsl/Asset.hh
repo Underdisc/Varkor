@@ -20,13 +20,13 @@ VResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args)
   if (!initResult.Success()) {
     return initResult;
   }
-  VResult<ResDesc> allocResult = AllocateRes(GetResTypeId<T>(), name);
+  VResult<ResDesc> allocResult = AllocateRes(Rsl::GetResTypeId<T>(), name);
   if (!allocResult.Success()) {
     return allocResult;
   }
 
   T* newResData = (T*)GetResDescData(allocResult.mValue);
-  const ResTypeData& typeData = GetResTypeData<T>();
+  const ResTypeData& typeData = Rsl::GetResTypeData<T>();
   typeData.mMoveConstruct(&newRes, newResData);
   return newResData;
 }
@@ -46,7 +46,7 @@ T& Asset::GetRes(const std::string& name)
 template<typename T>
 T* Asset::TryGetRes(const std::string& name)
 {
-  ResTypeId requestedResTypeId = GetResTypeId<T>();
+  ResTypeId requestedResTypeId = Rsl::GetResTypeId<T>();
   for (const ResDesc& resDesc : mResDescs) {
     if (resDesc.mResTypeId == requestedResTypeId && resDesc.mName == name) {
       return (T*)GetResDescData(resDesc);
@@ -58,7 +58,7 @@ T* Asset::TryGetRes(const std::string& name)
 template<typename T>
 bool Asset::HasRes(const std::string& name)
 {
-  ResTypeId resTypeId = GetResTypeId<T>();
+  ResTypeId resTypeId = Rsl::GetResTypeId<T>();
   for (const ResDesc& resDesc : mResDescs) {
     if (resDesc.mResTypeId == resTypeId && resDesc.mName == name) {
       return true;
@@ -66,4 +66,5 @@ bool Asset::HasRes(const std::string& name)
   }
   return false;
 }
+
 } // namespace Rsl

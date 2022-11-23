@@ -66,7 +66,7 @@ bool Asset::HasFile() const
   return std::filesystem::exists(file);
 }
 
-VResult<Vlk::Value> Asset::GetVlkValue()
+VResult<Vlk::Value> Asset::GetVlkValue() const
 {
   // Get the path to the asset file.
   VResult<std::string> resolutionResult = ResolveResPath(GetFile());
@@ -83,6 +83,49 @@ VResult<Vlk::Value> Asset::GetVlkValue()
     return Result("Asset \"" + mName + "\" failed read.\n" + result.mError);
   }
   return VResult<Vlk::Value>(std::move(val));
+}
+
+VResult<ResTypeId> Asset::GetResTypeId(const Vlk::Explorer& resEx) const
+{
+  Vlk::Explorer resourceTypeEx = resEx("Type");
+  if (!resourceTypeEx.Valid(Vlk::Value::Type::TrueValue)) {
+    return Result(
+      "Resource \"" + resEx.Path() + "\" missing :Type: TrueValue.");
+  }
+  std::string resTypeIdStr = resourceTypeEx.As<std::string>("Invalid");
+  ResTypeId resTypeId = Rsl::GetResTypeId(resTypeIdStr);
+  if (resTypeId == ResTypeId::Invalid) {
+    return Result(
+      "Resource \"" + resourceTypeEx.Path() + "\" has invalid type \"" +
+      resTypeIdStr + "\".");
+  }
+  return resTypeId;
+}
+
+VResult<Ds::Vector<Asset::DefResInfo>> Asset::GetAllDefResInfo() const
+{
+  VResult<Vlk::Value> result = GetVlkValue();
+  if (!result.Success()) {
+    return result;
+  }
+  Vlk::Explorer assetEx(result.mValue);
+  if (!assetEx.Valid(Vlk::Value::Type::PairArray)) {
+    return Result("Asset \"" + mName + "\" root Value is not a PairArray.");
+  }
+
+  Ds::Vector<DefResInfo> allDefResInfo;
+  for (int i = 0; i < assetEx.Size(); ++i) {
+    Vlk::Explorer resEx = assetEx(i);
+    VResult<ResTypeId> resTypeIdResult = GetResTypeId(resEx);
+    if (!resTypeIdResult.Success()) {
+      return resTypeIdResult;
+    }
+    DefResInfo newDefResInfo;
+    newDefResInfo.mName = resEx.Key();
+    newDefResInfo.mTypeId = resTypeIdResult.mValue;
+    allDefResInfo.Emplace(std::move(newDefResInfo));
+  }
+  return allDefResInfo;
 }
 
 Asset::Status Asset::GetStatus() const
@@ -178,19 +221,12 @@ Asset& Asset::GetInitAsset()
 
 Result Asset::TryInitRes(const Vlk::Explorer& resEx)
 {
-  // Get the type of the resource.
-  Vlk::Explorer resourceTypeEx = resEx("Type");
-  if (!resourceTypeEx.Valid()) {
-    std::string error = "Resource \"" + resEx.Path() + "\" missing :Type:.";
-    return Result(error);
+  // Get the resource's type.
+  VResult<ResTypeId> resTypeIdResult = GetResTypeId(resEx);
+  if (!resTypeIdResult.Success()) {
+    return resTypeIdResult;
   }
-  std::string resTypeIdStr = resourceTypeEx.As<std::string>("Invalid");
-  ResTypeId resTypeId = GetResTypeId(resTypeIdStr);
-  if (resTypeId == ResTypeId::Invalid) {
-    std::string error = "Resource \"" + resourceTypeEx.Path() +
-      "\" has invalid type \"" + resTypeIdStr + "\".";
-    return Result(error);
-  }
+  ResTypeId resTypeId = resTypeIdResult.mValue;
 
   // Get the config that will be used to initialize the resource.
   Vlk::Explorer configEx = resEx("Config");
