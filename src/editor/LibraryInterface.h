@@ -1,6 +1,7 @@
 #ifndef editor_LibraryInterface_h
 #define editor_LibraryInterface_h
 
+#include <filesystem>
 #include <imgui/imgui.h>
 
 #include "editor/WindowInterface.h"
@@ -38,6 +39,12 @@ private:
   Vec2 mArrowPointsOpen[3];
 
   void ShowDirectory(
+    const std::string& rootPath,
+    const std::string& path,
+    Tree* dirTree,
+    int indents);
+  void ShowEntry(
+    const std::filesystem::directory_entry& dirEntry,
     const std::string& rootPath,
     const std::string& path,
     Tree* dirTree,

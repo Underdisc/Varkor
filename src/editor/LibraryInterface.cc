@@ -1,4 +1,3 @@
-#include <filesystem>
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
@@ -84,44 +83,75 @@ void LibraryInterface::ShowDirectory(
   std::filesystem::directory_iterator dirIter(rootPath + path);
   for (const std::filesystem::directory_entry& dirEntry : dirIter) {
     lineEndY = ImGui::GetCursorScreenPos().y;
-    const std::filesystem::path& entryFullPath = dirEntry.path();
-    std::string entryFullPathString = entryFullPath.string();
-    size_t entryNameStart = entryFullPathString.find_last_of('/') + 1;
-    std::string entryName = entryFullPathString.substr(entryNameStart);
-    std::string entryPath = path + entryName;
-
-    // Show the entry.
-    if (dirEntry.is_directory()) {
-      bool isAsset = false;
-      Tree* subdirTree =
-        ShowExpandableEntry(entryPath, dirTree, isAsset, indents);
-      if (subdirTree != nullptr) {
-        ShowDirectory(rootPath, entryPath + '/', subdirTree, indents + 1);
-      }
-      continue;
-    }
-    if (!dirEntry.is_regular_file()) {
-      continue;
-    }
-    if (entryFullPath.extension() == Rsl::nAssetExtension) {
-      bool isAsset = true;
-      Tree* assetTree =
-        ShowExpandableEntry(entryPath, dirTree, isAsset, indents);
-      std::string assetName = entryPath.substr(0, entryPath.size() - 2);
-      const Rsl::Asset& asset = Rsl::GetAsset(assetName);
-      ImGui::SameLine();
-      ShowStatus(asset.GetStatus());
-      if (assetTree != nullptr) {
-        ShowAsset(assetName, assetTree, indents + 1);
-      }
-      continue;
-    }
-    ShowBasicEntry(entryName, false, indents);
+    ShowEntry(dirEntry, rootPath, path, dirTree, indents);
   }
   if (indents > 0) {
     AddIndentLine(lineStartY, lineEndY, indents);
   }
   ImGui::PopID();
+}
+
+void LibraryInterface::ShowEntry(
+  const std::filesystem::directory_entry& dirEntry,
+  const std::string& rootPath,
+  const std::string& path,
+  Tree* dirTree,
+  int indents)
+{
+  const std::filesystem::path& entryFullPath = dirEntry.path();
+  std::string entryFullPathString = entryFullPath.string();
+  size_t entryNameStart = entryFullPathString.find_last_of('/') + 1;
+  std::string entryName = entryFullPathString.substr(entryNameStart);
+  std::string entryPath = path + entryName;
+
+  if (dirEntry.is_directory()) {
+    bool isAsset = false;
+    Tree* subdirTree =
+      ShowExpandableEntry(entryPath, dirTree, isAsset, indents);
+    if (subdirTree != nullptr) {
+      ShowDirectory(rootPath, entryPath + '/', subdirTree, indents + 1);
+    }
+    return;
+  }
+
+  if (!dirEntry.is_regular_file()) {
+    return;
+  }
+
+  if (entryFullPath.extension() == Rsl::nAssetExtension) {
+    bool isAsset = true;
+    Tree* assetTree = ShowExpandableEntry(entryPath, dirTree, isAsset, indents);
+
+    // A popup window for initializing and sleeping the asset.
+    std::string assetName = entryPath.substr(0, entryPath.size() - 2);
+    Rsl::Asset& asset = Rsl::GetAsset(assetName);
+    if (ImGui::BeginPopupContextItem()) {
+      switch (asset.GetStatus()) {
+      case Rsl::Asset::Status::Dormant:
+        if (ImGui::Selectable("Init")) {
+          asset.QueueInit();
+        }
+        break;
+      case Rsl::Asset::Status::Failed:
+      case Rsl::Asset::Status::Live:
+        if (ImGui::Selectable("Sleep")) {
+          asset.Sleep();
+        }
+        break;
+      case Rsl::Asset::Status::Initializing:
+        ImGui::Text("Initializing", ImVec2(-1, 0));
+      }
+      ImGui::EndPopup();
+    }
+
+    ImGui::SameLine();
+    ShowStatus(asset.GetStatus());
+    if (assetTree != nullptr) {
+      ShowAsset(assetName, assetTree, indents + 1);
+    }
+    return;
+  }
+  ShowBasicEntry(entryName, false, indents);
 }
 
 void LibraryInterface::ShowAsset(
