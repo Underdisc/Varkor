@@ -3,8 +3,11 @@
 
 #include "Options.h"
 #include "editor/AssetInterface.h"
+#include "editor/Editor.h"
+#include "editor/LayerInterface.h"
 #include "editor/LibraryInterface.h"
 #include "editor/ResourceInterface.h"
+#include "world/World.h"
 
 namespace Editor {
 
@@ -121,7 +124,6 @@ void LibraryInterface::ShowEntry(
   if (entryFullPath.extension() == Rsl::nAssetExtension) {
     bool isAsset = true;
     Tree* assetTree = ShowExpandableEntry(entryPath, dirTree, isAsset, indents);
-
     // A popup window for initializing and sleeping the asset.
     std::string assetName = entryPath.substr(0, entryPath.size() - 2);
     Rsl::Asset& asset = Rsl::GetAsset(assetName);
@@ -143,7 +145,6 @@ void LibraryInterface::ShowEntry(
       }
       ImGui::EndPopup();
     }
-
     ImGui::SameLine();
     ShowStatus(asset.GetStatus());
     if (assetTree != nullptr) {
@@ -151,6 +152,25 @@ void LibraryInterface::ShowEntry(
     }
     return;
   }
+
+  if (entryFullPath.extension() == World::nLayerExtension) {
+    ShowBasicEntry(entryName, false, indents);
+    if (ImGui::BeginPopupContextItem()) {
+      if (ImGui::Selectable("Load")) {
+        VResult<World::LayerIt> result =
+          World::LoadLayer(entryFullPathString.c_str());
+        if (result.Success()) {
+          nCoreInterface.OpenInterface<LayerInterface>(result.mValue);
+        }
+        else {
+          LogError(result.mError.c_str());
+        }
+      }
+      ImGui::EndPopup();
+    }
+    return;
+  }
+
   ShowBasicEntry(entryName, false, indents);
 }
 

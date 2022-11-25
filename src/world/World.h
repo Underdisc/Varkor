@@ -9,6 +9,8 @@
 
 namespace World {
 
+constexpr const char* nLayerExtension = ".lyr";
+
 struct Layer
 {
   Layer();
