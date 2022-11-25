@@ -107,8 +107,11 @@ void LibraryInterface::ShowDirectory(
       bool isAsset = true;
       Tree* assetTree =
         ShowExpandableEntry(entryPath, dirTree, isAsset, indents);
+      std::string assetName = entryPath.substr(0, entryPath.size() - 2);
+      const Rsl::Asset& asset = Rsl::GetAsset(assetName);
+      ImGui::SameLine();
+      ShowStatus(asset.GetStatus());
       if (assetTree != nullptr) {
-        std::string assetName = entryPath.substr(0, entryPath.size() - 2);
         ShowAsset(assetName, assetTree, indents + 1);
       }
       continue;
