@@ -102,16 +102,20 @@ void Vector<T>::Insert(size_t index, const T& value)
     Push(value);
     return;
   }
-  VerifyIndex(index);
-
-  if (mSize >= mCapacity) {
-    Grow();
-  }
-  new (mData + mSize) T(std::move(*(mData + mSize - 1)));
-  for (size_t i = mSize - 1; i > index; --i) {
-    mData[i] = std::move(mData[i - 1]);
-  }
+  CreateGap(index);
   mData[index] = value;
+  ++mSize;
+}
+
+template<typename T>
+void Vector<T>::Insert(size_t index, T&& value)
+{
+  if (index == mSize) {
+    Push(std::move(value));
+    return;
+  }
+  CreateGap(index);
+  mData[index] = std::move(value);
   ++mSize;
 }
 
@@ -350,6 +354,19 @@ void Vector<T>::VerifyIndex(size_t index) const
     std::stringstream error;
     error << index << " is not a valid index.";
     LogAbort(error.str().c_str());
+  }
+}
+
+template<typename T>
+void Vector<T>::CreateGap(size_t index)
+{
+  VerifyIndex(index);
+  if (mSize >= mCapacity) {
+    Grow();
+  }
+  new (mData + mSize) T(std::move(*(mData + mSize - 1)));
+  for (size_t i = mSize - 1; i > index; --i) {
+    mData[i] = std::move(mData[i - 1]);
   }
 }
 

@@ -130,7 +130,8 @@ void Insert0()
   for (int i = 0; i < Ds::Vector<TestType>::smStartCapacity; ++i) {
     test.Emplace(i);
   }
-  test.Insert(Ds::Vector<int>::smStartCapacity, TestType(-1));
+  TestType newElement(-1);
+  test.Insert(Ds::Vector<int>::smStartCapacity, newElement);
   PrintVector(test);
   TestType::PrintCounts();
 }
@@ -143,8 +144,9 @@ void Insert1()
   for (int i = 0; i < Ds::Vector<TestType>::smStartCapacity; ++i) {
     test.Emplace(i);
   }
+  TestType newElement(-1);
   for (int i = 0; i < 10; i += 2) {
-    test.Insert(i, TestType(-1));
+    test.Insert(i, newElement);
   }
   PrintVector(test);
   TestType::PrintCounts();
@@ -159,6 +161,22 @@ void Insert2()
   test.Insert(0, "string 1");
   test.Insert(0, "string 2");
   PrintVector(test);
+}
+
+void Insert3()
+{
+  // Test move insertion.
+  std::cout << "<= Insert3 =>\n";
+  Ds::Vector<TestType> test;
+  test.Reserve(10);
+  for (int i = 0; i < 5; ++i) {
+    test.Emplace(-1);
+  }
+  for (int i = 5; i > 0; i--) {
+    test.Insert(i, TestType(-1));
+  }
+  PrintVector(test);
+  TestType::PrintCounts();
 }
 
 void Pop()
@@ -602,6 +620,7 @@ int main(void)
   RunTest(Insert0);
   RunTest(Insert1);
   RunTest(Insert2);
+  RunTest(Insert3);
   RunTest(Pop);
   RunTest(Clear);
   RunTest(Remove0);
