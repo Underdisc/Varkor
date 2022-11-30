@@ -2,11 +2,12 @@
 #include <imgui/imgui_internal.h>
 
 #include "Options.h"
-#include "editor/AssetInterface.h"
 #include "editor/Editor.h"
 #include "editor/LayerInterface.h"
 #include "editor/LibraryInterface.h"
 #include "editor/ResourceInterface.h"
+#include "editor/Utility.h"
+#include "rsl/Library.h"
 #include "world/World.h"
 
 namespace Editor {

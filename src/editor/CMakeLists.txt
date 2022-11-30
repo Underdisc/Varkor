@@ -1,5 +1,4 @@
 target_sources(varkor PRIVATE
-  AssetInterface.cc
   Camera.cc
   CoreInterface.cc
   Editor.cc
