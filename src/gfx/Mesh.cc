@@ -60,8 +60,7 @@ void Mesh::EditConfig(Vlk::Value* configValP)
   Vlk::Value& configVal = *configValP;
   Vlk::Value& fileVal = configVal("File");
   std::string file = configVal("File").As<std::string>("");
-  // todo: drag and drop.
-  Editor::InputText("File", &file, -Editor::CalcBufferWidth("File"));
+  Editor::DropResourceFileWidget("File", &file);
   fileVal = file;
 
   Vlk::Value& flipUvsVal = configVal("FlipUvs");

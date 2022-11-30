@@ -48,8 +48,7 @@ void Font::EditConfig(Vlk::Value* configValP)
   Vlk::Value& configVal = *configValP;
   Vlk::Value& fileVal = configVal("File");
   std::string file = fileVal.As<std::string>("");
-  // todo: drag and drop
-  Editor::InputText("File", &file, -Editor::CalcBufferWidth("File"));
+  Editor::DropResourceFileWidget("File", &file);
   fileVal = file;
 }
 

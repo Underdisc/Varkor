@@ -26,6 +26,9 @@ void DropResourceIdWidget(
   const char* prefix = "",
   float bufferWidth = 0.0f);
 
+void DragResourceFile(const std::string& resFile);
+void DropResourceFileWidget(const char* label, std::string* resFile);
+
 void HelpMarker(const char* text);
 void HdrColorEdit(const char* label, Gfx::HdrColor* hdrColor, float colorWidth);
 

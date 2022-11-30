@@ -190,6 +190,7 @@ void LibraryInterface::ShowEntry(
   // Handle layer files.
   if (entryFullPath.extension() == World::nLayerExtension) {
     ShowBasicEntry(entryName, false, indents);
+    DragResourceFile(entryPath);
     if (ImGui::BeginPopupContextItem()) {
       if (ImGui::Selectable("Load")) {
         VResult<World::LayerIt> result =
@@ -208,6 +209,7 @@ void LibraryInterface::ShowEntry(
 
   // The catch all for everything else.
   ShowBasicEntry(entryName, false, indents);
+  DragResourceFile(entryPath);
 }
 
 Result LibraryInterface::ShowAsset(

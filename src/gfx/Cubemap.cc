@@ -194,19 +194,15 @@ void Cubemap::EditConfig(Vlk::Value* configValP)
     for (int i = 0; i < smFileDescriptorCount; ++i) {
       Vlk::Value& fileVal = configVal(smFileDescriptorStrings[i]);
       std::string file = fileVal.As<std::string>("");
-      // todo: This should accept drag and drop input from the file browser.
-      Editor::InputText(smFileDescriptorStrings[i], &file, -bufferWidth);
+      Editor::DropResourceFileWidget(smFileDescriptorStrings[i], &file);
       fileVal = file;
     }
   }
   else if (currentSpecification == Specification::Single) {
     configVal.TryRemovePair("Files");
-    ImGui::Text("File");
-    ImGui::SameLine();
     Vlk::Value& fileVal = configVal("File");
     std::string file = fileVal.As<std::string>("");
-    // todo: drag and drop.
-    Editor::InputText("File", &file, -Editor::CalcBufferWidth("File"));
+    Editor::DropResourceFileWidget("File", &file);
     fileVal = file;
   }
 }

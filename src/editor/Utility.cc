@@ -88,6 +88,29 @@ void DropResourceIdWidget(
   }
 }
 
+void DragResourceFile(const std::string& resFile)
+{
+  if (ImGui::BeginDragDropSource()) {
+    ImGui::SetDragDropPayload(
+      "ResFile", (void*)resFile.c_str(), resFile.size());
+    ImGui::Text(resFile.c_str());
+    ImGui::EndDragDropSource();
+  }
+}
+
+void DropResourceFileWidget(const char* label, std::string* resFile)
+{
+  Editor::InputText(label, resFile, -CalcBufferWidth(label));
+  if (ImGui::BeginDragDropTarget()) {
+    const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ResFile");
+    if (payload != nullptr) {
+      resFile->clear();
+      resFile->insert(0, (char*)payload->Data, payload->DataSize);
+    }
+    ImGui::EndDragDropTarget();
+  }
+}
+
 void HelpMarker(const char* text)
 {
   ImGui::SameLine();

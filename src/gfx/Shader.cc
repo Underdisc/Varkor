@@ -92,8 +92,7 @@ void Shader::EditConfig(Vlk::Value* configValP)
     Vlk::Value& fileVal = filesVal[i];
     std::string file = fileVal.As<std::string>("");
     ImGui::PushID(&fileVal);
-    // todo: drag and drop.
-    Editor::InputText("File", &file);
+    Editor::DropResourceFileWidget("File", &file);
     ImGui::PopID();
     fileVal = file;
 
