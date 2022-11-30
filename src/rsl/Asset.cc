@@ -66,51 +66,6 @@ bool Asset::HasFile() const
   return std::filesystem::exists(file);
 }
 
-VResult<ResTypeId> Asset::GetResTypeId(const Vlk::Explorer& resEx)
-{
-  Vlk::Explorer resourceTypeEx = resEx("Type");
-  if (!resourceTypeEx.Valid(Vlk::Value::Type::TrueValue)) {
-    return Result(
-      "Resource \"" + resEx.Path() + "\" missing :Type: TrueValue.");
-  }
-  std::string resTypeIdStr = resourceTypeEx.As<std::string>("Invalid");
-  ResTypeId resTypeId = Rsl::GetResTypeId(resTypeIdStr);
-  if (resTypeId == ResTypeId::Invalid) {
-    return Result(
-      "Resource \"" + resourceTypeEx.Path() + "\" has invalid type \"" +
-      resTypeIdStr + "\".");
-  }
-  return resTypeId;
-}
-
-VResult<Ds::Vector<Asset::DefResInfo>> Asset::GetAllDefResInfo(
-  const std::string& assetName, const Vlk::Explorer& assetEx)
-{
-  const char* genericError =
-    "Failed to get all defined resource information for asset \"";
-  if (!assetEx.Valid(Vlk::Value::Type::PairArray)) {
-    std::string error =
-      genericError + assetName + "\"\n Root Value is not a PairArray.";
-    return Result(error);
-  }
-
-  Ds::Vector<DefResInfo> allDefResInfo;
-  for (int i = 0; i < assetEx.Size(); ++i) {
-    Vlk::Explorer resEx = assetEx(i);
-    VResult<ResTypeId> resTypeIdResult = GetResTypeId(resEx);
-    if (!resTypeIdResult.Success()) {
-      std::string error =
-        genericError + assetName + "\"\n" + resTypeIdResult.mError;
-      return Result(error);
-    }
-    DefResInfo newDefResInfo;
-    newDefResInfo.mName = resEx.Key();
-    newDefResInfo.mTypeId = resTypeIdResult.mValue;
-    allDefResInfo.Emplace(std::move(newDefResInfo));
-  }
-  return allDefResInfo;
-}
-
 Asset::Status Asset::GetStatus() const
 {
   return mStatus;
@@ -196,6 +151,51 @@ void Asset::Sleep()
 {
   Purge();
   mStatus = Status::Dormant;
+}
+
+VResult<ResTypeId> Asset::GetResTypeId(const Vlk::Explorer& resEx)
+{
+  Vlk::Explorer resourceTypeEx = resEx("Type");
+  if (!resourceTypeEx.Valid(Vlk::Value::Type::TrueValue)) {
+    return Result(
+      "Resource \"" + resEx.Path() + "\" missing :Type: TrueValue.");
+  }
+  std::string resTypeIdStr = resourceTypeEx.As<std::string>("Invalid");
+  ResTypeId resTypeId = Rsl::GetResTypeId(resTypeIdStr);
+  if (resTypeId == ResTypeId::Invalid) {
+    return Result(
+      "Resource \"" + resourceTypeEx.Path() + "\" has invalid type \"" +
+      resTypeIdStr + "\".");
+  }
+  return resTypeId;
+}
+
+VResult<Ds::Vector<Asset::DefResInfo>> Asset::GetAllDefResInfo(
+  const std::string& assetName, const Vlk::Explorer& assetEx)
+{
+  const char* genericError =
+    "Failed to get all defined resource information for asset \"";
+  if (!assetEx.Valid(Vlk::Value::Type::PairArray)) {
+    std::string error =
+      genericError + assetName + "\"\n Root Value is not a PairArray.";
+    return Result(error);
+  }
+
+  Ds::Vector<DefResInfo> allDefResInfo;
+  for (int i = 0; i < assetEx.Size(); ++i) {
+    Vlk::Explorer resEx = assetEx(i);
+    VResult<ResTypeId> resTypeIdResult = GetResTypeId(resEx);
+    if (!resTypeIdResult.Success()) {
+      std::string error =
+        genericError + assetName + "\"\n" + resTypeIdResult.mError;
+      return Result(error);
+    }
+    DefResInfo newDefResInfo;
+    newDefResInfo.mName = resEx.Key();
+    newDefResInfo.mTypeId = resTypeIdResult.mValue;
+    allDefResInfo.Emplace(std::move(newDefResInfo));
+  }
+  return allDefResInfo;
 }
 
 Asset& Asset::GetInitAsset()
