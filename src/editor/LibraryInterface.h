@@ -16,16 +16,11 @@ public:
   void Show();
 
 private:
-  // This can represent an expanded directory or asset.
+  // This represents an expanded entry within the Library tree.
   struct Tree
   {
     std::string mName;
-
-    // The expanded subdirectories for when the Tree represents a directory.
     Ds::Vector<Tree> mSubTrees;
-    // The defined resource information for when the Tree represents an asset.
-    Ds::Vector<Rsl::Asset::DefResInfo> mAllDefResInfo;
-
     void ToggleSubTreeExpansion(const std::string& name);
     Tree* TryGetSubTree(const std::string& name);
   };
@@ -49,7 +44,7 @@ private:
     const std::string& path,
     Tree* dirTree,
     int indents);
-  void ShowAsset(const std::string& assetName, Tree* assetTree, int indents);
+  Result ShowAsset(const std::string& assetName, Tree* assetTree, int indents);
   bool ShowBasicEntry(const std::string& name, bool selected, int indents);
   Tree* ShowExpandableEntry(
     const std::string& name, Tree* parentTree, bool isAsset, int indents);

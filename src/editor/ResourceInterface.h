@@ -11,12 +11,10 @@ namespace Editor {
 struct ResourceInterface: public WindowInterface
 {
   ResourceInterface(const ResId& id);
+  ~ResourceInterface();
   void Show();
 
   ResId mResId;
-  // We overwrite the asset file when these two are no longer the same.
-  Vlk::Value mAssetVal;
-  Vlk::Value mAssetValCopy;
 };
 
 } // namespace Editor

@@ -5,12 +5,20 @@
 #include "Options.h"
 #include "Result.h"
 #include "Viewport.h"
+#include "ds/Map.h"
 #include "ds/Vector.h"
 #include "rsl/Library.h"
 
 namespace Rsl {
 
+struct SharedConfig
+{
+  Vlk::Value mConfig;
+  int mRefCount;
+};
+
 Ds::RbTree<Asset> nAssets;
+Ds::Map<std::string, SharedConfig> nSharedConfigs;
 
 std::thread* nInitThread = nullptr;
 bool nStopInitThread = false;
@@ -37,6 +45,50 @@ Asset& GetAsset(const std::string& name)
 Asset* TryGetAsset(const std::string& name)
 {
   return nAssets.TryGet(name);
+}
+
+VResult<Vlk::Value*> AddConfig(const std::string& assetName)
+{
+  // Try to get the existing config.
+  SharedConfig* sharedConfig = nSharedConfigs.TryGet(assetName);
+  if (sharedConfig != nullptr) {
+    ++sharedConfig->mRefCount;
+    return &sharedConfig->mConfig;
+  }
+
+  // Resolve the asset file.
+  std::string file = assetName + nAssetExtension;
+  VResult<std::string> resolutionResult = ResolveResPath(file);
+  if (!resolutionResult.Success()) {
+    return Result(
+      "Asset \"" + assetName + "\" add config failed.\n" +
+      resolutionResult.mError);
+  }
+  const std::string& resolvedFile = resolutionResult.mValue;
+
+  // Load the new config.
+  SharedConfig newSharedConfig;
+  Result readResult = newSharedConfig.mConfig.Read(resolvedFile.c_str());
+  if (!readResult.Success()) {
+    return Result(
+      "Asset \"" + assetName + "\" add config failed.\n" + readResult.mError);
+  }
+  newSharedConfig.mRefCount = 1;
+  return &nSharedConfigs.Emplace(assetName, std::move(newSharedConfig)).mConfig;
+}
+
+void RemConfig(const std::string& assetName)
+{
+  SharedConfig& sharedConfig = nSharedConfigs.Get(assetName);
+  --sharedConfig.mRefCount;
+  if (sharedConfig.mRefCount == 0) {
+    nSharedConfigs.Remove(assetName);
+  }
+}
+
+Vlk::Value& GetConfig(const std::string& assetName)
+{
+  return nSharedConfigs.Get(assetName).mConfig;
 }
 
 std::string PrependResDirectory(const std::string& path)

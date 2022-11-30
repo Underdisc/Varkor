@@ -147,8 +147,14 @@ void LibraryInterface::ShowEntry(
     }
     ImGui::SameLine();
     ShowStatus(asset.GetStatus());
-    if (assetTree != nullptr) {
-      ShowAsset(assetName, assetTree, indents + 1);
+    if (assetTree == nullptr) {
+      return;
+    }
+    Result result = ShowAsset(assetName, assetTree, indents + 1);
+    if (!result.Success()) {
+      LogError(result.mError.c_str());
+      dirTree->ToggleSubTreeExpansion(entryName);
+      Rsl::RemConfig(assetName);
     }
     return;
   }
@@ -174,20 +180,33 @@ void LibraryInterface::ShowEntry(
   ShowBasicEntry(entryName, false, indents);
 }
 
-void LibraryInterface::ShowAsset(
+Result LibraryInterface::ShowAsset(
   const std::string& assetName, Tree* assetTree, int indents)
 {
+  // Get the asset's defined resource information.
+  const Vlk::Value& assetVal = Rsl::GetConfig(assetName);
+  Vlk::Explorer assetEx(assetVal);
+  VResult<Ds::Vector<Rsl::Asset::DefResInfo>> result =
+    Rsl::Asset::GetAllDefResInfo(assetName, assetEx);
+  if (!result.Success()) {
+    std::string error =
+      "Can't show asset \"" + assetName + "\".\n" + result.mError;
+    return Result(error);
+  }
+  const Ds::Vector<Rsl::Asset::DefResInfo>& allDefResInfo = result.mValue;
+
+  // Get the currently selected resource if there is one.
   ResId selectedResId;
   ResourceInterface* resourceInterface = FindInterface<ResourceInterface>();
   if (resourceInterface != nullptr) {
     selectedResId = resourceInterface->mResId;
   }
 
-  // Display the asset's defined resources.
+  // Display the defined resources.
   ImGui::PushID(assetTree->mName.c_str());
   float lineStartY = ImGui::GetCursorScreenPos().y;
   float lineEndY;
-  for (const Rsl::Asset::DefResInfo& defResInfo : assetTree->mAllDefResInfo) {
+  for (const Rsl::Asset::DefResInfo& defResInfo : allDefResInfo) {
     lineEndY = ImGui::GetCursorScreenPos().y;
     ResId resId(assetName, defResInfo.mName);
     bool selected = selectedResId == resId;
@@ -202,10 +221,11 @@ void LibraryInterface::ShowAsset(
     }
     DragResourceId(defResInfo.mTypeId, resId);
   }
-  if (assetTree->mAllDefResInfo.Size() > 0) {
+  if (allDefResInfo.Size() > 0) {
     AddIndentLine(lineStartY, lineEndY, indents);
   }
   ImGui::PopID();
+  return Result();
 }
 
 bool LibraryInterface::ShowBasicEntry(
@@ -234,8 +254,34 @@ LibraryInterface::Tree* LibraryInterface::ShowExpandableEntry(
   }
   Tree* entryTree = parentTree->TryGetSubTree(entryName);
 
-  // Draw an open or closed arrow to indicate an expandable entry. The
-  // selectable comes first because clicking it will change the arrow.
+  // We need to add an asset's config when an asset is expanded and remove the
+  // config when the asset is collapsed.
+  if (clicked && isAsset) {
+    std::string assetName = path.substr(0, path.size() - 2);
+    if (entryTree != nullptr) {
+      VResult<Vlk::Value*> addConfigResult = Rsl::AddConfig(assetName);
+      if (!addConfigResult.Success()) {
+        LogError(addConfigResult.mError.c_str());
+        parentTree->ToggleSubTreeExpansion(entryName);
+        entryTree = nullptr;
+      }
+      Vlk::Explorer assetEx(*addConfigResult.mValue);
+      Result getAllDefResInfoResult =
+        Rsl::Asset::GetAllDefResInfo(assetName, assetEx);
+      if (!getAllDefResInfoResult.Success()) {
+        LogError(getAllDefResInfoResult.mError.c_str());
+        parentTree->ToggleSubTreeExpansion(entryName);
+        entryTree = nullptr;
+        Rsl::RemConfig(assetName);
+      }
+    }
+    else {
+      Rsl::RemConfig(assetName);
+    }
+  }
+
+  // Draw an open or closed arrow to indicate an expandable entry. This comes
+  // last because checks above can determine whether it is open or closed.
   const Vec2* points = mArrowPointsClosed;
   if (entryTree != nullptr) {
     points = mArrowPointsOpen;
@@ -249,25 +295,6 @@ LibraryInterface::Tree* LibraryInterface::ShowExpandableEntry(
     ImVec2(center.x + points[1][0], center.y + points[1][1]),
     ImVec2(center.x + points[2][0], center.y + points[2][1]),
     mDecorationColor);
-
-  // Exit if we are not expanding an asset.
-  if (!clicked || !isAsset || entryTree == nullptr) {
-    return entryTree;
-  }
-
-  // We need to get an asset's defined resources when an asset is expanded.
-  std::string assetName = path.substr(0, path.size() - 2);
-  const Rsl::Asset& asset = Rsl::GetAsset(assetName);
-  VResult<Ds::Vector<Rsl::Asset::DefResInfo>> result = asset.GetAllDefResInfo();
-  if (!result.Success()) {
-    std::string error =
-      "Asset \"" + assetName + " \" GetAllDefResInfo failed.\n" + result.mError;
-    LogError(error.c_str());
-    parentTree->ToggleSubTreeExpansion(entryName);
-  }
-  else {
-    entryTree->mAllDefResInfo = std::move(result.mValue);
-  }
   return entryTree;
 }
 

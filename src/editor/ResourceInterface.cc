@@ -13,19 +13,18 @@
 
 namespace Editor {
 
-ResourceInterface::ResourceInterface(const ResId& id)
+ResourceInterface::ResourceInterface(const ResId& id): mResId(id)
 {
-  mResId = id;
-  std::string assetName = mResId.GetAssetName();
-  Rsl::Asset& asset = Rsl::GetAsset(assetName);
-  VResult<Vlk::Value> result = asset.GetVlkValue();
+  Result result = Rsl::AddConfig(id.GetAssetName());
   if (!result.Success()) {
     LogError(result.mError.c_str());
     mOpen = false;
-    return;
   }
-  mAssetVal = std::move(result.mValue);
-  mAssetValCopy = mAssetVal;
+}
+
+ResourceInterface::~ResourceInterface()
+{
+  Rsl::RemConfig(mResId.GetAssetName());
 }
 
 void ResourceInterface::Show()
@@ -39,8 +38,11 @@ void ResourceInterface::Show()
   ImGui::SetCursorPosX(startPos);
   ImGui::Text(mResId.mId.c_str());
 
+  Vlk::Value& assetVal = Rsl::GetConfig(mResId.GetAssetName());
+  Vlk::Value assetValCopy = assetVal;
+
   // Show a dropdown menu for changing the resource type.
-  Vlk::Value& resVal = mAssetVal(mResId.GetResourceName());
+  Vlk::Value& resVal = assetVal(mResId.GetResourceName());
   Vlk::Value& typeVal = resVal("Type");
   Vlk::Value& configVal = resVal("Config");
   std::string typeName = typeVal.As<std::string>("Invalid");
@@ -76,11 +78,10 @@ void ResourceInterface::Show()
   // If the asset isn't initializing and the Value changed, write it.
   Rsl::Asset& asset = Rsl::GetAsset(mResId.GetAssetName());
   bool initializing = asset.GetStatus() == Rsl::Asset::Status::Initializing;
-  if (!initializing && mAssetVal != mAssetValCopy) {
+  if (!initializing && assetVal != assetValCopy) {
     VResult<std::string> result = Rsl::ResolveResPath(asset.GetFile());
     LogAbortIf(!result.Success(), result.mError.c_str());
-    mAssetVal.Write(result.mValue.c_str());
-    mAssetValCopy = mAssetVal;
+    assetVal.Write(result.mValue.c_str());
   }
 }
 

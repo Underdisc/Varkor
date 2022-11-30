@@ -31,14 +31,6 @@ struct Asset
   };
   typedef ResourceDescriptor ResDesc;
 
-  // A way to store basic information about an asset's defined resource.
-  struct DefinedResourceInfo
-  {
-    std::string mName;
-    ResTypeId mTypeId;
-  };
-  typedef DefinedResourceInfo DefResInfo;
-
 private:
   std::string mName;
   Status mStatus;
@@ -60,9 +52,6 @@ public:
   const std::string& GetName() const;
   std::string GetFile() const;
   bool HasFile() const;
-  VResult<Vlk::Value> GetVlkValue() const;
-  VResult<ResTypeId> GetResTypeId(const Vlk::Explorer& resEx) const;
-  VResult<Ds::Vector<DefResInfo>> GetAllDefResInfo() const;
   Status GetStatus() const;
   const Ds::Vector<ResDesc>& GetResDescs() const;
   template<typename T>
@@ -83,6 +72,19 @@ public:
   void Finalize();
   void InitFinalize();
   void Sleep();
+
+  // A way to store basic information about an asset's defined resource.
+  struct DefinedResourceInfo
+  {
+    std::string mName;
+    ResTypeId mTypeId;
+  };
+  typedef DefinedResourceInfo DefResInfo;
+
+  // For accessing information within an asset's config file.
+  static VResult<ResTypeId> GetResTypeId(const Vlk::Explorer& resEx);
+  static VResult<Ds::Vector<DefResInfo>> GetAllDefResInfo(
+    const std::string& assetName, const Vlk::Explorer& assetEx);
 
   static Asset& GetInitAsset();
 

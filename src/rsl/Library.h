@@ -19,6 +19,10 @@ void RemoveAsset(const std::string& name);
 Asset& GetAsset(const std::string& name);
 Asset* TryGetAsset(const std::string& name);
 
+VResult<Vlk::Value*> AddConfig(const std::string& assetName);
+void RemConfig(const std::string& assetName);
+Vlk::Value& GetConfig(const std::string& assetName);
+
 template<typename T>
 ResId GetDefaultResId();
 template<typename T>

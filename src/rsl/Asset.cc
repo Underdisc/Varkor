@@ -66,26 +66,7 @@ bool Asset::HasFile() const
   return std::filesystem::exists(file);
 }
 
-VResult<Vlk::Value> Asset::GetVlkValue() const
-{
-  // Get the path to the asset file.
-  VResult<std::string> resolutionResult = ResolveResPath(GetFile());
-  if (!resolutionResult.Success()) {
-    return Result(
-      "Asset \"" + mName + "\" missing file.\n" + resolutionResult.mError);
-  }
-  const std::string& resolvedFile = resolutionResult.mValue;
-
-  // Read the value within the asset file.
-  Vlk::Value val;
-  Result result = val.Read(resolvedFile.c_str());
-  if (!result.Success()) {
-    return Result("Asset \"" + mName + "\" failed read.\n" + result.mError);
-  }
-  return VResult<Vlk::Value>(std::move(val));
-}
-
-VResult<ResTypeId> Asset::GetResTypeId(const Vlk::Explorer& resEx) const
+VResult<ResTypeId> Asset::GetResTypeId(const Vlk::Explorer& resEx)
 {
   Vlk::Explorer resourceTypeEx = resEx("Type");
   if (!resourceTypeEx.Valid(Vlk::Value::Type::TrueValue)) {
@@ -102,15 +83,15 @@ VResult<ResTypeId> Asset::GetResTypeId(const Vlk::Explorer& resEx) const
   return resTypeId;
 }
 
-VResult<Ds::Vector<Asset::DefResInfo>> Asset::GetAllDefResInfo() const
+VResult<Ds::Vector<Asset::DefResInfo>> Asset::GetAllDefResInfo(
+  const std::string& assetName, const Vlk::Explorer& assetEx)
 {
-  VResult<Vlk::Value> result = GetVlkValue();
-  if (!result.Success()) {
-    return result;
-  }
-  Vlk::Explorer assetEx(result.mValue);
+  const char* genericError =
+    "Failed to get all defined resource information for asset \"";
   if (!assetEx.Valid(Vlk::Value::Type::PairArray)) {
-    return Result("Asset \"" + mName + "\" root Value is not a PairArray.");
+    std::string error =
+      genericError + assetName + "\"\n Root Value is not a PairArray.";
+    return Result(error);
   }
 
   Ds::Vector<DefResInfo> allDefResInfo;
@@ -118,7 +99,9 @@ VResult<Ds::Vector<Asset::DefResInfo>> Asset::GetAllDefResInfo() const
     Vlk::Explorer resEx = assetEx(i);
     VResult<ResTypeId> resTypeIdResult = GetResTypeId(resEx);
     if (!resTypeIdResult.Success()) {
-      return resTypeIdResult;
+      std::string error =
+        genericError + assetName + "\"\n" + resTypeIdResult.mError;
+      return Result(error);
     }
     DefResInfo newDefResInfo;
     newDefResInfo.mName = resEx.Key();
@@ -169,25 +152,27 @@ Result Asset::TryInit()
   smInitAsset = this;
   mStatus = Status::Initializing;
 
-  VResult<Vlk::Value> result = GetVlkValue();
-  if (!result.Success()) {
+  VResult<Vlk::Value*> addConfigResult = AddConfig(mName);
+  if (!addConfigResult.Success()) {
     mStatus = Status::Failed;
-    return result;
+    return addConfigResult;
   }
-  Vlk::Explorer rootEx(result.mValue);
+  Vlk::Explorer rootEx(*addConfigResult.mValue);
 
   // Initialize all of the resources in the value.
+  Result initResResult;
   for (int i = 0; i < rootEx.Size(); ++i) {
-    Result result = TryInitRes(rootEx(i));
-    if (!result.Success()) {
+    initResResult = TryInitRes(rootEx(i));
+    if (!initResResult.Success()) {
       Purge();
       mStatus = Status::Failed;
-      return result;
+      break;
     }
   }
 
+  RemConfig(mName);
   smInitAsset = nullptr;
-  return Result();
+  return initResResult;
 }
 
 void Asset::Finalize()
