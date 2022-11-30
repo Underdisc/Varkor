@@ -21,7 +21,9 @@ private:
   {
     std::string mName;
     Ds::Vector<Tree> mSubTrees;
-    void ToggleSubTreeExpansion(const std::string& name);
+    Tree* ToggleSubTree(const std::string& name);
+    Tree* ToggleAssetSubTree(
+      const std::string& entryName, const std::string& assetName);
     Tree* TryGetSubTree(const std::string& name);
   };
 

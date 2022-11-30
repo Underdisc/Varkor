@@ -49,17 +49,43 @@ void LibraryInterface::Show()
   ImGui::PopStyleVar();
 }
 
-void LibraryInterface::Tree::ToggleSubTreeExpansion(const std::string& name)
+LibraryInterface::Tree* LibraryInterface::Tree::ToggleSubTree(
+  const std::string& name)
 {
   for (int i = 0; i < mSubTrees.Size(); ++i) {
     if (mSubTrees[i].mName == name) {
       mSubTrees.Remove(i);
-      return;
+      return nullptr;
     }
   }
   mSubTrees.Emplace();
   Tree* newTree = &mSubTrees.Top();
   newTree->mName = name;
+  return newTree;
+}
+
+LibraryInterface::Tree* LibraryInterface::Tree::ToggleAssetSubTree(
+  const std::string& entryName, const std::string& assetName)
+{
+  Tree* newTree = ToggleSubTree(entryName);
+  if (newTree == nullptr) {
+    Rsl::RemConfig(assetName);
+  }
+  else {
+    VResult<Vlk::Value*> addConfigResult = Rsl::AddConfig(assetName);
+    if (!addConfigResult.Success()) {
+      LogError(addConfigResult.mError.c_str());
+      newTree = ToggleSubTree(entryName);
+    }
+    Result getAllDefResInfoResult =
+      Rsl::Asset::GetAllDefResInfo(assetName, *addConfigResult.mValue);
+    if (!getAllDefResInfoResult.Success()) {
+      LogError(getAllDefResInfoResult.mError.c_str());
+      newTree = ToggleSubTree(entryName);
+      Rsl::RemConfig(assetName);
+    }
+  }
+  return newTree;
 }
 
 LibraryInterface::Tree* LibraryInterface::Tree::TryGetSubTree(
@@ -107,6 +133,7 @@ void LibraryInterface::ShowEntry(
   std::string entryName = entryFullPathString.substr(entryNameStart);
   std::string entryPath = path + entryName;
 
+  // Handle directories.
   if (dirEntry.is_directory()) {
     bool isAsset = false;
     Tree* subdirTree =
@@ -117,10 +144,12 @@ void LibraryInterface::ShowEntry(
     return;
   }
 
+  // Anything that is not a file can be ignored.
   if (!dirEntry.is_regular_file()) {
     return;
   }
 
+  // Handle asset files.
   if (entryFullPath.extension() == Rsl::nAssetExtension) {
     bool isAsset = true;
     Tree* assetTree = ShowExpandableEntry(entryPath, dirTree, isAsset, indents);
@@ -153,12 +182,12 @@ void LibraryInterface::ShowEntry(
     Result result = ShowAsset(assetName, assetTree, indents + 1);
     if (!result.Success()) {
       LogError(result.mError.c_str());
-      dirTree->ToggleSubTreeExpansion(entryName);
-      Rsl::RemConfig(assetName);
+      dirTree->ToggleAssetSubTree(entryName, assetName);
     }
     return;
   }
 
+  // Handle layer files.
   if (entryFullPath.extension() == World::nLayerExtension) {
     ShowBasicEntry(entryName, false, indents);
     if (ImGui::BeginPopupContextItem()) {
@@ -177,6 +206,7 @@ void LibraryInterface::ShowEntry(
     return;
   }
 
+  // The catch all for everything else.
   ShowBasicEntry(entryName, false, indents);
 }
 
@@ -243,41 +273,23 @@ LibraryInterface::Tree* LibraryInterface::ShowExpandableEntry(
 {
   ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 
-  // Display the entry name.
+  // Display the selectable entry.
   const float entrySymbolOffset = GetEntrySymbolOffset(indents);
   AddEntryLine(entrySymbolOffset, indents);
   std::string entryName = path.substr(path.find_last_of('/') + 1);
   ImGui::SetCursorPosX(ImGui::GetCursorPosX() + GetEntryNameOffset(indents));
-  bool clicked = ImGui::Selectable(entryName.c_str());
-  if (clicked) {
-    parentTree->ToggleSubTreeExpansion(entryName);
-  }
-  Tree* entryTree = parentTree->TryGetSubTree(entryName);
-
-  // We need to add an asset's config when an asset is expanded and remove the
-  // config when the asset is collapsed.
-  if (clicked && isAsset) {
-    std::string assetName = path.substr(0, path.size() - 2);
-    if (entryTree != nullptr) {
-      VResult<Vlk::Value*> addConfigResult = Rsl::AddConfig(assetName);
-      if (!addConfigResult.Success()) {
-        LogError(addConfigResult.mError.c_str());
-        parentTree->ToggleSubTreeExpansion(entryName);
-        entryTree = nullptr;
-      }
-      Vlk::Explorer assetEx(*addConfigResult.mValue);
-      Result getAllDefResInfoResult =
-        Rsl::Asset::GetAllDefResInfo(assetName, assetEx);
-      if (!getAllDefResInfoResult.Success()) {
-        LogError(getAllDefResInfoResult.mError.c_str());
-        parentTree->ToggleSubTreeExpansion(entryName);
-        entryTree = nullptr;
-        Rsl::RemConfig(assetName);
-      }
+  Tree* entryTree;
+  if (ImGui::Selectable(entryName.c_str())) {
+    if (!isAsset) {
+      entryTree = parentTree->ToggleSubTree(entryName);
     }
     else {
-      Rsl::RemConfig(assetName);
+      std::string assetName = path.substr(0, path.size() - 2);
+      entryTree = parentTree->ToggleAssetSubTree(entryName, assetName);
     }
+  }
+  else {
+    entryTree = parentTree->TryGetSubTree(entryName);
   }
 
   // Draw an open or closed arrow to indicate an expandable entry. This comes
