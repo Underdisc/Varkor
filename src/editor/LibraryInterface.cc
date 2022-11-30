@@ -12,7 +12,7 @@
 
 namespace Editor {
 
-LibraryInterface::LibraryInterface()
+LibraryInterface::LibraryInterface(): mRootTree("")
 {
   mHeight = ImGui::GetFontSize();
   mHalfHeight = mHeight / 2.0f;
@@ -39,16 +39,19 @@ void LibraryInterface::Show()
   ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4.0f, 4.0f));
 
   ImGui::Begin("Library", &mOpen);
-  Tree* vresTree = ShowExpandableEntry("vres", &mRootTree, false, 0);
-  if (vresTree != nullptr) {
-    ShowDirectory("", "vres/", vresTree, 1);
-  }
+  ShowDirectoryEntry("", "vres", &mRootTree, 0);
   ShowDirectory(Options::nProjectDirectory + "res/", "", &mRootTree, 0);
   ImGui::End();
 
   ImGui::PopStyleVar();
   ImGui::PopStyleVar();
 }
+
+LibraryInterface::OpenAsset::OpenAsset(const std::string& name):
+  mName(name), mShowDefinedResources(true)
+{}
+
+LibraryInterface::Tree::Tree(const std::string& name): mName(name) {}
 
 LibraryInterface::Tree* LibraryInterface::Tree::ToggleSubTree(
   const std::string& name)
@@ -59,34 +62,8 @@ LibraryInterface::Tree* LibraryInterface::Tree::ToggleSubTree(
       return nullptr;
     }
   }
-  mSubTrees.Emplace();
-  Tree* newTree = &mSubTrees.Top();
-  newTree->mName = name;
-  return newTree;
-}
-
-LibraryInterface::Tree* LibraryInterface::Tree::ToggleAssetSubTree(
-  const std::string& entryName, const std::string& assetName)
-{
-  Tree* newTree = ToggleSubTree(entryName);
-  if (newTree == nullptr) {
-    Rsl::RemConfig(assetName);
-  }
-  else {
-    VResult<Vlk::Value*> addConfigResult = Rsl::AddConfig(assetName);
-    if (!addConfigResult.Success()) {
-      LogError(addConfigResult.mError.c_str());
-      newTree = ToggleSubTree(entryName);
-    }
-    Result getAllDefResInfoResult =
-      Rsl::Asset::GetAllDefResInfo(assetName, *addConfigResult.mValue);
-    if (!getAllDefResInfoResult.Success()) {
-      LogError(getAllDefResInfoResult.mError.c_str());
-      newTree = ToggleSubTree(entryName);
-      Rsl::RemConfig(assetName);
-    }
-  }
-  return newTree;
+  mSubTrees.Emplace(name);
+  return &mSubTrees.Top();
 }
 
 LibraryInterface::Tree* LibraryInterface::Tree::TryGetSubTree(
@@ -95,6 +72,44 @@ LibraryInterface::Tree* LibraryInterface::Tree::TryGetSubTree(
   for (Tree& tree : mSubTrees) {
     if (tree.mName == name) {
       return &tree;
+    }
+  }
+  return nullptr;
+}
+
+LibraryInterface::OpenAsset* LibraryInterface::Tree::ToggleOpenAsset(
+  const std::string& assetName)
+{
+  for (int i = 0; i < mOpenAssets.Size(); ++i) {
+    if (mOpenAssets[i].mName == assetName) {
+      mOpenAssets.Remove(i);
+      Rsl::RemConfig(assetName);
+      return nullptr;
+    }
+  }
+
+  VResult<Vlk::Value*> addConfigResult = Rsl::AddConfig(assetName);
+  if (!addConfigResult.Success()) {
+    LogError(addConfigResult.mError.c_str());
+    return nullptr;
+  }
+  Result getAllDefResInfoResult =
+    Rsl::Asset::GetAllDefResInfo(assetName, *addConfigResult.mValue);
+  if (!getAllDefResInfoResult.Success()) {
+    LogError(getAllDefResInfoResult.mError.c_str());
+    Rsl::RemConfig(assetName);
+    return nullptr;
+  }
+  mOpenAssets.Emplace(assetName);
+  return &mOpenAssets.Top();
+}
+
+LibraryInterface::OpenAsset* LibraryInterface::Tree::TryGetOpenAsset(
+  const std::string& name)
+{
+  for (OpenAsset& openAsset : mOpenAssets) {
+    if (openAsset.mName == name) {
+      return &openAsset;
     }
   }
   return nullptr;
@@ -113,117 +128,46 @@ void LibraryInterface::ShowDirectory(
   std::filesystem::directory_iterator dirIter(rootPath + path);
   for (const std::filesystem::directory_entry& dirEntry : dirIter) {
     lineEndY = ImGui::GetCursorScreenPos().y;
-    ShowEntry(dirEntry, rootPath, path, dirTree, indents);
+
+    std::string entryName = dirEntry.path().filename().string();
+    std::string entryPath = path + entryName;
+    if (dirEntry.is_directory()) {
+      ShowDirectoryEntry(rootPath, entryPath, dirTree, indents);
+      continue;
+    }
+    if (!dirEntry.is_regular_file()) {
+      continue;
+    }
+    if (dirEntry.path().extension() == Rsl::nAssetExtension) {
+      ShowAssetEntry(entryPath, entryName, dirTree, indents);
+      continue;
+    }
+    if (dirEntry.path().extension() == World::nLayerExtension) {
+      ShowLayerEntry(rootPath, entryPath, entryName, indents);
+      continue;
+    }
+    ShowBasicEntry(entryName, false, indents);
+    DragResourceFile(entryPath);
   }
+
   if (indents > 0) {
     AddIndentLine(lineStartY, lineEndY, indents);
   }
   ImGui::PopID();
 }
 
-void LibraryInterface::ShowEntry(
-  const std::filesystem::directory_entry& dirEntry,
-  const std::string& rootPath,
-  const std::string& path,
-  Tree* dirTree,
-  int indents)
-{
-  const std::filesystem::path& entryFullPath = dirEntry.path();
-  std::string entryFullPathString = entryFullPath.string();
-  size_t entryNameStart = entryFullPathString.find_last_of('/') + 1;
-  std::string entryName = entryFullPathString.substr(entryNameStart);
-  std::string entryPath = path + entryName;
-
-  // Handle directories.
-  if (dirEntry.is_directory()) {
-    bool isAsset = false;
-    Tree* subdirTree =
-      ShowExpandableEntry(entryPath, dirTree, isAsset, indents);
-    if (subdirTree != nullptr) {
-      ShowDirectory(rootPath, entryPath + '/', subdirTree, indents + 1);
-    }
-    return;
-  }
-
-  // Anything that is not a file can be ignored.
-  if (!dirEntry.is_regular_file()) {
-    return;
-  }
-
-  // Handle asset files.
-  if (entryFullPath.extension() == Rsl::nAssetExtension) {
-    bool isAsset = true;
-    Tree* assetTree = ShowExpandableEntry(entryPath, dirTree, isAsset, indents);
-    // A popup window for initializing and sleeping the asset.
-    std::string assetName = entryPath.substr(0, entryPath.size() - 2);
-    Rsl::Asset& asset = Rsl::GetAsset(assetName);
-    if (ImGui::BeginPopupContextItem()) {
-      switch (asset.GetStatus()) {
-      case Rsl::Asset::Status::Dormant:
-        if (ImGui::Selectable("Init")) {
-          asset.QueueInit();
-        }
-        break;
-      case Rsl::Asset::Status::Failed:
-      case Rsl::Asset::Status::Live:
-        if (ImGui::Selectable("Sleep")) {
-          asset.Sleep();
-        }
-        break;
-      case Rsl::Asset::Status::Initializing:
-        ImGui::Text("Initializing", ImVec2(-1, 0));
-      }
-      ImGui::EndPopup();
-    }
-    ImGui::SameLine();
-    ShowStatus(asset.GetStatus());
-    if (assetTree == nullptr) {
-      return;
-    }
-    Result result = ShowAsset(assetName, assetTree, indents + 1);
-    if (!result.Success()) {
-      LogError(result.mError.c_str());
-      dirTree->ToggleAssetSubTree(entryName, assetName);
-    }
-    return;
-  }
-
-  // Handle layer files.
-  if (entryFullPath.extension() == World::nLayerExtension) {
-    ShowBasicEntry(entryName, false, indents);
-    DragResourceFile(entryPath);
-    if (ImGui::BeginPopupContextItem()) {
-      if (ImGui::Selectable("Load")) {
-        VResult<World::LayerIt> result =
-          World::LoadLayer(entryFullPathString.c_str());
-        if (result.Success()) {
-          nCoreInterface.OpenInterface<LayerInterface>(result.mValue);
-        }
-        else {
-          LogError(result.mError.c_str());
-        }
-      }
-      ImGui::EndPopup();
-    }
-    return;
-  }
-
-  // The catch all for everything else.
-  ShowBasicEntry(entryName, false, indents);
-  DragResourceFile(entryPath);
-}
-
-Result LibraryInterface::ShowAsset(
-  const std::string& assetName, Tree* assetTree, int indents)
+Result LibraryInterface::ShowDefinedResources(
+  const OpenAsset& openAsset, int indents)
 {
   // Get the asset's defined resource information.
+  const std::string& assetName = openAsset.mName;
   const Vlk::Value& assetVal = Rsl::GetConfig(assetName);
   Vlk::Explorer assetEx(assetVal);
   VResult<Ds::Vector<Rsl::Asset::DefResInfo>> result =
     Rsl::Asset::GetAllDefResInfo(assetName, assetEx);
   if (!result.Success()) {
-    std::string error =
-      "Can't show asset \"" + assetName + "\".\n" + result.mError;
+    std::string error = "Unable to show defined resources for asset \"" +
+      assetName + "\".\n" + result.mError;
     return Result(error);
   }
   const Ds::Vector<Rsl::Asset::DefResInfo>& allDefResInfo = result.mValue;
@@ -236,11 +180,12 @@ Result LibraryInterface::ShowAsset(
   }
 
   // Display the defined resources.
-  ImGui::PushID(assetTree->mName.c_str());
+  ImGui::PushID(assetName.c_str());
   float lineStartY = ImGui::GetCursorScreenPos().y;
   float lineEndY;
   for (const Rsl::Asset::DefResInfo& defResInfo : allDefResInfo) {
     lineEndY = ImGui::GetCursorScreenPos().y;
+
     ResId resId(assetName, defResInfo.mName);
     bool selected = selectedResId == resId;
     bool entryClicked = ShowBasicEntry(defResInfo.mName, selected, indents);
@@ -254,7 +199,45 @@ Result LibraryInterface::ShowAsset(
     }
     DragResourceId(defResInfo.mTypeId, resId);
   }
+
   if (allDefResInfo.Size() > 0) {
+    AddIndentLine(lineStartY, lineEndY, indents);
+  }
+  ImGui::PopID();
+  return Result();
+}
+
+Result LibraryInterface::ShowInitializedResources(
+  const OpenAsset& openAsset, int indents)
+{
+  // Ensure that we can get the resource descriptors from an existing asset.
+  const char* genericError =
+    "Unable to show initialized resources for asset \"";
+  const std::string& assetName = openAsset.mName;
+  const Rsl::Asset* asset = Rsl::TryGetAsset(assetName);
+  if (asset == nullptr) {
+    return Result(
+      genericError + assetName +
+      "\".\nThe asset hasn't been added to the library.");
+  }
+  if (asset->GetStatus() != Rsl::Asset::Status::Live) {
+    return Result(genericError + assetName + "\"\nThe asset isn't Live.");
+  }
+
+  // Display all of the initialized resources.
+  ImGui::PushID(assetName.c_str());
+  float lineStartY = ImGui::GetCursorScreenPos().y;
+  float lineEndY;
+  const Ds::Vector<Rsl::Asset::ResDesc>& resDescs = asset->GetResDescs();
+  for (const Rsl::Asset::ResDesc& resDesc : resDescs) {
+    lineEndY = ImGui::GetCursorScreenPos().y;
+
+    ShowBasicEntry(resDesc.mName, false, indents);
+    ResId resId(assetName, resDesc.mName);
+    DragResourceId(resDesc.mResTypeId, resId);
+  }
+
+  if (resDescs.Size() > 0) {
     AddIndentLine(lineStartY, lineEndY, indents);
   }
   ImGui::PopID();
@@ -271,10 +254,13 @@ bool LibraryInterface::ShowBasicEntry(
   return ImGui::Selectable(name.c_str(), &selected);
 }
 
-LibraryInterface::Tree* LibraryInterface::ShowExpandableEntry(
-  const std::string& path, Tree* parentTree, bool isAsset, int indents)
+void LibraryInterface::ShowDirectoryEntry(
+  const std::string& rootPath,
+  const std::string& path,
+  Tree* parentTree,
+  int indents)
 {
-  ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
+  ImVec2 cursorStartScreenPos = ImGui::GetCursorScreenPos();
 
   // Display the selectable entry.
   const float entrySymbolOffset = GetEntrySymbolOffset(indents);
@@ -283,34 +269,121 @@ LibraryInterface::Tree* LibraryInterface::ShowExpandableEntry(
   ImGui::SetCursorPosX(ImGui::GetCursorPosX() + GetEntryNameOffset(indents));
   Tree* entryTree;
   if (ImGui::Selectable(entryName.c_str())) {
-    if (!isAsset) {
-      entryTree = parentTree->ToggleSubTree(entryName);
-    }
-    else {
-      std::string assetName = path.substr(0, path.size() - 2);
-      entryTree = parentTree->ToggleAssetSubTree(entryName, assetName);
-    }
+    entryTree = parentTree->ToggleSubTree(entryName);
   }
   else {
     entryTree = parentTree->TryGetSubTree(entryName);
   }
+  AddArrow(entryTree != nullptr, entrySymbolOffset, cursorStartScreenPos);
 
-  // Draw an open or closed arrow to indicate an expandable entry. This comes
-  // last because checks above can determine whether it is open or closed.
-  const Vec2* points = mArrowPointsClosed;
   if (entryTree != nullptr) {
-    points = mArrowPointsOpen;
+    ShowDirectory(rootPath, path + '/', entryTree, indents + 1);
   }
-  ImVec2 center(
-    cursorScreenPos.x + mHalfHeight + entrySymbolOffset,
-    cursorScreenPos.y + mHalfHeight);
-  ImDrawList* drawList = ImGui::GetWindowDrawList();
-  drawList->AddTriangleFilled(
-    ImVec2(center.x + points[0][0], center.y + points[0][1]),
-    ImVec2(center.x + points[1][0], center.y + points[1][1]),
-    ImVec2(center.x + points[2][0], center.y + points[2][1]),
-    mDecorationColor);
-  return entryTree;
+}
+
+void LibraryInterface::ShowAssetEntry(
+  const std::string& path,
+  const std::string& entryName,
+  Tree* parentTree,
+  int indents)
+{
+  ImVec2 cursorStartScreenPos = ImGui::GetCursorScreenPos();
+
+  // Display the selectable entry.
+  const float entrySymbolOffset = GetEntrySymbolOffset(indents);
+  AddEntryLine(entrySymbolOffset, indents);
+  std::string assetName = path.substr(0, path.size() - 2);
+  ImGui::SetCursorPosX(ImGui::GetCursorPosX() + GetEntryNameOffset(indents));
+  OpenAsset* openAsset;
+  if (ImGui::Selectable(entryName.c_str())) {
+    openAsset = parentTree->ToggleOpenAsset(assetName);
+  }
+  else {
+    openAsset = parentTree->TryGetOpenAsset(assetName);
+  }
+  bool open = openAsset != nullptr;
+
+  // A popup window for different options.
+  Rsl::Asset& asset = Rsl::GetAsset(assetName);
+  if (ImGui::BeginPopupContextItem()) {
+    // Initilialze or sleep the asset.
+    switch (asset.GetStatus()) {
+    case Rsl::Asset::Status::Dormant:
+      if (ImGui::Selectable("Init")) {
+        asset.QueueInit();
+      }
+      break;
+    case Rsl::Asset::Status::Failed:
+    case Rsl::Asset::Status::Live:
+      if (ImGui::Selectable("Sleep")) {
+        asset.Sleep();
+      }
+      break;
+    case Rsl::Asset::Status::Initializing:
+      ImGui::TextDisabled("Initializing", ImVec2(-1, 0));
+    }
+    // Display the defined or initialized resources.
+    const char* definedText = "Show Defined Resources";
+    const char* initializedText = "Show Initialized Resources";
+    if (open && asset.GetStatus() == Rsl::Asset::Status::Live) {
+      if (openAsset->mShowDefinedResources) {
+        ImGui::TextDisabled(definedText);
+        if (ImGui::Selectable(initializedText)) {
+          openAsset->mShowDefinedResources = false;
+        }
+      }
+      else {
+        if (ImGui::Selectable(definedText)) {
+          openAsset->mShowDefinedResources = true;
+        }
+        ImGui::TextDisabled(initializedText);
+      }
+    }
+    ImGui::EndPopup();
+  }
+
+  // Display the status of the asset.
+  ImGui::SameLine();
+  ShowStatus(asset.GetStatus());
+
+  // Show the list of defined or initialized resources.
+  if (open) {
+    Result result;
+    if (openAsset->mShowDefinedResources) {
+      result = ShowDefinedResources(*openAsset, indents + 1);
+    }
+    else {
+      result = ShowInitializedResources(*openAsset, indents + 1);
+    }
+    if (!result.Success()) {
+      LogError(result.mError.c_str());
+      parentTree->ToggleOpenAsset(assetName);
+    }
+  }
+  AddArrow(open, entrySymbolOffset, cursorStartScreenPos);
+}
+
+void LibraryInterface::ShowLayerEntry(
+  const std::string& rootPath,
+  const std::string& path,
+  const std::string& entryName,
+  int indents)
+{
+  ShowBasicEntry(entryName, false, indents);
+  DragResourceFile(path);
+  if (ImGui::BeginPopupContextItem()) {
+    if (ImGui::Selectable("Load")) {
+      std::string fullPath = rootPath + path + entryName;
+      VResult<World::LayerIt> result = World::LoadLayer(fullPath.c_str());
+      if (result.Success()) {
+        nCoreInterface.OpenInterface<LayerInterface>(result.mValue);
+      }
+      else {
+        LogError(result.mError.c_str());
+      }
+    }
+    ImGui::EndPopup();
+  }
 }
 
 void LibraryInterface::ShowStatus(Rsl::Asset::Status status)
@@ -371,6 +444,24 @@ void LibraryInterface::AddEntryLine(float endOffset, int indents)
   ImVec2 lineEnd(screenCursorPos.x + endOffset, lineStart.y);
   ImDrawList* drawList = ImGui::GetWindowDrawList();
   drawList->AddLine(lineStart, lineEnd, mDecorationColor, mLineThickness);
+}
+
+void LibraryInterface::AddArrow(
+  bool open, float symbolOffset, ImVec2 cursorStartScreenPos)
+{
+  const Vec2* points = mArrowPointsClosed;
+  if (open) {
+    points = mArrowPointsOpen;
+  }
+  ImVec2 center(
+    cursorStartScreenPos.x + mHalfHeight + symbolOffset,
+    cursorStartScreenPos.y + mHalfHeight);
+  ImDrawList* drawList = ImGui::GetWindowDrawList();
+  drawList->AddTriangleFilled(
+    ImVec2(center.x + points[0][0], center.y + points[0][1]),
+    ImVec2(center.x + points[1][0], center.y + points[1][1]),
+    ImVec2(center.x + points[2][0], center.y + points[2][1]),
+    mDecorationColor);
 }
 
 } // namespace Editor
