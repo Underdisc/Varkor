@@ -53,7 +53,7 @@ void (*nCustomRender)() = nullptr;
 void Init()
 {
   // Initialize all of the resources used by the renderer.
-  Rsl::Asset& asset = Rsl::GetAsset(nRendererAssetName);
+  Rsl::Asset& asset = Rsl::AddAsset(nRendererAssetName);
   // clang-format off
   float fullscreenVertices[] =
     {-1.0f,  1.0f, 0.0f,

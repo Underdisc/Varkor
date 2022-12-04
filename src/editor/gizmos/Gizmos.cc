@@ -18,8 +18,7 @@ ResId nColorShaderId(nGizmoAssetName, "ColorShader");
 
 void Init()
 {
-  Rsl::Asset& gizmoAsset = Rsl::GetAsset(nGizmoAssetName);
-  gizmoAsset.InitFinalize();
+  Rsl::RequireAsset(nGizmoAssetName);
 }
 
 void PurgeUnneeded()

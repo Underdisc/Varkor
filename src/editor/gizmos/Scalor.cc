@@ -27,7 +27,7 @@ Scalor::Scalor(): mOperation(Operation::None)
 {
   // Create all of the handles.
   const char* handleNames[] = {"X", "Y", "Z", "Xy", "Xz", "Yz", "Xyz"};
-  Rsl::Asset& scalorAsset = Rsl::CreateAsset(smScalorAssetName);
+  Rsl::Asset& scalorAsset = Rsl::AddAsset(smScalorAssetName);
   mParent = nSpace.CreateMember();
   nSpace.AddComponent<Comp::Transform>(mParent);
   for (int i = 0; i < smHandleCount; ++i) {
@@ -94,7 +94,7 @@ Scalor::Scalor(): mOperation(Operation::None)
 Scalor::~Scalor()
 {
   nSpace.DeleteMember(mParent);
-  Rsl::RemoveAsset(smScalorAssetName);
+  Rsl::RemAsset(smScalorAssetName);
 }
 
 void Scalor::SetNextOperation(

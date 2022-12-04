@@ -28,7 +28,7 @@ Rotator::Rotator(): mOperation(Operation::None)
   // Create all of the handles.
   const char* handleNames[] = {"X", "Y", "Z", "Xy", "Xz", "Yz", "Xyz"};
   mParent = nSpace.CreateMember();
-  Rsl::Asset& rotatorAsset = Rsl::CreateAsset(smRotatorAssetName);
+  Rsl::Asset& rotatorAsset = Rsl::AddAsset(smRotatorAssetName);
   nSpace.AddComponent<Comp::Transform>(mParent);
   for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = nSpace.CreateChildMember(mParent);
@@ -69,7 +69,7 @@ Rotator::Rotator(): mOperation(Operation::None)
 Rotator::~Rotator()
 {
   nSpace.DeleteMember(mParent);
-  Rsl::RemoveAsset(smRotatorAssetName);
+  Rsl::RemAsset(smRotatorAssetName);
 }
 
 void Rotator::SetNextOperation(

@@ -10,14 +10,16 @@
 
 namespace Rsl {
 
-constexpr const char* nAssetExtension = ".a";
 constexpr const char* nInvalidAssetName = "vres/invalid";
 constexpr const char* nDefaultAssetName = "vres/defaults";
 
-Asset& CreateAsset(const std::string& name);
-void RemoveAsset(const std::string& name);
+Asset& AddAsset(const std::string& name);
+Asset& QueueAsset(const std::string& name);
+Asset& RequireAsset(const std::string& name);
+void RemAsset(const std::string& name);
 Asset& GetAsset(const std::string& name);
 Asset* TryGetAsset(const std::string& name);
+Asset::Status GetAssetStatus(const std::string& name);
 
 VResult<Vlk::Value*> AddConfig(const std::string& assetName);
 void RemConfig(const std::string& assetName);

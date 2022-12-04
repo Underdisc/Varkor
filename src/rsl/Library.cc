@@ -27,12 +27,26 @@ Ds::Vector<std::string> nInitQueue;
 std::mutex nFinalizeQueueMutex;
 Ds::Vector<std::string> nFinalizeQueue;
 
-Asset& CreateAsset(const std::string& name)
+Asset& AddAsset(const std::string& name)
 {
   return nAssets.Emplace(name);
 }
 
-void RemoveAsset(const std::string& name)
+Asset& QueueAsset(const std::string& name)
+{
+  Asset& asset = AddAsset(name);
+  asset.QueueInit();
+  return asset;
+}
+
+Asset& RequireAsset(const std::string& name)
+{
+  Asset& asset = AddAsset(name);
+  asset.InitFinalize();
+  return asset;
+}
+
+void RemAsset(const std::string& name)
 {
   nAssets.Remove(name);
 }
@@ -45,6 +59,15 @@ Asset& GetAsset(const std::string& name)
 Asset* TryGetAsset(const std::string& name)
 {
   return nAssets.TryGet(name);
+}
+
+Asset::Status GetAssetStatus(const std::string& name)
+{
+  Asset* asset = TryGetAsset(name);
+  if (asset != nullptr) {
+    return asset->GetStatus();
+  }
+  return Asset::Status::Dormant;
 }
 
 VResult<Vlk::Value*> AddConfig(const std::string& assetName)
@@ -124,43 +147,10 @@ VResult<std::string> ResolveResPath(const std::string& path)
   return Result("Resource path \"" + path + "\" failed resolution.");
 }
 
-void CollectAssets(const std::string& pathString)
-{
-  VResult<std::string> resolutionResult = ResolveProjPath(pathString);
-  LogAbortIf(!resolutionResult.Success(), resolutionResult.mError.c_str());
-  const std::string& resolvedPathString = resolutionResult.mValue;
-
-  // Find all assets at the resolved path recursively.
-  std::filesystem::path resolvedPath(resolvedPathString);
-  std::filesystem::directory_iterator resolvedPathIt(resolvedPath);
-  for (const std::filesystem::directory_entry& dirEntry : resolvedPathIt) {
-    std::filesystem::path entryPath = dirEntry.path();
-    std::string entryPathString =
-      pathString + '/' + entryPath.filename().string();
-    bool isFile = dirEntry.is_regular_file();
-    if (isFile && entryPath.extension().string() == nAssetExtension) {
-      size_t extensionStart = entryPathString.find_last_of('.');
-      // Assets within res/ do not begin with res/ to remove redundancy.
-      if (entryPathString.substr(0, 3) == "res") {
-        CreateAsset(entryPathString.substr(4, extensionStart - 4));
-      }
-      else {
-        CreateAsset(entryPathString.substr(0, extensionStart));
-      }
-    }
-    else if (dirEntry.is_directory()) {
-      CollectAssets(entryPathString);
-    }
-  }
-}
-
 void Init()
 {
   RegisterResourceTypes();
-  CollectAssets("vres");
-  CollectAssets("res");
-  Asset& defaultAsset = GetAsset(nDefaultAssetName);
-  defaultAsset.InitFinalize();
+  RequireAsset(nDefaultAssetName);
 }
 
 void Purge()

@@ -94,10 +94,9 @@ void ResourceInterface::Show()
   ImGui::End();
 
   // If the asset isn't initializing and the Value changed, write it.
-  Rsl::Asset& asset = Rsl::GetAsset(mResId.GetAssetName());
-  bool initializing = asset.GetStatus() == Rsl::Asset::Status::Initializing;
-  if (!initializing && assetVal != assetValCopy) {
-    VResult<std::string> result = Rsl::ResolveResPath(asset.GetFile());
+  Rsl::Asset::Status status = Rsl::GetAssetStatus(assetName);
+  if (status != Rsl::Asset::Status::Initializing && assetVal != assetValCopy) {
+    VResult<std::string> result = Rsl::ResolveResPath(mResId.GetAssetFile());
     LogAbortIf(!result.Success(), result.mError.c_str());
     assetVal.Write(result.mValue.c_str());
   }

@@ -9,8 +9,7 @@ const ResId Skybox::smDefaultMaterialId(Skybox::smDefaultAssetName, "Material");
 
 void Skybox::VStaticInit()
 {
-  Rsl::Asset& defaultAsset = Rsl::GetAsset(smDefaultAssetName);
-  defaultAsset.InitFinalize();
+  Rsl::RequireAsset(smDefaultAssetName);
 }
 
 void Skybox::VInit(const World::Object& owner)

@@ -28,8 +28,7 @@ void Init()
 {
   glPointSize(12.0f);
   glLineWidth(3.0f);
-  Rsl::Asset& asset = Rsl::GetAsset(nDebugDrawAssetName);
-  asset.InitFinalize();
+  Rsl::RequireAsset(nDebugDrawAssetName);
 }
 
 void Point(const Vec3& point, const Vec3& color)

@@ -11,8 +11,7 @@ const ResId Sprite::smDefaultMaterialId(smDefaultAssetName, "Material");
 
 void Sprite::VStaticInit()
 {
-  Rsl::Asset& asset = Rsl::GetAsset(smDefaultAssetName);
-  asset.InitFinalize();
+  Rsl::RequireAsset(smDefaultAssetName);
 }
 
 void Sprite::VInit(const World::Object& owner)

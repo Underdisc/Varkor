@@ -51,6 +51,11 @@ std::string ResourceId::GetAssetName() const
   return mId.substr(0, assetIdEnd);
 }
 
+std::string ResourceId::GetAssetFile() const
+{
+  return GetAssetName() + nAssetExtension;
+}
+
 std::string ResourceId::GetResourceName() const
 {
   size_t assetIdEnd = mId.find(':');

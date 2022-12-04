@@ -25,7 +25,7 @@ Vec3 Translate(
 Translator::Translator(): mOperation(Operation::None)
 {
   const char* handleNames[] = {"X", "Y", "Z", "Xy", "Xz", "Yz", "Xyz"};
-  Rsl::Asset& translatorAsset = Rsl::CreateAsset(smTranslatorAssetName);
+  Rsl::Asset& translatorAsset = Rsl::AddAsset(smTranslatorAssetName);
 
   // Create all of the handles and handle materials.
   mParent = nSpace.CreateMember();
@@ -94,7 +94,7 @@ Translator::Translator(): mOperation(Operation::None)
 Translator::~Translator()
 {
   nSpace.DeleteMember(mParent);
-  Rsl::RemoveAsset(smTranslatorAssetName);
+  Rsl::RemAsset(smTranslatorAssetName);
 }
 
 void Translator::SetNextOperation(

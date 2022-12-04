@@ -150,12 +150,6 @@ void Asset::InitFinalize()
   Finalize();
 }
 
-void Asset::Sleep()
-{
-  Purge();
-  mStatus = Status::Dormant;
-}
-
 Vlk::Value* Asset::TryGetResVal(
   Vlk::Value& assetVal, const std::string& resName)
 {

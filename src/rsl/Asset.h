@@ -71,7 +71,6 @@ public:
   VResult<T*> TryInitRes(const std::string& name, Args&&... args);
   void Finalize();
   void InitFinalize();
-  void Sleep();
 
   // A way to store basic information about an asset's defined resource.
   struct DefinedResourceInfo

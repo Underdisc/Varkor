@@ -18,8 +18,7 @@ const ResId Text::smDefaultMaterialId(Text::smDefaultAssetName, "Material");
 
 void Text::VStaticInit()
 {
-  Rsl::Asset& defaultAsset = Rsl::GetAsset(smDefaultAssetName);
-  defaultAsset.InitFinalize();
+  Rsl::RequireAsset(smDefaultAssetName);
 }
 
 void Text::VInit(const World::Object& owner)

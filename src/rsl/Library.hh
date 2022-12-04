@@ -23,9 +23,11 @@ T& GetRes(const ResId& resId)
 template<typename T>
 T* TryGetRes(const ResId& resId)
 {
-  Asset* asset = nAssets.TryGet(resId.GetAssetName());
+  std::string assetName = resId.GetAssetName();
+  Asset* asset = TryGetAsset(assetName);
   if (asset == nullptr) {
-    return &GetDefaultRes<T>();
+    QueueAsset(assetName);
+    return nullptr;
   }
   if (asset->GetStatus() == Asset::Status::Initializing) {
     return nullptr;

@@ -303,28 +303,29 @@ void LibraryInterface::ShowAssetEntry(
   bool open = openAsset != nullptr;
 
   // A popup window for different options.
-  Rsl::Asset& asset = Rsl::GetAsset(assetName);
+  Rsl::Asset::Status status = Rsl::GetAssetStatus(assetName);
   if (ImGui::BeginPopupContextItem()) {
     // Initilialze or sleep the asset.
-    switch (asset.GetStatus()) {
+    switch (status) {
     case Rsl::Asset::Status::Dormant:
       if (ImGui::Selectable("Init")) {
-        asset.QueueInit();
+        Rsl::QueueAsset(assetName);
       }
       break;
     case Rsl::Asset::Status::Failed:
     case Rsl::Asset::Status::Live:
       if (ImGui::Selectable("Sleep")) {
-        asset.Sleep();
+        Rsl::RemAsset(assetName);
       }
       break;
     case Rsl::Asset::Status::Initializing:
       ImGui::TextDisabled("Initializing", ImVec2(-1, 0));
     }
+
     // Switch between defined or initialized resources.
     const char* definedText = "Show Defined Resources";
     const char* initializedText = "Show Initialized Resources";
-    if (open && asset.GetStatus() == Rsl::Asset::Status::Live) {
+    if (open && status == Rsl::Asset::Status::Live) {
       if (openAsset->mShowDefinedResources) {
         ImGui::TextDisabled(definedText);
         if (ImGui::Selectable(initializedText)) {
@@ -343,7 +344,7 @@ void LibraryInterface::ShowAssetEntry(
 
   // Display the status of the asset.
   ImGui::SameLine();
-  ShowStatus(asset.GetStatus());
+  ShowStatus(status);
 
   // Show the list of defined or initialized resources.
   if (open) {
@@ -397,14 +398,14 @@ void LibraryInterface::ShowLayerEntry(
 void LibraryInterface::ShowStatus(Rsl::Asset::Status status)
 {
   ImGui::PushItemWidth(-1);
-  const ImVec4 blue(0.0f, 0.5f, 1.0f, 1.0f);
+  const ImVec4 gray(0.5f, 0.5f, 0.5f, 1.0f);
   const ImVec4 purple(0.5f, 0.0f, 1.0f, 1.0f);
   const ImVec4 orange(1.0, 0.5f, 0.0f, 1.0f);
   const ImVec4 red(1.0f, 0.0f, 0.0f, 1.0f);
   const ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);
   typedef Rsl::Asset::Status Status;
   switch (status) {
-  case Status::Dormant: ImGui::TextColored(blue, "o"); break;
+  case Status::Dormant: ImGui::TextColored(gray, "o"); break;
   case Status::Queued: ImGui::TextColored(purple, "~"); break;
   case Status::Initializing: ImGui::TextColored(orange, ">"); break;
   case Status::Failed: ImGui::TextColored(red, "-"); break;
