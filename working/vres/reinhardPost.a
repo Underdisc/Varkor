@@ -1,5 +1,6 @@
-{
-  :ReinhardShader: {
+[
+  {
+    :Name: 'ReinhardShader'
     :Type: 'Shader'
     :Config: {
       :Files: [
@@ -7,12 +8,13 @@
         'vres/shader/ReinhardPostProcess.glf'
       ]
     }
-  }
-  :ReinhardMaterial: {
+  },
+  {
+    :Name: 'ReinhardMaterial'
     :Type: 'Material'
     :Config: {
       :ShaderId: 'vres/reinhardPost:ReinhardShader'
       :Uniforms: []
     }
   }
-}
+]

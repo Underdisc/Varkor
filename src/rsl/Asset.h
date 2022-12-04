@@ -82,9 +82,10 @@ public:
   typedef DefinedResourceInfo DefResInfo;
 
   // For accessing information within an asset's config file.
-  static VResult<ResTypeId> GetResTypeId(const Vlk::Explorer& resEx);
+  static Vlk::Value* TryGetResVal(
+    Vlk::Value& assetVal, const std::string& resName);
   static VResult<Ds::Vector<DefResInfo>> GetAllDefResInfo(
-    const std::string& assetName, const Vlk::Explorer& assetEx);
+    const Vlk::Explorer& assetEx);
 
   static Asset& GetInitAsset();
 

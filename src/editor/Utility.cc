@@ -47,8 +47,14 @@ bool InputTextMultiline(const char* label, const ImVec2& size, std::string* str)
 
 void DragResourceId(Rsl::ResourceTypeId resTypeId, const ResId& resId)
 {
-  const Rsl::ResTypeData& resTypeData = Rsl::GetResTypeData(resTypeId);
-  std::string payloadName = resTypeData.mName;
+  std::string payloadName;
+  if (resTypeId != Rsl::ResTypeId::Invalid) {
+    const Rsl::ResTypeData& resTypeData = Rsl::GetResTypeData(resTypeId);
+    payloadName = resTypeData.mName;
+  }
+  else {
+    payloadName = "Invalid";
+  }
   payloadName += "ResId";
   if (ImGui::BeginDragDropSource()) {
     ImGui::SetDragDropPayload(

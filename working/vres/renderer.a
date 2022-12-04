@@ -1,17 +1,20 @@
-{
-  :MemberIdShader: {
+[
+  {
+    :Name: 'MemberIdShader'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/Default.glv', 'vres/shader/MemberId.glf']
     }
-  }
-  :DepthShader: {
+  },
+  {
+    :Name: 'DepthShader'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/Depth.glvf']
     }
-  }
-  :DefaultPostShader: {
+  },
+  {
+    :Name: 'DefaultPostShader'
     :Type: 'Shader'
     :Config: {
       :Files: [
@@ -19,12 +22,13 @@
         'vres/shader/DefaultPostProcess.glf'
       ]
     }
-  }
-  :DefaultPostMaterial: {
+  },
+  {
+    :Name: 'DefaultPostMaterial'
     :Type: 'Material'
     :Config: {
       :ShaderId: 'vres/renderer:DefaultPostShader'
       :Uniforms: []
     }
   }
-}
+]

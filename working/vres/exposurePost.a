@@ -1,11 +1,13 @@
-{
-  :ExposureShader: {
+[
+  {
+    :Name: 'ExposureShader'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/ExposurePostProcess.glf']
     }
-  }
-  :ExposureMaterial: {
+  },
+  {
+    :Name: 'ExposureMaterial'
     :Type: 'Material'
     :Config: {
       :ShaderId: 'vres/exposurePost:ExposureShader'
@@ -19,4 +21,4 @@
       ]
     }
   }
-}
+]

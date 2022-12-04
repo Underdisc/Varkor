@@ -1,11 +1,13 @@
-{
-  :Shader: {
+[
+  {
+    :Name: 'Shader'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/Skybox.glv', 'vres/shader/Skybox.glf']
     }
-  }
-  :Material: {
+  },
+  {
+    :Name: 'Material'
     :Type: 'Material'
     :Config: {
       :ShaderId: 'vres/skyboxDefaults:Shader'
@@ -18,4 +20,4 @@
       ]
     }
   }
-}
+]

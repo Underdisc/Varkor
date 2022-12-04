@@ -1,11 +1,13 @@
-{
-  :Shader: {
+[
+  {
+    :Name: 'Shader'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/DefaultSprite.glvf']
     }
-  }
-  :Material: {
+  },
+  {
+    :Name: 'Material'
     :Type: 'Material'
     :Config: {
       :ShaderId: 'vres/spriteDefaults:Shader'
@@ -18,4 +20,4 @@
       ]
     }
   }
-}
+]

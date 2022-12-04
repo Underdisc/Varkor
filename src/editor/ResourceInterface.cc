@@ -29,7 +29,21 @@ ResourceInterface::~ResourceInterface()
 
 void ResourceInterface::Show()
 {
+  // Ensure that there is a Value for the desired resource.
+  std::string assetName = mResId.GetAssetName();
+  Vlk::Value& assetVal = Rsl::GetConfig(assetName);
+  std::string resName = mResId.GetResourceName();
+  Vlk::Value* resVal = Rsl::Asset::TryGetResVal(assetVal, resName);
+  if (resVal == nullptr) {
+    std::string error =
+      "Asset \"" + assetName + "\" missing resource \"" + resName + "\".";
+    LogError(error.c_str());
+    mOpen = false;
+    return;
+  }
+
   ImGui::Begin("Resource", &mOpen);
+  Vlk::Value assetValCopy = assetVal;
 
   // Show the ResourceId centered at the top of the window.
   float windowSize = ImGui::GetWindowSize().x;
@@ -38,24 +52,28 @@ void ResourceInterface::Show()
   ImGui::SetCursorPosX(startPos);
   ImGui::Text(mResId.mId.c_str());
 
-  Vlk::Value& assetVal = Rsl::GetConfig(mResId.GetAssetName());
-  Vlk::Value assetValCopy = assetVal;
+  // Get the name of the current resource type.
+  Vlk::Value& typeVal = (*resVal)("Type");
+  ResTypeId resTypeId = Rsl::GetResTypeId(typeVal.As<std::string>("Invalid"));
+  const char* resTypeName;
+  if (resTypeId != Rsl::ResTypeId::Invalid) {
+    const ResTypeData& resTypeData = Rsl::GetResTypeData(resTypeId);
+    resTypeName = resTypeData.mName;
+  }
+  else {
+    resTypeName = "Invalid";
+  }
 
-  // Show a dropdown menu for changing the resource type.
-  Vlk::Value& resVal = assetVal(mResId.GetResourceName());
-  Vlk::Value& typeVal = resVal("Type");
-  Vlk::Value& configVal = resVal("Config");
-  std::string typeName = typeVal.As<std::string>("Invalid");
-  ResTypeId resTypeId = Rsl::GetResTypeId(typeName);
-  const ResTypeData& resTypeData = Rsl::GetResTypeData(resTypeId);
+  // A drop down for modifying the resource type.
+  Vlk::Value& configVal = (*resVal)("Config");
   ImGui::PushItemWidth(-Editor::CalcBufferWidth("Type"));
-  if (ImGui::BeginCombo("Type", resTypeData.mName)) {
+  if (ImGui::BeginCombo("Type", resTypeName)) {
     for (int i = 0; i < (int)ResTypeId::Count; ++i) {
-      const ResTypeData& iResTypeData = Rsl::GetResTypeData((ResTypeId)i);
+      const ResTypeData& resTypeData = Rsl::GetResTypeData((ResTypeId)i);
       bool selected = resTypeId == (ResTypeId)i;
-      if (ImGui::Selectable(iResTypeData.mName, selected) && !selected) {
+      if (ImGui::Selectable(resTypeData.mName, selected) && !selected) {
         resTypeId = (ResTypeId)i;
-        typeVal = iResTypeData.mName;
+        typeVal = resTypeData.mName;
         configVal.Clear();
       }
     }

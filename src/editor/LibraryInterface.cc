@@ -94,9 +94,12 @@ LibraryInterface::OpenAsset* LibraryInterface::Tree::ToggleOpenAsset(
     return nullptr;
   }
   Result getAllDefResInfoResult =
-    Rsl::Asset::GetAllDefResInfo(assetName, *addConfigResult.mValue);
+    Rsl::Asset::GetAllDefResInfo(*addConfigResult.mValue);
   if (!getAllDefResInfoResult.Success()) {
-    LogError(getAllDefResInfoResult.mError.c_str());
+    std::string error = "Asset \"" + assetName +
+      "\" get all defined resource info failed.\n" +
+      getAllDefResInfoResult.mError;
+    LogError(error.c_str());
     Rsl::RemConfig(assetName);
     return nullptr;
   }
@@ -164,11 +167,11 @@ Result LibraryInterface::ShowDefinedResources(
   const Vlk::Value& assetVal = Rsl::GetConfig(assetName);
   Vlk::Explorer assetEx(assetVal);
   VResult<Ds::Vector<Rsl::Asset::DefResInfo>> result =
-    Rsl::Asset::GetAllDefResInfo(assetName, assetEx);
+    Rsl::Asset::GetAllDefResInfo(assetEx);
   if (!result.Success()) {
-    std::string error = "Unable to show defined resources for asset \"" +
-      assetName + "\".\n" + result.mError;
-    return Result(error);
+    return Result(
+      "Asset \"" + assetName + "\" get all defined resource info failed.\n" +
+      result.mError);
   }
   const Ds::Vector<Rsl::Asset::DefResInfo>& allDefResInfo = result.mValue;
 
@@ -211,17 +214,13 @@ Result LibraryInterface::ShowInitializedResources(
   const OpenAsset& openAsset, int indents)
 {
   // Ensure that we can get the resource descriptors from an existing asset.
-  const char* genericError =
-    "Unable to show initialized resources for asset \"";
   const std::string& assetName = openAsset.mName;
   const Rsl::Asset* asset = Rsl::TryGetAsset(assetName);
   if (asset == nullptr) {
-    return Result(
-      genericError + assetName +
-      "\".\nThe asset hasn't been added to the library.");
+    return Result("The asset hasn't been added to the library.");
   }
   if (asset->GetStatus() != Rsl::Asset::Status::Live) {
-    return Result(genericError + assetName + "\"\nThe asset isn't Live.");
+    return Result("The asset isn't Live.");
   }
 
   // Display all of the initialized resources.
@@ -322,7 +321,7 @@ void LibraryInterface::ShowAssetEntry(
     case Rsl::Asset::Status::Initializing:
       ImGui::TextDisabled("Initializing", ImVec2(-1, 0));
     }
-    // Display the defined or initialized resources.
+    // Switch between defined or initialized resources.
     const char* definedText = "Show Defined Resources";
     const char* initializedText = "Show Initialized Resources";
     if (open && asset.GetStatus() == Rsl::Asset::Status::Live) {
@@ -351,13 +350,22 @@ void LibraryInterface::ShowAssetEntry(
     Result result;
     if (openAsset->mShowDefinedResources) {
       result = ShowDefinedResources(*openAsset, indents + 1);
+      if (!result.Success()) {
+        std::string error = "Failed to show asset \"" + openAsset->mName +
+          "\" defined resources." + result.mError;
+        LogError(error.c_str());
+      }
     }
     else {
       result = ShowInitializedResources(*openAsset, indents + 1);
+      if (!result.Success()) {
+        std::string error = "Failed to show asset \"" + openAsset->mName +
+          "\" initialized resources." + result.mError;
+        LogError(error.c_str());
+      }
     }
     if (!result.Success()) {
-      LogError(result.mError.c_str());
-      parentTree->ToggleOpenAsset(assetName);
+      parentTree->ToggleOpenAsset(openAsset->mName);
     }
   }
   AddArrow(open, entrySymbolOffset, cursorStartScreenPos);
