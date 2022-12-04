@@ -373,7 +373,7 @@ void LibraryInterface::ShowLayerEntry(
   DragResourceFile(path);
   if (ImGui::BeginPopupContextItem()) {
     if (ImGui::Selectable("Load")) {
-      std::string fullPath = rootPath + path + entryName;
+      std::string fullPath = rootPath + path;
       VResult<World::LayerIt> result = World::LoadLayer(fullPath.c_str());
       if (result.Success()) {
         nCoreInterface.OpenInterface<LayerInterface>(result.mValue);
