@@ -50,13 +50,12 @@ void Material::EditConfig(Vlk::Value* configValP)
     configVal("Uniforms").EnsureType(Vlk::Value::Type::ValueArray);
   ImGuiTableFlags flags = ImGuiTableFlags_Resizable |
     ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV;
-  ImVec2 outerSize(-Editor::CalcBufferWidth("Uniforms"), 0.0f);
-  if (!ImGui::BeginTable("Uniforms", 4, flags, outerSize)) {
+  if (!ImGui::BeginTable("Uniforms", 4, flags)) {
     return;
   }
 
   // Setup the table header.
-  ImGui::TableSetupColumn("Name");
+  ImGui::TableSetupColumn("Uniform");
   ImGui::TableSetupColumn("Type");
   ImGui::TableSetupColumn("Value");
   ImGui::TableSetupColumn("");
