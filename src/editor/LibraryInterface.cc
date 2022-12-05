@@ -164,7 +164,7 @@ Result LibraryInterface::ShowDefinedResources(
 {
   // Get the asset's defined resource information.
   const std::string& assetName = openAsset.mName;
-  const Vlk::Value& assetVal = Rsl::GetConfig(assetName);
+  Vlk::Value& assetVal = Rsl::GetConfig(assetName);
   Vlk::Explorer assetEx(assetVal);
   VResult<Ds::Vector<Rsl::Asset::DefResInfo>> result =
     Rsl::Asset::GetAllDefResInfo(assetEx);
@@ -173,7 +173,7 @@ Result LibraryInterface::ShowDefinedResources(
       "Asset \"" + assetName + "\" get all defined resource info failed.\n" +
       result.mError);
   }
-  const Ds::Vector<Rsl::Asset::DefResInfo>& allDefResInfo = result.mValue;
+  Ds::Vector<Rsl::Asset::DefResInfo>& allDefResInfo = result.mValue;
 
   // Get the currently selected resource if there is one.
   ResId selectedResId;
@@ -186,9 +186,12 @@ Result LibraryInterface::ShowDefinedResources(
   ImGui::PushID(assetName.c_str());
   float lineStartY = ImGui::GetCursorScreenPos().y;
   float lineEndY;
-  for (const Rsl::Asset::DefResInfo& defResInfo : allDefResInfo) {
+  for (int i = 0; i < allDefResInfo.Size(); ++i) {
+    ImGui::PushID(i);
     lineEndY = ImGui::GetCursorScreenPos().y;
 
+    // Display an entry for the resource.
+    const Rsl::Asset::DefResInfo& defResInfo = allDefResInfo[i];
     ResId resId(assetName, defResInfo.mName);
     bool selected = selectedResId == resId;
     bool entryClicked = ShowBasicEntry(defResInfo.mName, selected, indents);
@@ -201,6 +204,18 @@ Result LibraryInterface::ShowDefinedResources(
       }
     }
     DragResourceId(defResInfo.mTypeId, resId);
+
+    // An option for removing the resource.
+    if (ImGui::BeginPopupContextItem()) {
+      if (ImGui::Selectable("Remove")) {
+        allDefResInfo.Remove(i);
+        assetVal.RemoveValue(i);
+        Rsl::WriteConfig(assetName);
+        --i;
+      }
+      ImGui::EndPopup();
+    }
+    ImGui::PopID();
   }
 
   if (allDefResInfo.Size() > 0) {
