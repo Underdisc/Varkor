@@ -6,6 +6,7 @@
 namespace Rsl {
 
 constexpr const char* nAssetExtension = ".a";
+constexpr const char* nResIdDelimeter = ":";
 
 // A way to identify a specific resource within the resource library.
 struct ResourceId
@@ -27,6 +28,7 @@ struct ResourceId
   std::string GetAssetName() const;
   std::string GetAssetFile() const;
   std::string GetResourceName() const;
+  void SetResourceName(const std::string& name);
   bool operator==(const ResourceId& other) const;
 };
 typedef ResourceId ResId;

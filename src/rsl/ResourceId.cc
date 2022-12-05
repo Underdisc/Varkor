@@ -39,12 +39,12 @@ ResourceId& ResourceId::operator=(const std::string& id)
 void ResourceId::Init(
   const std::string& assetName, const std::string& resourceName)
 {
-  mId = assetName + ':' + resourceName;
+  mId = assetName + nResIdDelimeter + resourceName;
 }
 
 std::string ResourceId::GetAssetName() const
 {
-  size_t assetIdEnd = mId.find(':');
+  size_t assetIdEnd = mId.find(nResIdDelimeter);
   if (assetIdEnd == std::string::npos) {
     return "";
   }
@@ -58,13 +58,24 @@ std::string ResourceId::GetAssetFile() const
 
 std::string ResourceId::GetResourceName() const
 {
-  size_t assetIdEnd = mId.find(':');
+  size_t assetIdEnd = mId.find(nResIdDelimeter);
   if (assetIdEnd == std::string::npos) {
     return "";
   }
   size_t resourceNameStart = assetIdEnd + 1;
   size_t count = mId.size() - resourceNameStart;
   return mId.substr(resourceNameStart, count);
+}
+
+void ResourceId::SetResourceName(const std::string& name)
+{
+  size_t assetNameEnd = mId.find(nResIdDelimeter);
+  if (assetNameEnd == std::string::npos) {
+    mId = nResIdDelimeter + name;
+    return;
+  }
+  mId.erase(assetNameEnd + 1);
+  mId += name;
 }
 
 bool ResourceId::operator==(const ResId& other) const

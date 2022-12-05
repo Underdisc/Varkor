@@ -45,12 +45,15 @@ void ResourceInterface::Show()
   ImGui::Begin("Resource", &mOpen);
   Vlk::Value assetValCopy = assetVal;
 
-  // Show the ResourceId centered at the top of the window.
-  float windowSize = ImGui::GetWindowSize().x;
-  float textSize = ImGui::CalcTextSize(mResId.mId.c_str()).x;
-  float startPos = (windowSize - textSize) / 2.0f;
-  ImGui::SetCursorPosX(startPos);
-  ImGui::Text(mResId.mId.c_str());
+  // Change the name of the resource.
+  std::string resourcePrefix = mResId.GetAssetName() + Rsl::nResIdDelimeter;
+  ImGui::Text(resourcePrefix.c_str());
+  ImGui::SameLine(0.0f, 0.0f);
+  Vlk::Value& nameVal = (*resVal)("Name");
+  std::string name = nameVal.As<std::string>("DefaultName");
+  InputText("Name", &name, -CalcBufferWidth("Name"));
+  nameVal = name;
+  mResId.SetResourceName(name);
 
   // Get the name of the current resource type.
   Vlk::Value& typeVal = (*resVal)("Type");
