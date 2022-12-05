@@ -93,7 +93,7 @@ template<typename... Args>
 V& Map<K, V>::Emplace(const K& key, Args&&... args)
 {
   typename Map<K, V>::Node* newNode =
-    alloc typename Map<K, V>::Node(key, args...);
+    alloc typename Map<K, V>::Node(key, std::forward<Args>(args)...);
   Map<K, V>::InsertNode(newNode);
   return newNode->mValue.mValue;
 }
