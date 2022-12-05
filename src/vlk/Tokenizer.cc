@@ -1,4 +1,5 @@
 #include <sstream>
+#include <utility>
 
 #include "vlk/Tokenizer.h"
 
@@ -205,7 +206,7 @@ Token ReadNextToken(const char** text)
   return token;
 }
 
-ValueResult<Ds::Vector<Token>> Tokenize(const char* text)
+VResult<Ds::Vector<Token>> Tokenize(const char* text)
 {
   // Initialize the Tokenizer if it hasn't been.
   if (nStates.Empty()) {
@@ -222,14 +223,14 @@ ValueResult<Ds::Vector<Token>> Tokenize(const char* text)
     case Token::Type::Invalid:
       error << "[" << lineNumber << "] Invalid token: "
             << std::string(token.mText, text - token.mText);
-      return ValueResult<Ds::Vector<Token>>(error.str(), Util::Move(tokens));
+      return Result(error.str());
     case Token::Type::Whitespace:
       lineNumber += CountNewLines(token.mText, text);
     default: tokens.Push(token);
     }
   }
   tokens.Push({text, Token::Type::Terminator});
-  return ValueResult<Ds::Vector<Token>>(Util::Move(tokens));
+  return VResult<Ds::Vector<Token>>(std::move(tokens));
 }
 
 size_t CountNewLines(const char* start, const char* end)

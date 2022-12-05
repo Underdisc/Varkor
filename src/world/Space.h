@@ -56,7 +56,6 @@ private:
 struct Space
 {
   Space();
-  Space(const std::string& name);
   void Clear();
   void Update();
 
@@ -114,11 +113,7 @@ struct Space
   const Ds::Vector<ComponentDescriptor> DescriptorBin() const;
 
   void Serialize(Vlk::Value& spaceVal) const;
-  void Deserialize(const Vlk::Explorer& spaceEx);
-
-public:
-  std::string mName;
-  MemberId mCameraId;
+  Result Deserialize(const Vlk::Explorer& spaceEx);
 
 private:
   Ds::Map<Comp::TypeId, Table> mTables;

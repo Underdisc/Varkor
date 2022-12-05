@@ -1,27 +1,50 @@
 <= FailedIncludeBasic =>
 Success: 0
-Failed to compile FailedIncludeBasic.fs.
-FailedIncludeBasic.fs(1): Failed to include "notafile".
+FailedIncludeBasic.glf(3) : Failed to include "notafile".
+Resource path "notafile" failed resolution.
 
 <= FailedInclude =>
 Success: 0
-Failed to compile FailedInclude.fs.
-FailedInclude0.glsl(6): Failed to include "notafile".
+FailedInclude0.glh(6) : Failed to include "notafile".
+Resource path "notafile" failed resolution.
 
 <= FailedIncludeSubdirectory =>
 Success: 0
-Failed to compile FailedIncludeSubdirectory.fs.
-fis0/fis1/FailedIncludeSubdirectory1.glsl(6): Failed to include "nota/file".
+fis0/fis1/FailedIncludeSubdirectory1.glh(6) : Failed to include "nota/file".
+Resource path "nota/file" failed resolution.
 
 <= IncludeGuard =>
 Success: 1
 
 <= CompilerErrors =>
 Success: 0
-Failed to compile CompilerErrors.fs.
-CompilerErrors1.glsl(3) : error C1503: undefined variable "error"
-CompilerErrors0.glsl(2) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
-CompilerErrors0.glsl(6) : error C1503: undefined variable "error"
-CompilerErrors2.glsl(4) : error C1503: undefined variable "error"
-CompilerErrors2.glsl(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
-CompilerErrors.fs(9) : error C1503: undefined variable "error"
+CompilerErrors1.glh(3) : error C1503: undefined variable "error"
+CompilerErrors0.glh(2) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+CompilerErrors0.glh(6) : error C1503: undefined variable "error"
+CompilerErrors2.glh(4) : error C1503: undefined variable "error"
+CompilerErrors2.glh(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+CompilerErrors.glf(11) : error C1503: undefined variable "error"
+
+<= SingleSource =>
+=SingleSource0.glvif=
+Success: 0
+SingleSource0.glvif(4) : Invalid SubType "invalid".
+=SingleSource1.glvfv=
+Success: 0
+SingleSource1.glvfv(1) : Multiple "vertex" subshaders.
+SingleSource1.glvfv(6) : Multiple "vertex" subshaders.
+=SingleSource2.glvf=
+Success: 0
+CompilerErrors1.glh(3) : error C1503: undefined variable "error"
+CompilerErrors0.glh(2) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+CompilerErrors0.glh(6) : error C1503: undefined variable "error"
+CompilerErrors2.glh(4) : error C1503: undefined variable "error"
+CompilerErrors2.glh(6) : error C0000: syntax error, unexpected ';', expecting "::" at token ";"
+SingleSource2.glvf(8) : error C1503: undefined variable "error"
+
+<= UndefFunc =>
+Success: 0
+Failed to link.
+Vertex info
+-----------
+0(10) : error C3002: call to undefined function "void UndefFunc();"

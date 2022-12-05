@@ -5,7 +5,7 @@
 #include <stb_truetype.h>
 
 #include "Result.h"
-#include "ds/Vector.h"
+#include "gfx/Image.h"
 #include "math/Vector.h"
 #include "vlk/Valkor.h"
 
@@ -14,29 +14,25 @@ namespace Gfx {
 struct Font
 {
 public:
-  struct InitInfo
-  {
-    std::string mFile;
-    void Serialize(Vlk::Value& val) const;
-    void Deserialize(const Vlk::Explorer& ex);
-  };
-  Result Init(const InitInfo& info);
-  void Finalize() {};
-  void Purge();
-
   Font();
   Font(Font&& other);
   Font& operator=(Font&& other);
   ~Font();
 
+  static void EditConfig(Vlk::Value* configValP);
+  Result Init(const Vlk::Explorer& configEx);
   Result Init(const std::string& file);
 
-  struct GlyphMetrics
+  struct GlyphData
   {
-    Vec2 mStartOffset, mEndOffset;
+    // The bottom left and top right offsets from the center of the glyph.
+    Vec2 mBlOffset;
+    Vec2 mTrOffset;
+    // The distance from the center of the glyph to the next.
     float mAdvance;
+    Image mImage;
   };
-  const GlyphMetrics& GetGlyphMetrics(int codepoint) const;
+  const GlyphData& GetGlyphData(int codepoint) const;
   float NewlineOffset() const;
   GLuint GetTextureId(int codepoint);
 
@@ -46,8 +42,7 @@ private:
 
   stbtt_fontinfo mFontInfo;
   float mNewlineOffset;
-  GlyphMetrics mAllGlyphMetrics[smGlyphCount];
-  GLuint mTextureIds[smGlyphCount];
+  GlyphData mGlyphData[smGlyphCount];
 };
 
 } // namespace Gfx

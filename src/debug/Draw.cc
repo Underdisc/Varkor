@@ -1,6 +1,5 @@
 #include <glad/glad.h>
 
-#include "AssetLibrary.h"
 #include "Error.h"
 #include "debug/Draw.h"
 #include "ds/Vector.h"
@@ -8,6 +7,7 @@
 #include "gfx/Shader.h"
 #include "math/Geometry.h"
 #include "math/Matrix4.h"
+#include "rsl/Library.h"
 
 namespace Debug {
 namespace Draw {
@@ -21,10 +21,14 @@ struct Renderable
 };
 Ds::Vector<Renderable> nRenderables;
 
+const char* nDebugDrawAssetName = "vres/debugDraw";
+const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Shader");
+
 void Init()
 {
   glPointSize(12.0f);
   glLineWidth(3.0f);
+  Rsl::RequireAsset(nDebugDrawAssetName);
 }
 
 void Point(const Vec3& point, const Vec3& color)
@@ -95,20 +99,15 @@ void CartesianAxes()
 
 void Render(const Mat4& view, const Mat4& proj)
 {
-  Gfx::Shader* shader =
-    AssLib::TryGetLive<Gfx::Shader>(AssLib::nDebugDrawShaderId);
-  if (shader == nullptr) {
-    return;
-  }
+  Gfx::Shader& shader = Rsl::GetRes<Gfx::Shader>(nDebugDrawShaderId);
   Gfx::Renderer::InitializeUniversalUniformBuffer(view, proj);
 
-  GLint alphaColorLoc = shader->UniformLocation(Gfx::Uniform::Type::AlphaColor);
-  glUseProgram(shader->Id());
+  glUseProgram(shader.Id());
   for (int i = 0; i < nRenderables.Size(); ++i) {
     const Renderable& renderable = nRenderables[i];
     Vec4 fullColor = (Vec4)renderable.mColor;
     fullColor[3] = 1.0f;
-    glUniform4fv(alphaColorLoc, 1, fullColor.CData());
+    shader.SetUniform("uColor", fullColor);
     glBindVertexArray(renderable.mVao);
     if (renderable.mCount == 1) {
       glDrawArrays(GL_POINTS, 0, renderable.mCount);

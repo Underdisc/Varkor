@@ -1,4 +1,4 @@
-#include "util/Utility.h"
+#include <utility>
 
 namespace Ds {
 
@@ -8,7 +8,7 @@ KvPair<K, V>::KvPair(const K& key, const V& value): mKey(key), mValue(value)
 
 template<typename K, typename V>
 KvPair<K, V>::KvPair(const K& key, V&& value):
-  mKey(key), mValue(Util::Forward(value))
+  mKey(key), mValue(std::forward<V>(value))
 {}
 
 template<typename K, typename V>
@@ -73,16 +73,18 @@ typename Map<K, V>::CIter Map<K, V>::cend() const
 template<typename K, typename V>
 V& Map<K, V>::Insert(const K& key, const V& value)
 {
-  Node* newNode = alloc Node(key, value);
-  InsertNode(newNode);
+  typename Map<K, V>::Node* newNode =
+    alloc typename Map<K, V>::Node(key, value);
+  Map<K, V>::InsertNode(newNode);
   return newNode->mValue.mValue;
 }
 
 template<typename K, typename V>
 V& Map<K, V>::Insert(const K& key, V&& value)
 {
-  Node* newNode = alloc Node(key, Util::Forward(value));
-  InsertNode(newNode);
+  typename Map<K, V>::Node* newNode =
+    alloc typename Map<K, V>::Node(key, std::forward<V>(value));
+  Map<K, V>::InsertNode(newNode);
   return newNode->mValue.mValue;
 }
 
@@ -90,22 +92,23 @@ template<typename K, typename V>
 template<typename... Args>
 V& Map<K, V>::Emplace(const K& key, Args&&... args)
 {
-  Node* newNode = alloc Node(key, args...);
-  InsertNode(newNode);
+  typename Map<K, V>::Node* newNode =
+    alloc typename Map<K, V>::Node(key, std::forward<Args>(args)...);
+  Map<K, V>::InsertNode(newNode);
   return newNode->mValue.mValue;
 }
 
 template<typename K, typename V>
 void Map<K, V>::Remove(const K& key)
 {
-  Node* node = FindNode<K>(key);
-  RemoveNode(node);
+  typename Map<K, V>::Node* node = Map<K, V>::FindNode<K>(key);
+  Map<K, V>::RemoveNode(node);
 }
 
 template<typename K, typename V>
-V* Map<K, V>::Find(const K& key) const
+V* Map<K, V>::TryGet(const K& key) const
 {
-  Node* node = FindNode<K>(key);
+  typename Map<K, V>::Node* node = Map<K, V>::FindNode<K>(key);
   if (node == nullptr) {
     return nullptr;
   }
@@ -115,7 +118,7 @@ V* Map<K, V>::Find(const K& key) const
 template<typename K, typename V>
 V& Map<K, V>::Get(const K& key) const
 {
-  V* value = Find(key);
+  V* value = TryGet(key);
   LogAbortIf(value == nullptr, "The Map did not contain the given key.");
   return *value;
 }
@@ -123,7 +126,7 @@ V& Map<K, V>::Get(const K& key) const
 template<typename K, typename V>
 bool Map<K, V>::Contains(const K& key) const
 {
-  return FindNode<K>(key) != nullptr;
+  return Map<K, V>::FindNode<K>(key) != nullptr;
 }
 
 } // namespace Ds

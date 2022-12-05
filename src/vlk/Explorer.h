@@ -32,6 +32,7 @@ struct Explorer
   const std::string& Key() const;
   size_t Size() const;
   bool Valid() const;
+  bool Valid(Value::Type type) const;
 
   Explorer operator()(const std::string& key) const;
   Explorer operator()(size_t index) const;
@@ -46,29 +47,12 @@ private:
   const Value* mValue;
   size_t mIndex;
   bool mIsPair;
-
-  template<typename>
-  friend struct Deserializer;
-};
-
-template<typename T>
-struct Deserializer
-{
-  static bool Deserialize(const Explorer& ex, T* value)
-  {
-    *value = ex.mValue->As<T>();
-    return true;
-  }
 };
 
 template<typename T>
 T Explorer::As() const
 {
-  LogAbortIf(!Valid(), "As without a default used on an invalid Explorer.");
-  T value;
-  bool deserialized = Deserializer<T>::Deserialize(*this, &value);
-  LogAbortIf(!deserialized, "As without a default failed deserialization.");
-  return value;
+  return mValue->As<T>();
 }
 
 template<typename T>
@@ -77,12 +61,7 @@ T Explorer::As(const T& defaultValue) const
   if (!Valid()) {
     return defaultValue;
   }
-  T value;
-  bool deserialized = Deserializer<T>::Deserialize(*this, &value);
-  if (!deserialized) {
-    return defaultValue;
-  }
-  return value;
+  return mValue->As<T>(defaultValue);
 }
 
 } // namespace Vlk

@@ -27,7 +27,7 @@ void Interface::CloseInterface()
 template<typename T>
 T* Interface::FindInterface()
 {
-  Interface** interface = mInterfaces.Find(Util::GetFullTypename<T>());
+  Interface** interface = mInterfaces.TryGet(Util::GetFullTypename<T>());
   if (interface == nullptr) {
     return nullptr;
   }

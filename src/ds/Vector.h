@@ -17,6 +17,7 @@ public:
   template<typename... Args>
   void Emplace(Args&&... args);
   void Insert(size_t index, const T& value);
+  void Insert(size_t index, T&& value);
   void Pop();
   void Clear();
   void Remove(size_t index);
@@ -54,6 +55,7 @@ private:
 
 private:
   void VerifyIndex(size_t index) const;
+  void CreateGap(size_t index);
   void Grow();
   void Grow(size_t newCapacity);
   T* CreateAllocation(size_t capacity);

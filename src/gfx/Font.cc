@@ -1,35 +1,16 @@
 #include <fstream>
-#include <sstream>
+#include <imgui/imgui.h>
+#include <utility>
+
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
 #undef STB_TRUETYPE_IMPLEMENTATION
 
-#include "AssetLibrary.h"
+#include "editor/Utility.h"
 #include "gfx/Font.h"
+#include "rsl/Library.h"
 
 namespace Gfx {
-
-void Font::InitInfo::Serialize(Vlk::Value& val) const
-{
-  val("File") = mFile;
-}
-
-void Font::InitInfo::Deserialize(const Vlk::Explorer& ex)
-{
-  mFile = ex("File").As<std::string>("");
-}
-
-void Font::Purge()
-{
-  if (mFontInfo.data == nullptr) {
-    return;
-  }
-  delete[] mFontInfo.data;
-  mFontInfo.data = nullptr;
-  for (size_t i = 0; i < smGlyphCount; ++i) {
-    glDeleteTextures(1, &mTextureIds[i]);
-  }
-}
 
 Font::Font()
 {
@@ -38,7 +19,7 @@ Font::Font()
 
 Font::Font(Font&& other)
 {
-  *this = Util::Forward(other);
+  *this = std::move(other);
 }
 
 Font& Font::operator=(Font&& other)
@@ -46,8 +27,7 @@ Font& Font::operator=(Font&& other)
   mFontInfo.data = other.mFontInfo.data;
   mNewlineOffset = other.mNewlineOffset;
   for (size_t i = 0; i < smGlyphCount; ++i) {
-    mAllGlyphMetrics[i] = other.mAllGlyphMetrics[i];
-    mTextureIds[i] = other.mTextureIds[i];
+    mGlyphData[i] = std::move(other.mGlyphData[i]);
   }
 
   other.mFontInfo.data = nullptr;
@@ -57,51 +37,60 @@ Font& Font::operator=(Font&& other)
 
 Font::~Font()
 {
-  Purge();
+  if (mFontInfo.data == nullptr) {
+    return;
+  }
+  delete[] mFontInfo.data;
 }
 
-Result Font::Init(const InitInfo& info)
+void Font::EditConfig(Vlk::Value* configValP)
+{
+  Vlk::Value& configVal = *configValP;
+  Vlk::Value& fileVal = configVal("File");
+  std::string file = fileVal.As<std::string>("");
+  Editor::DropResourceFileWidget("File", &file);
+  fileVal = file;
+}
+
+Result Font::Init(const Vlk::Explorer& configEx)
+{
+  Vlk::Explorer fileEx = configEx("File");
+  if (!fileEx.Valid(Vlk::Value::Type::TrueValue)) {
+    return Result("Missing :File: TrueValue.");
+  }
+  return Init(fileEx.As<std::string>());
+}
+
+Result Font::Init(const std::string& file)
 {
   // Resolve the resource path.
-  ValueResult<std::string> resolutionResult =
-    AssLib::ResolveResourcePath(info.mFile);
+  VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
     return Result(resolutionResult.mError);
   }
-  std::string path = resolutionResult.mValue;
+  const std::string& absoluteFile = resolutionResult.mValue;
 
   // Read the font file into a buffer.
   std::ifstream stream;
-  stream.open(path, std::ifstream::binary);
+  stream.open(absoluteFile, std::ifstream::binary);
   if (!stream.is_open()) {
-    std::stringstream error;
-    error << path << " could not be opened.";
-    return Result(error.str());
+    return Result("Failed to open\"" + absoluteFile + "\".");
   }
   std::filebuf* fileBuffer = stream.rdbuf();
   size_t bufferSize = fileBuffer->pubseekoff(0, stream.end, stream.in);
   fileBuffer->pubseekpos(0, stream.in);
-  char* data = new char[bufferSize];
+  char* data = alloc char[bufferSize];
   fileBuffer->sgetn(data, bufferSize);
   stream.close();
 
   // Initialize the font with the buffer and initialize the glyphs.
   int initResult = stbtt_InitFont(&mFontInfo, (unsigned char*)data, 0);
   if (initResult == 0) {
-    std::stringstream error;
-    error << "Font within " << path << " could not be initialized.";
-    Purge();
-    return Result(error.str());
+    delete[] mFontInfo.data;
+    return Result("Failed to initialize \"" + absoluteFile + "\".");
   }
   InitGlyphs();
   return Result();
-}
-
-Result Font::Init(const std::string& file)
-{
-  InitInfo info;
-  info.mFile = file;
-  return Init(info);
 }
 
 void Font::InitGlyphs()
@@ -120,51 +109,34 @@ void Font::InitGlyphs()
   const float renderScale =
     stbtt_ScaleForPixelHeight(&mFontInfo, (float)pixelHeight);
   for (size_t i = 0; i < smGlyphCount; ++i) {
+    GlyphData& glyphData = mGlyphData[i];
     const int padding = 4;
     const int onEdgeValue = 120;
     const float pixelDistance = 40.0f;
-    int textureWidth, textureHeight;
     int glyphIndex = stbtt_FindGlyphIndex(&mFontInfo, (int)i);
-    unsigned char* textureData = stbtt_GetGlyphSDF(
+    int width, height;
+    void* imageData = (void*)stbtt_GetGlyphSDF(
       &mFontInfo,
       renderScale,
       glyphIndex,
       padding,
       onEdgeValue,
       pixelDistance,
-      &textureWidth,
-      &textureHeight,
+      &width,
+      &height,
       nullptr,
       nullptr);
 
-    if (textureData != nullptr) {
-      // Upload the glyph sdf texture.
-      glGenTextures(1, &mTextureIds[i]);
-      glBindTexture(GL_TEXTURE_2D, mTextureIds[i]);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_R8,
-        textureWidth,
-        textureHeight,
-        0,
-        GL_RED,
-        GL_UNSIGNED_BYTE,
-        textureData);
-      glGenerateMipmap(GL_TEXTURE_2D);
-      stbtt_FreeBitmap(textureData, nullptr);
-    }
-    else {
-      mTextureIds[i] = 0;
+    if (imageData != nullptr) {
+      GLenum internalFormat = GL_R8;
+      GLenum format = GL_RED;
+      GLint pixelAlignment = 1;
+      glyphData.mImage.Init(
+        imageData, width, height, internalFormat, format, pixelAlignment);
+      stbtt_FreeBitmap((unsigned char*)imageData, nullptr);
     }
 
     // Calculate the glyph's metrics.
-    GlyphMetrics& glyphMetrics = mAllGlyphMetrics[i];
     stbtt_GetCodepointBox(&mFontInfo, (int)i, &x0, &y0, &x1, &y1);
     Vec2 boxStart = Vec2({(float)x0, (float)y0}) * toPreWorldScale;
     Vec2 boxEnd = Vec2({(float)x1, (float)y1}) * toPreWorldScale;
@@ -172,32 +144,30 @@ void Font::InitGlyphs()
     // pixel takes when unpadded. This allows us to add padding to the box using
     // the size of a pixel within it.
     int fullPadding = 2 * padding;
-    float pixelHeightRatio = 1.0f / (float)(textureHeight - fullPadding);
-    float pixelWidthRatio = 1.0f / (float)(textureWidth - fullPadding);
+    float pixelHeightRatio = 1.0f / (float)(height - fullPadding);
+    float pixelWidthRatio = 1.0f / (float)(width - fullPadding);
     float boxWidth = boxEnd[0] - boxStart[0];
     float boxHeight = boxEnd[1] - boxStart[1];
     float pixelWidth = pixelWidthRatio * boxWidth;
     float pixelHeight = pixelHeightRatio * boxHeight;
-    GlyphMetrics& glyphM = mAllGlyphMetrics[i];
-    glyphM.mStartOffset[0] = boxStart[0] - pixelWidth * padding;
-    glyphM.mStartOffset[1] = boxStart[1] - pixelHeight * padding;
-    glyphM.mEndOffset[0] = boxEnd[0] + pixelWidth * padding;
-    glyphM.mEndOffset[1] = boxEnd[1] + pixelHeight * padding;
+    glyphData.mBlOffset[0] = boxStart[0] - pixelWidth * padding;
+    glyphData.mBlOffset[1] = boxStart[1] - pixelHeight * padding;
+    glyphData.mTrOffset[0] = boxEnd[0] + pixelWidth * padding;
+    glyphData.mTrOffset[1] = boxEnd[1] + pixelHeight * padding;
     int advance;
     stbtt_GetCodepointHMetrics(&mFontInfo, (int)i, &advance, 0);
-    glyphMetrics.mAdvance = advance * toPreWorldScale;
+    glyphData.mAdvance = (float)advance * toPreWorldScale;
   }
-  glFinish();
 }
 
 GLuint Font::GetTextureId(int codepoint)
 {
-  return mTextureIds[codepoint];
+  return mGlyphData[codepoint].mImage.Id();
 }
 
-const Font::GlyphMetrics& Font::GetGlyphMetrics(int codepoint) const
+const Font::GlyphData& Font::GetGlyphData(int codepoint) const
 {
-  return mAllGlyphMetrics[codepoint];
+  return mGlyphData[codepoint];
 }
 
 float Font::NewlineOffset() const

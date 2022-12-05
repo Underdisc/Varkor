@@ -1,52 +1,137 @@
+#include <imgui/imgui.h>
 #include <istream>
 #include <ostream>
 
 #include "comp/Text.h"
-#include "gfx/Font.h"
+#include "comp/Transform.h"
+#include "editor/Utility.h"
+#include "gfx/Renderer.h"
+#include "gfx/UniformVector.h"
 #include "math/Vector.h"
+#include "rsl/Library.h"
 #include "util/Utility.h"
 
 namespace Comp {
 
+const ResId Text::smDefaultFontId(Text::smDefaultAssetName, "Font");
+const ResId Text::smDefaultMaterialId(Text::smDefaultAssetName, "Material");
+
+void Text::VStaticInit()
+{
+  Rsl::RequireAsset(smDefaultAssetName);
+}
+
 void Text::VInit(const World::Object& owner)
 {
-  mFontId = AssLib::nDefaultAssetId;
-  mShaderId = AssLib::nDefaultTextShaderId;
+  mFontId = smDefaultFontId;
+  mMaterialId = smDefaultMaterialId;
+
   mText = "";
   mAlign = Alignment::Left;
   mWidth = 10.0f;
-  mFillAmount = 1.0f;
   mVisible = true;
+  mFillAmount = 1.0f;
+  mColor = {1.0f, 1.0f, 1.0f, 1.0f};
 }
 
 void Text::VSerialize(Vlk::Value& textVal)
 {
   textVal("FontId") = mFontId;
-  textVal("ShaderId") = mShaderId;
+  textVal("Material") = mMaterialId;
   textVal("Text") = mText;
   textVal("Alignment") = mAlign;
   textVal("Width") = mWidth;
   textVal("Visible") = mVisible;
+  textVal("FillAmount") = mFillAmount;
+  textVal("Color") = mColor;
 }
 
 void Text::VDeserialize(const Vlk::Explorer& textEx)
 {
-  mFontId = textEx("FontId").As<AssetId>(AssLib::nDefaultAssetId);
-  mShaderId = textEx("ShaderId").As<AssetId>(AssLib::nDefaultAssetId);
+  mFontId = textEx("FontId").As<ResId>(smDefaultFontId);
+  mMaterialId = textEx("MaterialId").As<ResId>(smDefaultMaterialId);
   mText = textEx("Text").As<std::string>("");
   mAlign = textEx("Alignment").As<Alignment>(Alignment::Left);
   mVisible = textEx("Visible").As<bool>(true);
   mWidth = textEx("Width").As<float>(10.0f);
-  mFillAmount = 1.0f;
+  mFillAmount = textEx("FillAmount").As<float>(1.0f);
+  mColor = textEx("Color").As<Vec4>({1.0f, 1.0f, 1.0f, 1.0f});
 }
 
-Ds::Vector<Text::Line> Text::GetLines() const
+void Text::VRenderable(const World::Object& owner)
+{
+  Gfx::Font* font = Rsl::TryGetRes<Gfx::Font>(mFontId);
+  if (font == nullptr) {
+    return;
+  }
+
+  Vec2 baselineOffset = {0.0f, 0.0f};
+  float halfWidth = mWidth / 2.0f;
+  size_t currentCharacter = 0;
+  auto& transformComp = owner.Get<Comp::Transform>();
+  const Mat4& ownerTransformation = transformComp.GetWorldMatrix(owner);
+  Ds::Vector<Line> lines = GetLines(*font);
+  for (const Line& line : lines) {
+    switch (mAlign) {
+    case Alignment::Left: baselineOffset[0] = -halfWidth; break;
+    case Alignment::Center: baselineOffset[0] = -line.mWidth / 2.0f; break;
+    case Alignment::Right: baselineOffset[0] = halfWidth - line.mWidth;
+    }
+    for (size_t i = line.mStart; i < line.mEnd; ++i) {
+      Gfx::Renderable renderable;
+      renderable.mOwner = owner.mMemberId;
+      renderable.mMeshId = Gfx::Renderer::nSpriteMeshId;
+      renderable.mMaterialId = mMaterialId;
+
+      // Find the transformation of the renderable.
+      // Find the scale that maintains the character's aspect ratio.
+      const Gfx::Font::GlyphData& glyphData = font->GetGlyphData(mText[i]);
+      Vec2 diagonal = glyphData.mTrOffset - glyphData.mBlOffset;
+      Mat4 scale;
+      Math::Scale(&scale, {diagonal[0], diagonal[1], 1.0f});
+      // Find the translation offset from the text's relative origin.
+      Vec2 centerOffset = (glyphData.mBlOffset + glyphData.mTrOffset) / 2.0f;
+      Vec2 fullOffset = baselineOffset + centerOffset;
+      Mat4 translate;
+      Math::Translate(&translate, {fullOffset[0], fullOffset[1], 0.0f});
+      renderable.mTransform = ownerTransformation * translate * scale;
+
+      // Add the text uniforms to the character renderable.
+      GLuint& textureIdUniform = renderable.mUniforms.Add<GLuint>(
+        Gfx::UniformTypeId::Texture2d, "uTexture");
+      textureIdUniform = font->GetTextureId(mText[i]);
+      renderable.mUniforms.Add<Vec4>("uColor") = mColor;
+      renderable.mUniforms.Add<float>("uFillAmount") = mFillAmount;
+
+      Gfx::Renderable::Collection::Add(
+        Gfx::Renderable::Type::Floater, std::move(renderable));
+      baselineOffset[0] += glyphData.mAdvance;
+    }
+    baselineOffset[1] -= font->NewlineOffset();
+  }
+}
+
+void Text::VEdit(const World::Object& owner)
+{
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Font, &mFontId);
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Material, &mMaterialId);
+  ImGui::PushItemWidth(-Editor::CalcBufferWidth("FillAmount"));
+  ImGui::DragFloat("Width", &mWidth, 1.0f, 0.0f, FLT_MAX);
+  const char* alignments[] = {"Left", "Center", "Right"};
+  int alignment = (int)mAlign;
+  ImGui::Combo("Align", &alignment, alignments, 3);
+  mAlign = (Comp::Text::Alignment)alignment;
+  ImGui::DragFloat("FillAmount", &mFillAmount, 0.01f, 0.0f, 1.0f);
+  ImGui::ColorEdit4("Color", mColor.mD);
+  ImGui::PopItemWidth();
+  ImGui::PushID(0);
+  Editor::InputTextMultiline("", {-1.0f, 100.0f}, &mText);
+  ImGui::PopID();
+}
+
+Ds::Vector<Text::Line> Text::GetLines(const Gfx::Font& font) const
 {
   Ds::Vector<Line> lines;
-  Gfx::Font* font = AssLib::TryGetLive<Gfx::Font>(mFontId);
-  if (font == nullptr) {
-    return lines;
-  }
 
   auto isWhitespace = [](char codepoint) -> bool
   {
@@ -81,8 +166,8 @@ Ds::Vector<Text::Line> Text::GetLines() const
         lineEnd = lineStart;
       }
     }
-    const Gfx::Font::GlyphMetrics& glyphM = font->GetGlyphMetrics(codepoint);
-    currentWidth += glyphM.mAdvance;
+    const Gfx::Font::GlyphData& glyphData = font.GetGlyphData(codepoint);
+    currentWidth += glyphData.mAdvance;
     if (currentWidth > mWidth && lineWordCount >= 1) {
       lineEnd = prevWordEnd;
     }
@@ -108,48 +193,11 @@ Ds::Vector<Text::Line> Text::GetLines() const
   for (Line& line : lines) {
     line.mWidth = 0.0f;
     for (size_t i = line.mStart; i < line.mEnd; ++i) {
-      const Gfx::Font::GlyphMetrics& glyphM = font->GetGlyphMetrics(mText[i]);
-      line.mWidth += glyphM.mAdvance;
+      const Gfx::Font::GlyphData& glyphData = font.GetGlyphData(mText[i]);
+      line.mWidth += glyphData.mAdvance;
     }
   }
   return lines;
-}
-
-Ds::Vector<Text::DrawInfo> Text::GetAllDrawInfo() const
-{
-  Ds::Vector<DrawInfo> drawInfo;
-  Gfx::Font* font = AssLib::TryGetLive<Gfx::Font>(mFontId);
-  if (font == nullptr) {
-    return drawInfo;
-  }
-
-  Vec2 baselineOffset = {0.0f, 0.0f};
-  float halfWidth = mWidth / 2.0f;
-  size_t currentCharacter = 0;
-  Ds::Vector<Line> lines = GetLines();
-  for (const Line& line : lines) {
-    switch (mAlign) {
-    case Alignment::Left: baselineOffset[0] = -halfWidth; break;
-    case Alignment::Center: baselineOffset[0] = -line.mWidth / 2.0f; break;
-    case Alignment::Right: baselineOffset[0] = halfWidth - line.mWidth;
-    }
-    for (size_t i = line.mStart; i < line.mEnd; ++i) {
-      // Find the scale that maintains the character's aspect ratio and the
-      // translation offset from the text's relative origin.
-      const Gfx::Font::GlyphMetrics& glyphM = font->GetGlyphMetrics(mText[i]);
-      Mat4 scale, translate;
-      Vec2 diagonal = glyphM.mEndOffset - glyphM.mStartOffset;
-      Math::Scale(&scale, {diagonal[0], diagonal[1], 1.0f});
-      Vec2 centerOffset = (glyphM.mStartOffset + glyphM.mEndOffset) / 2.0f;
-      Vec2 fullOffset = baselineOffset + centerOffset;
-      Math::Translate(&translate, {fullOffset[0], fullOffset[1], 0.0f});
-      GLuint textureId = font->GetTextureId(mText[i]);
-      drawInfo.Push({textureId, translate * scale});
-      baselineOffset[0] += glyphM.mAdvance;
-    }
-    baselineOffset[1] -= font->NewlineOffset();
-  }
-  return drawInfo;
 }
 
 std::ostream& operator<<(std::ostream& os, const Text::Alignment& align)

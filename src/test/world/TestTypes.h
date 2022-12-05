@@ -181,7 +181,8 @@ void RegisterComponentTypes()
   Comp::Type<Simple1>::Register();
   Comp::Type<Dynamic>::Register();
   Comp::Type<Container>::Register();
-  Comp::Type<Dependant>::Register<CallCounter, Dynamic>();
+  Comp::Type<Dependant>::Register();
+  Comp::Type<Dependant>::AddDependencies<CallCounter, Dynamic>();
 }
 
 #endif

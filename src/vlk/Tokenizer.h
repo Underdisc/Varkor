@@ -25,7 +25,7 @@ struct Token
   Type mType;
 };
 
-ValueResult<Ds::Vector<Token>> Tokenize(const char* text);
+VResult<Ds::Vector<Token>> Tokenize(const char* text);
 size_t CountNewLines(const char* start, const char* end);
 
 } // namespace Vlk

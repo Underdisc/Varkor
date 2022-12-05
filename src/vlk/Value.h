@@ -27,32 +27,20 @@ struct Value
 public:
   Value();
   Value(Value&& other);
+  Value(const Value& other);
   ~Value();
+  void Clear();
+
+  Value& operator=(Value&& other);
+  Value& operator=(const Value& other);
+
+  bool operator==(const Value& other) const;
+  bool operator!=(const Value& other) const;
 
   Result Read(const char* filename);
   Result Write(const char* filename);
   Result Parse(const char* text);
 
-  size_t Size() const;
-
-  const Pair* TryGetPair(const std::string& key) const;
-  const Pair* TryGetPair(size_t index) const;
-  const Value* TryGetValue(size_t index) const;
-
-  Value& operator()(const char* key);
-  Value& operator()(const std::string& key);
-  const Pair& operator()(size_t index) const;
-
-  Value& operator[](std::initializer_list<size_t> sizes);
-  Value& operator[](size_t index);
-  const Value& operator[](size_t index) const;
-
-  template<typename T>
-  T As() const;
-  template<typename T>
-  void operator=(const T& value);
-
-private:
   enum class Type
   {
     Invalid,
@@ -60,7 +48,41 @@ private:
     ValueArray,
     PairArray,
   };
+  Value& EnsureType(Type type);
+  Type GetType() const;
+  size_t Size() const;
 
+  constexpr static int smInvalidPairIndex = -1;
+  int TryGetPairIndex(const std::string& key) const;
+  const Pair* TryGetConstPair(const std::string& key) const;
+  const Pair* TryGetConstPair(size_t index) const;
+  Pair* TryGetPair(const std::string& key);
+  Pair* TryGetPair(size_t index);
+  const Value* TryGetConstValue(size_t index) const;
+  Value* TryGetValue(size_t index);
+
+  Pair& operator()(const std::string& key);
+  Pair& operator()(size_t index);
+  void TryRemovePair(const std::string& key);
+
+  Value& operator[](std::initializer_list<size_t> sizes);
+  Value& operator[](size_t index);
+  const Value& operator[](size_t index) const;
+  template<typename T>
+  void PushValue(const T& value);
+  void PushValue();
+  void EmplaceValue(Value&& value);
+  void PopValue();
+  void RemoveValue(size_t index);
+
+  template<typename T>
+  T As() const;
+  template<typename T>
+  T As(const T& defaultValue) const;
+  template<typename T>
+  void operator=(const T& value);
+
+private:
   Type mType;
   union
   {
@@ -72,8 +94,7 @@ private:
   Value(Value::Type type);
 
   void Init(Type type);
-  void ExpectType(Type type);
-  void HardExpectType(Type type) const;
+  void ExpectType(Type type) const;
   void AddDimension(size_t size, bool leaf);
   bool BelowPackThreshold() const;
   bool ReachedThreshold(size_t& elementCount) const;
@@ -88,49 +109,78 @@ private:
   friend Pair;
   friend Parser;
   template<typename>
-  friend struct Serializer;
+  friend struct Converter;
   friend Ds::Vector<Value>;
 };
 
-template<>
-std::string Value::As<std::string>() const;
+template<typename T>
+void Value::PushValue(const T& value)
+{
+  PushValue();
+  mValueArray.Top() = value;
+}
+
 template<typename T>
 T Value::As() const
 {
-  HardExpectType(Type::TrueValue);
-  std::stringstream ss(mTrueValue);
   T value;
-  ss >> value;
+  bool deserialized = Converter<T>::Deserialize(*this, &value);
+  LogAbortIf(!deserialized, "As without a default failed deserialization.");
   return value;
 }
 
 template<typename T>
-struct Serializer
+T Value::As(const T& defaultValue) const
 {
-  static void Serialize(Value& val, const T& value)
-  {
-    val.ExpectType(Value::Type::TrueValue);
-    std::stringstream ss;
-    ss << value;
-    val.mTrueValue = ss.str();
+  T value;
+  bool deserialzied = Converter<T>::Deserialize(*this, &value);
+  if (!deserialzied) {
+    return defaultValue;
   }
-};
+  return value;
+}
 
 template<typename T>
 void Value::operator=(const T& value)
 {
-  Serializer<T>::Serialize(*this, value);
+  Converter<T>::Serialize(*this, value);
 }
+
+template<typename T>
+struct Converter
+{
+  static void Serialize(Value& val, const T& value)
+  {
+    val.EnsureType(Value::Type::TrueValue);
+    std::stringstream ss;
+    ss << value;
+    val.mTrueValue = ss.str();
+  }
+
+  static bool Deserialize(const Value& val, T* value)
+  {
+    if (val.mType != Value::Type::TrueValue) {
+      return false;
+    }
+    std::stringstream ss(val.mTrueValue);
+    ss >> *value;
+    return true;
+  }
+};
 
 struct Pair: public Value
 {
   const std::string& Key() const;
+  bool operator==(const Pair& other) const;
+  bool operator!=(const Pair& other) const;
+
+  template<typename T>
+  void operator=(const T& value);
 
 private:
   std::string mKey;
 
   Pair();
-  Pair(const char* key);
   Pair(const std::string& key);
 
   void PrintPair(std::ostream& os, std::string& indent) const;
@@ -139,6 +189,12 @@ private:
   friend Parser;
   friend Ds::Vector<Pair>;
 };
+
+template<typename T>
+void Pair::operator=(const T& value)
+{
+  (*(Value*)this) = value;
+}
 
 } // namespace Vlk
 

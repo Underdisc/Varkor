@@ -1,6 +1,7 @@
+#include <utility>
+
 #include "Error.h"
 #include "debug/MemLeak.h"
-#include "util/Utility.h"
 
 namespace Ds {
 
@@ -11,32 +12,32 @@ List<T>::Node::Node(const T& value):
 
 template<typename T>
 List<T>::Node::Node(T&& value):
-  mValue(Util::Forward(value)), mNext(nullptr), mPrev(nullptr)
+  mValue(std::forward<T>(value)), mNext(nullptr), mPrev(nullptr)
 {}
 
 template<typename T>
 template<typename... Args>
 List<T>::Node::Node(Args&&... args):
-  mValue(Util::Forward(args)...), mNext(nullptr), mPrev(nullptr)
+  mValue(std::forward<Args>(args)...), mNext(nullptr), mPrev(nullptr)
 {}
 
 template<typename T>
 void List<T>::IterBase::operator++()
 {
-  VerifyCurrent();
-  mCurrent = mCurrent->mNext;
+  this->VerifyCurrent();
+  this->mCurrent = mCurrent->mNext;
 }
 
 template<typename T>
 bool List<T>::IterBase::operator==(const IterBase& other) const
 {
-  return mCurrent == other.mCurrent;
+  return this->mCurrent == other.mCurrent;
 }
 
 template<typename T>
 bool List<T>::IterBase::operator!=(const IterBase& other) const
 {
-  return mCurrent != other.mCurrent;
+  return this->mCurrent != other.mCurrent;
 }
 
 template<typename T>
@@ -56,15 +57,15 @@ List<T>::Iter::Iter(Node* current): IterBase(current)
 template<typename T>
 T& List<T>::Iter::operator*() const
 {
-  VerifyCurrent();
-  return mCurrent->mValue;
+  this->VerifyCurrent();
+  return this->mCurrent->mValue;
 }
 
 template<typename T>
 T* List<T>::Iter::operator->() const
 {
-  VerifyCurrent();
-  return &mCurrent->mValue;
+  this->VerifyCurrent();
+  return &this->mCurrent->mValue;
 }
 
 template<typename T>
@@ -74,15 +75,15 @@ List<T>::CIter::CIter(Node* current): IterBase(current)
 template<typename T>
 const T& List<T>::CIter::operator*() const
 {
-  VerifyCurrent();
-  return mCurrent->mValue;
+  this->VerifyCurrent();
+  return this->mCurrent->mValue;
 }
 
 template<typename T>
 const T* List<T>::CIter::operator->() const
 {
-  VerifyCurrent();
-  return &mCurrent->mValue;
+  this->VerifyCurrent();
+  return &this->mCurrent->mValue;
 }
 
 template<typename T>
@@ -140,14 +141,14 @@ void List<T>::PushFront(const T& value)
 template<typename T>
 void List<T>::PushBack(T&& value)
 {
-  Node* newNode = alloc Node(Util::Forward(value));
+  Node* newNode = alloc Node(std::forward<T>(value));
   InsertNode(end(), newNode);
 }
 
 template<typename T>
 void List<T>::PushFront(T&& value)
 {
-  Node* newNode = alloc Node(Util::Forward(value));
+  Node* newNode = alloc Node(std::forward<T>(value));
   InsertNode(begin(), newNode);
 }
 
@@ -155,7 +156,7 @@ template<typename T>
 template<typename... Args>
 void List<T>::EmplaceBack(Args&&... args)
 {
-  Node* newNode = alloc Node(Util::Forward(args)...);
+  Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(end(), newNode);
 }
 
@@ -163,7 +164,7 @@ template<typename T>
 template<typename... Args>
 void List<T>::EmplaceFront(Args&&... args)
 {
-  Node* newNode = alloc Node(Util::Forward(args)...);
+  Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(begin(), newNode);
 }
 
@@ -178,7 +179,7 @@ typename List<T>::Iter List<T>::Insert(Iter it, const T& value)
 template<typename T>
 typename List<T>::Iter List<T>::Insert(Iter it, T&& value)
 {
-  Node* newNode = alloc Node(Util::Forward(value));
+  Node* newNode = alloc Node(std::forward<T>(value));
   InsertNode(it, newNode);
   return Iter(newNode);
 }
@@ -187,7 +188,7 @@ template<typename T>
 template<typename... Args>
 typename List<T>::Iter List<T>::Emplace(Iter it, Args&&... args)
 {
-  Node* newNode = alloc Node(Util::Forward(args)...);
+  Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(it, newNode);
   return Iter(newNode);
 }
@@ -273,6 +274,18 @@ void List<T>::Clear()
   mHead = nullptr;
   mTail = nullptr;
   mSize = 0;
+}
+
+template<typename T>
+typename List<T>::Iter List<T>::Front()
+{
+  return Iter(mHead);
+}
+
+template<typename T>
+typename List<T>::Iter List<T>::Back()
+{
+  return Iter(mTail);
 }
 
 template<typename T>

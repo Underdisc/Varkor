@@ -1,0 +1,17 @@
+#type vertex
+
+#include "uniformBuffers/Universal.glh"
+
+layout(location = 0) in vec3 aPos;
+out vec3 iTextureCoords;
+
+void main()
+{
+  iTextureCoords = aPos;
+  // Remove the translation from the view matrix.
+  mat4 view = uView;
+  view[3][0] = 0.0;
+  view[3][1] = 0.0;
+  view[3][2] = 0.0;
+  gl_Position = uProj * view * vec4(aPos, 1.0);
+}

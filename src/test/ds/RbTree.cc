@@ -1,13 +1,13 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
+#include <utility>
 
 #include "Error.h"
 #include "debug/MemLeak.h"
 #include "ds/RbTree.h"
 #include "test/ds/Print.h"
 #include "test/ds/TestType.h"
-#include "util/Utility.h"
 
 void LeftInsert()
 {
@@ -57,7 +57,7 @@ void MoveInsert()
   Ds::RbTree<TestType> tree;
   for (int i = 0; i < sequenceSize; ++i) {
     TestType newValue(sequence[i], (float)sequence[i]);
-    tree.Insert(Util::Move(newValue));
+    tree.Insert(std::move(newValue));
   }
   PrintRbTree(tree);
   std::cout << "ConstructorCount: " << TestType::smConstructorCount << std::endl

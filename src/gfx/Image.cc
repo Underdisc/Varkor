@@ -1,35 +1,21 @@
-#include <sstream>
+#include <imgui/imgui.h>
+#include <utility>
 
 #define STB_IMAGE_IMPLEMENTATION
-#define STBI_FAILURE_USERMSG
 #include <stb_image.h>
+#undef STB_IMAGE_IMPLEMENTATION
 
-#include "AssetLibrary.h"
+#include "editor/Utility.h"
 #include "gfx/Image.h"
+#include "rsl/Library.h"
 
 namespace Gfx {
-
-void Image::InitInfo::Serialize(Vlk::Value& val) const
-{
-  val("File") = mFile;
-}
-
-void Image::InitInfo::Deserialize(const Vlk::Explorer& ex)
-{
-  mFile = ex("File").As<std::string>("");
-}
-
-void Image::Purge()
-{
-  glDeleteTextures(1, &mId);
-  mId = 0;
-}
 
 Image::Image(): mId(0) {}
 
 Image::Image(Image&& other)
 {
-  *this = Util::Forward(other);
+  *this = std::move(other);
 }
 
 Image& Image::operator=(Image&& other)
@@ -45,65 +31,104 @@ Image& Image::operator=(Image&& other)
 
 Image::~Image()
 {
-  Purge();
+  if (mId != 0) {
+    glDeleteTextures(1, &mId);
+    mId = 0;
+  }
 }
 
-Result Image::Init(const InitInfo& info)
+void Image::EditConfig(Vlk::Value* configValP)
 {
-  // Resolve the resource path.
-  ValueResult<std::string> resolutionResult =
-    AssLib::ResolveResourcePath(info.mFile);
+  Vlk::Value& configVal = *configValP;
+  Vlk::Value& fileVal = configVal("File");
+  std::string file = fileVal.As<std::string>("");
+  Editor::DropResourceFileWidget("File", &file);
+  fileVal = file;
+}
+
+Result Image::Init(const Vlk::Explorer& configEx)
+{
+  Vlk::Explorer fileEx = configEx("File");
+  if (!fileEx.Valid(Vlk::Value::Type::TrueValue)) {
+    return Result("Missing :File: TrueValue");
+  }
+  std::string file = fileEx.As<std::string>();
+  return Init(file);
+}
+
+Result Image::Init(const std::string& file)
+{
+  // Resolve the file path.
+  VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
     return Result(resolutionResult.mError);
   }
-  std::string path = resolutionResult.mValue;
+  std::string absoluteFile = resolutionResult.mValue;
 
   stbi_set_flip_vertically_on_load(true);
-  int channels;
-  unsigned char* data =
-    stbi_load(path.c_str(), &mWidth, &mHeight, &channels, 0);
-  if (!data) {
-    std::stringstream error;
-    error << "Failed to load \"" << path << "\": " << stbi_failure_reason();
-    return Result(error.str());
+  int width, height, channels;
+  void* imageData =
+    stbi_load(absoluteFile.c_str(), &width, &height, &channels, 0);
+  if (imageData == nullptr) {
+    return Result(
+      "File \"" + absoluteFile + "\" failed load.\n " + stbi_failure_reason());
   }
+  Init(imageData, width, height, channels);
+  stbi_image_free(imageData);
+  return Result();
+}
 
+Result Image::Init(const void* fileData, int size)
+{
+  int width, height, channels;
+  void* imageData = stbi_load_from_memory(
+    (stbi_uc*)fileData, size, &width, &height, &channels, 0);
+  if (imageData == nullptr) {
+    return Result(stbi_failure_reason());
+  }
+  Init(imageData, width, height, channels);
+  stbi_image_free(imageData);
+  return Result();
+}
+
+Result Image::Init(const void* imageData, int width, int height, int channels)
+{
+  GLenum internalFormat;
+  channels == 4 ? internalFormat = GL_RGBA : internalFormat = GL_RGB;
+  GLenum format = internalFormat;
+  GLint pixelAlignment = 4;
+  return Init(imageData, width, height, internalFormat, format, pixelAlignment);
+}
+
+Result Image::Init(
+  const void* imageData,
+  int width,
+  int height,
+  GLenum internalFormat,
+  GLenum format,
+  GLint pixelAlignmet)
+{
+  mWidth = width;
+  mHeight = height;
   glGenTextures(1, &mId);
   glBindTexture(GL_TEXTURE_2D, mId);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, pixelAlignmet);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  GLenum format;
-  if (channels == 4) {
-    format = GL_RGBA;
-  }
-  else {
-    format = GL_RGB;
-  }
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
   glTexImage2D(
     GL_TEXTURE_2D,
     0,
-    format,
+    internalFormat,
     mWidth,
     mHeight,
     0,
     format,
     GL_UNSIGNED_BYTE,
-    data);
+    imageData);
   glGenerateMipmap(GL_TEXTURE_2D);
-  stbi_image_free(data);
-  glFinish();
   return Result();
-}
-
-Result Image::Init(const std::string& file)
-{
-  InitInfo info;
-  info.mFile = file;
-  return Init(info);
 }
 
 GLuint Image::Id() const

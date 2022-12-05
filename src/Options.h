@@ -4,10 +4,11 @@
 #include <string>
 
 #include "Result.h"
+#include "ds/Vector.h"
 
 namespace Options {
 
-extern std::string nLoadSpace;
+extern Ds::Vector<std::string> nLoadLayers;
 extern std::string nProjectDirectory;
 
 Result Init(int argc, char* argv[], const char* projectDirectory);

@@ -3,8 +3,10 @@ target_sources(varkor PRIVATE
   Font.cc
   Framebuffer.cc
   Image.cc
-  LineModel.cc
+  Material.cc
   Mesh.cc
   Model.cc
+  Renderable.cc
   Renderer.cc
-  Shader.cc)
+  Shader.cc
+  UniformVector.cc)

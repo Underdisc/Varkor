@@ -1,7 +1,7 @@
 #include <GLFW/VarkorGlfw.h>
 
 #include "Viewport.h"
-#include "gfx/Framebuffer.h"
+#include "gfx/Renderer.h"
 
 namespace Viewport {
 
@@ -92,10 +92,9 @@ bool Active()
 
 void ResizeCallback(GLFWwindow* window, int width, int height)
 {
-  glViewport(0, 0, width, height);
   nWidth = width;
   nHeight = height;
-  Gfx::Framebuffer::ResizeFullscreens(width, height);
+  Gfx::Renderer::ResizeSpaceFramebuffers();
 }
 
 } // namespace Viewport

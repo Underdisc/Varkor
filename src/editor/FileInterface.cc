@@ -1,9 +1,9 @@
 #include <dirent/dirent.h>
 #include <imgui/imgui.h>
 
-#include "AssetLibrary.h"
 #include "editor/FileInterface.h"
 #include "editor/Utility.h"
+#include "rsl/Library.h"
 
 namespace Editor {
 
@@ -16,36 +16,52 @@ FileInterface::FileInterface(
 
 void FileInterface::Show()
 {
-  switch (mAccessType) {
-  case AccessType::Select: ImGui::Begin("Select File", &mOpen); break;
-  case AccessType::Save: ImGui::Begin("Save File", &mOpen); break;
+  // Get the full path based on the current path.
+  static std::string path = ".";
+  std::string fullPath;
+  if (path.substr(0, 6) == "./vres") {
+    fullPath = path;
   }
+  else {
+    fullPath = Rsl::PrependResDirectory(path);
+  }
+
+  // Begin the file select window. The remaining space is the amount of space
+  // needed for elements at the bottom of the window.
+  float remainingSpace;
+  switch (mAccessType) {
+  case AccessType::Select:
+    remainingSpace = 58;
+    ImGui::Begin("Select File", &mOpen);
+    break;
+  case AccessType::Save:
+    remainingSpace = 64;
+    ImGui::Begin("Save File", &mOpen);
+    break;
+  }
+  ImGui::BeginChild("Entries", ImVec2(0, -remainingSpace), true);
 
   // Open the currently selected directory. We unroll the path to handle cases
   // where directories may have been deleted or renamed.
-  static std::string path = ".";
-  std::string fullPath = AssLib::PrependResDirectory(path);
   DIR* directory = opendir(fullPath.c_str());
   while (directory == nullptr) {
     path.erase(path.find_last_of('/'));
-    fullPath.erase(path.find_last_of('/'));
+    fullPath.erase(fullPath.find_last_of('/'));
     directory = opendir(fullPath.c_str());
   }
 
-  // This will prevent "."  and ".." from showing up as options when the current
-  // path is ".".
+  // Remove "." from the selectables.
   readdir(directory);
+
+  // Remove ".." from and add "vres" to the selectables.
   if (path == ".") {
     readdir(directory);
+    if (ImGui::Selectable("vres", true)) {
+      path = "./vres";
+    }
   }
 
   // List all of the directories and files.
-  float remainingSpace;
-  switch (mAccessType) {
-  case AccessType::Select: remainingSpace = 58;
-  case AccessType::Save: remainingSpace = 64;
-  }
-  ImGui::BeginChild("Entries", ImVec2(0, -remainingSpace), true);
   dirent* entry;
   while (entry = readdir(directory)) {
     bool isDir = entry->d_type == DT_DIR;

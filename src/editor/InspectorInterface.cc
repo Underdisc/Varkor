@@ -1,7 +1,6 @@
 #include <imgui/imgui.h>
 
 #include "Input.h"
-#include "editor/HookInterface.h"
 #include "editor/InspectorInterface.h"
 #include "world/World.h"
 
@@ -31,7 +30,6 @@ void InspectorInterface::Show()
     bool removeComponent = false;
     const World::ComponentDescriptor& desc = descriptors[i];
     const Comp::TypeData& typeData = Comp::GetTypeData(desc.mTypeId);
-    const HookFunctions& hookFunctions = GetHookFunctions(desc.mTypeId);
     bool inspecting = ImGui::CollapsingHeader(typeData.mName.c_str());
     if (ImGui::BeginPopupContextItem()) {
       if (ImGui::Selectable("Remove")) {
@@ -39,26 +37,11 @@ void InspectorInterface::Show()
       }
       ImGui::EndPopup();
     }
-    HookInterface* hook = hookFunctions.mFinder(this);
-    if (inspecting) {
-      if (typeData.mVEdit.Open()) {
-        void* component = mObject.GetComponent(desc.mTypeId);
-        typeData.mVEdit.Invoke(component);
-      }
-      else {
-        if (hook == nullptr) {
-          hook = hookFunctions.mOpener(this);
-        }
-        hook->Edit(mObject);
-      }
-    }
-    else if (hook != nullptr) {
-      hookFunctions.mCloser(this);
+    if (inspecting && typeData.mVEdit.Open()) {
+      void* component = mObject.GetComponent(desc.mTypeId);
+      typeData.mVEdit.Invoke(component, mObject);
     }
     if (removeComponent == true) {
-      if (hook != nullptr) {
-        hookFunctions.mCloser(this);
-      }
       mObject.RemComponent(desc.mTypeId);
     }
   }

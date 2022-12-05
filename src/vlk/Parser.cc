@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <utility>
 
 #include "Error.h"
 #include "vlk/Parser.h"
@@ -62,14 +63,14 @@ size_t Parser::LastTokenLength()
 
 Result Parser::Parse(const char* text, Value* root)
 {
-  ValueResult<Ds::Vector<Token>> result = Tokenize(text);
+  VResult<Ds::Vector<Token>> result = Tokenize(text);
   if (!result.Success()) {
     return Result(result.mError);
   }
   mCurrentToken = 0;
   mCurrentLine = 1;
   mValueStack.Push(root);
-  mTokens = Util::Move(result.mValue);
+  mTokens = std::move(result.mValue);
   try {
     Expect(ParseValue(), "Expected Value.");
   }
@@ -92,7 +93,8 @@ bool Parser::ParseValue()
   }
   else {
     mValueStack.Top()->Init(Value::Type::TrueValue);
-    mValueStack.Push(mValueStack.Top());
+    Value* topValue = mValueStack.Top();
+    mValueStack.Push(topValue);
   }
   const Token& valueToken = LastToken();
   std::string& trueValue = mValueStack.Top()->mTrueValue;
@@ -120,7 +122,8 @@ bool Parser::ParsePairArray()
   }
   else {
     mValueStack.Top()->Init(Value::Type::PairArray);
-    mValueStack.Push(mValueStack.Top());
+    Value* topValue = mValueStack.Top();
+    mValueStack.Push(topValue);
   }
   while (ParsePair()) {
   }
@@ -140,7 +143,8 @@ bool Parser::ParseValueArray()
   }
   else {
     mValueStack.Top()->Init(Value::Type::ValueArray);
-    mValueStack.Push(mValueStack.Top());
+    Value* topValue = mValueStack.Top();
+    mValueStack.Push(topValue);
   }
   ParseValueList() || ParseValueArrayList();
   mValueStack.Pop();
@@ -153,7 +157,7 @@ bool Parser::ParsePair()
   if (!Accept(Token::Type::Key)) {
     return false;
   }
-  mValueStack.Top()->HardExpectType(Value::Type::PairArray);
+  mValueStack.Top()->ExpectType(Value::Type::PairArray);
   mValueStack.Top()->mPairArray.Emplace();
   mValueStack.Push(&mValueStack.Top()->mPairArray.Top());
   const Token& keyToken = LastToken();

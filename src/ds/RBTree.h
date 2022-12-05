@@ -41,7 +41,7 @@ private:
     friend RbTree<T>;
   };
 
-protected:
+public:
   struct Iter: IterBase
   {
     T& operator*();
@@ -50,7 +50,6 @@ protected:
   Iter begin() const;
   Iter end() const;
 
-public:
   struct CIter: IterBase
   {
     const T& operator*();
@@ -65,10 +64,16 @@ public:
   void Insert(const T& value);
   void Insert(T&& value);
   template<typename... Args>
-  void Emplace(Args&&... args);
-  void Remove(const T& value);
+  T& Emplace(Args&&... args);
+  template<typename CT>
+  void Remove(const CT& value);
   void Clear();
+  template<typename CT>
+  T& Get(const CT& value);
+  template<typename CT>
+  T* TryGet(const CT& value);
   bool Contains(const T& value) const;
+  bool Empty() const;
 
   const Node* GetHead() const;
   bool HasConsistentBlackHeight();

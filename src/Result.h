@@ -1,7 +1,8 @@
 #ifndef Result_h
 #define Result_h
 
-#include "util/Utility.h"
+#include <string>
+#include <utility>
 
 struct Result
 {
@@ -12,13 +13,13 @@ struct Result
   }
 
   Result(): mError("") {}
-  Result(std::string&& error): mError(Util::Move(error)) {}
+  Result(std::string&& error): mError(std::move(error)) {}
   Result(const std::string& error): mError(error) {}
   Result(const char* error): mError(error) {}
-  Result(Result&& other): mError(Util::Move(other.mError)) {}
+  Result(Result&& other): mError(std::move(other.mError)) {}
   Result& operator=(Result&& other)
   {
-    mError = Util::Move(other.mError);
+    mError = std::move(other.mError);
     return *this;
   }
 };
@@ -28,26 +29,27 @@ struct ValueResult: public Result
 {
   T mValue;
 
-  ValueResult(const T& value): Result(), mValue(value) {}
-  ValueResult(T&& value): Result(), mValue(Util::Move(value)) {}
-  ValueResult(const std::string& error, T&& value):
-    Result(error), mValue(Util::Move(value))
+  ValueResult(const T& value): mValue(value), Result() {}
+  ValueResult(T&& value): mValue(std::move(value)), Result() {}
+  ValueResult(const T& value, Result&& result):
+    mValue(value), Result(std::move(result))
   {}
-  ValueResult(Result&& result, const T& value):
-    Result(Util::Move(result)), mValue(value)
+  ValueResult(T&& value, Result&& result):
+    mValue(std::move(value)), Result(std::move(result))
   {}
-  ValueResult(Result&& result, T&& value):
-    Result(Util::Move(result)), mValue(Util::Move(value))
-  {}
+  ValueResult(Result&& result): mValue(), Result(std::move(result)) {}
   ValueResult(ValueResult<T>&& other):
-    Result(Util::Move(other.mError)), mValue(Util::Move(other.mValue))
+    mValue(std::move(other.mValue)), Result(std::move(other.mError))
   {}
   ValueResult<T>& operator=(ValueResult<T>&& other)
   {
-    mError = Util::Move(other.mError);
-    mValue = Util::Move(other.mValue);
+    mError = std::move(other.mError);
+    mValue = std::move(other.mValue);
     return *this;
   }
 };
+
+template<typename T>
+using VResult = ValueResult<T>;
 
 #endif

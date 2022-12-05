@@ -1,36 +1,46 @@
 #include "comp/Skybox.h"
-#include "gfx/Cubemap.h"
-#include "gfx/Shader.h"
+#include "editor/Utility.h"
+#include "gfx/Renderer.h"
+#include "rsl/Library.h"
 
 namespace Comp {
 
+const ResId Skybox::smDefaultMaterialId(Skybox::smDefaultAssetName, "Material");
+
+void Skybox::VStaticInit()
+{
+  Rsl::RequireAsset(smDefaultAssetName);
+}
+
 void Skybox::VInit(const World::Object& owner)
 {
-  mCubemapId = AssLib::nDefaultAssetId;
-  mShaderId = AssLib::nDefaultSkyboxShaderId;
+  mMaterialId = smDefaultMaterialId;
 }
 
 void Skybox::VSerialize(Vlk::Value& val)
 {
-  val("CubemapId") = mCubemapId;
-  val("ShaderId") = mShaderId;
+  val("MaterialId") = mMaterialId;
 }
 
 void Skybox::VDeserialize(const Vlk::Explorer& ex)
 {
-  mCubemapId = ex("CubemapId").As<AssetId>(AssLib::nDefaultAssetId);
-  mShaderId = ex("ShaderId").As<AssetId>(AssLib::nDefaultSkyboxShaderId);
+  mMaterialId = ex("MaterialId").As<ResId>(smDefaultMaterialId);
+}
+
+void Skybox::VRenderable(const World::Object& owner)
+{
+  Gfx::Renderable renderable;
+  renderable.mOwner = owner.mMemberId;
+  Math::Identity(&renderable.mTransform);
+  renderable.mMeshId = Gfx::Renderer::nSkyboxMeshId;
+  renderable.mMaterialId = mMaterialId;
+  Gfx::Renderable::Collection::Add(
+    Gfx::Renderable::Type::Skybox, std::move(renderable));
+}
+
+void Skybox::VEdit(const World::Object& owner)
+{
+  Editor::DropResourceIdWidget(Rsl::ResTypeId::Material, &mMaterialId);
 }
 
 } // namespace Comp
-
-namespace Editor {
-
-void Hook<Comp::Skybox>::Edit(const World::Object& object)
-{
-  auto& skybox = object.Get<Comp::Skybox>();
-  SelectAssetWidget<Gfx::Cubemap>(&skybox.mCubemapId);
-  SelectAssetWidget<Gfx::Shader>(&skybox.mShaderId);
-}
-
-} // namespace Editor

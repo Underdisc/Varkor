@@ -1,14 +1,16 @@
 #include "editor/gizmos/Rotator.h"
 #include "Input.h"
-#include "comp/AlphaColor.h"
-#include "comp/Model.h"
+#include "comp/Mesh.h"
 #include "comp/Transform.h"
 #include "editor/Editor.h"
 #include "editor/gizmos/Gizmos.h"
+#include "gfx/Material.h"
 #include "gfx/Renderer.h"
 #include "math/Constants.h"
+#include "rsl/Library.h"
 
-namespace Editor::Gizmos {
+namespace Editor {
+namespace Gizmos {
 
 Quat Rotate(
   const Quat& rotation,
@@ -24,45 +26,50 @@ Quat Rotate(
 Rotator::Rotator(): mOperation(Operation::None)
 {
   // Create all of the handles.
+  const char* handleNames[] = {"X", "Y", "Z", "Xy", "Xz", "Yz", "Xyz"};
   mParent = nSpace.CreateMember();
+  Rsl::Asset& rotatorAsset = Rsl::AddAsset(smRotatorAssetName);
   nSpace.AddComponent<Comp::Transform>(mParent);
   for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = nSpace.CreateChildMember(mParent);
-    Comp::AlphaColor& alphaColorComp =
-      nSpace.AddComponent<Comp::AlphaColor>(mHandles[i]);
-    alphaColorComp.mColor = smHandleColors[i];
+    mHandleMaterialIds[i].Init(smRotatorAssetName, handleNames[i]);
+    Gfx::Material& material =
+      rotatorAsset.InitRes<Gfx::Material>(handleNames[i], nColorShaderId);
+    material.mUniforms.Add<Vec4>("uColor") = smHandleColors[i];
   }
+  rotatorAsset.Finalize();
 
   nSpace.AddComponent<Comp::Transform>(mX);
-  Comp::Model& xM = nSpace.AddComponent<Comp::Model>(mX);
-  xM.mModelId = AssLib::nTorusModelId;
-  xM.mShaderId = AssLib::nColorShaderId;
+  auto& xMesh = nSpace.AddComponent<Comp::Mesh>(mX);
+  xMesh.mMeshId = nTorusMeshId;
+  xMesh.mMaterialId = mHandleMaterialIds[(int)Operation::X];
 
   Comp::Transform& yT = nSpace.AddComponent<Comp::Transform>(mY);
-  Comp::Model& yM = nSpace.AddComponent<Comp::Model>(mY);
   Math::Quaternion rotation;
   rotation.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
   yT.SetRotation(rotation);
-  yM.mModelId = AssLib::nTorusModelId;
-  yM.mShaderId = AssLib::nColorShaderId;
+  auto& yMesh = nSpace.AddComponent<Comp::Mesh>(mY);
+  yMesh.mMeshId = nTorusMeshId;
+  yMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Y];
 
   Comp::Transform& zT = nSpace.AddComponent<Comp::Transform>(mZ);
-  Comp::Model& zM = nSpace.AddComponent<Comp::Model>(mZ);
   rotation.AngleAxis(-Math::nPi / 2.0f, {0.0f, 1.0f, 0.0f});
   zT.SetRotation(rotation);
-  zM.mModelId = AssLib::nTorusModelId;
-  zM.mShaderId = AssLib::nColorShaderId;
+  auto& zMesh = nSpace.AddComponent<Comp::Mesh>(mZ);
+  zMesh.mMeshId = nTorusMeshId;
+  zMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Z];
 
   Comp::Transform& xyzT = nSpace.AddComponent<Comp::Transform>(mXyz);
-  Comp::Model& xyzM = nSpace.AddComponent<Comp::Model>(mXyz);
   xyzT.SetUniformScale(0.8f);
-  xyzM.mModelId = AssLib::nSphereModelId;
-  xyzM.mShaderId = AssLib::nColorShaderId;
+  auto& xyzMesh = nSpace.AddComponent<Comp::Mesh>(mXyz);
+  xyzMesh.mMeshId = nSphereMeshId;
+  xyzMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Xyz];
 }
 
 Rotator::~Rotator()
 {
   nSpace.DeleteMember(mParent);
+  Rsl::RemAsset(smRotatorAssetName);
 }
 
 void Rotator::SetNextOperation(
@@ -113,9 +120,9 @@ Quat Rotator::Run(
 
   // Handle the transitions between all operation types.
   if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
-    Comp::AlphaColor& alphaColorComp =
-      nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
-    alphaColorComp.mColor = smHandleColors[(int)mOperation];
+    auto& material =
+      Rsl::GetRes<Gfx::Material>(mHandleMaterialIds[(int)mOperation]);
+    material.mUniforms.Get<Vec4>("uColor") = smHandleColors[(int)mOperation];
     mOperation = Operation::None;
     return rotation;
   }
@@ -125,11 +132,12 @@ Quat Rotator::Run(
       return rotation;
     }
     Editor::nSuppressObjectPicking |= true;
-    Comp::AlphaColor& alphaColorComp =
-      nSpace.GetComponent<Comp::AlphaColor>(mHandles[(int)mOperation]);
-    alphaColorComp.mColor = smActiveColor;
+    auto& material =
+      Rsl::GetRes<Gfx::Material>(mHandleMaterialIds[(int)mOperation]);
+    Vec4& color = material.mUniforms.Get<Vec4>("uColor");
+    color = smActiveColor;
     if (mOperation == Operation::Xyz) {
-      alphaColorComp.mColor[3] = 0.8f;
+      color[3] = 0.8f;
     }
     return rotation;
   }
@@ -176,4 +184,5 @@ Quat Rotator::Run(
   return rotation;
 }
 
-} // namespace Editor::Gizmos
+} // namespace Gizmos
+} // namespace Editor

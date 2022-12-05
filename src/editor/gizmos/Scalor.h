@@ -3,9 +3,11 @@
 
 #include "math/Geometry.h"
 #include "math/Quaternion.h"
+#include "rsl/ResourceId.h"
 #include "world/Types.h"
 
-namespace Editor::Gizmos {
+namespace Editor {
+namespace Gizmos {
 
 Vec3 Scale(
   const Vec3& scale,
@@ -27,6 +29,7 @@ struct Scalor
     bool snapping,
     float snapInterval);
 
+  constexpr static const char* smScalorAssetName = "vres/scalor";
   constexpr static int smHandleCount = 7;
   constexpr static Vec4 smActiveColor = {1.0f, 1.0f, 1.0f, 1.0f};
   constexpr static Vec4 smHandleColors[] = {
@@ -50,17 +53,14 @@ struct Scalor
     None = 7,
   };
 
+  World::MemberId mParent;
+  ResId mHandleMaterialIds[smHandleCount];
   union
   {
+    World::MemberId mHandles[smHandleCount];
     struct
     {
-      World::MemberId mParent;
       World::MemberId mX, mY, mZ, mXy, mXz, mYz, mXyz;
-    };
-    struct
-    {
-      World::MemberId mParent;
-      World::MemberId mHandles[smHandleCount];
     };
   };
   Operation mOperation;
@@ -80,6 +80,7 @@ struct Scalor
   Vec3 mNormalizedStartScale;
 };
 
-} // namespace Editor::Gizmos
+} // namespace Gizmos
+} // namespace Editor
 
 #endif

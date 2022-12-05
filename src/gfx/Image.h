@@ -3,8 +3,6 @@
 
 #include <glad/glad.h>
 
-#include "Result.h"
-#include "ds/Vector.h"
 #include "vlk/Valkor.h"
 
 namespace Gfx {
@@ -12,22 +10,23 @@ namespace Gfx {
 struct Image
 {
 public:
-  struct InitInfo
-  {
-    std::string mFile;
-    void Serialize(Vlk::Value& val) const;
-    void Deserialize(const Vlk::Explorer& ex);
-  };
-  Result Init(const InitInfo& info);
-  void Finalize() {};
-  void Purge();
-
   Image();
   Image(Image&& other);
   Image& operator=(Image&& other);
   ~Image();
 
+  static void EditConfig(Vlk::Value* configValP);
+  Result Init(const Vlk::Explorer& configEx);
   Result Init(const std::string& file);
+  Result Init(const void* fileData, int size);
+  Result Init(const void* imageData, int width, int height, int channels);
+  Result Init(
+    const void* imageData,
+    int width,
+    int height,
+    GLenum internalFormat,
+    GLenum format,
+    GLint pixelAlignment);
 
   GLuint Id() const;
   float Aspect() const;

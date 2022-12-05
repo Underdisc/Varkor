@@ -1,0 +1,24 @@
+[
+  {
+    :Name: 'ExposureShader'
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/ExposurePostProcess.glf']
+    }
+  },
+  {
+    :Name: 'ExposureMaterial'
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/exposurePost:ExposureShader'
+      :Textures: {}
+      :Uniforms: [
+        {
+          :Name: 'uExposure'
+          :Type: 'Float'
+          :Value: '0.626'
+        }
+      ]
+    }
+  }
+]

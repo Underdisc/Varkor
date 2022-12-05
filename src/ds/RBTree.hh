@@ -1,6 +1,7 @@
+#include <utility>
+
 #include "Error.h"
 #include "debug/MemLeak.h"
-#include "util/Utility.h"
 
 namespace Ds {
 
@@ -15,7 +16,7 @@ RbTree<T>::Node::Node(const T& value):
 
 template<typename T>
 RbTree<T>::Node::Node(T&& value):
-  mValue(Util::Forward(value)),
+  mValue(std::forward<T>(value)),
   mParent(nullptr),
   mLeft(nullptr),
   mRight(nullptr),
@@ -25,7 +26,7 @@ RbTree<T>::Node::Node(T&& value):
 template<typename T>
 template<typename... Args>
 RbTree<T>::Node::Node(Args&&... args):
-  mValue(Util::Forward<Args>(args)...),
+  mValue(std::forward<Args>(args)...),
   mParent(nullptr),
   mLeft(nullptr),
   mRight(nullptr),
@@ -96,25 +97,25 @@ bool RbTree<T>::IterBase::operator!=(const IterBase& other)
 template<typename T>
 T& RbTree<T>::Iter::operator*()
 {
-  return mCurrent->mValue;
+  return this->mCurrent->mValue;
 }
 
 template<typename T>
 T* RbTree<T>::Iter::operator->()
 {
-  return &mCurrent->mValue;
+  return &this->mCurrent->mValue;
 }
 
 template<typename T>
 const T& RbTree<T>::CIter::operator*()
 {
-  return mCurrent->mValue;
+  return this->mCurrent->mValue;
 }
 
 template<typename T>
 const T* RbTree<T>::CIter::operator->()
 {
-  return &mCurrent->mValue;
+  return &this->mCurrent->mValue;
 }
 
 template<typename T>
@@ -176,22 +177,24 @@ void RbTree<T>::Insert(const T& value)
 template<typename T>
 void RbTree<T>::Insert(T&& value)
 {
-  Node* newNode = alloc Node(Util::Forward(value));
+  Node* newNode = alloc Node(std::forward<T>(value));
   InsertNode(newNode);
 }
 
 template<typename T>
 template<typename... Args>
-void RbTree<T>::Emplace(Args&&... args)
+T& RbTree<T>::Emplace(Args&&... args)
 {
-  Node* newNode = alloc Node(Util::Forward<Args>(args)...);
+  Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(newNode);
+  return newNode->mValue;
 }
 
 template<typename T>
-void RbTree<T>::Remove(const T& value)
+template<typename CT>
+void RbTree<T>::Remove(const CT& value)
 {
-  Node* node = FindNode<T>(value);
+  Node* node = FindNode<CT>(value);
   LogAbortIf(node == nullptr, "The RbTree does not contain the value.");
   RemoveNode(node);
 }
@@ -206,7 +209,7 @@ void RbTree<T>::RemoveNode(Node* node)
     replace = node->mRight;
   }
   if (replace != nullptr) {
-    node->mValue = Util::Move(replace->mValue);
+    node->mValue = std::move(replace->mValue);
     node = replace;
   }
 
@@ -267,10 +270,36 @@ void RbTree<T>::Clear()
 }
 
 template<typename T>
+template<typename CT>
+T& RbTree<T>::Get(const CT& value)
+{
+  Node* node = FindNode<CT>(value);
+  LogAbortIf(node == nullptr, "Value did not represent a tree element.");
+  return node->mValue;
+}
+
+template<typename T>
+template<typename CT>
+T* RbTree<T>::TryGet(const CT& value)
+{
+  Node* node = FindNode<CT>(value);
+  if (node == nullptr) {
+    return nullptr;
+  }
+  return &node->mValue;
+}
+
+template<typename T>
 bool RbTree<T>::Contains(const T& value) const
 {
   Node* node = FindNode<T>(value);
   return node != nullptr;
+}
+
+template<typename T>
+bool RbTree<T>::Empty() const
+{
+  return mHead == nullptr;
 }
 
 template<typename T>
@@ -578,7 +607,7 @@ void RbTree<T>::SwapNodes(Node* a, Node* b)
     SwapDetachedNodePointers(a, b);
   }
 
-  Node::Color aColor = a->mColor;
+  typename Node::Color aColor = a->mColor;
   a->mColor = b->mColor;
   b->mColor = aColor;
   if (a == mHead) {

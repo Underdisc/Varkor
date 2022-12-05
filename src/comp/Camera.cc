@@ -1,3 +1,4 @@
+#include <imgui/imgui.h>
 #include <string>
 
 #include "Viewport.h"
@@ -134,61 +135,52 @@ Vec3 Camera::StandardToWorldPosition(
   return (Vec3)worldPosition;
 }
 
-} // namespace Comp
-
-namespace Editor {
-
-void Hook<Comp::Camera>::Edit(const World::Object& object)
+void Camera::VEdit(const World::Object& owner)
 {
-  Comp::Camera& cameraComp = object.GetComponent<Comp::Camera>();
   const int projectionNameCount =
     sizeof(Comp::Camera::smProjectionTypeNames) / sizeof(const char*);
-  int intProj = (int)cameraComp.mProjectionType;
+  int intProj = (int)mProjectionType;
   ImGui::Combo(
     "Projection Type",
     &intProj,
     Comp::Camera::smProjectionTypeNames,
     projectionNameCount);
   Comp::Camera::ProjectionType newType = (Comp::Camera::ProjectionType)intProj;
-  if (newType != cameraComp.mProjectionType) {
-    cameraComp.mProjectionType = newType;
+  if (newType != mProjectionType) {
+    mProjectionType = newType;
     switch (newType) {
     case Comp::Camera::ProjectionType::Perspective:
-      cameraComp.mFov = Comp::Camera::smDefaultFov;
-      cameraComp.mNear = Comp::Camera::smMinimumPerspectiveNear;
+      mFov = Comp::Camera::smDefaultFov;
+      mNear = Comp::Camera::smMinimumPerspectiveNear;
       break;
     case Comp::Camera::ProjectionType::Orthographic:
-      cameraComp.mHeight = Comp::Camera::smDefaultHeight;
-      cameraComp.mNear = Comp::Camera::smMinimumOrthographicNear;
+      mHeight = Comp::Camera::smDefaultHeight;
+      mNear = Comp::Camera::smMinimumOrthographicNear;
       break;
     }
   }
-  switch (cameraComp.mProjectionType) {
+  switch (mProjectionType) {
   case Comp::Camera::ProjectionType::Perspective:
-    ImGui::DragFloat("FoV", &cameraComp.mFov, 0.001f, 0.1f, Math::nPi - 0.1f);
+    ImGui::DragFloat("FoV", &mFov, 0.001f, 0.1f, Math::nPi - 0.1f);
     ImGui::DragFloat(
       "Near",
-      &cameraComp.mNear,
+      &mNear,
       0.1f,
       Comp::Camera::smMinimumPerspectiveNear,
-      cameraComp.mFar);
+      mFar - Math::nEpsilonL);
     break;
   case Comp::Camera::ProjectionType::Orthographic:
-    ImGui::DragFloat("Height", &cameraComp.mHeight, 0.01f, 0.1f, 1000.0f);
+    ImGui::DragFloat("Height", &mHeight, 0.01f, 0.1f, 1000.0f);
     ImGui::DragFloat(
       "Near",
-      &cameraComp.mNear,
+      &mNear,
       0.1f,
       Comp::Camera::smMinimumOrthographicNear,
-      cameraComp.mFar);
+      mFar - Math::nEpsilonL);
     break;
   }
   ImGui::DragFloat(
-    "Far",
-    &cameraComp.mFar,
-    0.1f,
-    cameraComp.mNear,
-    Comp::Camera::smMaximumFar);
+    "Far", &mFar, 0.1f, mNear + Math::nEpsilonL, Comp::Camera::smMaximumFar);
 }
 
-} // namespace Editor
+} // namespace Comp

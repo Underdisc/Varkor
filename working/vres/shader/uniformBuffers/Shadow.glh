@@ -1,0 +1,7 @@
+layout(std140) uniform Shadow
+{
+  bool uShadowExists; // 0
+  float uShadowBias; // 4
+  mat4 uShadowProjView; // 16
+}; // 80
+uniform sampler2D uShadowTexture;

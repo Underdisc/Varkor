@@ -1,0 +1,23 @@
+[
+  {
+    :Name: 'Shader'
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/Skybox.glv', 'vres/shader/Skybox.glf']
+    }
+  },
+  {
+    :Name: 'Material'
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/skyboxDefaults:Shader'
+      :Uniforms: [
+        {
+          :Name: 'uCubemap'
+          :Type: 'TextureCubemapRes'
+          :Value: 'vres/defaults:Cubemap'
+        }
+      ]
+    }
+  }
+]

@@ -5,9 +5,11 @@
 #include "math/Geometry.h"
 #include "math/Quaternion.h"
 #include "math/Vector.h"
+#include "rsl/ResourceId.h"
 #include "world/Types.h"
 
-namespace Editor::Gizmos {
+namespace Editor {
+namespace Gizmos {
 
 Quat Rotate(
   const Quat& rotation,
@@ -28,6 +30,7 @@ struct Rotator
     bool snapping,
     float snapInterval);
 
+  constexpr static const char* smRotatorAssetName = "vres/rotator";
   constexpr static int smHandleCount = 4;
   constexpr static Vec4 smActiveColor = {1.0f, 1.0f, 1.0f, 1.0f};
   constexpr static Vec4 smHandleColors[] = {
@@ -45,17 +48,14 @@ struct Rotator
     None = 4,
   };
 
+  World::MemberId mParent;
+  ResId mHandleMaterialIds[smHandleCount];
   union
   {
+    World::MemberId mHandles[smHandleCount];
     struct
     {
-      World::MemberId mParent;
       World::MemberId mX, mY, mZ, mXyz;
-    };
-    struct
-    {
-      World::MemberId mParent;
-      World::MemberId mHandles[smHandleCount];
     };
   };
   Operation mOperation;
@@ -66,6 +66,7 @@ struct Rotator
   Math::Plane mRotationPlane;
 };
 
-} // namespace Editor::Gizmos
+} // namespace Gizmos
+} // namespace Editor
 
 #endif

@@ -1,16 +1,15 @@
 target_sources(varkor PRIVATE
-  AssetInterfaces.cc
   Camera.cc
   CoreInterface.cc
   Editor.cc
   ErrorInterface.cc
   FileInterface.cc
   FramerInterface.cc
-  HookInterface.cc
   InspectorInterface.cc
   Interface.cc
-  OverviewInterface.cc
+  LayerInterface.cc
+  LibraryInterface.cc
+  ResourceInterface.cc
   Utility.cc
   WindowInterface.cc)
 add_subdirectory(gizmos)
-add_subdirectory(hook)

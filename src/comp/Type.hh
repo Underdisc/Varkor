@@ -1,5 +1,7 @@
 #include <sstream>
+#include <utility>
 
+#include "util/Memory.h"
 #include "util/Utility.h"
 
 namespace Comp {
@@ -43,41 +45,16 @@ BindableTypeFunction(Init, void, const World::Object&);
 BindableTypeFunction(Update, void, const World::Object&);
 BindableTypeFunction(Serialize, void, Vlk::Value&);
 BindableTypeFunction(Deserialize, void, const Vlk::Explorer&);
-BindableTypeFunction(Render, void, const World::Object&);
-BindableTypeFunction(Edit, void);
+BindableTypeFunction(Renderable, void, const World::Object&);
+BindableTypeFunction(Edit, void, const World::Object&);
 
 template<typename T>
 TypeId Type<T>::smId = nInvalidTypeId;
-
-template<typename T>
-void DefaultConstruct(void* data)
-{
-  new (data) T;
-}
-
-template<typename T>
-void CopyConstruct(void* from, void* to)
-{
-  new (to) T(*(T*)from);
-}
-
-template<typename T>
-void MoveConstruct(void* from, void* to)
-{
-  new (to) T(Util::Move(*(T*)from));
-}
-
-template<typename T>
-void Destruct(void* data)
-{
-  (*(T*)data).~T();
-}
 
 int CreateId();
 extern Ds::Vector<TypeData> nTypeData;
 
 template<typename T>
-template<typename... Dependencies>
 void Type<T>::Register()
 {
   LogAbortIf(smId != nInvalidTypeId, "Type already registered.");
@@ -86,21 +63,30 @@ void Type<T>::Register()
   TypeData data;
   data.mName = Util::GetShortTypename<T>();
   data.mSize = sizeof(T);
-  data.AddDependencies<T, Dependencies...>();
-
-  data.mDefaultConstruct = &DefaultConstruct<T>;
-  data.mCopyConstruct = &CopyConstruct<T>;
-  data.mMoveConstruct = &MoveConstruct<T>;
-  data.mDestruct = &Destruct<T>;
+  data.mDefaultConstruct = &Util::DefaultConstruct<T>;
+  data.mCopyConstruct = &Util::CopyConstruct<T>;
+  data.mMoveConstruct = &Util::MoveConstruct<T>;
+  data.mDestruct = &Util::Destruct<T>;
   BindVStaticInit<T>(&data.mVStaticInit);
   BindVInit<T>(&data.mVInit);
   BindVUpdate<T>(&data.mVUpdate);
   BindVSerialize<T>(&data.mVSerialize);
   BindVDeserialize<T>(&data.mVDeserialize);
-  BindVRender<T>(&data.mVRender);
+  BindVRenderable<T>(&data.mVRenderable);
   BindVEdit<T>(&data.mVEdit);
-
   nTypeData.Push(data);
+
+  if (data.mVStaticInit.Open()) {
+    data.mVStaticInit.Invoke(nullptr);
+  }
+}
+
+template<typename T>
+template<typename... Dependencies>
+void Type<T>::AddDependencies()
+{
+  TypeData& typeData = nTypeData[smId];
+  typeData.AddDependencies<T, Dependencies...>();
 }
 
 template<typename Dependant, typename Dependency, typename... Rest>
