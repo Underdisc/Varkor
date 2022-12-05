@@ -1,0 +1,9 @@
+[
+  {
+    :Name: 'Shader'
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/DebugLine.glv', 'vres/shader/Color.glf']
+    }
+  }
+]

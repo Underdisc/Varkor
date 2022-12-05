@@ -14,7 +14,7 @@
 #if defined WIN32 && defined _DEBUG
   #define _CRTDBG_MAP_ALLOC
   #include <crtdbg.h>
-  #define alloc new (_NORMAL_BLOCK, __FILE__, __LINE__)
+  #define alloc new (_CLIENT_BLOCK, __FILE__, __LINE__)
 #else
   #define alloc new
 #endif

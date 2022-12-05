@@ -93,7 +93,7 @@ template<typename... Args>
 V& Map<K, V>::Emplace(const K& key, Args&&... args)
 {
   typename Map<K, V>::Node* newNode =
-    alloc typename Map<K, V>::Node(key, args...);
+    alloc typename Map<K, V>::Node(key, std::forward<Args>(args)...);
   Map<K, V>::InsertNode(newNode);
   return newNode->mValue.mValue;
 }
@@ -106,7 +106,7 @@ void Map<K, V>::Remove(const K& key)
 }
 
 template<typename K, typename V>
-V* Map<K, V>::Find(const K& key) const
+V* Map<K, V>::TryGet(const K& key) const
 {
   typename Map<K, V>::Node* node = Map<K, V>::FindNode<K>(key);
   if (node == nullptr) {
@@ -118,7 +118,7 @@ V* Map<K, V>::Find(const K& key) const
 template<typename K, typename V>
 V& Map<K, V>::Get(const K& key) const
 {
-  V* value = Find(key);
+  V* value = TryGet(key);
   LogAbortIf(value == nullptr, "The Map did not contain the given key.");
   return *value;
 }

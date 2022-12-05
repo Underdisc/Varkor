@@ -1,19 +1,14 @@
 #include <imgui/imgui.h>
 
-#include "AssetLibrary.h"
-#include "editor/AssetInterfaces.h"
 #include "editor/CoreInterface.h"
 #include "editor/Editor.h"
 #include "editor/ErrorInterface.h"
 #include "editor/FileInterface.h"
 #include "editor/FramerInterface.h"
 #include "editor/LayerInterface.h"
+#include "editor/LibraryInterface.h"
 #include "editor/Utility.h"
-#include "gfx/Cubemap.h"
-#include "gfx/Font.h"
-#include "gfx/Image.h"
-#include "gfx/Model.h"
-#include "gfx/Shader.h"
+#include "rsl/Library.h"
 #include "vlk/Valkor.h"
 #include "world/World.h"
 
@@ -22,11 +17,8 @@ namespace Editor {
 void CoreInterface::Init()
 {
   OpenInterface<ErrorInterface>();
-  OpenInterface<AssetInterface<Gfx::Cubemap>>();
-  OpenInterface<AssetInterface<Gfx::Font>>();
-  OpenInterface<AssetInterface<Gfx::Image>>();
-  OpenInterface<AssetInterface<Gfx::Model>>();
-  OpenInterface<AssetInterface<Gfx::Shader>>();
+  OpenInterface<LibraryInterface>();
+  mShowImGuiDemo = false;
 }
 
 void CoreInterface::Show()
@@ -45,7 +37,7 @@ void CoreInterface::Show()
     World::CreateTopLayer();
   }
 
-  // Display all of the existing layers.
+  // Find the currently selected layer.
   ImGui::BeginChild("Layers", ImVec2(0, 0), true);
   World::LayerIt activeLayerIt = World::nLayers.end();
   LayerInterface* layerInterface = FindInterface<LayerInterface>();
@@ -53,6 +45,7 @@ void CoreInterface::Show()
     activeLayerIt = layerInterface->mLayerIt;
   }
 
+  // Display all of the existing layers.
   World::LayerIt it = World::nLayers.begin();
   World::LayerIt itE = World::nLayers.end();
   while (it != itE) {
@@ -95,6 +88,10 @@ void CoreInterface::Show()
   }
   ImGui::EndChild();
   ImGui::End();
+
+  if (mShowImGuiDemo) {
+    ImGui::ShowDemoWindow(&mShowImGuiDemo);
+  }
 }
 
 void CoreInterface::FileMenu()
@@ -108,8 +105,8 @@ void CoreInterface::FileMenu()
     OpenInterface<FileInterface>(
       [this](const std::string& filename)
       {
-        std::string path = AssLib::PrependResDirectory(filename);
-        ValueResult<World::LayerIt> result = World::LoadLayer(path.c_str());
+        std::string path = Rsl::PrependResDirectory(filename);
+        VResult<World::LayerIt> result = World::LoadLayer(path.c_str());
         if (result.Success()) {
           OpenInterface<LayerInterface>(result.mValue);
         }
@@ -133,16 +130,13 @@ void CoreInterface::FileMenu()
         if (layerInterface == nullptr) {
           return;
         }
-        std::string path = AssLib::PrependResDirectory(filename);
+        std::string path = Rsl::PrependResDirectory(filename);
         Result result =
           World::SaveLayer(layerInterface->mLayerIt, path.c_str());
         LogErrorIf(!result.Success(), result.mError.c_str());
       },
       FileInterface::AccessType::Save,
       layerInterface->mLayerIt->mName + ".vlk");
-  }
-  if (ImGui::MenuItem("Save Assets")) {
-    AssetLibrary::SerializeAssets();
   }
   if (ImGui::MenuItem("Save Components")) {
     Comp::SaveComponentsFile();
@@ -152,35 +146,28 @@ void CoreInterface::FileMenu()
 
 void CoreInterface::ViewMenu()
 {
-  if (!ImGui::BeginMenu("View")) {
-    return;
-  }
-
-  if (ImGui::MenuItem("Error")) {
-    OpenInterface<ErrorInterface>();
-  }
-  if (ImGui::MenuItem("Framer")) {
-    OpenInterface<FramerInterface>();
-  }
-  if (ImGui::BeginMenu("Assets")) {
-    if (ImGui::MenuItem("Cubemaps")) {
-      OpenInterface<AssetInterface<Gfx::Cubemap>>();
-    }
-    if (ImGui::MenuItem("Fonts")) {
-      OpenInterface<AssetInterface<Gfx::Font>>();
-    }
-    if (ImGui::MenuItem("Images")) {
-      OpenInterface<AssetInterface<Gfx::Image>>();
-    }
-    if (ImGui::MenuItem("Models")) {
-      OpenInterface<AssetInterface<Gfx::Model>>();
-    }
-    if (ImGui::MenuItem("Shaders")) {
-      OpenInterface<AssetInterface<Gfx::Shader>>();
-    }
+  if (ImGui::BeginMenu("View")) {
+    InterfaceMenuItem<ErrorInterface>("Error");
+    InterfaceMenuItem<FramerInterface>("Framer");
+    InterfaceMenuItem<LibraryInterface>("Library");
+    ImGui::MenuItem("Demo", NULL, &mShowImGuiDemo);
     ImGui::EndMenu();
   }
-  ImGui::EndMenu();
+}
+
+template<typename T>
+void CoreInterface::InterfaceMenuItem(const char* label)
+{
+  T* interface = FindInterface<T>();
+  bool open = interface != nullptr;
+  if (ImGui::MenuItem(label, nullptr, &open)) {
+    if (!open) {
+      CloseInterface<T>();
+    }
+    else {
+      OpenInterface<T>();
+    }
+  }
 }
 
 } // namespace Editor

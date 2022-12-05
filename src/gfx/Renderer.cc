@@ -2,100 +2,87 @@
 #include <sstream>
 #include <utility>
 
-#include "AssetLibrary.h"
 #include "Input.h"
 #include "Temporal.h"
 #include "Viewport.h"
 #include "comp/AlphaColor.h"
 #include "comp/Camera.h"
-#include "comp/DefaultPostProcess.h"
 #include "comp/DirectionalLight.h"
-#include "comp/ExposurePostProcess.h"
-#include "comp/Model.h"
 #include "comp/PointLight.h"
 #include "comp/ShadowMap.h"
-#include "comp/Skybox.h"
 #include "comp/SpotLight.h"
-#include "comp/Sprite.h"
-#include "comp/Text.h"
 #include "comp/Transform.h"
 #include "debug/Draw.h"
 #include "ds/Vector.h"
 #include "editor/Editor.h"
 #include "editor/LayerInterface.h"
-#include "gfx/Cubemap.h"
 #include "gfx/Framebuffer.h"
-#include "gfx/Image.h"
-#include "gfx/Model.h"
+#include "gfx/Material.h"
+#include "gfx/Mesh.h"
+#include "gfx/Renderable.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
 #include "math/Vector.h"
+#include "rsl/Asset.h"
+#include "rsl/Library.h"
 #include "world/Object.h"
 #include "world/Space.h"
 #include "world/World.h"
 
-namespace Gfx::Renderer {
-
-constexpr size_t nQuadVertexArraySize = 12;
-GLuint nFullscreenVao;
-GLuint nFullscreenVbo;
-GLuint nSpriteVao;
-GLuint nSpriteVbo;
-
-GLuint nSkyboxVao;
-GLuint nSkyboxVbo;
-GLuint nSkyboxEbo;
-GLsizei nSkyboxElementCount;
+namespace Gfx {
+namespace Renderer {
 
 GLuint nUniversalUniformBufferVbo;
 GLuint nLightsUniformBufferVbo;
+GLuint nShadowUniformBufferVbo;
 
-size_t nNextSpaceFramebuffer;
-size_t nCurrentSpaceFramebuffer;
+size_t nCurrentSpaceFramebufferIndex = 0;
 Ds::Vector<Framebuffer> nSpaceFramebuffers;
 
-Ds::Vector<Comp::TypeId> nRenderOrder;
+const char* nRendererAssetName = "vres/renderer";
+const ResId nFullscreenMeshId(nRendererAssetName, "FullscreenMesh");
+const ResId nSpriteMeshId(nRendererAssetName, "SpriteMesh");
+const ResId nSkyboxMeshId(nRendererAssetName, "SkyboxMesh");
+const ResId nMemberIdShaderId(nRendererAssetName, "MemberIdShader");
+const ResId nDepthShaderId(nRendererAssetName, "DepthShader");
+const ResId nDefaultPostShaderId(nRendererAssetName, "DefaultPostShader");
+const ResId nDefaultPostMaterialId(nRendererAssetName, "DefaultPostMaterial");
 
-void (*nCustomRender)();
+void (*nCustomRender)() = nullptr;
 
 void Init()
 {
-  // Initialize the fullscreen and sprite vertex arrays.
+  // Initialize all of the resources used by the renderer.
+  Rsl::Asset& asset = Rsl::AddAsset(nRendererAssetName);
   // clang-format off
-  float fullscreenVertices[nQuadVertexArraySize] =
-    {-1.0f,  1.0f,
-     -1.0f, -1.0f,
-      1.0f,  1.0f,
-      1.0f, -1.0f,
-      1.0f,  1.0f,
-     -1.0f, -1.0f};
-  float spriteVertices[nQuadVertexArraySize] =
-    {-0.5f,  0.5f,
-     -0.5f, -0.5f,
-      0.5f,  0.5f,
-      0.5f, -0.5f,
-      0.5f,  0.5f,
-     -0.5f, -0.5f};
+  float fullscreenVertices[] =
+    {-1.0f,  1.0f, 0.0f,
+     -1.0f, -1.0f, 0.0f,
+      1.0f,  1.0f, 0.0f,
+      1.0f, -1.0f, 0.0f };
+  float spriteVertices[] =
+    {-0.5f,  0.5f, 0.0f,
+     -0.5f, -0.5f, 0.0f,
+      0.5f,  0.5f, 0.0f,
+      0.5f, -0.5f, 0.0f};
   // clang-format on
-  auto uploadQuadVertexArray =
-    [](float vertices[nQuadVertexArraySize], GLuint* vao, GLuint* vbo)
-  {
-    glGenVertexArrays(1, vao);
-    glBindVertexArray(*vao);
-    glGenBuffers(1, vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, *vbo);
-    GLuint size = sizeof(float) * nQuadVertexArraySize;
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-      0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*)0);
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-  };
-  uploadQuadVertexArray(fullscreenVertices, &nFullscreenVao, &nFullscreenVbo);
-  uploadQuadVertexArray(spriteVertices, &nSpriteVao, &nSpriteVbo);
-
-  // Initialize the buffers used for skybox rendering.
+  unsigned int quadElements[] = {0, 1, 2, 1, 3, 2};
+  asset.InitRes<Gfx::Mesh>(
+    nFullscreenMeshId.GetResourceName(),
+    (void*)fullscreenVertices,
+    sizeof(fullscreenVertices),
+    Gfx::Mesh::Attribute::Position,
+    (void*)quadElements,
+    sizeof(quadElements),
+    sizeof(quadElements) / sizeof(unsigned int));
+  asset.InitRes<Gfx::Mesh>(
+    nSpriteMeshId.GetResourceName(),
+    (void*)spriteVertices,
+    sizeof(spriteVertices),
+    Gfx::Mesh::Attribute::Position,
+    (void*)quadElements,
+    sizeof(quadElements),
+    sizeof(quadElements) / sizeof(unsigned int));
   // clang-format off
   float skyboxVertices[] = {
      1.0f,  1.0f,  1.0f,
@@ -122,25 +109,17 @@ void Init()
     6, 2, 1,
   };
   // clang-format on
-  nSkyboxElementCount = sizeof(skyboxElements) / sizeof(unsigned int);
-  glGenVertexArrays(1, &nSkyboxVao);
-  glBindVertexArray(nSkyboxVao);
-  glGenBuffers(1, &nSkyboxVbo);
-  glBindBuffer(GL_ARRAY_BUFFER, nSkyboxVbo);
-  glBufferData(
-    GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
-  glGenBuffers(1, &nSkyboxEbo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nSkyboxEbo);
-  glBufferData(
-    GL_ELEMENT_ARRAY_BUFFER,
+  unsigned int skyboxElementsSize =
+    sizeof(skyboxElements) / sizeof(unsigned int);
+  asset.InitRes<Gfx::Mesh>(
+    nSkyboxMeshId.GetResourceName(),
+    (void*)skyboxVertices,
+    sizeof(skyboxVertices),
+    Gfx::Mesh::Attribute::Position,
+    (void*)skyboxElements,
     sizeof(skyboxElements),
-    skyboxElements,
-    GL_STATIC_DRAW);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    sizeof(skyboxElements) / sizeof(unsigned int));
+  asset.InitFinalize();
 
   // Create the uniform buffers.
   auto CreateUniformBuffer = [](GLuint* vbo, GLsizeiptr size, GLuint binding)
@@ -153,24 +132,13 @@ void Init()
   };
   CreateUniformBuffer(&nUniversalUniformBufferVbo, 144, 0);
   CreateUniformBuffer(&nLightsUniformBufferVbo, 17680, 1);
-
-  nNextSpaceFramebuffer = 0;
-  nCurrentSpaceFramebuffer = 0;
-
-  nCustomRender = nullptr;
+  CreateUniformBuffer(&nShadowUniformBufferVbo, 80, 2);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-  nRenderOrder.Push(Comp::Type<ShadowMap>::smId);
-  nRenderOrder.Push(Comp::Type<Comp::Skybox>::smId);
-  nRenderOrder.Push(Comp::Type<Comp::Model>::smId);
-  nRenderOrder.Push(Comp::Type<Comp::Sprite>::smId);
-  nRenderOrder.Push(Comp::Type<DefaultPostProcess>::smId);
-  nRenderOrder.Push(Comp::Type<ExposurePostProcess>::smId);
 }
 
 void Purge()
@@ -182,7 +150,8 @@ void Clear()
 {
   // Remove any space framebuffers that were not used during the last render and
   // clear those that were used.
-  for (size_t i = nNextSpaceFramebuffer; i < nSpaceFramebuffers.Size(); ++i) {
+  size_t popCount = nSpaceFramebuffers.Size() - nCurrentSpaceFramebufferIndex;
+  for (size_t i = 0; i < popCount; ++i) {
     nSpaceFramebuffers.Pop();
   }
   for (size_t i = 0; i < nSpaceFramebuffers.Size(); ++i) {
@@ -191,8 +160,7 @@ void Clear()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  nNextSpaceFramebuffer = 0;
-  nCurrentSpaceFramebuffer = 0;
+  nCurrentSpaceFramebufferIndex = 0;
 
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -205,18 +173,19 @@ void Render()
     nCustomRender();
   }
   if (Editor::nEditorMode) {
-    // Render only the selected space and the editor space.
+    // Render the selected space and the editor space.
     Editor::LayerInterface* layerInterface =
       Editor::nCoreInterface.FindInterface<Editor::LayerInterface>();
     if (layerInterface == nullptr) {
       return;
     }
-    const World::Space& space = layerInterface->mLayerIt->mSpace;
+    const World::Layer& worldLayer = *layerInterface->mLayerIt;
+    const World::Space& space = worldLayer.mSpace;
     const Mat4& view = Editor::nCamera.View();
     const Mat4& proj = Editor::nCamera.Proj();
-    const Vec3& position = Editor::nCamera.Position();
-    RenderSpace(space, view, proj, position);
-    RenderSpace(Editor::nSpace, view, proj, position);
+    const Vec3& viewPos = Editor::nCamera.Position();
+    RenderSpace(space, view, proj, viewPos, worldLayer.mPostMaterialId);
+    RenderSpace(Editor::nSpace, view, proj, viewPos, nDefaultPostMaterialId);
     Debug::Draw::Render(Editor::nCamera.View(), Editor::nCamera.Proj());
   }
   else {
@@ -252,37 +221,10 @@ Result RenderWorld()
     Mat4 view = transformComp.GetInverseWorldMatrix(object);
     Mat4 proj = cameraComp->Proj();
     Vec3 viewPos = transformComp.GetWorldTranslation(object);
-    RenderSpace(space, view, proj, viewPos);
+    RenderSpace(space, view, proj, viewPos, layer.mPostMaterialId);
+    Debug::Draw::Render(view, proj);
   }
   return Result();
-}
-
-Mat4 GetTransformation(const World::Object& object)
-{
-  Comp::Transform* transform = object.TryGetComponent<Comp::Transform>();
-  if (transform == nullptr) {
-    Mat4 identity;
-    Math::Identity(&identity);
-    return identity;
-  }
-  return transform->GetWorldMatrix(object);
-}
-
-Mat4 GetImageTransformation(
-  const World::Object& object, const Gfx::Image& image)
-{
-  Mat4 transformation = GetTransformation(object);
-  Mat4 aspectScale;
-  Math::Scale(&aspectScale, {image.Aspect(), 1.0f, 1.0f});
-  transformation *= aspectScale;
-  return transformation;
-}
-
-void RenderQuad(GLuint vao)
-{
-  glBindVertexArray(vao);
-  glDrawArrays(GL_TRIANGLES, 0, nQuadVertexArraySize / 2);
-  glBindVertexArray(0);
 }
 
 void InitializeUniversalUniformBuffer(
@@ -370,80 +312,76 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   glBindBuffer(buffer, 0);
 }
 
+void InitializeShadowUniformBuffer(
+  const World::Space& space, Renderable::Collection* collection)
+{
+  // Determine whether the shadow exists.
+  GLenum buffer = GL_UNIFORM_BUFFER;
+  glBindBuffer(buffer, nShadowUniformBufferVbo);
+  Ds::Vector<World::MemberId> slice = space.Slice<Comp::ShadowMap>();
+  bool shadowExists = slice.Size() == 0 ? false : true;
+  glBufferSubData(buffer, 0, sizeof(GLuint), &shadowExists);
+  if (!shadowExists) {
+    glBindBuffer(buffer, 0);
+    return;
+  }
+
+  // Set the shadow bias and proj view matrix.
+  Comp::ShadowMap& shadowMap = space.Get<Comp::ShadowMap>(slice[0]);
+  glBufferSubData(buffer, 4, sizeof(GLfloat), &shadowMap.mBias);
+
+  Comp::Transform& transform = space.Get<Comp::Transform>(slice[0]);
+  Comp::Camera& camera = space.Get<Comp::Camera>(slice[0]);
+  World::Object owner(const_cast<World::Space*>(&space), slice[0]);
+  Mat4 view = transform.GetInverseWorldMatrix(owner);
+  Mat4 proj = camera.Proj();
+  Mat4 projView = proj * view;
+  Mat4 projViewTranspose = Math::Transpose(projView);
+  glBufferSubData(buffer, 16, sizeof(Mat4), projViewTranspose.mD);
+  glBindBuffer(buffer, 0);
+
+  // Render the depth of all renderables to the shadow texture and add that
+  // texture to the collection uniforms.
+  glViewport(0, 0, shadowMap.mWidth, shadowMap.mHeight);
+  glBindFramebuffer(GL_FRAMEBUFFER, shadowMap.mFbo);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  Gfx::Shader& depthShader = Rsl::GetRes<Shader>(nDepthShaderId);
+  depthShader.Use();
+  depthShader.SetUniform("uProjView", projView);
+  const Ds::Vector<Renderable>& renderables =
+    collection->Get(Renderable::Type::Floater);
+  for (const Renderable& renderable : renderables) {
+    const Mesh* mesh = Rsl::TryGetRes<Mesh>(renderable.mMeshId);
+    if (mesh == nullptr) {
+      continue;
+    }
+    depthShader.SetUniform("uModel", renderable.mTransform);
+    mesh->Render();
+  }
+  collection->mUniforms.Add<GLuint>(
+    UniformTypeId::Texture2d, "uShadowTexture", shadowMap.mTbo);
+}
+
 void RenderMemberIds(
   const World::Space& space, const Mat4& view, const Mat4& proj)
 {
-  const Gfx::Shader* memberIdShader =
-    AssLib::TryGetLive<Gfx::Shader>(AssLib::nMemberIdShaderId);
-  if (memberIdShader == nullptr) {
-    return;
-  }
+  Renderable::Collection collection;
+  collection.Collect(space);
   InitializeUniversalUniformBuffer(view, proj);
 
-  GLint modelLoc = memberIdShader->UniformLocation(Uniform::Type::Model);
-  GLint memberIdLoc = memberIdShader->UniformLocation(Uniform::Type::MemberId);
-
-  glUseProgram(memberIdShader->Id());
-
-  // Render MemberIds for every model.
-  Ds::Vector<World::MemberId> slice = space.Slice<Comp::Model>();
-  for (int i = 0; i < slice.Size(); ++i) {
-    auto& modelComp = space.Get<Comp::Model>(slice[i]);
-    const Gfx::Model* model =
-      AssLib::TryGetLive<Gfx::Model>(modelComp.mModelId);
-    if (model == nullptr) {
+  auto& memberIdShader = Rsl::GetRes<Gfx::Shader>(nMemberIdShaderId);
+  memberIdShader.Use();
+  const Ds::Vector<Renderable>& floaters =
+    collection.Get(Renderable::Type::Floater);
+  for (const Renderable& renderable : floaters) {
+    const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(renderable.mMeshId);
+    if (mesh == nullptr) {
       continue;
     }
-
-    glUniform1i(memberIdLoc, (int)slice[i]);
-    World::Object object(const_cast<World::Space*>(&space), slice[i]);
-    Mat4 memberTransformation = GetTransformation(object);
-    for (const Gfx::Model::DrawInfo& drawInfo : model->GetAllDrawInfo()) {
-      Mat4 transformation = memberTransformation * drawInfo.mTransformation;
-      glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
-      const Gfx::Mesh& mesh = model->GetMesh(drawInfo.mMeshIndex);
-      glBindVertexArray(mesh.Vao());
-      glDrawElements(
-        GL_TRIANGLES, (GLsizei)mesh.IndexCount(), GL_UNSIGNED_INT, 0);
-      glBindVertexArray(0);
-    }
+    memberIdShader.SetUniform("uMemberId", renderable.mOwner);
+    memberIdShader.SetUniform("uModel", renderable.mTransform);
+    mesh->Render();
   }
-
-  glDisable(GL_CULL_FACE);
-
-  // Render MemberIds for every sprite.
-  slice = std::move(space.Slice<Comp::Sprite>());
-  for (int i = 0; i < slice.Size(); ++i) {
-    auto& spriteComp = space.Get<Comp::Sprite>(slice[i]);
-    const Gfx::Image* image =
-      AssLib::TryGetLive<Gfx::Image>(spriteComp.mImageId);
-    if (image == nullptr) {
-      continue;
-    }
-
-    World::Object object(const_cast<World::Space*>(&space), slice[i]);
-    Mat4 transformation = GetImageTransformation(object, *image);
-    glUniform1i(memberIdLoc, (int)slice[i]);
-    glUniformMatrix4fv(modelLoc, 1, true, transformation.CData());
-    RenderQuad(nSpriteVao);
-  }
-
-  // Render MemberIds for every text component.
-  slice = std::move(space.Slice<Comp::Text>());
-  for (int i = 0; i < slice.Size(); ++i) {
-    World::Object object(const_cast<World::Space*>(&space), slice[i]);
-    Mat4 baseTransformation = GetTransformation(object);
-    auto& textComp = object.Get<Comp::Text>();
-    Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
-    for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo) {
-      Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
-      glUniform1i(memberIdLoc, (int)slice[i]);
-      glUniformMatrix4fv(modelLoc, 1, true, glyphTransformation.CData());
-      RenderQuad(nSpriteVao);
-    }
-  }
-
-  glEnable(GL_CULL_FACE);
 }
 
 World::MemberId HoveredMemberId(
@@ -481,14 +419,27 @@ void RenderSpace(
   const World::Space& space,
   const Mat4& view,
   const Mat4& proj,
-  const Vec3& viewPos)
+  const Vec3& viewPos,
+  const ResId& postMaterialId)
 {
+  // Render only if the post process material and shader are available.
+  Material* postMaterial = Rsl::TryGetRes<Material>(postMaterialId);
+  if (postMaterial == nullptr) {
+    return;
+  }
+  Shader* postShader = Rsl::TryGetRes<Shader>(postMaterial->mShaderId);
+  if (postShader == nullptr) {
+    return;
+  }
+  Renderable::Collection collection;
+  collection.Collect(space);
+
   InitializeUniversalUniformBuffer(view, proj, viewPos);
   InitializeLightsUniformBuffer(space);
+  InitializeShadowUniformBuffer(space, &collection);
 
-  // Get the next space framebuffer that hasn't been rendered to and bind
-  // it.
-  if (nNextSpaceFramebuffer >= nSpaceFramebuffers.Size()) {
+  // Get the next space framebuffer that hasn't been rendered to and bind it.
+  if (nCurrentSpaceFramebufferIndex >= nSpaceFramebuffers.Size()) {
     Framebuffer::Options options;
     options.mWidth = Viewport::Width();
     options.mHeight = Viewport::Height();
@@ -497,121 +448,29 @@ void RenderSpace(
     options.mPixelType = GL_HALF_FLOAT;
     nSpaceFramebuffers.Emplace(options);
   }
-  nCurrentSpaceFramebuffer = nNextSpaceFramebuffer;
-  const Framebuffer& framebuffer = nSpaceFramebuffers[nCurrentSpaceFramebuffer];
-  ++nNextSpaceFramebuffer;
-  BindCurrentSpaceFramebuffer();
-
-  // Perform all of the component renders.
-  World::Object owner(const_cast<World::Space*>(&space));
-  for (Comp::TypeId typeId : nRenderOrder) {
-    const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-    if (!typeData.mVRender.Open()) {
-      continue;
-    }
-    Ds::Vector<World::MemberId> slice = space.Slice(typeId);
-    for (int i = 0; i < slice.Size(); ++i) {
-      void* component = space.GetComponent(typeId, slice[i]);
-      owner.mMemberId = slice[i];
-      typeData.mVRender.Invoke(component, owner);
-    }
-  }
-
-  glDisable(GL_CULL_FACE);
-
-  // Render all of the Text components.
-  Ds::Vector<World::MemberId> slice = space.Slice<Comp::Text>();
-  for (int i = 0; i < slice.Size(); ++i) {
-    const Comp::Text& textComp = space.Get<Comp::Text>(slice[i]);
-    if (!textComp.mVisible) {
-      continue;
-    }
-    const Gfx::Shader* shader = AssLib::TryGetLive<Gfx::Shader>(
-      textComp.mShaderId, AssLib::nDefaultTextShaderId);
-    if (shader == nullptr) {
-      continue;
-    }
-
-    GLint modelLoc = shader->UniformLocation(Uniform::Type::Model);
-    GLint colorLoc = shader->UniformLocation(Uniform::Type::Color);
-    GLint samplerLoc = shader->UniformLocation(Uniform::Type::Sampler);
-    GLint fillAmountLoc = shader->UniformLocation(Uniform::Type::FillAmount);
-
-    glUseProgram(shader->Id());
-    glUniform1i(samplerLoc, 0);
-    glUniform1f(fillAmountLoc, textComp.mFillAmount);
-
-    Comp::AlphaColor* alphaColorComp =
-      space.TryGetComponent<Comp::AlphaColor>(slice[i]);
-    if (alphaColorComp != nullptr) {
-      glUniform4fv(colorLoc, 1, alphaColorComp->mColor.CData());
-    }
-    else {
-      Vec4 defaultColor = {0.0f, 1.0f, 0.0f, 1.0f};
-      glUniform4fv(colorLoc, 1, defaultColor.CData());
-    }
-
-    World::Object object(const_cast<World::Space*>(&space), slice[i]);
-    Mat4 baseTransformation = GetTransformation(object);
-    Ds::Vector<Comp::Text::DrawInfo> allDrawInfo = textComp.GetAllDrawInfo();
-    for (const Comp::Text::DrawInfo& drawInfo : allDrawInfo) {
-      Mat4 glyphTransformation = baseTransformation * drawInfo.mOffset;
-      glUniformMatrix4fv(modelLoc, 1, true, glyphTransformation.CData());
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, drawInfo.mId);
-      RenderQuad(nSpriteVao);
-    }
-  }
-
-  glEnable(GL_CULL_FACE);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void PrepShadowState(
-  const World::Space& space,
-  const Gfx::Shader& shader,
-  int firstTextureIndex,
-  int shadowCount)
-{
-  GLenum firstTextureUnit = GL_TEXTURE0 + firstTextureIndex;
-  auto slice = space.Slice<ShadowMap>();
-  for (int i = 0; i < shadowCount && i < slice.Size(); ++i) {
-    World::Object shadowMapOwner(const_cast<World::Space*>(&space), slice[i]);
-    const auto& shadowMap = shadowMapOwner.Get<ShadowMap>();
-    shader.SetUniform("uShadowBias", shadowMap.mBias);
-    shader.SetUniform("uShadowProjView", shadowMap.ProjView(shadowMapOwner));
-    shader.SetUniform("uShadowTexture", firstTextureIndex + i);
-    glActiveTexture(firstTextureUnit + i);
-    glBindTexture(GL_TEXTURE_2D, shadowMap.mTbo);
-  }
-}
-
-void UnbindTextures(int firstTextureIndex, int count)
-{
-  GLenum firstTextureUnit = GL_TEXTURE0 + firstTextureIndex;
-  for (int i = 0; i < count; ++i) {
-    glActiveTexture(firstTextureUnit + i);
-    glBindTexture(GL_TEXTURE_2D, 0);
-  }
-}
-
-void BindCurrentSpaceFramebuffer()
-{
+  const Framebuffer& currentLayerFramebuffer =
+    nSpaceFramebuffers[nCurrentSpaceFramebufferIndex];
+  ++nCurrentSpaceFramebufferIndex;
   glViewport(0, 0, Viewport::Width(), Viewport::Height());
-  glBindFramebuffer(
-    GL_FRAMEBUFFER, nSpaceFramebuffers[nCurrentSpaceFramebuffer].Fbo());
-}
+  glBindFramebuffer(GL_FRAMEBUFFER, currentLayerFramebuffer.Fbo());
 
-void RenderCurrentSpaceFramebuffer()
-{
+  // Perform the render passes for the layer.
+  glDepthMask(GL_FALSE);
+  collection.Render(Renderable::Type::Skybox);
+  glDepthMask(GL_TRUE);
+  collection.Render(Renderable::Type::Floater);
+
+  // Perform the post process pass.
   glDisable(GL_DEPTH_TEST);
-  const Gfx::Framebuffer& currentFramebuffer =
-    nSpaceFramebuffers[nCurrentSpaceFramebuffer];
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, currentFramebuffer.ColorTbo());
+  glBindTexture(GL_TEXTURE_2D, currentLayerFramebuffer.ColorTbo());
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  Gfx::Renderer::RenderQuad(nFullscreenVao);
+  auto& fullscreenMesh = Rsl::GetRes<Gfx::Mesh>(nFullscreenMeshId);
+  postShader->Use();
+  postShader->SetUniform("uTexture", 0);
+  int textureIndex = 1;
+  postMaterial->mUniforms.Bind(*postShader, &textureIndex);
+  fullscreenMesh.Render();
   glBindTexture(GL_TEXTURE_2D, 0);
   glEnable(GL_DEPTH_TEST);
 }
@@ -623,4 +482,5 @@ void ResizeSpaceFramebuffers()
   }
 }
 
-} // namespace Gfx::Renderer
+} // namespace Renderer
+} // namespace Gfx

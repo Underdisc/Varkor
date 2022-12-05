@@ -1,4 +1,3 @@
-#include "AssetLibrary.h"
 #include "Error.h"
 #include "Framer.h"
 #include "Input.h"
@@ -10,6 +9,8 @@
 #include "debug/Draw.h"
 #include "editor/Editor.h"
 #include "gfx/Renderer.h"
+#include "gfx/UniformVector.h"
+#include "rsl/Library.h"
 #include "world/World.h"
 
 Result VarkorInit(
@@ -21,19 +22,21 @@ Result VarkorInit(
   }
   Error::Init("log.err");
   Viewport::Init(windowName);
-  AssetLibrary::Init();
+  Gfx::UniformVector::Init();
+  Rsl::Init();
+  Gfx::Renderer::Init();
   Registrar::Init();
   Editor::Init();
   Framer::Init();
   Input::Init();
-  Gfx::Renderer::Init();
   Debug::Draw::Init();
+
   return Result();
 }
 
 void VarkorRun()
 {
-  while (Viewport::Active() || AssetLibrary::InitThreadOpen()) {
+  while (Viewport::Active() || Rsl::InitThreadOpen()) {
     Framer::Start();
 
     Temporal::Update();
@@ -44,7 +47,7 @@ void VarkorRun()
     Editor::EndFrame();
     Viewport::SwapBuffers();
     Viewport::Update();
-    AssetLibrary::HandleLoading();
+    Rsl::HandleInitialization();
 
     Framer::End();
   }
@@ -54,7 +57,7 @@ void VarkorPurge()
 {
   World::Purge();
   Gfx::Renderer::Purge();
-  AssetLibrary::Purge();
+  Rsl::Purge();
   Framer::Purge();
   Editor::Purge();
   Viewport::Purge();

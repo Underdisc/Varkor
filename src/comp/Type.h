@@ -4,6 +4,7 @@
 #include <string>
 
 #include "ds/Vector.h"
+#include "gfx/Renderable.h"
 #include "util/Delegate.h"
 
 namespace Vlk {
@@ -44,7 +45,7 @@ struct TypeData
   Util::Delegate<void, const World::Object&> mVUpdate;
   Util::Delegate<void, Vlk::Value&> mVSerialize;
   Util::Delegate<void, const Vlk::Explorer&> mVDeserialize;
-  Util::Delegate<void, const World::Object&> mVRender;
+  Util::Delegate<void, const World::Object&> mVRenderable;
   Util::Delegate<void, const World::Object&> mVEdit;
 
   template<typename Dependant, typename Dependency, typename... Rest>

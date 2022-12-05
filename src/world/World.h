@@ -3,10 +3,13 @@
 
 #include "Result.h"
 #include "ds/List.h"
+#include "rsl/ResourceId.h"
 #include "world/Space.h"
 #include "world/Types.h"
 
 namespace World {
+
+constexpr const char* nLayerExtension = ".lyr";
 
 struct Layer
 {
@@ -15,6 +18,7 @@ struct Layer
 
   std::string mName;
   MemberId mCameraId;
+  ResId mPostMaterialId;
   Space mSpace;
 };
 
@@ -29,7 +33,7 @@ void Purge();
 void Update();
 LayerIt CreateTopLayer();
 void DeleteLayer(LayerIt it);
-ValueResult<LayerIt> LoadLayer(const char* filename);
+VResult<LayerIt> LoadLayer(const char* filename);
 Result SaveLayer(LayerIt it, const char* filename);
 
 } // namespace World

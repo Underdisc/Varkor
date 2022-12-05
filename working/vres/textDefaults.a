@@ -1,0 +1,24 @@
+[
+  {
+    :Name: 'Font'
+    :Type: 'Font'
+    :Config: {
+      :File: 'vres/font/novaMono/font.ttf'
+    }
+  },
+  {
+    :Name: 'Shader'
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/DefaultText.glvf']
+    }
+  },
+  {
+    :Name: 'Material'
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/textDefaults:Shader'
+      :Uniforms: []
+    }
+  }
+]

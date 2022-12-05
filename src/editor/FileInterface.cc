@@ -1,9 +1,9 @@
 #include <dirent/dirent.h>
 #include <imgui/imgui.h>
 
-#include "AssetLibrary.h"
 #include "editor/FileInterface.h"
 #include "editor/Utility.h"
+#include "rsl/Library.h"
 
 namespace Editor {
 
@@ -23,7 +23,7 @@ void FileInterface::Show()
     fullPath = path;
   }
   else {
-    fullPath = AssLib::PrependResDirectory(path);
+    fullPath = Rsl::PrependResDirectory(path);
   }
 
   // Begin the file select window. The remaining space is the amount of space

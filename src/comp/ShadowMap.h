@@ -3,18 +3,17 @@
 
 #include <glad/glad.h>
 
-#include "AssetLibrary.h"
 #include "math/Matrix4.h"
+#include "rsl/ResourceId.h"
 #include "vlk/Valkor.h"
 #include "world/Object.h"
 
+namespace Comp {
+
 struct ShadowMap
 {
-  static AssetId smDepthShaderId;
-
   GLuint mFbo;
   GLuint mTbo;
-
   unsigned int mWidth;
   unsigned int mHeight;
   float mBias;
@@ -25,11 +24,9 @@ struct ShadowMap
 
   ~ShadowMap();
 
-  void VStaticInit();
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& val);
   void VDeserialize(const Vlk::Explorer& ex);
-  void VRender(const World::Object& owner);
   void VEdit(const World::Object& owner);
   Mat4 ProjView(const World::Object& owner) const;
 
@@ -37,5 +34,7 @@ private:
   void CreateFramebuffer();
   void DeleteFramebuffer();
 };
+
+} // namespace Comp
 
 #endif

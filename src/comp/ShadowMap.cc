@@ -1,22 +1,15 @@
 #include <imgui/imgui.h>
 
-#include "AssetLibrary.h"
 #include "Viewport.h"
 #include "comp/Camera.h"
-#include "comp/Model.h"
 #include "comp/ShadowMap.h"
 #include "comp/Sprite.h"
 #include "comp/Transform.h"
+#include "editor/Utility.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
 
-AssetId ShadowMap::smDepthShaderId = AssLib::nInvalidAssetId;
-
-void ShadowMap::VStaticInit()
-{
-  smDepthShaderId =
-    AssLib::Require<Gfx::Shader>("Depth", "vres/shader/Depth.glvf");
-}
+namespace Comp {
 
 ShadowMap::~ShadowMap()
 {
@@ -46,44 +39,9 @@ void ShadowMap::VDeserialize(const Vlk::Explorer& ex)
   CreateFramebuffer();
 }
 
-void ShadowMap::VRender(const World::Object& owner)
-{
-  // Prepare the framebuffer.
-  glViewport(0, 0, mWidth, mHeight);
-  glBindFramebuffer(GL_FRAMEBUFFER, mFbo);
-  glClear(GL_DEPTH_BUFFER_BIT);
-
-  // Prepare the depth shader.
-  Gfx::Shader& depthShader = AssLib::Get<Gfx::Shader>(smDepthShaderId);
-  depthShader.Use();
-  depthShader.SetUniform("uProjView", ProjView(owner));
-
-  // Render depth values for all models.
-  Ds::Vector<World::MemberId> slice = owner.mSpace->Slice<Comp::Model>();
-  World::Object modelOwner(owner.mSpace);
-  for (World::MemberId memberId : slice) {
-    modelOwner.mMemberId = memberId;
-    const auto& modelComp = modelOwner.Get<Comp::Model>();
-    Comp::Model::RenderOptions options;
-    options.mShader = &depthShader;
-    modelComp.Render(modelOwner, options);
-  }
-
-  // Render depth values for all sprites.
-  slice = owner.mSpace->Slice<Comp::Sprite>();
-  World::Object spriteOwner(owner.mSpace);
-  for (World::MemberId memberId : slice) {
-    spriteOwner.mMemberId = memberId;
-    const auto& spriteComp = spriteOwner.Get<Comp::Sprite>();
-    Comp::Sprite::RenderOptions options;
-    options.mShader = &depthShader;
-    spriteComp.Render(spriteOwner, options);
-  }
-  Gfx::Renderer::BindCurrentSpaceFramebuffer();
-}
-
 void ShadowMap::VEdit(const World::Object& owner)
 {
+  ImGui::PushItemWidth(-Editor::CalcBufferWidth("Height"));
   ImGui::SliderFloat("Bias", &mBias, -0.1f, 0.1f);
   int newWidth = (int)mWidth;
   ImGui::DragInt(
@@ -97,6 +55,7 @@ void ShadowMap::VEdit(const World::Object& owner)
     DeleteFramebuffer();
     CreateFramebuffer();
   }
+  ImGui::PopItemWidth();
 }
 
 Mat4 ShadowMap::ProjView(const World::Object& owner) const
@@ -146,3 +105,5 @@ void ShadowMap::DeleteFramebuffer()
   glDeleteTextures(1, &mTbo);
   glDeleteFramebuffers(1, &mFbo);
 }
+
+} // namespace Comp

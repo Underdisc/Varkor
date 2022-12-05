@@ -1,6 +1,7 @@
 #include <sstream>
 #include <utility>
 
+#include "gfx/Renderer.h"
 #include "vlk/Valkor.h"
 #include "world/World.h"
 
@@ -8,7 +9,10 @@ namespace World {
 
 Layer::Layer(): mCameraId(nInvalidMemberId) {}
 
-Layer::Layer(const std::string& name): mName(name), mCameraId(nInvalidMemberId)
+Layer::Layer(const std::string& name):
+  mName(name),
+  mCameraId(nInvalidMemberId),
+  mPostMaterialId(Gfx::Renderer::nDefaultPostMaterialId)
 {}
 
 bool nPause = true;
@@ -54,12 +58,12 @@ void DeleteLayer(LayerIt it)
   nLayers.Erase(it);
 }
 
-ValueResult<LayerIt> LoadLayer(const char* filename)
+VResult<LayerIt> LoadLayer(const char* filename)
 {
   Vlk::Value rootVal;
   Result result = rootVal.Read(filename);
   if (!result.Success()) {
-    return ValueResult<LayerIt>(std::move(result), nLayers.end());
+    return VResult<LayerIt>(nLayers.end(), std::move(result));
   }
   Vlk::Explorer rootEx(rootVal);
   Vlk::Explorer metadataEx = rootEx("Metadata");
@@ -67,14 +71,23 @@ ValueResult<LayerIt> LoadLayer(const char* filename)
   Layer& newLayer = *nLayers.Back();
   newLayer.mName = metadataEx("Name").As<std::string>("DefaultName");
   newLayer.mCameraId = metadataEx("CameraId").As<MemberId>(nInvalidMemberId);
+  Vlk::Explorer postMaterialEx = metadataEx("PostMaterialId");
+  newLayer.mPostMaterialId =
+    postMaterialEx.As<ResId>(Gfx::Renderer::nDefaultPostMaterialId);
   Vlk::Explorer spaceEx = rootEx("Space");
   if (!spaceEx.Valid()) {
     std::stringstream error;
-    error << "\"filename\" did not contain a \"Space\" pair.";
-    return ValueResult<LayerIt>(error.str(), nLayers.end());
+    error << "Layer \"" << filename << "\" missing :Space:.";
+    return VResult<LayerIt>(nLayers.end(), Result(error.str()));
   }
-  newLayer.mSpace.Deserialize(spaceEx);
-  return ValueResult<LayerIt>(nLayers.Back());
+  result = newLayer.mSpace.Deserialize(spaceEx);
+  if (!result.Success()) {
+    std::stringstream error;
+    error << "Layer \"" << filename << "\" failed deserialization.\n"
+          << result.mError;
+    return VResult<LayerIt>(nLayers.end(), Result(error.str()));
+  }
+  return VResult<LayerIt>(nLayers.Back());
 }
 
 Result SaveLayer(LayerIt it, const char* filename)

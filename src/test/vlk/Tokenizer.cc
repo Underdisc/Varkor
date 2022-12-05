@@ -21,7 +21,7 @@ std::ostream& operator<<(std::ostream& os, Vlk::Token::Type tokenType)
 void PrintTokens(const char* text)
 {
   // Tokenize the text and print the results.
-  ValueResult<Ds::Vector<Vlk::Token>> result = Vlk::Tokenize(text);
+  VResult<Ds::Vector<Vlk::Token>> result = Vlk::Tokenize(text);
   if (!result.Success()) {
     std::cout << result.mError << std::endl;
     return;

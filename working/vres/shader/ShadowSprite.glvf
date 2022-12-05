@@ -1,18 +1,18 @@
 #type vertex
 
+#include "uniformBuffers/Shadow.glh"
 #include "uniformBuffers/Universal.glh"
 
-layout(location = 0) in vec2 aPos;
+layout(location = 0) in vec3 aPos;
 
 out vec2 iTextureCoords;
 out vec4 iShadowClipPos;
 
 uniform mat4 uModel;
-uniform mat4 uShadowProjView;
 
 void main()
 {
-  vec4 worldPos = uModel * vec4(aPos, 0.0, 1.0);
+  vec4 worldPos = uModel * vec4(aPos, 1.0);
   gl_Position = uProj * uView * worldPos;
   iShadowClipPos = uShadowProjView * worldPos;
   iTextureCoords.x = aPos.x + 0.5;
@@ -22,14 +22,14 @@ void main()
 ////////////////////////////////////////////////////////////////////////////////
 #type fragment
 
+#include "uniformBuffers/Shadow.glh"
+
 out vec4 iFinalColor;
 
 in vec2 iTextureCoords;
 in vec4 iShadowClipPos;
 
 uniform sampler2D uTexture;
-uniform float uShadowBias;
-uniform sampler2D uShadowTexture;
 
 void main()
 {

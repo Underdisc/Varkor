@@ -1,12 +1,23 @@
 #ifndef editor_gizmo_Gizmos_h
 #define editor_gizmo_Gizmos_h
 
+#include "debug/MemLeak.h"
 #include "math/Quaternion.h"
 #include "math/Vector.h"
+#include "rsl/ResourceId.h"
 #include "world/Types.h"
 
-namespace Editor::Gizmos {
+namespace Editor {
+namespace Gizmos {
 
+extern ResId nArrowMeshId;
+extern ResId nCubeMeshId;
+extern ResId nScaleMeshId;
+extern ResId nSphereMeshId;
+extern ResId nTorusMeshId;
+extern ResId nColorShaderId;
+
+void Init();
 void PurgeUnneeded();
 void PurgeAll();
 
@@ -32,7 +43,7 @@ template<typename GizmoType>
 GizmoType* GetInstance()
 {
   if (Gizmo<GizmoType>::smInstance == nullptr) {
-    Gizmo<GizmoType>::smInstance = new GizmoType;
+    Gizmo<GizmoType>::smInstance = alloc GizmoType;
   }
   // We prevent gizmo deletion during the next purge attempt.
   Gizmo<GizmoType>::smDestruct = false;
@@ -60,6 +71,7 @@ void TryPurge()
   Gizmo<GizmoType>::smDestruct = true;
 }
 
-} // namespace Editor::Gizmos
+} // namespace Gizmos
+} // namespace Editor
 
 #endif

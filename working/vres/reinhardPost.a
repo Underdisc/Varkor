@@ -1,0 +1,20 @@
+[
+  {
+    :Name: 'ReinhardShader'
+    :Type: 'Shader'
+    :Config: {
+      :Files: [
+        'vres/shader/FullscreenTexture.glv',
+        'vres/shader/ReinhardPostProcess.glf'
+      ]
+    }
+  },
+  {
+    :Name: 'ReinhardMaterial'
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/reinhardPost:ReinhardShader'
+      :Uniforms: []
+    }
+  }
+]

@@ -51,7 +51,7 @@ std::string Explorer::Path() const
 
 const std::string& Explorer::Key() const
 {
-  LogAbortIf(!Valid(), "Key of an invalid Explorer cannot be optained.");
+  LogAbortIf(!Valid(), "Key of an invalid Explorer cannot be obtained.");
   if (!mIsPair) {
     std::stringstream error;
     error << Path() << " is not a Pair.";
@@ -74,12 +74,17 @@ bool Explorer::Valid() const
   return mValue != nullptr;
 }
 
+bool Explorer::Valid(Value::Type type) const
+{
+  return Valid() && mValue->GetType() == type;
+}
+
 Explorer Explorer::operator()(const std::string& key) const
 {
   if (!Valid()) {
     return Explorer(this);
   }
-  const Pair* pair = mValue->TryGetPair(key);
+  const Pair* pair = mValue->TryGetConstPair(key);
   if (pair == nullptr) {
     std::stringstream error;
     error << Path() << " did not contain Pair with key :" << key << ":";
@@ -94,7 +99,7 @@ Explorer Explorer::operator()(size_t index) const
   if (!Valid()) {
     return Explorer(this);
   }
-  const Pair* pair = mValue->TryGetPair(index);
+  const Pair* pair = mValue->TryGetConstPair(index);
   if (pair == nullptr) {
     std::stringstream error;
     error << Path() << " did not contain Pair at (" << index << ")";
@@ -109,7 +114,7 @@ Explorer Explorer::operator[](size_t index) const
   if (!Valid()) {
     return Explorer(this);
   }
-  const Value* value = mValue->TryGetValue(index);
+  const Value* value = mValue->TryGetConstValue(index);
   if (value == nullptr) {
     std::stringstream error;
     error << Path() << " did not contain Value at [" << index << "]";

@@ -1,5 +1,5 @@
 #include "Type.h"
-#include "AssetLibrary.h"
+#include "rsl/Library.h"
 #include "vlk/Valkor.h"
 
 namespace Comp {
@@ -138,7 +138,7 @@ void AssessComponentsFile()
   // Ensure that the components file contains the required information and
   // initialize the version.
   Vlk::Value rootVal;
-  std::string componentsFile = AssLib::PrependResDirectory(nComponentsFilename);
+  std::string componentsFile = Rsl::PrependResDirectory(nComponentsFilename);
   Result result = rootVal.Read(componentsFile.c_str());
   if (!result.Success()) {
     LogError(result.mError.c_str());
@@ -192,7 +192,7 @@ void SaveComponentsFile()
       dependenciesVal[i] = dependencyTypeData.mName;
     }
   }
-  std::string componentsFile = AssLib::PrependResDirectory(nComponentsFilename);
+  std::string componentsFile = Rsl::PrependResDirectory(nComponentsFilename);
   Result result = rootVal.Write(componentsFile.c_str());
   LogErrorIf(!result.Success(), result.mError.c_str());
 }

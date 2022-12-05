@@ -8,7 +8,7 @@
 
 // clang-format off
 #include "comp/Transform.h"
-#include "comp/Model.h"
+#include "comp/Mesh.h"
 #include "comp/Sprite.h"
 #include "comp/Text.h"
 #include "comp/AlphaColor.h"
@@ -18,8 +18,7 @@
 #include "comp/SpotLight.h"
 #include "comp/Skybox.h"
 #include "comp/ShadowMap.h"
-#include "comp/DefaultPostProcess.h"
-#include "comp/ExposurePostProcess.h"
+#include "comp/Model.h"
 // clang-format on
 
 namespace Registrar {
@@ -28,8 +27,8 @@ void RegisterTypes()
 {
   using namespace Comp;
   Type<Transform>::Register();
-  Type<Model>::Register();
-  Type<Model>::AddDependencies<Transform>();
+  Type<Mesh>::Register();
+  Type<Mesh>::AddDependencies<Transform>();
   Type<Sprite>::Register();
   Type<Sprite>::AddDependencies<Transform>();
   Type<Text>::Register();
@@ -43,8 +42,8 @@ void RegisterTypes()
   Type<Skybox>::Register();
   Type<ShadowMap>::Register();
   Type<ShadowMap>::AddDependencies<Camera>();
-  Type<DefaultPostProcess>::Register();
-  Type<ExposurePostProcess>::Register();
+  Type<Model>::Register();
+  Type<Model>::AddDependencies<Transform>();
 }
 
 void (*nRegisterCustomTypes)() = nullptr;

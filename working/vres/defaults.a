@@ -1,0 +1,59 @@
+[
+  {
+    :Name: 'Cubemap'
+    :Type: 'Cubemap'
+    :Config: {
+      :Specification: 'Single'
+      :File: 'vres/image/questionmarkSquare.png'
+      :Filter: 'Nearest'
+    }
+  },
+  {
+    :Name: 'Font'
+    :Type: 'Font'
+    :Config: {
+      :File: 'vres/font/novaMono/font.ttf'
+    }
+  },
+  {
+    :Name: 'Image'
+    :Type: 'Image'
+    :Config: {
+      :File: 'vres/image/questionmarkSquare.png'
+    }
+  },
+  {
+    :Name: 'Material'
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/defaults:Shader'
+      :Uniforms: []
+    }
+  },
+  {
+    :Name: 'Mesh'
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/questionmarkCube.obj'
+      :FlipUvs: '0'
+      :Scale: '1'
+    }
+  },
+  {
+    :Name: 'Model'
+    :Type: 'Model'
+    :Config: {
+      :File: 'vres/model/questionmarkCube.obj'
+      :FlipUvs: '0'
+      :ShaderId: 'vres/defaults:Shader'
+      :Scale: '1'
+    }
+  },
+  {
+    :Name: 'Shader'
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/Default.glv', 'vres/shader/Default.glf']
+    }
+  }
+]

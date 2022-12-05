@@ -25,7 +25,7 @@ Vector<T>::Vector(const Vector<T>& other):
     return;
   }
   mData = CreateAllocation(other.mSize);
-  Util::Copy<T>(other.mData, mData, other.mSize);
+  Util::CopyConstructRange<T>(other.mData, mData, other.mSize);
 }
 
 template<typename T>
@@ -102,16 +102,20 @@ void Vector<T>::Insert(size_t index, const T& value)
     Push(value);
     return;
   }
-  VerifyIndex(index);
-
-  if (mSize >= mCapacity) {
-    Grow();
-  }
-  new (mData + mSize) T();
-  for (size_t i = mSize; i > index; --i) {
-    mData[i] = std::move(mData[i - 1]);
-  }
+  CreateGap(index);
   mData[index] = value;
+  ++mSize;
+}
+
+template<typename T>
+void Vector<T>::Insert(size_t index, T&& value)
+{
+  if (index == mSize) {
+    Push(std::move(value));
+    return;
+  }
+  CreateGap(index);
+  mData[index] = std::move(value);
   ++mSize;
 }
 
@@ -127,9 +131,7 @@ void Vector<T>::Pop()
 template<typename T>
 void Vector<T>::Clear()
 {
-  for (size_t i = 0; i < mSize; ++i) {
-    mData[i].~T();
-  }
+  Util::DestructRange<T>(mData, mSize);
   mSize = 0;
 }
 
@@ -137,10 +139,10 @@ template<typename T>
 void Vector<T>::Remove(size_t index)
 {
   VerifyIndex(index);
-  mData[index].~T();
   for (size_t i = index + 1; i < mSize; ++i) {
     mData[i - 1] = std::move(mData[i]);
   }
+  mData[mSize - 1].~T();
   --mSize;
 }
 
@@ -191,7 +193,8 @@ void Vector<T>::Shrink()
 
   T* oldData = mData;
   mData = CreateAllocation(mSize);
-  Util::MoveData(oldData, mData, mSize);
+  Util::MoveConstructRange<T>(oldData, mData, mSize);
+  Util::DestructRange<T>(oldData, mSize);
   DeleteAllocation(oldData);
   mCapacity = mSize;
 }
@@ -265,20 +268,41 @@ T& Vector<T>::operator[](size_t index)
 template<typename T>
 Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 {
-  Clear();
-  if (other.mSize <= mCapacity) {
-    Util::Copy<T>(other.mData, mData, mSize);
+  // Handle cases where this vector's size is larger than or equal to the
+  // other's.
+  if (mSize == other.mSize) {
+    Util::CopyAssignRange<T>(other.mData, mData, mSize);
+    return *this;
+  }
+  if (mSize > other.mSize) {
+    Util::CopyAssignRange<T>(other.mData, mData, other.mSize);
+    Util::DestructRange<T>(mData + other.mSize, mSize - other.mSize);
     mSize = other.mSize;
     return *this;
   }
 
+  // Handle cases where this vector's size is smaller than the other's.
+  if (mCapacity >= other.mSize) {
+    Util::CopyAssignRange<T>(other.mData, mData, mSize);
+    T* from = other.mData + mSize;
+    T* to = mData + mSize;
+    size_t count = other.mSize - mSize;
+    Util::CopyConstructRange(from, to, count);
+    mSize = other.mSize;
+    return *this;
+  }
+
+  // The other vector's size is larger and this vector needs a larger capacity
+  // to contain all of the elements from it.
   if (mData != nullptr) {
+    Util::DestructRange<T>(mData, mSize);
     DeleteAllocation(mData);
   }
-  mData = CreateAllocation(other.mSize);
-  mSize = other.mSize;
+  T* newData = CreateAllocation(other.mSize);
+  Util::CopyConstructRange<T>(other.mData, newData, other.mSize);
   mCapacity = other.mSize;
-  Util::Copy<T>(other.mData, mData, mSize);
+  mSize = other.mSize;
+  mData = newData;
   return *this;
 }
 
@@ -334,6 +358,19 @@ void Vector<T>::VerifyIndex(size_t index) const
 }
 
 template<typename T>
+void Vector<T>::CreateGap(size_t index)
+{
+  VerifyIndex(index);
+  if (mSize >= mCapacity) {
+    Grow();
+  }
+  new (mData + mSize) T(std::move(*(mData + mSize - 1)));
+  for (size_t i = mSize - 1; i > index; --i) {
+    mData[i] = std::move(mData[i - 1]);
+  }
+}
+
+template<typename T>
 void Vector<T>::Grow()
 {
   if (mData == nullptr) {
@@ -354,13 +391,11 @@ void Vector<T>::Grow(size_t newCapacity)
     "The new capacity must be greater than the current capacity.");
 
   T* newData = CreateAllocation(newCapacity);
-  for (size_t i = 0; i < mSize; ++i) {
-    new (newData + i) T(std::move(mData[i]));
-    mData[i].~T();
-  }
-  mCapacity = newCapacity;
+  Util::MoveConstructRange(mData, newData, mSize);
+  Util::DestructRange(mData, mSize);
   DeleteAllocation(mData);
   mData = newData;
+  mCapacity = newCapacity;
 }
 
 template<typename T>
