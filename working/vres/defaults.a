@@ -36,6 +36,7 @@
     :Config: {
       :File: 'vres/model/questionmarkCube.obj'
       :FlipUvs: '0'
+      :Scale: '1'
     }
   },
   {
@@ -45,6 +46,7 @@
       :File: 'vres/model/questionmarkCube.obj'
       :FlipUvs: '0'
       :ShaderId: 'vres/defaults:Shader'
+      :Scale: '1'
     }
   },
   {

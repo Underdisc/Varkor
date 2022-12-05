@@ -4,6 +4,8 @@
     :Type: 'Mesh'
     :Config: {
       :File: 'vres/model/arrow.obj'
+      :FlipUvs: '0'
+      :Scale: '1'
     }
   },
   {
@@ -11,6 +13,8 @@
     :Type: 'Mesh'
     :Config: {
       :File: 'vres/model/cube.obj'
+      :FlipUvs: '0'
+      :Scale: '1'
     }
   },
   {
@@ -18,6 +22,8 @@
     :Type: 'Mesh'
     :Config: {
       :File: 'vres/model/scale.obj'
+      :FlipUvs: '0'
+      :Scale: '1'
     }
   },
   {
@@ -25,6 +31,8 @@
     :Type: 'Mesh'
     :Config: {
       :File: 'vres/model/sphere.obj'
+      :FlipUvs: '0'
+      :Scale: '1'
     }
   },
   {
@@ -33,6 +41,7 @@
     :Config: {
       :File: 'vres/model/torus.obj'
       :FlipUvs: '0'
+      :Scale: '1'
     }
   },
   {
