@@ -24,6 +24,7 @@ Asset::Status GetAssetStatus(const std::string& name);
 VResult<Vlk::Value*> AddConfig(const std::string& assetName);
 void RemConfig(const std::string& assetName);
 Vlk::Value& GetConfig(const std::string& assetName);
+void WriteConfig(const std::string& assetName);
 
 template<typename T>
 ResId GetDefaultResId();

@@ -322,6 +322,22 @@ void LibraryInterface::ShowAssetEntry(
       ImGui::TextDisabled("Initializing", ImVec2(-1, 0));
     }
 
+    // Add a resource to the asset.
+    if (ImGui::Selectable("Create Resource")) {
+      VResult<Vlk::Value*> addConfigResult = Rsl::AddConfig(assetName);
+      if (addConfigResult.Success()) {
+        Vlk::Value newResVal;
+        newResVal("Name") = "NewResource";
+        newResVal("Type") = "Invalid";
+        addConfigResult.mValue->EmplaceValue(std::move(newResVal));
+        Rsl::WriteConfig(assetName);
+        Rsl::RemConfig(assetName);
+      }
+      else {
+        LogError(addConfigResult.mError.c_str());
+      }
+    }
+
     // Switch between defined or initialized resources.
     const char* definedText = "Show Defined Resources";
     const char* initializedText = "Show Initialized Resources";

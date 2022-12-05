@@ -114,6 +114,15 @@ Vlk::Value& GetConfig(const std::string& assetName)
   return nSharedConfigs.Get(assetName).mConfig;
 }
 
+void WriteConfig(const std::string& assetName)
+{
+  Vlk::Value& assetVal = GetConfig(assetName);
+  std::string assetFile = assetName + Rsl::nAssetExtension;
+  VResult<std::string> result = Rsl::ResolveResPath(assetFile);
+  LogAbortIf(!result.Success(), result.mError.c_str());
+  assetVal.Write(result.mValue.c_str());
+}
+
 std::string PrependResDirectory(const std::string& path)
 {
   return Options::nProjectDirectory + "res/" + path;
