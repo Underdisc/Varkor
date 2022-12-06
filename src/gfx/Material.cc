@@ -118,9 +118,19 @@ void Material::EditConfig(Vlk::Value* configValP)
     Vlk::Value& valueVal = uniformVal("Value");
     ImGui::PushItemWidth(-FLT_MIN);
     ImGui::PushID((void*)&valueVal);
-    if (typeId == UniformTypeId::Float) {
+    if (typeId == UniformTypeId::Int) {
+      int value = valueVal.As<int>(0);
+      ImGui::DragInt("Value", &value, dragSpeed);
+      valueVal = value;
+    }
+    else if (typeId == UniformTypeId::Float) {
       float value = valueVal.As<float>(0.0f);
       ImGui::DragFloat("Value", &value, dragSpeed);
+      valueVal = value;
+    }
+    else if (typeId == UniformTypeId::Vec3) {
+      Vec3 value = valueVal.As<Vec3>({0.0f, 0.0f, 0.0f});
+      ImGui::DragFloat3("Value", value.mD, dragSpeed);
       valueVal = value;
     }
     else if (typeId == UniformTypeId::Vec4) {
@@ -195,8 +205,14 @@ Result Material::Init(const Vlk::Explorer& configEx)
       return Result(uniformEx.Path() + " missing :Value:.");
     }
     switch (typeId) {
+    case UniformTypeId::Int:
+      mUniforms.Add<int>(uniformName, valueEx.As<int>(0));
+      break;
     case UniformTypeId::Float:
       mUniforms.Add<float>(uniformName, valueEx.As<float>(0.0f));
+      break;
+    case UniformTypeId::Vec3:
+      mUniforms.Add<Vec3>(uniformName, valueEx.As<Vec3>({0.0f, 0.0f, 0.0f}));
       break;
     case UniformTypeId::Vec4:
       mUniforms.Add<Vec4>(
