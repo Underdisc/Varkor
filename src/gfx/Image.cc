@@ -71,7 +71,7 @@ Result Image::Init(const std::string& file)
     stbi_load(absoluteFile.c_str(), &width, &height, &channels, 0);
   if (imageData == nullptr) {
     return Result(
-      "File \"" + absoluteFile + "\" failed load.\n " + stbi_failure_reason());
+      "File \"" + absoluteFile + "\" failed load.\n" + stbi_failure_reason());
   }
   Init(imageData, width, height, channels);
   stbi_image_free(imageData);
