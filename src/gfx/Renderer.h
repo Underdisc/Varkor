@@ -23,8 +23,6 @@ void Purge();
 void Clear();
 void Render();
 
-void RenderMemberIds(
-  const World::Space& space, const Mat4& view, const Mat4& proj);
 World::MemberId HoveredMemberId(
   const World::Space& space, const Mat4& view, const Mat4& proj);
 void RenderSpace(

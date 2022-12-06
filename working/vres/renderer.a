@@ -17,10 +17,7 @@
     :Name: 'DefaultPostShader'
     :Type: 'Shader'
     :Config: {
-      :Files: [
-        'vres/shader/FullscreenTexture.glv',
-        'vres/shader/DefaultPostProcess.glf'
-      ]
+      :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/DefaultPostProcess.glf']
     }
   },
   {
@@ -29,6 +26,32 @@
     :Config: {
       :ShaderId: 'vres/renderer:DefaultPostShader'
       :Uniforms: []
+    }
+  },
+  {
+    :Name: 'MemberOutlineShader'
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/MemberOutline.glf']
+    }
+  },
+  {
+    :Name: 'MemberOutlineMaterial'
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/renderer:MemberOutlineShader'
+      :Uniforms: [
+        {
+          :Name: 'uWidth'
+          :Type: 'Int'
+          :Value: '3'
+        },
+        {
+          :Name: 'uColor'
+          :Type: 'Vec4'
+          :Value: ['1', '1', '1', '1']
+        }
+      ]
     }
   }
 ]
