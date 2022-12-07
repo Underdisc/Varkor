@@ -258,9 +258,9 @@ Result Material::Init(
 
   // Load textures and create their respective uniforms.
   Rsl::Asset& initAsset = Rsl::Asset::GetInitAsset();
-  aiTextureType textureTypes[2] = {
-    aiTextureType_DIFFUSE, aiTextureType_SPECULAR};
-  for (int i = 0; i < 2; ++i) {
+  aiTextureType textureTypes[3] = {
+    aiTextureType_DIFFUSE, aiTextureType_SPECULAR, aiTextureType_NORMALS};
+  for (int i = 0; i < 3; ++i) {
     aiTextureType aiType = textureTypes[i];
     const char* preUniformName = GetUniformName(aiType);
     unsigned int textureCount = assimpMat.GetTextureCount(aiType);
@@ -324,6 +324,7 @@ const char* Material::GetUniformName(aiTextureType aiType)
   switch (aiType) {
   case aiTextureType_DIFFUSE: return "uDiffuse";
   case aiTextureType_SPECULAR: return "uSpecular";
+  case aiTextureType_NORMALS: return "uNormals";
   }
   return "uOther";
 }
