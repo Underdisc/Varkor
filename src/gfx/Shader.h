@@ -36,13 +36,15 @@ struct Shader
   enum class SubType
   {
     Vertex,
+    Geometry,
     Fragment,
     Count,
     Invalid,
   };
-  constexpr static const char* smSubTypeStrings[] = {"vertex", "fragment"};
+  constexpr static const char* smSubTypeStrings[] = {
+    "vertex", "geometry", "fragment"};
   constexpr static GLenum smGlSubTypes[] = {
-    GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+    GL_VERTEX_SHADER, GL_GEOMETRY_SHADER, GL_FRAGMENT_SHADER};
   static SubType GetSubType(const std::string& subTypeString);
 
   // The information needed to compile subshader source code.

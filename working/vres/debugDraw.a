@@ -5,5 +5,12 @@
     :Config: {
       :Files: ['vres/shader/DebugLine.glv', 'vres/shader/Color.glf']
     }
+  },
+  {
+    :Name: 'TbnShader'
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/TbnVectors.glvgf']
+    }
   }
 ]

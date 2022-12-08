@@ -1,0 +1,71 @@
+#type vertex
+#include "vres/shader/uniformBuffers/Universal.glh"
+
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aTangent;
+layout(location = 2) in vec3 aBitangent;
+layout(location = 3) in vec3 aNormal;
+
+out VsOut
+{
+  vec3 mTangent;
+  vec3 mBitangent;
+  vec3 mNormal;
+} vsOut;
+
+uniform mat4 uModel;
+
+void main()
+{
+  mat3 linearModel = mat3(uModel);
+  vsOut.mTangent = linearModel * aTangent;
+  vsOut.mBitangent = linearModel * aBitangent;
+  vsOut.mNormal = linearModel * aNormal;
+  gl_Position =  uModel * vec4(aPos, 1.0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#type geometry
+#include "vres/shader/uniformBuffers/Universal.glh"
+
+layout(triangles) in;
+layout(line_strip, max_vertices = 6) out;
+
+in VsOut {
+  vec3 mTangent;
+  vec3 mBitangent;
+  vec3 mNormal;
+} vsOut[];
+
+out vec3 iColor;
+
+void EmitVector(vec3 vector, vec3 color)
+{
+  iColor = color;
+  const float magnitude = 0.1f;
+  vec4 position = gl_in[0].gl_Position;
+  gl_Position = uProj * uView * position;
+  EmitVertex();
+  gl_Position = uProj * uView * (position + vec4(vector * magnitude, 0.0));
+  EmitVertex();
+  EndPrimitive();
+}
+
+void main()
+{
+  EmitVector(normalize(vsOut[0].mTangent), vec3(1.0, 0.0, 0.0));
+  EmitVector(normalize(vsOut[0].mBitangent), vec3(0.0, 1.0, 0.0));
+  EmitVector(normalize(vsOut[0].mNormal), vec3(0.0, 0.0, 1.0));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#type fragment
+
+in vec3 iColor;
+
+out vec4 iFinalColor;
+
+void main()
+{
+  iFinalColor = vec4(iColor, 1.0);
+}
