@@ -17,7 +17,10 @@ unsigned int Mesh::AttributesSize(unsigned int attributes)
     size += sizeof(Vec3);
   }
   if (attributes & Attribute::Tangent) {
-    size += sizeof(Vec3) * 2;
+    size += sizeof(Vec3);
+  }
+  if (attributes & Attribute::Bitagent) {
+    size += sizeof(Vec3);
   }
   if (attributes & Attribute::Normal) {
     size += sizeof(Vec3);
