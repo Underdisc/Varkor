@@ -26,13 +26,13 @@ vec3 CalcSpecular(
   vec3 lightDir,
   vec3 viewDir,
   vec3 lightColor,
-  vec3 sample,
+  vec3 specularSample,
   float exponent)
 {
   vec3 reflectDir = reflect(-lightDir, normal);
   float factor = max(dot(viewDir, reflectDir), 0.0);
   factor = pow(factor, exponent);
-  return factor * lightColor * sample;
+  return factor * lightColor * specularSample;
 }
 
 float CalcAttenuation(float dist, float constant, float linear, float quadratic)
