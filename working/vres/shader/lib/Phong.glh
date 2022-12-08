@@ -12,13 +12,13 @@ vec3 BlinnSpecular(
   vec3 lightDir,
   vec3 viewDir,
   vec3 lightColor,
-  vec3 sample,
+  vec3 specularSample,
   float exponent)
 {
   vec3 halfway = normalize(lightDir + viewDir);
   float factor = max(dot(normal, halfway), 0.0);
   factor = pow(factor, exponent);
-  return factor * lightColor * sample;
+  return factor * lightColor * specularSample;
 }
 
 vec3 CalcSpecular(
