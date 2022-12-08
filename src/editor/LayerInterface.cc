@@ -46,6 +46,9 @@ void LayerInterface::Show()
     }
   }
 
+  DropResourceIdWidget(
+    Rsl::ResTypeId::Material, &mLayerIt->mPostMaterialId, "Post");
+
   // Display a selectable list of all members in the layer's space.
   if (ImGui::Button("Create Member", ImVec2(-1, 0))) {
     space.CreateMember();
