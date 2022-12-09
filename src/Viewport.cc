@@ -94,7 +94,7 @@ void ResizeCallback(GLFWwindow* window, int width, int height)
 {
   nWidth = width;
   nHeight = height;
-  Gfx::Renderer::ResizeSpaceFramebuffers();
+  Gfx::Renderer::LayerFramebuffers::Resize();
 }
 
 } // namespace Viewport

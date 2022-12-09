@@ -36,9 +36,6 @@ GLuint nUniversalUniformBufferVbo;
 GLuint nLightsUniformBufferVbo;
 GLuint nShadowUniformBufferVbo;
 
-size_t nCurrentSpaceFramebufferIndex = 0;
-Ds::Vector<Framebuffer> nSpaceFramebuffers;
-
 bool nMemberIdFramebufferUsed;
 Framebuffer* nMemberIdFramebuffer;
 bool nOutlineFramebufferUsed;
@@ -155,7 +152,7 @@ void Init()
 
 void Purge()
 {
-  nSpaceFramebuffers.Clear();
+  LayerFramebuffers::smInUse.Clear();
   if (nMemberIdFramebuffer != nullptr) {
     delete nMemberIdFramebuffer;
   }
@@ -166,20 +163,8 @@ void Purge()
 
 void Clear()
 {
-  // Remove any space framebuffers that were not used during the last render and
-  // clear those that were used.
-  size_t popCount = nSpaceFramebuffers.Size() - nCurrentSpaceFramebufferIndex;
-  for (size_t i = 0; i < popCount; ++i) {
-    nSpaceFramebuffers.Pop();
-  }
-  for (size_t i = 0; i < nSpaceFramebuffers.Size(); ++i) {
-    glBindFramebuffer(GL_FRAMEBUFFER, nSpaceFramebuffers[i].Fbo());
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  }
-  nCurrentSpaceFramebufferIndex = 0;
-
-  // Clear the default framebuffer.
+  // Clear all framebuffers.
+  LayerFramebuffers::Clear();
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -417,6 +402,7 @@ const Framebuffer& GetMemberIdFramebuffer()
   options.mInternalFormat = GL_R32I;
   options.mFormat = GL_RED_INTEGER;
   options.mPixelType = GL_INT;
+  options.mMultisample = false;
   nMemberIdFramebuffer = alloc Framebuffer(options);
   return *nMemberIdFramebuffer;
 }
@@ -433,6 +419,7 @@ const Framebuffer& GetOutlineFramebuffer()
   options.mInternalFormat = GL_RGBA8;
   options.mFormat = GL_RGBA;
   options.mPixelType = GL_UNSIGNED_BYTE;
+  options.mMultisample = false;
   nOutlineFramebuffer = alloc Framebuffer(options);
   return *nOutlineFramebuffer;
 }
@@ -534,20 +521,9 @@ void RenderSpace(
   InitializeShadowUniformBuffer(space, &collection);
 
   // Get the next space framebuffer that hasn't been rendered to and bind it.
-  if (nCurrentSpaceFramebufferIndex >= nSpaceFramebuffers.Size()) {
-    Framebuffer::Options options;
-    options.mWidth = Viewport::Width();
-    options.mHeight = Viewport::Height();
-    options.mInternalFormat = GL_RGBA16F;
-    options.mFormat = GL_RGBA;
-    options.mPixelType = GL_HALF_FLOAT;
-    nSpaceFramebuffers.Emplace(options);
-  }
-  const Framebuffer& currentLayerFramebuffer =
-    nSpaceFramebuffers[nCurrentSpaceFramebufferIndex];
-  ++nCurrentSpaceFramebufferIndex;
+  const LayerFramebuffers& fbs = LayerFramebuffers::GetNext();
   glViewport(0, 0, Viewport::Width(), Viewport::Height());
-  glBindFramebuffer(GL_FRAMEBUFFER, currentLayerFramebuffer.Fbo());
+  glBindFramebuffer(GL_FRAMEBUFFER, fbs.mMs.Fbo());
 
   // Perform the render passes for the layer.
   glDepthMask(GL_FALSE);
@@ -555,10 +531,25 @@ void RenderSpace(
   glDepthMask(GL_TRUE);
   collection.Render(Renderable::Type::Floater);
 
+  // Blit the multisample buffer into the blit buffer.
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, fbs.mMs.Fbo());
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbs.mBlit.Fbo());
+  glBlitFramebuffer(
+    0,
+    0,
+    Viewport::Width(),
+    Viewport::Height(),
+    0,
+    0,
+    Viewport::Width(),
+    Viewport::Height(),
+    GL_COLOR_BUFFER_BIT,
+    GL_NEAREST);
+
   // Perform the post process pass.
   glDisable(GL_DEPTH_TEST);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, currentLayerFramebuffer.ColorTbo());
+  glBindTexture(GL_TEXTURE_2D, fbs.mBlit.ColorTbo());
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   auto& fullscreenMesh = Rsl::GetRes<Gfx::Mesh>(nFullscreenMeshId);
   postShader->Use();
@@ -570,11 +561,59 @@ void RenderSpace(
   glEnable(GL_DEPTH_TEST);
 }
 
-void ResizeSpaceFramebuffers()
+int LayerFramebuffers::smNext;
+Ds::Vector<LayerFramebuffers> LayerFramebuffers::smInUse;
+
+const LayerFramebuffers& LayerFramebuffers::GetNext()
 {
-  for (Gfx::Framebuffer& framebuffer : nSpaceFramebuffers) {
-    framebuffer.Resize(Viewport::Width(), Viewport::Height());
+  if (smNext >= smInUse.Size()) {
+    ++smNext;
+    smInUse.Emplace();
+    return smInUse.Top();
   }
+  return smInUse[smNext++];
+}
+
+void LayerFramebuffers::Clear()
+{
+  // Remove framebuffers that haven't been used and clear the rest.
+  size_t popCount = smInUse.Size() - smNext;
+  for (size_t i = 0; i < popCount; ++i) {
+    smInUse.Pop();
+  }
+  for (LayerFramebuffers& toClear : smInUse) {
+    glBindFramebuffer(GL_FRAMEBUFFER, toClear.mMs.Fbo());
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
+  smNext = 0;
+}
+
+void LayerFramebuffers::Resize()
+{
+  for (LayerFramebuffers& toResize : smInUse) {
+    toResize.mMs.Resize(Viewport::Width(), Viewport::Height());
+    toResize.mBlit.Resize(Viewport::Width(), Viewport::Height());
+  }
+}
+
+LayerFramebuffers::LayerFramebuffers()
+{
+  Framebuffer::Options msOptions;
+  msOptions.mWidth = Viewport::Width();
+  msOptions.mHeight = Viewport::Height();
+  msOptions.mInternalFormat = GL_RGBA16F;
+  msOptions.mMultisample = true;
+  mMs.Init(msOptions);
+
+  Framebuffer::Options blitOptions;
+  blitOptions.mWidth = Viewport::Width();
+  blitOptions.mHeight = Viewport::Height();
+  blitOptions.mInternalFormat = GL_RGBA16F;
+  blitOptions.mFormat = GL_RGBA;
+  blitOptions.mPixelType = GL_HALF_FLOAT;
+  blitOptions.mMultisample = false;
+  mBlit.Init(blitOptions);
 }
 
 } // namespace Renderer

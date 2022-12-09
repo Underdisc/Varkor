@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 
 #include "Result.h"
+#include "gfx/Framebuffer.h"
 #include "gfx/Shader.h"
 #include "math/Matrix4.h"
 #include "world/Space.h"
@@ -41,6 +42,20 @@ void ResizeSpaceFramebuffers();
 // todo: This really shouldn't be exposed by the Renderer.
 void InitializeUniversalUniformBuffer(
   const Mat4& view, const Mat4& proj, const Vec3& viewPos = {0.0f, 0.0f, 0.0f});
+
+struct LayerFramebuffers
+{
+  static Ds::Vector<LayerFramebuffers> smInUse;
+  static int smNext;
+
+  static const LayerFramebuffers& GetNext();
+  static void Clear();
+  static void Resize();
+
+  LayerFramebuffers();
+  Framebuffer mMs;
+  Framebuffer mBlit;
+};
 
 } // namespace Renderer
 } // namespace Gfx
