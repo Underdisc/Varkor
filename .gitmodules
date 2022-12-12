@@ -7,3 +7,6 @@
 [submodule "ext/sub/assimp"]
 	path = ext/sub/assimp
 	url = https://github.com/assimp/assimp
+[submodule "ext/sub/glfw"]
+	path = ext/sub/glfw
+	url = https://github.com/glfw/glfw.git
