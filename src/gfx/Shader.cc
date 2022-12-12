@@ -303,6 +303,11 @@ Result Shader::CreateProgram(const Ds::Vector<CompileInfo>& allCompileInfo)
   for (const CompileInfo& compileInfo : allCompileInfo) {
     GLenum newSubType = smGlSubTypes[(int)compileInfo.mSubType];
     GLuint newSubShaderId = glCreateShader(newSubType);
+    if (newSubShaderId == 0) {
+      result.mError += "\"";
+      result.mError += smSubTypeStrings[(int)compileInfo.mSubType];
+      result.mError += "\" subshader creation failed.\n";
+    }
     Result compileResult = CompileSubShader(compileInfo, newSubShaderId);
     if (!compileResult.Success()) {
       result.mError += compileResult.mError + '\n';
