@@ -6,6 +6,8 @@
 namespace Viewport {
 
 void ResizeCallback(GLFWwindow* window, int width, int height);
+const char* ErrorCodeString(int code);
+void ErrorCallback(int code, const char* description);
 
 GLFWwindow* nWindow;
 GLFWwindow* nSharedWindow;
@@ -16,6 +18,7 @@ int nHeight;
 void Init(const char* windowName, bool visible)
 {
   // Create a maximized window and an opengl context.
+  glfwSetErrorCallback(ErrorCallback);
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -95,6 +98,34 @@ void ResizeCallback(GLFWwindow* window, int width, int height)
   nWidth = width;
   nHeight = height;
   Gfx::Renderer::LayerFramebuffers::Resize();
+}
+
+const char* ErrorCodeString(int code)
+{
+  switch (code) {
+  case GLFW_NO_ERROR: return "GLFW_NO_ERROR";
+  case GLFW_NOT_INITIALIZED: return "GLFW_NOT_INITIALIZED";
+  case GLFW_NO_CURRENT_CONTEXT: return "GLFW_NO_CURRENT_CONTEXT";
+  case GLFW_INVALID_ENUM: return "GLFW_INVALID_ENUM";
+  case GLFW_INVALID_VALUE: return "GLFW_INVALID_VALUE";
+  case GLFW_OUT_OF_MEMORY: return "GLFW_OUT_OF_MEMORY";
+  case GLFW_API_UNAVAILABLE: return "GLFW_API_UNAVAILABLE";
+  case GLFW_VERSION_UNAVAILABLE: return "GLFW_VERSION_UNAVAILABLE";
+  case GLFW_PLATFORM_ERROR: return "GLFW_PLATFORM_ERROR";
+  case GLFW_FORMAT_UNAVAILABLE: return "GLFW_FORMAT_UNAVAILABLE";
+  case GLFW_NO_WINDOW_CONTEXT: return "GLFW_NO_WINDOW_CONTEXT";
+  }
+  return "GLFW_NO_ERROR";
+}
+
+void ErrorCallback(int code, const char* description)
+{
+  std::string error = "GlfwError(";
+  error += ErrorCodeString(code);
+  error += ")\n  ";
+  error += description;
+  Error::LogString(error.c_str());
+  Error::StackTrace();
 }
 
 } // namespace Viewport
