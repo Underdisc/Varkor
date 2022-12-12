@@ -11,12 +11,12 @@ void Purge();
 void Log(const char* reason);
 void Log(const char* function, const char* reason);
 void Log(const char* file, int line, const char* function, const char* reason);
-void LogGlStatus();
 void Abort(
   const char* file, int line, const char* function, const char* reason);
 void Abort(const char* reason);
 void Abort();
 void StackTrace();
+void LogString(const char* string);
 
 extern std::mutex nLogMutex;
 extern std::string nLog;

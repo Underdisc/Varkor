@@ -8,6 +8,7 @@
 #include "Viewport.h"
 #include "debug/Draw.h"
 #include "editor/Editor.h"
+#include "gfx/GlError.h"
 #include "gfx/Renderer.h"
 #include "gfx/UniformVector.h"
 #include "rsl/Library.h"
@@ -22,6 +23,7 @@ Result VarkorInit(
   }
   Error::Init("log.err");
   Viewport::Init(windowName);
+  Gfx::GlError::Init();
   Gfx::UniformVector::Init();
   Rsl::Init();
   Gfx::Renderer::Init();
