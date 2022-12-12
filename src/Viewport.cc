@@ -29,7 +29,7 @@ void Init(const char* windowName, bool visible)
   // We use 1 for the starting window width and height because it will be
   // maximized to fill the whole monitor.
   nWindow = glfwCreateWindow(800, 800, windowName, NULL, NULL);
-  LogAbortIf(!nWindow, "glfw window creation failed.");
+  LogAbortIf(nWindow == nullptr, "glfw window creation failed.");
   glfwGetWindowSize(nWindow, &nWidth, &nHeight);
   glfwMakeContextCurrent(nWindow);
   glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
