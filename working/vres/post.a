@@ -10,11 +10,10 @@
     }
   },
   {
-    :Name: 'ReinhardMaterial'
-    :Type: 'Material'
+    :Name: 'ExposureShader'
+    :Type: 'Shader'
     :Config: {
-      :ShaderId: 'vres/reinhardPost:ReinhardShader'
-      :Uniforms: []
+      :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/ExposurePostProcess.glf']
     }
   }
 ]
