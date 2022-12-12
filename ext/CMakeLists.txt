@@ -39,3 +39,12 @@ set(ASSIMP_NO_EXPORT ON CACHE BOOL "")
 add_subdirectory(sub/assimp)
 target_link_libraries(varkor assimp)
 target_include_directories(varkor PUBLIC "sub/assimp/include")
+
+# glfw
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
+set(GLFW_BUILD_INSTALL OFF CACHE BOOL "")
+add_subdirectory(sub/glfw)
+target_link_libraries(varkor glfw)
+target_include_directories(varkor PUBLIC "sub/glfw/include")

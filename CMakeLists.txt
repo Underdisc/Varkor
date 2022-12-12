@@ -2,29 +2,21 @@ cmake_minimum_required(VERSION 3.18)
 cmake_policy(SET CMP0048 NEW)
 project(varkor)
 
-# Find library files.
-find_package(OpenGL)
-list(APPEND CMAKE_PREFIX_PATH "ext/lib")
-if (MSVC)
-  if ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
-    find_library(glfw NAMES glfw3_msvc2019_md REQUIRED)
-  elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    find_library(glfw NAMES glfw3_msvc2019_mdd REQUIRED)
-  endif ()
-endif ()
-
 # Create the target for the Varkor static library.
 add_library(varkor STATIC)
 add_subdirectory(src)
 add_subdirectory(ext)
+
+find_package(OpenGL)
+target_link_libraries(varkor ${OPENGL_gl_LIBRARY})
+target_include_directories(varkor PUBLIC "src")
+
 if (MSVC)
   target_compile_options(varkor PRIVATE /WX /W3 /sdl /permissive- /std:c++17)
   if ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
     target_link_options(varkor PRIVATE /MANIFEST:NO)
   endif ()
 endif ()
-target_include_directories(varkor PUBLIC "src")
-target_link_libraries(varkor ${glfw} ${OPENGL_gl_LIBRARY})
 
 # Create the target for the standalone version of Varkor.
 add_executable(varkor_standalone)
