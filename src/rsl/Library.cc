@@ -192,7 +192,7 @@ bool InitThreadOpen()
 
 void InitializationThreadMain()
 {
-  Viewport::InitContextSharing();
+  Viewport::StartContextSharing();
   while (!nInitQueue.Empty()) {
     if (nStopInitThread) {
       break;
@@ -213,6 +213,7 @@ void InitializationThreadMain()
     nInitQueue.Remove(0);
     nInitQueueMutex.unlock();
   }
+  Viewport::EndContextSharing();
 }
 
 void HandleFinalization()

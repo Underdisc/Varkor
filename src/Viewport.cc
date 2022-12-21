@@ -63,9 +63,14 @@ void SwapBuffers()
   glfwSwapBuffers(nWindow);
 }
 
-void InitContextSharing()
+void StartContextSharing()
 {
   glfwMakeContextCurrent(nSharedWindow);
+}
+
+void EndContextSharing()
+{
+  glfwMakeContextCurrent(nullptr);
 }
 
 int Width()
