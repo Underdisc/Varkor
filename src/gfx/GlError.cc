@@ -12,7 +12,7 @@ void Init()
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
   glDebugMessageCallback(Callback, nullptr);
 
-  // Igore performance and notification messages.
+  // Ignore performance and notification messages.
   glDebugMessageControl(
     GL_DONT_CARE,
     GL_DEBUG_TYPE_PERFORMANCE,
