@@ -15,7 +15,7 @@ git submodule update
 
 *Once You Build*: After you build the project, you'll find `varkor.exe` in `{repo_root}/working/`. This directory contains all the files that varkor may access at runtime. This is why the Varkor binary is placed here.
 
-At the moment, Varkor only builds under Windows, but will be expanded in the near future for building under Linux as well. On Windows, Varkor can be built under MSVC. To build Varkor, you are going to want a build of CMake and Ninja. I build everything on command line. If you don't already have it, I highly recommend Cygwin as well.
+At the moment, Varkor only builds under Windows, but will be expanded in the near future for building under Linux as well. On Windows, Varkor can be built under MSVC. To build Varkor, you are going to need a build of CMake and Ninja. I build everything on command line. If you don't already have it, I highly recommend Cygwin as well.
 
 - CMake:  https://cmake.org/download/
 - Ninja:  https://github.com/ninja-build/ninja/releases
@@ -81,7 +81,7 @@ cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ../../../
 Now you should have a `build.ninja` file in your current directory. All that's left to do is build. If you did everything properly and I didn't break something, the varkor binary can be built with the following.
 
 ```
-ninja varkor
+ninja varkorStandalone
 ```
 
 ### Rapid Builds

@@ -1,32 +1,30 @@
 @echo off
 
-REM Usage: build target [r]
+REM Usage: build buildType target [r] [args]
+REM buildType - The type of build (dbg, rel, relDbg, relMin).
 REM target - The target to build.
 REM r - The target will run after a successful build.
+REM args - Arguments given when invoking the built executable.
 
-REM Ensure the integrity of the build specifications and that there is a target.
+set buildType=%1
+set target=%2
+
+REM Ensure that build specifications are set.
 call checkBuildSpecs.bat
-set buildSpecsCheckFailed=1
-if errorlevel %buildSpecsCheckFailed% (
-  exit /b 1
-)
-if "%1" == "" (
-  echo Error: The target to build must be specified as the first argument.
+if errorlevel 1 (
   exit /b 1
 )
 
 REM Build the target.
-set target=%1
-pushd %buildDir%
-%generator% %target%
+pushd "../build/%compilerDir%/%buildType%"
+ninja %target%
 popd
-set buildFailed=1
-if errorlevel %buildFailed% (
+if errorlevel 1 (
   exit /b 1
 )
 
 REM If requested, run the target with the given arguments.
-if "%2" == "r" (
+if "%3" == "r" (
   setlocal ENABLEDELAYEDEXPANSION
   set "args=%3"
   :NextArg
@@ -35,12 +33,12 @@ if "%2" == "r" (
   shift
   goto NextArg
   :AllArgsCollected
-  %target%.exe %args%
+  %target%_%buildType%.exe %args%
   endlocal
   exit /b 0
 )
-if not "%2" == "" (
-  echo Error: %2 is not a valid second argument. Only r is valid.
+if not "%3" == "" (
+  echo Error: %3 is not a valid argument. Only r is valid.
   exit /b 1
 )
 exit /b 0

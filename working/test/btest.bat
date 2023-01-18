@@ -1,10 +1,5 @@
 @echo off
-
-REM Usage: btest (all [t|c])|({target} [r|d|a|t|c])
-
-REM Required Environment Variables to be set in buildSpecs.bat.
-REM buildDir - The path to the build directory relative to buildSpecs.bat.
-REM generator - The identifier used to call the generator.
+REM Usage: btest buildType (all [t|c]) | ({target} [r|d|a|t|c])
 
 REM Required Arguments
 REM all - Build all of the existing test targets.
@@ -25,93 +20,89 @@ REM   coverage report. This makes finding the code that a unit test did and did
 REM   not run easy. A build of OpenCppCoverage needs to be in your path. It can
 REM   be found here (https://github.com/OpenCppCoverage/OpenCppCoverage).
 
-REM Ensure that the build specifications exist.
-pushd ..\
+set buildType=%1
+set target=%2
+
+REM Ensure that the build specifications are set.
+pushd "../"
 call checkBuildSpecs.bat
-set buildSpecsCheckFailed=1
-if errorlevel %buildSpecsCheckFailed% (
+if errorlevel 1 (
   popd
   exit /b 1
 )
 
 REM Build the target or targets.
-if "%1" == "" (
-  echo Error: all or a target name must be provided as the first argument.
-  popd
-  exit /b 1
-)
-pushd %buildDir%
-if "%1" == "all" (
-  %generator% tests
+pushd "../build/%compilerDir%/%buildType%"
+if "%target%" == "all" (
+  ninja tests
 ) else (
-  %generator% %1
+  ninja %target%
 )
 popd
 popd
-set buildError=1
-if errorlevel %buildError% (
+if errorlevel 1 (
   exit /b 1
 )
 
 REM Run all of the test targets if requested.
-if "%1" == "all" (
-  if "%2" == "t" (
+if "%target%" == "all" (
+  if "%3" == "t" (
     for /d %%d in (*) do call :PerformTest %%d
     exit /b 0
   )
-  if "%2" == "c" (
+  if "%3" == "c" (
     for /d %%d in (*) do call :GenerateCoverage %%d
     exit /b 0
   )
-  if not "%2" == "" (
-    echo Error: %2 is not a valid argument. Look inside btest.bat for details.
+  if not "%3" == "" (
+    echo Error: %3 is not a valid argument. Look inside btest.bat for details.
     exit /b 1
   )
   exit /b 0
 )
 
 REM Run a single target with the desired output if requested.
-if "%2" == "r" (
-  pushd %1
-  test.exe
+if "%3" == "r" (
+  pushd %target%
+  test_%buildType%.exe
   popd
   exit /b 0
 )
-if "%2" == "d" (
-  pushd %1
-  test.exe > out_diff.txt
+if "%3" == "d" (
+  pushd %target%
+  test_%buildType%.exe > out_diff.txt
   git -c core.fileMode=false diff --no-index --unified=10 out.txt out_diff.txt
   popd
   exit /b 0
 )
-if "%2" == "a" (
-  pushd %1
-  test.exe > out.txt
+if "%3" == "a" (
+  pushd %target%
+  test_%buildType%.exe > out.txt
   popd
   exit /b 0
 )
-if "%2" == "t" (
-  call :PerformTest %1
+if "%3" == "t" (
+  call :PerformTest %target%
   exit /b 0
 )
-if "%2" == "c" (
-  call :GenerateCoverage %1
+if "%3" == "c" (
+  call :GenerateCoverage %target%
   exit /b 0
 )
-if not "%2" == "" (
-  echo Error: %2 is not a valid argument. Look inside btest.bat for details.
+if not "%3" == "" (
+  echo Error: %3 is not a valid argument. Look inside btest.bat for details.
   exit /b 1
 )
 exit /b 0
 
 :PerformTest
-  pushd %1
-  test.exe > out_diff.txt
+  pushd %~1
+  test_%buildType%.exe > out_diff.txt
   git -c core.fileMode=false diff --no-index --no-patch --exit-code out.txt out_diff.txt
   if errorlevel 1 (
-    echo %1: [31mFailed[0m
+    echo %~1: [31mFailed[0m
   ) else (
-    echo %1: [32mPassed[0m
+    echo %~1: [32mPassed[0m
   )
   popd
 exit /b 0
@@ -121,9 +112,9 @@ exit /b 0
   pushd "../../"
   OpenCppCoverage -q ^
     --sources !cd!\src\* ^
-    --working_dir working\test\%1 ^
-    --export_type html:working\test\%1\coverage ^
-    -- working\test\%1\test.exe > LastCoverageResults.log
+    --working_dir working\test\%~1 ^
+    --export_type html:working\test\%~1\coverage ^
+    -- working\test\%~1\test_%buildType%.exe > LastCoverageResults.log
   del LastCoverageResults.log
   popd
   endlocal

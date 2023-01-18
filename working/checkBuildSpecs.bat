@@ -1,23 +1,33 @@
-REM Ensures that all environment variables needed for working/build.bat are set
-REM and that buildDir points to an existing directory.
-
-REM Required environment variables for working/build.bat.
-REM buildDir - The path to the build dir relative to buildSpecs.bat.
-REM generator - The identifier used to call the generator.
-REM target - The target to build and potentially run.
-REM   This must be "varkor" for the standalone version of the engine.
+REM Ensures that all environment variables needed for build scripts are set.
+REM compilerDir - The compiler directory within root/build/.
+REM buildType - The type of build to be created.
+REM target - The target to build.
 
 call buildSpecs.bat
-if "%buildDir%" == "" (
-  echo Error: The "buildDir" environment variable must be set in buildSpecs.bat.
+if "%compilerDir%" == "" (
+  echo Error: buildSpecs.bat must set the "compilerDir" environment variable.
   exit /b 1
 )
-if not exist %buildDir% (
-  echo Error: The path specified in the buildDir environment variable [%buildDir%] does not exist relative to buildSpecs.bat.
+
+REM Ensure that a valid build type was given.
+if "%buildType%" == "" (
+  echo Error: A build type must be specified.
   exit /b 1
 )
-if "%generator%" == "" (
-  echo Error: The "generator" environment variable must be set in buildSpecs.bat.
+set validBuildType=0
+if "%buildType%" == "dbg" set validBuildType=1
+if "%buildType%" == "rel" set validBuildType=1
+if "%buildType%" == "relDbg" set validBuildType=1
+if "%buildType%" == "relMin" set validBuildType=1
+if "%validBuildType%" == "0" (
+  echo Error: "%buildType%" is not a valid build type.
   exit /b 1
 )
+
+REM Ensure that a target was given.
+if "%target%" == "" (
+  echo Error: A target must be specified.
+  exit /b 1
+)
+
 exit /b 0
