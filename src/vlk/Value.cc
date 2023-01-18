@@ -18,11 +18,13 @@ Value::Value(Value::Type type): mType(Type::Invalid)
 
 Value::Value(const Value& other): mType(Type::Invalid)
 {
+  mType = Type::Invalid;
   *this = other;
 }
 
 Value::Value(Value&& other)
 {
+  mType = Type::Invalid;
   *this = std::move(other);
 }
 
