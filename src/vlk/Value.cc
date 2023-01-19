@@ -82,6 +82,16 @@ Value& Value::operator=(Value&& other)
   return *this;
 }
 
+Value& Value::operator=(const Pair& pair)
+{
+  return *this = *(Value*)&pair;
+}
+
+Value& Value::operator=(Pair&& pair)
+{
+  return *this = std::move(*(Value*)&pair);
+}
+
 bool Value::operator==(const Value& other) const
 {
   if (mType != other.mType) {

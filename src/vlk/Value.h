@@ -26,13 +26,15 @@ struct Value
 {
 public:
   Value();
-  Value(Value&& other);
   Value(const Value& other);
+  Value(Value&& other);
   ~Value();
   void Clear();
 
-  Value& operator=(Value&& other);
   Value& operator=(const Value& other);
+  Value& operator=(Value&& other);
+  Value& operator=(const Pair& pair);
+  Value& operator=(Pair&& pair);
 
   bool operator==(const Value& other) const;
   bool operator!=(const Value& other) const;
