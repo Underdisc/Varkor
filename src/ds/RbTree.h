@@ -1,5 +1,5 @@
-#ifndef ds_RBTree_h
-#define ds_RBTree_h
+#ifndef ds_RbTree_h
+#define ds_RbTree_h
 
 namespace Ds {
 
@@ -106,6 +106,6 @@ private:
 
 } // namespace Ds
 
-#include "RBTree.hh"
+#include "RbTree.hh"
 
 #endif
