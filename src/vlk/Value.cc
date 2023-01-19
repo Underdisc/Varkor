@@ -479,6 +479,21 @@ void Value::PrintPairArray(std::ostream& os, std::string& indent) const
   os << indent << "}";
 }
 
+void Converter<std::string>::Serialize(Value& val, const std::string& value)
+{
+  val.EnsureType(Value::Type::TrueValue);
+  val.mTrueValue = value;
+}
+
+bool Converter<std::string>::Deserialize(const Value& val, std::string* value)
+{
+  if (val.mType != Value::Type::TrueValue) {
+    return false;
+  }
+  *value = val.mTrueValue;
+  return true;
+}
+
 Pair::Pair() {}
 
 Pair::Pair(const std::string& key): mKey(key) {}

@@ -10,25 +10,6 @@
 
 namespace Vlk {
 
-template<>
-struct Converter<std::string>
-{
-  static void Serialize(Value& val, const std::string& value)
-  {
-    val.EnsureType(Value::Type::TrueValue);
-    val.mTrueValue = value;
-  }
-
-  static bool Deserialize(const Value& val, std::string* value)
-  {
-    if (val.mType != Value::Type::TrueValue) {
-      return false;
-    }
-    *value = val.mTrueValue;
-    return true;
-  }
-};
-
 template<typename T, unsigned int N>
 struct Converter<Math::Vector<T, N>>
 {

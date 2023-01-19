@@ -170,6 +170,13 @@ struct Converter
   }
 };
 
+template<>
+struct Converter<std::string>
+{
+  static void Serialize(Value& val, const std::string& value);
+  static bool Deserialize(const Value& val, std::string* value);
+};
+
 struct Pair: public Value
 {
   const std::string& Key() const;
