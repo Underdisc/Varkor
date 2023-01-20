@@ -343,7 +343,7 @@ Result Shader::CreateProgram(const Ds::Vector<CompileInfo>& allCompileInfo)
     glGetProgramInfoLog(mId, length - 1, NULL, errorLog);
     std::stringstream error;
     error << "Failed to link.\n" << errorLog;
-    delete errorLog;
+    delete[] errorLog;
     glDeleteProgram(mId);
     mId = 0;
     return Result(error.str());
