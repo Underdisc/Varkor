@@ -46,7 +46,7 @@ std::string ResourceId::GetAssetName() const
 {
   size_t assetIdEnd = mId.find(nResIdDelimeter);
   if (assetIdEnd == std::string::npos) {
-    return "";
+    return mId;
   }
   return mId.substr(0, assetIdEnd);
 }
