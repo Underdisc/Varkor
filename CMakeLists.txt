@@ -22,8 +22,10 @@ find_package(OpenGL)
 target_link_libraries(varkor ${OPENGL_gl_LIBRARY})
 target_include_directories(varkor PUBLIC "src")
 
+# Set compiler options.
+target_compile_features(varkor PRIVATE cxx_std_17)
 if (MSVC)
-  target_compile_options(varkor PRIVATE /WX /W3 /sdl /permissive- /std:c++17)
+  target_compile_options(varkor PRIVATE /WX /W3 /sdl /permissive-)
   if ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
     target_link_options(varkor PRIVATE /MANIFEST:NO)
   endif ()
