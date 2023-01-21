@@ -24,12 +24,12 @@ target_include_directories(varkor PUBLIC "src")
 
 # Set compiler options.
 target_compile_features(varkor PRIVATE cxx_std_17)
-if (MSVC)
+if(MSVC)
   target_compile_options(varkor PRIVATE /WX /W3 /sdl /permissive-)
-  if ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
+  if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
     target_link_options(varkor PRIVATE /MANIFEST:NO)
-  endif ()
-endif ()
+  endif()
+endif()
 
 # Create the target for the standalone version of Varkor.
 add_executable(varkorStandalone)
@@ -47,12 +47,12 @@ function(AddProject targetName directory)
   project(${targetName})
   add_executable(${targetName})
   add_subdirectory(${directory}/src ${targetName})
-  target_link_libraries(${targetName} varkor)
-  target_link_options(${targetName} PRIVATE /MANIFEST:NO)
   target_compile_definitions(${targetName}
     PUBLIC PROJECT_DIRECTORY="${directory}")
+  target_link_libraries(${targetName} varkor)
   set_target_properties(${targetName} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working"
     OUTPUT_NAME "${targetName}_${buildTypePostfix}")
 endfunction()
+
 include("projects.cmake" OPTIONAL)
