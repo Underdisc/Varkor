@@ -34,9 +34,6 @@ endif()
 # Create the target for the standalone version of Varkor.
 add_executable(varkorStandalone)
 target_sources(varkorStandalone PRIVATE src/Main.cc)
-set_target_properties(varkorStandalone PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working"
-  OUTPUT_NAME "varkorStandalone_${buildTypePostfix}")
 target_link_libraries(varkorStandalone varkor)
 
 # Create all of the test targets.
@@ -50,9 +47,6 @@ function(AddProject targetName directory)
   target_compile_definitions(${targetName}
     PUBLIC PROJECT_DIRECTORY="${directory}")
   target_link_libraries(${targetName} varkor)
-  set_target_properties(${targetName} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working"
-    OUTPUT_NAME "${targetName}_${buildTypePostfix}")
 endfunction()
 
 include("projects.cmake" OPTIONAL)
