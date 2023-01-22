@@ -59,7 +59,7 @@ void DragResourceId(Rsl::ResourceTypeId resTypeId, const ResId& resId)
   if (ImGui::BeginDragDropSource()) {
     ImGui::SetDragDropPayload(
       payloadName.c_str(), (void*)resId.mId.c_str(), resId.mId.size());
-    ImGui::Text(resId.mId.c_str());
+    ImGui::TextUnformatted(resId.mId.c_str());
     ImGui::EndDragDropSource();
   }
 }
@@ -99,7 +99,7 @@ void DragResourceFile(const std::string& resFile)
   if (ImGui::BeginDragDropSource()) {
     ImGui::SetDragDropPayload(
       "ResFile", (void*)resFile.c_str(), resFile.size());
-    ImGui::Text(resFile.c_str());
+    ImGui::TextUnformatted(resFile.c_str());
     ImGui::EndDragDropSource();
   }
 }

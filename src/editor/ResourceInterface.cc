@@ -47,7 +47,7 @@ void ResourceInterface::Show()
 
   // Change the name of the resource.
   std::string resourcePrefix = mResId.GetAssetName() + Rsl::nResIdDelimeter;
-  ImGui::Text(resourcePrefix.c_str());
+  ImGui::TextUnformatted(resourcePrefix.c_str());
   ImGui::SameLine(0.0f, 0.0f);
   Vlk::Value& nameVal = (*resVal)("Name");
   std::string name = nameVal.As<std::string>("DefaultName");
