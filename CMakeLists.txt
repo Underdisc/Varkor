@@ -31,6 +31,10 @@ if(MSVC)
   endif()
 endif()
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  target_compile_options(varkor PRIVATE -Wno-switch)
+endif()
+
 # Create the target for the standalone version of Varkor.
 add_executable(varkorStandalone)
 target_sources(varkorStandalone PRIVATE src/Main.cc)
