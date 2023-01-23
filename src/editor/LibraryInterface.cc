@@ -40,7 +40,9 @@ void LibraryInterface::Show()
 
   ImGui::Begin("Library", &mOpen);
   ShowDirectoryEntry("", "vres", &mRootTree, 0);
-  ShowDirectory(Options::nProjectDirectory + "res/", "", &mRootTree, 0);
+  if (!Rsl::IsStandalone()) {
+    ShowDirectory(Rsl::PrependResDirectory("res/"), "", &mRootTree, 0);
+  }
   ImGui::End();
 
   ImGui::PopStyleVar();
@@ -333,8 +335,8 @@ void LibraryInterface::ShowAssetEntry(
         Rsl::RemAsset(assetName);
       }
       break;
-    case Rsl::Asset::Status::Initializing:
-      ImGui::TextDisabled("Initializing", ImVec2(-1, 0));
+    case Rsl::Asset::Status::Initializing: ImGui::TextDisabled("Initializing");
+    default: break;
     }
 
     // Add a resource to the asset.
@@ -358,7 +360,7 @@ void LibraryInterface::ShowAssetEntry(
     const char* initializedText = "Show Initialized Resources";
     if (open && status == Rsl::Asset::Status::Live) {
       if (openAsset->mShowDefinedResources) {
-        ImGui::TextDisabled(definedText);
+        ImGui::TextDisabled("%s", definedText);
         if (ImGui::Selectable(initializedText)) {
           openAsset->mShowDefinedResources = false;
         }
@@ -367,7 +369,7 @@ void LibraryInterface::ShowAssetEntry(
         if (ImGui::Selectable(definedText)) {
           openAsset->mShowDefinedResources = true;
         }
-        ImGui::TextDisabled(initializedText);
+        ImGui::TextDisabled("%s", initializedText);
       }
     }
     ImGui::EndPopup();

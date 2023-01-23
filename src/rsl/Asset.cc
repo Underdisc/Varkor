@@ -84,6 +84,7 @@ void Asset::QueueInit()
     case Status::Queued: error += "queued."; break;
     case Status::Initializing: error += "initializing."; break;
     case Status::Live: error += "live."; break;
+    default: break;
     }
     LogAbort(error.c_str());
   }
@@ -257,6 +258,7 @@ Result Asset::TryInitRes(const Vlk::Explorer& resEx)
     result = TryInitRes<Gfx::Model>(name, configEx); break;
   case ResTypeId::Shader:
     result = TryInitRes<Gfx::Shader>(name, configEx); break;
+  default: break;
   }
   // clang-format on
   glFinish();

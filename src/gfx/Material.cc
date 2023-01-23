@@ -230,6 +230,7 @@ Result Material::Init(const Vlk::Explorer& configEx)
         uniformName,
         valueEx.As<ResId>(Rsl::GetDefaultResId<Cubemap>()));
       break;
+    default: break;
     }
   }
   return Result();
@@ -325,6 +326,7 @@ const char* Material::GetUniformName(aiTextureType aiType)
   case aiTextureType_DIFFUSE: return "uDiffuse";
   case aiTextureType_SPECULAR: return "uSpecular";
   case aiTextureType_NORMALS: return "uNormals";
+  default: break;
   }
   return "uOther";
 }

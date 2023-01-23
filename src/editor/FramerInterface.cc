@@ -11,7 +11,7 @@ void FramerInterface::Show()
 
   // Display the statistics.
   ImGui::Text("FPS: %f", Framer::GetAverageFps());
-  ImGui::Text("Frame Usage", Framer::GetAverageFrameUsage());
+  ImGui::Text("Frame Usage");
   ImGui::SameLine();
   ImGui::ProgressBar(Framer::GetAverageFrameUsage(), ImVec2(0.0f, 0.0f));
   ImGui::SliderFloat(

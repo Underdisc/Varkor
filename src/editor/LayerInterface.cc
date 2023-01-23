@@ -97,7 +97,7 @@ void LayerInterface::DisplayMember(
   // Make the node a source and target for parenting drag drop operations.
   if (ImGui::BeginDragDropSource()) {
     ImGui::SetDragDropPayload("MemberId", &memberId, sizeof(World::MemberId));
-    ImGui::Text(member.mName.c_str());
+    ImGui::TextUnformatted(member.mName.c_str());
     ImGui::EndDragDropSource();
   }
   if (ImGui::BeginDragDropTarget()) {

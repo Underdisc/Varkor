@@ -135,6 +135,10 @@ void AssessDependencies(TypeId id, const Vlk::Explorer& compEx)
 const char* nComponentsFilename = "components.vlk";
 void AssessComponentsFile()
 {
+  if (Rsl::IsStandalone()) {
+    return;
+  }
+
   // Ensure that the components file contains the required information and
   // initialize the version.
   Vlk::Value rootVal;

@@ -1,7 +1,10 @@
 @echo off
-REM Usage: btest buildType (all [t|c]) | ({target} [r|d|a|t|c])
+REM Usage: btest compiler configuration (all [t|c]) | ({target} [r|d|a|t|c])
+REM Build, test, and ensure tests are passing.
 
 REM Required Arguments
+REM compiler - The compiler to build with.
+REM configuration - The type of build (dbg, rel, relDbg, relMin).
 REM all - Build all of the existing test targets.
 REM {target} - Build only the provided target.
 
@@ -20,25 +23,31 @@ REM   coverage report. This makes finding the code that a unit test did and did
 REM   not run easy. A build of OpenCppCoverage needs to be in your path. It can
 REM   be found here (https://github.com/OpenCppCoverage/OpenCppCoverage).
 
-set buildType=%1
-set target=%2
+set scriptDir=%~dp0
+set compiler=%1
+set configuration=%2
+set target=%3
+set action=%4
 
 REM Ensure that the build specifications are set.
-pushd "../"
+pushd "%scriptDir%\..\"
 call checkBuildSpecs.bat
 if errorlevel 1 (
   popd
   exit /b 1
 )
+popd
+
+set rootDir=%scriptDir%\..\..
+set buildDir=%rootDir%\build\%compiler%\%configuration%
 
 REM Build the target or targets.
-pushd "../build/%compilerDir%/%buildType%"
+pushd "%buildDir%"
 if "%target%" == "all" (
   ninja tests
 ) else (
   ninja %target%
 )
-popd
 popd
 if errorlevel 1 (
   exit /b 1
@@ -46,76 +55,101 @@ if errorlevel 1 (
 
 REM Run all of the test targets if requested.
 if "%target%" == "all" (
-  if "%3" == "t" (
+  if "%action%" == "t" (
     for /d %%d in (*) do call :PerformTest %%d
     exit /b 0
   )
-  if "%3" == "c" (
+  if "%action%" == "c" (
     for /d %%d in (*) do call :GenerateCoverage %%d
     exit /b 0
   )
-  if not "%3" == "" (
-    echo Error: %3 is not a valid argument. Look inside btest.bat for details.
+  if not "%action%" == "" (
+    echo Error: %action% is not a valid action. Look inside btest.bat for details.
     exit /b 1
   )
   exit /b 0
 )
 
 REM Run a single target with the desired output if requested.
-if "%3" == "r" (
-  pushd %target%
-  test_%buildType%.exe
-  popd
+if "%action%" == "r" (
+  call :RunTest %target%
   exit /b 0
 )
-if "%3" == "d" (
-  pushd %target%
-  test_%buildType%.exe > out_diff.txt
-  git -c core.fileMode=false diff --no-index --unified=10 out.txt out_diff.txt
-  popd
+if "%action%" == "d" (
+  call :DiffTest %target%
   exit /b 0
 )
-if "%3" == "a" (
-  pushd %target%
-  test_%buildType%.exe > out.txt
-  popd
+if "%action%" == "a" (
+  call :OverwriteTest %target%
   exit /b 0
 )
-if "%3" == "t" (
+if "%action%" == "t" (
   call :PerformTest %target%
   exit /b 0
 )
-if "%3" == "c" (
+if "%action%" == "c" (
   call :GenerateCoverage %target%
   exit /b 0
 )
-if not "%3" == "" (
-  echo Error: %3 is not a valid argument. Look inside btest.bat for details.
+if not "%action%" == "" (
+  echo Error: %action% is not a valid argument. Look inside btest.bat for details.
   exit /b 1
 )
 exit /b 0
 
+:AcquireTarget
+  pushd "%buildDir%\src\test"
+  move %~1.* %scriptDir%\%~1 > nul
+  popd
+  pushd "%scriptDir%\%~1"
+exit /b 0
+
+:ReturnTarget
+  move %~1.* %buildDir%\src\test > nul
+  popd
+exit /b 0
+
+:RunTest
+  call :AcquireTarget %~1
+  %~1.exe
+  call :ReturnTarget %~1
+exit /b 0
+
+:DiffTest
+  call :AcquireTarget %~1
+  %~1.exe > out_diff.txt
+  git -c core.fileMode=false diff --no-index --unified=10 out.txt out_diff.txt
+  call :ReturnTarget %~1
+exit /b 0
+
+:OverwriteTest
+  call :AcquireTarget %~1
+  %1.exe > out.txt
+  call :ReturnTarget %~1
+exit /b 0
+
 :PerformTest
-  pushd %~1
-  test_%buildType%.exe > out_diff.txt
+  call :AcquireTarget %~1
+  %~1.exe > out_diff.txt
   git -c core.fileMode=false diff --no-index --no-patch --exit-code out.txt out_diff.txt
   if errorlevel 1 (
     echo %~1: [31mFailed[0m
   ) else (
     echo %~1: [32mPassed[0m
   )
-  popd
+  call :ReturnTarget %~1
 exit /b 0
 
 :GenerateCoverage
+  call :AcquireTarget %~1
+  pushd "%rootDir%"
   setlocal ENABLEDELAYEDEXPANSION
-  pushd "../../"
   OpenCppCoverage -q ^
-    --sources !cd!\src\* ^
+    --sources src\* ^
     --working_dir working\test\%~1 ^
     --export_type html:working\test\%~1\coverage ^
-    -- working\test\%~1\test_%buildType%.exe > LastCoverageResults.log
-  del LastCoverageResults.log
-  popd
+    -- working\test\%~1\%~1.exe > nul
   endlocal
+  popd
+  call :ReturnTarget %~1
 exit /b 0

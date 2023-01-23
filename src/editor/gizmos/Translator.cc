@@ -128,6 +128,7 @@ void Translator::SetNextOperation(
   case Operation::Xz: mTranslationPlane.Normal(yRotated); break;
   case Operation::Yz: mTranslationPlane.Normal(xRotated); break;
   case Operation::Xyz: mTranslationPlane.Normal(nCamera.Forward()); break;
+  default: break;
   }
 
   // Set the mouse offset so it can be used to find the change in translation

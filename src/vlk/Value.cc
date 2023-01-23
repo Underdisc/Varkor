@@ -39,6 +39,7 @@ void Value::Clear()
   case Type::TrueValue: mTrueValue.~basic_string(); break;
   case Type::ValueArray: mValueArray.~Vector(); break;
   case Type::PairArray: mPairArray.~Vector(); break;
+  default: break;
   }
   mType = Type::Invalid;
 }
@@ -58,6 +59,7 @@ Value& Value::operator=(const Value& other)
   case Type::PairArray:
     new (&mPairArray) Ds::Vector<Pair>(other.mPairArray);
     break;
+  default: break;
   }
   // clang-format on
   return *this;
@@ -77,6 +79,7 @@ Value& Value::operator=(Value&& other)
   case Type::PairArray:
     new (&mPairArray) Ds::Vector<Pair>(std::move(other.mPairArray));
     break;
+  default: break;
   }
   other.Clear();
   return *this;
@@ -123,6 +126,7 @@ bool Value::operator==(const Value& other) const
       }
     }
     break;
+  default: break;
   }
   return true;
 }
@@ -141,6 +145,7 @@ void Value::Init(Type type)
   case Type::TrueValue: new (&mTrueValue) std::string(); break;
   case Type::ValueArray: new (&mValueArray) Ds::Vector<Value>(); break;
   case Type::PairArray: new (&mPairArray) Ds::Vector<Pair>(); break;
+  default: break;
   }
 }
 
@@ -206,6 +211,7 @@ bool Value::ReachedThreshold(size_t& elementCount) const
     return false;
   case Type::PairArray: return true;
   case Type::TrueValue: ++elementCount; return elementCount > countThreshold;
+  default: break;
   }
   LogAbort("Function expects an initialized Value.");
   return true;
@@ -260,6 +266,7 @@ size_t Value::Size() const
   switch (mType) {
   case Type::ValueArray: return mValueArray.Size();
   case Type::PairArray: return mPairArray.Size();
+  default: break;
   }
   LogAbort("Only ValueArray and PairArray Values have a size.");
   return 0;
