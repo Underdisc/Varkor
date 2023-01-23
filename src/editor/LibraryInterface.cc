@@ -40,7 +40,9 @@ void LibraryInterface::Show()
 
   ImGui::Begin("Library", &mOpen);
   ShowDirectoryEntry("", "vres", &mRootTree, 0);
-  ShowDirectory(Options::nProjectDirectory + "res/", "", &mRootTree, 0);
+  if (!Rsl::IsStandalone()) {
+    ShowDirectory(Rsl::PrependResDirectory("res/"), "", &mRootTree, 0);
+  }
   ImGui::End();
 
   ImGui::PopStyleVar();

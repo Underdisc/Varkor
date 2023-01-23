@@ -1,5 +1,6 @@
 #include <imgui/imgui.h>
 
+#include "Options.h"
 #include "editor/CoreInterface.h"
 #include "editor/Editor.h"
 #include "editor/ErrorInterface.h"
@@ -138,7 +139,9 @@ void CoreInterface::FileMenu()
       FileInterface::AccessType::Save,
       layerInterface->mLayerIt->mName + ".vlk");
   }
-  if (ImGui::MenuItem("Save Components")) {
+
+  bool canSave = !Rsl::IsStandalone();
+  if (ImGui::MenuItem("Save Components", nullptr, false, canSave)) {
     Comp::SaveComponentsFile();
   }
   ImGui::EndMenu();

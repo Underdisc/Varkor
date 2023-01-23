@@ -123,6 +123,11 @@ void WriteConfig(const std::string& assetName)
   assetVal.Write(result.mValue.c_str());
 }
 
+bool IsStandalone()
+{
+  return Options::nProjectDirectory == "";
+}
+
 std::string PrependResDirectory(const std::string& path)
 {
   return Options::nProjectDirectory + "res/" + path;
