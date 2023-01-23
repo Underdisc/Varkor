@@ -25,17 +25,17 @@ set buildType=%1
 set target=%2
 set action=%3
 
-set rootDir=%scriptDir%/../..
-set buildDir=%rootDir%/build/%compilerDir%/%buildType%
-
 REM Ensure that the build specifications are set.
-pushd "%scriptDir%/../"
+pushd "%scriptDir%\..\"
 call checkBuildSpecs.bat
 if errorlevel 1 (
   popd
   exit /b 1
 )
 popd
+
+set rootDir=%scriptDir%\..\..
+set buildDir=%rootDir%\build\%compilerDir%\%buildType%
 
 REM Build the target or targets.
 pushd "%buildDir%"
@@ -94,14 +94,14 @@ if not "%action%" == "" (
 exit /b 0
 
 :AcquireTarget
-  pushd "%buildDir%/src/test"
-  move %~1.* %scriptDir%/%~1 > nul
+  pushd "%buildDir%\src\test"
+  move %~1.* %scriptDir%\%~1 > nul
   popd
-  pushd "%scriptDir%/%~1"
+  pushd "%scriptDir%\%~1"
 exit /b 0
 
 :ReturnTarget
-  move %~1.* %buildDir%/src/test > nul
+  move %~1.* %buildDir%\src\test > nul
   popd
 exit /b 0
 

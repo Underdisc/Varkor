@@ -19,13 +19,13 @@ shift
 goto NextArg
 :AllArgsCollected
 
-set buildDir=%scriptDir%/../build/%compilerDir%/%buildType%
-
 REM Ensure that build specifications are set.
 call checkBuildSpecs.bat
 if errorlevel 1 (
   exit /b 1
 )
+
+set buildDir=%scriptDir%\..\build\%compilerDir%\%buildType%
 
 REM Build the target.
 pushd "%buildDir%"
