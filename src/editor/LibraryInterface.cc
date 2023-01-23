@@ -334,6 +334,7 @@ void LibraryInterface::ShowAssetEntry(
       }
       break;
     case Rsl::Asset::Status::Initializing: ImGui::TextDisabled("Initializing");
+    default: break;
     }
 
     // Add a resource to the asset.

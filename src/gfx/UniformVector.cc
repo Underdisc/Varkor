@@ -156,6 +156,7 @@ void UniformVector::Bind(const Shader& shader, int* textureIndex) const
     case UniformTypeId::TextureCubemap:
       BindTexture(shader, textureIndex, uniformDesc, GL_TEXTURE_CUBE_MAP);
       break;
+    default: break;
     }
   }
 }

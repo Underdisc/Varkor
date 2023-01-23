@@ -93,6 +93,7 @@ void ResourceInterface::Show()
   case ResTypeId::Mesh: Gfx::Mesh::EditConfig(&configVal); break;
   case ResTypeId::Model: Gfx::Model::EditConfig(&configVal); break;
   case ResTypeId::Shader: Gfx::Shader::EditConfig(&configVal); break;
+  default: break;
   }
   ImGui::End();
 

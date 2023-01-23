@@ -128,6 +128,7 @@ void Scalor::SetNextOperation(
   case Operation::Xz: mScalePlane.Normal(yRotated); break;
   case Operation::Yz: mScalePlane.Normal(xRotated); break;
   case Operation::Xyz: mScalePlane.Normal(nCamera.Forward()); break;
+  default: break;
   }
   Math::Ray mouseRay =
     nCamera.StandardPositionToRay(Input::StandardMousePosition());
@@ -198,6 +199,7 @@ Vec3 Scalor::Run(
   case Operation::Xz: axes = {1.0f, 0.0f, 1.0f}; break;
   case Operation::Yz: axes = {0.0f, 1.0f, 1.0f}; break;
   case Operation::Xyz: axes = {1.0f, 1.0f, 1.0f}; break;
+  default: break;
   }
   Math::Ray mouseRay =
     nCamera.StandardPositionToRay(Input::StandardMousePosition());
