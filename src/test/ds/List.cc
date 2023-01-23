@@ -194,7 +194,7 @@ void RunTest(void (*testFunction)())
   std::cout << "\n";
 }
 
-void main()
+int main()
 {
   EnableLeakOutput();
   RunTest(Push);
