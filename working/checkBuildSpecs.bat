@@ -1,23 +1,40 @@
-REM Ensures that all environment variables needed for working/build.bat are set
-REM and that buildDir points to an existing directory.
+REM Ensures that all environment variables needed for build scripts are set.
+REM compilerDir - The compiler directory within root/build/.
+REM buildType - The type of build to be created.
+REM target - The target to build.
 
-REM Required environment variables for working/build.bat.
-REM buildDir - The path to the build dir relative to buildSpecs.bat.
-REM generator - The identifier used to call the generator.
-REM target - The target to build and potentially run.
-REM   This must be "varkor" for the standalone version of the engine.
+REM Ensure that a valid compiler was given.
+if "%compiler%" == "" (
+  echo Error: A compiler must be specified.
+  exit /b 1
+)
+set validCompiler=0
+if "%compiler%" == "msvc64" set validCompiler=1
+if "%compiler%" == "clang64" set validCompiler=1
+if "%validCompiler%" == "0" (
+  echo Error: "%compiler%" is not a valid compiler.
+  exit /b 1
+)
 
-call buildSpecs.bat
-if "%buildDir%" == "" (
-  echo Error: The "buildDir" environment variable must be set in buildSpecs.bat.
+REM Ensure that a valid configuration was given.
+if "%configuration%" == "" (
+  echo Error: A build type must be specified.
   exit /b 1
 )
-if not exist %buildDir% (
-  echo Error: The path specified in the buildDir environment variable [%buildDir%] does not exist relative to buildSpecs.bat.
+set validConfiguration=0
+if "%configuration%" == "dbg" set validConfiguration=1
+if "%configuration%" == "rel" set validConfiguration=1
+if "%configuration%" == "relDbg" set validConfiguration=1
+if "%configuration%" == "relMin" set validConfiguration=1
+if "%validConfiguration%" == "0" (
+  echo Error: "%configuration%" is not a valid configuration.
   exit /b 1
 )
-if "%generator%" == "" (
-  echo Error: The "generator" environment variable must be set in buildSpecs.bat.
+
+REM Ensure that a target was given.
+if "%target%" == "" (
+  echo Error: A target must be specified.
   exit /b 1
 )
+
 exit /b 0

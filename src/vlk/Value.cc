@@ -18,11 +18,13 @@ Value::Value(Value::Type type): mType(Type::Invalid)
 
 Value::Value(const Value& other): mType(Type::Invalid)
 {
+  mType = Type::Invalid;
   *this = other;
 }
 
 Value::Value(Value&& other)
 {
+  mType = Type::Invalid;
   *this = std::move(other);
 }
 
@@ -37,6 +39,7 @@ void Value::Clear()
   case Type::TrueValue: mTrueValue.~basic_string(); break;
   case Type::ValueArray: mValueArray.~Vector(); break;
   case Type::PairArray: mPairArray.~Vector(); break;
+  default: break;
   }
   mType = Type::Invalid;
 }
@@ -56,6 +59,7 @@ Value& Value::operator=(const Value& other)
   case Type::PairArray:
     new (&mPairArray) Ds::Vector<Pair>(other.mPairArray);
     break;
+  default: break;
   }
   // clang-format on
   return *this;
@@ -75,9 +79,20 @@ Value& Value::operator=(Value&& other)
   case Type::PairArray:
     new (&mPairArray) Ds::Vector<Pair>(std::move(other.mPairArray));
     break;
+  default: break;
   }
   other.Clear();
   return *this;
+}
+
+Value& Value::operator=(const Pair& pair)
+{
+  return *this = *(Value*)&pair;
+}
+
+Value& Value::operator=(Pair&& pair)
+{
+  return *this = std::move(*(Value*)&pair);
 }
 
 bool Value::operator==(const Value& other) const
@@ -111,6 +126,7 @@ bool Value::operator==(const Value& other) const
       }
     }
     break;
+  default: break;
   }
   return true;
 }
@@ -129,6 +145,7 @@ void Value::Init(Type type)
   case Type::TrueValue: new (&mTrueValue) std::string(); break;
   case Type::ValueArray: new (&mValueArray) Ds::Vector<Value>(); break;
   case Type::PairArray: new (&mPairArray) Ds::Vector<Pair>(); break;
+  default: break;
   }
 }
 
@@ -194,6 +211,7 @@ bool Value::ReachedThreshold(size_t& elementCount) const
     return false;
   case Type::PairArray: return true;
   case Type::TrueValue: ++elementCount; return elementCount > countThreshold;
+  default: break;
   }
   LogAbort("Function expects an initialized Value.");
   return true;
@@ -248,6 +266,7 @@ size_t Value::Size() const
   switch (mType) {
   case Type::ValueArray: return mValueArray.Size();
   case Type::PairArray: return mPairArray.Size();
+  default: break;
   }
   LogAbort("Only ValueArray and PairArray Values have a size.");
   return 0;
@@ -465,6 +484,21 @@ void Value::PrintPairArray(std::ostream& os, std::string& indent) const
   }
   indent.erase(indent.size() - 2);
   os << indent << "}";
+}
+
+void Converter<std::string>::Serialize(Value& val, const std::string& value)
+{
+  val.EnsureType(Value::Type::TrueValue);
+  val.mTrueValue = value;
+}
+
+bool Converter<std::string>::Deserialize(const Value& val, std::string* value)
+{
+  if (val.mType != Value::Type::TrueValue) {
+    return false;
+  }
+  *value = val.mTrueValue;
+  return true;
 }
 
 Pair::Pair() {}

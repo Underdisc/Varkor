@@ -37,6 +37,7 @@ T* TryGetRes(const ResId& resId);
 template<typename T>
 bool HasRes(const ResId& resId);
 
+bool IsStandalone();
 std::string PrependResDirectory(const std::string& path);
 VResult<std::string> ResolveProjPath(const std::string& path);
 VResult<std::string> ResolveResPath(const std::string& path);

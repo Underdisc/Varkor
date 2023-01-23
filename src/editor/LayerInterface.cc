@@ -46,6 +46,9 @@ void LayerInterface::Show()
     }
   }
 
+  DropResourceIdWidget(
+    Rsl::ResTypeId::Material, &mLayerIt->mPostMaterialId, "Post");
+
   // Display a selectable list of all members in the layer's space.
   if (ImGui::Button("Create Member", ImVec2(-1, 0))) {
     space.CreateMember();
@@ -94,7 +97,7 @@ void LayerInterface::DisplayMember(
   // Make the node a source and target for parenting drag drop operations.
   if (ImGui::BeginDragDropSource()) {
     ImGui::SetDragDropPayload("MemberId", &memberId, sizeof(World::MemberId));
-    ImGui::Text(member.mName.c_str());
+    ImGui::TextUnformatted(member.mName.c_str());
     ImGui::EndDragDropSource();
   }
   if (ImGui::BeginDragDropTarget()) {

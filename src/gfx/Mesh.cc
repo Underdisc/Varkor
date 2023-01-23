@@ -16,6 +16,12 @@ unsigned int Mesh::AttributesSize(unsigned int attributes)
   if (attributes & Attribute::Position) {
     size += sizeof(Vec3);
   }
+  if (attributes & Attribute::Tangent) {
+    size += sizeof(Vec3);
+  }
+  if (attributes & Attribute::Bitagent) {
+    size += sizeof(Vec3);
+  }
   if (attributes & Attribute::Normal) {
     size += sizeof(Vec3);
   }
@@ -109,6 +115,9 @@ Result Mesh::Init(const aiMesh& assimpMesh, float scale)
 {
   // Find the size of a single vertex and all of its attributes.
   unsigned int attributes = Attribute::Position;
+  if (assimpMesh.mTangents != nullptr) {
+    attributes = attributes | Attribute::Tangent | Attribute::Bitagent;
+  }
   if (assimpMesh.mNormals != nullptr) {
     attributes = attributes | Attribute::Normal;
   }
@@ -134,6 +143,24 @@ Result Mesh::Init(const aiMesh& assimpMesh, float scale)
     currentByte += vertexByteCount;
   }
   byteOffset += AttributesSize(Attribute::Position);
+  // Add tangents and bitangents.
+  if (attributes & Attribute::Tangent) {
+    currentByte = byteOffset;
+    for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v) {
+      const aiVector3D& assimpTangent = assimpMesh.mTangents[v];
+      const aiVector3D& assimpBitangent = assimpMesh.mBitangents[v];
+      Vec3& tangent = *(Vec3*)&vertexBuffer[currentByte];
+      Vec3& bitangent = *(Vec3*)&vertexBuffer[currentByte + sizeof(Vec3)];
+      tangent[0] = assimpTangent.x;
+      tangent[1] = assimpTangent.y;
+      tangent[2] = assimpTangent.z;
+      bitangent[0] = assimpBitangent.x;
+      bitangent[1] = assimpBitangent.y;
+      bitangent[2] = assimpBitangent.z;
+      currentByte += vertexByteCount;
+    }
+    byteOffset += AttributesSize(Attribute::Tangent | Attribute::Bitagent);
+  }
   // Add normals.
   if (attributes & Attribute::Normal) {
     currentByte = byteOffset;
@@ -239,16 +266,28 @@ void Mesh::Finalize()
     glEnableVertexAttribArray(0);
     byteOffset += AttributesSize(Attribute::Position);
   }
-  if (mAttributes & Attribute::Normal) {
+  if (mAttributes & Attribute::Tangent) {
     glVertexAttribPointer(
       1, 3, GL_FLOAT, GL_FALSE, vertexByteCount, (void*)byteOffset);
     glEnableVertexAttribArray(1);
+    byteOffset += AttributesSize(Attribute::Tangent);
+  }
+  if (mAttributes & Attribute::Bitagent) {
+    glVertexAttribPointer(
+      2, 3, GL_FLOAT, GL_FALSE, vertexByteCount, (void*)byteOffset);
+    glEnableVertexAttribArray(2);
+    byteOffset += AttributesSize(Attribute::Bitagent);
+  }
+  if (mAttributes & Attribute::Normal) {
+    glVertexAttribPointer(
+      3, 3, GL_FLOAT, GL_FALSE, vertexByteCount, (void*)byteOffset);
+    glEnableVertexAttribArray(3);
     byteOffset += AttributesSize(Attribute::Normal);
   }
   if (mAttributes & Attribute::TexCoord) {
     glVertexAttribPointer(
-      2, 2, GL_FLOAT, GL_FALSE, vertexByteCount, (void*)byteOffset);
-    glEnableVertexAttribArray(2);
+      4, 2, GL_FLOAT, GL_FALSE, vertexByteCount, (void*)byteOffset);
+    glEnableVertexAttribArray(4);
     byteOffset += AttributesSize(Attribute::TexCoord);
   }
   glBindVertexArray(0);

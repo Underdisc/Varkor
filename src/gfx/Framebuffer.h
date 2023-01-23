@@ -15,10 +15,13 @@ public:
     GLint mInternalFormat;
     GLenum mFormat;
     GLenum mPixelType;
+    bool mMultisample;
   };
 
+  Framebuffer();
   Framebuffer(const Options& options);
   ~Framebuffer();
+  void Init(const Options& options);
   void Resize(int width, int height);
   GLuint Fbo() const;
   GLuint ColorTbo() const;
@@ -26,7 +29,6 @@ public:
   GLenum PixelType() const;
 
 private:
-  void Init();
   void Purge();
   GLuint mFbo;
   GLuint mColorTbo;

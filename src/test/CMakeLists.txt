@@ -6,10 +6,6 @@ function(AddTest target)
   target_sources(${target} PRIVATE ${ARGN})
   target_include_directories(${target} PRIVATE "../" "../../ext/local")
   target_link_libraries(${target} varkor ${glfw} ${OPENGL_gl_LIBRARY})
-  target_link_options(${target} PRIVATE /MANIFEST:NO)
-  set_target_properties(${target} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/working/test/${target}"
-    OUTPUT_NAME "test")
 endfunction()
 
 Addtest(ds_List ds/List.cc ds/TestType.cc)

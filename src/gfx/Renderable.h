@@ -9,7 +9,8 @@
 
 namespace World {
 struct Space;
-}
+struct Object;
+} // namespace World
 
 namespace Gfx {
 
@@ -37,6 +38,7 @@ struct Renderable
 
     static Collection* smActiveCollection;
     void Collect(const World::Space& space);
+    void Collect(const World::Object& object);
     static void Add(Type renderableType, Renderable&& renderable);
 
     void Render(Type renderableType) const;

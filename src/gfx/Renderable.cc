@@ -51,6 +51,23 @@ void Renderable::Collection::Collect(const World::Space& space)
   smActiveCollection = nullptr;
 }
 
+void Renderable::Collection::Collect(const World::Object& object)
+{
+  // Collect all of the renderables on a specific object.
+  smActiveCollection = this;
+  for (Comp::TypeId typeId = 0; typeId < Comp::TypeDataCount(); ++typeId) {
+    const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
+    if (!typeData.mVRenderable.Open()) {
+      continue;
+    }
+    void* component = object.TryGetComponent(typeId);
+    if (component != nullptr) {
+      typeData.mVRenderable.Invoke(component, object);
+    }
+  }
+  smActiveCollection = nullptr;
+}
+
 void Renderable::Collection::Add(Type renderableType, Renderable&& renderable)
 {
   LogAbortIf(smActiveCollection == nullptr, "Active collection not set.");

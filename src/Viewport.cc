@@ -6,6 +6,8 @@
 namespace Viewport {
 
 void ResizeCallback(GLFWwindow* window, int width, int height);
+const char* ErrorCodeString(int code);
+void ErrorCallback(int code, const char* description);
 
 GLFWwindow* nWindow;
 GLFWwindow* nSharedWindow;
@@ -16,8 +18,9 @@ int nHeight;
 void Init(const char* windowName, bool visible)
 {
   // Create a maximized window and an opengl context.
+  glfwSetErrorCallback(ErrorCallback);
   glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_SAMPLES, 4);
@@ -29,7 +32,7 @@ void Init(const char* windowName, bool visible)
   // We use 1 for the starting window width and height because it will be
   // maximized to fill the whole monitor.
   nWindow = glfwCreateWindow(800, 800, windowName, NULL, NULL);
-  LogAbortIf(!nWindow, "glfw window creation failed.");
+  LogAbortIf(nWindow == nullptr, "glfw window creation failed.");
   glfwGetWindowSize(nWindow, &nWidth, &nHeight);
   glfwMakeContextCurrent(nWindow);
   glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -60,9 +63,14 @@ void SwapBuffers()
   glfwSwapBuffers(nWindow);
 }
 
-void InitContextSharing()
+void StartContextSharing()
 {
   glfwMakeContextCurrent(nSharedWindow);
+}
+
+void EndContextSharing()
+{
+  glfwMakeContextCurrent(nullptr);
 }
 
 int Width()
@@ -94,7 +102,35 @@ void ResizeCallback(GLFWwindow* window, int width, int height)
 {
   nWidth = width;
   nHeight = height;
-  Gfx::Renderer::ResizeSpaceFramebuffers();
+  Gfx::Renderer::LayerFramebuffers::Resize();
+}
+
+const char* ErrorCodeString(int code)
+{
+  switch (code) {
+  case GLFW_NO_ERROR: return "GLFW_NO_ERROR";
+  case GLFW_NOT_INITIALIZED: return "GLFW_NOT_INITIALIZED";
+  case GLFW_NO_CURRENT_CONTEXT: return "GLFW_NO_CURRENT_CONTEXT";
+  case GLFW_INVALID_ENUM: return "GLFW_INVALID_ENUM";
+  case GLFW_INVALID_VALUE: return "GLFW_INVALID_VALUE";
+  case GLFW_OUT_OF_MEMORY: return "GLFW_OUT_OF_MEMORY";
+  case GLFW_API_UNAVAILABLE: return "GLFW_API_UNAVAILABLE";
+  case GLFW_VERSION_UNAVAILABLE: return "GLFW_VERSION_UNAVAILABLE";
+  case GLFW_PLATFORM_ERROR: return "GLFW_PLATFORM_ERROR";
+  case GLFW_FORMAT_UNAVAILABLE: return "GLFW_FORMAT_UNAVAILABLE";
+  case GLFW_NO_WINDOW_CONTEXT: return "GLFW_NO_WINDOW_CONTEXT";
+  }
+  return "GLFW_NO_ERROR";
+}
+
+void ErrorCallback(int code, const char* description)
+{
+  std::string error = "GlfwError(";
+  error += ErrorCodeString(code);
+  error += ")\n  ";
+  error += description;
+  Error::LogString(error.c_str());
+  Error::StackTrace();
 }
 
 } // namespace Viewport

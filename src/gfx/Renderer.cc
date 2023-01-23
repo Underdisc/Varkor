@@ -36,8 +36,10 @@ GLuint nUniversalUniformBufferVbo;
 GLuint nLightsUniformBufferVbo;
 GLuint nShadowUniformBufferVbo;
 
-size_t nCurrentSpaceFramebufferIndex = 0;
-Ds::Vector<Framebuffer> nSpaceFramebuffers;
+bool nMemberIdFramebufferUsed;
+Framebuffer* nMemberIdFramebuffer;
+bool nOutlineFramebufferUsed;
+Framebuffer* nOutlineFramebuffer;
 
 const char* nRendererAssetName = "vres/renderer";
 const ResId nFullscreenMeshId(nRendererAssetName, "FullscreenMesh");
@@ -45,10 +47,17 @@ const ResId nSpriteMeshId(nRendererAssetName, "SpriteMesh");
 const ResId nSkyboxMeshId(nRendererAssetName, "SkyboxMesh");
 const ResId nMemberIdShaderId(nRendererAssetName, "MemberIdShader");
 const ResId nDepthShaderId(nRendererAssetName, "DepthShader");
+const ResId nMemberOutlineMaterialId(
+  nRendererAssetName, "MemberOutlineMaterial");
 const ResId nDefaultPostShaderId(nRendererAssetName, "DefaultPostShader");
 const ResId nDefaultPostMaterialId(nRendererAssetName, "DefaultPostMaterial");
 
 void (*nCustomRender)() = nullptr;
+
+void RenderMemberIds(
+  const Renderable::Collection& collection, const Mat4& view, const Mat4& proj);
+void RenderMemberOutline(
+  const Renderable::Collection& collection, const Mat4& view, const Mat4& proj);
 
 void Init()
 {
@@ -143,27 +152,35 @@ void Init()
 
 void Purge()
 {
-  nSpaceFramebuffers.Clear();
+  LayerFramebuffers::smInUse.Clear();
+  if (nMemberIdFramebuffer != nullptr) {
+    delete nMemberIdFramebuffer;
+  }
+  if (nOutlineFramebuffer != nullptr) {
+    delete nOutlineFramebuffer;
+  }
 }
 
 void Clear()
 {
-  // Remove any space framebuffers that were not used during the last render and
-  // clear those that were used.
-  size_t popCount = nSpaceFramebuffers.Size() - nCurrentSpaceFramebufferIndex;
-  for (size_t i = 0; i < popCount; ++i) {
-    nSpaceFramebuffers.Pop();
-  }
-  for (size_t i = 0; i < nSpaceFramebuffers.Size(); ++i) {
-    glBindFramebuffer(GL_FRAMEBUFFER, nSpaceFramebuffers[i].Fbo());
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  }
+  // Clear all framebuffers.
+  LayerFramebuffers::Clear();
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  nCurrentSpaceFramebufferIndex = 0;
-
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // Delete framebuffers that weren't used and update their usage status so they
+  // can be deleted if they are not used during the next frame.
+  if (!nMemberIdFramebufferUsed) {
+    delete nMemberIdFramebuffer;
+    nMemberIdFramebuffer = nullptr;
+  }
+  nMemberIdFramebufferUsed = false;
+  if (!nOutlineFramebufferUsed) {
+    delete nOutlineFramebuffer;
+    nOutlineFramebufferUsed = false;
+  }
+  nOutlineFramebufferUsed = false;
 }
 
 void Render()
@@ -173,7 +190,7 @@ void Render()
     nCustomRender();
   }
   if (Editor::nEditorMode) {
-    // Render the selected space and the editor space.
+    // Render the selected space.
     Editor::LayerInterface* layerInterface =
       Editor::nCoreInterface.FindInterface<Editor::LayerInterface>();
     if (layerInterface == nullptr) {
@@ -185,6 +202,17 @@ void Render()
     const Mat4& proj = Editor::nCamera.Proj();
     const Vec3& viewPos = Editor::nCamera.Position();
     RenderSpace(space, view, proj, viewPos, worldLayer.mPostMaterialId);
+
+    // Render an outline around the selected object.
+    Editor::InspectorInterface* inspectorInterface =
+      layerInterface->FindInterface<Editor::InspectorInterface>();
+    if (inspectorInterface != nullptr) {
+      Renderable::Collection collection;
+      collection.Collect(inspectorInterface->mObject);
+      RenderMemberOutline(collection, view, proj);
+    }
+
+    // Render the editor space and any debug draws.
     RenderSpace(Editor::nSpace, view, proj, viewPos, nDefaultPostMaterialId);
     Debug::Draw::Render(Editor::nCamera.View(), Editor::nCamera.Proj());
   }
@@ -362,13 +390,44 @@ void InitializeShadowUniformBuffer(
     UniformTypeId::Texture2d, "uShadowTexture", shadowMap.mTbo);
 }
 
-void RenderMemberIds(
-  const World::Space& space, const Mat4& view, const Mat4& proj)
+const Framebuffer& GetMemberIdFramebuffer()
 {
-  Renderable::Collection collection;
-  collection.Collect(space);
-  InitializeUniversalUniformBuffer(view, proj);
+  nMemberIdFramebufferUsed = true;
+  if (nMemberIdFramebuffer != nullptr) {
+    return *nMemberIdFramebuffer;
+  }
+  Framebuffer::Options options;
+  options.mWidth = Viewport::Width();
+  options.mHeight = Viewport::Height();
+  options.mInternalFormat = GL_R32I;
+  options.mFormat = GL_RED_INTEGER;
+  options.mPixelType = GL_INT;
+  options.mMultisample = false;
+  nMemberIdFramebuffer = alloc Framebuffer(options);
+  return *nMemberIdFramebuffer;
+}
 
+const Framebuffer& GetOutlineFramebuffer()
+{
+  nOutlineFramebufferUsed = true;
+  if (nOutlineFramebuffer != nullptr) {
+    return *nOutlineFramebuffer;
+  }
+  Framebuffer::Options options;
+  options.mWidth = Viewport::Width();
+  options.mHeight = Viewport::Height();
+  options.mInternalFormat = GL_RGBA8;
+  options.mFormat = GL_RGBA;
+  options.mPixelType = GL_UNSIGNED_BYTE;
+  options.mMultisample = false;
+  nOutlineFramebuffer = alloc Framebuffer(options);
+  return *nOutlineFramebuffer;
+}
+
+void RenderMemberIds(
+  const Renderable::Collection& collection, const Mat4& view, const Mat4& proj)
+{
+  InitializeUniversalUniformBuffer(view, proj);
   auto& memberIdShader = Rsl::GetRes<Gfx::Shader>(nMemberIdShaderId);
   memberIdShader.Use();
   const Ds::Vector<Renderable>& floaters =
@@ -384,21 +443,44 @@ void RenderMemberIds(
   }
 }
 
+void RenderMemberOutline(
+  const Renderable::Collection& collection, const Mat4& view, const Mat4& proj)
+{
+  // Render the memberIds.
+  const Framebuffer& memberIdFrambuffer = GetMemberIdFramebuffer();
+  glBindFramebuffer(GL_FRAMEBUFFER, memberIdFrambuffer.Fbo());
+  glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  RenderMemberIds(collection, view, proj);
+
+  // Draw an outline around the valid memberIds to the default framebuffer.
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, memberIdFrambuffer.ColorTbo());
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  auto& outlineMaterial = Rsl::GetRes<Gfx::Material>(nMemberOutlineMaterialId);
+  auto& outlineShader = Rsl::GetRes<Gfx::Shader>(outlineMaterial.mShaderId);
+  outlineShader.Use();
+  outlineShader.SetUniform("uTexture", 0);
+  outlineMaterial.mUniforms.Bind(outlineShader);
+
+  auto& fullscreenMesh = Rsl::GetRes<Gfx::Mesh>(nFullscreenMeshId);
+  glDisable(GL_DEPTH_TEST);
+  fullscreenMesh.Render();
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glEnable(GL_DEPTH_TEST);
+}
+
 World::MemberId HoveredMemberId(
   const World::Space& space, const Mat4& view, const Mat4& proj)
 {
   // Render all of the MemberIds to a framebuffer.
-  Framebuffer::Options options;
-  options.mWidth = Viewport::Width();
-  options.mHeight = Viewport::Height();
-  options.mInternalFormat = GL_R32I;
-  options.mFormat = GL_RED_INTEGER;
-  options.mPixelType = GL_INT;
-  Framebuffer handlebuffer(options);
-  glBindFramebuffer(GL_FRAMEBUFFER, handlebuffer.Fbo());
+  Renderable::Collection collection;
+  collection.Collect(space);
+  const Framebuffer& memberIdFramebuffer = GetMemberIdFramebuffer();
+  glBindFramebuffer(GL_FRAMEBUFFER, memberIdFramebuffer.Fbo());
   glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
   glClear(GL_DEPTH_BUFFER_BIT);
-  RenderMemberIds(space, view, proj);
+  RenderMemberIds(collection, view, proj);
 
   // Find the MemberId at the mouse position.
   World::MemberId memberId;
@@ -408,8 +490,8 @@ World::MemberId HoveredMemberId(
     Viewport::Height() - (int)mousePos[1],
     1,
     1,
-    handlebuffer.Format(),
-    handlebuffer.PixelType(),
+    memberIdFramebuffer.Format(),
+    memberIdFramebuffer.PixelType(),
     (void*)&memberId);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   return memberId;
@@ -439,20 +521,9 @@ void RenderSpace(
   InitializeShadowUniformBuffer(space, &collection);
 
   // Get the next space framebuffer that hasn't been rendered to and bind it.
-  if (nCurrentSpaceFramebufferIndex >= nSpaceFramebuffers.Size()) {
-    Framebuffer::Options options;
-    options.mWidth = Viewport::Width();
-    options.mHeight = Viewport::Height();
-    options.mInternalFormat = GL_RGBA16F;
-    options.mFormat = GL_RGBA;
-    options.mPixelType = GL_HALF_FLOAT;
-    nSpaceFramebuffers.Emplace(options);
-  }
-  const Framebuffer& currentLayerFramebuffer =
-    nSpaceFramebuffers[nCurrentSpaceFramebufferIndex];
-  ++nCurrentSpaceFramebufferIndex;
+  const LayerFramebuffers& fbs = LayerFramebuffers::GetNext();
   glViewport(0, 0, Viewport::Width(), Viewport::Height());
-  glBindFramebuffer(GL_FRAMEBUFFER, currentLayerFramebuffer.Fbo());
+  glBindFramebuffer(GL_FRAMEBUFFER, fbs.mMs.Fbo());
 
   // Perform the render passes for the layer.
   glDepthMask(GL_FALSE);
@@ -460,10 +531,25 @@ void RenderSpace(
   glDepthMask(GL_TRUE);
   collection.Render(Renderable::Type::Floater);
 
+  // Blit the multisample buffer into the blit buffer.
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, fbs.mMs.Fbo());
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbs.mBlit.Fbo());
+  glBlitFramebuffer(
+    0,
+    0,
+    Viewport::Width(),
+    Viewport::Height(),
+    0,
+    0,
+    Viewport::Width(),
+    Viewport::Height(),
+    GL_COLOR_BUFFER_BIT,
+    GL_NEAREST);
+
   // Perform the post process pass.
   glDisable(GL_DEPTH_TEST);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, currentLayerFramebuffer.ColorTbo());
+  glBindTexture(GL_TEXTURE_2D, fbs.mBlit.ColorTbo());
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   auto& fullscreenMesh = Rsl::GetRes<Gfx::Mesh>(nFullscreenMeshId);
   postShader->Use();
@@ -475,11 +561,59 @@ void RenderSpace(
   glEnable(GL_DEPTH_TEST);
 }
 
-void ResizeSpaceFramebuffers()
+int LayerFramebuffers::smNext;
+Ds::Vector<LayerFramebuffers> LayerFramebuffers::smInUse;
+
+const LayerFramebuffers& LayerFramebuffers::GetNext()
 {
-  for (Gfx::Framebuffer& framebuffer : nSpaceFramebuffers) {
-    framebuffer.Resize(Viewport::Width(), Viewport::Height());
+  if (smNext >= smInUse.Size()) {
+    ++smNext;
+    smInUse.Emplace();
+    return smInUse.Top();
   }
+  return smInUse[smNext++];
+}
+
+void LayerFramebuffers::Clear()
+{
+  // Remove framebuffers that haven't been used and clear the rest.
+  size_t popCount = smInUse.Size() - smNext;
+  for (size_t i = 0; i < popCount; ++i) {
+    smInUse.Pop();
+  }
+  for (LayerFramebuffers& toClear : smInUse) {
+    glBindFramebuffer(GL_FRAMEBUFFER, toClear.mMs.Fbo());
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
+  smNext = 0;
+}
+
+void LayerFramebuffers::Resize()
+{
+  for (LayerFramebuffers& toResize : smInUse) {
+    toResize.mMs.Resize(Viewport::Width(), Viewport::Height());
+    toResize.mBlit.Resize(Viewport::Width(), Viewport::Height());
+  }
+}
+
+LayerFramebuffers::LayerFramebuffers()
+{
+  Framebuffer::Options msOptions;
+  msOptions.mWidth = Viewport::Width();
+  msOptions.mHeight = Viewport::Height();
+  msOptions.mInternalFormat = GL_RGBA16F;
+  msOptions.mMultisample = true;
+  mMs.Init(msOptions);
+
+  Framebuffer::Options blitOptions;
+  blitOptions.mWidth = Viewport::Width();
+  blitOptions.mHeight = Viewport::Height();
+  blitOptions.mInternalFormat = GL_RGBA16F;
+  blitOptions.mFormat = GL_RGBA;
+  blitOptions.mPixelType = GL_HALF_FLOAT;
+  blitOptions.mMultisample = false;
+  mBlit.Init(blitOptions);
 }
 
 } // namespace Renderer

@@ -3,6 +3,7 @@
 #include "Error.h"
 #include "debug/Draw.h"
 #include "ds/Vector.h"
+#include "gfx/Mesh.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
 #include "math/Geometry.h"
@@ -23,12 +24,12 @@ Ds::Vector<Renderable> nRenderables;
 
 const char* nDebugDrawAssetName = "vres/debugDraw";
 const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Shader");
+const ResId nTbnShaderId(nDebugDrawAssetName, "TbnShader");
 
 void Init()
 {
   glPointSize(12.0f);
   glLineWidth(3.0f);
-  Rsl::RequireAsset(nDebugDrawAssetName);
 }
 
 void Point(const Vec3& point, const Vec3& color)
@@ -99,15 +100,18 @@ void CartesianAxes()
 
 void Render(const Mat4& view, const Mat4& proj)
 {
-  Gfx::Shader& shader = Rsl::GetRes<Gfx::Shader>(nDebugDrawShaderId);
+  Gfx::Shader* shader = Rsl::TryGetRes<Gfx::Shader>(nDebugDrawShaderId);
+  if (shader == nullptr) {
+    return;
+  }
   Gfx::Renderer::InitializeUniversalUniformBuffer(view, proj);
 
-  glUseProgram(shader.Id());
+  shader->Use();
   for (int i = 0; i < nRenderables.Size(); ++i) {
     const Renderable& renderable = nRenderables[i];
     Vec4 fullColor = (Vec4)renderable.mColor;
     fullColor[3] = 1.0f;
-    shader.SetUniform("uColor", fullColor);
+    shader->SetUniform("uColor", fullColor);
     glBindVertexArray(renderable.mVao);
     if (renderable.mCount == 1) {
       glDrawArrays(GL_POINTS, 0, renderable.mCount);
@@ -120,6 +124,25 @@ void Render(const Mat4& view, const Mat4& proj)
     glDeleteBuffers(1, &renderable.mVbo);
   }
   nRenderables.Clear();
+}
+
+void RenderTbnVectors(const Gfx::Renderable::Collection& collection)
+{
+  auto* shader = Rsl::TryGetRes<Gfx::Shader>(nTbnShaderId);
+  if (shader == nullptr) {
+    return;
+  }
+  shader->Use();
+  const Ds::Vector<Gfx::Renderable>& floaters =
+    collection.Get(Gfx::Renderable::Type::Floater);
+  for (const Gfx::Renderable& renderable : floaters) {
+    const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(renderable.mMeshId);
+    if (mesh == nullptr) {
+      continue;
+    }
+    shader->SetUniform("uModel", renderable.mTransform);
+    mesh->Render();
+  }
 }
 
 } // namespace Draw

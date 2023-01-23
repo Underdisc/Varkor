@@ -2,6 +2,7 @@ target_sources(varkor PRIVATE
   Cubemap.cc
   Font.cc
   Framebuffer.cc
+  GlError.cc
   Image.cc
   Material.cc
   Mesh.cc

@@ -9,7 +9,8 @@ void Init(const char* windowName, bool visible = true);
 void Update();
 void Purge();
 void SwapBuffers();
-void InitContextSharing();
+void StartContextSharing();
+void EndContextSharing();
 
 int Width();
 int Height();

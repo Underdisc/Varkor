@@ -6,7 +6,6 @@
 #include <string>
 
 #include <StackWalker.h>
-#include <glad/glad.h>
 
 #include "Error.h"
 #include "debug/MemLeak.h"
@@ -70,34 +69,6 @@ void Log(const char* file, int line, const char* function, const char* reason)
   std::string filename = FormatFileName(file);
   ss << "Error|" << filename << "(" << line << ")|" << function << ": "
      << reason;
-  LogString(ss.str().c_str());
-}
-
-void LogGlStatus()
-{
-  GLenum error = glGetError();
-  std::stringstream ss;
-  // clang-format off
-  switch (error)
-  {
-  case GL_NO_ERROR:
-    ss << "GL_NO_ERROR"; break;
-  case GL_INVALID_ENUM:
-    ss << "GL_INVALID_ENUM"; break;
-  case GL_INVALID_VALUE:
-    ss << "GL_INVALID_VALUE"; break;
-  case GL_INVALID_OPERATION:
-    ss << "GL_INVALID_OPERATION"; break;
-  case GL_INVALID_FRAMEBUFFER_OPERATION:
-    ss << "GL_INVALID_FRAMEBUFFER_OPERATION"; break;
-  case GL_OUT_OF_MEMORY:
-    ss << "GL_OUT_OF_MEMORY"; break;
-  case GL_STACK_UNDERFLOW:
-    ss << "GL_STACK_UNDERFLOW"; break;
-  case GL_STACK_OVERFLOW:
-    ss << "GL_STACK_OVERFLOW"; break;
-  }
-  // clang-format on
   LogString(ss.str().c_str());
 }
 

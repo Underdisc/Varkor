@@ -9,7 +9,8 @@ void Deserialize()
   Vlk::Value rootVal;
   rootVal.Read("../vlk_Value/SerializeDeserialize.vlk");
   Vlk::Explorer rootEx(rootVal);
-  Vlk::Explorer stringsEx = rootEx("Container")("Strings");
+  Vlk::Explorer containerEx = rootEx("Container");
+  Vlk::Explorer stringsEx = containerEx("Strings");
 
   // Test access of pairs and values that do not exist.
   rootEx(10)(0)("Invalid");

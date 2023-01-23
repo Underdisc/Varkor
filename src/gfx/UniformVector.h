@@ -78,6 +78,7 @@ struct UniformVector
   template<typename T>
   T& Get(const std::string& name);
   void* Get(UniformTypeId typeId, const std::string& name);
+  void Bind(const Shader& shader) const;
   void Bind(const Shader& shader, int* textureIndex) const;
 
 private:

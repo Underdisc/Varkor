@@ -15,8 +15,10 @@ struct Mesh
   enum Attribute : unsigned int
   {
     Position = 1 << 0,
-    Normal = 1 << 1,
-    TexCoord = 1 << 2,
+    Tangent = 1 << 1,
+    Bitagent = 1 << 2,
+    Normal = 1 << 3,
+    TexCoord = 1 << 4,
   };
   static unsigned int AttributesSize(unsigned int attributes);
 

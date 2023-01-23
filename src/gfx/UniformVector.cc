@@ -130,6 +130,12 @@ void* UniformVector::Get(UniformTypeId typeId, const std::string& name)
   return nullptr;
 }
 
+void UniformVector::Bind(const Shader& shader) const
+{
+  int textureIndex = 0;
+  Bind(shader, &textureIndex);
+}
+
 void UniformVector::Bind(const Shader& shader, int* textureIndex) const
 {
   for (const UniformDescriptor& uniformDesc : mUniformDescs) {
@@ -150,6 +156,7 @@ void UniformVector::Bind(const Shader& shader, int* textureIndex) const
     case UniformTypeId::TextureCubemap:
       BindTexture(shader, textureIndex, uniformDesc, GL_TEXTURE_CUBE_MAP);
       break;
+    default: break;
     }
   }
 }

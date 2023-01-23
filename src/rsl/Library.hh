@@ -24,24 +24,19 @@ template<typename T>
 T* TryGetRes(const ResId& resId)
 {
   std::string assetName = resId.GetAssetName();
-  Asset* asset = TryGetAsset(assetName);
-  if (asset == nullptr) {
-    QueueAsset(assetName);
-    return nullptr;
-  }
-  if (asset->GetStatus() == Asset::Status::Initializing) {
-    return nullptr;
-  }
-  T* res = asset->TryGetRes<T>(resId.GetResourceName());
-  if (res != nullptr) {
-    return res;
-  }
-  switch (asset->GetStatus()) {
-  case Asset::Status::Live:
+  switch (GetAssetStatus(assetName)) {
+  case Asset::Status::Dormant: QueueAsset(assetName);
+  case Asset::Status::Queued:
+  case Asset::Status::Initializing: return nullptr;
   case Asset::Status::Failed: return &GetDefaultRes<T>();
-  case Asset::Status::Dormant: asset->QueueInit();
+  case Asset::Status::Live: break;
   }
-  return nullptr;
+  Asset& asset = GetAsset(assetName);
+  T* res = asset.TryGetRes<T>(resId.GetResourceName());
+  if (res == nullptr) {
+    return &GetDefaultRes<T>();
+  }
+  return res;
 }
 
 template<typename T>

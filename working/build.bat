@@ -1,46 +1,54 @@
 @echo off
-
-REM Usage: build target [r]
+REM Usage: build compiler configuration target [r] [args]
+REM compiler - The compiler to build with.
+REM configuration - The type of build (dbg, rel, relDbg, relMin).
 REM target - The target to build.
 REM r - The target will run after a successful build.
+REM args - Arguments given when invoking the built executable.
 
-REM Ensure the integrity of the build specifications and that there is a target.
+set scriptDir=%~dp0
+set compiler=%1
+set configuration=%2
+set target=%3
+set action=%4
+
+rem Collect arguments for when we run the built target.
+set args=
+:NextArg
+if "%5" == "" goto AllArgsCollected
+set args=%args% %5
+shift
+goto NextArg
+:AllArgsCollected
+
+REM Ensure that build specifications are set.
 call checkBuildSpecs.bat
-set buildSpecsCheckFailed=1
-if errorlevel %buildSpecsCheckFailed% (
+if errorlevel 1 (
   exit /b 1
 )
-if "%1" == "" (
-  echo Error: The target to build must be specified as the first argument.
-  exit /b 1
-)
+set buildDir=%scriptDir%\..\build\%compiler%\%configuration%
 
 REM Build the target.
-set target=%1
-pushd %buildDir%
-%generator% %target%
+pushd "%buildDir%"
+ninja %target%
 popd
-set buildFailed=1
-if errorlevel %buildFailed% (
+if errorlevel 1 (
   exit /b 1
 )
 
 REM If requested, run the target with the given arguments.
-if "%2" == "r" (
-  setlocal ENABLEDELAYEDEXPANSION
-  set "args=%3"
-  :NextArg
-  if "%4" == "" goto AllArgsCollected
-  set "args=!args! %4"
-  shift
-  goto NextArg
-  :AllArgsCollected
+if "%action%" == "r" (
+  pushd "%buildDir%"
+  move %target%.* %scriptDir% > nul
+  popd
+  pushd "%scriptDir%"
   %target%.exe %args%
-  endlocal
-  exit /b 0
-)
-if not "%2" == "" (
-  echo Error: %2 is not a valid second argument. Only r is valid.
-  exit /b 1
+  move %target%.* %buildDir% > nul
+  popd
+) else (
+  if not "%action%" == "" (
+    echo Error: %action% is not a valid action. Only r is valid.
+    exit /b 1
+  )
 )
 exit /b 0

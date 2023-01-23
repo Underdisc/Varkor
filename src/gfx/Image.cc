@@ -71,7 +71,7 @@ Result Image::Init(const std::string& file)
     stbi_load(absoluteFile.c_str(), &width, &height, &channels, 0);
   if (imageData == nullptr) {
     return Result(
-      "File \"" + absoluteFile + "\" failed load.\n " + stbi_failure_reason());
+      "File \"" + absoluteFile + "\" failed load.\n" + stbi_failure_reason());
   }
   Init(imageData, width, height, channels);
   stbi_image_free(imageData);
@@ -115,7 +115,7 @@ Result Image::Init(
   glPixelStorei(GL_UNPACK_ALIGNMENT, pixelAlignmet);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexImage2D(
     GL_TEXTURE_2D,

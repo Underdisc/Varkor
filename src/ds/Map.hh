@@ -101,14 +101,14 @@ V& Map<K, V>::Emplace(const K& key, Args&&... args)
 template<typename K, typename V>
 void Map<K, V>::Remove(const K& key)
 {
-  typename Map<K, V>::Node* node = Map<K, V>::FindNode<K>(key);
+  typename Map<K, V>::Node* node = Map<K, V>::template FindNode<K>(key);
   Map<K, V>::RemoveNode(node);
 }
 
 template<typename K, typename V>
 V* Map<K, V>::TryGet(const K& key) const
 {
-  typename Map<K, V>::Node* node = Map<K, V>::FindNode<K>(key);
+  typename Map<K, V>::Node* node = Map<K, V>::template FindNode<K>(key);
   if (node == nullptr) {
     return nullptr;
   }

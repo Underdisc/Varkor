@@ -63,7 +63,7 @@ void FileInterface::Show()
 
   // List all of the directories and files.
   dirent* entry;
-  while (entry = readdir(directory)) {
+  while ((entry = readdir(directory)) != nullptr) {
     bool isDir = entry->d_type == DT_DIR;
     bool isFile = entry->d_type == DT_REG;
     if (!isDir && !isFile) {

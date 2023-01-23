@@ -95,6 +95,7 @@ void Rotator::SetNextOperation(
   case Operation::X: mRotationPlane.Normal(xRotated); break;
   case Operation::Y: mRotationPlane.Normal(yRotated); break;
   case Operation::Z: mRotationPlane.Normal(zRotated); break;
+  default: break;
   }
 
   // Prepare mMouseOffset for the new operation.
