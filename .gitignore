@@ -6,7 +6,5 @@ projects.cmake
 .vs/
 build/
 working/imgui.ini
-working/res/assets.vlk
-working/res/test
 working/test/*/coverage
 working/test/*/out_diff.txt
