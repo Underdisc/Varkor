@@ -1,5 +1,6 @@
 @echo off
 REM Usage: btest compiler configuration (all [t|c]) | ({target} [r|d|a|t|c])
+REM Build, test, and ensure tests are passing.
 
 REM Required Arguments
 REM compiler - The compiler to build with.
