@@ -3,24 +3,31 @@ REM compilerDir - The compiler directory within root/build/.
 REM buildType - The type of build to be created.
 REM target - The target to build.
 
-call buildSpecs.bat
-if "%compilerDir%" == "" (
-  echo Error: buildSpecs.bat must set the "compilerDir" environment variable.
+REM Ensure that a valid compiler was given.
+if "%compiler%" == "" (
+  echo Error: A compiler must be specified.
+  exit /b 1
+)
+set validCompiler=0
+if "%compiler%" == "msvc64" set validCompiler=1
+if "%compiler%" == "clang64" set validCompiler=1
+if "%validCompiler%" == "0" (
+  echo Error: "%compiler%" is not a valid compiler.
   exit /b 1
 )
 
-REM Ensure that a valid build type was given.
-if "%buildType%" == "" (
+REM Ensure that a valid configuration was given.
+if "%configuration%" == "" (
   echo Error: A build type must be specified.
   exit /b 1
 )
-set validBuildType=0
-if "%buildType%" == "dbg" set validBuildType=1
-if "%buildType%" == "rel" set validBuildType=1
-if "%buildType%" == "relDbg" set validBuildType=1
-if "%buildType%" == "relMin" set validBuildType=1
-if "%validBuildType%" == "0" (
-  echo Error: "%buildType%" is not a valid build type.
+set validConfiguration=0
+if "%configuration%" == "dbg" set validConfiguration=1
+if "%configuration%" == "rel" set validConfiguration=1
+if "%configuration%" == "relDbg" set validConfiguration=1
+if "%configuration%" == "relMin" set validConfiguration=1
+if "%validConfiguration%" == "0" (
+  echo Error: "%configuration%" is not a valid configuration.
   exit /b 1
 )
 

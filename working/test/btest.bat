@@ -1,7 +1,9 @@
 @echo off
-REM Usage: btest buildType (all [t|c]) | ({target} [r|d|a|t|c])
+REM Usage: btest compiler configuration (all [t|c]) | ({target} [r|d|a|t|c])
 
 REM Required Arguments
+REM compiler - The compiler to build with.
+REM configuration - The type of build (dbg, rel, relDbg, relMin).
 REM all - Build all of the existing test targets.
 REM {target} - Build only the provided target.
 
@@ -21,9 +23,10 @@ REM   not run easy. A build of OpenCppCoverage needs to be in your path. It can
 REM   be found here (https://github.com/OpenCppCoverage/OpenCppCoverage).
 
 set scriptDir=%~dp0
-set buildType=%1
-set target=%2
-set action=%3
+set compiler=%1
+set configuration=%2
+set target=%3
+set action=%4
 
 REM Ensure that the build specifications are set.
 pushd "%scriptDir%\..\"
@@ -35,7 +38,7 @@ if errorlevel 1 (
 popd
 
 set rootDir=%scriptDir%\..\..
-set buildDir=%rootDir%\build\%compilerDir%\%buildType%
+set buildDir=%rootDir%\build\%compiler%\%configuration%
 
 REM Build the target or targets.
 pushd "%buildDir%"
