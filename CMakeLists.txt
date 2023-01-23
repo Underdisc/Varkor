@@ -2,17 +2,6 @@ cmake_minimum_required(VERSION 3.18)
 cmake_policy(SET CMP0048 NEW)
 project(varkor)
 
-# Set the build type postfix that's appended to the output executable names.
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-  set(buildTypePostfix "dbg")
-elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-  set(buildTypePostfix "rel")
-elseif("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
-  set(buildTypePostfix "relDbg")
-elseif("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
-  set(buildTypePostfix "relMin")
-endif()
-
 # Create the target for the Varkor static library.
 add_library(varkor STATIC)
 add_subdirectory(src)
