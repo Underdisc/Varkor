@@ -128,9 +128,14 @@ bool IsStandalone()
   return Options::nProjectDirectory == "";
 }
 
+std::string ResDirectory()
+{
+  return Options::nProjectDirectory + "res";
+}
+
 std::string PrependResDirectory(const std::string& path)
 {
-  return Options::nProjectDirectory + "res/" + path;
+  return ResDirectory() + '/' + path;
 }
 
 // A path can be next to the executable or within a project directory. This
