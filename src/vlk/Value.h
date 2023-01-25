@@ -116,6 +116,35 @@ private:
 };
 
 template<typename T>
+struct Converter
+{
+  static void Serialize(Value& val, const T& value)
+  {
+    val.EnsureType(Value::Type::TrueValue);
+    std::stringstream ss;
+    ss << value;
+    val.mTrueValue = ss.str();
+  }
+
+  static bool Deserialize(const Value& val, T* value)
+  {
+    if (val.mType != Value::Type::TrueValue) {
+      return false;
+    }
+    std::stringstream ss(val.mTrueValue);
+    ss >> *value;
+    return true;
+  }
+};
+
+template<>
+struct Converter<std::string>
+{
+  static void Serialize(Value& val, const std::string& value);
+  static bool Deserialize(const Value& val, std::string* value);
+};
+
+template<typename T>
 void Value::PushValue(const T& value)
 {
   PushValue();
@@ -147,35 +176,6 @@ void Value::operator=(const T& value)
 {
   Converter<T>::Serialize(*this, value);
 }
-
-template<typename T>
-struct Converter
-{
-  static void Serialize(Value& val, const T& value)
-  {
-    val.EnsureType(Value::Type::TrueValue);
-    std::stringstream ss;
-    ss << value;
-    val.mTrueValue = ss.str();
-  }
-
-  static bool Deserialize(const Value& val, T* value)
-  {
-    if (val.mType != Value::Type::TrueValue) {
-      return false;
-    }
-    std::stringstream ss(val.mTrueValue);
-    ss >> *value;
-    return true;
-  }
-};
-
-template<>
-struct Converter<std::string>
-{
-  static void Serialize(Value& val, const std::string& value);
-  static bool Deserialize(const Value& val, std::string* value);
-};
 
 struct Pair: public Value
 {
