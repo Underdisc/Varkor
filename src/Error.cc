@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <string>
 
-#include <StackWalker.h>
+#ifdef WIN32
+  #include <StackWalker.h>
+#endif
 
 #include "Error.h"
 #include "debug/MemLeak.h"
@@ -100,6 +102,7 @@ void Abort()
   AbortInternal(str.c_str());
 }
 
+#ifdef WIN32
 class CustomStackWalker: public StackWalker
 {
 public:
@@ -114,12 +117,17 @@ private:
     LogString(ss.str().c_str());
   }
 };
+#endif
 
 void StackTrace()
 {
   LogString("/////////////////////");
+#ifdef WIN32
   CustomStackWalker stackWalker;
   stackWalker.ShowCallstack();
+#else
+  LogString("Unix Stacktrace not implelemented.");
+#endif
   LogString("/////////////////////");
 }
 

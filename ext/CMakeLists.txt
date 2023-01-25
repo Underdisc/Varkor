@@ -1,21 +1,30 @@
 target_include_directories(varkor PUBLIC "local")
 
+# dirent
+if (MSVC)
+  target_include_directories(varkor PRIVATE local/dirent)
+endif()
+
 # glad
 target_sources(varkor PRIVATE local/glad/glad.c)
 
 # getopt
-target_sources(varkor PRIVATE local/mingw/getopt.c)
-target_include_directories(varkor PUBLIC "local/mingw")
+if (MSVC)
+  target_sources(varkor PRIVATE local/mingw/getopt.c)
+  target_include_directories(varkor PUBLIC "local/mingw")
+endif()
 
 # StackWalker
-add_library(stackWalker)
-target_sources(stackWalker PRIVATE
-  sub/StackWalker/Main/StackWalker/StackWalker.cpp)
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  target_compile_options(stackWalker PRIVATE -Wno-switch)
+if (MSVC)
+  add_library(stackWalker)
+  target_sources(stackWalker PRIVATE
+    sub/StackWalker/Main/StackWalker/StackWalker.cpp)
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(stackWalker PRIVATE -Wno-switch)
+  endif()
+  target_link_libraries(varkor stackWalker)
+  target_include_directories(varkor PUBLIC "sub/StackWalker/Main/StackWalker")
 endif()
-target_link_libraries(varkor stackWalker)
-target_include_directories(varkor PUBLIC "sub/StackWalker/Main/StackWalker")
 
 # stb
 target_include_directories(varkor PUBLIC "sub/stb")
