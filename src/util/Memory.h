@@ -1,6 +1,7 @@
 #ifndef util_Memory_h
 #define util_Memory_h
 
+#include <cstdlib>
 #include <utility>
 
 namespace Util {
