@@ -126,7 +126,7 @@ V& Map<K, V>::Get(const K& key) const
 template<typename K, typename V>
 bool Map<K, V>::Contains(const K& key) const
 {
-  return Map<K, V>::FindNode<K>(key) != nullptr;
+  return Map<K, V>::template FindNode<K>(key) != nullptr;
 }
 
 } // namespace Ds
