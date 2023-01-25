@@ -1,7 +1,7 @@
 target_include_directories(varkor PUBLIC "local")
 
 # dirent
-if (MSVC)
+if (WIN32)
   target_include_directories(varkor PRIVATE local/dirent)
 endif()
 
@@ -9,13 +9,13 @@ endif()
 target_sources(varkor PRIVATE local/glad/glad.c)
 
 # getopt
-if (MSVC)
+if (WIN32)
   target_sources(varkor PRIVATE local/mingw/getopt.c)
   target_include_directories(varkor PUBLIC "local/mingw")
 endif()
 
 # StackWalker
-if (MSVC)
+if (WIN32)
   add_library(stackWalker)
   target_sources(stackWalker PRIVATE
     sub/StackWalker/Main/StackWalker/StackWalker.cpp)
