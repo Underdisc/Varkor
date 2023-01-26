@@ -42,7 +42,7 @@ void LibraryInterface::Show()
   ShowDirectoryEntry("", "vres", &mRootTree, 0);
   std::string resDir = Rsl::ResDirectory();
   if (std::filesystem::is_directory(resDir)) {
-    ShowDirectory(resDir, "", &mRootTree, 0);
+    ShowDirectory(resDir + '/', "", &mRootTree, 0);
   }
   ImGui::End();
 
