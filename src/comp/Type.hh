@@ -55,13 +55,13 @@ int CreateId();
 extern Ds::Vector<TypeData> nTypeData;
 
 template<typename T>
-void Type<T>::Register()
+void Type<T>::Register(const char* name)
 {
   LogAbortIf(smId != nInvalidTypeId, "Type already registered.");
   smId = CreateId();
 
   TypeData data;
-  data.mName = Util::GetShortTypename<T>();
+  data.mName = name;
   data.mSize = sizeof(T);
   data.mDefaultConstruct = &Util::DefaultConstruct<T>;
   data.mCopyConstruct = &Util::CopyConstruct<T>;
