@@ -1,10 +1,14 @@
 let helpText = `\
-Usage: node build.js (compiler) (configuration) (target) [r] [args]
-(arg) - required
+node build.js <compiler> <configuration> (target) [r] [args]
+<arg> - required
 [arg] - optional
+
+Required Arguments
 compiler - The compiler directory.
 configuration - The configuration directory.
 target - The target to build.
+
+Optional Arguments
 r - Optionally run the target.
 args - The command line arguments passed to the target.\
 `
