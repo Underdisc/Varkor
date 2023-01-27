@@ -32,7 +32,12 @@ if (!fs.existsSync(buildDir)) {
 let ninjaCommand = 'ninja ' + target;
 process.chdir(buildDir);
 const childProcess = require('child_process');
-childProcess.execSync(ninjaCommand, { stdio: 'inherit' });
+try {
+  childProcess.execSync(ninjaCommand, { stdio: 'inherit' });
+}
+catch (error) {
+  return;
+}
 
 // If requested, construct the target command and run the target.
 if (process.argv.length < 6) {
