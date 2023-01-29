@@ -86,7 +86,7 @@ function DiffTest(testName) {
   let command = testInfo.command + ' > out_diff.txt'
   process.chdir(testInfo.workingDir);
   childProcess.execSync(command, { stdio: 'inherit' });
-  let diffCommand = 'git -c core.fileMode=false diff --no-index --unified=10 '
+  let diffCommand = 'diff --strip-trailing-cr --unified=10 --color=always '
     + testInfo.goldenFile + ' ' + testInfo.diffFile;
   try {
     childProcess.execSync(diffCommand, { stdio: 'inherit' });
@@ -106,11 +106,11 @@ function PerformTest(testName) {
   let command = testInfo.command + ' > out_diff.txt'
   process.chdir(testInfo.workingDir);
   childProcess.execSync(command, { stdio: 'inherit' });
-  let diffCommand = 'git -c core.fileMode=false diff --no-index --no-patch\
-    --exit-code ' + testInfo.goldenFile + ' ' + testInfo.diffFile;
+  let diffCommand = 'diff --strip-trailing-cr '
+    + testInfo.goldenFile + ' ' + testInfo.diffFile;
   let testStatus = '\033[1;92mPassed\033[0m';
   try {
-    childProcess.execSync(diffCommand, { stdio: 'inherit' });
+    childProcess.execSync(diffCommand);
   }
   catch (error) {
     testStatus = '\033[1;91mFailed\033[0m';
