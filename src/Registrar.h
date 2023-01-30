@@ -3,9 +3,9 @@
 
 #include "comp/Type.h"
 
-#define RegisterComponent(name) Type<name>::Register(#name)
+#define RegisterComponent(name) Comp::Type<name>::Register(#name)
 #define RegisterDependencies(name, ...) \
-  Type<name>::AddDependencies<__VA_ARGS__>()
+  Comp::Type<name>::AddDependencies<__VA_ARGS__>()
 
 namespace Registrar {
 

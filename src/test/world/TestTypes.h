@@ -177,7 +177,6 @@ struct Dependant
 
 void RegisterComponentTypes()
 {
-  using namespace Comp;
   RegisterComponent(CallCounter);
   RegisterComponent(Simple0);
   RegisterComponent(Simple1);
