@@ -28,9 +28,10 @@ let target = process.argv[4];
 
 // Ensure the build directory exists and build the target.
 const fs = require("fs");
-let buildDir = __dirname + '/../build/' + compiler + '/' + configuration
+const path = require('node:path')
+let buildDir = path.join(__dirname, '..', 'build', compiler, configuration);
 if (!fs.existsSync(buildDir)) {
-  console.log('Error: Build directory ' + buildDir + ' does not exist.');
+  console.log('Error: Build directory \'' + buildDir + '\' does not exist.');
   return;
 }
 let ninjaCommand = 'ninja ' + target;
@@ -53,11 +54,11 @@ if (runArg !== 'r') {
   return;
 }
 
-let targetCommand = buildDir + '/' + target;
+let targetCommand = path.join(buildDir, target);
 for (let i = 6; i < process.argv.length; ++i) {
   targetCommand += ' ' + process.argv[i];
 }
 
-let workingDir = __dirname + '/../working';
+let workingDir = path.join(__dirname, '..', 'working');
 process.chdir(workingDir);
 childProcess.execSync(targetCommand, { stdio: 'inherit' });
