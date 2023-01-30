@@ -23,7 +23,8 @@ t - Does the same as the d option, but only prints out "{target}: Passed"
 c - Creates a directory named {target}/coverage that contains a code
   coverage report. This makes finding the code that a unit test did and did
   not run easy. A build of OpenCppCoverage needs to be in your path. It can
-  be found here (https://github.com/OpenCppCoverage/OpenCppCoverage).`
+  be found here (https://github.com/OpenCppCoverage/OpenCppCoverage). Only on
+  Windows under msvc.`
 function HelpText() {
   console.log(helpText);
 }
@@ -42,8 +43,10 @@ if (target === 'all') {
 }
 
 // Ensure the build directory exists and build the target.
-const fs = require("fs");
-let buildDir = __dirname + '/../build/' + compiler + '/' + configuration
+const fs = require('fs');
+const path = require('node:path')
+let repoDir = path.join(__dirname, '..');
+let buildDir = path.join(repoDir, 'build', compiler, configuration);
 if (!fs.existsSync(buildDir)) {
   console.log('Error: Build directory ' + buildDir + ' does not exist.');
   return;
@@ -63,18 +66,22 @@ if (process.argv.length < 6) {
   return;
 }
 let action = process.argv[5];
+if (action === 'c' && process.platform !== 'win32') {
+  console.log('Error: Coverage reports only available on Windows under msvc');
+  return;
+}
 
-// Definitions for actions.
-let generalTestDir = __dirname + '/../working/test';
+let generalTestDir = path.join(__dirname, '..', 'working', 'test');
 function GetTestInfo(testName) {
   let testInfo = {};
-  testInfo.workingDir = generalTestDir + '/' + testName;
-  testInfo.command = buildDir + '/src/test/' + testName;
-  testInfo.goldenFile = testInfo.workingDir + '/out.txt';
-  testInfo.diffFile = testInfo.workingDir + '/out_diff.txt';
+  testInfo.workingDir = path.join(generalTestDir, testName);
+  testInfo.command = path.join(buildDir, 'src', 'test', testName);
+  testInfo.goldenFile = path.join(testInfo.workingDir, 'out.txt');
+  testInfo.diffFile = path.join(testInfo.workingDir, 'out_diff.txt');
   return testInfo;
 }
 
+// Definitions for actions.
 function RunTest(testName) {
   let testInfo = GetTestInfo(testName);
   process.chdir(testInfo.workingDir);
@@ -119,7 +126,16 @@ function PerformTest(testName) {
 }
 
 function CoverageReport(testName) {
-  console.log("Coverage reports not implemented.");
+  let testInfo = GetTestInfo(testName);
+  let srcsDir = path.join(repoDir, 'src', '*');
+  let coverageDir = path.join(testInfo.workingDir, 'coverage');
+  process.chdir(path.dirname(testInfo.command))
+  let coverageCommand = 'OpenCppCoverage -q'
+    + ' --sources ' + srcsDir
+    + ' --working_dir ' + testInfo.workingDir
+    + ' --export_type html:' + coverageDir
+    + ' -- ' + testInfo.command + '.exe';
+  childProcess.execSync(coverageCommand);
 }
 
 // Run the desired action for all targets or a single target.
