@@ -80,7 +80,7 @@ Result Model::Init(const Vlk::Explorer& configEx)
   Assimp::Importer importer;
   VResult<const aiScene*> result = Import(file, &importer, flipUvs);
   if (!result.Success()) {
-    return result;
+    return std::move(result);
   }
   const aiScene* scene = result.mValue;
 

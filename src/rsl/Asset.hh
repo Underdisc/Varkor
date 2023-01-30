@@ -22,7 +22,7 @@ VResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args)
   }
   VResult<ResDesc> allocResult = AllocateRes(Rsl::GetResTypeId<T>(), name);
   if (!allocResult.Success()) {
-    return allocResult;
+    return std::move(allocResult);
   }
 
   T* newResData = (T*)GetResDescData(allocResult.mValue);
