@@ -28,7 +28,7 @@ let target = process.argv[4];
 
 // Ensure the build directory exists and build the target.
 const fs = require("fs");
-const path = require('node:path')
+const path = require('path')
 let buildDir = path.join(__dirname, '..', 'build', compiler, configuration);
 if (!fs.existsSync(buildDir)) {
   console.log('Error: Build directory \'' + buildDir + '\' does not exist.');

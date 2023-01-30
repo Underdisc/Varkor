@@ -44,7 +44,7 @@ if (target === 'all') {
 
 // Ensure the build directory exists and build the target.
 const fs = require('fs');
-const path = require('node:path')
+const path = require('path')
 let repoDir = path.join(__dirname, '..');
 let buildDir = path.join(repoDir, 'build', compiler, configuration);
 if (!fs.existsSync(buildDir)) {
