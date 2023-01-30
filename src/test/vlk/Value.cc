@@ -197,7 +197,6 @@ void SerializeDeserialize()
 
 Vlk::Value CreateTestValue()
 {
-  srand(0);
   Vlk::Value rootVal;
   rootVal("TrueValue") = "Value";
   Vlk::Value& valArrayVal = rootVal("ValueArray")[{5}];
@@ -268,7 +267,6 @@ void FindPair()
 void Copy()
 {
   std::cout << "<= Copy =>\n";
-  srand(0);
 
   Vlk::Value rootVal = CreateTestValue();
   Vlk::Value rootValCopy(rootVal);
