@@ -13,13 +13,31 @@ git submodule init
 git submodule update
 ```
 
-Varkor builds on Windows under MSVC and Clang 64bit. To build you will need CMake and Ninja. If you don't already have it, I highly recommend Cygwin as well.
+Varkor builds on Windows under MSVC and Clang 64bit and on Linux under Clang 64bit. To build you will need CMake and Ninja. If you don't already have it, I highly recommend Cygwin as well.
 
 - CMake:  https://cmake.org/download/
 - Ninja:  https://github.com/ninja-build/ninja/releases
 - Cygwin: https://www.cygwin.com/
 
 Once you have those, make sure *ninja.exe* and *cmake.exe* are in your path.
+
+#### Linux
+
+Install all of the needed packages.
+
+```
+sudo apt install clang
+sudo apt install cmake
+sudo apt install ninja
+```
+
+Notes for better stack traces. You need to install libdw.
+
+```
+sudo apt-get install libdw-dev
+```
+
+
 
 ### General
 
