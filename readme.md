@@ -40,14 +40,14 @@ relDbg -> RelWithDebInfo
 relMin -> MinSizeRel
 ```
 
-#### Linux
+## Linux
 Install the necessary packages.
 ```
 sudo apt install cmake
 sudo apt install ninja
 ```
 
-##### g++
+### g++
 Go to the build directory for the desired configuration, run CMake, and build `varkorStandalone`. Here is an example for a g++ debug build.
 ```
 cd build/gpp64/dbg
@@ -55,7 +55,7 @@ cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/path/to/gcc -DCMAK
 ninja varkorStandalone
 ```
 
-##### clang
+### clang
 Install clang.
 ```
 sudo apt install clang
@@ -67,20 +67,20 @@ cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/path/to/clang -D
 ninja varkorStandalone
 ```
 
-###### Details
+### Details
 Anything linked against the Varkor library will print out a stack trace when a crash occurs. Install dwarf for better stack traces.
 ```
 sudo apt-get install libdw-dev
 ```
 
-#### Windows
+## Windows
 To build you will need CMake and Ninja. If you don't already have it, I highly recommend Cygwin as well.
 - CMake:  https://cmake.org/download/
 - Ninja:  https://github.com/ninja-build/ninja/releases
 - Cygwin: https://www.cygwin.com/
 Once you have those, make sure *ninja.exe* and *cmake.exe* are in your path.
 
-##### MSVC
+### MSVC
 Enter the cmd shell that comes with Windows. There are two ways to do this. You can simply open the command prompt or you can run `cmd` from your preferred terminal to access the shell. I use the [Mintty](https://mintty.github.io/) terminal that comes with Cygwin and the latter is how I access the shell.
 Next, you need to run `vcvars64.bat`. This file is specific to your MSVC installation. This will set environment varialbes that are used by `cl.exe` (the MSVC compiler) and `link.exe` (the MSVC linker) when compiling and linking the project. For my installation of *Visual Studio 2019 Community* this script is located here.
 ```
@@ -104,7 +104,7 @@ cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug ../../../
 ninja varkorStandalone
 ```
 
-##### Clang
+### Clang
 Go to the directory for the desired compiler and configuration, run CMake, and build `varkorStandalone`.
 ```
 cd root/build/clang64/dbg
