@@ -128,9 +128,14 @@ bool IsStandalone()
   return Options::nProjectDirectory == "";
 }
 
+std::string ResDirectory()
+{
+  return Options::nProjectDirectory + "res";
+}
+
 std::string PrependResDirectory(const std::string& path)
 {
-  return Options::nProjectDirectory + "res/" + path;
+  return ResDirectory() + '/' + path;
 }
 
 // A path can be next to the executable or within a project directory. This
@@ -176,6 +181,7 @@ void Purge()
     nInitThread = nullptr;
     nStopInitThread = false;
   }
+  nAssets.Clear();
 }
 
 void AddToInitQueue(const Asset& asset)
@@ -198,10 +204,7 @@ bool InitThreadOpen()
 void InitializationThreadMain()
 {
   Viewport::StartContextSharing();
-  while (!nInitQueue.Empty()) {
-    if (nStopInitThread) {
-      break;
-    }
+  while (!nStopInitThread && !nInitQueue.Empty()) {
     Asset& asset = GetAsset(nInitQueue[0]);
     Result result = asset.TryInit();
     if (!result.Success()) {
@@ -236,13 +239,13 @@ void HandleInitialization()
 {
   // Create the thread when there are initializations to perform and delete it
   // when there are no initializations left.
-  if (!nInitQueue.Empty() && nInitThread == nullptr) {
-    nInitThread = alloc std::thread(InitializationThreadMain);
-  }
-  else if (nInitQueue.Empty() && nInitThread != nullptr) {
+  if (nInitThread != nullptr && nInitThread->joinable()) {
     nInitThread->join();
     delete nInitThread;
     nInitThread = nullptr;
+  }
+  if (!nInitQueue.Empty() && nInitThread == nullptr) {
+    nInitThread = alloc std::thread(InitializationThreadMain);
   }
   HandleFinalization();
 }

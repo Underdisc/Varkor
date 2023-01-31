@@ -10,45 +10,42 @@
 
 void InsertRemoveTryGet()
 {
-  std::cout << "<= InsertRemoveTryGet =>" << std::endl;
-  // Start by inserting a chunk a random keys with incrementing values.
+  std::cout << "<= InsertRemoveTryGet =>\n";
+  // Start by inserting random keys with incrementing values.
   Ds::Map<int, int> map;
-  constexpr int maxInsertions = 50;
-  int insertedValues[maxInsertions];
-  int insertionCount = 0;
-  srand(1);
-  while (insertionCount < maxInsertions) {
-    int value = rand() % 1000;
-    if (!map.Contains(value)) {
-      map.Insert(value, insertionCount);
-      insertedValues[insertionCount] = value;
-      ++insertionCount;
-    }
+  constexpr int insertions = 50;
+  int keys[insertions] = {41,  467, 334, 500, 169, 724, 478, 358, 962, 464,
+                          705, 145, 281, 827, 961, 491, 995, 942, 436, 391,
+                          604, 902, 153, 292, 382, 421, 716, 718, 895, 447,
+                          726, 771, 538, 869, 912, 667, 299, 35,  894, 703,
+                          811, 322, 333, 673, 664, 141, 711, 253, 868, 547};
+  for (int i = 0; i < insertions; ++i) {
+    map.Insert(keys[i], i);
   }
   PrintMap(map);
-  std::cout << "--- 0 ---" << std::endl;
 
   // Remove half of the values that were just inserted.
-  int removalCount = maxInsertions / 2;
+  std::cout << "--- 0 ---\n";
+  int removalCount = insertions / 2;
   for (int i = 0; i < removalCount; ++i) {
-    map.Remove(insertedValues[i]);
+    map.Remove(keys[i]);
   }
   PrintMap(map);
-  std::cout << "--- 1 ---" << std::endl;
 
   // Attempt to get values for keys that have been either removed or not
   // removed from the map.
-  for (int i = 0; i < maxInsertions; i += 2) {
-    std::cout << i << "->" << insertedValues[i] << ": ";
-    int* value = map.TryGet(insertedValues[i]);
+  std::cout << "--- 1 ---\n";
+  for (int i = 0; i < insertions; i += 2) {
+    std::cout << i << "->" << keys[i] << ": ";
+    int* value = map.TryGet(keys[i]);
     if (value == nullptr) {
-      std::cout << "not found" << std::endl;
+      std::cout << "not found\n";
     }
     else {
-      std::cout << *value << std::endl;
+      std::cout << *value << '\n';
     }
   }
-  std::cout << std::endl;
+  std::cout << '\n';
 }
 
 void StringMap()
@@ -128,21 +125,19 @@ void InsertEmplace()
 
 void Iterator()
 {
-  std::cout << "<= Iterator =>" << std::endl;
-  // Insert a chunk of random key value pairs into the map.
+  std::cout << "<= Iterator =>\n";
+  // Insert random key value pairs into the map.
   Ds::Map<int, int> map;
-  int insertionCount = 0;
-  srand(20);
-  while (insertionCount < 20) {
-    int key = rand() % 100;
-    if (!map.Contains(key)) {
-      map.Insert(key, insertionCount);
-      ++insertionCount;
-    }
+  constexpr int insertions = 20;
+  int keys[insertions] = {3,  79, 73, 51, 38, 95, 78, 8,  2,  55,
+                          81, 36, 27, 28, 35, 16, 43, 21, 10, 30};
+  for (int i = 0; i < insertions; ++i) {
+    map.Insert(keys[i], i);
   }
   PrintMap(map);
 
   // Change the value of all the key value pairs using an iterator.
+  std::cout << "--- 0 ---\n";
   auto it = map.begin();
   auto itE = map.end();
   int iterationCount = 0;
@@ -151,15 +146,14 @@ void Iterator()
     ++iterationCount;
     ++it;
   }
-  std::cout << "--- 0 ---" << std::endl;
   PrintMap(map);
 
   // Print out all the keys using a const iterator.
-  std::cout << "--- 1 ---" << std::endl;
+  std::cout << "--- 1 ---\n";
   auto cIt = map.cbegin();
   auto cItE = map.cend();
   while (cIt != cItE) {
-    std::cout << cIt->Key() << ": " << *cIt << std::endl;
+    std::cout << cIt->Key() << ": " << *cIt << '\n';
     ++cIt;
   }
 }

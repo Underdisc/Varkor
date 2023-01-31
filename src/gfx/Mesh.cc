@@ -100,7 +100,7 @@ Result Mesh::Init(const std::string& file, bool flipUvs, float scale)
   VResult<const aiScene*> importResult =
     Gfx::Model::Import(file, &importer, flipUvs);
   if (!importResult.Success()) {
-    return importResult;
+    return std::move(importResult);
   }
   const aiScene* scene = importResult.mValue;
 

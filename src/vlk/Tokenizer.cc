@@ -172,6 +172,7 @@ void InitTokenizer()
     Qualifier q;
     q.WhitelistChar(' ');
     q.WhitelistChar('\t');
+    q.WhitelistChar('\r');
     q.WhitelistChar('\n');
     AddEdge(nRoot, valid, q);
     AddEdge(valid, valid, q);

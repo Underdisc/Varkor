@@ -32,10 +32,11 @@ add_subdirectory(src/test)
 function(AddProject targetName directory)
   project(${targetName})
   add_executable(${targetName})
-  add_subdirectory(${directory}/src ${targetName})
+  add_subdirectory(${directory}/src ${targetName}Obj)
   target_compile_definitions(${targetName}
     PUBLIC PROJECT_DIRECTORY="${directory}")
   target_link_libraries(${targetName} varkor)
+  add_backward(${targetName})
 endfunction()
 
 include("projects.cmake" OPTIONAL)

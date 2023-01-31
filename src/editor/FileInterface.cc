@@ -1,4 +1,4 @@
-#include <dirent/dirent.h>
+#include <dirent.h>
 #include <imgui/imgui.h>
 
 #include "editor/FileInterface.h"

@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "Registrar.h"
 #include "comp/Type.h"
 #include "ds/Vector.h"
 #include "test/ds/Print.h"
@@ -176,13 +177,13 @@ struct Dependant
 
 void RegisterComponentTypes()
 {
-  Comp::Type<CallCounter>::Register();
-  Comp::Type<Simple0>::Register();
-  Comp::Type<Simple1>::Register();
-  Comp::Type<Dynamic>::Register();
-  Comp::Type<Container>::Register();
-  Comp::Type<Dependant>::Register();
-  Comp::Type<Dependant>::AddDependencies<CallCounter, Dynamic>();
+  RegisterComponent(CallCounter);
+  RegisterComponent(Simple0);
+  RegisterComponent(Simple1);
+  RegisterComponent(Dynamic);
+  RegisterComponent(Container);
+  RegisterComponent(Dependant);
+  RegisterDependencies(Dependant, CallCounter, Dynamic);
 }
 
 #endif

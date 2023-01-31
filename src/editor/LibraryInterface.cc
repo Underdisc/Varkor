@@ -40,8 +40,9 @@ void LibraryInterface::Show()
 
   ImGui::Begin("Library", &mOpen);
   ShowDirectoryEntry("", "vres", &mRootTree, 0);
-  if (!Rsl::IsStandalone()) {
-    ShowDirectory(Rsl::PrependResDirectory("res/"), "", &mRootTree, 0);
+  std::string resDir = Rsl::ResDirectory();
+  if (std::filesystem::is_directory(resDir)) {
+    ShowDirectory(resDir + '/', "", &mRootTree, 0);
   }
   ImGui::End();
 

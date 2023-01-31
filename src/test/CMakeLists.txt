@@ -6,6 +6,7 @@ function(AddTest target)
   target_sources(${target} PRIVATE ${ARGN})
   target_include_directories(${target} PRIVATE "../" "../../ext/local")
   target_link_libraries(${target} varkor ${glfw} ${OPENGL_gl_LIBRARY})
+  add_backward(${target})
 endfunction()
 
 Addtest(ds_List ds/List.cc ds/TestType.cc)

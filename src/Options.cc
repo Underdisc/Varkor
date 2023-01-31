@@ -1,5 +1,5 @@
 #include <iostream>
-#include <mingw/getopt.h>
+#include <getopt.h>
 
 #include "Options.h"
 

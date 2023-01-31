@@ -1,12 +1,4 @@
-template<typename T>
-void PrintVector(const Ds::Vector<T>& vector, bool stats)
-{
-  if (stats) {
-    std::cout << "Size: " << vector.Size() << std::endl;
-    std::cout << "Capactiy: " << vector.Capacity() << std::endl;
-  }
-  std::cout << vector << std::endl;
-}
+#include <iomanip>
 
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector)
@@ -21,6 +13,23 @@ std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector)
   }
   os << vector[vector.Size() - 1] << "]";
   return os;
+}
+
+template<typename K, typename V>
+std::ostream& operator<<(std::ostream& os, const Ds::KvPair<K, V>& kv)
+{
+  os << "[" << kv.Key() << ", " << kv.mValue << "]";
+  return os;
+}
+
+template<typename T>
+void PrintVector(const Ds::Vector<T>& vector, bool stats)
+{
+  if (stats) {
+    std::cout << "Size: " << vector.Size() << std::endl;
+    std::cout << "Capactiy: " << vector.Capacity() << std::endl;
+  }
+  std::cout << vector << std::endl;
 }
 
 template<typename T>
@@ -125,7 +134,7 @@ void PrintRbTreeNode(
 template<typename T>
 void PrintRbTree(const Ds::RbTree<T>& rbTree)
 {
-  const Ds::RbTree<T>::Node* head = rbTree.GetHead();
+  const typename Ds::RbTree<T>::Node* head = rbTree.GetHead();
   if (head == nullptr) {
     std::cout << "Empty Tree" << std::endl;
     return;
@@ -135,16 +144,9 @@ void PrintRbTree(const Ds::RbTree<T>& rbTree)
 }
 
 template<typename K, typename V>
-std::ostream& operator<<(std::ostream& os, const Ds::KvPair<K, V>& kv)
-{
-  os << "[" << kv.Key() << ", " << kv.mValue << "]";
-  return os;
-}
-
-template<typename K, typename V>
 void PrintMap(const Ds::Map<K, V>& map)
 {
-  const Ds::RbTree<Ds::KvPair<K, V>>::Node* head = map.GetHead();
+  const typename Ds::RbTree<Ds::KvPair<K, V>>::Node* head = map.GetHead();
   if (head == nullptr) {
     std::cout << "Empty Map" << std::endl;
     return;
