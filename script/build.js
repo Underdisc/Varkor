@@ -61,4 +61,8 @@ for (let i = 6; i < process.argv.length; ++i) {
 
 let workingDir = path.join(__dirname, '..', 'working');
 process.chdir(workingDir);
-childProcess.execSync(targetCommand, { stdio: 'inherit' });
+try {
+  childProcess.execSync(targetCommand, { stdio: 'inherit' });
+}
+catch (error) {
+}
