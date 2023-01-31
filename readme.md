@@ -47,7 +47,7 @@ sudo apt install cmake
 sudo apt install ninja
 ```
 
-### g++
+### G++
 Go to the build directory for the desired configuration, run CMake, and build `varkorStandalone`. Here is an example for a g++ debug build.
 ```
 cd build/gpp64/dbg
@@ -55,7 +55,7 @@ cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/path/to/gcc -DCMAK
 ninja varkorStandalone
 ```
 
-### clang
+### Clang
 Install clang.
 ```
 sudo apt install clang
