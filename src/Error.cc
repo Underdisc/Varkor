@@ -7,6 +7,8 @@
 
 #ifdef WIN32
   #include <StackWalker.h>
+#else
+  #include <backward.hpp>
 #endif
 
 #include "Error.h"
@@ -121,14 +123,19 @@ private:
 
 void StackTrace()
 {
-  LogString("/////////////////////");
 #ifdef WIN32
+  LogString("/////////////////////");
   CustomStackWalker stackWalker;
   stackWalker.ShowCallstack();
-#else
-  LogString("Unix Stacktrace not implelemented.");
-#endif
   LogString("/////////////////////");
+#else
+  backward::StackTrace trace;
+  trace.load_here(32);
+  backward::Printer printer;
+  std::stringstream traceOutput;
+  printer.print(trace, traceOutput);
+  LogString(traceOutput.str().c_str());
+#endif
 }
 
 void LogString(const char* string)

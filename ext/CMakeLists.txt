@@ -14,6 +14,10 @@ if (WIN32)
   target_include_directories(varkor PUBLIC "local/mingw")
 endif()
 
+# backward-cpp
+add_subdirectory(sub/backward-cpp)
+add_backward(varkor)
+
 # StackWalker
 if (WIN32)
   add_library(stackWalker)

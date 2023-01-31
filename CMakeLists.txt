@@ -36,6 +36,7 @@ function(AddProject targetName directory)
   target_compile_definitions(${targetName}
     PUBLIC PROJECT_DIRECTORY="${directory}")
   target_link_libraries(${targetName} varkor)
+  add_backward(${targetName})
 endfunction()
 
 include("projects.cmake" OPTIONAL)
