@@ -84,8 +84,8 @@ Complex<T>& Complex<T>::operator*=(T scaler)
 Complex<float> ComplexPolar(float magnitude, float angle)
 {
   Complex<float> result;
-  result.mReal = magnitude * std::cosf(angle);
-  result.mImaginary = magnitude * std::sinf(angle);
+  result.mReal = magnitude * cosf(angle);
+  result.mImaginary = magnitude * sinf(angle);
   return result;
 }
 

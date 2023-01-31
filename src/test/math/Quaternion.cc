@@ -125,7 +125,7 @@ void Rotate()
 {
   std::cout << "<= Rotate =>" << std::endl;
   Math::Quaternion a, b;
-  a = {0.0f, 1.0f / std::sqrtf(2.0f), 0.0f, 1.0f / std::sqrtf(2.0f)};
+  a = {0.0f, 1.0f / sqrtf(2.0f), 0.0f, 1.0f / sqrtf(2.0f)};
   b.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
   std::cout << a.Rotate({1.0f, 0.0f, 0.0f}) << std::endl;
   std::cout << a.Rotate({-1.0f, 0.0f, -1.0f}) << std::endl;

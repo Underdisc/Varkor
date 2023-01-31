@@ -488,7 +488,7 @@ VResult<Ds::Vector<Shader::CompileInfo>> Shader::CollectCompileInfo(
     regexString += "|";
     regexString += smSubTypeStrings[i];
   }
-  regexString += "|[^\n]*)";
+  regexString += "|[^\r\n]*)";
 
   // Find all of the unique type headers.
   std::regex expression(regexString);

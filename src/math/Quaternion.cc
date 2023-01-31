@@ -18,8 +18,8 @@ void Quaternion::Identity()
 void Quaternion::AngleAxis(float angle, Vec3 axis)
 {
   float halfAngle = angle / 2.0f;
-  mA = std::cosf(halfAngle);
-  axis = Math::Normalize(axis) * std::sinf(halfAngle);
+  mA = cosf(halfAngle);
+  axis = Math::Normalize(axis) * sinf(halfAngle);
   mB = axis[0];
   mC = axis[1];
   mD = axis[2];
@@ -29,7 +29,7 @@ void Quaternion::FromTo(Vec3 from, Vec3 to)
 {
   float magSqProduct = Math::MagnitudeSq(from) * Math::MagnitudeSq(to);
   LogAbortIf(magSqProduct == 0.0f, "One of the vectors is a zero vector.");
-  mA = std::sqrtf(magSqProduct) + Math::Dot(from, to);
+  mA = sqrtf(magSqProduct) + Math::Dot(from, to);
   Vec3 axis;
   if (Near(mA, 0.0f)) {
     axis = Math::PerpendicularTo(from);
@@ -55,7 +55,7 @@ void Quaternion::BasisVectors(
   // the quaternion coefficients.
   float wSquared = (xAxis[0] + yAxis[1] + zAxis[2] + 1.0f) * 0.25f;
   if (wSquared > 0.0f) {
-    mA = std::sqrtf(wSquared);
+    mA = sqrtf(wSquared);
     float w4 = mA * 4.0f;
     mB = (yAxis[2] - zAxis[1]) / w4;
     mC = (zAxis[0] - xAxis[2]) / w4;
@@ -64,7 +64,7 @@ void Quaternion::BasisVectors(
   }
   float xSquared = (xAxis[0] - yAxis[1] - zAxis[2] + 1.0f) * 0.25f;
   if (xSquared > 0.0f) {
-    mB = std::sqrtf(xSquared);
+    mB = sqrtf(xSquared);
     float x4 = mB * 4.0f;
     mA = (yAxis[2] - zAxis[1]) / x4;
     mC = (xAxis[1] + yAxis[0]) / x4;
@@ -73,7 +73,7 @@ void Quaternion::BasisVectors(
   }
   float ySquared = (yAxis[1] - xAxis[0] - zAxis[2] + 1.0f) * 0.25f;
   if (ySquared > 0.0f) {
-    mC = std::sqrtf(ySquared);
+    mC = sqrtf(ySquared);
     float y4 = mC * 4.0f;
     mA = (zAxis[0] - xAxis[2]) / y4;
     mB = (xAxis[1] + yAxis[0]) / y4;
@@ -81,7 +81,7 @@ void Quaternion::BasisVectors(
     return;
   }
   float zSquared = (zAxis[2] - xAxis[0] - yAxis[1] + 1.0f) * 0.25f;
-  mD = std::sqrtf(zSquared);
+  mD = sqrtf(zSquared);
   float z4 = mD * 4.0f;
   mA = (xAxis[1] - yAxis[0]) / z4;
   mB = (xAxis[2] + zAxis[0]) / z4;
@@ -90,11 +90,11 @@ void Quaternion::BasisVectors(
 
 Quaternion Quaternion::Interpolate(float t) const
 {
-  float halfAngle = std::acosf(mA);
+  float halfAngle = acosf(mA);
   halfAngle *= t;
   Vec3 axis = {mB, mC, mD};
-  axis = Math::Normalize(axis) * std::sinf(halfAngle);
-  return Quaternion(std::cosf(halfAngle), axis[0], axis[1], axis[2]);
+  axis = Math::Normalize(axis) * sinf(halfAngle);
+  return Quaternion(cosf(halfAngle), axis[0], axis[1], axis[2]);
 }
 
 void Quaternion::Normalize()
@@ -147,7 +147,7 @@ Vec3 Quaternion::EulerAngles() const
   float m21 = 2.0f * mC * mD + 2.0f * mB * mA;
   float m22 = 1.0f - 2.0f * mB * mB - 2.0f * mC * mC;
   angles[0] = std::atan2(m21, m22);
-  float cPsi = std::sqrtf(m21 * m21 + m22 * m22);
+  float cPsi = sqrtf(m21 * m21 + m22 * m22);
   float m20 = 2.0f * mB * mD - 2.0f * mC * mA;
   angles[1] = std::atan2(-m20, cPsi);
   float m00 = 1.0f - 2.0f * mC * mC - 2.0f * mD * mD;

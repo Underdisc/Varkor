@@ -190,7 +190,7 @@ T MagnitudeSq(const Vector<T, N>& vector)
 template<unsigned int N>
 float Magnitude(const Vector<float, N>& vector)
 {
-  return std::sqrtf(MagnitudeSq(vector));
+  return sqrtf(MagnitudeSq(vector));
 }
 
 template<typename T, unsigned int N>

@@ -111,7 +111,7 @@ Result Asset::TryInit()
   VResult<Vlk::Value*> addConfigResult = AddConfig(mName);
   if (!addConfigResult.Success()) {
     mStatus = Status::Failed;
-    return addConfigResult;
+    return std::move(addConfigResult);
   }
   Vlk::Explorer rootEx(*addConfigResult.mValue);
   if (!rootEx.Valid(Vlk::Value::Type::ValueArray)) {

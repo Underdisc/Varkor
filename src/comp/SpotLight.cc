@@ -53,22 +53,22 @@ void SpotLight::VDeserialize(const Vlk::Explorer& ex)
 
 void SpotLight::SetInnerCutoff(float angle)
 {
-  mInnerCutoff = std::cosf(angle);
+  mInnerCutoff = cosf(angle);
 }
 
 void SpotLight::SetOuterCutoff(float angle)
 {
-  mOuterCutoff = std::cosf(angle);
+  mOuterCutoff = cosf(angle);
 }
 
 float SpotLight::GetInnerCutoff() const
 {
-  return std::acosf(mInnerCutoff);
+  return acosf(mInnerCutoff);
 }
 
 float SpotLight::GetOuterCutoff() const
 {
-  return std::acosf(mOuterCutoff);
+  return acosf(mOuterCutoff);
 }
 
 void SpotLight::VEdit(const World::Object& owner)

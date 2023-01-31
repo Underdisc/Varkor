@@ -1,6 +1,8 @@
 #ifndef ds_Vector_h
 #define ds_Vector_h
 
+#include <cstdlib>
+
 namespace Ds {
 
 template<typename T>

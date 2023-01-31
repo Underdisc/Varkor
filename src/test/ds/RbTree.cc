@@ -143,22 +143,19 @@ void Iterator()
   if (tree.cbegin() == tree.cend()) {
     std::cout << "Empty Tree" << std::endl;
   }
-  std::cout << "--- 0 ---" << std::endl;
 
   // Insert random values into the tree.
-  int insertionCount = 0;
-  srand(10);
-  while (insertionCount < 20) {
-    int value = rand() % 100;
-    if (!tree.Contains(value)) {
-      tree.Insert(value);
-      ++insertionCount;
-    }
+  std::cout << "--- 0 ---" << std::endl;
+  constexpr int insertions = 20;
+  int keys[insertions] = {71, 99, 72, 94, 97, 96, 22, 12, 26, 74,
+                          41, 23, 4,  83, 62, 81, 29, 50, 59, 60};
+  for (int i = 0; i < insertions; ++i) {
+    tree.Insert(keys[i]);
   }
   PrintRbTree(tree);
-  std::cout << "--- 1 ---" << std::endl;
 
   // Iterate over the values in the tree.
+  std::cout << "--- 1 ---" << std::endl;
   auto cIt = tree.cbegin();
   auto cItE = tree.cend();
   std::cout << *cIt;
@@ -174,10 +171,31 @@ void ExtensiveModification()
 {
   std::cout << "<= ExtensiveModification =>" << std::endl;
   Ds::RbTree<int> tree;
+  constexpr int valueArrays = 11;
   constexpr int exchangeCount = 20;
-  int treeValues[2][exchangeCount];
-  int* front = treeValues[0];
-  int* back = treeValues[1];
+  int values[valueArrays][exchangeCount] = {
+    {54,  693, 255, 449, 660, 430, 927, 649, 472, 640,
+     114, 321, 533, 476, 426, 307, 963, 107, 150, 231},
+    {517, 992, 193, 211, 936, 849, 352, 83,  922, 131,
+     451, 969, 959, 110, 253, 615, 122, 487, 583, 234},
+    {386, 6,   954, 585, 515, 519, 860, 415, 646, 612,
+     684, 605, 891, 459, 633, 699, 70,  4,   17,  136},
+    {888, 166, 238, 801, 610, 389, 590, 393, 151, 306,
+     635, 950, 368, 46,  982, 275, 235, 482, 260, 453},
+    {740, 609, 753, 285, 690, 616, 439, 793, 663, 585,
+     86,  284, 317, 58,  78,  560, 919, 367, 385, 800},
+    {326, 271, 980, 274, 278, 85,  543, 373, 833, 629,
+     939, 56,  361, 875, 692, 683, 155, 686, 66,  370},
+    {386, 821, 175, 746, 158, 872, 902, 751, 547, 182,
+     216, 517, 391, 116, 168, 41,  425, 709, 986, 351},
+    {533, 267, 589, 261, 946, 773, 382, 624, 891, 649,
+     543, 654, 27,  332, 472, 676, 596, 816, 997, 497},
+    {105, 573, 127, 58,  386, 452, 368, 407, 768, 559,
+     761, 198, 2,   925, 886, 975, 16,  293, 989, 232},
+    {782, 168, 274, 721, 771, 20,  167, 394, 858, 30,
+     370, 300, 872, 24,  495, 408, 187, 536, 577, 171},
+    {814, 426, 846, 508, 776, 402, 950, 555, 419, 424,
+     946, 416, 34,  533, 460, 725, 558, 705, 193, 711}};
 
   auto checkTree = [&tree]()
   {
@@ -187,52 +205,32 @@ void ExtensiveModification()
     LogAbortIf(tree.HasDoubleRed(), "The tree has a double red.");
   };
 
-  // This will insert values into the tree and store the inserted values in the
-  // provided buffer.
-  auto insertValues = [&checkTree, &tree, exchangeCount](int* buffer)
-  {
-    int insertionCount = 0;
-    while (insertionCount < exchangeCount) {
-      int value = rand() % 1000;
-      if (!tree.Contains(value)) {
-        tree.Insert(value);
-        checkTree();
-        buffer[insertionCount] = value;
-        ++insertionCount;
-      }
-    }
-  };
-
-  // This will remove all of the values in the provided buffer from the tree.
-  auto removeValues = [&checkTree, &tree, exchangeCount](int* buffer)
+  auto insertValues = [&checkTree, &tree, exchangeCount](const int* values)
   {
     for (int i = 0; i < exchangeCount; ++i) {
-      tree.Remove(buffer[i]);
+      tree.Insert(values[i]);
       checkTree();
     }
   };
 
-  // We begin by insterting values into the tree and the front buffer as an
-  // initialization step.
-  srand(5);
-  insertValues(front);
+  auto removeValues = [&checkTree, &tree, exchangeCount](const int* values)
+  {
+    for (int i = 0; i < exchangeCount; ++i) {
+      tree.Remove(values[i]);
+      checkTree();
+    }
+  };
 
+  insertValues(values[0]);
+  // Insert new values and remove previously inserted values on each iteration.
   for (int i = 0; i < 10; ++i) {
-    // Values are inserted into the tree and the back buffer first. After this,
-    // all of the values in the front buffer are removed and the buffers are
-    // swapped.
-    insertValues(back);
-    removeValues(front);
+    insertValues(values[i + 1]);
+    removeValues(values[i]);
     PrintRbTree(tree);
     std::cout << "--- " << i << " ---" << std::endl;
-
-    int* temp = front;
-    front = back;
-    back = temp;
   }
-
-  // We end by emptying all values from the tree.
-  removeValues(front);
+  // Remove the remaining values.
+  removeValues(values[10]);
   PrintRbTree(tree);
 }
 

@@ -161,7 +161,7 @@ Quat Rotator::Run(
     Vec3 normNew = Math::Normalize(newMouseOffset);
     // We need to clamp to avoid nan values from the cosine function.
     float dot = Math::Clamp(-1.0f, 1.0f, Math::Dot(normOld, normNew));
-    float angle = std::acosf(dot);
+    float angle = acosf(dot);
     if (snapping) {
       angle = Math::RoundToNearest(angle, snapInterval);
     }

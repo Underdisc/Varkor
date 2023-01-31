@@ -128,7 +128,7 @@ void Perspective(
 {
   // The fov passed into this function is the angle formed by the top and the
   // bottom of the view fustum, not the left and right.
-  float tanHalfFov = std::tanf(fovY / 2.0f);
+  float tanHalfFov = tanf(fovY / 2.0f);
   float tanHalfFovAspect = tanHalfFov * aspect;
   float nearFarDifference = near - far;
 

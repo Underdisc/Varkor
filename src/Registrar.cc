@@ -4,7 +4,6 @@
 // usable as a component. Expect a crash if it's added to a Space Member.
 
 #include "Registrar.h"
-#include "comp/Type.h"
 
 // clang-format off
 #include "comp/Transform.h"
@@ -26,24 +25,24 @@ namespace Registrar {
 void RegisterTypes()
 {
   using namespace Comp;
-  Type<Transform>::Register();
-  Type<Mesh>::Register();
-  Type<Mesh>::AddDependencies<Transform>();
-  Type<Sprite>::Register();
-  Type<Sprite>::AddDependencies<Transform>();
-  Type<Text>::Register();
-  Type<Text>::AddDependencies<Transform>();
-  Type<AlphaColor>::Register();
-  Type<Camera>::Register();
-  Type<Camera>::AddDependencies<Transform>();
-  Type<DirectionalLight>::Register();
-  Type<PointLight>::Register();
-  Type<SpotLight>::Register();
-  Type<Skybox>::Register();
-  Type<ShadowMap>::Register();
-  Type<ShadowMap>::AddDependencies<Camera>();
-  Type<Model>::Register();
-  Type<Model>::AddDependencies<Transform>();
+  RegisterComponent(Transform);
+  RegisterComponent(Mesh);
+  RegisterDependencies(Mesh, Transform);
+  RegisterComponent(Sprite);
+  RegisterDependencies(Sprite, Transform);
+  RegisterComponent(Text);
+  RegisterDependencies(Text, Transform);
+  RegisterComponent(AlphaColor);
+  RegisterComponent(Camera);
+  RegisterDependencies(Camera, Transform);
+  RegisterComponent(DirectionalLight);
+  RegisterComponent(PointLight);
+  RegisterComponent(SpotLight);
+  RegisterComponent(Skybox);
+  RegisterComponent(ShadowMap);
+  RegisterDependencies(ShadowMap, Camera);
+  RegisterComponent(Model);
+  RegisterDependencies(Model, Transform);
 }
 
 void (*nRegisterCustomTypes)() = nullptr;

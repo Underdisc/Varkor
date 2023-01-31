@@ -14,6 +14,7 @@ std::ostream& operator<<(std::ostream& os, Vlk::Token::Type tokenType)
   case Vlk::Token::Type::OpenBrace: os << "OpenBrace"; break;
   case Vlk::Token::Type::CloseBrace: os << "CloseBrace"; break;
   case Vlk::Token::Type::Comma: os << "Comma"; break;
+  default: break;
   }
   return os;
 }

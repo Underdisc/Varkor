@@ -124,7 +124,7 @@ Vec3 Camera::StandardToWorldPosition(
   float heightOver2;
   switch (mProjectionType) {
   case ProjectionType::Perspective:
-    heightOver2 = std::tanf(mFov / 2.0f) * mNear;
+    heightOver2 = tanf(mFov / 2.0f) * mNear;
     break;
   case ProjectionType::Orthographic: heightOver2 = mHeight / 2.0f; break;
   }

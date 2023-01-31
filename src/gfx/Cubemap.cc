@@ -127,7 +127,7 @@ Result Cubemap::Init(const Config& config)
     for (int i = 0; i < smFileDescriptorCount; ++i) {
       VResult<Face> result = Face::Init(config.mFaceFiles[i]);
       if (!result.Success()) {
-        return result;
+        return std::move(result);
       }
       const Face& face = result.mValue;
       GLenum target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
@@ -138,7 +138,7 @@ Result Cubemap::Init(const Config& config)
   else if (config.mSpecification == Specification::Single) {
     VResult<Face> result = Face::Init(config.mFaceFiles[0]);
     if (!result.Success()) {
-      return result;
+      return std::move(result);
     }
     const Face& face = result.mValue;
     GLenum format = face.mChannels == 4 ? GL_RGBA : GL_RGB;
@@ -217,7 +217,7 @@ VResult<Cubemap::Face> Cubemap::Face::Init(const std::string& file)
   // Resolve the file path.
   VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
-    return resolutionResult;
+    return std::move(resolutionResult);
   }
   const std::string& resolvedFile = resolutionResult.mValue;
 
