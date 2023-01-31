@@ -5,11 +5,7 @@
 #include <stdlib.h>
 #include <string>
 
-#ifdef WIN32
-  #include <StackWalker.h>
-#else
-  #include <backward.hpp>
-#endif
+#include <backward.hpp>
 
 #include "Error.h"
 #include "debug/MemLeak.h"
@@ -104,38 +100,15 @@ void Abort()
   AbortInternal(str.c_str());
 }
 
-#ifdef WIN32
-class CustomStackWalker: public StackWalker
-{
-public:
-  CustomStackWalker(): StackWalker() {}
-
-private:
-  virtual void OnCallstackEntry(CallstackEntryType type, CallstackEntry& entry)
-  {
-    std::stringstream ss;
-    ss << entry.undFullName << " => " << entry.lineFileName << "("
-       << entry.lineNumber << ")";
-    LogString(ss.str().c_str());
-  }
-};
-#endif
-
 void StackTrace()
 {
-#ifdef WIN32
-  LogString("/////////////////////");
-  CustomStackWalker stackWalker;
-  stackWalker.ShowCallstack();
-  LogString("/////////////////////");
-#else
+  backward::TraceResolver dummyResolver;
   backward::StackTrace trace;
   trace.load_here(32);
   backward::Printer printer;
   std::stringstream traceOutput;
   printer.print(trace, traceOutput);
   LogString(traceOutput.str().c_str());
-#endif
 }
 
 void LogString(const char* string)

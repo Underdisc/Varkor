@@ -16,3 +16,8 @@ add_subdirectory(math)
 add_subdirectory(rsl)
 add_subdirectory(vlk)
 add_subdirectory(world)
+
+if (WIN32)
+  set_source_files_properties(Error.cc TARGET_DIRECTORY varkor
+    PROPERTIES COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
+endif()
