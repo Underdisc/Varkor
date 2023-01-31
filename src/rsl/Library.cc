@@ -181,6 +181,7 @@ void Purge()
     nInitThread = nullptr;
     nStopInitThread = false;
   }
+  nAssets.Clear();
 }
 
 void AddToInitQueue(const Asset& asset)
