@@ -18,18 +18,6 @@ endif()
 add_subdirectory(sub/backward-cpp)
 add_backward(varkor)
 
-# StackWalker
-if (WIN32)
-  add_library(stackWalker)
-  target_sources(stackWalker PRIVATE
-    sub/StackWalker/Main/StackWalker/StackWalker.cpp)
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    target_compile_options(stackWalker PRIVATE -Wno-switch)
-  endif()
-  target_link_libraries(varkor stackWalker)
-  target_include_directories(varkor PUBLIC "sub/StackWalker/Main/StackWalker")
-endif()
-
 # stb
 target_include_directories(varkor PUBLIC "sub/stb")
 
