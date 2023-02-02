@@ -56,7 +56,7 @@ DisableFormat: 'false'
 FixNamespaceComments: 'true'
 IncludeBlocks: Preserve
 IndentCaseLabels: 'false'
-IndentPPDirectives: BeforeHash
+IndentPPDirectives: None
 IndentWidth: '2'
 IndentWrappedFunctionNames: 'true'
 KeepEmptyLinesAtTheStartOfBlocks: 'false'
