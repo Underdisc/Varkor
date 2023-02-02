@@ -16,6 +16,7 @@
 #include "ds/Vector.h"
 #include "editor/Editor.h"
 #include "editor/LayerInterface.h"
+#include "ext/Tracy.h"
 #include "gfx/Framebuffer.h"
 #include "gfx/Material.h"
 #include "gfx/Mesh.h"
@@ -185,6 +186,8 @@ void Clear()
 
 void Render()
 {
+  ZoneScoped;
+
   Clear();
   if (nCustomRender != nullptr) {
     nCustomRender();

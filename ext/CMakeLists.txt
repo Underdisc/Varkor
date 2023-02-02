@@ -16,7 +16,6 @@ endif()
 
 # backward-cpp
 add_subdirectory(sub/backward-cpp)
-add_backward(varkor)
 
 # stb
 target_include_directories(varkor PUBLIC "sub/stb")
@@ -58,3 +57,18 @@ set(GLFW_BUILD_INSTALL OFF CACHE BOOL "")
 add_subdirectory(sub/glfw)
 target_link_libraries(varkor glfw)
 target_include_directories(varkor PUBLIC "sub/glfw/include")
+
+# tracy
+target_include_directories(varkor PUBLIC "sub/tracy/public/tracy")
+if("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
+  option(TRACY_ENABLE "" ON)
+  option(TRACY_ON_DEMAND "" ON)
+  add_subdirectory(sub/tracy)
+endif()
+
+function(add_externals target)
+  add_backward(${target})
+  if("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
+    target_link_libraries(${target} Tracy::TracyClient)
+  endif()
+endfunction()

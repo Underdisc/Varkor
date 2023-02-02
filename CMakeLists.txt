@@ -6,6 +6,7 @@ project(varkor)
 add_library(varkor STATIC)
 add_subdirectory(src)
 add_subdirectory(ext)
+add_externals(varkor)
 
 find_package(OpenGL)
 target_link_libraries(varkor ${OPENGL_gl_LIBRARY})
@@ -36,7 +37,7 @@ function(AddProject targetName directory)
   target_compile_definitions(${targetName}
     PUBLIC PROJECT_DIRECTORY="${directory}")
   target_link_libraries(${targetName} varkor)
-  add_backward(${targetName})
+  add_externals(${targetName})
 endfunction()
 
 include("projects.cmake" OPTIONAL)

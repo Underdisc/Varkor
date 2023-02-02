@@ -7,6 +7,7 @@
 #include "Viewport.h"
 #include "ds/Map.h"
 #include "ds/Vector.h"
+#include "ext/Tracy.h"
 #include "rsl/Library.h"
 
 namespace Rsl {
@@ -203,6 +204,8 @@ bool InitThreadOpen()
 
 void InitializationThreadMain()
 {
+  ProfileThread("Init");
+
   Viewport::StartContextSharing();
   while (!nStopInitThread && !nInitQueue.Empty()) {
     Asset& asset = GetAsset(nInitQueue[0]);

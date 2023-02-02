@@ -1,6 +1,7 @@
 #include "Input.h"
 #include "Viewport.h"
 #include "ds/Vector.h"
+#include "ext/Tracy.h"
 #include "math/Vector.h"
 
 namespace Input {
@@ -42,6 +43,8 @@ void Init()
 
 void Update()
 {
+  ZoneScoped;
+
   nMouseMotion[0] = 0.0f;
   nMouseMotion[1] = 0.0f;
   nMouseScroll[0] = 0.0f;

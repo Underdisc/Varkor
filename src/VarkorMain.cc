@@ -8,6 +8,7 @@
 #include "Viewport.h"
 #include "debug/Draw.h"
 #include "editor/Editor.h"
+#include "ext/Tracy.h"
 #include "gfx/GlError.h"
 #include "gfx/Renderer.h"
 #include "gfx/UniformVector.h"
@@ -17,6 +18,8 @@
 Result VarkorInit(
   int argc, char* argv[], const char* windowName, const char* projectDirectory)
 {
+  ProfileThread("Main");
+
   Result result = Options::Init(argc, argv, projectDirectory);
   if (!result.Success()) {
     return result;
@@ -52,6 +55,8 @@ void VarkorRun()
     Rsl::HandleInitialization();
 
     Framer::End();
+
+    FrameMark;
   }
 }
 
