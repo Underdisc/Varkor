@@ -124,8 +124,7 @@ void GLAPIENTRY Callback(
   }
   e += ")\n  ";
   e += message;
-  Error::LogString(e.c_str());
-  Error::StackTrace();
+  LogAbort(e.c_str());
 }
 
 } // namespace GlError
