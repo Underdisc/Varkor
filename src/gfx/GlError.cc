@@ -29,6 +29,40 @@ void Init()
     GL_FALSE);
 }
 
+void LogFramebufferStatus(GLenum target)
+{
+  GLenum status = glCheckFramebufferStatus(target);
+  switch (status) {
+  case GL_FRAMEBUFFER_COMPLETE:
+    Error::LogString("GL_FRAMEBUFFER_COMPLETE");
+    break;
+  case GL_FRAMEBUFFER_UNDEFINED:
+    Error::LogString("GL_FRAMEBUFFER_UNDEFINED");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+    Error::LogString("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+    Error::LogString("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+    Error::LogString("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+    Error::LogString("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER");
+    break;
+  case GL_FRAMEBUFFER_UNSUPPORTED:
+    Error::LogString("GL_FRAMEBUFFER_UNSUPPORTED");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+    Error::LogString("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+    Error::LogString("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS");
+    break;
+  }
+}
+
 void LogStatus()
 {
   std::string s;

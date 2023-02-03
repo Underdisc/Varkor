@@ -4,6 +4,7 @@ namespace Gfx {
 namespace GlError {
 
 void Init();
+void LogFramebufferStatus(GLenum target);
 void LogStatus();
 void GLAPIENTRY Callback(
   GLenum source,
