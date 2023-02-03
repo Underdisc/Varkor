@@ -106,6 +106,7 @@ void StackTrace()
   backward::StackTrace trace;
   trace.load_here(32);
   backward::Printer printer;
+  printer.snippet = false;
   std::stringstream traceOutput;
   printer.print(trace, traceOutput);
   LogString(traceOutput.str().c_str());
