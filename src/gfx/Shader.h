@@ -67,6 +67,7 @@ struct Shader
   void Use() const;
   void SetUniform(const char* name, float value) const;
   void SetUniform(const char* name, int value) const;
+  void SetUniform(const char* name, const Vec2& value) const;
   void SetUniform(const char* name, const Vec3& value) const;
   void SetUniform(const char* name, const Vec4& value) const;
   void SetUniform(const char* name, const Mat4& value) const;

@@ -197,6 +197,12 @@ void Shader::SetUniform(const char* name, int value) const
   glUniform1i(location, value);
 }
 
+void Shader::SetUniform(const char* name, const Vec2& value) const
+{
+  GLint location = UniformLocation(name);
+  glUniform2fv(location, 1, value.CData());
+}
+
 void Shader::SetUniform(const char* name, const Vec3& value) const
 {
   GLint location = UniformLocation(name);
