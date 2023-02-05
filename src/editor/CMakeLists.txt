@@ -10,6 +10,7 @@ target_sources(varkor PRIVATE
   LayerInterface.cc
   LibraryInterface.cc
   ResourceInterface.cc
+  TempInterface.cc
   Utility.cc
   WindowInterface.cc)
 add_subdirectory(gizmos)

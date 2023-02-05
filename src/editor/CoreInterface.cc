@@ -8,6 +8,7 @@
 #include "editor/FramerInterface.h"
 #include "editor/LayerInterface.h"
 #include "editor/LibraryInterface.h"
+#include "editor/TempInterface.h"
 #include "editor/Utility.h"
 #include "rsl/Library.h"
 #include "vlk/Valkor.h"
@@ -153,6 +154,7 @@ void CoreInterface::ViewMenu()
     InterfaceMenuItem<ErrorInterface>("Error");
     InterfaceMenuItem<FramerInterface>("Framer");
     InterfaceMenuItem<LibraryInterface>("Library");
+    InterfaceMenuItem<TempInterface>("Temp");
     ImGui::MenuItem("Demo", NULL, &mShowImGuiDemo);
     ImGui::EndMenu();
   }
