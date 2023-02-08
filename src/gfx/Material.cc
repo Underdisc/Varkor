@@ -278,6 +278,10 @@ Result Material::Init(
 
 Result Material::InitUniform(const Vlk::Explorer& uniformEx)
 {
+  if (!uniformEx.Valid(Vlk::Value::Type::PairArray)) {
+    return Result(
+      "Uniform element at \"" + uniformEx.Path() + "\" must be a PairArray.");
+  }
   Vlk::Explorer nameEx = uniformEx("Name");
   if (!nameEx.Valid(Vlk::Value::Type::TrueValue)) {
     return Result(uniformEx.Path() + " missing :Name: TrueValue");
