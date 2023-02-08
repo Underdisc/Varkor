@@ -178,59 +178,15 @@ Result Material::Init(const Vlk::Explorer& configEx)
 
   // Get the uniforms.
   Vlk::Explorer uniformsEx = configEx("Uniforms");
-  if (!uniformsEx.Valid(Vlk::Value::Type::ValueArray)) {
-    return Result("Missing :Uniforms: ValueArray.");
-  }
-  for (size_t i = 0; i < uniformsEx.Size(); ++i) {
-    Vlk::Explorer uniformEx = uniformsEx[i];
-    Vlk::Explorer nameEx = uniformEx("Name");
-    if (!nameEx.Valid(Vlk::Value::Type::TrueValue)) {
-      return Result(uniformEx.Path() + " missing :Name: TrueValue");
+  if (uniformsEx.Valid()) {
+    if (!uniformsEx.Valid(Vlk::Value::Type::ValueArray)) {
+      return Result(":Uniforms: must be a ValueArray");
     }
-    std::string uniformName = nameEx.As<std::string>();
-
-    Vlk::Explorer typeEx = uniformEx("Type");
-    if (!typeEx.Valid(Vlk::Value::Type::TrueValue)) {
-      return Result(uniformEx.Path() + " missing :Type: TrueValue.");
-    }
-    std::string typeName = typeEx.As<std::string>();
-    UniformTypeId typeId = GetUniformTypeId(typeName);
-    if (typeId == UniformTypeId::Invalid) {
-      return Result(
-        uniformEx.Path() + " type \"" + typeName + "\" is invalid.");
-    }
-
-    Vlk::Explorer valueEx = uniformEx("Value");
-    if (!valueEx.Valid()) {
-      return Result(uniformEx.Path() + " missing :Value:.");
-    }
-    switch (typeId) {
-    case UniformTypeId::Int:
-      mUniforms.Add<int>(uniformName, valueEx.As<int>(0));
-      break;
-    case UniformTypeId::Float:
-      mUniforms.Add<float>(uniformName, valueEx.As<float>(0.0f));
-      break;
-    case UniformTypeId::Vec3:
-      mUniforms.Add<Vec3>(uniformName, valueEx.As<Vec3>({0.0f, 0.0f, 0.0f}));
-      break;
-    case UniformTypeId::Vec4:
-      mUniforms.Add<Vec4>(
-        uniformName, valueEx.As<Vec4>({0.0f, 0.0f, 0.0f, 0.0f}));
-      break;
-    case UniformTypeId::Texture2dRes:
-      mUniforms.Add<ResId>(
-        UniformTypeId::Texture2dRes,
-        uniformName,
-        valueEx.As<ResId>(Rsl::GetDefaultResId<Image>()));
-      break;
-    case UniformTypeId::TextureCubemapRes:
-      mUniforms.Add<ResId>(
-        UniformTypeId::TextureCubemapRes,
-        uniformName,
-        valueEx.As<ResId>(Rsl::GetDefaultResId<Cubemap>()));
-      break;
-    default: break;
+    for (size_t i = 0; i < uniformsEx.Size(); ++i) {
+      Result initUniformResult = InitUniform(uniformsEx[i]);
+      if (!initUniformResult.Success()) {
+        return initUniformResult;
+      }
     }
   }
   return Result();
@@ -317,6 +273,59 @@ Result Material::Init(
     mUniforms.Add<Vec3>("uDiffuseColor", diffuseColor);
   }
 
+  return Result();
+}
+
+Result Material::InitUniform(const Vlk::Explorer& uniformEx)
+{
+  Vlk::Explorer nameEx = uniformEx("Name");
+  if (!nameEx.Valid(Vlk::Value::Type::TrueValue)) {
+    return Result(uniformEx.Path() + " missing :Name: TrueValue");
+  }
+  std::string uniformName = nameEx.As<std::string>();
+
+  Vlk::Explorer typeEx = uniformEx("Type");
+  if (!typeEx.Valid(Vlk::Value::Type::TrueValue)) {
+    return Result(uniformEx.Path() + " missing :Type: TrueValue.");
+  }
+  std::string typeName = typeEx.As<std::string>();
+  UniformTypeId typeId = GetUniformTypeId(typeName);
+  if (typeId == UniformTypeId::Invalid) {
+    return Result(uniformEx.Path() + " type \"" + typeName + "\" is invalid.");
+  }
+
+  Vlk::Explorer valueEx = uniformEx("Value");
+  if (!valueEx.Valid()) {
+    return Result(uniformEx.Path() + " missing :Value:.");
+  }
+  switch (typeId) {
+  case UniformTypeId::Int:
+    mUniforms.Add<int>(uniformName, valueEx.As<int>(0));
+    break;
+  case UniformTypeId::Float:
+    mUniforms.Add<float>(uniformName, valueEx.As<float>(0.0f));
+    break;
+  case UniformTypeId::Vec3:
+    mUniforms.Add<Vec3>(uniformName, valueEx.As<Vec3>({0.0f, 0.0f, 0.0f}));
+    break;
+  case UniformTypeId::Vec4:
+    mUniforms.Add<Vec4>(
+      uniformName, valueEx.As<Vec4>({0.0f, 0.0f, 0.0f, 0.0f}));
+    break;
+  case UniformTypeId::Texture2dRes:
+    mUniforms.Add<ResId>(
+      UniformTypeId::Texture2dRes,
+      uniformName,
+      valueEx.As<ResId>(Rsl::GetDefaultResId<Image>()));
+    break;
+  case UniformTypeId::TextureCubemapRes:
+    mUniforms.Add<ResId>(
+      UniformTypeId::TextureCubemapRes,
+      uniformName,
+      valueEx.As<ResId>(Rsl::GetDefaultResId<Cubemap>()));
+    break;
+  default: break;
+  }
   return Result();
 }
 
