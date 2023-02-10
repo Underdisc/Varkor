@@ -21,7 +21,7 @@ T& GetRes(const ResId& resId)
 }
 
 template<typename T>
-T* TryGetRes(const ResId& resId)
+T* TryGetRes(const ResId& resId, const ResId& defaultResId)
 {
   std::string assetName = resId.GetAssetName();
   switch (GetAssetStatus(assetName)) {
@@ -34,7 +34,10 @@ T* TryGetRes(const ResId& resId)
   Asset& asset = GetAsset(assetName);
   T* res = asset.TryGetRes<T>(resId.GetResourceName());
   if (res == nullptr) {
-    return &GetDefaultRes<T>();
+    if (defaultResId == "") {
+      return &GetDefaultRes<T>();
+    }
+    return &GetRes<T>(defaultResId);
   }
   return res;
 }
