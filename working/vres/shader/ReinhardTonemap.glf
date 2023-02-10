@@ -7,8 +7,7 @@ uniform sampler2D uTexture;
 
 void main()
 {
-  vec4 alphaColor = texture(uTexture, iUv);
-  vec3 color = alphaColor.rgb;
+  vec3 color = texture(uTexture, iUv).rgb;
   color = color / (color + 1.0);
-  iFinalColor = vec4(color, alphaColor.a);
+  iFinalColor = vec4(color, 1.0);
 }

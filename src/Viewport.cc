@@ -102,7 +102,7 @@ void ResizeCallback(GLFWwindow* window, int width, int height)
 {
   nWidth = width;
   nHeight = height;
-  Gfx::Renderer::LayerFramebuffers::Resize();
+  Gfx::Renderer::ResizeRequiredFramebuffers();
 }
 
 const char* ErrorCodeString(int code)

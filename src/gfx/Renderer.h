@@ -12,6 +12,10 @@
 namespace Gfx {
 namespace Renderer {
 
+extern int nBloomBlurCount;
+extern float nBloomLuminanceThreshold;
+extern ResId nTonemapMaterial;
+
 extern void (*nCustomRender)();
 
 extern const ResId nFullscreenMeshId;
@@ -26,36 +30,18 @@ void Render();
 
 World::MemberId HoveredMemberId(
   const World::Space& space, const Mat4& view, const Mat4& proj);
-void RenderSpace(
+void RenderLayer(
   const World::Space& space,
   const Mat4& view,
   const Mat4& proj,
-  const Vec3& viewPos,
-  const ResId& postMaterialId);
+  const Vec3& viewPos);
 Result RenderWorld();
-void BindCurrentSpaceFramebuffer();
-void RenderCurrentSpaceFramebuffer();
 
-void RenderFramebuffers();
-void ResizeSpaceFramebuffers();
+void ResizeRequiredFramebuffers();
 
 // todo: This really shouldn't be exposed by the Renderer.
 void InitializeUniversalUniformBuffer(
   const Mat4& view, const Mat4& proj, const Vec3& viewPos = {0.0f, 0.0f, 0.0f});
-
-struct LayerFramebuffers
-{
-  static Ds::Vector<LayerFramebuffers> smInUse;
-  static int smNext;
-
-  static const LayerFramebuffers& GetNext();
-  static void Clear();
-  static void Resize();
-
-  LayerFramebuffers();
-  Framebuffer mMs;
-  Framebuffer mBlit;
-};
 
 } // namespace Renderer
 } // namespace Gfx

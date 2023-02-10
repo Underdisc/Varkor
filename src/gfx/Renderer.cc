@@ -33,6 +33,10 @@
 namespace Gfx {
 namespace Renderer {
 
+int nBloomBlurCount = 3;
+float nBloomLuminanceThreshold = 1.0f;
+ResId nTonemapMaterial = "vres/renderer:ReinhardTonemap";
+
 GLuint nUniversalUniformBufferVbo;
 GLuint nLightsUniformBufferVbo;
 GLuint nShadowUniformBufferVbo;
@@ -59,6 +63,106 @@ void RenderMemberIds(
   const Renderable::Collection& collection, const Mat4& view, const Mat4& proj);
 void RenderMemberOutline(
   const Renderable::Collection& collection, const Mat4& view, const Mat4& proj);
+
+// Required framebuffers
+GLuint nLayerFbo;
+GLuint nLayerColorTbo;
+GLuint nLayerDepthTbo;
+GLuint nLayerResolvedFbo;
+GLuint nLayerResolvedTbo;
+GLuint nBlendedFbo;
+GLuint nBlendedTbo;
+GLuint nBlurFbos[2];
+GLuint nBlurTbos[2];
+GLuint nFinalHdrFbo;
+GLuint nFinalHdrTbo;
+
+void BlendLayer(GLuint toFbo, const ResId& postMaterial);
+void BloomAndTonemapPasses();
+
+void InitRequiredFramebuffers(int width, int height)
+{
+  // Create the multisample buffer that renderables are rendered to.
+  glGenFramebuffers(1, &nLayerFbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, nLayerFbo);
+
+  glGenTextures(1, &nLayerColorTbo);
+  glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, nLayerColorTbo);
+  glTexImage2DMultisample(
+    GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA16F, width, height, GL_TRUE);
+  glFramebufferTexture2D(
+    GL_FRAMEBUFFER,
+    GL_COLOR_ATTACHMENT0,
+    GL_TEXTURE_2D_MULTISAMPLE,
+    nLayerColorTbo,
+    0);
+
+  glGenTextures(1, &nLayerDepthTbo);
+  glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, nLayerDepthTbo);
+  glTexImage2DMultisample(
+    GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH_COMPONENT, width, height, GL_TRUE);
+  glFramebufferTexture2D(
+    GL_FRAMEBUFFER,
+    GL_DEPTH_ATTACHMENT,
+    GL_TEXTURE_2D_MULTISAMPLE,
+    nLayerDepthTbo,
+    0);
+
+  // Generates a half float rgba framebuffer.
+  auto genRgba16fFramebuffer = [&width, &height](GLuint* fbo, GLuint* tbo)
+  {
+    glGenFramebuffers(1, fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, *fbo);
+    glGenTextures(1, tbo);
+    glBindTexture(GL_TEXTURE_2D, *tbo);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(
+      GL_TEXTURE_2D,
+      0,
+      GL_RGBA16F,
+      width,
+      height,
+      0,
+      GL_RGBA,
+      GL_HALF_FLOAT,
+      nullptr);
+    glFramebufferTexture2D(
+      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *tbo, 0);
+  };
+  genRgba16fFramebuffer(&nLayerResolvedFbo, &nLayerResolvedTbo);
+  genRgba16fFramebuffer(&nBlendedFbo, &nBlendedTbo);
+  for (int i = 0; i < 2; ++i) {
+    genRgba16fFramebuffer(&nBlurFbos[i], &nBlurTbos[i]);
+  }
+  genRgba16fFramebuffer(&nFinalHdrFbo, &nFinalHdrTbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void PurgeRequiredFramebuffers()
+{
+  // Delete the framebuffer objects.
+  glDeleteFramebuffers(1, &nLayerFbo);
+  glDeleteFramebuffers(1, &nLayerResolvedFbo);
+  glDeleteFramebuffers(1, &nBlendedFbo);
+  for (int i = 0; i < 2; ++i) {
+    glDeleteFramebuffers(1, &nBlurFbos[i]);
+  }
+  glDeleteFramebuffers(1, &nFinalHdrFbo);
+
+  // Delete the texture objects.
+  glDeleteTextures(1, &nLayerColorTbo);
+  glDeleteTextures(1, &nLayerDepthTbo);
+  glDeleteTextures(1, &nLayerResolvedTbo);
+  glDeleteTextures(1, &nBlendedTbo);
+  for (int i = 0; i < 2; ++i) {
+    glDeleteTextures(1, &nBlurTbos[i]);
+  }
+  glDeleteTextures(1, &nFinalHdrTbo);
+}
 
 void Init()
 {
@@ -144,16 +248,22 @@ void Init()
   CreateUniformBuffer(&nLightsUniformBufferVbo, 17680, 1);
   CreateUniformBuffer(&nShadowUniformBufferVbo, 80, 2);
 
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  InitRequiredFramebuffers(Viewport::Width(), Viewport::Height());
+}
+
+void ResizeRequiredFramebuffers()
+{
+  PurgeRequiredFramebuffers();
+  InitRequiredFramebuffers(Viewport::Width(), Viewport::Height());
 }
 
 void Purge()
 {
-  LayerFramebuffers::smInUse.Clear();
+  PurgeRequiredFramebuffers();
   if (nMemberIdFramebuffer != nullptr) {
     delete nMemberIdFramebuffer;
   }
@@ -164,11 +274,11 @@ void Purge()
 
 void Clear()
 {
-  // Clear all framebuffers.
-  LayerFramebuffers::Clear();
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, nBlendedFbo);
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glClear(GL_COLOR_BUFFER_BIT);
 
   // Delete framebuffers that weren't used and update their usage status so they
   // can be deleted if they are not used during the next frame.
@@ -204,7 +314,9 @@ void Render()
     const Mat4& view = Editor::nCamera.View();
     const Mat4& proj = Editor::nCamera.Proj();
     const Vec3& viewPos = Editor::nCamera.Position();
-    RenderSpace(space, view, proj, viewPos, worldLayer.mPostMaterialId);
+    RenderLayer(space, view, proj, viewPos);
+    BlendLayer(nBlendedFbo, worldLayer.mPostMaterialId);
+    BloomAndTonemapPasses();
 
     // Render an outline around the selected object.
     Editor::InspectorInterface* inspectorInterface =
@@ -216,7 +328,8 @@ void Render()
     }
 
     // Render the editor space and any debug draws.
-    RenderSpace(Editor::nSpace, view, proj, viewPos, nDefaultPostMaterialId);
+    RenderLayer(Editor::nSpace, view, proj, viewPos);
+    BlendLayer(0, "vres/renderer:CopyTexture");
     Debug::Draw::Render(Editor::nCamera.View(), Editor::nCamera.Proj());
   }
   else {
@@ -252,7 +365,9 @@ Result RenderWorld()
     Mat4 view = transformComp.GetInverseWorldMatrix(object);
     Mat4 proj = cameraComp->Proj();
     Vec3 viewPos = transformComp.GetWorldTranslation(object);
-    RenderSpace(space, view, proj, viewPos, layer.mPostMaterialId);
+    RenderLayer(space, view, proj, viewPos);
+    BlendLayer(nBlendedFbo, "vres/renderer:CopyTexture");
+    BloomAndTonemapPasses();
     Debug::Draw::Render(view, proj);
   }
   return Result();
@@ -457,9 +572,9 @@ void RenderMemberOutline(
   RenderMemberIds(collection, view, proj);
 
   // Draw an outline around the valid memberIds to the default framebuffer.
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, memberIdFrambuffer.ColorTbo());
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   auto& outlineMaterial = Rsl::GetRes<Gfx::Material>(nMemberOutlineMaterialId);
   auto& outlineShader = Rsl::GetRes<Gfx::Shader>(outlineMaterial.mShaderId);
   outlineShader.Use();
@@ -468,8 +583,11 @@ void RenderMemberOutline(
 
   auto& fullscreenMesh = Rsl::GetRes<Gfx::Mesh>(nFullscreenMeshId);
   glDisable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   fullscreenMesh.Render();
   glBindTexture(GL_TEXTURE_2D, 0);
+  glDisable(GL_BLEND);
   glEnable(GL_DEPTH_TEST);
 }
 
@@ -500,22 +618,12 @@ World::MemberId HoveredMemberId(
   return memberId;
 }
 
-void RenderSpace(
+void RenderLayer(
   const World::Space& space,
   const Mat4& view,
   const Mat4& proj,
-  const Vec3& viewPos,
-  const ResId& postMaterialId)
+  const Vec3& viewPos)
 {
-  // Render only if the post process material and shader are available.
-  Material* postMaterial = Rsl::TryGetRes<Material>(postMaterialId);
-  if (postMaterial == nullptr) {
-    return;
-  }
-  Shader* postShader = Rsl::TryGetRes<Shader>(postMaterial->mShaderId);
-  if (postShader == nullptr) {
-    return;
-  }
   Renderable::Collection collection;
   collection.Collect(space);
 
@@ -523,20 +631,19 @@ void RenderSpace(
   InitializeLightsUniformBuffer(space);
   InitializeShadowUniformBuffer(space, &collection);
 
-  // Get the next space framebuffer that hasn't been rendered to and bind it.
-  const LayerFramebuffers& fbs = LayerFramebuffers::GetNext();
+  // Render all renderables to the multisample buffer.
   glViewport(0, 0, Viewport::Width(), Viewport::Height());
-  glBindFramebuffer(GL_FRAMEBUFFER, fbs.mMs.Fbo());
-
-  // Perform the render passes for the layer.
+  glBindFramebuffer(GL_FRAMEBUFFER, nLayerFbo);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDepthMask(GL_FALSE);
   collection.Render(Renderable::Type::Skybox);
   glDepthMask(GL_TRUE);
   collection.Render(Renderable::Type::Floater);
 
-  // Blit the multisample buffer into the blit buffer.
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, fbs.mMs.Fbo());
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbs.mBlit.Fbo());
+  // Resolve the multisampled layer buffer.
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, nLayerFbo);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, nLayerResolvedFbo);
   glBlitFramebuffer(
     0,
     0,
@@ -548,75 +655,110 @@ void RenderSpace(
     Viewport::Height(),
     GL_COLOR_BUFFER_BIT,
     GL_NEAREST);
+}
 
-  // Perform the post process pass.
-  glDisable(GL_DEPTH_TEST);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, fbs.mBlit.ColorTbo());
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  auto& fullscreenMesh = Rsl::GetRes<Gfx::Mesh>(nFullscreenMeshId);
-  postShader->Use();
-  postShader->SetUniform("uTexture", 0);
+void BlendLayer(GLuint toFbo, const ResId& materialId)
+{
+  // Acquire the material.
+  const auto* material =
+    Rsl::TryGetRes<Material>(materialId, "vres/renderer:FullscreenDefault");
+  if (material == nullptr) {
+    return;
+  }
+  const auto* shader = Rsl::TryGetRes<Shader>(
+    material->mShaderId, "vres/renderer:FullscreenDefault");
+  if (shader == nullptr) {
+    return;
+  }
+  shader->Use();
+  shader->SetUniform("uTexture", 0);
   int textureIndex = 1;
-  postMaterial->mUniforms.Bind(*postShader, &textureIndex);
+  material->mUniforms.Bind(*shader, &textureIndex);
+
+  // Blend the layer.
+  glBindFramebuffer(GL_FRAMEBUFFER, toFbo);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, nLayerResolvedTbo);
+  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  auto& fullscreenMesh = Rsl::GetRes<Mesh>("vres/renderer:FullscreenMesh");
   fullscreenMesh.Render();
   glBindTexture(GL_TEXTURE_2D, 0);
+  glDisable(GL_BLEND);
   glEnable(GL_DEPTH_TEST);
 }
 
-int LayerFramebuffers::smNext;
-Ds::Vector<LayerFramebuffers> LayerFramebuffers::smInUse;
-
-const LayerFramebuffers& LayerFramebuffers::GetNext()
+void BloomAndTonemapPasses()
 {
-  if (smNext >= smInUse.Size()) {
-    ++smNext;
-    smInUse.Emplace();
-    return smInUse.Top();
-  }
-  return smInUse[smNext++];
-}
+  // Extract the instense colors into the first blur buffer.
+  glDisable(GL_DEPTH_TEST);
+  glBindFramebuffer(GL_FRAMEBUFFER, nBlurFbos[0]);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, nBlendedTbo);
+  auto& fullscreenMesh = Rsl::GetRes<Mesh>("vres/renderer:FullscreenMesh");
+  auto& intenseExtractShader =
+    Rsl::GetRes<Shader>("vres/renderer:IntenseExtract");
+  intenseExtractShader.Use();
+  intenseExtractShader.SetUniform(
+    "uLuminanceThreshold", nBloomLuminanceThreshold);
+  fullscreenMesh.Render();
 
-void LayerFramebuffers::Clear()
-{
-  // Remove framebuffers that haven't been used and clear the rest.
-  size_t popCount = smInUse.Size() - smNext;
-  for (size_t i = 0; i < popCount; ++i) {
-    smInUse.Pop();
-  }
-  for (LayerFramebuffers& toClear : smInUse) {
-    glBindFramebuffer(GL_FRAMEBUFFER, toClear.mMs.Fbo());
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  }
-  smNext = 0;
-}
+  // Perform the blur passes.
+  auto& blurShader = Rsl::GetRes<Shader>("vres/renderer:Blur");
+  blurShader.Use();
+  for (int i = 0; i < nBloomBlurCount; ++i) {
+    // Horizontal
+    glBindFramebuffer(GL_FRAMEBUFFER, nBlurFbos[1]);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, nBlurTbos[0]);
+    blurShader.SetUniform("uTexture", 0);
+    blurShader.SetUniform("uDirection", Vec2({1.0f, 0.0f}));
+    fullscreenMesh.Render();
 
-void LayerFramebuffers::Resize()
-{
-  for (LayerFramebuffers& toResize : smInUse) {
-    toResize.mMs.Resize(Viewport::Width(), Viewport::Height());
-    toResize.mBlit.Resize(Viewport::Width(), Viewport::Height());
+    // Vertical
+    glBindFramebuffer(GL_FRAMEBUFFER, nBlurFbos[0]);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, nBlurTbos[1]);
+    blurShader.SetUniform("uDirection", Vec2({0.0f, 1.0f}));
+    fullscreenMesh.Render();
   }
-}
 
-LayerFramebuffers::LayerFramebuffers()
-{
-  Framebuffer::Options msOptions;
-  msOptions.mWidth = Viewport::Width();
-  msOptions.mHeight = Viewport::Height();
-  msOptions.mInternalFormat = GL_RGBA16F;
-  msOptions.mMultisample = true;
-  mMs.Init(msOptions);
+  // Blend the blurred intense colors with the main color.
+  glBindFramebuffer(GL_FRAMEBUFFER, nFinalHdrFbo);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, nBlendedTbo);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, nBlurTbos[0]);
+  auto& additiveBlendShader =
+    Rsl::GetRes<Shader>("vres/renderer:AdditiveBlend");
+  additiveBlendShader.Use();
+  additiveBlendShader.SetUniform("uMain", 0);
+  additiveBlendShader.SetUniform("uOther", 1);
+  fullscreenMesh.Render();
 
-  Framebuffer::Options blitOptions;
-  blitOptions.mWidth = Viewport::Width();
-  blitOptions.mHeight = Viewport::Height();
-  blitOptions.mInternalFormat = GL_RGBA16F;
-  blitOptions.mFormat = GL_RGBA;
-  blitOptions.mPixelType = GL_HALF_FLOAT;
-  blitOptions.mMultisample = false;
-  mBlit.Init(blitOptions);
+  // Acquire the tonemapping material.
+  const auto* tonemapMaterial = Rsl::TryGetRes<Material>(
+    nTonemapMaterial, "vres/renderer:FullscreenDefault");
+  if (tonemapMaterial == nullptr) {
+    return;
+  }
+  const auto* tonemapShader = Rsl::TryGetRes<Shader>(
+    tonemapMaterial->mShaderId, "vres/renderer:FullscreenDefault");
+  if (tonemapShader == nullptr) {
+    return;
+  }
+  tonemapShader->Use();
+  tonemapShader->SetUniform("uTexture", 0);
+  int textureIndex = 1;
+  tonemapMaterial->mUniforms.Bind(*tonemapShader, &textureIndex);
+
+  // Perform tonemapping into the default framebuffer.
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, nFinalHdrTbo);
+  fullscreenMesh.Render();
+  glEnable(GL_DEPTH_TEST);
 }
 
 } // namespace Renderer

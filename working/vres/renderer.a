@@ -1,5 +1,19 @@
 [
   {
+    :Name: 'FullscreenDefault'
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/Default.glf']
+    }
+  },
+  {
+    :Name: 'FullscreenDefault'
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/renderer:FullscreenDefault'
+    }
+  },
+  {
     :Name: 'MemberIdShader'
     :Type: 'Shader'
     :Config: {
@@ -14,10 +28,18 @@
     }
   },
   {
-    :Name: 'DefaultPostShader'
+    :Name: 'CopyTexture'
     :Type: 'Shader'
     :Config: {
-      :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/DefaultPostProcess.glf']
+      :Files: [
+        'vres/shader/FullscreenTexture.glv', 'vres/shader/CopyTexture.glf']
+    }
+  },
+  {
+    :Name: 'CopyTexture'
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/renderer:CopyTexture'
     }
   },
   {
@@ -26,6 +48,49 @@
     :Config: {
       :ShaderId: 'vres/renderer:DefaultPostShader'
       :Uniforms: []
+    }
+  },
+  {
+    :Name: 'IntenseExtract'
+    :Type: 'Shader'
+    :Config: {
+      :Files: [
+        'vres/shader/FullscreenTexture.glv',
+        'vres/shader/IntenseExtract.glf']
+    }
+  },
+  {
+    :Name: 'Blur'
+    :Type: 'Shader'
+    :Config: {
+      :Files: [
+        'vres/shader/FullscreenTexture.glv',
+        'vres/shader/Blur.glf']
+    }
+  },
+  {
+    :Name: 'AdditiveBlend'
+    :Type: 'Shader'
+    :Config: {
+      :Files: [
+        'vres/shader/FullscreenTexture.glv',
+        'vres/shader/AdditiveBlend.glf']
+    }
+  },
+  {
+    :Name: 'ReinhardTonemap'
+    :Type: 'Shader'
+    :Config: {
+      :Files: [
+        'vres/shader/FullscreenTexture.glv',
+        'vres/shader/ReinhardTonemap.glf']
+    }
+  },
+  {
+    :Name: 'ReinhardTonemap'
+    :Type: 'Material'
+    :Config: {
+      :ShaderId: 'vres/renderer:ReinhardTonemap'
     }
   },
   {
