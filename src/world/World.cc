@@ -97,6 +97,7 @@ Result SaveLayer(LayerIt it, const char* filename)
   Vlk::Value& metadataVal = rootVal("Metadata");
   metadataVal("Name") = layer.mName;
   metadataVal("CameraId") = layer.mCameraId;
+  metadataVal("PostMaterialId") = layer.mPostMaterialId;
   Vlk::Value& spaceVal = rootVal("Space");
   layer.mSpace.Serialize(spaceVal);
   return rootVal.Write(filename);
