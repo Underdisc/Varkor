@@ -26,18 +26,18 @@ extern const ResId nDefaultPostMaterialId;
 void Init();
 void Purge();
 void Clear();
-void Render();
+void ResizeRequiredFramebuffers();
 
 World::MemberId HoveredMemberId(
   const World::Space& space, const Mat4& view, const Mat4& proj);
+
 void RenderLayer(
   const World::Space& space,
   const Mat4& view,
   const Mat4& proj,
   const Vec3& viewPos);
 Result RenderWorld();
-
-void ResizeRequiredFramebuffers();
+void Render();
 
 // todo: This really shouldn't be exposed by the Renderer.
 void InitializeUniversalUniformBuffer(

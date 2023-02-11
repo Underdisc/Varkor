@@ -36,6 +36,7 @@ namespace Renderer {
 int nBloomBlurCount = 3;
 float nBloomLuminanceThreshold = 1.0f;
 ResId nTonemapMaterial = "vres/renderer:ReinhardTonemap";
+void (*nCustomRender)() = nullptr;
 
 GLuint nUniversalUniformBufferVbo;
 GLuint nLightsUniformBufferVbo;
@@ -57,13 +58,6 @@ const ResId nMemberOutlineMaterialId(
 const ResId nDefaultPostShaderId(nRendererAssetName, "DefaultPostShader");
 const ResId nDefaultPostMaterialId(nRendererAssetName, "DefaultPostMaterial");
 
-void (*nCustomRender)() = nullptr;
-
-void RenderMemberIds(
-  const Renderable::Collection& collection, const Mat4& view, const Mat4& proj);
-void RenderMemberOutline(
-  const Renderable::Collection& collection, const Mat4& view, const Mat4& proj);
-
 // Required framebuffers
 GLuint nLayerFbo;
 GLuint nLayerColorTbo;
@@ -76,9 +70,6 @@ GLuint nBlurFbos[2];
 GLuint nBlurTbos[2];
 GLuint nFinalHdrFbo;
 GLuint nFinalHdrTbo;
-
-void BlendLayer(GLuint toFbo, const ResId& postMaterial);
-void BloomAndTonemapPasses();
 
 void InitRequiredFramebuffers(int width, int height)
 {
@@ -255,12 +246,6 @@ void Init()
   InitRequiredFramebuffers(Viewport::Width(), Viewport::Height());
 }
 
-void ResizeRequiredFramebuffers()
-{
-  PurgeRequiredFramebuffers();
-  InitRequiredFramebuffers(Viewport::Width(), Viewport::Height());
-}
-
 void Purge()
 {
   PurgeRequiredFramebuffers();
@@ -294,83 +279,10 @@ void Clear()
   nOutlineFramebufferUsed = false;
 }
 
-void Render()
+void ResizeRequiredFramebuffers()
 {
-  ZoneScoped;
-
-  Clear();
-  if (nCustomRender != nullptr) {
-    nCustomRender();
-  }
-  if (Editor::nEditorMode) {
-    // Render the selected space.
-    Editor::LayerInterface* layerInterface =
-      Editor::nCoreInterface.FindInterface<Editor::LayerInterface>();
-    if (layerInterface == nullptr) {
-      return;
-    }
-    const World::Layer& worldLayer = *layerInterface->mLayerIt;
-    const World::Space& space = worldLayer.mSpace;
-    const Mat4& view = Editor::nCamera.View();
-    const Mat4& proj = Editor::nCamera.Proj();
-    const Vec3& viewPos = Editor::nCamera.Position();
-    RenderLayer(space, view, proj, viewPos);
-    BlendLayer(nBlendedFbo, worldLayer.mPostMaterialId);
-    BloomAndTonemapPasses();
-
-    // Render an outline around the selected object.
-    Editor::InspectorInterface* inspectorInterface =
-      layerInterface->FindInterface<Editor::InspectorInterface>();
-    if (inspectorInterface != nullptr) {
-      Renderable::Collection collection;
-      collection.Collect(inspectorInterface->mObject);
-      RenderMemberOutline(collection, view, proj);
-    }
-
-    // Render the editor space and any debug draws.
-    RenderLayer(Editor::nSpace, view, proj, viewPos);
-    BlendLayer(0, "vres/renderer:CopyTexture");
-    Debug::Draw::Render(Editor::nCamera.View(), Editor::nCamera.Proj());
-  }
-  else {
-    Result result = RenderWorld();
-    if (!result.Success()) {
-      LogError(result.mError.c_str());
-      Editor::nEditorMode = true;
-    }
-  }
-}
-
-Result RenderWorld()
-{
-  for (const World::Layer& layer : World::nLayers) {
-    // Make sure the layer has a camera.
-    if (layer.mCameraId == World::nInvalidMemberId) {
-      std::stringstream error;
-      error << "\"" << layer.mName << "\" layer has no assigned camera.";
-      return Result(error.str());
-    }
-    // Make sure the camera has a camera component.
-    const World::Space& space = layer.mSpace;
-    const auto* cameraComp = space.TryGet<Comp::Camera>(layer.mCameraId);
-    if (cameraComp == nullptr) {
-      std::stringstream error;
-      error << "\"" << layer.mName << "\" layer camera has no camera component";
-      return Result(error.str());
-    }
-
-    // Render the space using the layer camera.
-    auto& transformComp = space.GetComponent<Comp::Transform>(layer.mCameraId);
-    World::Object object(const_cast<World::Space*>(&space), layer.mCameraId);
-    Mat4 view = transformComp.GetInverseWorldMatrix(object);
-    Mat4 proj = cameraComp->Proj();
-    Vec3 viewPos = transformComp.GetWorldTranslation(object);
-    RenderLayer(space, view, proj, viewPos);
-    BlendLayer(nBlendedFbo, "vres/renderer:CopyTexture");
-    BloomAndTonemapPasses();
-    Debug::Draw::Render(view, proj);
-  }
-  return Result();
+  PurgeRequiredFramebuffers();
+  InitRequiredFramebuffers(Viewport::Width(), Viewport::Height());
 }
 
 void InitializeUniversalUniformBuffer(
@@ -759,6 +671,85 @@ void BloomAndTonemapPasses()
   glBindTexture(GL_TEXTURE_2D, nFinalHdrTbo);
   fullscreenMesh.Render();
   glEnable(GL_DEPTH_TEST);
+}
+
+Result RenderWorld()
+{
+  for (const World::Layer& layer : World::nLayers) {
+    // Make sure the layer has a camera.
+    if (layer.mCameraId == World::nInvalidMemberId) {
+      std::stringstream error;
+      error << "\"" << layer.mName << "\" layer has no assigned camera.";
+      return Result(error.str());
+    }
+    // Make sure the camera has a camera component.
+    const World::Space& space = layer.mSpace;
+    const auto* cameraComp = space.TryGet<Comp::Camera>(layer.mCameraId);
+    if (cameraComp == nullptr) {
+      std::stringstream error;
+      error << "\"" << layer.mName << "\" layer camera has no camera component";
+      return Result(error.str());
+    }
+
+    // Render the space using the layer camera.
+    auto& transformComp = space.GetComponent<Comp::Transform>(layer.mCameraId);
+    World::Object object(const_cast<World::Space*>(&space), layer.mCameraId);
+    Mat4 view = transformComp.GetInverseWorldMatrix(object);
+    Mat4 proj = cameraComp->Proj();
+    Vec3 viewPos = transformComp.GetWorldTranslation(object);
+    RenderLayer(space, view, proj, viewPos);
+    BlendLayer(nBlendedFbo, "vres/renderer:CopyTexture");
+    BloomAndTonemapPasses();
+    Debug::Draw::Render(view, proj);
+  }
+  return Result();
+}
+
+void Render()
+{
+  ZoneScoped;
+
+  Clear();
+  if (nCustomRender != nullptr) {
+    nCustomRender();
+  }
+  if (Editor::nEditorMode) {
+    // Render the selected space.
+    Editor::LayerInterface* layerInterface =
+      Editor::nCoreInterface.FindInterface<Editor::LayerInterface>();
+    if (layerInterface == nullptr) {
+      return;
+    }
+    const World::Layer& worldLayer = *layerInterface->mLayerIt;
+    const World::Space& space = worldLayer.mSpace;
+    const Mat4& view = Editor::nCamera.View();
+    const Mat4& proj = Editor::nCamera.Proj();
+    const Vec3& viewPos = Editor::nCamera.Position();
+    RenderLayer(space, view, proj, viewPos);
+    BlendLayer(nBlendedFbo, worldLayer.mPostMaterialId);
+    BloomAndTonemapPasses();
+
+    // Render an outline around the selected object.
+    Editor::InspectorInterface* inspectorInterface =
+      layerInterface->FindInterface<Editor::InspectorInterface>();
+    if (inspectorInterface != nullptr) {
+      Renderable::Collection collection;
+      collection.Collect(inspectorInterface->mObject);
+      RenderMemberOutline(collection, view, proj);
+    }
+
+    // Render the editor space and any debug draws.
+    RenderLayer(Editor::nSpace, view, proj, viewPos);
+    BlendLayer(0, "vres/renderer:CopyTexture");
+    Debug::Draw::Render(Editor::nCamera.View(), Editor::nCamera.Proj());
+  }
+  else {
+    Result result = RenderWorld();
+    if (!result.Success()) {
+      LogError(result.mError.c_str());
+      Editor::nEditorMode = true;
+    }
+  }
 }
 
 } // namespace Renderer
