@@ -42,10 +42,12 @@ GLuint nUniversalUniformBufferVbo;
 GLuint nLightsUniformBufferVbo;
 GLuint nShadowUniformBufferVbo;
 
-bool nMemberIdFramebufferUsed;
-Framebuffer* nMemberIdFramebuffer;
-bool nOutlineFramebufferUsed;
-Framebuffer* nOutlineFramebuffer;
+constexpr GLuint nUnusedFbo = 0;
+
+GLuint nMemberIdFbo = nUnusedFbo;
+GLuint nMemberIdColorTbo;
+GLuint nMemberIdDepthTbo;
+bool nMemberIdFboUsed = false;
 
 const char* nRendererAssetName = "vres/renderer";
 const ResId nFullscreenMeshId(nRendererAssetName, "FullscreenMesh");
@@ -155,6 +157,16 @@ void PurgeRequiredFramebuffers()
   glDeleteTextures(1, &nFinalHdrTbo);
 }
 
+void PurgeMemberIdFbo()
+{
+  if (nMemberIdFbo != nUnusedFbo) {
+    glDeleteFramebuffers(1, &nMemberIdFbo);
+    glDeleteTextures(1, &nMemberIdColorTbo);
+    glDeleteTextures(1, &nMemberIdDepthTbo);
+  }
+  nMemberIdFbo = nUnusedFbo;
+}
+
 void Init()
 {
   // Initialize all of the resources used by the renderer.
@@ -249,12 +261,7 @@ void Init()
 void Purge()
 {
   PurgeRequiredFramebuffers();
-  if (nMemberIdFramebuffer != nullptr) {
-    delete nMemberIdFramebuffer;
-  }
-  if (nOutlineFramebuffer != nullptr) {
-    delete nOutlineFramebuffer;
-  }
+  PurgeMemberIdFbo();
 }
 
 void Clear()
@@ -265,24 +272,18 @@ void Clear()
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  // Delete framebuffers that weren't used and update their usage status so they
-  // can be deleted if they are not used during the next frame.
-  if (!nMemberIdFramebufferUsed) {
-    delete nMemberIdFramebuffer;
-    nMemberIdFramebuffer = nullptr;
+  // Delete the MemberId buffer if it wasn't used during the last frame.
+  if (!nMemberIdFboUsed) {
+    PurgeMemberIdFbo();
   }
-  nMemberIdFramebufferUsed = false;
-  if (!nOutlineFramebufferUsed) {
-    delete nOutlineFramebuffer;
-    nOutlineFramebufferUsed = false;
-  }
-  nOutlineFramebufferUsed = false;
+  nMemberIdFboUsed = false;
 }
 
 void ResizeRequiredFramebuffers()
 {
   PurgeRequiredFramebuffers();
   InitRequiredFramebuffers(Viewport::Width(), Viewport::Height());
+  PurgeMemberIdFbo();
 }
 
 void InitializeUniversalUniformBuffer(
@@ -420,38 +421,50 @@ void InitializeShadowUniformBuffer(
     UniformTypeId::Texture2d, "uShadowTexture", shadowMap.mTbo);
 }
 
-const Framebuffer& GetMemberIdFramebuffer()
+void EnsureMemberIdFbo()
 {
-  nMemberIdFramebufferUsed = true;
-  if (nMemberIdFramebuffer != nullptr) {
-    return *nMemberIdFramebuffer;
+  nMemberIdFboUsed = true;
+  if (nMemberIdFbo != nUnusedFbo) {
+    return;
   }
-  Framebuffer::Options options;
-  options.mWidth = Viewport::Width();
-  options.mHeight = Viewport::Height();
-  options.mInternalFormat = GL_R32I;
-  options.mFormat = GL_RED_INTEGER;
-  options.mPixelType = GL_INT;
-  options.mMultisample = false;
-  nMemberIdFramebuffer = alloc Framebuffer(options);
-  return *nMemberIdFramebuffer;
-}
+  glGenFramebuffers(1, &nMemberIdFbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, nMemberIdFbo);
 
-const Framebuffer& GetOutlineFramebuffer()
-{
-  nOutlineFramebufferUsed = true;
-  if (nOutlineFramebuffer != nullptr) {
-    return *nOutlineFramebuffer;
-  }
-  Framebuffer::Options options;
-  options.mWidth = Viewport::Width();
-  options.mHeight = Viewport::Height();
-  options.mInternalFormat = GL_RGBA8;
-  options.mFormat = GL_RGBA;
-  options.mPixelType = GL_UNSIGNED_BYTE;
-  options.mMultisample = false;
-  nOutlineFramebuffer = alloc Framebuffer(options);
-  return *nOutlineFramebuffer;
+  glGenTextures(1, &nMemberIdColorTbo);
+  glBindTexture(GL_TEXTURE_2D, nMemberIdColorTbo);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2D(
+    GL_TEXTURE_2D,
+    0,
+    GL_R32I,
+    Viewport::Width(),
+    Viewport::Height(),
+    0,
+    GL_RED_INTEGER,
+    GL_INT,
+    nullptr);
+  glFramebufferTexture2D(
+    GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, nMemberIdColorTbo, 0);
+
+  glBindTexture(GL_TEXTURE_2D, nMemberIdDepthTbo);
+  glTexImage2D(
+    GL_TEXTURE_2D,
+    0,
+    GL_DEPTH_COMPONENT,
+    Viewport::Height(),
+    Viewport::Width(),
+    0,
+    GL_DEPTH_COMPONENT,
+    GL_UNSIGNED_INT,
+    nullptr);
+  glFramebufferTexture2D(
+    GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, nMemberIdDepthTbo, 0);
+  
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void RenderMemberIds(
@@ -477,8 +490,8 @@ void RenderMemberOutline(
   const Renderable::Collection& collection, const Mat4& view, const Mat4& proj)
 {
   // Render the memberIds.
-  const Framebuffer& memberIdFrambuffer = GetMemberIdFramebuffer();
-  glBindFramebuffer(GL_FRAMEBUFFER, memberIdFrambuffer.Fbo());
+  EnsureMemberIdFbo();
+  glBindFramebuffer(GL_FRAMEBUFFER, nMemberIdFbo);
   glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
   glClear(GL_DEPTH_BUFFER_BIT);
   RenderMemberIds(collection, view, proj);
@@ -486,7 +499,7 @@ void RenderMemberOutline(
   // Draw an outline around the valid memberIds to the default framebuffer.
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, memberIdFrambuffer.ColorTbo());
+  glBindTexture(GL_TEXTURE_2D, nMemberIdColorTbo);
   auto& outlineMaterial = Rsl::GetRes<Gfx::Material>(nMemberOutlineMaterialId);
   auto& outlineShader = Rsl::GetRes<Gfx::Shader>(outlineMaterial.mShaderId);
   outlineShader.Use();
@@ -509,8 +522,8 @@ World::MemberId HoveredMemberId(
   // Render all of the MemberIds to a framebuffer.
   Renderable::Collection collection;
   collection.Collect(space);
-  const Framebuffer& memberIdFramebuffer = GetMemberIdFramebuffer();
-  glBindFramebuffer(GL_FRAMEBUFFER, memberIdFramebuffer.Fbo());
+  EnsureMemberIdFbo();
+  glBindFramebuffer(GL_FRAMEBUFFER, nMemberIdFbo);
   glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
   glClear(GL_DEPTH_BUFFER_BIT);
   RenderMemberIds(collection, view, proj);
@@ -523,8 +536,8 @@ World::MemberId HoveredMemberId(
     Viewport::Height() - (int)mousePos[1],
     1,
     1,
-    memberIdFramebuffer.Format(),
-    memberIdFramebuffer.PixelType(),
+    GL_RED_INTEGER,
+    GL_INT,
     (void*)&memberId);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   return memberId;
