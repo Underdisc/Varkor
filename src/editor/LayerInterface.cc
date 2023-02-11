@@ -19,7 +19,12 @@ void LayerInterface::Show()
   if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left)) {
     World::MemberId clickedMemberId =
       Gfx::Renderer::HoveredMemberId(space, nCamera.View(), nCamera.Proj());
-    if (clickedMemberId != World::nInvalidMemberId) {
+    bool clickedSelected =
+      inspector != nullptr && clickedMemberId == inspector->mObject.mMemberId;
+    if (clickedSelected) {
+      CloseInterface<InspectorInterface>();
+    }
+    else if (clickedMemberId != World::nInvalidMemberId) {
       World::Object clickedObject(&space, clickedMemberId);
       inspector = OpenInterface<InspectorInterface>(clickedObject);
     }
