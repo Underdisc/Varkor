@@ -2,12 +2,12 @@
 #define editor_LayerInterface_h
 
 #include "editor/InspectorInterface.h"
-#include "editor/WindowInterface.h"
+#include "editor/Interface.h"
 #include "world/World.h"
 
 namespace Editor {
 
-struct LayerInterface: public WindowInterface
+struct LayerInterface: public Interface
 {
 public:
   LayerInterface(World::LayerIt layerIt);

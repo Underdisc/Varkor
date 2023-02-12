@@ -8,8 +8,6 @@
 
 namespace Editor {
 
-struct WindowInterface;
-
 struct Interface
 {
 public:
@@ -43,7 +41,6 @@ private:
 
   friend void EndFrame();
   friend void Purge();
-  friend WindowInterface;
 };
 
 } // namespace Editor

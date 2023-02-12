@@ -3,12 +3,12 @@
 
 #include <imgui/imgui.h>
 
-#include "editor/WindowInterface.h"
+#include "editor/Interface.h"
 #include "vlk/Value.h"
 
 namespace Editor {
 
-struct ResourceInterface: public WindowInterface
+struct ResourceInterface: public Interface
 {
   ResourceInterface(const ResId& id);
   ~ResourceInterface();

@@ -11,6 +11,5 @@ target_sources(varkor PRIVATE
   LibraryInterface.cc
   ResourceInterface.cc
   TempInterface.cc
-  Utility.cc
-  WindowInterface.cc)
+  Utility.cc)
 add_subdirectory(gizmos)

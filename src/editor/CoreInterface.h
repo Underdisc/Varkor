@@ -1,11 +1,11 @@
 #ifndef editor_CoreInterface_h
 #define editor_CoreInterface_h
 
-#include "editor/WindowInterface.h"
+#include "editor/Interface.h"
 
 namespace Editor {
 
-struct CoreInterface: public WindowInterface
+struct CoreInterface: public Interface
 {
 public:
   void Init();
