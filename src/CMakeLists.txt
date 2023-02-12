@@ -5,6 +5,7 @@ target_sources(varkor PRIVATE
   Options.cc
   Profiler.cc
   Registrar.cc
+  Result.cc
   Temporal.cc
   VarkorMain.cc
   Viewport.cc)

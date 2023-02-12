@@ -39,10 +39,9 @@ void InspectorInterface::Show()
       }
       ImGui::EndPopup();
     }
-    size_t openTypeIndex = smOpenTypes.Find(desc.mTypeId);
-    bool open = openTypeIndex != smOpenTypes.Size();
+    VResult<size_t> findResult = smOpenTypes.Find(desc.mTypeId);
     if (inspecting) {
-      if (!open) {
+      if (!findResult.Success()) {
         smOpenTypes.Push(desc.mTypeId);
       }
       if (typeData.mVEdit.Open()) {
@@ -50,8 +49,8 @@ void InspectorInterface::Show()
         typeData.mVEdit.Invoke(component, mObject);
       }
     }
-    else if (open) {
-      smOpenTypes.Remove(openTypeIndex);
+    else if (findResult.Success()) {
+      smOpenTypes.Remove(findResult.mValue);
     }
     if (removeComponent == true) {
       mObject.RemComponent(desc.mTypeId);

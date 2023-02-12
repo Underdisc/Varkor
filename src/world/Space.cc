@@ -206,9 +206,9 @@ void Space::DeleteMember(MemberId memberId)
   // Remove the parent's reference to the child.
   if (member.mParent != nInvalidMemberId) {
     Member& parent = mMembers[member.mParent];
-    size_t index = parent.mChildren.Find(memberId);
-    if (index != parent.mChildren.Size()) {
-      parent.mChildren.LazyRemove(index);
+    VResult<size_t> findResult = parent.mChildren.Find(memberId);
+    if (findResult.Success()) {
+      parent.mChildren.LazyRemove(findResult.mValue);
     }
   }
 
