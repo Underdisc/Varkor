@@ -62,11 +62,11 @@ void VarkorRun()
 
 void VarkorPurge()
 {
+  Editor::Purge();
   World::Purge();
   Gfx::Renderer::Purge();
   Rsl::Purge();
   Framer::Purge();
-  Editor::Purge();
   Viewport::Purge();
   Error::Purge();
 }
