@@ -462,7 +462,7 @@ void EnsureMemberIdFbo()
     nullptr);
   glFramebufferTexture2D(
     GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, nMemberIdDepthTbo, 0);
-  
+
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -582,16 +582,16 @@ void RenderLayer(
     GL_NEAREST);
 }
 
-void BlendLayer(GLuint toFbo, const ResId& materialId)
+void BlendLayer(GLuint toFbo, const ResId& postMaterialId)
 {
   // Acquire the material.
   const auto* material =
-    Rsl::TryGetRes<Material>(materialId, "vres/renderer:FullscreenDefault");
+    Rsl::TryGetRes<Material>(postMaterialId, "vres/renderer:CopyTexture");
   if (material == nullptr) {
     return;
   }
-  const auto* shader = Rsl::TryGetRes<Shader>(
-    material->mShaderId, "vres/renderer:FullscreenDefault");
+  const auto* shader =
+    Rsl::TryGetRes<Shader>(material->mShaderId, "vres/renderer:CopyTexture");
   if (shader == nullptr) {
     return;
   }
