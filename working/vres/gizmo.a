@@ -45,7 +45,7 @@
     }
   },
   {
-    :Name: 'ColorShader'
+    :Name: 'Color'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/Default.glv', 'vres/shader/Color.glf']

@@ -23,8 +23,8 @@ struct Renderable
 Ds::Vector<Renderable> nRenderables;
 
 const char* nDebugDrawAssetName = "vres/debugDraw";
-const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Shader");
-const ResId nTbnShaderId(nDebugDrawAssetName, "TbnShader");
+const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Line");
+const ResId nTbnShaderId(nDebugDrawAssetName, "Tbn");
 
 void Init()
 {

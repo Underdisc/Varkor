@@ -50,13 +50,12 @@ GLuint nMemberIdDepthTbo;
 bool nMemberIdFboUsed = false;
 
 const char* nRendererAssetName = "vres/renderer";
-const ResId nFullscreenMeshId(nRendererAssetName, "FullscreenMesh");
-const ResId nSpriteMeshId(nRendererAssetName, "SpriteMesh");
-const ResId nSkyboxMeshId(nRendererAssetName, "SkyboxMesh");
-const ResId nMemberIdShaderId(nRendererAssetName, "MemberIdShader");
-const ResId nDepthShaderId(nRendererAssetName, "DepthShader");
-const ResId nMemberOutlineMaterialId(
-  nRendererAssetName, "MemberOutlineMaterial");
+const ResId nFullscreenMeshId(nRendererAssetName, "Fullscreen");
+const ResId nSpriteMeshId(nRendererAssetName, "Sprite");
+const ResId nSkyboxMeshId(nRendererAssetName, "Skybox");
+const ResId nMemberIdShaderId(nRendererAssetName, "MemberId");
+const ResId nDepthShaderId(nRendererAssetName, "Depth");
+const ResId nMemberOutlineMaterialId(nRendererAssetName, "MemberOutline");
 const ResId nDefaultPostShaderId(nRendererAssetName, "DefaultPostShader");
 const ResId nDefaultPostMaterialId(nRendererAssetName, "DefaultPostMaterial");
 
@@ -607,7 +606,7 @@ void BlendLayer(GLuint toFbo, const ResId& postMaterialId)
   glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  auto& fullscreenMesh = Rsl::GetRes<Mesh>("vres/renderer:FullscreenMesh");
+  auto& fullscreenMesh = Rsl::GetRes<Mesh>("vres/renderer:Fullscreen");
   fullscreenMesh.Render();
   glBindTexture(GL_TEXTURE_2D, 0);
   glDisable(GL_BLEND);
@@ -621,7 +620,7 @@ void BloomAndTonemapPasses()
   glBindFramebuffer(GL_FRAMEBUFFER, nBlurFbos[0]);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, nBlendedTbo);
-  auto& fullscreenMesh = Rsl::GetRes<Mesh>("vres/renderer:FullscreenMesh");
+  auto& fullscreenMesh = Rsl::GetRes<Mesh>("vres/renderer:Fullscreen");
   auto& intenseExtractShader =
     Rsl::GetRes<Shader>("vres/renderer:IntenseExtract");
   intenseExtractShader.Use();

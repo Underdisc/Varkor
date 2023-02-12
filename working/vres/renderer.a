@@ -9,14 +9,14 @@
     }
   },
   {
-    :Name: 'MemberIdShader'
+    :Name: 'MemberId'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/Default.glv', 'vres/shader/MemberId.glf']
     }
   },
   {
-    :Name: 'DepthShader'
+    :Name: 'Depth'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/Depth.glvf']
@@ -71,7 +71,7 @@
     }
   },
   {
-    :Name: 'MemberOutlineMaterial'
+    :Name: 'MemberOutline'
     :Type: 'Material'
     :Config: {
       :ShaderConfig: {

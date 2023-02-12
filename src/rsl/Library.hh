@@ -4,7 +4,7 @@ template<typename T>
 ResId GetDefaultResId()
 {
   const ResTypeData& resTypeData = GetResTypeData<T>();
-  return ResId(nDefaultAssetName, resTypeData.mName);
+  return ResId(nDefaultAssetName, "Default");
 }
 
 template<typename T>
