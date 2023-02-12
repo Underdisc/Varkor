@@ -143,7 +143,7 @@ std::string FormatFileName(const char* file)
 void SignalHandler(int signal)
 {
   switch (signal) {
-  case SIGABRT: LogString("SIGABRT: Abort"); break;
+  case SIGABRT: LogString("\nSIGABRT: Abort"); break;
   case SIGFPE: LogString("SIGFPE: Floating-Point Exception"); break;
   case SIGILL: LogString("SIGILL: Illegal Instruction"); break;
   case SIGINT: LogString("SIGINT: Interrupt"); break;
