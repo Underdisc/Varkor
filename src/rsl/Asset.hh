@@ -15,6 +15,7 @@ T& Asset::InitRes(const std::string& name, Args&&... args)
 template<typename T, typename... Args>
 VResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args)
 {
+  smInitResName = name;
   T newRes;
   Result initResult = newRes.Init(std::forward<Args>(args)...);
   if (!initResult.Success()) {

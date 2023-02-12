@@ -13,8 +13,8 @@
 
 namespace Comp {
 
-const ResId Text::smDefaultFontId(Text::smDefaultAssetName, "Font");
-const ResId Text::smDefaultMaterialId(Text::smDefaultAssetName, "Material");
+const ResId Text::smDefaultFontId(Text::smDefaultAssetName, "Default");
+const ResId Text::smDefaultMaterialId(Text::smDefaultAssetName, "Default");
 
 void Text::VStaticInit()
 {

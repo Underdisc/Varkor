@@ -1,16 +1,11 @@
 [
   {
     :Name: 'FullscreenDefault'
-    :Type: 'Shader'
-    :Config: {
-      :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/Default.glf']
-    }
-  },
-  {
-    :Name: 'FullscreenDefault'
     :Type: 'Material'
     :Config: {
-      :ShaderId: 'vres/renderer:FullscreenDefault'
+      :ShaderConfig: {
+        :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/Default.glf']
+      }
     }
   },
   {
@@ -29,25 +24,12 @@
   },
   {
     :Name: 'CopyTexture'
-    :Type: 'Shader'
-    :Config: {
-      :Files: [
-        'vres/shader/FullscreenTexture.glv', 'vres/shader/CopyTexture.glf']
-    }
-  },
-  {
-    :Name: 'CopyTexture'
     :Type: 'Material'
     :Config: {
-      :ShaderId: 'vres/renderer:CopyTexture'
-    }
-  },
-  {
-    :Name: 'DefaultPostMaterial'
-    :Type: 'Material'
-    :Config: {
-      :ShaderId: 'vres/renderer:DefaultPostShader'
-      :Uniforms: []
+      :ShaderConfig: {
+        :Files: [
+          'vres/shader/FullscreenTexture.glv', 'vres/shader/CopyTexture.glf']
+      }
     }
   },
   {
@@ -79,32 +61,23 @@
   },
   {
     :Name: 'ReinhardTonemap'
-    :Type: 'Shader'
-    :Config: {
-      :Files: [
-        'vres/shader/FullscreenTexture.glv',
-        'vres/shader/ReinhardTonemap.glf']
-    }
-  },
-  {
-    :Name: 'ReinhardTonemap'
     :Type: 'Material'
     :Config: {
-      :ShaderId: 'vres/renderer:ReinhardTonemap'
-    }
-  },
-  {
-    :Name: 'MemberOutlineShader'
-    :Type: 'Shader'
-    :Config: {
-      :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/MemberOutline.glf']
+      :ShaderConfig: {
+        :Files: [
+          'vres/shader/FullscreenTexture.glv',
+          'vres/shader/ReinhardTonemap.glf']
+      }
     }
   },
   {
     :Name: 'MemberOutlineMaterial'
     :Type: 'Material'
     :Config: {
-      :ShaderId: 'vres/renderer:MemberOutlineShader'
+      :ShaderConfig: {
+        :Files: [
+          'vres/shader/FullscreenTexture.glv', 'vres/shader/MemberOutline.glf']
+      }
       :Uniforms: [
         {
           :Name: 'uWidth'

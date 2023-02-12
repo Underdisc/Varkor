@@ -7,7 +7,7 @@
 
 namespace Comp {
 
-const ResId Sprite::smDefaultMaterialId(smDefaultAssetName, "Material");
+const ResId Sprite::smDefaultMaterialId(smDefaultAssetName, "Default");
 
 void Sprite::VStaticInit()
 {

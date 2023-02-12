@@ -169,12 +169,31 @@ void Material::EditConfig(Vlk::Value* configValP)
 
 Result Material::Init(const Vlk::Explorer& configEx)
 {
-  // Get the ShaderId.
+  // Get the material shader from an id or a new shader config.
   Vlk::Explorer shaderResIdEx = configEx("ShaderId");
-  if (!shaderResIdEx.Valid(Vlk::Value::Type::TrueValue)) {
-    return Result("Missing :ShaderId: TrueValue.");
+  Vlk::Explorer shaderConfigEx = configEx("ShaderConfig");
+  if (shaderResIdEx.Valid() && shaderConfigEx.Valid()) {
+    return Result("Only :ShaderId: or :ShaderConfig: is expected, not both.");
   }
-  mShaderId = shaderResIdEx.As<ResId>(Rsl::GetDefaultResId<Shader>());
+  if (shaderResIdEx.Valid()) {
+    if (!shaderResIdEx.Valid(Vlk::Value::Type::TrueValue)) {
+      return Result(":ShaderId: must be a TrueValue.");
+    }
+    mShaderId = shaderResIdEx.As<ResId>(Rsl::GetDefaultResId<Shader>());
+  }
+  else if (shaderConfigEx.Valid()) {
+    if (!shaderConfigEx.Valid(Vlk::Value::Type::PairArray)) {
+      return Result(":ShaderConfig: must be a PairArray.");
+    }
+    Rsl::Asset& initAsset = Rsl::Asset::GetInitAsset();
+    std::string shaderName = Rsl::Asset::GetInitResName();
+    Result result = initAsset.TryInitRes<Shader>(shaderName, shaderConfigEx);
+    if (!result.Success()) {
+      return Result(
+        "Shader \"" + shaderName + "\" init failed.\n" + result.mError);
+    }
+    mShaderId = ResId(initAsset.GetName(), shaderName);
+  }
 
   // Get the uniforms.
   Vlk::Explorer uniformsEx = configEx("Uniforms");

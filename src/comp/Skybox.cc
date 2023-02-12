@@ -5,7 +5,7 @@
 
 namespace Comp {
 
-const ResId Skybox::smDefaultMaterialId(Skybox::smDefaultAssetName, "Material");
+const ResId Skybox::smDefaultMaterialId(Skybox::smDefaultAssetName, "Default");
 
 void Skybox::VStaticInit()
 {

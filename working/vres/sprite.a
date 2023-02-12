@@ -1,16 +1,11 @@
 [
   {
-    :Name: 'Shader'
-    :Type: 'Shader'
-    :Config: {
-      :Files: ['vres/shader/DefaultSprite.glvf']
-    }
-  },
-  {
-    :Name: 'Material'
+    :Name: 'Default'
     :Type: 'Material'
     :Config: {
-      :ShaderId: 'vres/spriteDefaults:Shader'
+      :ShaderConfig: {
+        :Files: ['vres/shader/DefaultSprite.glvf']
+      }
       :Uniforms: [
         {
           :Name: 'uTexture'

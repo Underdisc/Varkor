@@ -39,8 +39,9 @@ private:
   size_t mResBinCapacity;
   Ds::Vector<ResDesc> mResDescs;
 
-  // The asset currently undergoing initialization.
+  // The asset and resource currently undergoing initialization.
   static Asset* smInitAsset;
+  static std::string smInitResName;
 
 public:
   explicit Asset(const std::string& name);
@@ -87,6 +88,7 @@ public:
     const Vlk::Explorer& assetEx);
 
   static Asset& GetInitAsset();
+  static const std::string& GetInitResName();
 
 private:
   Result TryInitRes(const Vlk::Explorer& configEx);

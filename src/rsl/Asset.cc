@@ -16,6 +16,7 @@
 namespace Rsl {
 
 Asset* Asset::smInitAsset = nullptr;
+std::string Asset::smInitResName = "";
 
 Asset::Asset(const std::string& name):
   mName(name),
@@ -211,6 +212,11 @@ Asset& Asset::GetInitAsset()
 {
   LogAbortIf(smInitAsset == nullptr, "An asset is not being initialized.");
   return *smInitAsset;
+}
+
+const std::string& Asset::GetInitResName()
+{
+  return smInitResName;
 }
 
 Result Asset::TryInitRes(const Vlk::Explorer& resEx)
