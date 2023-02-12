@@ -72,6 +72,7 @@ private:
     int indents);
 
   void ShowStatus(Rsl::Asset::Status status);
+  void ShowResourceType(Rsl::ResTypeId resTypeId);
 
   float GetLineOffset(int indents);
   float GetEntryNameOffset(int indents);
