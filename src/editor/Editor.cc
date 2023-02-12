@@ -156,10 +156,15 @@ void StartFrame()
 
 void RunInWorlds()
 {
-  LayerInterface* layerInterface =
-    nCoreInterface.FindInterface<LayerInterface>();
+  auto* layerInterface = nCoreInterface.FindInterface<LayerInterface>();
   if (layerInterface == nullptr) {
     return;
+  }
+
+  auto* inspectorInterface =
+    layerInterface->FindInterface<InspectorInterface>();
+  if (inspectorInterface != nullptr) {
+    inspectorInterface->ShowGizmos();
   }
   layerInterface->ObjectPicking();
 }

@@ -83,30 +83,6 @@ void Transform::VEdit(const World::Object& owner)
     SetRotation(rotation);
   }
 
-  // Handle all hotkeys for switching between modes and reference frames.
-  if (Input::KeyDown(Input::Key::LeftControl)) {
-    if (Input::KeyPressed(Input::Key::Z)) {
-      smReferenceFrame = ReferenceFrame::World;
-    }
-    else if (Input::KeyPressed(Input::Key::X)) {
-      smReferenceFrame = ReferenceFrame::Parent;
-    }
-    else if (Input::KeyPressed(Input::Key::C)) {
-      smReferenceFrame = ReferenceFrame::Relative;
-    }
-  }
-  else {
-    if (Input::KeyPressed(Input::Key::Z)) {
-      smMode = Mode::Translate;
-    }
-    else if (Input::KeyPressed(Input::Key::X)) {
-      smMode = Mode::Scale;
-    }
-    else if (Input::KeyPressed(Input::Key::C)) {
-      smMode = Mode::Rotate;
-    }
-  }
-
   // Display drop down lists for switching between modes and reference frames.
   const char* modeNames[] = {"Translate", "Scale", "Rotate"};
   const int modeNameCount = sizeof(modeNames) / sizeof(const char*);
@@ -131,6 +107,33 @@ void Transform::VEdit(const World::Object& owner)
     break;
   }
   ImGui::PopItemWidth();
+}
+
+void Transform::VGizmoEdit(const World::Object& owner)
+{
+  // Handle all hotkeys for switching between modes and reference frames.
+  if (Input::KeyDown(Input::Key::LeftControl)) {
+    if (Input::KeyPressed(Input::Key::Z)) {
+      smReferenceFrame = ReferenceFrame::World;
+    }
+    else if (Input::KeyPressed(Input::Key::X)) {
+      smReferenceFrame = ReferenceFrame::Parent;
+    }
+    else if (Input::KeyPressed(Input::Key::C)) {
+      smReferenceFrame = ReferenceFrame::Relative;
+    }
+  }
+  else {
+    if (Input::KeyPressed(Input::Key::Z)) {
+      smMode = Mode::Translate;
+    }
+    else if (Input::KeyPressed(Input::Key::X)) {
+      smMode = Mode::Scale;
+    }
+    else if (Input::KeyPressed(Input::Key::C)) {
+      smMode = Mode::Rotate;
+    }
+  }
 
   // Get a rotation depending on the current reference frame.
   Quat referenceFrameRotation;
@@ -160,6 +163,7 @@ void Transform::VEdit(const World::Object& owner)
   }
   else if (smMode == Mode::Scale) {
     referenceFrameRotation = GetWorldRotation(owner);
+    Vec3 scale = GetScale();
     Vec3 newScale = Editor::Gizmos::Scale(
       scale,
       worldTranslation,

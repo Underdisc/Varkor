@@ -15,6 +15,7 @@ struct Transform
   void VSerialize(Vlk::Value& transformVal);
   void VDeserialize(const Vlk::Explorer& transformEx);
   void VEdit(const World::Object& owner);
+  void VGizmoEdit(const World::Object& owner);
 
   const Vec3& GetTranslation() const;
   Vec3 GetWorldTranslation(const World::Object& object);
