@@ -13,27 +13,10 @@ LayerInterface::LayerInterface(World::LayerIt layerIt): mLayerIt(layerIt) {}
 
 void LayerInterface::Show()
 {
-  // Handle object picking.
-  World::Space& space = mLayerIt->mSpace;
-  InspectorInterface* inspector = FindInterface<InspectorInterface>();
-  if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left)) {
-    World::MemberId clickedMemberId =
-      Gfx::Renderer::HoveredMemberId(space, nCamera.View(), nCamera.Proj());
-    bool clickedSelected =
-      inspector != nullptr && clickedMemberId == inspector->mObject.mMemberId;
-    if (clickedSelected) {
-      CloseInterface<InspectorInterface>();
-    }
-    else if (clickedMemberId != World::nInvalidMemberId) {
-      World::Object clickedObject(&space, clickedMemberId);
-      inspector = OpenInterface<InspectorInterface>(clickedObject);
-    }
-  }
-  nSuppressObjectPicking = false;
-
   ImGui::Begin("Layer", &mOpen);
 
   // Allow the user to change the layer's camera with drag and drop.
+  World::Space& space = mLayerIt->mSpace;
   std::stringstream cameraLabel;
   cameraLabel << "Camera: ";
   if (mLayerIt->mCameraId != World::nInvalidMemberId) {
@@ -60,6 +43,7 @@ void LayerInterface::Show()
   }
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
   Ds::Vector<World::MemberId> rootMemberIds = space.RootMemberIds();
+  InspectorInterface* inspector = FindInterface<InspectorInterface>();
   for (int i = 0; i < rootMemberIds.Size(); ++i) {
     DisplayMember(rootMemberIds[i], &inspector);
   }
@@ -78,6 +62,26 @@ void LayerInterface::Show()
     ImGui::EndDragDropTarget();
   }
   ImGui::End();
+}
+
+void LayerInterface::ObjectPicking()
+{
+  if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left)) {
+    World::Space& space = mLayerIt->mSpace;
+    World::MemberId clickedMemberId =
+      Gfx::Renderer::HoveredMemberId(space, nCamera.View(), nCamera.Proj());
+    InspectorInterface* inspector = FindInterface<InspectorInterface>();
+    bool clickedSelected =
+      inspector != nullptr && clickedMemberId == inspector->mObject.mMemberId;
+    if (clickedSelected) {
+      CloseInterface<InspectorInterface>();
+    }
+    else if (clickedMemberId != World::nInvalidMemberId) {
+      World::Object clickedObject(&space, clickedMemberId);
+      OpenInterface<InspectorInterface>(clickedObject);
+    }
+  }
+  nSuppressObjectPicking = false;
 }
 
 void LayerInterface::DisplayMember(

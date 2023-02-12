@@ -12,6 +12,7 @@ struct LayerInterface: public WindowInterface
 public:
   LayerInterface(World::LayerIt layerIt);
   void Show();
+  void ObjectPicking();
   World::LayerIt mLayerIt;
 
 private:

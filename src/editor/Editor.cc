@@ -154,6 +154,16 @@ void StartFrame()
   Input::SetKeyboardFocus(!io.WantCaptureKeyboard);
 }
 
+void RunInWorlds()
+{
+  LayerInterface* layerInterface =
+    nCoreInterface.FindInterface<LayerInterface>();
+  if (layerInterface == nullptr) {
+    return;
+  }
+  layerInterface->ObjectPicking();
+}
+
 void EndFrame()
 {
   if (nEditorMode) {
@@ -162,10 +172,13 @@ void EndFrame()
   if (Input::KeyPressed(Input::Key::GraveAccent)) {
     nHideInterface = !nHideInterface;
   }
+
+  nCoreInterface.HandleStaging();
+  RunInWorlds();
   if (!nHideInterface) {
     ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), flags);
-    nCoreInterface.HandleInterfaces();
+    nCoreInterface.ShowAll();
   }
   Gizmos::PurgeUnneeded();
   EndImGuiFrame();

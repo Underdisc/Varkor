@@ -9,7 +9,6 @@ struct WindowInterface: public Interface
 {
 public:
   virtual ~WindowInterface();
-  void HandleInterfaces();
   virtual void Show() = 0;
 };
 
