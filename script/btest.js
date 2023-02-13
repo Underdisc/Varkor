@@ -173,3 +173,6 @@ else if (action === 't') {
 else if (action == 'c') {
   CoverageReport(target);
 }
+else {
+  console.log('Error: \'' + action + '\' is not a valid action.');
+}
