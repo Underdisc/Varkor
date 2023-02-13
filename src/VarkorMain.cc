@@ -1,6 +1,7 @@
 #include "Error.h"
 #include "Framer.h"
 #include "Input.h"
+#include "Log.h"
 #include "Options.h"
 #include "Registrar.h"
 #include "Result.h"
@@ -24,7 +25,8 @@ Result VarkorInit(
   if (!result.Success()) {
     return result;
   }
-  Error::Init("log.err");
+  Log::Init("log.txt");
+  Error::Init();
   Viewport::Init(windowName);
   Gfx::GlError::Init();
   Gfx::UniformVector::Init();
@@ -68,5 +70,5 @@ void VarkorPurge()
   Rsl::Purge();
   Framer::Purge();
   Viewport::Purge();
-  Error::Purge();
+  Log::Purge();
 }

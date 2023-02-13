@@ -1,5 +1,6 @@
 #include <GLFW/VarkorGlfw.h>
 
+#include "Log.h"
 #include "Viewport.h"
 #include "gfx/Renderer.h"
 
@@ -129,8 +130,8 @@ void ErrorCallback(int code, const char* description)
   error += ErrorCodeString(code);
   error += ")\n  ";
   error += description;
-  Error::LogString(error.c_str());
-  Error::StackTrace();
+  Log::String(error.c_str());
+  Log::StackTrace();
 }
 
 } // namespace Viewport

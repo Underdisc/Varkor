@@ -2,6 +2,7 @@ target_sources(varkor PRIVATE
   Error.cc
   Framer.cc
   Input.cc
+  Log.cc
   Options.cc
   Profiler.cc
   Registrar.cc
@@ -19,6 +20,6 @@ add_subdirectory(vlk)
 add_subdirectory(world)
 
 if (WIN32)
-  set_source_files_properties(Error.cc TARGET_DIRECTORY varkor
+  set_source_files_properties(Log.cc TARGET_DIRECTORY varkor
     PROPERTIES COMPILE_DEFINITIONS _CRT_SECURE_NO_WARNINGS)
 endif()

@@ -3,11 +3,11 @@
 #include "Options.h"
 #include "editor/CoreInterface.h"
 #include "editor/Editor.h"
-#include "editor/ErrorInterface.h"
 #include "editor/FileInterface.h"
 #include "editor/FramerInterface.h"
 #include "editor/LayerInterface.h"
 #include "editor/LibraryInterface.h"
+#include "editor/LogInterface.h"
 #include "editor/TempInterface.h"
 #include "editor/Utility.h"
 #include "rsl/Library.h"
@@ -18,7 +18,7 @@ namespace Editor {
 
 void CoreInterface::Init()
 {
-  OpenInterface<ErrorInterface>();
+  OpenInterface<LogInterface>();
   OpenInterface<LibraryInterface>();
   mShowImGuiDemo = false;
 }
@@ -151,7 +151,7 @@ void CoreInterface::FileMenu()
 void CoreInterface::ViewMenu()
 {
   if (ImGui::BeginMenu("View")) {
-    InterfaceMenuItem<ErrorInterface>("Error");
+    InterfaceMenuItem<LogInterface>("Log");
     InterfaceMenuItem<FramerInterface>("Framer");
     InterfaceMenuItem<LibraryInterface>("Library");
     InterfaceMenuItem<TempInterface>("Temp");
