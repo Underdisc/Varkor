@@ -17,6 +17,7 @@ struct Layer
   Layer(const std::string& name);
 
   std::string mName;
+  std::string mFilename;
   MemberId mCameraId;
   ResId mPostMaterialId;
   Space mSpace;

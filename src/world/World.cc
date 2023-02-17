@@ -70,6 +70,7 @@ VResult<LayerIt> LoadLayer(const char* filename)
   nLayers.EmplaceBack();
   Layer& newLayer = *nLayers.Back();
   newLayer.mName = metadataEx("Name").As<std::string>("DefaultName");
+  newLayer.mFilename = filename;
   newLayer.mCameraId = metadataEx("CameraId").As<MemberId>(nInvalidMemberId);
   Vlk::Explorer postMaterialEx = metadataEx("PostMaterialId");
   newLayer.mPostMaterialId =
@@ -92,7 +93,8 @@ VResult<LayerIt> LoadLayer(const char* filename)
 
 Result SaveLayer(LayerIt it, const char* filename)
 {
-  const Layer& layer = *it;
+  Layer& layer = *it;
+  layer.mFilename = filename;
   Vlk::Value rootVal;
   Vlk::Value& metadataVal = rootVal("Metadata");
   metadataVal("Name") = layer.mName;

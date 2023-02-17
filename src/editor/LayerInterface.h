@@ -13,6 +13,9 @@ public:
   LayerInterface(World::LayerIt layerIt);
   void Show();
   void ObjectPicking();
+  void SaveLayer();
+  void SaveLayerAs();
+  void SaveLayerAs(const std::string& filename);
   World::LayerIt mLayerIt;
 
 private:

@@ -1,10 +1,13 @@
 #include <imgui/imgui.h>
 
 #include "Input.h"
+#include "Log.h"
 #include "editor/Editor.h"
+#include "editor/FileInterface.h"
 #include "editor/LayerInterface.h"
 #include "editor/Utility.h"
 #include "gfx/Renderer.h"
+#include "rsl/Library.h"
 #include "world/Space.h"
 
 namespace Editor {
@@ -82,6 +85,41 @@ void LayerInterface::ObjectPicking()
     }
   }
   nSuppressObjectPicking = false;
+}
+
+void LayerInterface::SaveLayer()
+{
+  if (mLayerIt->mFilename == "") {
+    SaveLayerAs();
+  }
+  else {
+    SaveLayerAs(mLayerIt->mFilename);
+  }
+}
+
+void LayerInterface::SaveLayerAs()
+{
+  OpenInterface<FileInterface>(
+    [this](const std::string& filename)
+    {
+      SaveLayerAs(Rsl::PrependResDirectory(filename));
+    },
+    FileInterface::AccessType::Save,
+    mLayerIt->mName + World::nLayerExtension);
+}
+
+void LayerInterface::SaveLayerAs(const std::string& filename)
+{
+  Result result = World::SaveLayer(mLayerIt, filename.c_str());
+  std::string logString =
+    "\"" + mLayerIt->mName + "\" in \"" + mLayerIt->mFilename + "\".";
+  if (result.Success()) {
+    logString = "Successfully saved " + logString;
+  }
+  else {
+    logString = "Failed to save \"" + logString + "\n" + result.mError;
+  }
+  Log::String(logString);
 }
 
 void LayerInterface::DisplayMember(

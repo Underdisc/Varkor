@@ -173,13 +173,22 @@ void EndFrame()
 {
   if (nEditorMode) {
     nCamera.Update();
-  }
-  if (Input::KeyPressed(Input::Key::GraveAccent)) {
-    nHideInterface = !nHideInterface;
+    bool leftCtrl = Input::KeyDown(Input::Key::LeftControl);
+    bool s = Input::KeyPressed(Input::Key::S);
+    if (leftCtrl && s) {
+      auto* layerInterface = nCoreInterface.FindInterface<LayerInterface>();
+      if (layerInterface != nullptr) {
+        layerInterface->SaveLayer();
+      }
+    }
   }
 
   nCoreInterface.HandleStaging();
   RunInWorlds();
+
+  if (Input::KeyPressed(Input::Key::GraveAccent)) {
+    nHideInterface = !nHideInterface;
+  }
   if (!nHideInterface) {
     ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), flags);
