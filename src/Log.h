@@ -12,5 +12,6 @@ void Purge();
 
 void StackTrace();
 void String(const char* string);
+void String(const std::string& string);
 
 } // namespace Log

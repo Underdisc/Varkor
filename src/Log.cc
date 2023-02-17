@@ -57,4 +57,9 @@ void String(const char* string)
   nLogMutex.unlock();
 }
 
+void String(const std::string& string)
+{
+  String(string.c_str());
+}
+
 } // namespace Log
