@@ -294,7 +294,7 @@ void InitializeUniversalUniformBuffer(
   glBindBuffer(GL_UNIFORM_BUFFER, nUniversalUniformBufferVbo);
   glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Mat4), viewTranspose.CData());
   glBufferSubData(GL_UNIFORM_BUFFER, 64, sizeof(Mat4), projTranspose.CData());
-  glBufferSubData(GL_UNIFORM_BUFFER, 128, sizeof(Vec3), viewPos.CData());
+  glBufferSubData(GL_UNIFORM_BUFFER, 128, sizeof(Vec3), viewPos.mD);
   glBufferSubData(GL_UNIFORM_BUFFER, 140, sizeof(float), &totalTime);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
