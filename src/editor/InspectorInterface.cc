@@ -64,8 +64,10 @@ void InspectorInterface::ShowGizmos()
   for (Comp::TypeId typeId : smOpenTypes) {
     const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
     if (typeData.mVGizmoEdit.Open()) {
-      void* component = mObject.GetComponent(typeId);
-      typeData.mVGizmoEdit.Invoke(component, mObject);
+      void* component = mObject.TryGetComponent(typeId);
+      if (component != nullptr) {
+        typeData.mVGizmoEdit.Invoke(component, mObject);
+      }
     }
   }
 }
