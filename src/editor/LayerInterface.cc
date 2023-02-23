@@ -71,8 +71,8 @@ void LayerInterface::ObjectPicking()
 {
   if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left)) {
     World::Space& space = mLayerIt->mSpace;
-    World::MemberId clickedMemberId =
-      Gfx::Renderer::HoveredMemberId(space, nCamera.View(), nCamera.Proj());
+    World::MemberId clickedMemberId = Gfx::Renderer::HoveredMemberId(
+      space, nCamera.View(), nCamera.Proj(), nCamera.Position());
     InspectorInterface* inspector = FindInterface<InspectorInterface>();
     bool clickedSelected =
       inspector != nullptr && clickedMemberId == inspector->mObject.mMemberId;

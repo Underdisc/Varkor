@@ -91,5 +91,21 @@
         }
       ]
     }
+  },
+  {
+    :Name: 'Light'
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/icon/light.obj'
+      :FlipUvs: '0'
+      :Scale: '1'
+    }
+  },
+  {
+    :Name: 'Color'
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/Default.glv', 'vres/shader/Color.glf']
+    }
   }
 ]

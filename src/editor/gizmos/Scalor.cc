@@ -101,8 +101,8 @@ void Scalor::SetNextOperation(
   const Vec3& scale, const Vec3& translation, const Quat& referenceFrame)
 {
   // Find the next operation type.
-  World::MemberId hoveredHandleId =
-    Gfx::Renderer::HoveredMemberId(nSpace, nCamera.View(), nCamera.Proj());
+  World::MemberId hoveredHandleId = Gfx::Renderer::HoveredMemberId(
+    nSpace, nCamera.View(), nCamera.Proj(), nCamera.Position());
   // clang-format off
   if (hoveredHandleId == mX) { mOperation = Operation::X; }
   else if (hoveredHandleId == mY) { mOperation = Operation::Y; }

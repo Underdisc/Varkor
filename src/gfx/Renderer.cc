@@ -23,6 +23,7 @@
 #include "gfx/Renderable.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
+#include "math/Geometry.h"
 #include "math/Vector.h"
 #include "rsl/Asset.h"
 #include "rsl/Library.h"
@@ -468,7 +469,10 @@ void EnsureMemberIdFbo()
 }
 
 void RenderMemberIds(
-  const Renderable::Collection& collection, const Mat4& view, const Mat4& proj)
+  const Renderable::Collection& collection,
+  const Mat4& view,
+  const Mat4& proj,
+  const Vec3& viewPos)
 {
   InitializeUniversalUniformBuffer(view, proj);
   auto& memberIdShader = Rsl::GetRes<Gfx::Shader>(nMemberIdShaderId);
@@ -484,17 +488,21 @@ void RenderMemberIds(
     memberIdShader.SetUniform("uModel", renderable.mTransform);
     mesh->Render();
   }
+  collection.RenderIcons(true, view, proj, viewPos);
 }
 
 void RenderMemberOutline(
-  const Renderable::Collection& collection, const Mat4& view, const Mat4& proj)
+  const Renderable::Collection& collection,
+  const Mat4& view,
+  const Mat4& proj,
+  const Vec3& viewPos)
 {
   // Render the memberIds.
   EnsureMemberIdFbo();
   glBindFramebuffer(GL_FRAMEBUFFER, nMemberIdFbo);
   glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
   glClear(GL_DEPTH_BUFFER_BIT);
-  RenderMemberIds(collection, view, proj);
+  RenderMemberIds(collection, view, proj, viewPos);
 
   // Draw an outline around the valid memberIds to the default framebuffer.
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -517,7 +525,10 @@ void RenderMemberOutline(
 }
 
 World::MemberId HoveredMemberId(
-  const World::Space& space, const Mat4& view, const Mat4& proj)
+  const World::Space& space,
+  const Mat4& view,
+  const Mat4& proj,
+  const Vec3& viewPos)
 {
   // Render all of the MemberIds to a framebuffer.
   Renderable::Collection collection;
@@ -526,7 +537,7 @@ World::MemberId HoveredMemberId(
   glBindFramebuffer(GL_FRAMEBUFFER, nMemberIdFbo);
   glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
   glClear(GL_DEPTH_BUFFER_BIT);
-  RenderMemberIds(collection, view, proj);
+  RenderMemberIds(collection, view, proj, viewPos);
 
   // Find the MemberId at the mouse position.
   World::MemberId memberId;
@@ -565,6 +576,7 @@ void RenderLayer(
   collection.Render(Renderable::Type::Skybox);
   glDepthMask(GL_TRUE);
   collection.Render(Renderable::Type::Floater);
+  collection.RenderIcons(false, view, proj, viewPos);
 
   // Resolve the multisampled layer buffer.
   glBindFramebuffer(GL_READ_FRAMEBUFFER, nLayerFbo);
@@ -748,7 +760,7 @@ void Render()
     if (inspectorInterface != nullptr) {
       Renderable::Collection collection;
       collection.Collect(inspectorInterface->mObject);
-      RenderMemberOutline(collection, view, proj);
+      RenderMemberOutline(collection, view, proj, viewPos);
     }
 
     // Render the editor space and any debug draws.

@@ -29,7 +29,10 @@ void Clear();
 void ResizeRequiredFramebuffers();
 
 World::MemberId HoveredMemberId(
-  const World::Space& space, const Mat4& view, const Mat4& proj);
+  const World::Space& space,
+  const Mat4& view,
+  const Mat4& proj,
+  const Vec3& viewPos);
 
 void RenderLayer(
   const World::Space& space,

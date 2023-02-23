@@ -43,12 +43,5 @@
       :FlipUvs: '0'
       :Scale: '1'
     }
-  },
-  {
-    :Name: 'Color'
-    :Type: 'Shader'
-    :Config: {
-      :Files: ['vres/shader/Default.glv', 'vres/shader/Color.glf']
-    }
   }
 ]

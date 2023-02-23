@@ -14,6 +14,14 @@ struct Object;
 
 namespace Gfx {
 
+struct IconRenderable
+{
+  World::MemberId mOwner;
+  Vec3 mTranslation;
+  Vec4 mColor;
+  ResId mMeshId;
+};
+
 struct Renderable
 {
   World::MemberId mOwner;
@@ -36,12 +44,20 @@ struct Renderable
     Ds::Vector<Renderable> mRenderables[(int)Type::Count];
     UniformVector mUniforms;
 
+    Ds::Vector<IconRenderable> mIcons;
+
     static Collection* smActiveCollection;
     void Collect(const World::Space& space);
     void Collect(const World::Object& object);
     static void Add(Type renderableType, Renderable&& renderable);
+    static void AddIcon(IconRenderable&& renderable);
 
     void Render(Type renderableType) const;
+    void RenderIcons(
+      bool memberIds,
+      const Mat4& view,
+      const Mat4& proj,
+      const Vec3& viewPos) const;
     const Ds::Vector<Renderable>& Get(Type renderableType) const;
   };
 };

@@ -14,7 +14,7 @@ ResId nCubeMeshId(nGizmoAssetName, "Cube");
 ResId nScaleMeshId(nGizmoAssetName, "Scale");
 ResId nSphereMeshId(nGizmoAssetName, "Sphere");
 ResId nTorusMeshId(nGizmoAssetName, "Torus");
-ResId nColorShaderId(nGizmoAssetName, "Color");
+ResId nColorShaderId("vres/renderer:Color");
 
 void Init()
 {
