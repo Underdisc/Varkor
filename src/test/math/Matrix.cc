@@ -80,6 +80,29 @@ void Transpose()
   std::cout << transpose << '\n';
 }
 
+template<unsigned int N, unsigned int M>
+void ResizePrint()
+{
+  Math::Matrix<float, M> original;
+  unsigned int min = Math::Min(N, M);
+  for (int i = 0; i < min; ++i) {
+    for (int j = 0; j < min; ++j) {
+      original[i][j] = i + j;
+    }
+  }
+  Math::Matrix<float, N> resized;
+  Math::Resize(&resized, original);
+  std::cout << resized << '\n';
+}
+
+void Resize()
+{
+  std::cout << "<= Resize =>" << std::endl;
+  ResizePrint<2, 4>();
+  ResizePrint<4, 2>();
+  ResizePrint<5, 5>();
+}
+
 void Scale()
 {
   std::cout << "<= Scale =>" << std::endl;
@@ -234,6 +257,7 @@ int main(void)
   Zero();
   Identity();
   Transpose();
+  Resize();
   Scale();
   Translate();
   ApplyToPointVector();
