@@ -1,4 +1,5 @@
 #include "gfx/Renderable.h"
+#include "ext/Tracy.h"
 #include "gfx/Material.h"
 #include "gfx/Mesh.h"
 #include "math/Geometry.h"
@@ -34,6 +35,8 @@ Renderable::Collection* Renderable::Collection::smActiveCollection = nullptr;
 
 void Renderable::Collection::Collect(const World::Space& space)
 {
+  ZoneScoped;
+
   // Collect all renderables from every component in the given space.
   smActiveCollection = this;
   for (Comp::TypeId typeId = 0; typeId < Comp::TypeDataCount(); ++typeId) {
