@@ -115,16 +115,13 @@ void Renderable::Collection::RenderIcons(
       return;
     }
 
-    // todo: Getting a scaling factor depending on the view ray like this is
-    // also necessary for the gizmos. They should use the same function.
+    // Set the model transformation.
     float uniformScale =
       cameraComp.ProjectedDistance(cameraObject, icon.mTranslation);
     if (uniformScale == 0.0f) {
       continue;
     }
     uniformScale *= 0.02f;
-
-    // Set the model transformation.
     Mat4 scale, translate;
     Math::Scale(&scale, uniformScale);
     Math::Translate(&translate, icon.mTranslation);
