@@ -1,4 +1,5 @@
 #include "gfx/Renderable.h"
+#include "comp/Camera.h"
 #include "ext/Tracy.h"
 #include "gfx/Material.h"
 #include "gfx/Mesh.h"
@@ -93,18 +94,8 @@ void Renderable::Collection::Render(Type renderableType) const
 }
 
 void Renderable::Collection::RenderIcons(
-  bool memberIds, const Mat4& view, const Mat4& proj, const Vec3& viewPos) const
+  bool memberIds, const World::Object& cameraObject) const
 {
-  // Calculate values needed for computing model transformations.
-  Mat4 cameraRotation = Math::HomogeneousOrthogonalInverse(view);
-  for (int i = 0; i < 3; ++i) {
-    cameraRotation[i][3] = 0.0f;
-  }
-  Vec3 viewForward = {0.0f, 0.0f, -1.0f};
-  Mat3 orientation;
-  Math::Resize(&orientation, cameraRotation);
-  viewForward = orientation * viewForward;
-
   Shader* shader;
   if (memberIds) {
     shader = &Rsl::GetRes<Shader>("vres/renderer:MemberId");
@@ -114,6 +105,10 @@ void Renderable::Collection::RenderIcons(
   }
   shader->Use();
 
+  const auto& cameraComp = cameraObject.Get<Comp::Camera>();
+  Quat iconRotation = cameraComp.WorldRotation(cameraObject);
+  Mat4 iconRotate;
+  Math::Rotate(&iconRotate, iconRotation);
   for (const IconRenderable& icon : mIcons) {
     Mesh* mesh = Rsl::TryGetRes<Mesh>(icon.mMeshId);
     if (mesh == nullptr) {
@@ -122,20 +117,18 @@ void Renderable::Collection::RenderIcons(
 
     // todo: Getting a scaling factor depending on the view ray like this is
     // also necessary for the gizmos. They should use the same function.
-    Math::Ray viewRay;
-    viewRay.StartDirection(viewPos, viewForward);
-    Vec3 projection = viewRay.ClosestPointTo(icon.mTranslation);
-    Vec3 distance = projection - viewPos;
-    if (Math::Near(distance, {0.0f, 0.0f, 0.0f})) {
+    float uniformScale =
+      cameraComp.ProjectedDistance(cameraObject, icon.mTranslation);
+    if (uniformScale == 0.0f) {
       continue;
     }
-    float uniformScale = Math::Magnitude(distance) * 0.05f;
+    uniformScale *= 0.02f;
 
     // Set the model transformation.
     Mat4 scale, translate;
     Math::Scale(&scale, uniformScale);
     Math::Translate(&translate, icon.mTranslation);
-    Mat4 transformation = translate * cameraRotation * scale;
+    Mat4 transformation = translate * iconRotate * scale;
     shader->SetUniform("uModel", transformation);
 
     if (memberIds) {

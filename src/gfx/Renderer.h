@@ -29,22 +29,14 @@ void Clear();
 void ResizeRequiredFramebuffers();
 
 World::MemberId HoveredMemberId(
-  const World::Space& space,
-  const Mat4& view,
-  const Mat4& proj,
-  const Vec3& viewPos);
+  const World::Space& space, const World::Object& cameraObject);
 
-void RenderLayer(
-  const World::Space& space,
-  const Mat4& view,
-  const Mat4& proj,
-  const Vec3& viewPos);
+void RenderLayer(const World::Space& space, const World::Object& cameraObject);
 Result RenderWorld();
 void Render();
 
 // todo: This really shouldn't be exposed by the Renderer.
-void InitializeUniversalUniformBuffer(
-  const Mat4& view, const Mat4& proj, const Vec3& viewPos = {0.0f, 0.0f, 0.0f});
+void InitializeUniversalUniformBuffer(const World::Object& cameraObject);
 
 } // namespace Renderer
 } // namespace Gfx

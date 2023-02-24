@@ -98,13 +98,13 @@ void CartesianAxes()
   Line(o, z, z);
 }
 
-void Render(const Mat4& view, const Mat4& proj)
+void Render(const World::Object& cameraObject)
 {
   Gfx::Shader* shader = Rsl::TryGetRes<Gfx::Shader>(nDebugDrawShaderId);
   if (shader == nullptr) {
     return;
   }
-  Gfx::Renderer::InitializeUniversalUniformBuffer(view, proj);
+  Gfx::Renderer::InitializeUniversalUniformBuffer(cameraObject);
 
   shader->Use();
   for (int i = 0; i < nRenderables.Size(); ++i) {

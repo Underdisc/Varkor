@@ -53,11 +53,7 @@ struct Renderable
     static void AddIcon(IconRenderable&& renderable);
 
     void Render(Type renderableType) const;
-    void RenderIcons(
-      bool memberIds,
-      const Mat4& view,
-      const Mat4& proj,
-      const Vec3& viewPos) const;
+    void RenderIcons(bool memberIds, const World::Object& cameraObject) const;
     const Ds::Vector<Renderable>& Get(Type renderableType) const;
   };
 };

@@ -136,12 +136,15 @@ void Init()
       overviewCreated = true;
     }
   }
+
+  nCamera.Init();
 }
 
 void Purge()
 {
   nCoreInterface.PurgeInterfaces();
   Gizmos::PurgeAll();
+  nCamera.Purge();
   nSpace.Clear();
   ImGui::DestroyContext(nImGuiContext);
 }

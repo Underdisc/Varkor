@@ -114,12 +114,75 @@ Mat4 Camera::Proj() const
   return projection;
 }
 
+Mat4 Camera::View(const World::Object& owner) const
+{
+  auto& transformComp = owner.Get<Transform>();
+  Quat worldRotation = transformComp.GetWorldRotation(owner);
+  Vec3 worldTranslation = transformComp.GetWorldTranslation(owner);
+  Mat4 rotate, translate;
+  Math::Rotate(&rotate, worldRotation.Conjugate());
+  Math::Translate(&translate, -worldTranslation);
+  return rotate * translate;
+}
+
+Mat4 Camera::InverseView(const World::Object& owner) const
+{
+  auto& transformComp = owner.Get<Transform>();
+  Quat worldRotation = transformComp.GetWorldRotation(owner);
+  Vec3 worldTranslation = transformComp.GetWorldTranslation(owner);
+  Mat4 translate, rotate;
+  Math::Translate(&translate, worldTranslation);
+  Math::Rotate(&rotate, worldRotation);
+  return translate * rotate;
+}
+
+Vec3 Camera::WorldTranslation(const World::Object& owner) const
+{
+  auto& transformComp = owner.Get<Comp::Transform>();
+  return transformComp.GetWorldTranslation(owner);
+}
+
+Quat Camera::WorldRotation(const World::Object& owner) const
+{
+  auto& transformComp = owner.Get<Comp::Transform>();
+  return transformComp.GetWorldRotation(owner);
+}
+
+Vec3 Camera::WorldForward(const World::Object& owner) const
+{
+  return WorldRotation(owner).Rotate({0.0f, 0.0f, -1.0f});
+}
+
+Vec3 Camera::WorldRight(const World::Object& owner) const
+{
+  return WorldRotation(owner).Rotate({1.0f, 0.0f, 0.0f});
+}
+
+Vec3 Camera::WorldUp(const World::Object& owner) const
+{
+  return WorldRotation(owner).Rotate({0.0f, 1.0f, 0.0f});
+}
+
+float Camera::ProjectedDistance(
+  const World::Object& owner, const Vec3& worldTranslation) const
+{
+  Math::Ray viewRay;
+  Vec3 viewPos = WorldTranslation(owner);
+  viewRay.StartDirection(viewPos, WorldForward(owner));
+  Vec3 projection = viewRay.ClosestPointTo(worldTranslation);
+  Vec3 distance = projection - viewPos;
+  if (Math::Near(distance, {0.0f, 0.0f, 0.0f})) {
+    return 0.0f;
+  }
+  return Math::Magnitude(distance);
+}
+
 // This will take a position in the window and convert it to a position in the
 // world. The values in standard position should be in the range of [-1, 1],
 // where -1 represents the leftmost and bottommost edges of the window. The
 // value returned will be on the view frustrum's near plane.
-Vec3 Camera::StandardToWorldPosition(
-  Vec2 standardPosition, const Mat4& inverseView) const
+Vec3 Camera::StandardTranslationToWorldTranslation(
+  Vec2 standardPosition, const World::Object& owner) const
 {
   float heightOver2;
   switch (mProjectionType) {
@@ -131,8 +194,29 @@ Vec3 Camera::StandardToWorldPosition(
   standardPosition[0] *= heightOver2 * Viewport::Aspect();
   standardPosition[1] *= heightOver2;
   Vec4 worldPosition = {standardPosition[0], standardPosition[1], -mNear, 1.0f};
-  worldPosition = inverseView * worldPosition;
+  worldPosition = InverseView(owner) * worldPosition;
   return (Vec3)worldPosition;
+}
+
+// Imagine a position on the window extending as a line into space such that we
+// are only able to see it as a single point. This function will return a
+// ray that represents exactly that.
+Math::Ray Camera::StandardTranslationToWorldRay(
+  const Vec2& standardPosition, const World::Object& owner) const
+{
+  Math::Ray ray;
+  Vec3 cameraTranslation = WorldTranslation(owner);
+  Vec3 worldTranslation =
+    StandardTranslationToWorldTranslation(standardPosition, owner);
+  switch (mProjectionType) {
+  case ProjectionType::Perspective:
+    ray.StartDirection(cameraTranslation, worldTranslation - cameraTranslation);
+    break;
+  case ProjectionType::Orthographic:
+    ray.StartDirection(worldTranslation, WorldForward(owner));
+    break;
+  }
+  return ray;
 }
 
 void Camera::VEdit(const World::Object& owner)

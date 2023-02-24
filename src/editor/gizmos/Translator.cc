@@ -101,8 +101,10 @@ void Translator::SetNextOperation(
   const Vec3& translation, const Quat& referenceFrame)
 {
   // Find out the new operation type.
-  World::MemberId hoveredHandleId = Gfx::Renderer::HoveredMemberId(
-    nSpace, nCamera.View(), nCamera.Proj(), nCamera.Position());
+  const World::Object cameraObject = nCamera.GetObject();
+  const auto& cameraComp = cameraObject.Get<Comp::Camera>();
+  World::MemberId hoveredHandleId =
+    Gfx::Renderer::HoveredMemberId(nSpace, cameraObject);
   // clang-format off
     if (hoveredHandleId == mX) { mOperation = Operation::X; }
     else if (hoveredHandleId == mY) { mOperation = Operation::Y; }
@@ -120,6 +122,7 @@ void Translator::SetNextOperation(
   Vec3 xRotated = referenceFrame.Rotate({1.0f, 0.0f, 0.0f});
   Vec3 yRotated = referenceFrame.Rotate({0.0f, 1.0f, 0.0f});
   Vec3 zRotated = referenceFrame.Rotate({0.0f, 0.0f, 1.0f});
+  Vec3 forward = cameraComp.WorldForward(cameraObject);
   switch (mOperation) {
   case Operation::X: mTranslationRay.Direction(xRotated); break;
   case Operation::Y: mTranslationRay.Direction(yRotated); break;
@@ -127,14 +130,14 @@ void Translator::SetNextOperation(
   case Operation::Xy: mTranslationPlane.Normal(zRotated); break;
   case Operation::Xz: mTranslationPlane.Normal(yRotated); break;
   case Operation::Yz: mTranslationPlane.Normal(xRotated); break;
-  case Operation::Xyz: mTranslationPlane.Normal(nCamera.Forward()); break;
+  case Operation::Xyz: mTranslationPlane.Normal(forward); break;
   default: break;
   }
 
   // Set the mouse offset so it can be used to find the change in translation
   // during the following frames.
-  Math::Ray mouseRay =
-    nCamera.StandardPositionToRay(Input::StandardMousePosition());
+  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
+    Input::StandardMousePosition(), cameraObject);
   if (mOperation < Operation::Xy) {
     if (!mTranslationRay.HasClosestTo(mouseRay)) {
       mOperation = Operation::None;
@@ -182,8 +185,10 @@ Vec3 Translator::Run(
   }
 
   // Find a new translation depending on the active operation.
-  Math::Ray mouseRay =
-    nCamera.StandardPositionToRay(Input::StandardMousePosition());
+  const World::Object cameraObject = nCamera.GetObject();
+  const auto& cameraComp = cameraObject.Get<Comp::Camera>();
+  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
+    Input::StandardMousePosition(), cameraObject);
   if (mOperation < Operation::Xy) {
     // Perform translation on an axis.
     if (!mTranslationRay.HasClosestTo(mouseRay)) {

@@ -42,9 +42,13 @@ void SetParentTransformation(
   World::MemberId parentId, const Vec3& translation, const Quat& referenceFrame)
 {
   Math::Ray cameraRay;
-  cameraRay.StartDirection(nCamera.Position(), nCamera.Forward());
+  const World::Object cameraObject = nCamera.GetObject();
+  const auto& cameraComp = cameraObject.Get<Comp::Camera>();
+  Vec3 cameraTranslation = cameraComp.WorldTranslation(cameraObject);
+  Vec3 cameraForward = cameraComp.WorldForward(cameraObject);
+  cameraRay.StartDirection(cameraTranslation, cameraForward);
   Vec3 projection = cameraRay.ClosestPointTo(translation);
-  Vec3 projectionDistance = projection - nCamera.Position();
+  Vec3 projectionDistance = projection - cameraTranslation;
   if (Math::Near(projectionDistance, {0.0f, 0.0f, 0.0f})) {
     return;
   }

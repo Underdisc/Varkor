@@ -286,11 +286,13 @@ void ResizeRequiredFramebuffers()
   PurgeMemberIdFbo();
 }
 
-void InitializeUniversalUniformBuffer(
-  const Mat4& view, const Mat4& proj, const Vec3& viewPos)
+void InitializeUniversalUniformBuffer(const World::Object& cameraObject)
 {
-  Mat4 viewTranspose = Math::Transpose(view);
-  Mat4 projTranspose = Math::Transpose(proj);
+  const auto& cameraComp = cameraObject.Get<Comp::Camera>();
+  Mat4 viewTranspose = Math::Transpose(cameraComp.View(cameraObject));
+  Mat4 projTranspose = Math::Transpose(cameraComp.Proj());
+  auto& transformComp = cameraObject.Get<Comp::Transform>();
+  Vec3 viewPos = transformComp.GetWorldTranslation(cameraObject);
   float totalTime = Temporal::TotalTime();
   glBindBuffer(GL_UNIFORM_BUFFER, nUniversalUniformBufferVbo);
   glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Mat4), viewTranspose.CData());
@@ -469,12 +471,9 @@ void EnsureMemberIdFbo()
 }
 
 void RenderMemberIds(
-  const Renderable::Collection& collection,
-  const Mat4& view,
-  const Mat4& proj,
-  const Vec3& viewPos)
+  const Renderable::Collection& collection, const World::Object& cameraObject)
 {
-  InitializeUniversalUniformBuffer(view, proj);
+  InitializeUniversalUniformBuffer(cameraObject);
   auto& memberIdShader = Rsl::GetRes<Gfx::Shader>(nMemberIdShaderId);
   memberIdShader.Use();
   const Ds::Vector<Renderable>& floaters =
@@ -488,21 +487,18 @@ void RenderMemberIds(
     memberIdShader.SetUniform("uModel", renderable.mTransform);
     mesh->Render();
   }
-  collection.RenderIcons(true, view, proj, viewPos);
+  collection.RenderIcons(true, cameraObject);
 }
 
 void RenderMemberOutline(
-  const Renderable::Collection& collection,
-  const Mat4& view,
-  const Mat4& proj,
-  const Vec3& viewPos)
+  const Renderable::Collection& collection, const World::Object& cameraObject)
 {
   // Render the memberIds.
   EnsureMemberIdFbo();
   glBindFramebuffer(GL_FRAMEBUFFER, nMemberIdFbo);
   glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
   glClear(GL_DEPTH_BUFFER_BIT);
-  RenderMemberIds(collection, view, proj, viewPos);
+  RenderMemberIds(collection, cameraObject);
 
   // Draw an outline around the valid memberIds to the default framebuffer.
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -525,10 +521,7 @@ void RenderMemberOutline(
 }
 
 World::MemberId HoveredMemberId(
-  const World::Space& space,
-  const Mat4& view,
-  const Mat4& proj,
-  const Vec3& viewPos)
+  const World::Space& space, const World::Object& cameraObject)
 {
   // Render all of the MemberIds to a framebuffer.
   Renderable::Collection collection;
@@ -537,7 +530,7 @@ World::MemberId HoveredMemberId(
   glBindFramebuffer(GL_FRAMEBUFFER, nMemberIdFbo);
   glClearBufferiv(GL_COLOR, 0, &World::nInvalidMemberId);
   glClear(GL_DEPTH_BUFFER_BIT);
-  RenderMemberIds(collection, view, proj, viewPos);
+  RenderMemberIds(collection, cameraObject);
 
   // Find the MemberId at the mouse position.
   World::MemberId memberId;
@@ -554,16 +547,12 @@ World::MemberId HoveredMemberId(
   return memberId;
 }
 
-void RenderLayer(
-  const World::Space& space,
-  const Mat4& view,
-  const Mat4& proj,
-  const Vec3& viewPos)
+void RenderLayer(const World::Space& space, const World::Object& cameraObject)
 {
   Renderable::Collection collection;
   collection.Collect(space);
 
-  InitializeUniversalUniformBuffer(view, proj, viewPos);
+  InitializeUniversalUniformBuffer(cameraObject);
   InitializeLightsUniformBuffer(space);
   InitializeShadowUniformBuffer(space, &collection);
 
@@ -576,7 +565,7 @@ void RenderLayer(
   collection.Render(Renderable::Type::Skybox);
   glDepthMask(GL_TRUE);
   collection.Render(Renderable::Type::Floater);
-  collection.RenderIcons(false, view, proj, viewPos);
+  collection.RenderIcons(false, cameraObject);
 
   // Resolve the multisampled layer buffer.
   glBindFramebuffer(GL_READ_FRAMEBUFFER, nLayerFbo);
@@ -700,7 +689,7 @@ void BloomAndTonemapPasses()
 
 Result RenderWorld()
 {
-  for (const World::Layer& layer : World::nLayers) {
+  for (World::Layer& layer : World::nLayers) {
     // Make sure the layer has a camera.
     if (layer.mCameraId == World::nInvalidMemberId) {
       std::stringstream error;
@@ -708,24 +697,20 @@ Result RenderWorld()
       return Result(error.str());
     }
     // Make sure the camera has a camera component.
-    const World::Space& space = layer.mSpace;
+    World::Space& space = layer.mSpace;
     const auto* cameraComp = space.TryGet<Comp::Camera>(layer.mCameraId);
     if (cameraComp == nullptr) {
       std::stringstream error;
       error << "\"" << layer.mName << "\" layer camera has no camera component";
       return Result(error.str());
     }
+    const World::Object cameraObject(&space, layer.mCameraId);
 
     // Render the space using the layer camera.
-    auto& transformComp = space.GetComponent<Comp::Transform>(layer.mCameraId);
-    World::Object object(const_cast<World::Space*>(&space), layer.mCameraId);
-    Mat4 view = transformComp.GetInverseWorldMatrix(object);
-    Mat4 proj = cameraComp->Proj();
-    Vec3 viewPos = transformComp.GetWorldTranslation(object);
-    RenderLayer(space, view, proj, viewPos);
+    RenderLayer(space, cameraObject);
     BlendLayer(nBlendedFbo, "vres/renderer:CopyTexture");
     BloomAndTonemapPasses();
-    Debug::Draw::Render(view, proj);
+    Debug::Draw::Render(cameraObject);
   }
   return Result();
 }
@@ -747,10 +732,9 @@ void Render()
     }
     const World::Layer& worldLayer = *layerInterface->mLayerIt;
     const World::Space& space = worldLayer.mSpace;
-    const Mat4& view = Editor::nCamera.View();
-    const Mat4& proj = Editor::nCamera.Proj();
-    const Vec3& viewPos = Editor::nCamera.Position();
-    RenderLayer(space, view, proj, viewPos);
+    const World::Object cameraObject = Editor::nCamera.GetObject();
+
+    RenderLayer(space, cameraObject);
     BlendLayer(nBlendedFbo, worldLayer.mPostMaterialId);
     BloomAndTonemapPasses();
 
@@ -760,13 +744,13 @@ void Render()
     if (inspectorInterface != nullptr) {
       Renderable::Collection collection;
       collection.Collect(inspectorInterface->mObject);
-      RenderMemberOutline(collection, view, proj, viewPos);
+      RenderMemberOutline(collection, cameraObject);
     }
 
     // Render the editor space and any debug draws.
-    RenderLayer(Editor::nSpace, view, proj, viewPos);
+    RenderLayer(Editor::nSpace, cameraObject);
     BlendLayer(0, "vres/renderer:CopyTexture");
-    Debug::Draw::Render(Editor::nCamera.View(), Editor::nCamera.Proj());
+    Debug::Draw::Render(cameraObject);
   }
   else {
     Result result = RenderWorld();
