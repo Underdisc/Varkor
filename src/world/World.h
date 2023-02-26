@@ -30,6 +30,7 @@ typedef Ds::List<Layer>::Iter LayerIt;
 extern void (*nCentralUpdate)();
 extern void (*nLayerUpdate)(LayerIt layerIt);
 
+void Init();
 void Purge();
 void Update();
 LayerIt CreateTopLayer();

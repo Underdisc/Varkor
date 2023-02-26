@@ -5,7 +5,6 @@ target_sources(varkor PRIVATE
   Log.cc
   Options.cc
   Profiler.cc
-  Registrar.cc
   Result.cc
   Temporal.cc
   VarkorMain.cc

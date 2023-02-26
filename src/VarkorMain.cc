@@ -3,7 +3,6 @@
 #include "Input.h"
 #include "Log.h"
 #include "Options.h"
-#include "Registrar.h"
 #include "Result.h"
 #include "Temporal.h"
 #include "Viewport.h"
@@ -32,7 +31,7 @@ Result VarkorInit(
   Gfx::UniformVector::Init();
   Rsl::Init();
   Gfx::Renderer::Init();
-  Registrar::Init();
+  World::Init();
   Editor::Init();
   Framer::Init();
   Input::Init();

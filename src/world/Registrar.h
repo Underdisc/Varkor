@@ -9,8 +9,12 @@
 
 namespace Registrar {
 
+constexpr int nInvalidProgression = -1;
+
 extern void (*nRegisterCustomTypes)();
 void Init();
+int CurrentProgression();
+void ProgressComponents(Vlk::Value& spaceVal, int startProgression);
 
 } // namespace Registrar
 

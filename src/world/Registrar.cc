@@ -4,6 +4,7 @@
 // usable as a component. Expect a crash if it's added to a Space Member.
 
 #include "Registrar.h"
+#include "vlk/Valkor.h"
 
 // clang-format off
 #include "comp/Transform.h"
@@ -22,6 +23,10 @@
 
 namespace Registrar {
 
+void (*nRegisterCustomTypes)() = nullptr;
+int nCurrentProgression;
+void (*nProgressions[1])(Vlk::Value& componentsVal);
+
 void RegisterTypes()
 {
   using namespace Comp;
@@ -36,6 +41,7 @@ void RegisterTypes()
   RegisterComponent(Camera);
   RegisterDependencies(Camera, Transform);
   RegisterComponent(DirectionalLight);
+  RegisterDependencies(DirectionalLight, Transform);
   RegisterComponent(PointLight);
   RegisterComponent(SpotLight);
   RegisterComponent(Skybox);
@@ -43,9 +49,27 @@ void RegisterTypes()
   RegisterDependencies(ShadowMap, Camera);
   RegisterComponent(Model);
   RegisterDependencies(Model, Transform);
+
+  nCurrentProgression = 0;
 }
 
-void (*nRegisterCustomTypes)() = nullptr;
+void Progression0(Vlk::Value& componentsVal)
+{
+  Vlk::Value* directionLightVal = componentsVal.TryGetPair("DirectionalLight");
+  if (directionLightVal == nullptr) {
+    return;
+  }
+
+  Vec3 direction =
+    (*directionLightVal)("Direction").As<Vec3>({0.0f, -1.0f, 0.0f});
+  directionLightVal->TryRemovePair("Direction");
+
+  Vlk::Value& transformVal = componentsVal("Transform");
+  Quat rotation;
+  rotation.FromTo({1.0f, 0.0f, 0.0f}, direction);
+  transformVal("Rotation") = rotation;
+}
+
 void Init()
 {
   RegisterTypes();
@@ -53,6 +77,24 @@ void Init()
     nRegisterCustomTypes();
   }
   Comp::AssessComponentsFile();
+
+  nProgressions[0] = Progression0;
+}
+
+int CurrentProgression()
+{
+  return nCurrentProgression;
+}
+
+void ProgressComponents(Vlk::Value& spaceVal, int startProgression)
+{
+  int endProgression = CurrentProgression();
+  for (int i = startProgression + 1; i <= endProgression; ++i) {
+    for (int j = 0; j < spaceVal.Size(); ++j) {
+      Vlk::Value& componentsVal = spaceVal[j]("Components");
+      nProgressions[i](componentsVal);
+    }
+  }
 }
 
 } // namespace Registrar

@@ -11,14 +11,10 @@ namespace Comp {
 #pragma pack(push, 1)
 struct DirectionalLight
 {
-  Vec3 mTranslation;
-  Vec3 mDirection;
   Gfx::HdrColor mAmbient;
   Gfx::HdrColor mDiffuse;
   Gfx::HdrColor mSpecular;
 
-  static constexpr Vec3 smDefaultTranslation = {0.0f, 0.0f, 0.0f};
-  static constexpr Vec3 smDefaultDirection = {0.0f, -1.0f, 0.0f};
   static constexpr Gfx::HdrColor smDefaultAmbient = {1.0f, 1.0f, 1.0f, 0.1f};
   static constexpr Gfx::HdrColor smDefaultDiffuse = {1.0f, 1.0f, 1.0f, 0.5f};
   static constexpr Gfx::HdrColor smDefaultSpecular = {1.0f, 1.0f, 1.0f, 1.0f};

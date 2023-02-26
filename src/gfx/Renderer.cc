@@ -312,11 +312,15 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   GLintptr offset = 16;
   Ds::Vector<World::MemberId> slice = space.Slice<Comp::DirectionalLight>();
   for (int i = 0; i < slice.Size() && i < maxDirectionalLights; ++i) {
+    World::Object owner(const_cast<World::Space*>(&space), slice[i]);
+    auto& transform = space.Get<Comp::Transform>(slice[i]);
     auto& light = space.Get<Comp::DirectionalLight>(slice[i]);
+    Vec3 direction =
+      transform.GetWorldRotation(owner).Rotate({1.0f, 0.0f, 0.0f});
     Vec3 trueAmbient = light.mAmbient.TrueColor();
     Vec3 trueDiffuse = light.mDiffuse.TrueColor();
     Vec3 trueSpecular = light.mSpecular.TrueColor();
-    glBufferSubData(buffer, offset, sizeof(Vec3), light.mDirection.mD);
+    glBufferSubData(buffer, offset, sizeof(Vec3), direction.mD);
     glBufferSubData(buffer, offset + 16, sizeof(Vec3), trueAmbient.mD);
     glBufferSubData(buffer, offset + 32, sizeof(Vec3), trueDiffuse.mD);
     glBufferSubData(buffer, offset + 48, sizeof(Vec3), trueSpecular.mD);
