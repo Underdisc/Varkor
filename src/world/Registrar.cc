@@ -43,6 +43,7 @@ void RegisterTypes()
   RegisterComponent(DirectionalLight);
   RegisterDependencies(DirectionalLight, Transform);
   RegisterComponent(PointLight);
+  RegisterDependencies(PointLight, Transform);
   RegisterComponent(SpotLight);
   RegisterComponent(Skybox);
   RegisterComponent(ShadowMap);
@@ -50,7 +51,7 @@ void RegisterTypes()
   RegisterComponent(Model);
   RegisterDependencies(Model, Transform);
 
-  nCurrentProgression = 0;
+  nCurrentProgression = 1;
 }
 
 void Progression0(Vlk::Value& componentsVal)
@@ -70,6 +71,20 @@ void Progression0(Vlk::Value& componentsVal)
   transformVal("Rotation") = rotation;
 }
 
+void Progression1(Vlk::Value& componentsVal)
+{
+  Vlk::Value* pointLightVal = componentsVal.TryGetPair("PointLight");
+  if (pointLightVal == nullptr) {
+    return;
+  }
+
+  Vec3 position = (*pointLightVal)("Position").As<Vec3>({0.0f, 0.0f, 0.0f});
+  pointLightVal->TryRemovePair("Position");
+
+  Vlk::Value& transformVal = componentsVal("Transform");
+  transformVal("Translation") = position;
+}
+
 void Init()
 {
   RegisterTypes();
@@ -79,6 +94,7 @@ void Init()
   Comp::AssessComponentsFile();
 
   nProgressions[0] = Progression0;
+  nProgressions[1] = Progression1;
 }
 
 int CurrentProgression()

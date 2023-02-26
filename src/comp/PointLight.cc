@@ -9,7 +9,6 @@ namespace Comp {
 
 void PointLight::VInit(const World::Object& owner)
 {
-  mPosition = smDefaultPosition;
   mAmbient = smDefaultAmbient;
   mDiffuse = smDefaultDiffuse;
   mSpecular = smDefaultSpecular;
@@ -20,7 +19,6 @@ void PointLight::VInit(const World::Object& owner)
 
 void PointLight::VSerialize(Vlk::Value& val)
 {
-  val("Position") = mPosition;
   val("Ambient") = mAmbient;
   val("Diffuse") = mDiffuse;
   val("Specular") = mSpecular;
@@ -31,7 +29,6 @@ void PointLight::VSerialize(Vlk::Value& val)
 
 void PointLight::VDeserialize(const Vlk::Explorer& ex)
 {
-  mPosition = ex("Position").As<Vec3>(smDefaultPosition);
   mAmbient = ex("Ambient").As<Gfx::HdrColor>(smDefaultAmbient);
   mDiffuse = ex("Diffuse").As<Gfx::HdrColor>(smDefaultDiffuse);
   mSpecular = ex("Specular").As<Gfx::HdrColor>(smDefaultSpecular);
@@ -42,11 +39,8 @@ void PointLight::VDeserialize(const Vlk::Explorer& ex)
 
 void PointLight::VEdit(const World::Object& owner)
 {
-  Quat referenceFrame = {1.0f, 0.0f, 0.0f, 0.0f};
-  mPosition = Editor::Gizmos::Translate(mPosition, referenceFrame);
   float labelWidth = 65;
   ImGui::PushItemWidth(-labelWidth);
-  ImGui::DragFloat3("Position", mPosition.mD);
   ImGui::DragFloat("Constant", &mConstant, 0.01f, 1.0f, 2.0f);
   ImGui::DragFloat("Linear", &mLinear, 0.01f, 0.0f, 2.0f);
   ImGui::DragFloat("Quadratic", &mQuadratic, 0.01f, 0.0f, 2.0f);
