@@ -28,6 +28,7 @@ struct PointLight
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& val);
   void VDeserialize(const Vlk::Explorer& ex);
+  void VRenderable(const World::Object& owner);
   void VEdit(const World::Object& owner);
 };
 #pragma pack(pop)
