@@ -286,7 +286,13 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
   // Add any missing dependencies.
   for (Comp::TypeId dependencyId : typeData.mDependencies) {
     if (!HasComponent(dependencyId, memberId)) {
-      AddComponent(dependencyId, memberId, init);
+      void* depedency = AddComponent(dependencyId, memberId, init);
+      const Comp::TypeData& dependencyTypeData =
+        Comp::GetTypeData(dependencyId);
+      if (dependencyTypeData.mVInit.Open()) {
+        const World::Object owner(this, dependencyId);
+        dependencyTypeData.mVInit.Invoke(depedency, owner);
+      }
     }
   }
 
