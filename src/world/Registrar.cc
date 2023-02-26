@@ -24,7 +24,6 @@
 namespace Registrar {
 
 void (*nRegisterCustomTypes)() = nullptr;
-int nCurrentProgression;
 void (*nProgressions[1])(Vlk::Value& componentsVal);
 
 void RegisterTypes()
@@ -50,8 +49,6 @@ void RegisterTypes()
   RegisterDependencies(ShadowMap, Camera);
   RegisterComponent(Model);
   RegisterDependencies(Model, Transform);
-
-  nCurrentProgression = 1;
 }
 
 void Progression0(Vlk::Value& componentsVal)
@@ -97,15 +94,9 @@ void Init()
   nProgressions[1] = Progression1;
 }
 
-int CurrentProgression()
-{
-  return nCurrentProgression;
-}
-
 void ProgressComponents(Vlk::Value& spaceVal, int startProgression)
 {
-  int endProgression = CurrentProgression();
-  for (int i = startProgression + 1; i <= endProgression; ++i) {
+  for (int i = startProgression + 1; i <= nCurrentProgression; ++i) {
     for (int j = 0; j < spaceVal.Size(); ++j) {
       Vlk::Value& componentsVal = spaceVal[j]("Components");
       nProgressions[i](componentsVal);

@@ -107,7 +107,7 @@ Result SaveLayer(LayerIt it, const char* filename)
   metadataVal("Name") = layer.mName;
   metadataVal("CameraId") = layer.mCameraId;
   metadataVal("PostMaterialId") = layer.mPostMaterialId;
-  metadataVal("Progression") = Registrar::CurrentProgression();
+  metadataVal("Progression") = Registrar::nCurrentProgression;
   Vlk::Value& spaceVal = rootVal("Space");
   layer.mSpace.Serialize(spaceVal);
   return rootVal.Write(filename);
