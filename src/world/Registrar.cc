@@ -24,7 +24,21 @@
 namespace Registrar {
 
 void (*nRegisterCustomTypes)() = nullptr;
-void (*nProgressions[1])(Vlk::Value& componentsVal);
+void (*nProgressions[nCurrentProgression])(Vlk::Value& componentsVal);
+
+template<int N>
+void Progression(Vlk::Value& componentsVal);
+
+template<int N>
+void AssignProgressions()
+{
+  nProgressions[N] = Progression<N>;
+  AssignProgressions<N - 1>();
+}
+
+template<>
+void AssignProgressions<nInvalidProgression>()
+{}
 
 void RegisterTypes()
 {
@@ -51,7 +65,8 @@ void RegisterTypes()
   RegisterDependencies(Model, Transform);
 }
 
-void Progression0(Vlk::Value& componentsVal)
+template<>
+void Progression<0>(Vlk::Value& componentsVal)
 {
   Vlk::Value* directionLightVal = componentsVal.TryGetPair("DirectionalLight");
   if (directionLightVal == nullptr) {
@@ -68,7 +83,8 @@ void Progression0(Vlk::Value& componentsVal)
   transformVal("Rotation") = rotation;
 }
 
-void Progression1(Vlk::Value& componentsVal)
+template<>
+void Progression<1>(Vlk::Value& componentsVal)
 {
   Vlk::Value* pointLightVal = componentsVal.TryGetPair("PointLight");
   if (pointLightVal == nullptr) {
@@ -89,9 +105,7 @@ void Init()
     nRegisterCustomTypes();
   }
   Comp::AssessComponentsFile();
-
-  nProgressions[0] = Progression0;
-  nProgressions[1] = Progression1;
+  AssignProgressions<nCurrentProgression>();
 }
 
 void ProgressComponents(Vlk::Value& spaceVal, int startProgression)
