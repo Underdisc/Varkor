@@ -46,6 +46,16 @@ void SpotLight::VDeserialize(const Vlk::Explorer& ex)
   SetOuterCutoff(ex("OuterCutoff").As<float>(smDefaultOuterCutoff));
 }
 
+void SpotLight::VRenderable(const World::Object& owner)
+{
+  auto& transform = owner.Get<Transform>();
+  Vec3 translation = transform.GetWorldTranslation(owner);
+  Vec4 iconColor = (Vec4)mDiffuse.TrueColor();
+  iconColor[3] = 1.0f;
+  Gfx::Renderable::Collection::AddIcon(
+    {owner.mMemberId, translation, iconColor, "vres/renderer:Light"});
+}
+
 void SpotLight::SetInnerCutoff(float angle)
 {
   mInnerCutoff = cosf(angle);
