@@ -10,7 +10,7 @@
 namespace Registrar {
 
 constexpr int nInvalidProgression = -1;
-constexpr int nCurrentProgression = 1;
+constexpr int nCurrentProgression = 2;
 
 extern void (*nRegisterCustomTypes)();
 void Init();

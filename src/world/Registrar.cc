@@ -58,6 +58,7 @@ void RegisterTypes()
   RegisterComponent(PointLight);
   RegisterDependencies(PointLight, Transform);
   RegisterComponent(SpotLight);
+  RegisterDependencies(SpotLight, Transform);
   RegisterComponent(Skybox);
   RegisterComponent(ShadowMap);
   RegisterDependencies(ShadowMap, Camera);
@@ -96,6 +97,26 @@ void Progression<1>(Vlk::Value& componentsVal)
 
   Vlk::Value& transformVal = componentsVal("Transform");
   transformVal("Translation") = position;
+}
+
+template<>
+void Progression<2>(Vlk::Value& componentsVal)
+{
+  Vlk::Value* spotLightVal = componentsVal.TryGetPair("SpotLight");
+  if (spotLightVal == nullptr) {
+    return;
+  }
+
+  Vec3 position = (*spotLightVal)("Position").As<Vec3>({0.0f, 0.0f, 0.0f});
+  spotLightVal->TryRemovePair("Position");
+  Vec3 direction = (*spotLightVal)("Direction").As<Vec3>({0.0f, -1.0f, 0.0f});
+  spotLightVal->TryRemovePair("Direction");
+
+  Vlk::Value& transformVal = componentsVal("Transform");
+  transformVal("Translation") = position;
+  Quat rotation;
+  rotation.FromTo({1.0f, 0.0f, 0.0f}, direction);
+  transformVal("Rotation") = rotation;
 }
 
 void Init()

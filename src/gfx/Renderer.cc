@@ -356,12 +356,17 @@ void InitializeLightsUniformBuffer(const World::Space& space)
   offset = 16 + maxDirectionalLights * 64 + maxPointLights * 80;
   slice = std::move(space.Slice<Comp::SpotLight>());
   for (int i = 0; i < slice.Size() && i < maxSpotLights; ++i) {
+    World::Object owner(const_cast<World::Space*>(&space), slice[i]);
+    auto& transform = space.Get<Comp::Transform>(slice[i]);
     auto& light = space.Get<Comp::SpotLight>(slice[i]);
+    Vec3 translation = transform.GetWorldTranslation(owner);
+    Quat rotation = transform.GetWorldRotation(owner);
+    Vec3 direction = rotation.Rotate({1.0f, 0.0f, 0.0f});
     Vec3 trueAmbient = light.mAmbient.TrueColor();
     Vec3 trueDiffuse = light.mDiffuse.TrueColor();
     Vec3 trueSpecular = light.mSpecular.TrueColor();
-    glBufferSubData(buffer, offset, sizeof(Vec3), light.mPosition.mD);
-    glBufferSubData(buffer, offset + 16, sizeof(Vec3), light.mDirection.mD);
+    glBufferSubData(buffer, offset, sizeof(Vec3), translation.mD);
+    glBufferSubData(buffer, offset + 16, sizeof(Vec3), direction.mD);
     glBufferSubData(buffer, offset + 32, sizeof(Vec3), trueAmbient.mD);
     glBufferSubData(buffer, offset + 48, sizeof(Vec3), trueDiffuse.mD);
     glBufferSubData(buffer, offset + 64, sizeof(Vec3), trueSpecular.mD);

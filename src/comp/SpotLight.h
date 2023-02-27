@@ -11,8 +11,6 @@ namespace Comp {
 #pragma pack(push, 1)
 struct SpotLight
 {
-  Vec3 mPosition;
-  Vec3 mDirection;
   Gfx::HdrColor mAmbient;
   Gfx::HdrColor mDiffuse;
   Gfx::HdrColor mSpecular;
@@ -22,8 +20,6 @@ struct SpotLight
   float mInnerCutoff;
   float mOuterCutoff;
 
-  static constexpr Vec3 smDefaultPosition = {0.0f, 0.0f, 0.0f};
-  static constexpr Vec3 smDefaultDirection = {0.0f, -1.0f, 0.0f};
   static constexpr Gfx::HdrColor smDefaultAmbient = {1.0f, 1.0f, 1.0f, 0.1f};
   static constexpr Gfx::HdrColor smDefaultDiffuse = {1.0f, 1.0f, 1.0f, 0.5f};
   static constexpr Gfx::HdrColor smDefaultSpecular = {1.0f, 1.0f, 1.0f, 1.0f};
