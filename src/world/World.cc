@@ -13,7 +13,7 @@ Layer::Layer(): mCameraId(nInvalidMemberId) {}
 Layer::Layer(const std::string& name):
   mName(name),
   mCameraId(nInvalidMemberId),
-  mPostMaterialId(Gfx::Renderer::nDefaultPostMaterialId)
+  mPostMaterialId(Gfx::Renderer::nDefaultPostId)
 {}
 
 bool nPause = true;
@@ -80,7 +80,7 @@ VResult<LayerIt> LoadLayer(const char* filename)
   newLayer.mCameraId = metadataEx("CameraId").As<MemberId>(nInvalidMemberId);
   Vlk::Explorer postMaterialEx = metadataEx("PostMaterialId");
   newLayer.mPostMaterialId =
-    postMaterialEx.As<ResId>(Gfx::Renderer::nDefaultPostMaterialId);
+    postMaterialEx.As<ResId>(Gfx::Renderer::nDefaultPostId);
 
   Vlk::Value& spaceVal = rootVal("Space");
   int progression =

@@ -21,7 +21,7 @@ extern void (*nCustomRender)();
 extern const ResId nFullscreenMeshId;
 extern const ResId nSpriteMeshId;
 extern const ResId nSkyboxMeshId;
-extern const ResId nDefaultPostMaterialId;
+extern const ResId nDefaultPostId;
 
 void Init();
 void Purge();

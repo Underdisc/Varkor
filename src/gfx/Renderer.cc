@@ -57,8 +57,7 @@ const ResId nSkyboxMeshId(nRendererAssetName, "Skybox");
 const ResId nMemberIdShaderId(nRendererAssetName, "MemberId");
 const ResId nDepthShaderId(nRendererAssetName, "Depth");
 const ResId nMemberOutlineMaterialId(nRendererAssetName, "MemberOutline");
-const ResId nDefaultPostShaderId(nRendererAssetName, "DefaultPostShader");
-const ResId nDefaultPostMaterialId(nRendererAssetName, "DefaultPostMaterial");
+const ResId nDefaultPostId(nRendererAssetName, "CopyTexture");
 
 // Required framebuffers
 GLuint nLayerFbo;
@@ -599,12 +598,12 @@ void BlendLayer(GLuint toFbo, const ResId& postMaterialId)
 {
   // Acquire the material.
   const auto* material =
-    Rsl::TryGetRes<Material>(postMaterialId, "vres/renderer:CopyTexture");
+    Rsl::TryGetRes<Material>(postMaterialId, nDefaultPostId);
   if (material == nullptr) {
     return;
   }
   const auto* shader =
-    Rsl::TryGetRes<Shader>(material->mShaderId, "vres/renderer:CopyTexture");
+    Rsl::TryGetRes<Shader>(material->mShaderId, nDefaultPostId);
   if (shader == nullptr) {
     return;
   }
