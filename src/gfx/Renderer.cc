@@ -37,6 +37,8 @@ namespace Renderer {
 int nBloomBlurCount = 3;
 float nBloomLuminanceThreshold = 1.0f;
 ResId nTonemapMaterial = "vres/renderer:ReinhardTonemap";
+int nMemberOutlineWidth = 1;
+Vec4 nMemberOutlineColor = {1.0f, 1.0f, 1.0f, 1.0f};
 void (*nCustomRender)() = nullptr;
 
 GLuint nUniversalUniformBufferVbo;
@@ -56,7 +58,6 @@ const ResId nSpriteMeshId(nRendererAssetName, "Sprite");
 const ResId nSkyboxMeshId(nRendererAssetName, "Skybox");
 const ResId nMemberIdShaderId(nRendererAssetName, "MemberId");
 const ResId nDepthShaderId(nRendererAssetName, "Depth");
-const ResId nMemberOutlineMaterialId(nRendererAssetName, "MemberOutline");
 const ResId nDefaultPostId(nRendererAssetName, "CopyTexture");
 
 // Required framebuffers
@@ -515,11 +516,11 @@ void RenderMemberOutline(
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, nMemberIdColorTbo);
-  auto& outlineMaterial = Rsl::GetRes<Gfx::Material>(nMemberOutlineMaterialId);
-  auto& outlineShader = Rsl::GetRes<Gfx::Shader>(outlineMaterial.mShaderId);
+  auto& outlineShader = Rsl::GetRes<Gfx::Shader>("vres/renderer:MemberOutline");
   outlineShader.Use();
   outlineShader.SetUniform("uTexture", 0);
-  outlineMaterial.mUniforms.Bind(outlineShader);
+  outlineShader.SetUniform("uWidth", nMemberOutlineWidth);
+  outlineShader.SetUniform("uColor", nMemberOutlineColor);
 
   auto& fullscreenMesh = Rsl::GetRes<Gfx::Mesh>(nFullscreenMeshId);
   glDisable(GL_DEPTH_TEST);

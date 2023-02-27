@@ -72,24 +72,10 @@
   },
   {
     :Name: 'MemberOutline'
-    :Type: 'Material'
+    :Type: 'Shader'
     :Config: {
-      :ShaderConfig: {
-        :Files: [
-          'vres/shader/FullscreenTexture.glv', 'vres/shader/MemberOutline.glf']
-      }
-      :Uniforms: [
-        {
-          :Name: 'uWidth'
-          :Type: 'Int'
-          :Value: '3'
-        },
-        {
-          :Name: 'uColor'
-          :Type: 'Vec4'
-          :Value: ['1', '1', '1', '1']
-        }
-      ]
+      :Files: [
+        'vres/shader/FullscreenTexture.glv', 'vres/shader/MemberOutline.glf']
     }
   },
   {
