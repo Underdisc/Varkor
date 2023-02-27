@@ -57,6 +57,15 @@ void Camera::VDeserialize(const Vlk::Explorer& cameraEx)
   mFar = cameraEx("Far").As<float>(smMaximumFar);
 }
 
+void Camera::VRenderable(const World::Object& owner)
+{
+  auto& transform = owner.Get<Transform>();
+  Vec3 translation = transform.GetWorldTranslation(owner);
+  Vec4 iconColor = {0.0f, 1.0f, 0.0f, 1.0f};
+  Gfx::Renderable::Collection::AddIcon(
+    {owner.mMemberId, translation, iconColor, "vres/renderer:Camera"});
+}
+
 // This will make the camera look at a position in its local space.
 void Camera::LocalLookAt(
   const Vec3& localPosition, const Vec3& localUp, const World::Object& owner)

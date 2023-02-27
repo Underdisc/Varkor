@@ -14,6 +14,7 @@ struct Camera
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& cameraVal);
   void VDeserialize(const Vlk::Explorer& cameraEx);
+  void VRenderable(const World::Object& owner);
   void VEdit(const World::Object& owner);
 
   void LocalLookAt(

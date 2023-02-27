@@ -83,8 +83,13 @@
     :Type: 'Mesh'
     :Config: {
       :File: 'vres/model/icon/light.obj'
-      :FlipUvs: '0'
-      :Scale: '1'
+    }
+  },
+  {
+    :Name: 'Camera'
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/icon/camera.obj'
     }
   },
   {
