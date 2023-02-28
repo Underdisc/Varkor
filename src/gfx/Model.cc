@@ -164,17 +164,17 @@ size_t Model::RenderableCount() const
   return mRenderableDescs.Size();
 }
 
-Renderable Model::GetRenderable(size_t renderableDescIndex) const
+Renderable::Floater Model::GetFloater(size_t renderableDescIndex) const
 {
   const RenderableDescriptor& renderableDesc =
     mRenderableDescs[renderableDescIndex];
   const MeshDescriptor& meshDesc = mMeshDescs[renderableDesc.mMeshIndex];
 
-  Renderable renderable;
-  renderable.mTransform = renderableDesc.mTransformation;
-  renderable.mMeshId = meshDesc.mMeshId;
-  renderable.mMaterialId = mMaterialIds[meshDesc.mMaterialIndex];
-  return renderable;
+  Renderable::Floater floater;
+  floater.mTransform = renderableDesc.mTransformation;
+  floater.mMeshId = meshDesc.mMeshId;
+  floater.mMaterialId = mMaterialIds[meshDesc.mMaterialIndex];
+  return floater;
 }
 
 void Model::CreateRenderables(

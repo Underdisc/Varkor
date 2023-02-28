@@ -40,12 +40,14 @@ void PointLight::VDeserialize(const Vlk::Explorer& ex)
 
 void PointLight::VRenderable(const World::Object& owner)
 {
+  Gfx::Renderable::Icon icon;
+  icon.mOwner = owner.mMemberId;
   auto& transform = owner.Get<Transform>();
-  Vec3 translation = transform.GetWorldTranslation(owner);
-  Vec4 iconColor = (Vec4)mDiffuse.TrueColor();
-  iconColor[3] = 1.0f;
-  Gfx::Renderable::Collection::AddIcon(
-    {owner.mMemberId, translation, iconColor, "vres/renderer:LightIcon"});
+  icon.mTranslation = transform.GetWorldTranslation(owner);
+  icon.mColor = (Vec4)mDiffuse.TrueColor();
+  icon.mColor[3] = 1.0f;
+  icon.mMeshId = "vres/renderer:LightIcon";
+  Gfx::Collection::Add(std::move(icon));
 }
 
 void PointLight::VEdit(const World::Object& owner)

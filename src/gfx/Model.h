@@ -27,7 +27,7 @@ struct Model
   Result Init(const Vlk::Explorer& configEx);
 
   size_t RenderableCount() const;
-  Renderable GetRenderable(size_t renderableDescIndex) const;
+  Renderable::Floater GetFloater(size_t renderableDescIndex) const;
 
 private:
   struct RenderableDescriptor

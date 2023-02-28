@@ -386,7 +386,7 @@ void InitializeLightsUniformBuffer(const World::Space& space)
 }
 
 void InitializeShadowUniformBuffer(
-  const World::Space& space, Renderable::Collection* collection)
+  const World::Space& space, Collection* collection)
 {
   // Determine whether the shadow exists.
   GLenum buffer = GL_UNIFORM_BUFFER;
@@ -421,14 +421,12 @@ void InitializeShadowUniformBuffer(
   Gfx::Shader& depthShader = Rsl::GetRes<Shader>(nDepthShaderId);
   depthShader.Use();
   depthShader.SetUniform("uProjView", projView);
-  const Ds::Vector<Renderable>& renderables =
-    collection->Get(Renderable::Type::Floater);
-  for (const Renderable& renderable : renderables) {
-    const Mesh* mesh = Rsl::TryGetRes<Mesh>(renderable.mMeshId);
+  for (const Renderable::Floater& floater : collection->mFloaters) {
+    const Mesh* mesh = Rsl::TryGetRes<Mesh>(floater.mMeshId);
     if (mesh == nullptr) {
       continue;
     }
-    depthShader.SetUniform("uModel", renderable.mTransform);
+    depthShader.SetUniform("uModel", floater.mTransform);
     mesh->Render();
   }
   collection->mUniforms.Add<GLuint>(
@@ -483,27 +481,25 @@ void EnsureMemberIdFbo()
 }
 
 void RenderMemberIds(
-  const Renderable::Collection& collection, const World::Object& cameraObject)
+  const Collection& collection, const World::Object& cameraObject)
 {
   InitializeUniversalUniformBuffer(cameraObject);
   auto& memberIdShader = Rsl::GetRes<Gfx::Shader>(nMemberIdShaderId);
   memberIdShader.Use();
-  const Ds::Vector<Renderable>& floaters =
-    collection.Get(Renderable::Type::Floater);
-  for (const Renderable& renderable : floaters) {
-    const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(renderable.mMeshId);
+  for (const Renderable::Floater& floater : collection.mFloaters) {
+    const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(floater.mMeshId);
     if (mesh == nullptr) {
       continue;
     }
-    memberIdShader.SetUniform("uMemberId", renderable.mOwner);
-    memberIdShader.SetUniform("uModel", renderable.mTransform);
+    memberIdShader.SetUniform("uMemberId", floater.mOwner);
+    memberIdShader.SetUniform("uModel", floater.mTransform);
     mesh->Render();
   }
   collection.RenderIcons(true, cameraObject);
 }
 
 void RenderMemberOutline(
-  const Renderable::Collection& collection, const World::Object& cameraObject)
+  const Collection& collection, const World::Object& cameraObject)
 {
   // Render the memberIds.
   EnsureMemberIdFbo();
@@ -536,7 +532,7 @@ World::MemberId HoveredMemberId(
   const World::Space& space, const World::Object& cameraObject)
 {
   // Render all of the MemberIds to a framebuffer.
-  Renderable::Collection collection;
+  Collection collection;
   collection.Collect(space);
   EnsureMemberIdFbo();
   glBindFramebuffer(GL_FRAMEBUFFER, nMemberIdFbo);
@@ -561,7 +557,7 @@ World::MemberId HoveredMemberId(
 
 void RenderLayer(const World::Space& space, const World::Object& cameraObject)
 {
-  Renderable::Collection collection;
+  Collection collection;
   collection.Collect(space);
 
   InitializeUniversalUniformBuffer(cameraObject);
@@ -573,10 +569,12 @@ void RenderLayer(const World::Space& space, const World::Object& cameraObject)
   glBindFramebuffer(GL_FRAMEBUFFER, nLayerFbo);
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glDepthMask(GL_FALSE);
-  collection.Render(Renderable::Type::Skybox);
-  glDepthMask(GL_TRUE);
-  collection.Render(Renderable::Type::Floater);
+  if (collection.HasSkybox()) {
+    glDepthMask(GL_FALSE);
+    collection.RenderSkybox();
+    glDepthMask(GL_TRUE);
+  }
+  collection.RenderFloaters();
   collection.RenderIcons(false, cameraObject);
 
   // Resolve the multisampled layer buffer.
@@ -754,7 +752,7 @@ void Render()
     Editor::InspectorInterface* inspectorInterface =
       layerInterface->FindInterface<Editor::InspectorInterface>();
     if (inspectorInterface != nullptr) {
-      Renderable::Collection collection;
+      Collection collection;
       collection.Collect(inspectorInterface->mObject);
       RenderMemberOutline(collection, cameraObject);
     }

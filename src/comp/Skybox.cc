@@ -30,19 +30,18 @@ void Skybox::VDeserialize(const Vlk::Explorer& ex)
 
 void Skybox::VRenderable(const World::Object& owner)
 {
-  Gfx::Renderable renderable;
-  renderable.mOwner = owner.mMemberId;
-  Math::Identity(&renderable.mTransform);
-  renderable.mMeshId = Gfx::Renderer::nSkyboxMeshId;
-  renderable.mMaterialId = mMaterialId;
-  Gfx::Renderable::Collection::Add(
-    Gfx::Renderable::Type::Skybox, std::move(renderable));
+  Gfx::Renderable::Skybox skybox;
+  skybox.mOwner = owner.mMemberId;
+  skybox.mMaterialId = mMaterialId;
+  Gfx::Collection::Use(std::move(skybox));
 
+  Gfx::Renderable::Icon icon;
+  icon.mOwner = owner.mMemberId;
   auto& transform = owner.Get<Transform>();
-  Vec3 translation = transform.GetWorldTranslation(owner);
-  Vec4 color = {0.0f, 1.0f, 0.0f, 1.0f};
-  Gfx::Renderable::Collection::AddIcon(
-    {owner.mMemberId, translation, color, "vres/renderer:SkyboxIcon"});
+  icon.mTranslation = transform.GetWorldTranslation(owner);
+  icon.mColor = {0.0f, 1.0f, 0.0f, 1.0f};
+  icon.mMeshId = "vres/renderer:SkyboxIcon";
+  Gfx::Collection::Add(std::move(icon));
 }
 
 void Skybox::VEdit(const World::Object& owner)

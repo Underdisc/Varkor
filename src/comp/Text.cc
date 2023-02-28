@@ -78,10 +78,10 @@ void Text::VRenderable(const World::Object& owner)
     case Alignment::Right: baselineOffset[0] = halfWidth - line.mWidth;
     }
     for (size_t i = line.mStart; i < line.mEnd; ++i) {
-      Gfx::Renderable renderable;
-      renderable.mOwner = owner.mMemberId;
-      renderable.mMeshId = Gfx::Renderer::nSpriteMeshId;
-      renderable.mMaterialId = mMaterialId;
+      Gfx::Renderable::Floater floater;
+      floater.mOwner = owner.mMemberId;
+      floater.mMeshId = Gfx::Renderer::nSpriteMeshId;
+      floater.mMaterialId = mMaterialId;
 
       // Find the transformation of the renderable.
       // Find the scale that maintains the character's aspect ratio.
@@ -94,17 +94,16 @@ void Text::VRenderable(const World::Object& owner)
       Vec2 fullOffset = baselineOffset + centerOffset;
       Mat4 translate;
       Math::Translate(&translate, {fullOffset[0], fullOffset[1], 0.0f});
-      renderable.mTransform = ownerTransformation * translate * scale;
+      floater.mTransform = ownerTransformation * translate * scale;
 
       // Add the text uniforms to the character renderable.
-      GLuint& textureIdUniform = renderable.mUniforms.Add<GLuint>(
+      GLuint& textureIdUniform = floater.mUniforms.Add<GLuint>(
         Gfx::UniformTypeId::Texture2d, "uTexture");
       textureIdUniform = font->GetTextureId(mText[i]);
-      renderable.mUniforms.Add<Vec4>("uColor") = mColor;
-      renderable.mUniforms.Add<float>("uFillAmount") = mFillAmount;
+      floater.mUniforms.Add<Vec4>("uColor") = mColor;
+      floater.mUniforms.Add<float>("uFillAmount") = mFillAmount;
 
-      Gfx::Renderable::Collection::Add(
-        Gfx::Renderable::Type::Floater, std::move(renderable));
+      Gfx::Collection::Add(std::move(floater));
       baselineOffset[0] += glyphData.mAdvance;
     }
     baselineOffset[1] -= font->NewlineOffset();

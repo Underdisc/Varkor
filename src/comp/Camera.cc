@@ -59,11 +59,13 @@ void Camera::VDeserialize(const Vlk::Explorer& cameraEx)
 
 void Camera::VRenderable(const World::Object& owner)
 {
+  Gfx::Renderable::Icon icon;
+  icon.mOwner = owner.mMemberId;
   auto& transform = owner.Get<Transform>();
-  Vec3 translation = transform.GetWorldTranslation(owner);
-  Vec4 iconColor = {0.0f, 1.0f, 0.0f, 1.0f};
-  Gfx::Renderable::Collection::AddIcon(
-    {owner.mMemberId, translation, iconColor, "vres/renderer:CameraIcon"});
+  icon.mTranslation = transform.GetWorldTranslation(owner);
+  icon.mColor = {0.0f, 1.0f, 0.0f, 1.0f};
+  icon.mMeshId = "vres/renderer:CameraIcon";
+  Gfx::Collection::Add(std::move(icon));
 }
 
 // This will make the camera look at a position in its local space.

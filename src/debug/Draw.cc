@@ -126,21 +126,19 @@ void Render(const World::Object& cameraObject)
   nRenderables.Clear();
 }
 
-void RenderTbnVectors(const Gfx::Renderable::Collection& collection)
+void RenderTbnVectors(const Gfx::Collection& collection)
 {
   auto* shader = Rsl::TryGetRes<Gfx::Shader>(nTbnShaderId);
   if (shader == nullptr) {
     return;
   }
   shader->Use();
-  const Ds::Vector<Gfx::Renderable>& floaters =
-    collection.Get(Gfx::Renderable::Type::Floater);
-  for (const Gfx::Renderable& renderable : floaters) {
-    const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(renderable.mMeshId);
+  for (const Gfx::Renderable::Floater& floater : collection.mFloaters) {
+    const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(floater.mMeshId);
     if (mesh == nullptr) {
       continue;
     }
-    shader->SetUniform("uModel", renderable.mTransform);
+    shader->SetUniform("uModel", floater.mTransform);
     mesh->Render();
   }
 }
