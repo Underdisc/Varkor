@@ -45,7 +45,7 @@ void PointLight::VRenderable(const World::Object& owner)
   Vec4 iconColor = (Vec4)mDiffuse.TrueColor();
   iconColor[3] = 1.0f;
   Gfx::Renderable::Collection::AddIcon(
-    {owner.mMemberId, translation, iconColor, "vres/renderer:Light"});
+    {owner.mMemberId, translation, iconColor, "vres/renderer:LightIcon"});
 }
 
 void PointLight::VEdit(const World::Object& owner)

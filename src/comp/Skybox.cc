@@ -1,4 +1,5 @@
 #include "comp/Skybox.h"
+#include "comp/Transform.h"
 #include "editor/Utility.h"
 #include "gfx/Renderer.h"
 #include "rsl/Library.h"
@@ -36,6 +37,12 @@ void Skybox::VRenderable(const World::Object& owner)
   renderable.mMaterialId = mMaterialId;
   Gfx::Renderable::Collection::Add(
     Gfx::Renderable::Type::Skybox, std::move(renderable));
+
+  auto& transform = owner.Get<Transform>();
+  Vec3 translation = transform.GetWorldTranslation(owner);
+  Vec4 color = {0.0f, 1.0f, 0.0f, 1.0f};
+  Gfx::Renderable::Collection::AddIcon(
+    {owner.mMemberId, translation, color, "vres/renderer:SkyboxIcon"});
 }
 
 void Skybox::VEdit(const World::Object& owner)

@@ -79,17 +79,24 @@
     }
   },
   {
-    :Name: 'Light'
+    :Name: 'LightIcon'
     :Type: 'Mesh'
     :Config: {
       :File: 'vres/model/icon/light.obj'
     }
   },
   {
-    :Name: 'Camera'
+    :Name: 'CameraIcon'
     :Type: 'Mesh'
     :Config: {
       :File: 'vres/model/icon/camera.obj'
+    }
+  },
+  {
+    :Name: 'SkyboxIcon'
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/icon/skybox.obj'
     }
   },
   {

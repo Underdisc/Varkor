@@ -63,7 +63,7 @@ void Camera::VRenderable(const World::Object& owner)
   Vec3 translation = transform.GetWorldTranslation(owner);
   Vec4 iconColor = {0.0f, 1.0f, 0.0f, 1.0f};
   Gfx::Renderable::Collection::AddIcon(
-    {owner.mMemberId, translation, iconColor, "vres/renderer:Camera"});
+    {owner.mMemberId, translation, iconColor, "vres/renderer:CameraIcon"});
 }
 
 // This will make the camera look at a position in its local space.

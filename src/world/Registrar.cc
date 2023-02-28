@@ -60,6 +60,7 @@ void RegisterTypes()
   RegisterComponent(SpotLight);
   RegisterDependencies(SpotLight, Transform);
   RegisterComponent(Skybox);
+  RegisterDependencies(Skybox, Transform);
   RegisterComponent(ShadowMap);
   RegisterDependencies(ShadowMap, Camera);
   RegisterComponent(Model);
