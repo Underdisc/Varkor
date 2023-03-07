@@ -143,7 +143,7 @@ void Init()
 void Purge()
 {
   nCoreInterface.PurgeInterfaces();
-  Gizmos::PurgeAll();
+  Gizmos::Purge();
   nCamera.Purge();
   nSpace.Clear();
   ImGui::DestroyContext(nImGuiContext);
@@ -151,6 +151,7 @@ void Purge()
 
 void StartFrame()
 {
+  Gizmos::Update();
   StartImGuiFrame();
   const ImGuiIO& io = ImGui::GetIO();
   Input::SetMouseFocus(!io.WantCaptureMouse);
@@ -197,7 +198,6 @@ void EndFrame()
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), flags);
     nCoreInterface.ShowAll();
   }
-  Gizmos::PurgeUnneeded();
   EndImGuiFrame();
 }
 
