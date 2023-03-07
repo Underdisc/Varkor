@@ -38,13 +38,12 @@ void Mesh::VRenderable(const World::Object& owner)
   if (!mVisible) {
     return;
   }
-  Gfx::Renderable renderable;
-  renderable.mOwner = owner.mMemberId;
-  renderable.mTransform = owner.Get<Transform>().GetWorldMatrix(owner);
-  renderable.mMaterialId = mMaterialId;
-  renderable.mMeshId = mMeshId;
-  Gfx::Renderable::Collection::Add(
-    Gfx::Renderable::Type::Floater, std::move(renderable));
+  Gfx::Renderable::Floater floater;
+  floater.mOwner = owner.mMemberId;
+  floater.mTransform = owner.Get<Transform>().GetWorldMatrix(owner);
+  floater.mMaterialId = mMaterialId;
+  floater.mMeshId = mMeshId;
+  Gfx::Collection::Add(std::move(floater));
 }
 
 void Mesh::VEdit(const World::Object& owner)

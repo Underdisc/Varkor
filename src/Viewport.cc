@@ -1,5 +1,6 @@
 #include <GLFW/VarkorGlfw.h>
 
+#include "Log.h"
 #include "Viewport.h"
 #include "gfx/Renderer.h"
 
@@ -102,7 +103,7 @@ void ResizeCallback(GLFWwindow* window, int width, int height)
 {
   nWidth = width;
   nHeight = height;
-  Gfx::Renderer::LayerFramebuffers::Resize();
+  Gfx::Renderer::ResizeRequiredFramebuffers();
 }
 
 const char* ErrorCodeString(int code)
@@ -129,8 +130,8 @@ void ErrorCallback(int code, const char* description)
   error += ErrorCodeString(code);
   error += ")\n  ";
   error += description;
-  Error::LogString(error.c_str());
-  Error::StackTrace();
+  Log::String(error.c_str());
+  Log::StackTrace();
 }
 
 } // namespace Viewport

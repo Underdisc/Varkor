@@ -10,7 +10,7 @@ namespace Comp {
 #pragma pack(push, 1)
 struct Sprite
 {
-  constexpr static const char* smDefaultAssetName = "vres/spriteDefaults";
+  constexpr static const char* smDefaultAssetName = "vres/sprite";
   static const ResId smDefaultMaterialId;
 
   void VStaticInit();

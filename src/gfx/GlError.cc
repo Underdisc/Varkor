@@ -1,6 +1,7 @@
 #include <string>
 
 #include "Error.h"
+#include "Log.h"
 #include "gfx/GlError.h"
 
 namespace Gfx {
@@ -29,6 +30,36 @@ void Init()
     GL_FALSE);
 }
 
+void LogFramebufferStatus(GLenum target)
+{
+  GLenum status = glCheckFramebufferStatus(target);
+  switch (status) {
+  case GL_FRAMEBUFFER_COMPLETE: Log::String("GL_FRAMEBUFFER_COMPLETE"); break;
+  case GL_FRAMEBUFFER_UNDEFINED: Log::String("GL_FRAMEBUFFER_UNDEFINED"); break;
+  case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+    Log::String("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+    Log::String("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+    Log::String("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+    Log::String("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER");
+    break;
+  case GL_FRAMEBUFFER_UNSUPPORTED:
+    Log::String("GL_FRAMEBUFFER_UNSUPPORTED");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+    Log::String("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE");
+    break;
+  case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+    Log::String("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS");
+    break;
+  }
+}
+
 void LogStatus()
 {
   std::string s;
@@ -45,7 +76,7 @@ void LogStatus()
   case GL_STACK_UNDERFLOW: s += "GL_STACK_UNDERFLOW"; break;
   case GL_STACK_OVERFLOW: s += "GL_STACK_OVERFLOW"; break;
   }
-  Error::LogString(s.c_str());
+  Log::String(s.c_str());
 }
 
 void GLAPIENTRY Callback(
@@ -90,8 +121,7 @@ void GLAPIENTRY Callback(
   }
   e += ")\n  ";
   e += message;
-  Error::LogString(e.c_str());
-  Error::StackTrace();
+  LogAbort(e.c_str());
 }
 
 } // namespace GlError

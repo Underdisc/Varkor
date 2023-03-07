@@ -4,7 +4,6 @@
 #include <imgui/imgui.h>
 #include <string>
 
-#include "editor/WindowInterface.h"
 #include "gfx/HdrColor.h"
 #include "rsl/ResourceId.h"
 #include "rsl/ResourceType.h"

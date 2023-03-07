@@ -27,6 +27,7 @@ struct Material
     const aiMaterial& assimpMat,
     const std::string& directory,
     const Ds::Vector<std::string>& embeddedImageNames);
+  Result InitUniform(const Vlk::Explorer& uniformEx);
 
   ResId mShaderId;
   UniformVector mUniforms;

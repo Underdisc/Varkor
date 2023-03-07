@@ -36,11 +36,10 @@ void Model::VRenderable(const World::Object& owner)
 
   Mat4 ownerTransform = owner.Get<Comp::Transform>().GetWorldMatrix(owner);
   for (size_t i = 0; i < model->RenderableCount(); ++i) {
-    Gfx::Renderable renderable = model->GetRenderable(i);
-    renderable.mOwner = owner.mMemberId;
-    renderable.mTransform = ownerTransform * renderable.mTransform;
-    Gfx::Renderable::Collection::Add(
-      Gfx::Renderable::Type::Floater, std::move(renderable));
+    Gfx::Renderable::Floater floater = model->GetFloater(i);
+    floater.mOwner = owner.mMemberId;
+    floater.mTransform = ownerTransform * floater.mTransform;
+    Gfx::Collection::Add(std::move(floater));
   }
 }
 

@@ -4,12 +4,12 @@
 #include <filesystem>
 #include <imgui/imgui.h>
 
-#include "editor/WindowInterface.h"
+#include "editor/Interface.h"
 #include "rsl/Asset.h"
 
 namespace Editor {
 
-struct LibraryInterface: public WindowInterface
+struct LibraryInterface: public Interface
 {
 public:
   LibraryInterface();
@@ -72,6 +72,7 @@ private:
     int indents);
 
   void ShowStatus(Rsl::Asset::Status status);
+  void ShowResourceType(Rsl::ResTypeId resTypeId);
 
   float GetLineOffset(int indents);
   float GetEntryNameOffset(int indents);

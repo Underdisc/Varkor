@@ -1,5 +1,8 @@
-#include "editor/gizmos/Gizmos.h"
+#include <imgui/imgui.h>
+
+#include "Input.h"
 #include "editor/Editor.h"
+#include "editor/gizmos/Gizmos.h"
 #include "editor/gizmos/Rotator.h"
 #include "editor/gizmos/Scalor.h"
 #include "editor/gizmos/Translator.h"
@@ -14,25 +17,83 @@ ResId nCubeMeshId(nGizmoAssetName, "Cube");
 ResId nScaleMeshId(nGizmoAssetName, "Scale");
 ResId nSphereMeshId(nGizmoAssetName, "Sphere");
 ResId nTorusMeshId(nGizmoAssetName, "Torus");
-ResId nColorShaderId(nGizmoAssetName, "ColorShader");
+ResId nColorShaderId("vres/renderer:Color");
+
+Mode nMode = Mode::Translate;
+ReferenceFrame nReferenceFrame = ReferenceFrame::World;
+bool nSnapping = false;
+float nTranslateSnapInterval = 1.0f;
+float nScaleSnapInterval = 0.5f;
+float nRotateSnapInterval = Math::nPi / 4.0f;
 
 void Init()
 {
   Rsl::RequireAsset(nGizmoAssetName);
 }
 
-void PurgeUnneeded()
-{
-  TryPurge<Translator>();
-  TryPurge<Scalor>();
-  TryPurge<Rotator>();
-}
-
-void PurgeAll()
+void Purge()
 {
   Purge<Translator>();
   Purge<Scalor>();
   Purge<Rotator>();
+}
+
+void Update()
+{
+  TryPurge<Translator>();
+  TryPurge<Scalor>();
+  TryPurge<Rotator>();
+
+  // Handle all hotkeys for switching between modes and reference frames.
+  if (Input::KeyDown(Input::Key::LeftControl)) {
+    if (Input::KeyPressed(Input::Key::Z)) {
+      nReferenceFrame = ReferenceFrame::World;
+    }
+    else if (Input::KeyPressed(Input::Key::X)) {
+      nReferenceFrame = ReferenceFrame::Parent;
+    }
+    else if (Input::KeyPressed(Input::Key::C)) {
+      nReferenceFrame = ReferenceFrame::Relative;
+    }
+  }
+  else {
+    if (Input::KeyPressed(Input::Key::Z)) {
+      nMode = Mode::Translate;
+    }
+    else if (Input::KeyPressed(Input::Key::X)) {
+      nMode = Mode::Scale;
+    }
+    else if (Input::KeyPressed(Input::Key::C)) {
+      nMode = Mode::Rotate;
+    }
+  }
+}
+
+void ImGuiOptions()
+{
+  // Display drop down lists for switching between modes and reference frames.
+  const char* modeNames[] = {"Translate", "Scale", "Rotate"};
+  const int modeNameCount = sizeof(modeNames) / sizeof(const char*);
+  int intMode = (int)nMode;
+  ImGui::Combo("Mode", &intMode, modeNames, modeNameCount);
+  nMode = (Mode)intMode;
+  const char* frameNames[] = {"World", "Parent", "Relative"};
+  const int frameNameCount = sizeof(frameNames) / sizeof(const char*);
+  int intFrame = (int)nReferenceFrame;
+  ImGui::Combo("Reference Frame", &intFrame, frameNames, frameNameCount);
+  nReferenceFrame = (ReferenceFrame)intFrame;
+  ImGui::Checkbox("Snapping", &nSnapping);
+  switch (nMode) {
+  case Mode::Translate:
+    ImGui::InputFloat("Snap Distance", &nTranslateSnapInterval, 0.1f);
+    break;
+  case Mode::Scale:
+    ImGui::InputFloat("Snap Increment", &nScaleSnapInterval, 0.1f);
+    break;
+  case Mode::Rotate:
+    ImGui::InputFloat("Snap Angle", &nRotateSnapInterval);
+    break;
+  }
 }
 
 // The Translator, Scalor, and Rotator use this to set the parent transformation
@@ -41,17 +102,18 @@ void PurgeAll()
 void SetParentTransformation(
   World::MemberId parentId, const Vec3& translation, const Quat& referenceFrame)
 {
-  Math::Ray cameraRay;
-  cameraRay.StartDirection(nCamera.Position(), nCamera.Forward());
-  Vec3 projection = cameraRay.ClosestPointTo(translation);
-  Vec3 projectionDistance = projection - nCamera.Position();
-  if (Math::Near(projectionDistance, {0.0f, 0.0f, 0.0f})) {
+  const World::Object cameraObject = nCamera.GetObject();
+  const auto& cameraComp = cameraObject.Get<Comp::Camera>();
+  float uniformScale = cameraComp.ProjectedDistance(cameraObject, translation);
+  if (uniformScale == 0.0f) {
     return;
   }
+  uniformScale *= 0.3f;
+
   Comp::Transform& parentTransform =
     nSpace.GetComponent<Comp::Transform>(parentId);
   parentTransform.SetTranslation(translation);
-  parentTransform.SetUniformScale(Math::Magnitude(projectionDistance) * 0.3f);
+  parentTransform.SetUniformScale(uniformScale);
   parentTransform.SetRotation(referenceFrame);
 }
 

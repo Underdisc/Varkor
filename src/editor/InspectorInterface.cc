@@ -6,6 +6,8 @@
 
 namespace Editor {
 
+Ds::Vector<Comp::TypeId> InspectorInterface::smOpenTypes;
+
 InspectorInterface::InspectorInterface(World::Object& object): mObject(object)
 {}
 
@@ -37,15 +39,37 @@ void InspectorInterface::Show()
       }
       ImGui::EndPopup();
     }
-    if (inspecting && typeData.mVEdit.Open()) {
-      void* component = mObject.GetComponent(desc.mTypeId);
-      typeData.mVEdit.Invoke(component, mObject);
+    VResult<size_t> findResult = smOpenTypes.Find(desc.mTypeId);
+    if (inspecting) {
+      if (!findResult.Success()) {
+        smOpenTypes.Push(desc.mTypeId);
+      }
+      if (typeData.mVEdit.Open()) {
+        void* component = mObject.GetComponent(desc.mTypeId);
+        typeData.mVEdit.Invoke(component, mObject);
+      }
+    }
+    else if (findResult.Success()) {
+      smOpenTypes.Remove(findResult.mValue);
     }
     if (removeComponent == true) {
       mObject.RemComponent(desc.mTypeId);
     }
   }
   ImGui::End();
+}
+
+void InspectorInterface::ShowGizmos()
+{
+  for (Comp::TypeId typeId : smOpenTypes) {
+    const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
+    if (typeData.mVGizmoEdit.Open()) {
+      void* component = mObject.TryGetComponent(typeId);
+      if (component != nullptr) {
+        typeData.mVGizmoEdit.Invoke(component, mObject);
+      }
+    }
+  }
 }
 
 AddComponentInterface::AddComponentInterface(const World::Object& object):

@@ -2,20 +2,13 @@
 
 #include "Input.h"
 #include "comp/Transform.h"
+#include "editor/gizmos/Gizmos.h"
 #include "editor/gizmos/Rotator.h"
 #include "editor/gizmos/Scalor.h"
 #include "editor/gizmos/Translator.h"
 #include "math/Constants.h"
 
 namespace Comp {
-
-Transform::Mode Transform::smMode = Transform::Mode::Translate;
-Transform::ReferenceFrame Transform::smReferenceFrame =
-  Transform::ReferenceFrame::World;
-bool Transform::smSnapping = false;
-float Transform::smTranslateSnapInterval = 1.0f;
-float Transform::smScaleSnapInterval = 0.5f;
-float Transform::smRotateSnapInterval = Math::nPi / 4.0;
 
 void Transform::VInit(const World::Object& owner)
 {
@@ -82,59 +75,16 @@ void Transform::VEdit(const World::Object& owner)
     rotation = zDelta * yDelta * xDelta;
     SetRotation(rotation);
   }
-
-  // Handle all hotkeys for switching between modes and reference frames.
-  if (Input::KeyDown(Input::Key::LeftControl)) {
-    if (Input::KeyPressed(Input::Key::Z)) {
-      smReferenceFrame = ReferenceFrame::World;
-    }
-    else if (Input::KeyPressed(Input::Key::X)) {
-      smReferenceFrame = ReferenceFrame::Parent;
-    }
-    else if (Input::KeyPressed(Input::Key::C)) {
-      smReferenceFrame = ReferenceFrame::Relative;
-    }
-  }
-  else {
-    if (Input::KeyPressed(Input::Key::Z)) {
-      smMode = Mode::Translate;
-    }
-    else if (Input::KeyPressed(Input::Key::X)) {
-      smMode = Mode::Scale;
-    }
-    else if (Input::KeyPressed(Input::Key::C)) {
-      smMode = Mode::Rotate;
-    }
-  }
-
-  // Display drop down lists for switching between modes and reference frames.
-  const char* modeNames[] = {"Translate", "Scale", "Rotate"};
-  const int modeNameCount = sizeof(modeNames) / sizeof(const char*);
-  int intMode = (int)smMode;
-  ImGui::Combo("Mode", &intMode, modeNames, modeNameCount);
-  smMode = (Mode)intMode;
-  const char* frameNames[] = {"World", "Parent", "Relative"};
-  const int frameNameCount = sizeof(frameNames) / sizeof(const char*);
-  int intFrame = (int)smReferenceFrame;
-  ImGui::Combo("Reference Frame", &intFrame, frameNames, frameNameCount);
-  smReferenceFrame = (ReferenceFrame)intFrame;
-  ImGui::Checkbox("Snapping", &smSnapping);
-  switch (smMode) {
-  case Mode::Translate:
-    ImGui::InputFloat("Snap Distance", &smTranslateSnapInterval, 0.1f);
-    break;
-  case Mode::Scale:
-    ImGui::InputFloat("Snap Increment", &smScaleSnapInterval, 0.1f);
-    break;
-  case Mode::Rotate:
-    ImGui::InputFloat("Snap Angle", &smRotateSnapInterval);
-    break;
-  }
   ImGui::PopItemWidth();
+  Editor::Gizmos::ImGuiOptions();
+}
 
+void Transform::VGizmoEdit(const World::Object& owner)
+{
   // Get a rotation depending on the current reference frame.
+  using namespace Editor::Gizmos;
   Quat referenceFrameRotation;
-  switch (smReferenceFrame) {
+  switch (nReferenceFrame) {
   case ReferenceFrame::World:
     referenceFrameRotation = {1.0f, 0.0f, 0.0f, 0.0f};
     break;
@@ -148,24 +98,25 @@ void Transform::VEdit(const World::Object& owner)
 
   // Display the gizmo for the current mode we are in.
   Vec3 worldTranslation = GetWorldTranslation(owner);
-  if (smMode == Mode::Translate) {
+  if (nMode == Mode::Translate) {
     Vec3 newTranslation = Editor::Gizmos::Translate(
       worldTranslation,
       referenceFrameRotation,
-      smSnapping,
-      smTranslateSnapInterval);
+      nSnapping,
+      nTranslateSnapInterval);
     if (!Math::Near(newTranslation, worldTranslation)) {
       SetWorldTranslation(newTranslation, owner);
     }
   }
-  else if (smMode == Mode::Scale) {
+  else if (nMode == Mode::Scale) {
     referenceFrameRotation = GetWorldRotation(owner);
+    Vec3 scale = GetScale();
     Vec3 newScale = Editor::Gizmos::Scale(
       scale,
       worldTranslation,
       referenceFrameRotation,
-      smSnapping,
-      smScaleSnapInterval);
+      nSnapping,
+      nScaleSnapInterval);
     if (!Math::Near(newScale, scale)) {
       SetScale(newScale);
     }
@@ -176,8 +127,8 @@ void Transform::VEdit(const World::Object& owner)
       worldRotation,
       worldTranslation,
       referenceFrameRotation,
-      smSnapping,
-      smRotateSnapInterval);
+      nSnapping,
+      nRotateSnapInterval);
     if (!Math::Near(worldRotation.mVec, newWorldRotation.mVec)) {
       SetWorldRotation(newWorldRotation, owner);
     }

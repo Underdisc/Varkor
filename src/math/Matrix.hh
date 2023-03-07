@@ -1,4 +1,5 @@
 #include "Error.h"
+#include "math/Utility.h"
 
 namespace Math {
 
@@ -107,6 +108,19 @@ Matrix<T, N> Transpose(const Matrix<T, N>& matrix)
     }
   }
   return newMatrix;
+}
+
+template<typename T, unsigned int N, unsigned int M>
+void Resize(Matrix<T, N>* matrix, const Matrix<T, M>& other)
+{
+  Identity(matrix);
+  unsigned int min = Math::Min(N, M);
+  for (unsigned int i = 0; i < min; ++i) {
+    for (unsigned int j = 0; j < min; ++j) {
+      (*matrix)[i][j] = other[i][j];
+      (*matrix)[i][j] = other[i][j];
+    }
+  }
 }
 
 template<typename T, unsigned int N>

@@ -3,6 +3,8 @@
 
 #include <cstdlib>
 
+#include "Result.h"
+
 namespace Ds {
 
 template<typename T>
@@ -29,7 +31,7 @@ public:
   void Reserve(size_t newCapacity);
   void Shrink();
 
-  size_t Find(const T& value) const;
+  VResult<size_t> Find(const T& value) const;
   bool Contains(const T& value) const;
   size_t Size() const;
   bool Empty() const;

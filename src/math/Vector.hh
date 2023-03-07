@@ -6,18 +6,6 @@
 namespace Math {
 
 template<typename T, unsigned int N>
-T* Vector<T, N>::Data()
-{
-  return (T*)mD;
-}
-
-template<typename T, unsigned int N>
-const T* Vector<T, N>::CData() const
-{
-  return (const T*)mD;
-}
-
-template<typename T, unsigned int N>
 const T& Vector<T, N>::operator[](int index) const
 {
   return mD[index];

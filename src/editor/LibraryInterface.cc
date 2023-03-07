@@ -219,6 +219,9 @@ Result LibraryInterface::ShowDefinedResources(
       ImGui::EndPopup();
     }
     ImGui::PopID();
+
+    ImGui::SameLine();
+    ShowResourceType(defResInfo.mTypeId);
   }
 
   if (allDefResInfo.Size() > 0) {
@@ -252,6 +255,9 @@ Result LibraryInterface::ShowInitializedResources(
     ShowBasicEntry(resDesc.mName, false, indents);
     ResId resId(assetName, resDesc.mName);
     DragResourceId(resDesc.mResTypeId, resId);
+
+    ImGui::SameLine();
+    ShowResourceType(resDesc.mResTypeId);
   }
 
   if (resDescs.Size() > 0) {
@@ -446,6 +452,15 @@ void LibraryInterface::ShowStatus(Rsl::Asset::Status status)
   case Status::Live: ImGui::TextColored(green, "+"); break;
   }
   ImGui::PopItemWidth();
+}
+
+void LibraryInterface::ShowResourceType(Rsl::ResTypeId resTypeId)
+{
+  const Rsl::ResTypeData& resTypeData = Rsl::GetResTypeData(resTypeId);
+  std::string resTypeLabel = "(";
+  resTypeLabel += resTypeData.mName;
+  resTypeLabel += ")";
+  ImGui::TextDisabled(resTypeLabel.c_str());
 }
 
 float LibraryInterface::GetLineOffset(int indents)

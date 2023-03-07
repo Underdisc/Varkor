@@ -47,6 +47,7 @@ BindableTypeFunction(Serialize, void, Vlk::Value&);
 BindableTypeFunction(Deserialize, void, const Vlk::Explorer&);
 BindableTypeFunction(Renderable, void, const World::Object&);
 BindableTypeFunction(Edit, void, const World::Object&);
+BindableTypeFunction(GizmoEdit, void, const World::Object&);
 
 template<typename T>
 TypeId Type<T>::smId = nInvalidTypeId;
@@ -74,6 +75,7 @@ void Type<T>::Register(const char* name)
   BindVDeserialize<T>(&data.mVDeserialize);
   BindVRenderable<T>(&data.mVRenderable);
   BindVEdit<T>(&data.mVEdit);
+  BindVGizmoEdit<T>(&data.mVGizmoEdit);
   nTypeData.Push(data);
 
   if (data.mVStaticInit.Open()) {

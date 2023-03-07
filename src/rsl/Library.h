@@ -33,7 +33,7 @@ T& GetDefaultRes();
 template<typename T>
 T& GetRes(const ResId& resId);
 template<typename T>
-T* TryGetRes(const ResId& resId);
+T* TryGetRes(const ResId& resId, const ResId& defaultResId = "");
 template<typename T>
 bool HasRes(const ResId& resId);
 

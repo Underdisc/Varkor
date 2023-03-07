@@ -86,9 +86,6 @@ Explorer Explorer::operator()(const std::string& key) const
   }
   const Pair* pair = mValue->TryGetConstPair(key);
   if (pair == nullptr) {
-    std::stringstream error;
-    error << Path() << " did not contain Pair with key :" << key << ":";
-    Error::Log(error.str().c_str());
     return Explorer(this);
   }
   return Explorer(this, pair);
@@ -101,9 +98,6 @@ Explorer Explorer::operator()(size_t index) const
   }
   const Pair* pair = mValue->TryGetConstPair(index);
   if (pair == nullptr) {
-    std::stringstream error;
-    error << Path() << " did not contain Pair at (" << index << ")";
-    Error::Log(error.str().c_str());
     return Explorer(this);
   }
   return Explorer(this, pair);
@@ -116,9 +110,6 @@ Explorer Explorer::operator[](size_t index) const
   }
   const Value* value = mValue->TryGetConstValue(index);
   if (value == nullptr) {
-    std::stringstream error;
-    error << Path() << " did not contain Value at [" << index << "]";
-    Error::Log(error.str().c_str());
     return Explorer(this);
   }
   return Explorer(this, value, index);

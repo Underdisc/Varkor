@@ -101,8 +101,10 @@ void Scalor::SetNextOperation(
   const Vec3& scale, const Vec3& translation, const Quat& referenceFrame)
 {
   // Find the next operation type.
+  const World::Object cameraObject = nCamera.GetObject();
+  const auto& cameraComp = cameraObject.Get<Comp::Camera>();
   World::MemberId hoveredHandleId =
-    Gfx::Renderer::HoveredMemberId(nSpace, nCamera.View(), nCamera.Proj());
+    Gfx::Renderer::HoveredMemberId(nSpace, cameraObject);
   // clang-format off
   if (hoveredHandleId == mX) { mOperation = Operation::X; }
   else if (hoveredHandleId == mY) { mOperation = Operation::Y; }
@@ -120,6 +122,7 @@ void Scalor::SetNextOperation(
   Vec3 xRotated = referenceFrame.Rotate({1.0f, 0.0f, 0.0f});
   Vec3 yRotated = referenceFrame.Rotate({0.0f, 1.0f, 0.0f});
   Vec3 zRotated = referenceFrame.Rotate({0.0f, 0.0f, 1.0f});
+  Vec3 forward = cameraComp.WorldForward(cameraObject);
   switch (mOperation) {
   case Operation::X: mScaleRay.Direction(xRotated); break;
   case Operation::Y: mScaleRay.Direction(yRotated); break;
@@ -127,11 +130,11 @@ void Scalor::SetNextOperation(
   case Operation::Xy: mScalePlane.Normal(zRotated); break;
   case Operation::Xz: mScalePlane.Normal(yRotated); break;
   case Operation::Yz: mScalePlane.Normal(xRotated); break;
-  case Operation::Xyz: mScalePlane.Normal(nCamera.Forward()); break;
+  case Operation::Xyz: mScalePlane.Normal(forward); break;
   default: break;
   }
-  Math::Ray mouseRay =
-    nCamera.StandardPositionToRay(Input::StandardMousePosition());
+  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
+    Input::StandardMousePosition(), cameraObject);
   if (mOperation < Operation::Xy) {
     if (!mScaleRay.HasClosestTo(mouseRay)) {
       mOperation = Operation::None;
@@ -162,7 +165,9 @@ Vec3 Scalor::Run(
 {
   // Set the transformations for the handles that change every frame.
   SetParentTransformation(mParent, translation, referenceFrame);
-  Vec3 torusDirection = nCamera.Position() - translation;
+  const World::Object cameraObject = nCamera.GetObject();
+  const auto& cameraComp = cameraObject.Get<Comp::Camera>();
+  Vec3 torusDirection = cameraComp.WorldTranslation(cameraObject) - translation;
   Math::Quaternion xyzRotation;
   xyzRotation.FromTo({1.0f, 0.0f, 0.0f}, torusDirection);
   xyzRotation = referenceFrame.Conjugate() * xyzRotation;
@@ -201,8 +206,8 @@ Vec3 Scalor::Run(
   case Operation::Xyz: axes = {1.0f, 1.0f, 1.0f}; break;
   default: break;
   }
-  Math::Ray mouseRay =
-    nCamera.StandardPositionToRay(Input::StandardMousePosition());
+  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
+    Input::StandardMousePosition(), cameraObject);
   if (mOperation < Operation::Xy) {
     if (!mScaleRay.HasClosestTo(mouseRay)) {
       return scale;

@@ -8,8 +8,6 @@
 
 namespace Editor {
 
-struct WindowInterface;
-
 struct Interface
 {
 public:
@@ -28,8 +26,10 @@ protected:
   bool mOpen;
 
 private:
-  virtual void HandleInterfaces();
+  void HandleStaging();
   void PurgeInterfaces();
+  void ShowAll();
+  virtual void Show() = 0;
 
   struct StagedInterface
   {
@@ -39,9 +39,8 @@ private:
   Ds::Map<std::string, Interface*> mInterfaces;
   Ds::Vector<StagedInterface> mStagedInterfaces;
 
-  friend void Run();
+  friend void EndFrame();
   friend void Purge();
-  friend WindowInterface;
 };
 
 } // namespace Editor

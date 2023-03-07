@@ -17,9 +17,30 @@ extern ResId nSphereMeshId;
 extern ResId nTorusMeshId;
 extern ResId nColorShaderId;
 
+// Options for switching between gizmo types, reference frames, etc.
+enum class Mode
+{
+  Translate,
+  Scale,
+  Rotate
+};
+enum class ReferenceFrame
+{
+  World,
+  Parent,
+  Relative,
+};
+extern Mode nMode;
+extern ReferenceFrame nReferenceFrame;
+extern bool nSnapping;
+extern float nTranslateSnapInterval;
+extern float nScaleSnapInterval;
+extern float nRotateSnapInterval;
+
 void Init();
-void PurgeUnneeded();
-void PurgeAll();
+void Purge();
+void Update();
+void ImGuiOptions();
 
 void SetParentTransformation(
   World::MemberId parentId,

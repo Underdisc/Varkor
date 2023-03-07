@@ -10,8 +10,6 @@ struct Vector
 {
   T mD[N];
 
-  T* Data();
-  const T* CData() const;
   const T& operator[](int index) const;
   T& operator[](int index);
   template<unsigned int M>

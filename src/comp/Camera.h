@@ -1,6 +1,7 @@
 #ifndef comp_Camera_h
 #define comp_Camera_h
 
+#include "math/Geometry.h"
 #include "math/Matrix4.h"
 #include "vlk/Valkor.h"
 #include "world/Object.h"
@@ -13,14 +14,30 @@ struct Camera
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& cameraVal);
   void VDeserialize(const Vlk::Explorer& cameraEx);
+  void VRenderable(const World::Object& owner);
   void VEdit(const World::Object& owner);
+
   void LocalLookAt(
     const Vec3& localPosition, const Vec3& localUp, const World::Object& owner);
   void WorldLookAt(
     const Vec3& worldPosition, const Vec3& worldUp, const World::Object& owner);
+
   Mat4 Proj() const;
-  Vec3 StandardToWorldPosition(
-    Vec2 standardPosition, const Mat4& inverseView) const;
+  Mat4 View(const World::Object& owner) const;
+  Mat4 InverseView(const World::Object& owner) const;
+
+  Vec3 WorldTranslation(const World::Object& owner) const;
+  Quat WorldRotation(const World::Object& owner) const;
+  Vec3 WorldForward(const World::Object& owner) const;
+  Vec3 WorldRight(const World::Object& owner) const;
+  Vec3 WorldUp(const World::Object& owner) const;
+
+  float ProjectedDistance(
+    const World::Object& owner, const Vec3& worldTranslation) const;
+  Vec3 StandardTranslationToWorldTranslation(
+    Vec2 standardPosition, const World::Object& owner) const;
+  Math::Ray StandardTranslationToWorldRay(
+    const Vec2& standardPosition, const World::Object& owner) const;
 
   enum class ProjectionType
   {

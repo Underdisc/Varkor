@@ -76,8 +76,10 @@ void Rotator::SetNextOperation(
   const Vec3& translation, const Quat& referenceFrame)
 {
   // Find out the type of operation.
+  const World::Object cameraObject = nCamera.GetObject();
+  const auto& cameraComp = cameraObject.Get<Comp::Camera>();
   World::MemberId hoveredHandleId =
-    Gfx::Renderer::HoveredMemberId(nSpace, nCamera.View(), nCamera.Proj());
+    Gfx::Renderer::HoveredMemberId(nSpace, cameraObject);
   // clang-format off
   if (hoveredHandleId == mX) { mOperation = Operation::X; }
   else if (hoveredHandleId == mY) { mOperation = Operation::Y; }
@@ -99,8 +101,8 @@ void Rotator::SetNextOperation(
   }
 
   // Prepare mMouseOffset for the new operation.
-  Math::Ray mouseRay =
-    nCamera.StandardPositionToRay(Input::StandardMousePosition());
+  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
+    Input::StandardMousePosition(), cameraObject);
   bool singleAxisOperation = mOperation != Operation::Xyz;
   if (singleAxisOperation && Math::HasIntersection(mouseRay, mRotationPlane)) {
     mMouseOffset = Math::Intersection(mouseRay, mRotationPlane) - translation;
@@ -144,11 +146,13 @@ Quat Rotator::Run(
   }
 
   // Perform the active operation.
+  const World::Object cameraObject = nCamera.GetObject();
+  const auto& cameraComp = cameraObject.Get<Comp::Camera>();
   if (mOperation < Operation::Xyz) {
     // We get two rays on the rotation plane and find the angle between them to
     // determine the change in rotation.
-    Math::Ray mouseRay =
-      nCamera.StandardPositionToRay(Input::StandardMousePosition());
+    Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
+      Input::StandardMousePosition(), cameraObject);
     if (!Math::HasIntersection(mouseRay, mRotationPlane)) {
       return rotation;
     }
@@ -178,8 +182,8 @@ Quat Rotator::Run(
     const float pixelsPerRadian = 500.0f;
     Vec2 radians = (Input::MouseMotion() / pixelsPerRadian) * Math::nPi;
     Math::Quaternion horizontalRotation, verticalRotation;
-    horizontalRotation.AngleAxis(radians[0], nCamera.Up());
-    verticalRotation.AngleAxis(radians[1], nCamera.Right());
+    horizontalRotation.AngleAxis(radians[0], cameraComp.WorldUp(cameraObject));
+    verticalRotation.AngleAxis(radians[1], cameraComp.WorldRight(cameraObject));
     return horizontalRotation * verticalRotation * rotation;
   }
   return rotation;

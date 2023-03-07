@@ -16,7 +16,7 @@ namespace Comp {
 #pragma pack(push, 1)
 struct Text
 {
-  constexpr static const char* smDefaultAssetName = "vres/textDefaults";
+  constexpr static const char* smDefaultAssetName = "vres/text";
   static const ResId smDefaultFontId;
   static const ResId smDefaultMaterialId;
 

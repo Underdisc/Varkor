@@ -1,5 +1,6 @@
 #include <filesystem>
 
+#include "ext/Tracy.h"
 #include "gfx/Cubemap.h"
 #include "gfx/Font.h"
 #include "gfx/Image.h"
@@ -15,6 +16,7 @@
 namespace Rsl {
 
 Asset* Asset::smInitAsset = nullptr;
+std::string Asset::smInitResName = "";
 
 Asset::Asset(const std::string& name):
   mName(name),
@@ -105,6 +107,9 @@ void Asset::Init()
 
 Result Asset::TryInit()
 {
+  ZoneScoped;
+  ZoneText(mName.c_str(), (size_t)mName.size());
+
   smInitAsset = this;
   mStatus = Status::Initializing;
 
@@ -136,6 +141,8 @@ Result Asset::TryInit()
 
 void Asset::Finalize()
 {
+  ZoneScoped;
+
   for (ResDesc& resDesc : mResDescs) {
     if (resDesc.mResTypeId == ResTypeId::Mesh) {
       Gfx::Mesh& mesh = *(Gfx::Mesh*)GetResDescData(resDesc);
@@ -207,8 +214,15 @@ Asset& Asset::GetInitAsset()
   return *smInitAsset;
 }
 
+const std::string& Asset::GetInitResName()
+{
+  return smInitResName;
+}
+
 Result Asset::TryInitRes(const Vlk::Explorer& resEx)
 {
+  ZoneScoped;
+
   // Get the resource's name.
   Vlk::Explorer nameEx = resEx("Name");
   if (!nameEx.Valid(Vlk::Value::Type::TrueValue)) {
@@ -216,6 +230,7 @@ Result Asset::TryInitRes(const Vlk::Explorer& resEx)
       "Resource at \"" + resEx.Path() + "\" missing :Name: TrueValue.");
   }
   std::string name = nameEx.As<std::string>();
+  ZoneText(name.c_str(), (size_t)name.size());
 
   // Get the resource's type.
   Vlk::Explorer typeEx = resEx("Type");

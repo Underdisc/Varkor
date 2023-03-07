@@ -23,8 +23,8 @@ struct Renderable
 Ds::Vector<Renderable> nRenderables;
 
 const char* nDebugDrawAssetName = "vres/debugDraw";
-const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Shader");
-const ResId nTbnShaderId(nDebugDrawAssetName, "TbnShader");
+const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Line");
+const ResId nTbnShaderId(nDebugDrawAssetName, "Tbn");
 
 void Init()
 {
@@ -40,7 +40,7 @@ void Point(const Vec3& point, const Vec3& color)
 
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vec3), point.CData(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Vec3), point.mD, GL_STATIC_DRAW);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3), (void*)0);
   glEnableVertexAttribArray(0);
   glBindVertexArray(0);
@@ -98,13 +98,13 @@ void CartesianAxes()
   Line(o, z, z);
 }
 
-void Render(const Mat4& view, const Mat4& proj)
+void Render(const World::Object& cameraObject)
 {
   Gfx::Shader* shader = Rsl::TryGetRes<Gfx::Shader>(nDebugDrawShaderId);
   if (shader == nullptr) {
     return;
   }
-  Gfx::Renderer::InitializeUniversalUniformBuffer(view, proj);
+  Gfx::Renderer::InitializeUniversalUniformBuffer(cameraObject);
 
   shader->Use();
   for (int i = 0; i < nRenderables.Size(); ++i) {
@@ -126,21 +126,19 @@ void Render(const Mat4& view, const Mat4& proj)
   nRenderables.Clear();
 }
 
-void RenderTbnVectors(const Gfx::Renderable::Collection& collection)
+void RenderTbnVectors(const Gfx::Collection& collection)
 {
   auto* shader = Rsl::TryGetRes<Gfx::Shader>(nTbnShaderId);
   if (shader == nullptr) {
     return;
   }
   shader->Use();
-  const Ds::Vector<Gfx::Renderable>& floaters =
-    collection.Get(Gfx::Renderable::Type::Floater);
-  for (const Gfx::Renderable& renderable : floaters) {
-    const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(renderable.mMeshId);
+  for (const Gfx::Renderable::Floater& floater : collection.mFloaters) {
+    const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(floater.mMeshId);
     if (mesh == nullptr) {
       continue;
     }
-    shader->SetUniform("uModel", renderable.mTransform);
+    shader->SetUniform("uModel", floater.mTransform);
     mesh->Render();
   }
 }

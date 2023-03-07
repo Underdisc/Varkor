@@ -1,10 +1,13 @@
 #include <imgui/imgui.h>
 
 #include "Input.h"
+#include "Log.h"
 #include "editor/Editor.h"
+#include "editor/FileInterface.h"
 #include "editor/LayerInterface.h"
 #include "editor/Utility.h"
 #include "gfx/Renderer.h"
+#include "rsl/Library.h"
 #include "world/Space.h"
 
 namespace Editor {
@@ -13,22 +16,10 @@ LayerInterface::LayerInterface(World::LayerIt layerIt): mLayerIt(layerIt) {}
 
 void LayerInterface::Show()
 {
-  // Handle object picking.
-  World::Space& space = mLayerIt->mSpace;
-  InspectorInterface* inspector = FindInterface<InspectorInterface>();
-  if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left)) {
-    World::MemberId clickedMemberId =
-      Gfx::Renderer::HoveredMemberId(space, nCamera.View(), nCamera.Proj());
-    if (clickedMemberId != World::nInvalidMemberId) {
-      World::Object clickedObject(&space, clickedMemberId);
-      inspector = OpenInterface<InspectorInterface>(clickedObject);
-    }
-  }
-  nSuppressObjectPicking = false;
-
   ImGui::Begin("Layer", &mOpen);
 
   // Allow the user to change the layer's camera with drag and drop.
+  World::Space& space = mLayerIt->mSpace;
   std::stringstream cameraLabel;
   cameraLabel << "Camera: ";
   if (mLayerIt->mCameraId != World::nInvalidMemberId) {
@@ -55,6 +46,7 @@ void LayerInterface::Show()
   }
   ImGui::BeginChild("Members", ImVec2(0, 0), true);
   Ds::Vector<World::MemberId> rootMemberIds = space.RootMemberIds();
+  InspectorInterface* inspector = FindInterface<InspectorInterface>();
   for (int i = 0; i < rootMemberIds.Size(); ++i) {
     DisplayMember(rootMemberIds[i], &inspector);
   }
@@ -73,6 +65,61 @@ void LayerInterface::Show()
     ImGui::EndDragDropTarget();
   }
   ImGui::End();
+}
+
+void LayerInterface::ObjectPicking()
+{
+  if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left)) {
+    World::Space& space = mLayerIt->mSpace;
+    World::MemberId clickedMemberId =
+      Gfx::Renderer::HoveredMemberId(space, nCamera.GetObject());
+    InspectorInterface* inspector = FindInterface<InspectorInterface>();
+    bool clickedSelected =
+      inspector != nullptr && clickedMemberId == inspector->mObject.mMemberId;
+    if (clickedSelected) {
+      CloseInterface<InspectorInterface>();
+    }
+    else if (clickedMemberId != World::nInvalidMemberId) {
+      World::Object clickedObject(&space, clickedMemberId);
+      OpenInterface<InspectorInterface>(clickedObject);
+    }
+  }
+  nSuppressObjectPicking = false;
+}
+
+void LayerInterface::SaveLayer()
+{
+  if (mLayerIt->mFilename == "") {
+    SaveLayerAs();
+  }
+  else {
+    SaveLayerAs(mLayerIt->mFilename);
+  }
+}
+
+void LayerInterface::SaveLayerAs()
+{
+  OpenInterface<FileInterface>(
+    [this](const std::string& filename)
+    {
+      SaveLayerAs(Rsl::PrependResDirectory(filename));
+    },
+    FileInterface::AccessType::Save,
+    mLayerIt->mName + World::nLayerExtension);
+}
+
+void LayerInterface::SaveLayerAs(const std::string& filename)
+{
+  Result result = World::SaveLayer(mLayerIt, filename.c_str());
+  std::string logString =
+    "\"" + mLayerIt->mName + "\" in \"" + mLayerIt->mFilename + "\".";
+  if (result.Success()) {
+    logString = "Successfully saved " + logString;
+  }
+  else {
+    logString = "Failed to save \"" + logString + "\n" + result.mError;
+  }
+  Log::String(logString);
 }
 
 void LayerInterface::DisplayMember(

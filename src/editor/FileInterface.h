@@ -4,11 +4,11 @@
 #include <functional>
 #include <string>
 
-#include "editor/WindowInterface.h"
+#include "editor/Interface.h"
 
 namespace Editor {
 
-struct FileInterface: public WindowInterface
+struct FileInterface: public Interface
 {
 public:
   enum class AccessType

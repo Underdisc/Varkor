@@ -200,24 +200,20 @@ void Vector<T>::Shrink()
 }
 
 template<typename T>
-size_t Vector<T>::Find(const T& value) const
+VResult<size_t> Vector<T>::Find(const T& value) const
 {
   for (size_t i = 0; i < mSize; ++i) {
     if (mData[i] == value) {
       return i;
     }
   }
-  return mSize;
+  return Result("Value not found");
 }
 
 template<typename T>
 bool Vector<T>::Contains(const T& value) const
 {
-  size_t index = Find(value);
-  if (index == mSize) {
-    return false;
-  }
-  return true;
+  return Find(value).Success();
 }
 
 template<typename T>

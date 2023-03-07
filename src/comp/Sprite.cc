@@ -7,7 +7,7 @@
 
 namespace Comp {
 
-const ResId Sprite::smDefaultMaterialId(smDefaultAssetName, "Material");
+const ResId Sprite::smDefaultMaterialId(smDefaultAssetName, "Default");
 
 void Sprite::VStaticInit()
 {
@@ -39,13 +39,12 @@ void Sprite::VRenderable(const World::Object& owner)
   Mat4 aspectScale = GetAspectScale();
   Mat4 transformation = transform.GetWorldMatrix(owner);
 
-  Gfx::Renderable renderable;
-  renderable.mOwner = owner.mMemberId;
-  renderable.mTransform = transformation * aspectScale;
-  renderable.mMaterialId = mMaterialId;
-  renderable.mMeshId = Gfx::Renderer::nSpriteMeshId;
-  Gfx::Renderable::Collection::Add(
-    Gfx::Renderable::Type::Floater, std::move(renderable));
+  Gfx::Renderable::Floater floater;
+  floater.mOwner = owner.mMemberId;
+  floater.mTransform = transformation * aspectScale;
+  floater.mMaterialId = mMaterialId;
+  floater.mMeshId = Gfx::Renderer::nSpriteMeshId;
+  Gfx::Collection::Add(std::move(floater));
 }
 
 void Sprite::VEdit(const World::Object& owner)

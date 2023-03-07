@@ -3,11 +3,12 @@
 #include "Options.h"
 #include "editor/CoreInterface.h"
 #include "editor/Editor.h"
-#include "editor/ErrorInterface.h"
 #include "editor/FileInterface.h"
 #include "editor/FramerInterface.h"
 #include "editor/LayerInterface.h"
 #include "editor/LibraryInterface.h"
+#include "editor/LogInterface.h"
+#include "editor/TempInterface.h"
 #include "editor/Utility.h"
 #include "rsl/Library.h"
 #include "vlk/Valkor.h"
@@ -17,7 +18,7 @@ namespace Editor {
 
 void CoreInterface::Init()
 {
-  OpenInterface<ErrorInterface>();
+  OpenInterface<LogInterface>();
   OpenInterface<LibraryInterface>();
   mShowImGuiDemo = false;
 }
@@ -119,25 +120,13 @@ void CoreInterface::FileMenu()
   }
 
   // Allow a user to save a Space to file if one is selected.
-  bool layerSelected = false;
   LayerInterface* layerInterface = FindInterface<LayerInterface>();
-  if (layerInterface != nullptr) {
-    layerSelected = true;
-  }
+  bool layerSelected = layerInterface != nullptr;
   if (ImGui::MenuItem("Save Layer", nullptr, false, layerSelected)) {
-    OpenInterface<FileInterface>(
-      [layerInterface](const std::string& filename)
-      {
-        if (layerInterface == nullptr) {
-          return;
-        }
-        std::string path = Rsl::PrependResDirectory(filename);
-        Result result =
-          World::SaveLayer(layerInterface->mLayerIt, path.c_str());
-        LogErrorIf(!result.Success(), result.mError.c_str());
-      },
-      FileInterface::AccessType::Save,
-      layerInterface->mLayerIt->mName + ".vlk");
+    layerInterface->SaveLayer();
+  }
+  if (ImGui::MenuItem("Save Layer As", nullptr, false, layerSelected)) {
+    layerInterface->SaveLayerAs();
   }
 
   bool canSave = !Rsl::IsStandalone();
@@ -150,9 +139,10 @@ void CoreInterface::FileMenu()
 void CoreInterface::ViewMenu()
 {
   if (ImGui::BeginMenu("View")) {
-    InterfaceMenuItem<ErrorInterface>("Error");
+    InterfaceMenuItem<LogInterface>("Log");
     InterfaceMenuItem<FramerInterface>("Framer");
     InterfaceMenuItem<LibraryInterface>("Library");
+    InterfaceMenuItem<TempInterface>("Temp");
     ImGui::MenuItem("Demo", NULL, &mShowImGuiDemo);
     ImGui::EndMenu();
   }

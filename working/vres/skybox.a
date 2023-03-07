@@ -1,16 +1,11 @@
 [
   {
-    :Name: 'Shader'
-    :Type: 'Shader'
-    :Config: {
-      :Files: ['vres/shader/Skybox.glv', 'vres/shader/Skybox.glf']
-    }
-  },
-  {
-    :Name: 'Material'
+    :Name: 'Default'
     :Type: 'Material'
     :Config: {
-      :ShaderId: 'vres/skyboxDefaults:Shader'
+      :ShaderConfig: {
+        :Files: ['vres/shader/Skybox.glv', 'vres/shader/Skybox.glf']
+      }
       :Uniforms: [
         {
           :Name: 'uCubemap'

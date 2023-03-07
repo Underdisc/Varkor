@@ -1,11 +1,11 @@
 #ifndef editor_FramerInterface_h
 #define editor_FramerInterface_h
 
-#include "editor/WindowInterface.h"
+#include "editor/Interface.h"
 
 namespace Editor {
 
-struct FramerInterface: public WindowInterface
+struct FramerInterface: public Interface
 {
   void Show();
 };

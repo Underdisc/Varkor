@@ -2,7 +2,6 @@
 
 #include "editor/Editor.h"
 #include "editor/Interface.h"
-#include "editor/WindowInterface.h"
 
 namespace Editor {
 
@@ -10,7 +9,7 @@ Interface::Interface(): mOpen(true) {}
 
 Interface::~Interface() {}
 
-void Interface::HandleInterfaces()
+void Interface::HandleStaging()
 {
   // Remove all of the closed interfaces. This happens before inserting the
   // StagedInterfaces to account for the same Interface being closed and opened
@@ -47,7 +46,7 @@ void Interface::HandleInterfaces()
   it = mInterfaces.begin();
   itE = mInterfaces.end();
   while (it != itE) {
-    it->mValue->HandleInterfaces();
+    it->mValue->HandleStaging();
     ++it;
   }
 }
@@ -62,6 +61,14 @@ void Interface::PurgeInterfaces()
     ++it;
   }
   mInterfaces.Clear();
+}
+
+void Interface::ShowAll()
+{
+  Show();
+  for (auto it = mInterfaces.begin(); it != mInterfaces.end(); ++it) {
+    it->mValue->ShowAll();
+  }
 }
 
 } // namespace Editor

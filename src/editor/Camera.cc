@@ -1,24 +1,32 @@
 #include "editor/Camera.h"
 #include "Input.h"
 #include "Temporal.h"
+#include "editor/Editor.h"
 #include "math/Constants.h"
 #include "world/Object.h"
 
 namespace Editor {
 
-Camera::Camera()
+void Camera::Init()
 {
-  // The camera and transform components do not use the owner, so giving them an
-  // invalid one doesn't cause any problems.
-  World::Object owner(nullptr, World::nInvalidMemberId);
-  mTransform.VInit(owner);
-  mCamera.VInit(owner);
+  mCameraId = Editor::nSpace.CreateMember();
+  GetObject().Add<Comp::Camera>();
 
   mYaw = 0.0f;
   mPitch = 0.0f;
 
   mSpeed = 1.0f;
   mSensitivity = 0.001f * Math::nPi;
+}
+
+void Camera::Purge()
+{
+  GetObject().Delete();
+}
+
+World::Object Camera::GetObject()
+{
+  return World::Object(&Editor::nSpace, mCameraId);
 }
 
 void Camera::Update()
@@ -29,6 +37,9 @@ void Camera::Update()
   }
 
   // Change the camera's yaw and pitch depending on input.
+  const World::Object cameraObject = GetObject();
+  auto& transformComp = cameraObject.Get<Comp::Transform>();
+  auto& cameraComp = cameraObject.Get<Comp::Camera>();
   if (Input::MouseDown(Input::Mouse::Right)) {
     Vec2 mouseMotion = Input::MouseMotion();
     mYaw -= mouseMotion[0] * mSensitivity;
@@ -37,7 +48,7 @@ void Camera::Update()
     hRot.AngleAxis(mYaw, {0.0f, 1.0f, 0.0f});
     vRot.AngleAxis(mPitch, {1.0f, 0.0f, 0.0f});
     Math::Quaternion rotation = hRot * vRot;
-    mTransform.SetRotation(rotation);
+    transformComp.SetRotation(rotation);
   }
 
   // Change the camera speed using scroll wheel input.
@@ -50,80 +61,29 @@ void Camera::Update()
   }
 
   // Change the camera position depending on input.
-  Vec3 translation = mTransform.GetTranslation();
+  Vec3 translation = transformComp.GetTranslation();
+  Vec3 forward = cameraComp.WorldForward(cameraObject);
+  Vec3 right = cameraComp.WorldRight(cameraObject);
+  Vec3 up = cameraComp.WorldUp(cameraObject);
   if (Input::KeyDown(Input::Key::W)) {
-    translation += Forward() * Temporal::DeltaTime() * mSpeed;
+    translation += forward * Temporal::DeltaTime() * mSpeed;
   }
   if (Input::KeyDown(Input::Key::S)) {
-    translation -= Forward() * Temporal::DeltaTime() * mSpeed;
+    translation -= forward * Temporal::DeltaTime() * mSpeed;
   }
   if (Input::KeyDown(Input::Key::D)) {
-    translation += Right() * Temporal::DeltaTime() * mSpeed;
+    translation += right * Temporal::DeltaTime() * mSpeed;
   }
   if (Input::KeyDown(Input::Key::A)) {
-    translation -= Right() * Temporal::DeltaTime() * mSpeed;
+    translation -= right * Temporal::DeltaTime() * mSpeed;
   }
   if (Input::KeyDown(Input::Key::E)) {
-    translation += Up() * Temporal::DeltaTime() * mSpeed;
+    translation += up * Temporal::DeltaTime() * mSpeed;
   }
   if (Input::KeyDown(Input::Key::Q)) {
-    translation -= Up() * Temporal::DeltaTime() * mSpeed;
+    translation -= up * Temporal::DeltaTime() * mSpeed;
   }
-  mTransform.SetTranslation(translation);
-}
-
-Mat4 Camera::View() const
-{
-  return mTransform.GetInverseLocalMatrix();
-}
-
-const Mat4& Camera::InverseView()
-{
-  return mTransform.GetLocalMatrix();
-}
-
-Mat4 Camera::Proj() const
-{
-  return mCamera.Proj();
-}
-
-Vec3 Camera::Forward() const
-{
-  return mTransform.GetRotation().Rotate({0.0f, 0.0f, -1.0f});
-}
-
-Vec3 Camera::Right() const
-{
-  return mTransform.GetRotation().Rotate({1.0f, 0.0f, 0.0f});
-}
-
-Vec3 Camera::Up() const
-{
-  return mTransform.GetRotation().Rotate({0.0f, 1.0f, 0.0f});
-}
-
-const Vec3& Camera::Position() const
-{
-  return mTransform.GetTranslation();
-}
-
-// Imagine a position on the window extending as a line into space such that we
-// are only able to see it as a single point. This function will return a
-// ray that represents exactly that.
-Math::Ray Camera::StandardPositionToRay(const Vec2& standardPosition)
-{
-  Vec3 worldPosition =
-    mCamera.StandardToWorldPosition(standardPosition, InverseView());
-  Math::Ray ray;
-  switch (mCamera.mProjectionType) {
-  case Comp::Camera::ProjectionType::Perspective:
-    ray.StartDirection(Position(), worldPosition - Position());
-    break;
-  case Comp::Camera::ProjectionType::Orthographic:
-    ray.StartDirection(worldPosition, Forward());
-    break;
-  }
-  return ray;
+  transformComp.SetTranslation(translation);
 }
 
 } // namespace Editor

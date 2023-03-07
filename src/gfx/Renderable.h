@@ -14,36 +14,57 @@ struct Object;
 
 namespace Gfx {
 
-struct Renderable
+namespace Renderable {
+struct Floater
 {
   World::MemberId mOwner;
   Mat4 mTransform;
   ResId mMaterialId;
   ResId mMeshId;
   UniformVector mUniforms;
+};
 
-  void Render(const UniformVector& collectionUniforms) const;
+struct Skybox
+{
+  World::MemberId mOwner;
+  Mat4 mTransform;
+  ResId mMaterialId;
+  UniformVector mUniforms;
+};
 
-  enum class Type
-  {
-    Skybox,
-    Floater,
-    Count,
-  };
+struct Icon
+{
+  World::MemberId mOwner;
+  Vec3 mTranslation;
+  Vec4 mColor;
+  ResId mMeshId;
+};
+} // namespace Renderable
 
-  struct Collection
-  {
-    Ds::Vector<Renderable> mRenderables[(int)Type::Count];
-    UniformVector mUniforms;
+struct Collection
+{
+  Ds::Vector<Renderable::Floater> mFloaters;
+  Renderable::Skybox mSkybox;
+  Ds::Vector<Renderable::Icon> mIcons;
+  UniformVector mUniforms;
 
-    static Collection* smActiveCollection;
-    void Collect(const World::Space& space);
-    void Collect(const World::Object& object);
-    static void Add(Type renderableType, Renderable&& renderable);
+  Collection();
 
-    void Render(Type renderableType) const;
-    const Ds::Vector<Renderable>& Get(Type renderableType) const;
-  };
+  void Collect(const World::Space& space);
+  void Collect(const World::Object& object);
+
+  static void Add(Renderable::Floater&& floater);
+  static void Use(Renderable::Skybox&& skybox);
+  static void Add(Renderable::Icon&& icon);
+
+  void RenderFloaters();
+  bool HasSkybox() const;
+  void RenderSkybox();
+  void RenderIcons(bool memberIds, const World::Object& cameraObject) const;
+
+private:
+  static void VerifyActiveCollection();
+  static Collection* smActiveCollection;
 };
 
 } // namespace Gfx

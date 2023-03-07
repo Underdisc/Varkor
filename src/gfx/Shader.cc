@@ -197,16 +197,22 @@ void Shader::SetUniform(const char* name, int value) const
   glUniform1i(location, value);
 }
 
+void Shader::SetUniform(const char* name, const Vec2& value) const
+{
+  GLint location = UniformLocation(name);
+  glUniform2fv(location, 1, value.mD);
+}
+
 void Shader::SetUniform(const char* name, const Vec3& value) const
 {
   GLint location = UniformLocation(name);
-  glUniform3fv(location, 1, value.CData());
+  glUniform3fv(location, 1, value.mD);
 }
 
 void Shader::SetUniform(const char* name, const Vec4& value) const
 {
   GLint location = UniformLocation(name);
-  glUniform4fv(location, 1, value.CData());
+  glUniform4fv(location, 1, value.mD);
 }
 
 void Shader::SetUniform(const char* name, const Mat4& value) const
@@ -482,13 +488,12 @@ VResult<Ds::Vector<Shader::CompileInfo>> Shader::CollectCompileInfo(
   Ds::Vector<HeaderData> allHeaderData;
 
   // Define the regular expression for finding the type headers.
-  std::string regexString = "#type (";
-  regexString += smSubTypeStrings[0];
+  std::string subTypeStringsOr = smSubTypeStrings[0];
   for (int i = 1; i < (int)SubType::Count; ++i) {
-    regexString += "|";
-    regexString += smSubTypeStrings[i];
+    subTypeStringsOr += "|";
+    subTypeStringsOr += smSubTypeStrings[i];
   }
-  regexString += "|[^\r\n]*)";
+  std::string regexString = "#type (" + subTypeStringsOr + "|[^\r\n]*)";
 
   // Find all of the unique type headers.
   std::regex expression(regexString);
@@ -509,6 +514,9 @@ VResult<Ds::Vector<Shader::CompileInfo>> Shader::CollectCompileInfo(
     }
     allHeaderData.Push(newHeaderData);
     searchStart = match[0].second;
+  }
+  if (allHeaderData.Empty()) {
+    return Result("No \"#type <" + subTypeStringsOr + ">\" headers founds.");
   }
 
   // Create the CompileInfo for the source under each type header.

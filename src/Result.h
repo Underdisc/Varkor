@@ -1,13 +1,14 @@
 #ifndef Result_h
 #define Result_h
 
+#include <ostream>
 #include <string>
 #include <utility>
 
 struct Result
 {
   std::string mError;
-  bool Success()
+  bool Success() const
   {
     return mError.size() == 0;
   }
@@ -23,6 +24,8 @@ struct Result
     return *this;
   }
 };
+
+std::ostream& operator<<(std::ostream& os, const Result& rhs);
 
 template<typename T>
 struct ValueResult: public Result
@@ -48,8 +51,19 @@ struct ValueResult: public Result
     return *this;
   }
 };
-
 template<typename T>
 using VResult = ValueResult<T>;
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const VResult<T>& rhs)
+{
+  if (rhs.Success()) {
+    os << rhs.mValue;
+  }
+  else {
+    os << rhs.mError;
+  }
+  return os;
+}
 
 #endif

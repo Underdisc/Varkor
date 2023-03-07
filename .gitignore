@@ -1,10 +1,11 @@
-*.err
 *.exe
 *.ilk
 *.pdb
 projects.cmake
 .vs/
 build/
+script/options.json
 working/imgui.ini
+working/log.txt
 working/test/*/coverage
 working/test/*/out_diff.txt

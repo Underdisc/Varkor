@@ -1,57 +1,109 @@
 [
   {
-    :Name: 'MemberIdShader'
+    :Name: 'FullscreenDefault'
+    :Type: 'Material'
+    :Config: {
+      :ShaderConfig: {
+        :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/Default.glf']
+      }
+    }
+  },
+  {
+    :Name: 'MemberId'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/Default.glv', 'vres/shader/MemberId.glf']
     }
   },
   {
-    :Name: 'DepthShader'
+    :Name: 'Depth'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/Depth.glvf']
     }
   },
   {
-    :Name: 'DefaultPostShader'
-    :Type: 'Shader'
-    :Config: {
-      :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/DefaultPostProcess.glf']
-    }
-  },
-  {
-    :Name: 'DefaultPostMaterial'
+    :Name: 'CopyTexture'
     :Type: 'Material'
     :Config: {
-      :ShaderId: 'vres/renderer:DefaultPostShader'
-      :Uniforms: []
+      :ShaderConfig: {
+        :Files: [
+          'vres/shader/FullscreenTexture.glv', 'vres/shader/CopyTexture.glf']
+      }
     }
   },
   {
-    :Name: 'MemberOutlineShader'
+    :Name: 'IntenseExtract'
     :Type: 'Shader'
     :Config: {
-      :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/MemberOutline.glf']
+      :Files: [
+        'vres/shader/FullscreenTexture.glv',
+        'vres/shader/IntenseExtract.glf']
     }
   },
   {
-    :Name: 'MemberOutlineMaterial'
+    :Name: 'Blur'
+    :Type: 'Shader'
+    :Config: {
+      :Files: [
+        'vres/shader/FullscreenTexture.glv',
+        'vres/shader/Blur.glf']
+    }
+  },
+  {
+    :Name: 'AdditiveBlend'
+    :Type: 'Shader'
+    :Config: {
+      :Files: [
+        'vres/shader/FullscreenTexture.glv',
+        'vres/shader/AdditiveBlend.glf']
+    }
+  },
+  {
+    :Name: 'ReinhardTonemap'
     :Type: 'Material'
     :Config: {
-      :ShaderId: 'vres/renderer:MemberOutlineShader'
-      :Uniforms: [
-        {
-          :Name: 'uWidth'
-          :Type: 'Int'
-          :Value: '3'
-        },
-        {
-          :Name: 'uColor'
-          :Type: 'Vec4'
-          :Value: ['1', '1', '1', '1']
-        }
-      ]
+      :ShaderConfig: {
+        :Files: [
+          'vres/shader/FullscreenTexture.glv',
+          'vres/shader/ReinhardTonemap.glf']
+      }
+    }
+  },
+  {
+    :Name: 'MemberOutline'
+    :Type: 'Shader'
+    :Config: {
+      :Files: [
+        'vres/shader/FullscreenTexture.glv', 'vres/shader/MemberOutline.glf']
+    }
+  },
+  {
+    :Name: 'LightIcon'
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/icon/light.obj'
+    }
+  },
+  {
+    :Name: 'CameraIcon'
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/icon/camera.obj'
+    }
+  },
+  {
+    :Name: 'SkyboxIcon'
+    :Type: 'Mesh'
+    :Config: {
+      :File: 'vres/model/icon/skybox.obj'
+    }
+  },
+  {
+    :Name: 'Color'
+    :Type: 'Shader'
+    :Config: {
+      :Files: ['vres/shader/Default.glv', 'vres/shader/Color.glf']
     }
   }
 ]

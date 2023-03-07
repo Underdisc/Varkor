@@ -1,13 +1,13 @@
 [
   {
-    :Name: 'Shader'
+    :Name: 'Line'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/DebugLine.glv', 'vres/shader/Color.glf']
     }
   },
   {
-    :Name: 'TbnShader'
+    :Name: 'Tbn'
     :Type: 'Shader'
     :Config: {
       :Files: ['vres/shader/TbnVectors.glvgf']

@@ -17,6 +17,7 @@ struct Layer
   Layer(const std::string& name);
 
   std::string mName;
+  std::string mFilename;
   MemberId mCameraId;
   ResId mPostMaterialId;
   Space mSpace;
@@ -29,6 +30,7 @@ typedef Ds::List<Layer>::Iter LayerIt;
 extern void (*nCentralUpdate)();
 extern void (*nLayerUpdate)(LayerIt layerIt);
 
+void Init();
 void Purge();
 void Update();
 LayerIt CreateTopLayer();

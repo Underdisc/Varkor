@@ -7,6 +7,7 @@
 #include "Viewport.h"
 #include "ds/Map.h"
 #include "ds/Vector.h"
+#include "ext/Tracy.h"
 #include "rsl/Library.h"
 
 namespace Rsl {
@@ -22,6 +23,7 @@ Ds::Map<std::string, SharedConfig> nSharedConfigs;
 
 std::thread* nInitThread = nullptr;
 bool nStopInitThread = false;
+bool nInitThreadRunning = false;
 std::mutex nInitQueueMutex;
 Ds::Vector<std::string> nInitQueue;
 std::mutex nFinalizeQueueMutex;
@@ -203,7 +205,10 @@ bool InitThreadOpen()
 
 void InitializationThreadMain()
 {
+  ProfileThread("Init");
+
   Viewport::StartContextSharing();
+  nInitThreadRunning = true;
   while (!nStopInitThread && !nInitQueue.Empty()) {
     Asset& asset = GetAsset(nInitQueue[0]);
     Result result = asset.TryInit();
@@ -222,6 +227,7 @@ void InitializationThreadMain()
     nInitQueueMutex.unlock();
   }
   Viewport::EndContextSharing();
+  nInitThreadRunning = false;
 }
 
 void HandleFinalization()
@@ -239,7 +245,7 @@ void HandleInitialization()
 {
   // Create the thread when there are initializations to perform and delete it
   // when there are no initializations left.
-  if (nInitThread != nullptr && nInitThread->joinable()) {
+  if (nInitThread != nullptr && !nInitThreadRunning) {
     nInitThread->join();
     delete nInitThread;
     nInitThread = nullptr;

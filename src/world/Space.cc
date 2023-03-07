@@ -206,9 +206,9 @@ void Space::DeleteMember(MemberId memberId)
   // Remove the parent's reference to the child.
   if (member.mParent != nInvalidMemberId) {
     Member& parent = mMembers[member.mParent];
-    size_t index = parent.mChildren.Find(memberId);
-    if (index != parent.mChildren.Size()) {
-      parent.mChildren.LazyRemove(index);
+    VResult<size_t> findResult = parent.mChildren.Find(memberId);
+    if (findResult.Success()) {
+      parent.mChildren.LazyRemove(findResult.mValue);
     }
   }
 
@@ -286,7 +286,13 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
   // Add any missing dependencies.
   for (Comp::TypeId dependencyId : typeData.mDependencies) {
     if (!HasComponent(dependencyId, memberId)) {
-      AddComponent(dependencyId, memberId, init);
+      void* depedency = AddComponent(dependencyId, memberId, init);
+      const Comp::TypeData& dependencyTypeData =
+        Comp::GetTypeData(dependencyId);
+      if (dependencyTypeData.mVInit.Open()) {
+        const World::Object owner(this, dependencyId);
+        dependencyTypeData.mVInit.Invoke(depedency, owner);
+      }
     }
   }
 

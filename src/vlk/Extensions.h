@@ -4,6 +4,7 @@
 #include <string>
 
 #include "gfx/HdrColor.h"
+#include "math/Quaternion.h"
 #include "math/Vector.h"
 #include "rsl/ResourceId.h"
 #include "vlk/Valkor.h"
@@ -29,6 +30,32 @@ struct Converter<Math::Vector<T, N>>
         return false;
       }
       if (!Converter<T>::Deserialize(*element, value->mD + i)) {
+        return false;
+      }
+    }
+    return true;
+  }
+};
+
+template<>
+struct Converter<Quat>
+{
+  static void Serialize(Value& val, const Quat& quat)
+  {
+    val[{4}];
+    for (int i = 0; i < 4; ++i) {
+      val[i] = quat[i];
+    }
+  }
+
+  static bool Deserialize(const Value& val, Quat* quat)
+  {
+    for (int i = 0; i < 4; ++i) {
+      const Value* element = val.TryGetConstValue(i);
+      if (element == nullptr) {
+        return false;
+      }
+      if (!Converter<float>::Deserialize(*element, quat->mVec.mD + i)) {
         return false;
       }
     }

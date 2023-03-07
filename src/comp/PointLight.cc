@@ -1,6 +1,7 @@
 #include <imgui/imgui.h>
 
-#include "PointLight.h"
+#include "comp/PointLight.h"
+#include "comp/Transform.h"
 #include "editor/Utility.h"
 #include "editor/gizmos/Translator.h"
 #include "vlk/Valkor.h"
@@ -9,7 +10,6 @@ namespace Comp {
 
 void PointLight::VInit(const World::Object& owner)
 {
-  mPosition = smDefaultPosition;
   mAmbient = smDefaultAmbient;
   mDiffuse = smDefaultDiffuse;
   mSpecular = smDefaultSpecular;
@@ -20,7 +20,6 @@ void PointLight::VInit(const World::Object& owner)
 
 void PointLight::VSerialize(Vlk::Value& val)
 {
-  val("Position") = mPosition;
   val("Ambient") = mAmbient;
   val("Diffuse") = mDiffuse;
   val("Specular") = mSpecular;
@@ -31,7 +30,6 @@ void PointLight::VSerialize(Vlk::Value& val)
 
 void PointLight::VDeserialize(const Vlk::Explorer& ex)
 {
-  mPosition = ex("Position").As<Vec3>(smDefaultPosition);
   mAmbient = ex("Ambient").As<Gfx::HdrColor>(smDefaultAmbient);
   mDiffuse = ex("Diffuse").As<Gfx::HdrColor>(smDefaultDiffuse);
   mSpecular = ex("Specular").As<Gfx::HdrColor>(smDefaultSpecular);
@@ -40,13 +38,22 @@ void PointLight::VDeserialize(const Vlk::Explorer& ex)
   mQuadratic = ex("Quadratic").As<float>(smDefaultQuadratic);
 }
 
+void PointLight::VRenderable(const World::Object& owner)
+{
+  Gfx::Renderable::Icon icon;
+  icon.mOwner = owner.mMemberId;
+  auto& transform = owner.Get<Transform>();
+  icon.mTranslation = transform.GetWorldTranslation(owner);
+  icon.mColor = (Vec4)mDiffuse.TrueColor();
+  icon.mColor[3] = 1.0f;
+  icon.mMeshId = "vres/renderer:LightIcon";
+  Gfx::Collection::Add(std::move(icon));
+}
+
 void PointLight::VEdit(const World::Object& owner)
 {
-  Quat referenceFrame = {1.0f, 0.0f, 0.0f, 0.0f};
-  mPosition = Editor::Gizmos::Translate(mPosition, referenceFrame);
   float labelWidth = 65;
   ImGui::PushItemWidth(-labelWidth);
-  ImGui::DragFloat3("Position", mPosition.mD);
   ImGui::DragFloat("Constant", &mConstant, 0.01f, 1.0f, 2.0f);
   ImGui::DragFloat("Linear", &mLinear, 0.01f, 0.0f, 2.0f);
   ImGui::DragFloat("Quadratic", &mQuadratic, 0.01f, 0.0f, 2.0f);

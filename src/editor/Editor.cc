@@ -136,38 +136,68 @@ void Init()
       overviewCreated = true;
     }
   }
+
+  nCamera.Init();
 }
 
 void Purge()
 {
   nCoreInterface.PurgeInterfaces();
-  Gizmos::PurgeAll();
+  Gizmos::Purge();
+  nCamera.Purge();
   nSpace.Clear();
   ImGui::DestroyContext(nImGuiContext);
 }
 
 void StartFrame()
 {
+  Gizmos::Update();
   StartImGuiFrame();
   const ImGuiIO& io = ImGui::GetIO();
   Input::SetMouseFocus(!io.WantCaptureMouse);
   Input::SetKeyboardFocus(!io.WantCaptureKeyboard);
 }
 
+void RunInWorlds()
+{
+  auto* layerInterface = nCoreInterface.FindInterface<LayerInterface>();
+  if (layerInterface == nullptr) {
+    return;
+  }
+
+  auto* inspectorInterface =
+    layerInterface->FindInterface<InspectorInterface>();
+  if (inspectorInterface != nullptr) {
+    inspectorInterface->ShowGizmos();
+  }
+  layerInterface->ObjectPicking();
+}
+
 void EndFrame()
 {
   if (nEditorMode) {
     nCamera.Update();
+    bool leftCtrl = Input::KeyDown(Input::Key::LeftControl);
+    bool s = Input::KeyPressed(Input::Key::S);
+    if (leftCtrl && s) {
+      auto* layerInterface = nCoreInterface.FindInterface<LayerInterface>();
+      if (layerInterface != nullptr) {
+        layerInterface->SaveLayer();
+      }
+    }
   }
+
+  nCoreInterface.HandleStaging();
+  RunInWorlds();
+
   if (Input::KeyPressed(Input::Key::GraveAccent)) {
     nHideInterface = !nHideInterface;
   }
   if (!nHideInterface) {
     ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), flags);
-    nCoreInterface.HandleInterfaces();
+    nCoreInterface.ShowAll();
   }
-  Gizmos::PurgeUnneeded();
   EndImGuiFrame();
 }
 

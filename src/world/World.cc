@@ -3,6 +3,7 @@
 
 #include "gfx/Renderer.h"
 #include "vlk/Valkor.h"
+#include "world/Registrar.h"
 #include "world/World.h"
 
 namespace World {
@@ -12,7 +13,7 @@ Layer::Layer(): mCameraId(nInvalidMemberId) {}
 Layer::Layer(const std::string& name):
   mName(name),
   mCameraId(nInvalidMemberId),
-  mPostMaterialId(Gfx::Renderer::nDefaultPostMaterialId)
+  mPostMaterialId(Gfx::Renderer::nDefaultPostId)
 {}
 
 bool nPause = true;
@@ -21,6 +22,11 @@ Ds::List<Layer> nLayers;
 // Function pointers for calling into project code.
 void (*nCentralUpdate)() = nullptr;
 void (*nLayerUpdate)(LayerIt layerIt) = nullptr;
+
+void Init()
+{
+  Registrar::Init();
+}
 
 void Purge()
 {
@@ -70,16 +76,18 @@ VResult<LayerIt> LoadLayer(const char* filename)
   nLayers.EmplaceBack();
   Layer& newLayer = *nLayers.Back();
   newLayer.mName = metadataEx("Name").As<std::string>("DefaultName");
+  newLayer.mFilename = filename;
   newLayer.mCameraId = metadataEx("CameraId").As<MemberId>(nInvalidMemberId);
   Vlk::Explorer postMaterialEx = metadataEx("PostMaterialId");
   newLayer.mPostMaterialId =
-    postMaterialEx.As<ResId>(Gfx::Renderer::nDefaultPostMaterialId);
-  Vlk::Explorer spaceEx = rootEx("Space");
-  if (!spaceEx.Valid()) {
-    std::stringstream error;
-    error << "Layer \"" << filename << "\" missing :Space:.";
-    return VResult<LayerIt>(nLayers.end(), Result(error.str()));
-  }
+    postMaterialEx.As<ResId>(Gfx::Renderer::nDefaultPostId);
+
+  Vlk::Value& spaceVal = rootVal("Space");
+  int progression =
+    metadataEx("Progression").As<int>(Registrar::nInvalidProgression);
+  Registrar::ProgressComponents(spaceVal, progression);
+
+  Vlk::Explorer spaceEx(spaceVal);
   result = newLayer.mSpace.Deserialize(spaceEx);
   if (!result.Success()) {
     std::stringstream error;
@@ -92,11 +100,14 @@ VResult<LayerIt> LoadLayer(const char* filename)
 
 Result SaveLayer(LayerIt it, const char* filename)
 {
-  const Layer& layer = *it;
+  Layer& layer = *it;
+  layer.mFilename = filename;
   Vlk::Value rootVal;
   Vlk::Value& metadataVal = rootVal("Metadata");
   metadataVal("Name") = layer.mName;
   metadataVal("CameraId") = layer.mCameraId;
+  metadataVal("PostMaterialId") = layer.mPostMaterialId;
+  metadataVal("Progression") = Registrar::nCurrentProgression;
   Vlk::Value& spaceVal = rootVal("Space");
   layer.mSpace.Serialize(spaceVal);
   return rootVal.Write(filename);

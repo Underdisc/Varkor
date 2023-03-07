@@ -12,22 +12,13 @@ namespace Editor {
 class Camera
 {
 public:
-  Camera();
+  void Init();
+  void Purge();
+  World::Object GetObject();
   void Update();
-  Mat4 View() const;
-  const Mat4& InverseView();
-  Mat4 Proj() const;
-
-  Vec3 Forward() const;
-  Vec3 Right() const;
-  Vec3 Up() const;
-
-  const Vec3& Position() const;
-  Math::Ray StandardPositionToRay(const Vec2& standardPosition);
 
 private:
-  Comp::Transform mTransform;
-  Comp::Camera mCamera;
+  World::MemberId mCameraId;
   float mYaw;
   float mPitch;
 
