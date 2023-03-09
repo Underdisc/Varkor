@@ -7,6 +7,7 @@ node build.js [options] [-- targetArgs]
 [-t |--target] <target> - The target to build.
 [-r |--run] <yes/no> - Decide whether to run the target.
 [-h |--help] - Show help text.
+[-s |--show-saved-options] - Exactly what it sounds like.
 [targetArgs] - The command line arguments passed to the built target.`
 function HelpText() {
   console.log(helpText);
@@ -43,10 +44,12 @@ class OptionCache {
     this.AddSwitch('target', 't', '');
     this.AddSwitch('run', 'r', 'no');
     this.AddSwitch('help', 'h', null);
+    this.AddSwitch('show-saved-options', 's');
 
     // Initialize all saved options.
     this.options = {};
     this.options.help = false;
+    this.options.showSavedOptions = false;
     this.options.saved = {};
     try { this.options.saved = require('./options.json'); } catch (error) { }
     for (let i = 0; i < this.switches.length; ++i) {
@@ -73,6 +76,11 @@ class OptionCache {
         }
         if (currentSwitch.name == 'help') {
           this.options.help = true;
+          a += 1;
+          break;
+        }
+        if (currentSwitch.name == 'show-saved-options') {
+          this.options.showSavedOptions = true;
           a += 1;
           break;
         }
@@ -144,6 +152,10 @@ try {
 
 if (options.help) {
   HelpText();
+  return;
+}
+if (options.showSavedOptions) {
+  console.log(options.saved);
   return;
 }
 
