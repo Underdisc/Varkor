@@ -272,6 +272,9 @@ void Clear()
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT);
 
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glClear(GL_DEPTH_BUFFER_BIT);
+
   // Delete the MemberId buffer if it wasn't used during the last frame.
   if (!nMemberIdFboUsed) {
     PurgeMemberIdFbo();
