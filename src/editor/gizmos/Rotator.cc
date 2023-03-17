@@ -12,37 +12,20 @@
 namespace Editor {
 namespace Gizmos {
 
-Quat Rotate(
-  const Quat& rotation,
-  const Vec3& translation,
-  const Quat& referenceFrame,
-  bool snapping,
-  float snapInterval)
-{
-  return GetInstance<Rotator>()->Run(
-    rotation, translation, referenceFrame, snapping, snapInterval);
-}
-
 Rotator::Rotator(): mOperation(Operation::None)
 {
   // Create all of the handles.
-  const char* handleNames[] = {"X", "Y", "Z", "Xy", "Xz", "Yz", "Xyz"};
   mParent = nSpace.CreateMember();
-  Rsl::Asset& rotatorAsset = Rsl::AddAsset(smRotatorAssetName);
   nSpace.AddComponent<Comp::Transform>(mParent);
   for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = nSpace.CreateChildMember(mParent);
-    mHandleMaterialIds[i].Init(smRotatorAssetName, handleNames[i]);
-    Gfx::Material& material =
-      rotatorAsset.InitRes<Gfx::Material>(handleNames[i], nColorShaderId);
-    material.mUniforms.Add<Vec4>("uColor") = smHandleColors[i];
   }
-  rotatorAsset.Finalize();
 
   nSpace.AddComponent<Comp::Transform>(mX);
   auto& xMesh = nSpace.AddComponent<Comp::Mesh>(mX);
   xMesh.mMeshId = nTorusMeshId;
-  xMesh.mMaterialId = mHandleMaterialIds[(int)Operation::X];
+  xMesh.mMaterialId =
+    ResId(smRotatorAssetName, smMaterialNames[(int)Operation::X]);
 
   Comp::Transform& yT = nSpace.AddComponent<Comp::Transform>(mY);
   Math::Quaternion rotation;
@@ -50,26 +33,43 @@ Rotator::Rotator(): mOperation(Operation::None)
   yT.SetRotation(rotation);
   auto& yMesh = nSpace.AddComponent<Comp::Mesh>(mY);
   yMesh.mMeshId = nTorusMeshId;
-  yMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Y];
+  yMesh.mMaterialId =
+    ResId(smRotatorAssetName, smMaterialNames[(int)Operation::Y]);
 
   Comp::Transform& zT = nSpace.AddComponent<Comp::Transform>(mZ);
   rotation.AngleAxis(-Math::nPi / 2.0f, {0.0f, 1.0f, 0.0f});
   zT.SetRotation(rotation);
   auto& zMesh = nSpace.AddComponent<Comp::Mesh>(mZ);
   zMesh.mMeshId = nTorusMeshId;
-  zMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Z];
+  zMesh.mMaterialId =
+    ResId(smRotatorAssetName, smMaterialNames[(int)Operation::Z]);
 
   Comp::Transform& xyzT = nSpace.AddComponent<Comp::Transform>(mXyz);
   xyzT.SetUniformScale(0.8f);
   auto& xyzMesh = nSpace.AddComponent<Comp::Mesh>(mXyz);
   xyzMesh.mMeshId = nSphereMeshId;
-  xyzMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Xyz];
+  xyzMesh.mMaterialId =
+    ResId(smRotatorAssetName, smMaterialNames[(int)Operation::Xyz]);
 }
 
 Rotator::~Rotator()
 {
-  nSpace.DeleteMember(mParent);
-  Rsl::RemAsset(smRotatorAssetName);
+  if (mParent != World::nInvalidMemberId) {
+    nSpace.DeleteMember(mParent);
+  }
+}
+
+Rotator::Rotator(Rotator&& other)
+{
+  mParent = other.mParent;
+  for (int i = 0; i < smHandleCount; ++i) {
+    mHandles[i] = other.mHandles[i];
+  }
+  mOperation = other.mOperation;
+  mMouseOffset = other.mMouseOffset;
+  mRotationPlane = other.mRotationPlane;
+
+  other.mParent = World::nInvalidMemberId;
 }
 
 void Rotator::SetNextOperation(
@@ -113,19 +113,15 @@ void Rotator::SetNextOperation(
 }
 
 Quat Rotator::Run(
-  const Quat& rotation,
-  const Vec3& translation,
-  const Quat& referenceFrame,
-  bool snapping,
-  float snapInterval)
+  const Quat& rotation, const Vec3& translation, const Quat& referenceFrame)
 {
   SetParentTransformation(mParent, translation, referenceFrame);
 
   // Handle the transitions between all operation types.
   if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
-    auto& material =
-      Rsl::GetRes<Gfx::Material>(mHandleMaterialIds[(int)mOperation]);
-    material.mUniforms.Get<Vec4>("uColor") = smHandleColors[(int)mOperation];
+    auto& meshComp = nSpace.Get<Comp::Mesh>(mHandles[(int)mOperation]);
+    meshComp.mMaterialId =
+      ResId(smRotatorAssetName, smMaterialNames[(int)mOperation]);
     mOperation = Operation::None;
     return rotation;
   }
@@ -135,12 +131,13 @@ Quat Rotator::Run(
       return rotation;
     }
     Editor::nSuppressObjectPicking |= true;
-    auto& material =
-      Rsl::GetRes<Gfx::Material>(mHandleMaterialIds[(int)mOperation]);
-    Vec4& color = material.mUniforms.Get<Vec4>("uColor");
-    color = smActiveColor;
+    auto& meshComp = nSpace.Get<Comp::Mesh>(mHandles[(int)mOperation]);
     if (mOperation == Operation::Xyz) {
-      color[3] = 0.8f;
+      meshComp.mMaterialId =
+        ResId(smRotatorAssetName, "TransparentActiveColor");
+    }
+    else {
+      meshComp.mMaterialId = ResId(smRotatorAssetName, "ActiveColor");
     }
     return rotation;
   }
@@ -166,8 +163,8 @@ Quat Rotator::Run(
     // We need to clamp to avoid nan values from the cosine function.
     float dot = Math::Clamp(-1.0f, 1.0f, Math::Dot(normOld, normNew));
     float angle = acosf(dot);
-    if (snapping) {
-      angle = Math::RoundToNearest(angle, snapInterval);
+    if (nSnapping) {
+      angle = Math::RoundToNearest(angle, nScaleSnapInterval);
     }
     Vec3 positiveDirection = Math::Cross(mRotationPlane.Normal(), normOld);
     if (Math::Dot(normNew, positiveDirection) < 0.0f) {
@@ -187,6 +184,29 @@ Quat Rotator::Run(
     return horizontalRotation * verticalRotation * rotation;
   }
   return rotation;
+}
+
+void Rotator::Init()
+{
+  // Create all of the handles.
+  Rsl::Asset& rotatorAsset = Rsl::AddAsset(smRotatorAssetName);
+  for (int i = 0; i < smHandleCount; ++i) {
+    Gfx::Material& material =
+      rotatorAsset.InitRes<Gfx::Material>(smMaterialNames[i], nColorShaderId);
+    material.mUniforms.Add<Vec4>("uColor") = smHandleColors[i];
+  }
+  auto& activeMaterial =
+    rotatorAsset.InitRes<Gfx::Material>("ActiveColor", nColorShaderId);
+  activeMaterial.mUniforms.Add<Vec4>("uColor") = {1, 1, 1, 1};
+  auto& transparentActiveMaterial = rotatorAsset.InitRes<Gfx::Material>(
+    "TransparentActiveColor", nColorShaderId);
+  transparentActiveMaterial.mUniforms.Add<Vec4>("uColor") = {1, 1, 1, 0.8f};
+  rotatorAsset.Finalize();
+}
+
+void Rotator::Purge()
+{
+  Rsl::RemAsset(smRotatorAssetName);
 }
 
 } // namespace Gizmos

@@ -3,9 +3,7 @@
 #include "Input.h"
 #include "editor/Editor.h"
 #include "editor/gizmos/Gizmos.h"
-#include "editor/gizmos/Rotator.h"
-#include "editor/gizmos/Scalor.h"
-#include "editor/gizmos/Translator.h"
+#include "math/Constants.h"
 #include "rsl/Library.h"
 
 namespace Editor {
@@ -18,6 +16,9 @@ ResId nScaleMeshId(nGizmoAssetName, "Scale");
 ResId nSphereMeshId(nGizmoAssetName, "Sphere");
 ResId nTorusMeshId(nGizmoAssetName, "Torus");
 ResId nColorShaderId("vres/renderer:Color");
+
+Ds::Vector<void (*)()> nUpdates;
+Ds::Vector<void (*)()> nClears;
 
 Mode nMode = Mode::Translate;
 ReferenceFrame nReferenceFrame = ReferenceFrame::World;
@@ -33,16 +34,16 @@ void Init()
 
 void Purge()
 {
-  Purge<Translator>();
-  Purge<Scalor>();
-  Purge<Rotator>();
+  for (int i = 0; i < nClears.Size(); ++i) {
+    nClears[i]();
+  }
 }
 
 void Update()
 {
-  TryPurge<Translator>();
-  TryPurge<Scalor>();
-  TryPurge<Rotator>();
+  for (int i = 0; i < nUpdates.Size(); ++i) {
+    nUpdates[i]();
+  }
 
   // Handle all hotkeys for switching between modes and reference frames.
   if (Input::KeyDown(Input::Key::LeftControl)) {
