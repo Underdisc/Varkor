@@ -68,6 +68,12 @@ Vec3 Ray::ClosestPointTo(const Ray& other) const
 }
 
 // Plane ///////////////////////////////////////////////////////////////////////
+void Plane::InitNormalized(const Vec3& point, const Vec3& normalizedNormal)
+{
+  mPoint = point;
+  mNormal = normalizedNormal;
+}
+
 void Plane::PointNormal(const Vec3& point, const Vec3& normal)
 {
   mPoint = point;

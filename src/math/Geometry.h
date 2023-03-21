@@ -35,6 +35,7 @@ private:
   Vec3 mNormal;
 
 public:
+  void InitNormalized(const Vec3& point, const Vec3& normalizedNormal);
   void PointNormal(const Vec3& point, const Vec3& normal);
   void Normal(const Vec3& normal);
   const Vec3& Normal() const;
