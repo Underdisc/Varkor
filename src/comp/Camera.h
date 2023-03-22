@@ -34,6 +34,8 @@ struct Camera
 
   float ProjectedDistance(
     const World::Object& owner, const Vec3& worldTranslation) const;
+  Vec2 WorldTranslationToStandardTranslation(
+    Vec3 worldTranslation, const World::Object& owner) const;
   Vec3 StandardTranslationToWorldTranslation(
     Vec2 standardPosition, const World::Object& owner) const;
   Math::Ray StandardTranslationToWorldRay(

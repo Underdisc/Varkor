@@ -188,6 +188,17 @@ float Camera::ProjectedDistance(
   return Math::Magnitude(distance);
 }
 
+// Retruns a point's ndc.
+Vec2 Camera::WorldTranslationToStandardTranslation(
+  Vec3 worldTranslation, const World::Object& owner) const
+{
+  Vec4 projectedPoint = (Vec4)worldTranslation;
+  projectedPoint[3] = 1;
+  projectedPoint = Proj() * View(owner) * projectedPoint;
+  projectedPoint /= projectedPoint[3];
+  return (Vec2)projectedPoint;
+}
+
 // This will take a position in the window and convert it to a position in the
 // world. The values in standard position should be in the range of [-1, 1],
 // where -1 represents the leftmost and bottommost edges of the window. The
