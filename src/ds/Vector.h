@@ -37,6 +37,7 @@ public:
   bool Empty() const;
   size_t Capacity() const;
   const T* CData() const;
+  T* Data();
   T& Top() const;
 
   const T& operator[](size_t index) const;

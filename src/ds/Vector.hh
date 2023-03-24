@@ -241,6 +241,12 @@ const T* Vector<T>::CData() const
 }
 
 template<typename T>
+T* Vector<T>::Data()
+{
+  return mData;
+}
+
+template<typename T>
 T& Vector<T>::Top() const
 {
   LogAbortIf(mSize == 0, "The Vector is empty.");
