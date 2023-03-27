@@ -1,6 +1,5 @@
-#include "math/Utility.h"
-
 #include "math/Geometry.h"
+#include "math/Utility.h"
 
 namespace Math {
 
@@ -90,6 +89,21 @@ const Vec3& Plane::Normal() const
   return mNormal;
 }
 
+// Sphere //////////////////////////////////////////////////////////////////////
+Sphere::Sphere() {}
+
+Sphere::Sphere(const Vec3& center, float radius):
+  mCenter(center), mRadius(radius)
+{
+  Init(center, radius);
+}
+
+void Sphere::Init(const Vec3& center, float radius)
+{
+  mCenter = center;
+  mRadius = radius;
+}
+
 // Functions ///////////////////////////////////////////////////////////////////
 bool HasIntersection(const Ray& ray, const Plane& plane)
 {
@@ -107,6 +121,32 @@ Vec3 Intersection(const Ray& ray, const Plane& plane)
   LogAbortIf(nd == 0.0f, "The Ray is perpendicular to the plane normal.");
   float t = (np - ns) / nd;
   return ray.At(t);
+}
+
+RaySphere Intersection(const Ray& ray, const Sphere& sphere)
+{
+  Vec3 relativeStart = ray.mStart - sphere.mCenter;
+  float a = Dot(ray.Direction(), ray.Direction());
+  float b = 2 * Dot(relativeStart, ray.Direction());
+  float c = Dot(relativeStart, relativeStart) - sphere.mRadius * sphere.mRadius;
+  float disc = b * b - 4 * a * c;
+
+  RaySphere intersection;
+  if (disc < 0) {
+    intersection.mCount = 0;
+    return intersection;
+  }
+  if (Near(disc, 0)) {
+    intersection.mCount = 1;
+    float t = -b / (2 * a);
+    intersection.mPoints[0] = ray.At(t);
+    return intersection;
+  }
+  intersection.mCount = 2;
+  float t = sqrt(disc);
+  intersection.mPoints[0] = ray.At((-b - t) / (2 * a));
+  intersection.mPoints[1] = ray.At((-b + t) / (2 * a));
+  return intersection;
 }
 
 } // namespace Math

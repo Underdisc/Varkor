@@ -8,6 +8,19 @@ std::ostream& operator<<(std::ostream& os, const Math::Ray& ray)
   return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const Math::RaySphere& intersection)
+{
+  os << '{';
+  if (intersection.mCount > 0) {
+    os << intersection.mPoints[0];
+  }
+  for (int i = 1; i < intersection.mCount; ++i) {
+    os << ", " << intersection.mPoints[i];
+  }
+  os << '}';
+  return os;
+}
+
 void At()
 {
   std::cout << "<= At =>" << std::endl;
@@ -76,6 +89,24 @@ void Intersection()
 
   // This will crash because the ray is perpendicular to the plane normal.
   // Math::Intersection(rays[0], planes[2]);
+
+  std::cout << std::endl;
+}
+
+void RaySphere()
+{
+  std::cout << "<= RaySphere =>\n";
+  Math::Ray rays[3];
+  Math::Sphere spheres[2];
+  rays[0].StartDirection({0, 0, 0}, {1, 0, 0});
+  rays[1].StartDirection({2, 2, 2}, {-1, -1, -1});
+  rays[2].StartDirection({-1, 0, -5}, {0, 0, 1});
+  spheres[0].Init({0, 0, 0}, 1);
+  spheres[1].Init({2, 0, -2}, 2);
+  std::cout << Math::Intersection(rays[0], spheres[0]) << '\n';
+  std::cout << Math::Intersection(rays[1], spheres[0]) << '\n';
+  std::cout << Math::Intersection(rays[0], spheres[1]) << '\n';
+  std::cout << Math::Intersection(rays[2], spheres[1]) << '\n';
 }
 
 int main(void)
@@ -83,4 +114,5 @@ int main(void)
   At();
   ClosestPoint();
   Intersection();
+  RaySphere();
 }

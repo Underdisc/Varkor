@@ -41,8 +41,25 @@ public:
   const Vec3& Normal() const;
 };
 
+struct Sphere
+{
+  Vec3 mCenter;
+  float mRadius;
+
+  Sphere();
+  Sphere(const Vec3& center, float radius);
+  void Init(const Vec3& center, float radius);
+};
+
 bool HasIntersection(const Ray& ray, const Plane& plane);
 Vec3 Intersection(const Ray& ray, const Plane& plane);
+
+struct RaySphere
+{
+  int mCount;
+  Vec3 mPoints[2];
+};
+RaySphere Intersection(const Ray& ray, const Sphere& sphere);
 
 } // namespace Math
 
