@@ -2,6 +2,7 @@
 #include <string>
 
 #include "debug/MemLeak.h"
+#include "test/Test.h"
 #include "vlk/Tokenizer.h"
 
 std::ostream& operator<<(std::ostream& os, Vlk::Token::Type tokenType)
@@ -24,7 +25,7 @@ void PrintTokens(const char* text)
   // Tokenize the text and print the results.
   VResult<Ds::Vector<Vlk::Token>> result = Vlk::Tokenize(text);
   if (!result.Success()) {
-    std::cout << result.mError << std::endl;
+    std::cout << result.mError << '\n';
     return;
   }
   size_t tokenIndex = 0;
@@ -34,7 +35,7 @@ void PrintTokens(const char* text)
       const Vlk::Token& nextToken = result.mValue[(int)tokenIndex + 1];
       size_t tokenLength = nextToken.mText - currentToken.mText;
       std::string tokenText(currentToken.mText, tokenLength);
-      std::cout << currentToken.mType << ": " << tokenText << std::endl;
+      std::cout << currentToken.mType << ": " << tokenText << '\n';
     }
     ++tokenIndex;
   }
@@ -42,19 +43,16 @@ void PrintTokens(const char* text)
 
 void Key()
 {
-  std::cout << "<= Key =>" << std::endl;
   PrintTokens(
     ":a_key:\n"
     ":a_key_with_1234:\n"
     ":_a_key_with_a_starting_underscore:\n"
     ":A_KEY_WITH_CAPS:\n"
     ":_a_key_with_SOME_CAPS:\n");
-  std::cout << std::endl;
 }
 
 void TrueValue()
 {
-  std::cout << "<= TrueValue =>" << std::endl;
   PrintTokens(
     "\'1\'\n"
     "\'143\'\n"
@@ -62,19 +60,15 @@ void TrueValue()
     "\'123.456\'\n"
     "\'ATrueStringValue\'\n"
     "\'WithEscape\\\'Characters\\\\\'\n");
-  std::cout << std::endl;
 }
 
 void Characters()
 {
-  std::cout << "<= Characters =>" << std::endl;
   PrintTokens("[]{},");
-  std::cout << std::endl;
 }
 
 void InvalidToken()
 {
-  std::cout << "<= InvalidToken =>" << std::endl;
   PrintTokens("+");
   PrintTokens("\'an incomplete string");
   PrintTokens(":an incomplete key");
@@ -90,8 +84,8 @@ void InvalidToken()
 int main()
 {
   EnableLeakOutput();
-  Key();
-  TrueValue();
-  Characters();
-  InvalidToken();
+  RunTest(Key);
+  RunTest(TrueValue);
+  RunTest(Characters);
+  RunTest(InvalidToken);
 }

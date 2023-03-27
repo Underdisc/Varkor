@@ -42,7 +42,7 @@ quaternion: 0.707107 + 0.408248i + 0.408248j + 0.408248k
 quaternion: 1 + 2i + 3j + 4k
 conjugate: 1 - 2i - 3j - 4k
 
-<= Multiplicaton =>
+<= Multiplication =>
 quaternion 1: 1 + 2i + 3j + 4k
 quaternion 2: 1 + 2i + 3j + 4k
 result: -12 + 6i + 24j + 12k
@@ -57,3 +57,4 @@ result: -12 + 6i + 24j + 12k
 [-1, 0, -1]
 [0, 1, 0]
 [-1, 0, 0]
+

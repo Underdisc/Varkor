@@ -2,13 +2,13 @@
 
 #include "comp/Type.h"
 #include "debug/MemLeak.h"
+#include "test/Test.h"
 #include "test/world/Print.h"
 #include "test/world/TestTypes.h"
 #include "world/Table.h"
 
 void Add()
 {
-  std::cout << "<= Add =>" << std::endl;
   CallCounter::Reset();
   {
     World::Table counter(Comp::Type<CallCounter>::smId);
@@ -21,23 +21,21 @@ void Add()
       dynamic.Add(i);
       container.Add(i);
     }
-    std::cout << "-Simple-" << std::endl;
+    std::cout << "-Simple-\n";
     PrintTableStats(simple);
     PrintTableOwners(simple);
-    std::cout << "-Dynamic-" << std::endl;
+    std::cout << "-Dynamic-\n";
     PrintTableStats(dynamic);
     PrintTableOwners(dynamic);
-    std::cout << "-Container-" << std::endl;
+    std::cout << "-Container-\n";
     PrintTableStats(container);
     PrintTableOwners(container);
   }
   CallCounter::Print();
-  std::cout << std::endl;
 }
 
 void Rem()
 {
-  std::cout << "<= Rem =>" << std::endl;
   CallCounter::Reset();
   {
     World::Table tables[4] = {
@@ -57,20 +55,18 @@ void Rem()
         table.Add(i);
       }
     }
-    std::cout << "-Simple-" << std::endl;
+    std::cout << "-Simple-\n";
     PrintTable<Simple0>(tables[1]);
-    std::cout << "-Dynamic-" << std::endl;
+    std::cout << "-Dynamic-\n";
     PrintTable<Dynamic>(tables[2]);
-    std::cout << "-Container-" << std::endl;
+    std::cout << "-Container-\n";
     PrintTable<Container>(tables[3]);
   }
   CallCounter::Print();
-  std::cout << std::endl;
 }
 
 void Duplicate()
 {
-  std::cout << "<= Duplicate =>" << std::endl;
   CallCounter::Reset();
   {
     World::Table counterTable(Comp::Type<CallCounter>::smId);
@@ -96,21 +92,19 @@ void Duplicate()
       Dynamic* cpDynamic = (Dynamic*)dynamicTable[i + 10];
       ogDynamic->PrintData();
       cpDynamic->PrintData();
-      std::cout << std::endl;
+      std::cout << '\n';
       Container* ogContainer = (Container*)containerTable[i];
       Container* cpContainer = (Container*)containerTable[i + 10];
       ogContainer->PrintData();
       cpContainer->PrintData();
-      std::cout << std::endl;
+      std::cout << '\n';
     }
   }
   CallCounter::Print();
-  std::cout << std::endl;
 }
 
 void GetComponent()
 {
-  std::cout << "<= GetComponent =>" << std::endl;
   // We create some components, but before creating all components, we set some
   // data to ensure that data is copied when the tables grow.
   World::Table dynamic(Comp::Type<Dynamic>::smId);
@@ -129,9 +123,9 @@ void GetComponent()
     dynamic.Add(i);
     container.Add(i);
   }
-  std::cout << "-Dynamic-" << std::endl;
+  std::cout << "-Dynamic-\n";
   PrintTable<Dynamic>(dynamic);
-  std::cout << "-Container-" << std::endl;
+  std::cout << "-Container-\n";
   PrintTable<Container>(container);
 }
 
@@ -140,8 +134,8 @@ int main(void)
   EnableLeakOutput();
   RegisterComponentTypes();
 
-  Add();
-  Rem();
-  Duplicate();
-  GetComponent();
+  RunTest(Add);
+  RunTest(Rem);
+  RunTest(Duplicate);
+  RunTest(GetComponent);
 }

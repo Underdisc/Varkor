@@ -7,37 +7,33 @@
 #include "debug/MemLeak.h"
 #include "ds/RbTree.h"
 #include "test/ds/Print.h"
+#include "test/ds/Test.h"
 #include "test/ds/TestType.h"
 
 void LeftInsert()
 {
   // Every time a value is inserted, it will become the leftmost leaf node.
-  std::cout << "<= LeftInsert =>" << std::endl;
   Ds::RbTree<int> tree;
   for (int i = 20; i > 0; --i) {
     tree.Insert(i);
   }
   PrintRbTree(tree);
-  std::cout << std::endl;
 }
 
 void RightInsert()
 {
   // Every time a value is inserted, it will become the rightmost leaf node.
-  std::cout << "<= RightInsert =>" << std::endl;
   Ds::RbTree<int> tree;
   for (int i = 0; i < 20; ++i) {
     tree.Insert(i);
   }
   PrintRbTree(tree);
-  std::cout << std::endl;
 }
 
 void ExplicitInsert()
 {
   // The insertions for this tree make use of every possible type of
   // transforation used when balancing the tree.
-  std::cout << "<= ExplicitInsert =>" << std::endl;
   int sequence[] = {18, 5,  10, 15, 16, 9,  6,  4,  2, 19, 20, 21,
                     22, 23, 24, 25, 26, 27, 28, 29, 1, 3,  0};
   int sequenceSize = sizeof(sequence) / sizeof(int);
@@ -46,12 +42,10 @@ void ExplicitInsert()
     tree.Insert(sequence[i]);
   }
   PrintRbTree(tree);
-  std::cout << std::endl;
 }
 
 void MoveInsert()
 {
-  std::cout << "<= MoveInsert =>" << std::endl;
   int sequence[] = {10, 5, 6, 11, 1, 9, 2};
   int sequenceSize = sizeof(sequence) / sizeof(int);
   Ds::RbTree<TestType> tree;
@@ -60,16 +54,11 @@ void MoveInsert()
     tree.Insert(std::move(newValue));
   }
   PrintRbTree(tree);
-  std::cout << "ConstructorCount: " << TestType::smConstructorCount << std::endl
-            << "MoveConstructorCount: " << TestType::smMoveConstructorCount
-            << std::endl
-            << std::endl;
-  TestType::ResetCounts();
+  TestType::PrintCounts();
 }
 
 void Emplace()
 {
-  std::cout << "<= Emplace =>" << std::endl;
   int sequence[] = {0, 9, 1, 8, 2, 7, 3, 6, 4, 5};
   int sequenceSize = sizeof(sequence) / sizeof(int);
   Ds::RbTree<TestType> tree;
@@ -77,52 +66,49 @@ void Emplace()
     tree.Emplace(sequence[i], (float)sequence[i]);
   }
   PrintRbTree(tree);
-  std::cout << "ConstructorCount: " << TestType::smConstructorCount << std::endl
-            << std::endl;
-  TestType::ResetCounts();
+  TestType::PrintCounts();
 }
 
 void BasicRemove()
 {
-  std::cout << "<= BasicRemove =>" << std::endl;
   // This tests the basic cases for removal such as deleting the head or
   // removing dangling red nodes.
   Ds::RbTree<int> tree;
   tree.Insert(5);
   tree.Remove(5);
   PrintRbTree(tree);
-  std::cout << "--- 0 ---" << std::endl;
+  std::cout << "--- 0 ---\n";
   tree.Insert(5);
   tree.Insert(3);
   tree.Remove(3);
   PrintRbTree(tree);
-  std::cout << "--- 1 ---" << std::endl;
+  std::cout << "--- 1 ---\n";
   tree.Insert(7);
   tree.Remove(7);
   PrintRbTree(tree);
-  std::cout << "--- 2 ---" << std::endl;
+  std::cout << "--- 2 ---\n";
   tree.Insert(7);
   tree.Remove(5);
   PrintRbTree(tree);
-  std::cout << "--- 3 ---" << std::endl;
+  std::cout << "--- 3 ---\n";
   tree.Insert(5);
   tree.Remove(7);
   PrintRbTree(tree);
-  std::cout << "--- 4 ---" << std::endl;
+  std::cout << "--- 4 ---\n";
   tree.Insert(3);
   tree.Insert(7);
   tree.Remove(5);
   PrintRbTree(tree);
-  std::cout << "--- 5 ---" << std::endl;
+  std::cout << "--- 5 ---\n";
   tree.Insert(5);
   tree.Insert(4);
   tree.Remove(5);
   PrintRbTree(tree);
-  std::cout << "--- 6 ---" << std::endl;
+  std::cout << "--- 6 ---\n";
   tree.Insert(2);
   tree.Remove(4);
   PrintRbTree(tree);
-  std::cout << "--- 7 ---" << std::endl;
+  std::cout << "--- 7 ---\n";
   tree.Insert(10);
   tree.Insert(5);
   tree.Insert(6);
@@ -131,21 +117,19 @@ void BasicRemove()
   tree.Insert(20);
   tree.Remove(10);
   PrintRbTree(tree);
-  std::cout << "--- 8 ---" << std::endl;
-  std::cout << std::endl;
+  std::cout << "--- 8 ---\n";
 }
 
 void Iterator()
 {
-  std::cout << "<= Iterator =>" << std::endl;
   // Attempt to create an iterator for an empty tree.
   Ds::RbTree<int> tree;
   if (tree.cbegin() == tree.cend()) {
-    std::cout << "Empty Tree" << std::endl;
+    std::cout << "Empty Tree\n";
   }
 
   // Insert random values into the tree.
-  std::cout << "--- 0 ---" << std::endl;
+  std::cout << "--- 0 ---\n";
   constexpr int insertions = 20;
   int keys[insertions] = {71, 99, 72, 94, 97, 96, 22, 12, 26, 74,
                           41, 23, 4,  83, 62, 81, 29, 50, 59, 60};
@@ -155,7 +139,7 @@ void Iterator()
   PrintRbTree(tree);
 
   // Iterate over the values in the tree.
-  std::cout << "--- 1 ---" << std::endl;
+  std::cout << "--- 1 ---\n";
   auto cIt = tree.cbegin();
   auto cItE = tree.cend();
   std::cout << *cIt;
@@ -164,12 +148,11 @@ void Iterator()
     std::cout << ", " << *cIt;
     ++cIt;
   }
-  std::cout << std::endl << std::endl;
+  std::cout << '\n';
 }
 
 void ExtensiveModification()
 {
-  std::cout << "<= ExtensiveModification =>" << std::endl;
   Ds::RbTree<int> tree;
   constexpr int valueArrays = 11;
   constexpr int exchangeCount = 20;
@@ -227,7 +210,7 @@ void ExtensiveModification()
     insertValues(values[i + 1]);
     removeValues(values[i]);
     PrintRbTree(tree);
-    std::cout << "--- " << i << " ---" << std::endl;
+    std::cout << "--- " << i << " ---\n";
   }
   // Remove the remaining values.
   removeValues(values[10]);
@@ -237,12 +220,12 @@ void ExtensiveModification()
 int main()
 {
   EnableLeakOutput();
-  LeftInsert();
-  RightInsert();
-  ExplicitInsert();
-  MoveInsert();
-  Emplace();
-  BasicRemove();
-  Iterator();
-  ExtensiveModification();
+  RunDsTest(LeftInsert);
+  RunDsTest(RightInsert);
+  RunDsTest(ExplicitInsert);
+  RunDsTest(MoveInsert);
+  RunDsTest(Emplace);
+  RunDsTest(BasicRemove);
+  RunDsTest(Iterator);
+  RunDsTest(ExtensiveModification);
 }

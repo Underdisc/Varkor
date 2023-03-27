@@ -2,6 +2,7 @@
 
 #include "comp/Type.h"
 #include "debug/MemLeak.h"
+#include "test/Test.h"
 #include "test/world/Print.h"
 #include "test/world/TestTypes.h"
 #include "world/Space.h"
@@ -9,7 +10,6 @@
 
 void Registration()
 {
-  std::cout << "<= Registration =>\n";
   PrintRegistration<CallCounter>();
   PrintRegistration<Simple0>();
   PrintRegistration<Simple1>();
@@ -20,7 +20,6 @@ void Registration()
 
 void CreateMember()
 {
-  std::cout << "<= CreateMember =>" << std::endl;
   World::Space space;
   for (size_t i = 0; i < 20; ++i) {
     space.CreateMember();
@@ -30,7 +29,6 @@ void CreateMember()
 
 void DeleteMember()
 {
-  std::cout << "<= DeleteMember =>" << std::endl;
   World::Space space;
   World::MemberId memberIds[10];
   for (size_t i = 0; i < 10; ++i) {
@@ -46,7 +44,6 @@ void DeleteMember()
 
 void ParentChildMembers()
 {
-  std::cout << "<= ParentChildMembers =>" << std::endl;
   World::Space space;
   World::MemberId memberIds[10];
   for (size_t i = 0; i < 10; ++i) {
@@ -89,7 +86,6 @@ void ParentChildMembers()
 
 void AddComponent()
 {
-  std::cout << "<= AddComponent =>" << std::endl;
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Simple0>(mem0);
@@ -116,7 +112,6 @@ void AddComponent()
 
 void RemComponent()
 {
-  std::cout << "<= RemComponent =>" << std::endl;
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Simple0>(mem0);
@@ -157,7 +152,6 @@ void RemComponent()
 
 void DeleteMembersWithComponents()
 {
-  std::cout << "<= DeleteMembersWithComponents =>" << std::endl;
   World::Space space;
   World::MemberId memberIds[8];
   for (size_t i = 0; i < 8; ++i) {
@@ -173,7 +167,7 @@ void DeleteMembersWithComponents()
       space.AddComponent<Container>(memberIds[i]);
     }
   }
-  std::cout << "Members and Components Created" << std::endl;
+  std::cout << "Members and Components Created\n";
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
   PrintSpaceUnusedMemberIds(space);
@@ -184,7 +178,7 @@ void DeleteMembersWithComponents()
   space.DeleteMember(memberIds[4]);
   space.DeleteMember(memberIds[6]);
   space.DeleteMember(memberIds[7]);
-  std::cout << "-----" << std::endl << "Members Removed" << std::endl;
+  std::cout << "-----\nMembers Removed\n";
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
   PrintSpaceUnusedMemberIds(space);
@@ -197,8 +191,7 @@ void DeleteMembersWithComponents()
   newMemberId = space.CreateMember();
   space.AddComponent<Container>(newMemberId);
   space.AddComponent<Simple1>(newMemberId);
-  std::cout << "-----" << std::endl
-            << "New Members and Components" << std::endl;
+  std::cout << "-----\nNew Members and Components\n";
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
   PrintSpaceUnusedMemberIds(space);
@@ -207,7 +200,6 @@ void DeleteMembersWithComponents()
 
 void GetComponent()
 {
-  std::cout << "<= GetComponent =>" << std::endl;
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Simple0>(mem0);
@@ -240,7 +232,6 @@ void GetComponent()
 
 void HasComponent()
 {
-  std::cout << "<= HasComponent =>" << std::endl;
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Simple1>(mem0);
@@ -265,7 +256,6 @@ void HasComponent()
 
 void Duplicate()
 {
-  std::cout << "<= Duplicate =>" << std::endl;
   World::Space space;
 
   // A lone member.
@@ -306,7 +296,6 @@ void Duplicate()
 
 void Dependencies()
 {
-  std::cout << "<= Dependencies =>\n";
   World::Space space;
 
   World::MemberId mem0 = space.CreateMember();
@@ -333,7 +322,6 @@ void Dependencies()
 
 void Slice()
 {
-  std::cout << "<= Slice =>\n";
   World::Space space;
   for (int i = 0; i < 20; ++i) {
     World::MemberId memberId = space.CreateMember();
@@ -364,17 +352,6 @@ void Slice()
   Ds::Vector<World::MemberId> dynamicSlice = space.Slice<Dynamic>();
   std::cout << "Dynamic:";
   printMemberVector(dynamicSlice);
-}
-
-void RunTest(void (*test)())
-{
-  static bool firstTest = true;
-  if (!firstTest) {
-    std::cout << '\n';
-    CallCounter::Reset();
-  }
-  test();
-  firstTest = false;
 }
 
 int main(void)

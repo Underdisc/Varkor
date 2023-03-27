@@ -1,23 +1,24 @@
-Assignment
+<= Assignment =>
 a: 1+2i
 b: 1+2i
 
-Addition
+<= Addition =>
 a: 1+2i
 b: 2+4i
 c: 2+4i
 
-Subtraction
+<= Subtraction =>
 a: 1+2i
 b: 1+3i
 c: -1-3i
 
-Multiplication
+<= Multiplication =>
 a: 3+6i
 b: -8+9i
 c: -8+9i
 d: 3+6i
 
+<= PolarComplex =>
 a: 2+0i
 b: -1.31134e-07+3i
 c: -1-8.74228e-08i

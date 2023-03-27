@@ -5,11 +5,11 @@
 #include "debug/MemLeak.h"
 #include "ds/List.h"
 #include "test/ds/Print.h"
+#include "test/ds/Test.h"
 #include "test/ds/TestType.h"
 
 void Push()
 {
-  std::cout << "<= Push =>\n";
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     TestType testType(i);
@@ -24,7 +24,6 @@ void Push()
 
 void Pop()
 {
-  std::cout << "<= Pop =>\n";
   Ds::List<TestType> list;
   for (int i = 0; i < 20; ++i) {
     list.PushBack(TestType(i));
@@ -48,7 +47,6 @@ void Pop()
 
 void Iter()
 {
-  std::cout << "<= Iter =>\n";
   Ds::List<TestType> list;
   for (int i = 0; i < 5; ++i) {
     list.EmplaceFront(i);
@@ -84,7 +82,6 @@ void Iter()
 
 void EmplaceBackFront()
 {
-  std::cout << "<= EmplaceBackFront =>\n";
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(i);
@@ -97,7 +94,6 @@ void EmplaceBackFront()
 
 void MovePush()
 {
-  std::cout << "<= MovePush =>\n";
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     TestType testType(i);
@@ -111,7 +107,6 @@ void MovePush()
 
 void Insert()
 {
-  std::cout << "<= Insert =>\n";
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(i);
@@ -134,7 +129,6 @@ void Insert()
 
 void Emplace()
 {
-  std::cout << "<= Emplace =>\n";
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(TestType(i));
@@ -154,7 +148,6 @@ void Emplace()
 
 void Erase()
 {
-  std::cout << "<= Erase =>\n";
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(i);
@@ -187,22 +180,15 @@ void Erase()
   TestType::PrintCounts();
 }
 
-void RunTest(void (*testFunction)())
-{
-  TestType::ResetCounts();
-  testFunction();
-  std::cout << "\n";
-}
-
 int main()
 {
   EnableLeakOutput();
-  RunTest(Push);
-  RunTest(Pop);
-  RunTest(Iter);
-  RunTest(EmplaceBackFront);
-  RunTest(MovePush);
-  RunTest(Insert);
-  RunTest(Emplace);
-  RunTest(Erase);
+  RunDsTest(Push);
+  RunDsTest(Pop);
+  RunDsTest(Iter);
+  RunDsTest(EmplaceBackFront);
+  RunDsTest(MovePush);
+  RunDsTest(Insert);
+  RunDsTest(Emplace);
+  RunDsTest(Erase);
 }

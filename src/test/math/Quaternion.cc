@@ -4,23 +4,22 @@
 #include "math/Constants.h"
 #include "math/Print.h"
 #include "math/Quaternion.h"
+#include "test/Test.h"
 
 void AngleAxis()
 {
-  std::cout << "<= AngleAxis =>" << std::endl;
   float angle = Math::nPiO2;
   Vec3 axis = {1.0f, 1.0f, 1.0f};
   axis = Math::Normalize(axis);
   Quat quat;
   quat.AngleAxis(angle, axis);
-  std::cout << "angle: " << angle << std::endl;
-  std::cout << "axis: " << axis << std::endl;
-  std::cout << "quaternion: " << quat << std::endl << std::endl;
+  std::cout << "angle: " << angle << '\n';
+  std::cout << "axis: " << axis << '\n';
+  std::cout << "quaternion: " << quat << '\n';
 }
 
 void FromTo()
 {
-  std::cout << "<= FromTo =>" << std::endl;
   Vec3 v[4];
   Math::Quaternion q[3];
   v[0] = {1.0f, 0.0f, 0.0f};
@@ -30,17 +29,16 @@ void FromTo()
   q[0].FromTo(v[0], v[1]);
   q[1].FromTo(v[1], v[2]);
   q[2].FromTo(v[0], v[3]);
-  std::cout << q[0] << std::endl;
-  std::cout << q[0].Rotate(v[0]) << std::endl;
-  std::cout << q[1] << std::endl;
-  std::cout << q[1].Rotate(v[1]) << std::endl;
-  std::cout << q[2] << std::endl;
-  std::cout << q[2].Rotate(v[0]) << std::endl << std::endl;
+  std::cout << q[0] << '\n';
+  std::cout << q[0].Rotate(v[0]) << '\n';
+  std::cout << q[1] << '\n';
+  std::cout << q[1].Rotate(v[1]) << '\n';
+  std::cout << q[2] << '\n';
+  std::cout << q[2].Rotate(v[0]) << '\n';
 }
 
 void BasisVectors()
 {
-  std::cout << "<= BasisVectors =>\n";
   auto testBasis = [](Vec3 xAxis, Vec3 up)
   {
     xAxis = Math::Normalize(xAxis);
@@ -64,12 +62,10 @@ void BasisVectors()
   testBasis({-1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f});
   testBasis({1.0f, -1.0f, -1.0f}, {0.0f, 1.0f, 0.0f});
   testBasis({1.0f, -1.0f, -1.0f}, {0.0f, -1.0f, 0.0f});
-  std::cout << '\n';
 }
 
 void Interpolate()
 {
-  std::cout << "<= Interpolate =>\n";
   std::cout << "-NegativeZAxis-\n";
   Math::Quaternion q;
   q.AngleAxis(Math::nPi, {0.0f, 0.0f, -1.0f});
@@ -83,64 +79,60 @@ void Interpolate()
   std::cout << q.Interpolate(0.5f) << '\n';
   std::cout << q.Interpolate(0.75f) << '\n';
   std::cout << q.Interpolate(1.0f) << '\n';
-  std::cout << q << "\n\n";
+  std::cout << q << "\n";
 }
 
 void Conjugate()
 {
-  std::cout << "<= Conjugate =>" << std::endl;
   Quat quat = {1.0f, 2.0f, 3.0f, 4.0f};
   Quat conj = quat.Conjugate();
-  std::cout << "quaternion: " << quat << std::endl;
-  std::cout << "conjugate: " << conj << std::endl << std::endl;
+  std::cout << "quaternion: " << quat << '\n';
+  std::cout << "conjugate: " << conj << '\n';
 }
 
 void Multiplication()
 {
-  std::cout << "<= Multiplicaton =>" << std::endl;
   Quat quat1 = {1.0f, 2.0f, 3.0f, 4.0f};
   Quat quat2 = {4.0f, 3.0f, 2.0f, 1.0f};
   Quat result = quat1 * quat2;
-  std::cout << "quaternion 1: " << quat1 << std::endl;
-  std::cout << "quaternion 2: " << quat1 << std::endl;
-  std::cout << "result: " << result << std::endl << std::endl;
+  std::cout << "quaternion 1: " << quat1 << '\n';
+  std::cout << "quaternion 2: " << quat1 << '\n';
+  std::cout << "result: " << result << '\n';
 }
 
 void EulerAngles()
 {
-  std::cout << "<= EulerAngles =>" << std::endl;
   Quat q;
   q.AngleAxis(Math::nPi / 2.0f, {1.0f, 0.0f, 0.0f});
   Vec3 eulerAngles = q.EulerAngles();
-  std::cout << eulerAngles << std::endl;
+  std::cout << eulerAngles << '\n';
   q.AngleAxis(Math::nPi / 2.0f, {0.0f, 1.0f, 0.0f});
   eulerAngles = q.EulerAngles();
-  std::cout << eulerAngles << std::endl;
+  std::cout << eulerAngles << '\n';
   q.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
   eulerAngles = q.EulerAngles();
-  std::cout << eulerAngles << std::endl << std::endl;
+  std::cout << eulerAngles << '\n';
 }
 
 void Rotate()
 {
-  std::cout << "<= Rotate =>" << std::endl;
   Math::Quaternion a, b;
   a = {0.0f, 1.0f / sqrtf(2.0f), 0.0f, 1.0f / sqrtf(2.0f)};
   b.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
-  std::cout << a.Rotate({1.0f, 0.0f, 0.0f}) << std::endl;
-  std::cout << a.Rotate({-1.0f, 0.0f, -1.0f}) << std::endl;
-  std::cout << b.Rotate({1.0f, 0.0f, 0.0f}) << std::endl;
-  std::cout << b.Rotate({0.0f, 1.0f, 0.0f}) << std::endl;
+  std::cout << a.Rotate({1.0f, 0.0f, 0.0f}) << '\n';
+  std::cout << a.Rotate({-1.0f, 0.0f, -1.0f}) << '\n';
+  std::cout << b.Rotate({1.0f, 0.0f, 0.0f}) << '\n';
+  std::cout << b.Rotate({0.0f, 1.0f, 0.0f}) << '\n';
 }
 
 int main(void)
 {
-  AngleAxis();
-  FromTo();
-  BasisVectors();
-  Interpolate();
-  Conjugate();
-  Multiplication();
-  EulerAngles();
-  Rotate();
+  RunTest(AngleAxis);
+  RunTest(FromTo);
+  RunTest(BasisVectors);
+  RunTest(Interpolate);
+  RunTest(Conjugate);
+  RunTest(Multiplication);
+  RunTest(EulerAngles);
+  RunTest(Rotate);
 }

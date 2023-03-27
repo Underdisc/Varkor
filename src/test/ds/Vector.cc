@@ -5,11 +5,11 @@
 #include "debug/MemLeak.h"
 #include "ds/Vector.h"
 #include "test/ds/Print.h"
+#include "test/ds/Test.h"
 #include "test/ds/TestType.h"
 
 void CopyConstructor0()
 {
-  std::cout << "<= CopyConstructor0 =>\n";
   Ds::Vector<TestType> test;
   for (int i = 0; i < 15; ++i) {
     test.Emplace(15 - i);
@@ -26,7 +26,6 @@ void CopyConstructor1()
 {
   // This will ensure that copied vector elements are constructed and not merely
   // assigned to from the original vector.
-  std::cout << "<= CopyConstructor1 =>\n";
   Ds::Vector<std::string> test;
   for (int i = 0; i < 10; ++i) {
     std::string newElement;
@@ -42,7 +41,6 @@ void CopyConstructor1()
 
 void MoveConstructor()
 {
-  std::cout << "<= MoveConstructor =>\n";
   Ds::Vector<int> ogVector;
   for (int i = 0; i < 20; ++i) {
     ogVector.Push(i);
@@ -57,7 +55,6 @@ void MoveConstructor()
 
 void SinglePush()
 {
-  std::cout << "<= SinglePush =>\n";
   Ds::Vector<int> testVector;
   PrintVector(testVector);
   for (int i = 0; i < 5; ++i) {
@@ -72,7 +69,6 @@ void SinglePush()
 
 void MovePush()
 {
-  std::cout << "<= MovePush =>\n";
   // We create a vector of vectors and save the pointers to the data for each of
   // the inner vectors.
   Ds::Vector<Ds::Vector<int>> testVector;
@@ -104,7 +100,6 @@ void MovePush()
 
 void MultiplePush()
 {
-  std::cout << "<= MultiplePush =>\n";
   Ds::Vector<int> test;
   test.Push(0, 30);
   PrintVector(test);
@@ -114,7 +109,6 @@ void MultiplePush()
 
 void Emplace()
 {
-  std::cout << "<= Emplace =>\n";
   Ds::Vector<TestType> testVector;
   for (int i = 0; i < 15; ++i) {
     testVector.Emplace(i, (float)i);
@@ -125,7 +119,6 @@ void Emplace()
 void Insert0()
 {
   // Test insterting a new element at the end of the vector.
-  std::cout << "<= Insert0 =>\n";
   Ds::Vector<TestType> test;
   for (int i = 0; i < Ds::Vector<TestType>::smStartCapacity; ++i) {
     test.Emplace(i);
@@ -139,7 +132,6 @@ void Insert0()
 void Insert1()
 {
   // Test inserting new elments in the middle of the vector.
-  std::cout << "<= Insert1 =>\n";
   Ds::Vector<TestType> test;
   for (int i = 0; i < Ds::Vector<TestType>::smStartCapacity; ++i) {
     test.Emplace(i);
@@ -155,7 +147,6 @@ void Insert1()
 void Insert2()
 {
   // Insert strings to ensure appropriate construction and destruction.
-  std::cout << "<= Insert2 =>\n";
   Ds::Vector<std::string> test;
   test.Insert(0, "string 0");
   test.Insert(0, "string 1");
@@ -166,7 +157,6 @@ void Insert2()
 void Insert3()
 {
   // Test move insertion.
-  std::cout << "<= Insert3 =>\n";
   Ds::Vector<TestType> test;
   test.Reserve(10);
   for (int i = 0; i < 5; ++i) {
@@ -181,7 +171,6 @@ void Insert3()
 
 void Pop()
 {
-  std::cout << "<= Pop =>\n";
   Ds::Vector<TestType> testVector;
   for (int i = 0; i < 10; ++i) {
     testVector.Emplace(i, (float)i);
@@ -196,7 +185,6 @@ void Pop()
 
 void Clear()
 {
-  std::cout << "<= Clear =>\n";
   Ds::Vector<TestType> testVector;
   for (int i = 0; i < 5; ++i) {
     testVector.Emplace(i, (float)i);
@@ -209,7 +197,6 @@ void Clear()
 
 void Remove0()
 {
-  std::cout << "<= Remove0 =>\n";
   Ds::Vector<TestType> testVector;
   for (int i = 0; i < 10; ++i) {
     testVector.Emplace(i, (float)i);
@@ -228,7 +215,6 @@ void Remove0()
 
 void Remove1()
 {
-  std::cout << "<= Remove1 =>\n";
   Ds::Vector<std::string> test;
   for (int i = 0; i < 5; ++i) {
     std::string newElement;
@@ -243,7 +229,6 @@ void Remove1()
 
 void LazyRemove()
 {
-  std::cout << "<= LazyRemove =>\n";
   Ds::Vector<TestType> testVector;
   for (int i = 0; i < 10; ++i) {
     testVector.Emplace(i, (float)i);
@@ -262,7 +247,6 @@ void LazyRemove()
 
 void IndexOperator()
 {
-  std::cout << "<= IndexOperator =>\n";
   Ds::Vector<int> testVector;
   for (int i = 0; i < 20; ++i) {
     testVector.Push(i);
@@ -279,7 +263,6 @@ void IndexOperator()
 void CopyAssignment0()
 {
   // Test copying a vector to another vector with the same size.
-  std::cout << "<= CopyAssignment0 =>\n";
   Ds::Vector<TestType> test, copy;
   for (int i = 0; i < 5; ++i) {
     test.Emplace(i);
@@ -297,7 +280,6 @@ void CopyAssignment1()
 {
   // Test the case where the size of the vector being copied to is larger than
   // the size of the vector being copied from.
-  std::cout << "<= CopyAssignment1 =>\n";
   Ds::Vector<TestType> test, copy;
   for (int i = 0; i < 5; ++i) {
     test.Emplace(i);
@@ -318,7 +300,6 @@ void CopyAssignment2()
   // Test the case where the vector being copied to has a smaller size than the
   // vector being copied from and the capacity of the vector being copied to is
   // greater than or equal to the size of the vector being copied from.
-  std::cout << "<= CopyAssignment2 =>\n";
   Ds::Vector<TestType> test, copy;
   for (int i = 0; i < 7; ++i) {
     test.Emplace(i);
@@ -338,7 +319,6 @@ void CopyAssignment3()
 {
   // Test the case where the vector being copied to has a capacity smaller than
   // the size of the vector being copied from.
-  std::cout << "<= CopyAssignment3 =>\n";
   Ds::Vector<TestType> test, copy;
   for (int i = 0; i < 15; ++i) {
     test.Emplace(i);
@@ -354,7 +334,6 @@ void CopyAssignment3()
 
 void MoveAssignment()
 {
-  std::cout << "<= MoveAssignment =>\n";
   // We push values into the vector being moved from and the vector being moved
   // to to ensure that the data in the vector being moved to is deallocated.
   Ds::Vector<int> ogVector;
@@ -375,7 +354,6 @@ void MoveAssignment()
 
 void Find()
 {
-  std::cout << "<= Find =>\n";
   Ds::Vector<int> test;
   for (int i = 0; i < 20; ++i) {
     if (i % 2 == 0) {
@@ -389,7 +367,6 @@ void Find()
 
 void Contains()
 {
-  std::cout << "<= Contains =>\n";
   Ds::Vector<int> testVector;
   for (int i = 0; i < 20; ++i) {
     testVector.Push(i);
@@ -401,7 +378,6 @@ void Contains()
 void Resize0()
 {
   // Test the case where the new size is smaller than the current size;
-  std::cout << "<= Resize0 =>\n";
   Ds::Vector<TestType> test;
   for (int i = 0; i < 10; ++i) {
     test.Emplace(i);
@@ -414,7 +390,6 @@ void Resize0()
 void Resize1()
 {
   // Test the case where the new size is larger than the current capacity.
-  std::cout << "<= Resize1 =>\n";
   Ds::Vector<TestType> test;
   for (int i = 0; i < 10; ++i) {
     test.Emplace(i);
@@ -427,7 +402,6 @@ void Resize1()
 void Resize2()
 {
   // Ensure correct construction and destruction usage with std::string.
-  std::cout << "<= Resize2 =>\n";
   Ds::Vector<std::string> test;
   for (int i = 0; i < 10; ++i) {
     std::string newElement;
@@ -441,7 +415,6 @@ void Resize2()
 
 void Reserve()
 {
-  std::cout << "<= Reserve =>\n";
   // We first test the case where we give an empty vector some capacity and then
   // we make sure reserving a smaller capacity doesn't change the capacity of
   // the vector.
@@ -465,7 +438,6 @@ void Shrink0()
 {
   // We perform two consecutive shrinks. The first makes the capacity and size
   // equal. Since capacity and size are equal, the second does nothing.
-  std::cout << "<= Shrink0 =>\n";
   Ds::Vector<TestType> test;
   for (int i = 0; i < 5; ++i) {
     test.Emplace(i);
@@ -479,7 +451,6 @@ void Shrink1()
 {
   // This will crash or cause memory leaks without the proper use of
   // constructors and destructors.
-  std::cout << "<= Shrink1 =>\n";
   Ds::Vector<std::string> test;
   for (int i = 0; i < 5; ++i) {
     std::string newString;
@@ -492,7 +463,6 @@ void Shrink1()
 
 void CData()
 {
-  std::cout << "<= CData =>\n";
   Ds::Vector<int> test;
   for (int i = 0; i < 5; ++i) {
     test.Push(i);
@@ -507,7 +477,6 @@ void CData()
 
 void Top()
 {
-  std::cout << "<= Top =>\n";
   Ds::Vector<int> test;
   for (int i = 0; i < 10; ++i) {
     test.Push(i * 2);
@@ -524,7 +493,6 @@ void Top()
 
 void InnerVector()
 {
-  std::cout << "<= InnerVector =>\n";
   Ds::Vector<Ds::Vector<TestType>> testVector;
 
   for (int i = 0; i < 5; ++i) {
@@ -543,7 +511,6 @@ void InnerVector()
 
 void BigInnerVector()
 {
-  std::cout << "<= BigInnerVector =>\n";
   // We create one vector that will contain 100 Vectors and each of those will
   // have 100 TestType values. Besides being a minor stress test, this also
   // ensures that the outer vector grows without crashing or losing any of the
@@ -569,7 +536,6 @@ void BigInnerVector()
 
 void ConstructionDestructionCounts()
 {
-  std::cout << "<= ConstructionDestructionCounts =>\n";
   // We reset the counts on TestType and perform a good chunk of vector
   // operations to see how many times constructors and destructors are called.
   Ds::Vector<Ds::Vector<TestType>> testVector;
@@ -588,62 +554,48 @@ void ConstructionDestructionCounts()
 void Empty()
 {
   // Copy an empty vector and make sure both vectors are empty.
-  std::cout << "<= Empty =>\n";
   Ds::Vector<TestType> empty;
   Ds::Vector<TestType> notEmpty(empty);
   std::cout << "Empty: " << (empty.Empty() && notEmpty.Empty()) << '\n';
 }
 
-void RunTest(void (*test)())
-{
-  static bool firstTest = true;
-  if (firstTest) {
-    firstTest = false;
-  }
-  else {
-    std::cout << '\n';
-  }
-  TestType::ResetCounts();
-  test();
-}
-
 int main(void)
 {
   EnableLeakOutput();
-  RunTest(CopyConstructor0);
-  RunTest(CopyConstructor1);
-  RunTest(MoveConstructor);
-  RunTest(SinglePush);
-  RunTest(MovePush);
-  RunTest(MultiplePush);
-  RunTest(Emplace);
-  RunTest(Insert0);
-  RunTest(Insert1);
-  RunTest(Insert2);
-  RunTest(Insert3);
-  RunTest(Pop);
-  RunTest(Clear);
-  RunTest(Remove0);
-  RunTest(Remove1);
-  RunTest(LazyRemove);
-  RunTest(IndexOperator);
-  RunTest(CopyAssignment0);
-  RunTest(CopyAssignment1);
-  RunTest(CopyAssignment2);
-  RunTest(CopyAssignment3);
-  RunTest(MoveAssignment);
-  RunTest(Find);
-  RunTest(Contains);
-  RunTest(Resize0);
-  RunTest(Resize1);
-  RunTest(Resize2);
-  RunTest(Reserve);
-  RunTest(Shrink0);
-  RunTest(Shrink1);
-  RunTest(CData);
-  RunTest(Top);
-  RunTest(InnerVector);
-  RunTest(BigInnerVector);
-  RunTest(ConstructionDestructionCounts);
-  RunTest(Empty);
+  RunDsTest(CopyConstructor0);
+  RunDsTest(CopyConstructor1);
+  RunDsTest(MoveConstructor);
+  RunDsTest(SinglePush);
+  RunDsTest(MovePush);
+  RunDsTest(MultiplePush);
+  RunDsTest(Emplace);
+  RunDsTest(Insert0);
+  RunDsTest(Insert1);
+  RunDsTest(Insert2);
+  RunDsTest(Insert3);
+  RunDsTest(Pop);
+  RunDsTest(Clear);
+  RunDsTest(Remove0);
+  RunDsTest(Remove1);
+  RunDsTest(LazyRemove);
+  RunDsTest(IndexOperator);
+  RunDsTest(CopyAssignment0);
+  RunDsTest(CopyAssignment1);
+  RunDsTest(CopyAssignment2);
+  RunDsTest(CopyAssignment3);
+  RunDsTest(MoveAssignment);
+  RunDsTest(Find);
+  RunDsTest(Contains);
+  RunDsTest(Resize0);
+  RunDsTest(Resize1);
+  RunDsTest(Resize2);
+  RunDsTest(Reserve);
+  RunDsTest(Shrink0);
+  RunDsTest(Shrink1);
+  RunDsTest(CData);
+  RunDsTest(Top);
+  RunDsTest(InnerVector);
+  RunDsTest(BigInnerVector);
+  RunDsTest(ConstructionDestructionCounts);
+  RunDsTest(Empty);
 }

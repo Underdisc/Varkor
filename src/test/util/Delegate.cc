@@ -1,15 +1,16 @@
 #include <iostream>
 
+#include "test/Test.h"
 #include "util/Delegate.h"
 
 void Basic()
 {
-  std::cout << "Basic" << std::endl;
+  std::cout << "Basic\n";
 }
 
 void Args(int i, float f)
 {
-  std::cout << "Args " << i << " " << f << std::endl;
+  std::cout << "Args " << i << " " << f << '\n';
 }
 
 int ReturnAndArgs(int i, float f)
@@ -20,7 +21,6 @@ int ReturnAndArgs(int i, float f)
 
 void FreeFunction()
 {
-  std::cout << "<= FreeFunction =>" << std::endl;
   Util::Delegate<void> basic;
   basic.Bind<Basic>();
   basic.Invoke();
@@ -32,15 +32,13 @@ void FreeFunction()
   Util::Delegate<int, int, float> returnAndArgs;
   returnAndArgs.Bind<ReturnAndArgs>();
   int returnValue = returnAndArgs.Invoke(1, 2);
-  std::cout << " " << returnValue << std::endl
+  std::cout << " " << returnValue << '\n'
             << "Open: " << basic.Open() << args.Open() << returnAndArgs.Open()
-            << std::endl
-            << std::endl;
+            << '\n';
 }
 
 void MemberFunction()
 {
-  std::cout << "<= MemberFunction =>" << std::endl;
   struct Object
   {
     int mValue;
@@ -48,12 +46,12 @@ void MemberFunction()
     void Basic()
     {
       ++mValue;
-      std::cout << mValue << " Basic" << std::endl;
+      std::cout << mValue << " Basic\n";
     }
     void Args(int i, float f)
     {
       ++mValue;
-      std::cout << mValue << " Args " << i << " " << f << std::endl;
+      std::cout << mValue << " Args " << i << " " << f << '\n';
     }
     int ReturnAndArgs(int i, float f)
     {
@@ -74,23 +72,21 @@ void MemberFunction()
   Util::Delegate<int, int, float> returnAndArgs;
   returnAndArgs.Bind<Object, &Object::ReturnAndArgs>();
   int returnValue = returnAndArgs.Invoke((void*)&object, 1, 2);
-  std::cout << " " << returnValue << std::endl
+  std::cout << " " << returnValue << '\n'
             << "Open: " << basic.Open() << args.Open() << returnAndArgs.Open()
-            << std::endl
-            << std::endl;
+            << '\n';
 }
 
 void NullFunction()
 {
-  std::cout << "<= NullFunction =>" << std::endl;
   Util::Delegate<void> test;
   test.BindNull();
-  std::cout << "Open: " << test.Open() << std::endl << std::endl;
+  std::cout << "Open: " << test.Open() << '\n';
 }
 
 int main(void)
 {
-  FreeFunction();
-  MemberFunction();
-  NullFunction();
+  RunTest(FreeFunction);
+  RunTest(MemberFunction);
+  RunTest(NullFunction);
 }
