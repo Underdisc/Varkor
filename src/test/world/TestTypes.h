@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "Registrar.h"
+#include "world/Registrar.h"
 #include "comp/Type.h"
 #include "ds/Vector.h"
 #include "test/ds/Print.h"
