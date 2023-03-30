@@ -19,6 +19,7 @@
 #include "comp/Skybox.h"
 #include "comp/ShadowMap.h"
 #include "comp/Model.h"
+#include "comp/CameraOrbiter.h"
 // clang-format on
 
 namespace Registrar {
@@ -65,6 +66,8 @@ void RegisterTypes()
   RegisterDependencies(ShadowMap, Camera);
   RegisterComponent(Model);
   RegisterDependencies(Model, Transform);
+  RegisterComponent(CameraOrbiter);
+  RegisterDependencies(CameraOrbiter, Camera);
 }
 
 template<>

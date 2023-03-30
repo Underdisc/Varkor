@@ -1,6 +1,7 @@
 target_sources(varkor PRIVATE
   AlphaColor.cc
   Camera.cc
+  CameraOrbiter.cc
   DirectionalLight.cc
   Mesh.cc
   Model.cc
