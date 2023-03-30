@@ -11,7 +11,7 @@ struct CameraOrbiter
   Vec3 mPosition;
   float mDistance;
   float mHeight;
-  float mRate;
+  float mPeriod;
 
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& val);

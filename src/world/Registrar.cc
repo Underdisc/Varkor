@@ -123,6 +123,18 @@ void Progression<2>(Vlk::Value& componentsVal)
   transformVal("Rotation") = rotation;
 }
 
+template<>
+void Progression<3>(Vlk::Value& componentsVal)
+{
+  Vlk::Value* cameraOrbiterVal = componentsVal.TryGetPair("CameraOrbiter");
+  if (cameraOrbiterVal == nullptr) {
+    return;
+  }
+
+  float rate = (*cameraOrbiterVal)("Rate").As<float>(0.2f);
+  (*cameraOrbiterVal)("Period") = 1 / rate;
+}
+
 void Init()
 {
   RegisterTypes();
