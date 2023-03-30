@@ -86,12 +86,14 @@ VResult<LayerIt> LoadLayer(const char* filename)
   Vlk::Value& spaceVal = rootVal("Space");
   int progression =
     metadataEx("Progression").As<int>(Registrar::nInvalidProgression);
-  Registrar::ProgressComponents(spaceVal, progression);
-  std::string logString = "Progressed \"";
-  logString += filename;
-  logString += "\" from progression " + std::to_string(progression) + " to " +
-    std::to_string(Registrar::nCurrentProgression);
-  Log::String(logString);
+  if (progression < Registrar::nCurrentProgression) {
+    Registrar::ProgressComponents(spaceVal, progression);
+    std::string logString = "Progressed \"";
+    logString += filename;
+    logString += "\" from progression " + std::to_string(progression) + " to " +
+      std::to_string(Registrar::nCurrentProgression);
+    Log::String(logString);
+  }
 
   Vlk::Explorer spaceEx(spaceVal);
   result = newLayer.mSpace.Deserialize(spaceEx);
