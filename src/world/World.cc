@@ -1,6 +1,7 @@
 #include <sstream>
 #include <utility>
 
+#include "Log.h"
 #include "gfx/Renderer.h"
 #include "vlk/Valkor.h"
 #include "world/Registrar.h"
@@ -86,6 +87,11 @@ VResult<LayerIt> LoadLayer(const char* filename)
   int progression =
     metadataEx("Progression").As<int>(Registrar::nInvalidProgression);
   Registrar::ProgressComponents(spaceVal, progression);
+  std::string logString = "Progressed \"";
+  logString += filename;
+  logString += "\" from progression " + std::to_string(progression) + " to " +
+    std::to_string(Registrar::nCurrentProgression);
+  Log::String(logString);
 
   Vlk::Explorer spaceEx(spaceVal);
   result = newLayer.mSpace.Deserialize(spaceEx);
