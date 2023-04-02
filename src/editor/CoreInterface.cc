@@ -1,6 +1,7 @@
 #include <imgui/imgui.h>
 
 #include "Options.h"
+#include "editor/Camera.h"
 #include "editor/CoreInterface.h"
 #include "editor/Editor.h"
 #include "editor/FileInterface.h"
@@ -142,6 +143,7 @@ void CoreInterface::ViewMenu()
     InterfaceMenuItem<LogInterface>("Log");
     InterfaceMenuItem<FramerInterface>("Framer");
     InterfaceMenuItem<LibraryInterface>("Library");
+    InterfaceMenuItem<CameraInterface>("Camera");
     InterfaceMenuItem<TempInterface>("Temp");
     ImGui::MenuItem("Demo", NULL, &mShowImGuiDemo);
     ImGui::EndMenu();

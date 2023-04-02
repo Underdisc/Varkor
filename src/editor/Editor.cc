@@ -20,7 +20,6 @@ bool nSuppressObjectPicking = false;
 bool nEditorMode = true;
 bool nHideInterface = false;
 World::Space nSpace;
-Camera nCamera;
 
 void SetStyle()
 {
