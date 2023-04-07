@@ -65,6 +65,7 @@ class OptionCache {
     while (a < args.length) {
       if (args[a] == '--') {
         a += 1;
+        this.options.saved.targetArgs = [];
         break;
       }
 
@@ -97,11 +98,6 @@ class OptionCache {
       if (s == this.switches.length) {
         throw 'Invalid arg \'' + args[a] + '\' used.';
       }
-    }
-
-    let undefined = typeof this.options.saved.targetArgs == 'undefined';
-    if (undefined || a < args.length) {
-      this.options.saved.targetArgs = [];
     }
     for (; a < args.length; ++a) {
       this.options.saved.targetArgs.push(args[a]);
