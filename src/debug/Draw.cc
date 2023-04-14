@@ -22,6 +22,15 @@ struct Renderable
 };
 Ds::Vector<Renderable> nRenderables;
 
+struct LineData
+{
+  Vec3 mStart;
+  Vec3 mStartColor;
+  Vec3 mEnd;
+  Vec3 mEndColor;
+};
+Ds::Vector<LineData> nLines;
+
 const char* nDebugDrawAssetName = "vres/debugDraw";
 const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Line");
 const ResId nTbnShaderId(nDebugDrawAssetName, "Tbn");
@@ -51,21 +60,12 @@ void Point(const Vec3& point, const Vec3& color)
 
 void Line(const Vec3& a, const Vec3& b, const Vec3& color)
 {
-  unsigned int vao, vbo;
-  glGenVertexArrays(1, &vao);
-  glGenBuffers(1, &vbo);
+  nLines.Push({a, color, b, color});
+}
 
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  Vec3 vertexBuffer[2] = {a, b};
-  glBufferData(
-    GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STREAM_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3), (void*)0);
-  glEnableVertexAttribArray(0);
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  nRenderables.Push({vao, vbo, 2, color});
+void Line(const Vec3& a, const Vec3& b, const Vec3& aColor, const Vec3& bColor)
+{
+  nLines.Push({a, aColor, b, bColor});
 }
 
 void Plane(const Math::Plane& plane, const Vec3& color)
@@ -124,6 +124,28 @@ void Render(const World::Object& cameraObject)
     glDeleteBuffers(1, &renderable.mVbo);
   }
   nRenderables.Clear();
+
+  // Upload, draw, and delete the line buffer.
+  unsigned int lineVao, lineVbo;
+  glGenVertexArrays(1, &lineVao);
+  glGenBuffers(1, &lineVbo);
+  glBindVertexArray(lineVao);
+  glBindBuffer(GL_ARRAY_BUFFER, lineVbo);
+  glBufferData(
+    GL_ARRAY_BUFFER,
+    sizeof(LineData) * nLines.Size(),
+    nLines.Data(),
+    GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(Vec3), (void*)0);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(
+    1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(Vec3), (void*)sizeof(Vec3));
+  glEnableVertexAttribArray(1);
+  glDrawArrays(GL_LINES, 0, (GLsizei)(2 * nLines.Size()));
+  glBindVertexArray(0);
+  glDeleteBuffers(1, &lineVbo);
+  glDeleteVertexArrays(1, &lineVao);
+  nLines.Clear();
 }
 
 void RenderTbnVectors(const Gfx::Collection& collection)
