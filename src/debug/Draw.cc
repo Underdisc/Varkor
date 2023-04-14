@@ -3,6 +3,7 @@
 #include "Error.h"
 #include "debug/Draw.h"
 #include "ds/Vector.h"
+#include "ext/Tracy.h"
 #include "gfx/Mesh.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
@@ -51,6 +52,8 @@ void Point(const Vec3& point, const Vec3& color)
 
 void Line(const Vec3& a, const Vec3& b, const Vec3& color)
 {
+  ZoneScoped;
+
   unsigned int vao, vbo;
   glGenVertexArrays(1, &vao);
   glGenBuffers(1, &vbo);
@@ -100,6 +103,8 @@ void CartesianAxes()
 
 void Render(const World::Object& cameraObject)
 {
+  ZoneScoped;
+
   Gfx::Shader* shader = Rsl::TryGetRes<Gfx::Shader>(nDebugDrawShaderId);
   if (shader == nullptr) {
     return;
