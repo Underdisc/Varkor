@@ -82,6 +82,11 @@ void Mesh::EditConfig(Vlk::Value* configValP)
   scaleVal = scale;
 }
 
+Result Mesh::Init()
+{
+  return Result();
+}
+
 Result Mesh::Init(const Vlk::Explorer& configEx)
 {
   Vlk::Explorer fileEx = configEx("File");

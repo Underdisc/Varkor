@@ -28,6 +28,7 @@ struct Mesh
   ~Mesh();
 
   static void EditConfig(Vlk::Value* configValP);
+  Result Init();
   Result Init(const Vlk::Explorer& configEx);
   Result Init(const std::string& file, bool flipUvs, float scale);
   Result Init(const aiMesh& assimpMesh, float scale);
