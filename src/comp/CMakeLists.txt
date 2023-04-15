@@ -3,6 +3,7 @@ target_sources(varkor PRIVATE
   Camera.cc
   CameraOrbiter.cc
   DirectionalLight.cc
+  LineMesh.cc
   Mesh.cc
   Model.cc
   PointLight.cc
