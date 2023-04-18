@@ -154,9 +154,9 @@ void Vector<T>::LazyRemove(size_t index)
     Pop();
     return;
   }
-  mData[index].~T();
-  mData[index] = std::move(mData[mSize - 1]);
   --mSize;
+  mData[index] = std::move(mData[mSize]);
+  mData[mSize].~T();
 }
 
 template<typename T>

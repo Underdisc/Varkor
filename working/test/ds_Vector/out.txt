@@ -156,7 +156,7 @@ Size: 2
 Capactiy: 10
 [C, D]
 
-<= LazyRemove =>
+<= LazyRemove0 =>
 [[5, 5], [1, 1], [9, 9], [3, 3], [7, 7]]
 []
 -Counts-
@@ -167,6 +167,9 @@ MoveConstructor: 0
 Destructor: 10
 CopyAssignment: 0
 MoveAssignment: 9
+
+<= LazyRemove1 =>
+[9, 8, 7, 6, 5]
 
 <= IndexOperator =>
 [5]: 5

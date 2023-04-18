@@ -227,7 +227,7 @@ void Remove1()
   PrintVector(test);
 }
 
-void LazyRemove()
+void LazyRemove0()
 {
   Ds::Vector<TestType> testVector;
   for (int i = 0; i < 10; ++i) {
@@ -243,6 +243,18 @@ void LazyRemove()
   }
   PrintVector(testVector, false);
   TestType::PrintCounts();
+}
+
+void LazyRemove1()
+{
+  Ds::Vector<std::string> testVector;
+  for (int i = 0; i < 10; ++i) {
+    testVector.Push(std::to_string(i));
+  }
+  for (int i = 0; i < 5; ++i) {
+    testVector.LazyRemove(i);
+  }
+  PrintVector(testVector, false);
 }
 
 void IndexOperator()
@@ -577,7 +589,8 @@ int main(void)
   RunDsTest(Clear);
   RunDsTest(Remove0);
   RunDsTest(Remove1);
-  RunDsTest(LazyRemove);
+  RunDsTest(LazyRemove0);
+  RunDsTest(LazyRemove1);
   RunDsTest(IndexOperator);
   RunDsTest(CopyAssignment0);
   RunDsTest(CopyAssignment1);
