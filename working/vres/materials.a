@@ -1,0 +1,11 @@
+[
+  {
+    :Name: 'PhongBasic'
+    :Type: 'Material'
+    :Config: {
+      :ShaderConfig: {
+        :Files: ['vres/shader/Basic.glv', 'vres/shader/PhongBasic.glf']
+      }
+    }
+  }
+]
