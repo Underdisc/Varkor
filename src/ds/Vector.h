@@ -22,6 +22,7 @@ public:
   void Emplace(Args&&... args);
   void Insert(size_t index, const T& value);
   void Insert(size_t index, T&& value);
+  void Swap(size_t indexA, size_t indexB);
   void Pop();
   void Clear();
   void Remove(size_t index);

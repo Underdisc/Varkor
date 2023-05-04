@@ -112,6 +112,19 @@ Destructor: 5
 CopyAssignment: 0
 MoveAssignment: 20
 
+<= Swap =>
+Size: 5
+Capactiy: 10
+[[4, 4], [1, 1], [0, 0], [3, 3], [2, 2]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 5
+CopyConstructor: 0
+MoveConstructor: 2
+Destructor: 2
+CopyAssignment: 0
+MoveAssignment: 4
+
 <= Pop =>
 Size: 5
 Capactiy: 10

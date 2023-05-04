@@ -169,6 +169,18 @@ void Insert3()
   TestType::PrintCounts();
 }
 
+void Swap()
+{
+  Ds::Vector<TestType> test;
+  for (int i = 0; i < 5; ++i) {
+    test.Emplace(i);
+  }
+  test.Swap(2, 4);
+  test.Swap(0, 2);
+  PrintVector(test);
+  TestType::PrintCounts();
+}
+
 void Pop()
 {
   Ds::Vector<TestType> testVector;
@@ -585,6 +597,7 @@ int main(void)
   RunDsTest(Insert1);
   RunDsTest(Insert2);
   RunDsTest(Insert3);
+  RunDsTest(Swap);
   RunDsTest(Pop);
   RunDsTest(Clear);
   RunDsTest(Remove0);

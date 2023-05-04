@@ -120,6 +120,14 @@ void Vector<T>::Insert(size_t index, T&& value)
 }
 
 template<typename T>
+void Vector<T>::Swap(size_t indexA, size_t indexB)
+{
+  T temp = std::move(mData[indexA]);
+  mData[indexA] = std::move(mData[indexB]);
+  mData[indexB] = std::move(temp);
+}
+
+template<typename T>
 void Vector<T>::Pop()
 {
   if (mSize != 0) {
