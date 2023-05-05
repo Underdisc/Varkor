@@ -154,3 +154,62 @@ void PrintMap(const Ds::Map<K, V>& map)
   BTreeIndenter indenter;
   PrintRbTreeNode<Ds::KvPair<K, V>>(*head, indenter);
 }
+
+template<typename T>
+void PrintPool(const Ds::Pool<T>& pool)
+{
+  // The width of each column is chosen based on the number of charaters in the
+  // words sparse, dense, and data.
+  int widths[3] = {6, 5, 4};
+
+  // Print the header.
+  // clang-format off
+  std::cout << std::left
+            << '+' << std::setw(widths[0]) << "Sparse"
+            << '+' << std::setw(widths[1]) << "Dense"
+            << '+' << std::setw(widths[2]) << "Data"
+            << "+\n";
+  // clang-format on
+  if (pool.Data().Size() == 0) {
+    return;
+  }
+
+  auto printRow = [&](int index, char* bars)
+  {
+    // clang-format off
+    std::cout << bars[0] << std::setw(widths[0]) << pool.Sparse()[index]
+              << bars[1] << std::setw(widths[1]) << pool.Dense()[index]
+              << bars[2] << std::setw(widths[2]) << pool.Data()[index]
+              << bars[3] << '\n';
+    // clang-format on
+  };
+  auto printShortRow = [&](int index, char* bars)
+  {
+    // clang-format off
+    std::cout << bars[0] << std::setw(widths[0]) << pool.Sparse()[index]
+              << bars[1] << std::setw(widths[1]) << pool.Dense()[index]
+              << bars[2] << '\n';
+    // clang-format on
+  };
+
+  // Print all of the rows.
+  for (int i = 0; i < pool.Data().Size() - 1; ++i) {
+    char bars[4] = {'|', '|', '|', '|'};
+    printRow(i, bars);
+  }
+  if (pool.Data().Size() == pool.Dense().Size()) {
+    char bars[4] = {'+', '+', '+', '+'};
+    printRow(pool.Data().Size() - 1, bars);
+    return;
+  }
+  else {
+    char bars[4] = {'|', '|', '|', '+'};
+    printRow(pool.Data().Size() - 1, bars);
+  }
+  for (int i = pool.Data().Size(); i < pool.Dense().Size() - 1; ++i) {
+    char bars[3] = {'|', '|', '|'};
+    printShortRow(i, bars);
+  }
+  char bars[3] = {'+', '+', '+'};
+  printShortRow(pool.Dense().Size() - 1, bars);
+}
