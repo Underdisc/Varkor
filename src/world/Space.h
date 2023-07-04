@@ -64,6 +64,7 @@ struct Space
   MemberId CreateChildMember(MemberId parentId);
   Object CreateObject();
   Object CreateChildObject(const Object& parent);
+  Object CreateChildObject(MemberId parentId);
   void DeleteMember(MemberId member);
   MemberId Duplicate(MemberId memberId, bool duplicationRoot = true);
   void MakeParent(MemberId parent, MemberId child);

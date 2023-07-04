@@ -147,6 +147,11 @@ Object Space::CreateChildObject(const Object& parent)
   return Object(this, CreateChildMember(parent.mMemberId));
 }
 
+Object Space::CreateChildObject(MemberId parentId)
+{
+  return Object(this, CreateChildMember(parentId));
+}
+
 MemberId Space::Duplicate(MemberId ogMemberId, bool duplicationRoot)
 {
   // Duplicate all of the components from the original member.
