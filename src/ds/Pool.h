@@ -6,11 +6,11 @@
 namespace Ds {
 
 typedef int PoolId;
+constexpr PoolId nInvalidPoolId = -1;
 
 template<typename T>
 struct Pool
 {
-  constexpr static int smInvalidId = -1;
   PoolId Add(const T& element);
   void Remove(PoolId id);
   T& operator[](PoolId id);
