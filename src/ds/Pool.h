@@ -14,7 +14,9 @@ struct Pool
   PoolId Add(const T& element);
   void Remove(PoolId id);
   T& operator[](PoolId id);
+  const T& operator[](PoolId id) const;
 
+  size_t Size() const;
   const Ds::Vector<T>& Data() const;
   const Ds::Vector<PoolId>& Dense() const;
   const Ds::Vector<int>& Sparse() const;

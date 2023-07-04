@@ -30,6 +30,18 @@ T& Pool<T>::operator[](PoolId id)
 }
 
 template<typename T>
+const T& Pool<T>::operator[](PoolId id) const
+{
+  return mData[mSparse[id]];
+}
+
+template<typename T>
+size_t Pool<T>::Size() const
+{
+  return mData.Size();
+}
+
+template<typename T>
 const Ds::Vector<T>& Pool<T>::Data() const
 {
   return mData;
