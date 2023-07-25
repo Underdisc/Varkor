@@ -3,6 +3,7 @@
 *.pdb
 projects.cmake
 .vs/
+.vscode/
 build/
 script/options.json
 working/imgui.ini
