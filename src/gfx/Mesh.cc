@@ -312,10 +312,11 @@ void Mesh::Finalize()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void Mesh::Update(size_t offset, size_t byteCount, const void* data) const
+void Mesh::UpdateVbo(
+  size_t byteOffset, size_t byteCount, const void* data) const
 {
   glBindBuffer(GL_ARRAY_BUFFER, mVbo);
-  glBufferSubData(GL_ARRAY_BUFFER, offset, byteCount, data);
+  glBufferSubData(GL_ARRAY_BUFFER, byteOffset, byteCount, data);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -341,11 +342,6 @@ GLuint Mesh::Vao() const
 GLuint Mesh::Ebo() const
 {
   return mEbo;
-}
-
-size_t Mesh::IndexCount() const
-{
-  return mIndexCount;
 }
 
 bool Mesh::Initialized() const

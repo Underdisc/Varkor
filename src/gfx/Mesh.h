@@ -49,19 +49,19 @@ struct Mesh
     size_t elementBufferSize,
     size_t elementCount);
   void Finalize();
-  void Update(size_t offset, size_t byteCount, const void* data) const;
+  void UpdateVbo(size_t byteOffset, size_t byteCount, const void* data) const;
   void Purge();
 
   void Render() const;
   GLuint Vao() const;
   GLuint Ebo() const;
-  size_t IndexCount() const;
   bool Initialized() const;
+
+  size_t mIndexCount;
 
 private:
   unsigned int mAttributes;
   GLuint mVao, mVbo, mEbo;
-  size_t mIndexCount;
 };
 
 } // namespace Gfx
