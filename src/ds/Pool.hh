@@ -20,7 +20,19 @@ void Pool<T>::Remove(PoolId id)
   mData.LazyRemove(mSparse[id]);
   mSparse[mDense[mData.Size()]] = mSparse[id];
   mDense.Swap(mSparse[id], mData.Size());
-  mSparse[id] = smInvalidId;
+  mSparse[id] = nInvalidPoolId;
+}
+
+template<typename T>
+bool Pool<T>::Valid(PoolId id)
+{
+  return mSparse[id] != nInvalidPoolId;
+}
+
+template<typename T>
+T& Pool<T>::GetWithDenseIndex(size_t denseIndex)
+{
+  return mData[denseIndex];
 }
 
 template<typename T>

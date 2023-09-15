@@ -13,6 +13,8 @@ struct Pool
 {
   PoolId Add(const T& element);
   void Remove(PoolId id);
+  bool Valid(PoolId id);
+  T& GetWithDenseIndex(size_t denseIndex);
   T& operator[](PoolId id);
   const T& operator[](PoolId id) const;
 
