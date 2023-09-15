@@ -221,6 +221,13 @@ void Space::DeleteMember(MemberId memberId)
   mUnusedMemberIds.Push(memberId);
 }
 
+void Space::TryDeleteMember(MemberId memberId)
+{
+  if (ValidMemberId(memberId)) {
+    DeleteMember(memberId);
+  }
+}
+
 void Space::MakeParent(MemberId parentId, MemberId childId)
 {
   // Verify the existance of the parent and child members.
