@@ -1,4 +1,5 @@
 #include <Tracy.hpp>
+#include <TracyC.h>
 
 #ifndef TRACY_ENABLE
 #define ProfileThread(name)
