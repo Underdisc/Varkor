@@ -31,7 +31,13 @@ Ds::Vector<std::string> nFinalizeQueue;
 
 Asset& AddAsset(const std::string& name)
 {
-  return nAssets.Emplace(name);
+  VResult<Ds::RbTree<Asset>::Iter> result = nAssets.Emplace(name);
+  if (!result.Success()) {
+    std::stringstream error;
+    error << "Asset \"" << name << "\" already in asset tree.";
+    LogAbort(error.str().c_str());
+  }
+  return *result.mValue;
 }
 
 Asset& QueueAsset(const std::string& name)

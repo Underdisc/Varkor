@@ -1,6 +1,8 @@
 #ifndef ds_RbTree_h
 #define ds_RbTree_h
 
+#include "Result.h"
+
 namespace Ds {
 
 template<typename T>
@@ -61,10 +63,10 @@ public:
 public:
   RbTree();
   ~RbTree();
-  void Insert(const T& value);
-  void Insert(T&& value);
+  Result Insert(const T& value);
+  Result Insert(T&& value);
   template<typename... Args>
-  T& Emplace(Args&&... args);
+  VResult<Iter> Emplace(Args&&... args);
   template<typename CT>
   void Remove(const CT& value);
   void Clear();
@@ -84,7 +86,7 @@ protected:
   // words, T can be compared to CT with the > and < operators.
   template<typename CT>
   Node* FindNode(const CT& value) const;
-  void InsertNode(Node* newNode);
+  Result InsertNode(Node* newNode);
   void RemoveNode(Node* node);
 
 private:

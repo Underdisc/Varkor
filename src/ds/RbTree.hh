@@ -168,26 +168,30 @@ RbTree<T>::~RbTree()
 // the nodes come from that array. That way we can guarantee to load the minimum
 // number of cache lines when accessing the tree.
 template<typename T>
-void RbTree<T>::Insert(const T& value)
+Result RbTree<T>::Insert(const T& value)
 {
   Node* newNode = alloc Node(value);
-  InsertNode(newNode);
+  return InsertNode(newNode);
 }
 
 template<typename T>
-void RbTree<T>::Insert(T&& value)
+Result RbTree<T>::Insert(T&& value)
 {
   Node* newNode = alloc Node(std::forward<T>(value));
-  InsertNode(newNode);
+  return InsertNode(newNode);
 }
 
 template<typename T>
 template<typename... Args>
-T& RbTree<T>::Emplace(Args&&... args)
+VResult<typename RbTree<T>::Iter> RbTree<T>::Emplace(Args&&... args)
 {
-  Node* newNode = alloc Node(std::forward<Args>(args)...);
-  InsertNode(newNode);
-  return newNode->mValue;
+  Iter iter;
+  iter.mCurrent = alloc Node(std::forward<Args>(args)...);
+  Result result = InsertNode(iter.mCurrent);
+  if (!result.Success()) {
+    iter.mCurrent = nullptr;
+  }
+  return VResult<Iter>(iter, std::move(result));
 }
 
 template<typename T>
@@ -352,12 +356,12 @@ typename RbTree<T>::Node* RbTree<T>::FindNode(const CT& value) const
 }
 
 template<typename T>
-void RbTree<T>::InsertNode(Node* newNode)
+Result RbTree<T>::InsertNode(Node* newNode)
 {
   if (mHead == nullptr) {
     mHead = newNode;
     mHead->mColor = Node::Color::Black;
-    return;
+    return Result();
   }
 
   // Traverse the tree to find the connection where the new node will be
@@ -373,7 +377,8 @@ void RbTree<T>::InsertNode(Node* newNode)
       insertionPoint = &(*insertionPoint)->mLeft;
     }
     else {
-      LogAbort("The RbTree already contains this value.");
+      delete newNode;
+      return Result("The RbTree already contains this value.");
     }
   }
 
@@ -381,6 +386,7 @@ void RbTree<T>::InsertNode(Node* newNode)
   newNode->mParent = parent;
   *insertionPoint = newNode;
   BalanceInsertion(newNode);
+  return Result();
 }
 
 template<typename T>
