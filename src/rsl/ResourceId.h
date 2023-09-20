@@ -30,6 +30,7 @@ struct ResourceId
   std::string GetResourceName() const;
   void SetResourceName(const std::string& name);
   bool operator==(const ResourceId& other) const;
+  bool operator!=(const ResourceId& other) const;
 };
 typedef ResourceId ResId;
 

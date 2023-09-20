@@ -78,25 +78,43 @@ void Collection::Add(Renderable::Icon&& icon)
 
 void Collection::RenderFloaters()
 {
+  ResId currentMaterialId;
+  int currentTextureIndex;
+  Shader* currentShader = nullptr;
   for (const Renderable::Floater& floater : mFloaters) {
-    // Get all of the resources needed for rendering.
-    const auto* material = Rsl::TryGetRes<Gfx::Material>(floater.mMaterialId);
+    // Bind a new material if the material changes.
+    if (floater.mMaterialId != currentMaterialId) {
+      const auto* nextMaterial =
+        Rsl::TryGetRes<Gfx::Material>(floater.mMaterialId);
+      if (nextMaterial == nullptr) {
+        continue;
+      }
+      Gfx::Shader* nextShader =
+        Rsl::TryGetRes<Gfx::Shader>(nextMaterial->mShaderId);
+      if (nextShader == nullptr) {
+        continue;
+      }
+      currentMaterialId = floater.mMaterialId;
+      currentTextureIndex = 0;
+      currentShader = nextShader;
+      currentShader->Use();
+      mUniforms.Bind(*currentShader, &currentTextureIndex);
+      nextMaterial->mUniforms.Bind(*currentShader, &currentTextureIndex);
+    }
+
+    // Ensure that rendering is possible.
+    if (currentShader == nullptr) {
+      continue;
+    }
     const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(floater.mMeshId);
-    if (material == nullptr || mesh == nullptr) {
-      return;
+    if (mesh == nullptr) {
+      continue;
     }
-    Gfx::Shader* shader = Rsl::TryGetRes<Gfx::Shader>(material->mShaderId);
-    if (shader == nullptr) {
-      return;
-    }
-    shader->Use();
 
     // Perform the render.
-    int textureIndex = 0;
-    mUniforms.Bind(*shader, &textureIndex);
-    material->mUniforms.Bind(*shader, &textureIndex);
-    floater.mUniforms.Bind(*shader, &textureIndex);
-    shader->SetUniform("uModel", floater.mTransform);
+    int textureIndex = currentTextureIndex;
+    floater.mUniforms.Bind(*currentShader, &textureIndex);
+    currentShader->SetUniform("uModel", floater.mTransform);
     mesh->Render();
   }
 }

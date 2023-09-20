@@ -83,4 +83,9 @@ bool ResourceId::operator==(const ResId& other) const
   return mId == other.mId;
 }
 
+bool ResourceId::operator!=(const ResourceId& other) const
+{
+  return mId != other.mId;
+}
+
 } // namespace Rsl
