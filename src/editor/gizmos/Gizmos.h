@@ -2,6 +2,7 @@
 #define editor_gizmo_Gizmos_h
 
 #include "debug/MemLeak.h"
+#include "ds/Vector.h"
 #include "math/Quaternion.h"
 #include "math/Vector.h"
 #include "rsl/ResourceId.h"
