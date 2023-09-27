@@ -23,6 +23,7 @@ public:
   void Insert(size_t index, const T& value);
   void Insert(size_t index, T&& value);
   void Swap(size_t indexA, size_t indexB);
+  void Sort();
   void Pop();
   void Clear();
   void Remove(size_t index);
@@ -60,6 +61,9 @@ private:
   size_t mCapacity;
 
 private:
+  void Quicksort(int start, int end);
+  int Partition(int start, int end);
+
   void VerifyIndex(size_t index) const;
   void CreateGap(size_t index);
   void Grow();

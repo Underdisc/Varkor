@@ -137,6 +137,48 @@ void Vector<T>::Pop()
 }
 
 template<typename T>
+void Vector<T>::Sort()
+{
+  Quicksort(0, mSize - 1);
+}
+
+template<typename T>
+void Vector<T>::Quicksort(int start, int end)
+{
+  if (end <= start) {
+    return;
+  }
+  int pivot = Partition(start, end);
+  Quicksort(start, pivot - 1);
+  Quicksort(pivot + 1, end);
+}
+
+template<typename T>
+int Vector<T>::Partition(int start, int end)
+{
+  // A Hoare partition that uses the center element as the pivot.
+  Swap(start, start + (end - start) / 2);
+  const T& pivot = mData[start];
+  int i = start + 1;
+  int j = end;
+  while (true) {
+    while (mData[j] > pivot) {
+      --j;
+    }
+    while (pivot > mData[i] && i <= end) {
+      ++i;
+    }
+    if (j < i) {
+      Swap(start, j);
+      return j;
+    }
+    Swap(i, j);
+    --j;
+    ++i;
+  }
+}
+
+template<typename T>
 void Vector<T>::Clear()
 {
   Util::DestructRange<T>(mData, mSize);

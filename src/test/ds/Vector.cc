@@ -181,6 +181,36 @@ void Swap()
   TestType::PrintCounts();
 }
 
+void Sort()
+{
+  // Initialize vectors to be sorted.
+  Ds::Vector<int> test[4];
+  int array[2][10] = {
+    {8, 6, 9, 0, 1, 3, 7, 5, 4, 2}, {4, 4, 3, 3, 2, 2, 1, 1, 0, 0}};
+  for (int i = 0; i < 10; ++i) {
+    test[0].Push(9 - i);
+    test[1].Push(array[0][i]);
+    test[2].Push(array[1][i]);
+  }
+  srand(34);
+  for (int i = 0; i < 100000; ++i) {
+    test[3].Push(rand());
+  }
+
+  // Sort the vectors and make sure the result is truly sorted.
+  auto ensureSort = [](const Ds::Vector<int>& vector)
+  {
+    for (int j = 0; j < vector.Size() - 1; ++j) {
+      LogAbortIf(vector[j] > vector[j + 1], "Elements not sorted");
+    }
+  };
+  for (int i = 0; i < 4; ++i) {
+    test[i].Sort();
+    ensureSort(test[i]);
+  }
+  std::cout << "Sorts Successful" << std::endl;
+}
+
 void Pop()
 {
   Ds::Vector<TestType> testVector;
@@ -585,6 +615,7 @@ void Empty()
 
 int main(void)
 {
+  Error::Init();
   EnableLeakOutput();
   RunDsTest(CopyConstructor0);
   RunDsTest(CopyConstructor1);
@@ -598,6 +629,7 @@ int main(void)
   RunDsTest(Insert2);
   RunDsTest(Insert3);
   RunDsTest(Swap);
+  RunDsTest(Sort);
   RunDsTest(Pop);
   RunDsTest(Clear);
   RunDsTest(Remove0);

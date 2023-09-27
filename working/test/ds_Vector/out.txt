@@ -125,6 +125,9 @@ Destructor: 2
 CopyAssignment: 0
 MoveAssignment: 4
 
+<= Sort =>
+Sorts Successful
+
 <= Pop =>
 Size: 5
 Capactiy: 10
