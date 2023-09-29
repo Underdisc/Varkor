@@ -139,22 +139,34 @@ void Vector<T>::Pop()
 template<typename T>
 void Vector<T>::Sort()
 {
-  Quicksort(0, mSize - 1);
+  auto greaterThan = [](const T& a, const T& b) -> bool
+  {
+    return a > b;
+  };
+  Quicksort(0, mSize - 1, greaterThan);
 }
 
 template<typename T>
-void Vector<T>::Quicksort(int start, int end)
+void Vector<T>::Sort(bool (*greaterThan)(const T&, const T&))
+{
+  Quicksort(0, mSize - 1, greaterThan);
+}
+
+template<typename T>
+void Vector<T>::Quicksort(
+  int start, int end, bool (*greaterThan)(const T&, const T&))
 {
   if (end <= start) {
     return;
   }
-  int pivot = Partition(start, end);
-  Quicksort(start, pivot - 1);
-  Quicksort(pivot + 1, end);
+  int pivot = Partition(start, end, greaterThan);
+  Quicksort(start, pivot - 1, greaterThan);
+  Quicksort(pivot + 1, end, greaterThan);
 }
 
 template<typename T>
-int Vector<T>::Partition(int start, int end)
+int Vector<T>::Partition(
+  int start, int end, bool (*greaterThan)(const T&, const T&))
 {
   // A Hoare partition that uses the center element as the pivot.
   Swap(start, start + (end - start) / 2);
@@ -162,10 +174,10 @@ int Vector<T>::Partition(int start, int end)
   int i = start + 1;
   int j = end;
   while (true) {
-    while (mData[j] > pivot) {
+    while (greaterThan(mData[j], pivot)) {
       --j;
     }
-    while (pivot > mData[i] && i <= end) {
+    while (greaterThan(pivot, mData[i]) && i <= end) {
       ++i;
     }
     if (j < i) {
