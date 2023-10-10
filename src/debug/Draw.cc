@@ -14,14 +14,12 @@
 namespace Debug {
 namespace Draw {
 
-struct Renderable
+struct PointData
 {
-  unsigned int mVao;
-  unsigned int mVbo;
-  unsigned int mCount;
+  Vec3 mPoint;
   Vec3 mColor;
 };
-Ds::Vector<Renderable> nRenderables;
+Ds::Vector<PointData> nPoints;
 
 struct LineData
 {
@@ -33,7 +31,7 @@ struct LineData
 Ds::Vector<LineData> nLines;
 
 const char* nDebugDrawAssetName = "vres/debugDraw";
-const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Line");
+const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Basic");
 const ResId nTbnShaderId(nDebugDrawAssetName, "Tbn");
 
 void Init()
@@ -44,19 +42,7 @@ void Init()
 
 void Point(const Vec3& point, const Vec3& color)
 {
-  unsigned int vao, vbo;
-  glGenVertexArrays(1, &vao);
-  glGenBuffers(1, &vbo);
-
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vec3), point.mD, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3), (void*)0);
-  glEnableVertexAttribArray(0);
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  nRenderables.Push({vao, vbo, 1, color});
+  nPoints.Push({point, color});
 }
 
 void Line(const Vec3& a, const Vec3& b, const Vec3& color)
@@ -110,25 +96,28 @@ void Render(const World::Object& cameraObject)
     return;
   }
   Gfx::Renderer::InitializeUniversalUniformBuffer(cameraObject);
-
   shader->Use();
-  for (int i = 0; i < nRenderables.Size(); ++i) {
-    const Renderable& renderable = nRenderables[i];
-    Vec4 fullColor = (Vec4)renderable.mColor;
-    fullColor[3] = 1.0f;
-    shader->SetUniform("uColor", fullColor);
-    glBindVertexArray(renderable.mVao);
-    if (renderable.mCount == 1) {
-      glDrawArrays(GL_POINTS, 0, renderable.mCount);
-    }
-    else {
-      glDrawArrays(GL_LINES, 0, renderable.mCount);
-    }
-    glBindVertexArray(0);
-    glDeleteVertexArrays(1, &renderable.mVao);
-    glDeleteBuffers(1, &renderable.mVbo);
-  }
-  nRenderables.Clear();
+
+  unsigned int pointVao, pointVbo;
+  glGenVertexArrays(1, &pointVao);
+  glGenBuffers(1, &pointVbo);
+  glBindVertexArray(pointVao);
+  glBindBuffer(GL_ARRAY_BUFFER, pointVbo);
+  glBufferData(
+    GL_ARRAY_BUFFER,
+    sizeof(PointData) * nPoints.Size(),
+    nPoints.Data(),
+    GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(Vec3), (void*)0);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(
+    1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(Vec3), (void*)sizeof(Vec3));
+  glEnableVertexAttribArray(1);
+  glDrawArrays(GL_POINTS, 0, (GLsizei)(nPoints.Size()));
+  glBindVertexArray(0);
+  glDeleteBuffers(1, &pointVbo);
+  glDeleteVertexArrays(1, &pointVao);
+  nPoints.Clear();
 
   // Upload, draw, and delete the line buffer.
   unsigned int lineVao, lineVbo;
