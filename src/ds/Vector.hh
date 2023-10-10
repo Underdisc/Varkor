@@ -149,7 +149,7 @@ void Vector<T>::Sort()
 template<typename T>
 void Vector<T>::Sort(bool (*greaterThan)(const T&, const T&))
 {
-  Quicksort(0, mSize - 1, greaterThan);
+  Quicksort(0, (int)mSize - 1, greaterThan);
 }
 
 template<typename T>
@@ -177,7 +177,7 @@ int Vector<T>::Partition(
     while (greaterThan(mData[j], pivot)) {
       --j;
     }
-    while (greaterThan(pivot, mData[i]) && i <= end) {
+    while (i <= end && greaterThan(pivot, mData[i])) {
       ++i;
     }
     if (j < i) {
