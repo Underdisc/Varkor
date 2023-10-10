@@ -28,13 +28,15 @@ public:
 
 struct Plane
 {
-public:
+  // A point on the plane.
   Vec3 mPoint;
-
-private:
+  // A unit vector perpendicular to the plane.
   Vec3 mNormal;
 
-public:
+  Plane();
+  // Defines the plane using three points a, b, and c.
+  Plane(const Vec3& a, const Vec3& b, const Vec3& c);
+  void Init(const Vec3& a, const Vec3& b, const Vec3& c);
   void InitNormalized(const Vec3& point, const Vec3& normalizedNormal);
   void PointNormal(const Vec3& point, const Vec3& normal);
   void Normal(const Vec3& normal);
