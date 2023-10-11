@@ -16,6 +16,9 @@ bool nActive = true;
 int nWidth;
 int nHeight;
 
+#define EnsureExtension(ExtensionName) \
+  LogAbortIf(!GLAD_##ExtensionName, #ExtensionName " not available.")
+
 void Init(const char* windowName, bool visible)
 {
   // Create a maximized window and an opengl context.
@@ -41,6 +44,10 @@ void Init(const char* windowName, bool visible)
 
   bool gladLoaded = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
   LogAbortIf(!gladLoaded, "glad initialization failed.");
+  EnsureExtension(GL_ARB_texture_compression);
+  EnsureExtension(GL_ARB_texture_non_power_of_two);
+  EnsureExtension(GL_EXT_texture_compression_s3tc);
+  EnsureExtension(GL_EXT_texture_compression_rgtc);
   glEnable(GL_MULTISAMPLE);
 
   ResizeCallback(nWindow, nWidth, nHeight);

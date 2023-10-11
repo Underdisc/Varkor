@@ -1,4 +1,5 @@
 target_include_directories(varkor PUBLIC "local")
+target_include_directories(varkor PUBLIC "sub")
 
 # dirent
 if (WIN32)
@@ -6,7 +7,8 @@ if (WIN32)
 endif()
 
 # glad
-target_sources(varkor PRIVATE local/glad/glad.c)
+target_sources(varkor PRIVATE local/glad/src/glad.c)
+target_include_directories(varkor PUBLIC local/glad/include)
 
 # getopt
 if (WIN32)

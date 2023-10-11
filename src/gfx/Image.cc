@@ -1,6 +1,9 @@
 #include <imgui/imgui.h>
 #include <utility>
 
+#define DDSKTX_IMPLEMENT
+#include <dds-ktx/dds-ktx.h>
+#undef DDSKTX_IMPLEMENT
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #undef STB_IMAGE_IMPLEMENTATION
@@ -65,16 +68,90 @@ Result Image::Init(const std::string& file)
   }
   std::string absoluteFile = resolutionResult.mValue;
 
-  stbi_set_flip_vertically_on_load(true);
+  // Open the file and discover its type.
+  FILE* fileStream = stbi__fopen(absoluteFile.c_str(), "rb");
+  if (fileStream == nullptr) {
+    return Result("File \"" + absoluteFile + "\" could not be opened.");
+  }
+  char typeIdentifier[5];
+  fgets(typeIdentifier, 5, fileStream);
+  fseek(fileStream, 0, SEEK_SET);
+
+  // Handle DDS loading.
+  if (strcmp(typeIdentifier, "DDS ") == 0) {
+    Result result = InitDDS(fileStream);
+    fclose(fileStream);
+    return result;
+  }
+
+  // Handle all other image formats.
   int width, height, channels;
   void* imageData =
-    stbi_load(absoluteFile.c_str(), &width, &height, &channels, 0);
+    stbi_load_from_file(fileStream, &width, &height, &channels, 0);
+  fclose(fileStream);
   if (imageData == nullptr) {
     return Result(
       "File \"" + absoluteFile + "\" failed load.\n" + stbi_failure_reason());
   }
   Init(imageData, width, height, channels);
   stbi_image_free(imageData);
+  return Result();
+}
+
+Result Image::InitDDS(FILE* stream)
+{
+  // Read the entire dds file stream.
+  fseek(stream, 0, SEEK_END);
+  long byteCount = ftell(stream);
+  fseek(stream, 0, SEEK_SET);
+  Ds::Vector<char> fileData;
+  fileData.Resize(byteCount);
+  fread((void*)fileData.Data(), 1, byteCount, stream);
+
+  // Parse the file data.
+  ddsktx_texture_info textureInfo = {0};
+  bool success =
+    ddsktx_parse(&textureInfo, (void*)fileData.Data(), byteCount, nullptr);
+  if (!success) {
+    return Result("Parsing DDS data failed.");
+  }
+
+  // Find the file's pixel format.
+  GLenum internalFormat;
+  switch (textureInfo.format) {
+  case DDSKTX_FORMAT_BC1:
+    internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+    break;
+  case DDSKTX_FORMAT_BC3:
+    internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+    break;
+  case DDSKTX_FORMAT_BC5:
+    internalFormat = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
+    break;
+  default: return Result("DDS texture format not implemented.");
+  }
+
+  // Upload the texture and mipmaps.
+  glGenTextures(1, &mId);
+  glBindTexture(GL_TEXTURE_2D, mId);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(
+    GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  for (int i = 0; i < textureInfo.num_mips; ++i) {
+    ddsktx_sub_data subInfo;
+    ddsktx_get_sub(&textureInfo, &subInfo, fileData.Data(), byteCount, 0, 0, i);
+    glCompressedTexImage2D(
+      GL_TEXTURE_2D,
+      i,
+      internalFormat,
+      subInfo.width,
+      subInfo.height,
+      0,
+      subInfo.size_bytes,
+      subInfo.buff);
+  }
   return Result();
 }
 
@@ -115,7 +192,8 @@ Result Image::Init(
   glPixelStorei(GL_UNPACK_ALIGNMENT, pixelAlignmet);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(
+    GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexImage2D(
     GL_TEXTURE_2D,

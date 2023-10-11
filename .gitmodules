@@ -13,3 +13,6 @@
 [submodule "ext/sub/tracy"]
 	path = ext/sub/tracy
 	url = https://github.com/wolfpld/tracy
+[submodule "ext/sub/dds-ktx"]
+	path = ext/sub/dds-ktx
+	url = https://github.com/septag/dds-ktx.git
