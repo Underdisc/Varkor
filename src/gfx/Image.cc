@@ -132,13 +132,7 @@ Result Image::InitDDS(FILE* stream)
   }
 
   // Upload the texture and mipmaps.
-  glGenTextures(1, &mId);
-  glBindTexture(GL_TEXTURE_2D, mId);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(
-    GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  CreateTexutre();
   for (int i = 0; i < textureInfo.num_mips; ++i) {
     ddsktx_sub_data subInfo;
     ddsktx_get_sub(&textureInfo, &subInfo, fileData.Data(), byteCount, 0, 0, i);
@@ -187,14 +181,8 @@ Result Image::Init(
 {
   mWidth = width;
   mHeight = height;
-  glGenTextures(1, &mId);
-  glBindTexture(GL_TEXTURE_2D, mId);
+  CreateTexutre();
   glPixelStorei(GL_UNPACK_ALIGNMENT, pixelAlignmet);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(
-    GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexImage2D(
     GL_TEXTURE_2D,
     0,
@@ -207,6 +195,17 @@ Result Image::Init(
     imageData);
   glGenerateMipmap(GL_TEXTURE_2D);
   return Result();
+}
+
+void Image::CreateTexutre()
+{
+  glGenTextures(1, &mId);
+  glBindTexture(GL_TEXTURE_2D, mId);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(
+    GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 GLuint Image::Id() const

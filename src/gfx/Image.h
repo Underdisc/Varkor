@@ -28,6 +28,7 @@ public:
     GLenum internalFormat,
     GLenum format,
     GLint pixelAlignment);
+  void CreateTexutre();
 
   GLuint Id() const;
   float Aspect() const;

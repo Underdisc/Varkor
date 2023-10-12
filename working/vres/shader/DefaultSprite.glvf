@@ -11,7 +11,7 @@ void main()
 {
   gl_Position = uProj * uView * uModel * vec4(aPos, 1.0);
   iTextureCoords.x = aPos.x + 0.5;
-  iTextureCoords.y = aPos.y + 0.5;
+  iTextureCoords.y = 1.0 - aPos.y + 0.5;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
