@@ -105,7 +105,7 @@ Result Image::InitDDS(FILE* stream)
   long byteCount = ftell(stream);
   fseek(stream, 0, SEEK_SET);
   Ds::Vector<char> fileData;
-  fileData.Resize(byteCount);
+  fileData.Reserve(byteCount);
   fread((void*)fileData.Data(), 1, byteCount, stream);
 
   // Parse the file data.
