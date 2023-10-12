@@ -1,7 +1,6 @@
-#include <GLFW/VarkorGlfw.h>
-
-#include "Log.h"
 #include "Viewport.h"
+#include "Log.h"
+#include "ext/glfw.h"
 #include "gfx/Renderer.h"
 
 namespace Viewport {

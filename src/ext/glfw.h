@@ -1,5 +1,3 @@
-// This file is not part of the glfw project. It's here specifically for Varkor.
-
 // The following two includes must always be in this order. There is a macro in
 // glad/glad.h that will check if __gl_h_ is already defined. This will cause a
 // compiler error if it is. The macro exists to prevent a situation in which

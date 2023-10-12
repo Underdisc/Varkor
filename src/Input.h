@@ -1,8 +1,7 @@
 #ifndef Input_h
 #define Input_h
 
-#include <GLFW/VarkorGlfw.h>
-
+#include "ext/glfw.h"
 #include "math/Vector.h"
 
 namespace Input {

@@ -1,13 +1,13 @@
 #if defined WIN32
-  #include <windows.h>
-  #pragma comment(lib, "Winmm.lib")
+#include <windows.h>
+#pragma comment(lib, "Winmm.lib")
 #endif
 
-#include <GLFW/VarkorGlfw.h>
 #include <chrono>
 #include <thread>
 
 #include "ds/Vector.h"
+#include "ext/glfw.h"
 
 #include "Framer.h"
 
