@@ -167,7 +167,8 @@ Result Image::Init(const void* imageData, int width, int height, int channels)
   GLenum internalFormat;
   channels == 4 ? internalFormat = GL_RGBA : internalFormat = GL_RGB;
   GLenum format = internalFormat;
-  GLint pixelAlignment = 4;
+  GLint pixelAlignment;
+  channels == 4 ? pixelAlignment = 4 : pixelAlignment = 1;
   return Init(imageData, width, height, internalFormat, format, pixelAlignment);
 }
 
@@ -177,12 +178,12 @@ Result Image::Init(
   int height,
   GLenum internalFormat,
   GLenum format,
-  GLint pixelAlignmet)
+  GLint pixelAlignment)
 {
   mWidth = width;
   mHeight = height;
   CreateTexutre();
-  glPixelStorei(GL_UNPACK_ALIGNMENT, pixelAlignmet);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, pixelAlignment);
   glTexImage2D(
     GL_TEXTURE_2D,
     0,
