@@ -125,9 +125,7 @@ Result Image::InitDDS(FILE* stream)
   case DDSKTX_FORMAT_BC3:
     internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
     break;
-  case DDSKTX_FORMAT_BC5:
-    internalFormat = GL_COMPRESSED_RED_GREEN_RGTC2_EXT;
-    break;
+  case DDSKTX_FORMAT_BC5: internalFormat = GL_COMPRESSED_RG_RGTC2; break;
   default: return Result("DDS texture format not implemented.");
   }
 

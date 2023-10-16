@@ -46,7 +46,6 @@ void Init(const char* windowName, bool visible)
   EnsureExtension(GL_ARB_texture_compression);
   EnsureExtension(GL_ARB_texture_non_power_of_two);
   EnsureExtension(GL_EXT_texture_compression_s3tc);
-  EnsureExtension(GL_EXT_texture_compression_rgtc);
   glEnable(GL_MULTISAMPLE);
 
   ResizeCallback(nWindow, nWidth, nHeight);
