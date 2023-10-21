@@ -141,4 +141,22 @@ void HdrColorEdit(const char* label, Gfx::HdrColor* hdrColor, float colorWidth)
   ImGui::PopItemWidth();
 }
 
+bool RotationEdit(Math::Quaternion* rotation)
+{
+  Vec3 eulerAngles = rotation->EulerAngles();
+  Vec3 newAngles = eulerAngles;
+  bool rotationDragged =
+    ImGui::DragFloat3("Rotation", newAngles.mD, 0.01f, 0.0f, 0.0f, "%.3f");
+  if (rotationDragged) {
+    Math::Quaternion xDelta, yDelta, zDelta;
+    xDelta.AngleAxis(newAngles[0], {1.0f, 0.0f, 0.0f});
+    yDelta.AngleAxis(newAngles[1], {0.0f, 1.0f, 0.0f});
+    zDelta.AngleAxis(newAngles[2], {0.0f, 0.0f, 1.0f});
+    *rotation = zDelta * yDelta * xDelta;
+    rotation->Normalize();
+    return true;
+  }
+  return false;
+}
+
 } // namespace Editor

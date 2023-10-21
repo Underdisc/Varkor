@@ -20,6 +20,7 @@
 #include "comp/ShadowMap.h"
 #include "comp/Model.h"
 #include "comp/CameraOrbiter.h"
+#include "comp/BoxCollider.h"
 // clang-format on
 
 namespace Registrar {
@@ -68,6 +69,7 @@ void RegisterTypes()
   RegisterDependencies(Model, Transform);
   RegisterComponent(CameraOrbiter);
   RegisterDependencies(CameraOrbiter, Camera);
+  RegisterComponent(BoxCollider);
 }
 
 template<>

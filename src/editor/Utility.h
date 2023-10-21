@@ -5,6 +5,7 @@
 #include <string>
 
 #include "gfx/HdrColor.h"
+#include "math/Quaternion.h"
 #include "rsl/ResourceId.h"
 #include "rsl/ResourceType.h"
 
@@ -30,6 +31,7 @@ void DropResourceFileWidget(const char* label, std::string* resFile);
 
 void HelpMarker(const char* text);
 void HdrColorEdit(const char* label, Gfx::HdrColor* hdrColor, float colorWidth);
+bool RotationEdit(Math::Quaternion* rotation);
 
 } // namespace Editor
 

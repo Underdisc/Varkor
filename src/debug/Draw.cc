@@ -76,6 +76,33 @@ void Plane(const Math::Plane& plane, const Vec3& color)
   Line(corners[3], corners[0], color);
 }
 
+void Box(const Math::Box& box, const Vec3& color)
+{
+  Mat4 rotMatrix;
+  Math::Rotate(&rotMatrix, box.mRotation);
+  Vec3 scaledBasis[3];
+  for (int i = 0; i < 3; ++i) {
+    scaledBasis[i] = {rotMatrix[0][i], rotMatrix[1][i], rotMatrix[2][i]};
+    scaledBasis[i] *= box.mScale[i] / 2.0f;
+  }
+
+  Vec3 corners[8];
+  corners[0] = box.mCenter + scaledBasis[0] + scaledBasis[1] + scaledBasis[2];
+  corners[1] = box.mCenter + scaledBasis[0] - scaledBasis[1] + scaledBasis[2];
+  corners[2] = box.mCenter + scaledBasis[0] - scaledBasis[1] - scaledBasis[2];
+  corners[3] = box.mCenter + scaledBasis[0] + scaledBasis[1] - scaledBasis[2];
+  corners[4] = box.mCenter - scaledBasis[0] + scaledBasis[1] + scaledBasis[2];
+  corners[5] = box.mCenter - scaledBasis[0] - scaledBasis[1] + scaledBasis[2];
+  corners[6] = box.mCenter - scaledBasis[0] - scaledBasis[1] - scaledBasis[2];
+  corners[7] = box.mCenter - scaledBasis[0] + scaledBasis[1] - scaledBasis[2];
+
+  for (int i = 0; i < 4; ++i) {
+    Line(corners[i], corners[(i + 1) % 4], color);
+    Line(corners[i + 4], corners[(i + 1) % 4 + 4], color);
+    Line(corners[i], corners[i + 4], color);
+  }
+}
+
 void CartesianAxes()
 {
   Vec3 x = {1.0f, 0.0f, 0.0f};

@@ -1,5 +1,6 @@
 target_sources(varkor PRIVATE
   AlphaColor.cc
+  BoxCollider.cc
   Camera.cc
   CameraOrbiter.cc
   DirectionalLight.cc

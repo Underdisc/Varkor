@@ -2,6 +2,7 @@
 
 #include "Input.h"
 #include "comp/Transform.h"
+#include "editor/Utility.h"
 #include "editor/gizmos/Gizmos.h"
 #include "editor/gizmos/Rotator.h"
 #include "editor/gizmos/Scalor.h"
@@ -62,18 +63,9 @@ void Transform::VEdit(const World::Object& owner)
     SetScale(scale);
   }
 
-  Quat rotation = GetRotation();
-  Vec3 eulerAngles = rotation.EulerAngles();
-  Vec3 newAngles = eulerAngles;
-  bool rotationDragged =
-    ImGui::DragFloat3("Rotation", newAngles.mD, 0.01f, 0.0f, 0.0f, "%.3f");
+  bool rotationDragged = Editor::RotationEdit(&mRotation);
   if (rotationDragged) {
-    Math::Quaternion xDelta, yDelta, zDelta;
-    xDelta.AngleAxis(newAngles[0], {1.0f, 0.0f, 0.0f});
-    yDelta.AngleAxis(newAngles[1], {0.0f, 1.0f, 0.0f});
-    zDelta.AngleAxis(newAngles[2], {0.0f, 0.0f, 1.0f});
-    rotation = zDelta * yDelta * xDelta;
-    SetRotation(rotation);
+    mUpdated = false;
   }
   ImGui::PopItemWidth();
   Editor::Gizmos::ImGuiOptions();
