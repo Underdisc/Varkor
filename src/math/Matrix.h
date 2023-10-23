@@ -14,6 +14,8 @@ struct Matrix
   const T* CData() const;
   T* operator[](int row);
   const T* operator[](int row) const;
+  template<unsigned int M>
+  operator Matrix<T, M>() const;
 };
 
 template<typename T, unsigned int N>
@@ -41,6 +43,8 @@ Vector<T, N - 1> ApplyToPoint(
 template<typename T, unsigned int N>
 Vector<T, N - 1> ApplyToVector(
   const Matrix<T, N>& matrix, const Vector<T, N - 1>& vector);
+template<typename T, unsigned int N>
+Vector<T, N> GetBasisVector(const Matrix<T, N>& matrix, unsigned int column);
 
 template<typename T, unsigned int N>
 Matrix<T, N> HomogeneousOrthogonalInverse(const Matrix<T, N>& matrix);
@@ -60,8 +64,6 @@ T CalculateProductElement(
   int elementColumn);
 
 } // namespace Math
-
-typedef Math::Matrix<float, 3> Mat3;
 
 #include "Matrix.hh"
 

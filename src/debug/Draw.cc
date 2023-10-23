@@ -8,7 +8,7 @@
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
 #include "math/Geometry.h"
-#include "math/Matrix4.h"
+#include "math/Matrix3.h"
 #include "rsl/Library.h"
 
 namespace Debug {
@@ -78,12 +78,11 @@ void Plane(const Math::Plane& plane, const Vec3& color)
 
 void Box(const Math::Box& box, const Vec3& color)
 {
-  Mat4 rotMatrix;
-  Math::Rotate(&rotMatrix, box.mRotation);
+  Mat3 orientation;
+  Math::Rotate(&orientation, box.mRotation);
   Vec3 scaledBasis[3];
   for (int i = 0; i < 3; ++i) {
-    scaledBasis[i] = {rotMatrix[0][i], rotMatrix[1][i], rotMatrix[2][i]};
-    scaledBasis[i] *= box.mScale[i] / 2.0f;
+    scaledBasis[i] = Math::GetBasisVector(orientation, i) * (box.mScale[i] / 2);
   }
 
   Vec3 corners[8];

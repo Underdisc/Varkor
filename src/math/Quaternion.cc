@@ -10,6 +10,11 @@ Quaternion::Quaternion() {}
 Quaternion::Quaternion(float a, float b, float c, float d): mVec({a, b, c, d})
 {}
 
+Quaternion::Quaternion(const Vec3& from, const Vec3& to)
+{
+  FromTo(from, to);
+}
+
 void Quaternion::Identity()
 {
   mVec = {1.0f, 0.0, 0.0f, 0.0f};
@@ -25,7 +30,7 @@ void Quaternion::AngleAxis(float angle, Vec3 axis)
   mD = axis[2];
 }
 
-void Quaternion::FromTo(Vec3 from, Vec3 to)
+void Quaternion::FromTo(const Vec3& from, const Vec3& to)
 {
   float magSqProduct = Math::MagnitudeSq(from) * Math::MagnitudeSq(to);
   LogAbortIf(magSqProduct == 0.0f, "One of the vectors is a zero vector.");

@@ -2,6 +2,7 @@
 
 #include "math/Constants.h"
 #include "math/Matrix.h"
+#include "math/Matrix3.h"
 #include "math/Matrix4.h"
 #include "math/Print.h"
 #include "math/Vector.h"
@@ -16,6 +17,14 @@ Math::Matrix<float, 5> CreateGenericMat5()
     }
   }
   return matrix;
+}
+
+void Cast()
+{
+  Math::Matrix<float, 5> matrix = CreateGenericMat5();
+  std::cout << "up\n"
+            << (Math::Matrix<float, 7>)matrix << "down\n"
+            << (Math::Matrix<float, 3>)matrix;
 }
 
 void EqualsOperator()
@@ -124,6 +133,14 @@ void ApplyToPointVector()
   std::cout << Math::ApplyToVector(matrix, value) << '\n';
 }
 
+void GetBasisVector()
+{
+  Math::Matrix<float, 5> matrix = CreateGenericMat5();
+  for (int i = 0; i < 5; ++i) {
+    std::cout << Math::GetBasisVector(matrix, i) << std::endl;
+  }
+}
+
 void Inverse()
 {
   Math::Matrix<float, 5> matrix;
@@ -230,6 +247,7 @@ void NoInverseDependentColumn()
 
 int main(void)
 {
+  RunTest(Cast);
   RunTest(EqualsOperator);
   RunTest(Multiply);
   RunTest(MultiplyEquals);
@@ -241,6 +259,7 @@ int main(void)
   RunTest(Scale);
   RunTest(Translate);
   RunTest(ApplyToPointVector);
+  RunTest(GetBasisVector);
   RunTest(Inverse);
   RunTest(HomogeneousOrthogonalInverse);
   RunTest(MultiplyRow);

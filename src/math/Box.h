@@ -9,6 +9,7 @@ namespace Math {
 struct Box
 {
   void Init(const Vec3& center, const Vec3& scale, const Quat& rotation);
+  Vec3 Support(const Vec3& direction);
 
   Vec3 mCenter;
   Vec3 mScale;

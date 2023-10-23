@@ -4,6 +4,7 @@
 namespace Math {
 
 bool Near(float a, float b);
+float Sign(float value);
 float Round(float value);
 float RoundToNearest(float value, float interval);
 template<typename T>

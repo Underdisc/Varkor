@@ -5,6 +5,8 @@
 #include "math/Quaternion.h"
 #include "math/Vector.h"
 
+typedef Math::Matrix<float, 4> Mat4;
+
 namespace Math {
 
 template<>
@@ -32,7 +34,5 @@ void Orthographic(
   Matrix<float, 4>* m, float height, float aspect, float near, float far);
 
 } // namespace Math
-
-typedef Math::Matrix<float, 4> Mat4;
 
 #endif
