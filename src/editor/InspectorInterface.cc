@@ -84,7 +84,7 @@ void AddComponentInterface::Show()
       continue;
     }
     const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-    if (ImGui::Button(typeData.mName.c_str(), ImVec2(-1, 0))) {
+    if (ImGui::Selectable(typeData.mName.c_str())) {
       mObject.AddComponent(typeId);
     }
   }
