@@ -23,6 +23,7 @@ void BoxCollider::VSerialize(Vlk::Value& val)
   val("Center") = mBox.mCenter;
   val("Scale") = mBox.mScale;
   val("Rotation") = mBox.mRotation;
+  val("Show") = mShow;
 }
 
 void BoxCollider::VDeserialize(const Vlk::Explorer& ex)
@@ -30,6 +31,7 @@ void BoxCollider::VDeserialize(const Vlk::Explorer& ex)
   mBox.mCenter = ex("Center").As<Vec3>({0, 0, 0});
   mBox.mScale = ex("Scale").As<Vec3>({1, 1, 1});
   mBox.mRotation = ex("Rotation").As<Quat>({1, 0, 0, 0});
+  mShow = ex("Show").As<bool>(false);
 }
 
 void BoxCollider::VRenderable(const World::Object& owner)

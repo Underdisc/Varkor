@@ -20,6 +20,7 @@ bool nSuppressObjectPicking = false;
 bool nEditorMode = true;
 bool nHideInterface = false;
 World::Space nSpace;
+void (*nExtension)() = nullptr;
 
 void SetStyle()
 {
@@ -117,26 +118,30 @@ void Init()
   ImGui_ImplOpenGL3_Init("#version 330");
   SetStyle();
 
-  // Initialize the interfaces that are instantly opened.
-  StartImGuiFrame();
-  nCoreInterface.Init();
-  EndImGuiFrame();
+  nCamera.Init();
 
   // Load in the requested layers.
-  bool overviewCreated = false;
-  for (std::string layerFile : Options::nLoadLayers) {
+  World::LayerIt loadedLayerIt = World::nLayers.end();
+  for (std::string layerFile : Options::nConfig.mLoadLayers) {
     layerFile = Rsl::PrependResDirectory(layerFile);
     VResult<World::LayerIt> result = World::LoadLayer(layerFile.c_str());
     if (!result.Success()) {
       LogError(result.mError.c_str());
     }
-    else if (!overviewCreated) {
-      nCoreInterface.OpenInterface<LayerInterface>(result.mValue);
-      overviewCreated = true;
+    else if (loadedLayerIt != World::nLayers.end()) {
+      loadedLayerIt = result.mValue;
     }
   }
 
-  nCamera.Init();
+  if (Options::nConfig.mEditorLevel == Options::EditorLevel::Complete) {
+    // Initialize the interfaces that are instantly opened.
+    StartImGuiFrame();
+    nCoreInterface.Init();
+    EndImGuiFrame();
+    if (loadedLayerIt != World::nLayers.end()) {
+      nCoreInterface.OpenInterface<LayerInterface>(loadedLayerIt);
+    }
+  }
 }
 
 void Purge()
@@ -151,6 +156,7 @@ void Purge()
 void StartFrame()
 {
   Gizmos::Update();
+  nCamera.Update();
   StartImGuiFrame();
   const ImGuiIO& io = ImGui::GetIO();
   Input::SetMouseFocus(!io.WantCaptureMouse);
@@ -172,31 +178,44 @@ void RunInWorlds()
   layerInterface->ObjectPicking();
 }
 
-void EndFrame()
+void TrySaveLayer()
 {
-  if (nEditorMode) {
-    nCamera.Update();
-    bool leftCtrl = Input::KeyDown(Input::Key::LeftControl);
-    bool s = Input::KeyPressed(Input::Key::S);
-    if (leftCtrl && s) {
-      auto* layerInterface = nCoreInterface.FindInterface<LayerInterface>();
-      if (layerInterface != nullptr) {
-        layerInterface->SaveLayer();
-      }
+  if (!nEditorMode) {
+    return;
+  }
+  bool leftCtrl = Input::KeyDown(Input::Key::LeftControl);
+  bool s = Input::KeyPressed(Input::Key::S);
+  if (leftCtrl && s) {
+    auto* layerInterface = nCoreInterface.FindInterface<LayerInterface>();
+    if (layerInterface != nullptr) {
+      layerInterface->SaveLayer();
     }
   }
+}
 
-  nCoreInterface.HandleStaging();
-  RunInWorlds();
+void EndFrame()
+{
+  if (Options::nConfig.mEditorLevel == Options::EditorLevel::Complete) {
+    TrySaveLayer();
+    nCoreInterface.HandleStaging();
+    RunInWorlds();
+  }
 
   if (Input::KeyPressed(Input::Key::GraveAccent)) {
     nHideInterface = !nHideInterface;
   }
+
   if (!nHideInterface) {
     ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
     ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), flags);
-    nCoreInterface.ShowAll();
+    if (Options::nConfig.mEditorLevel == Options::EditorLevel::Complete) {
+      nCoreInterface.ShowAll();
+    }
+    if (nExtension != nullptr) {
+      nExtension();
+    }
   }
+
   EndImGuiFrame();
 }
 

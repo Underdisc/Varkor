@@ -740,24 +740,23 @@ void Render()
     // Render the selected space.
     Editor::LayerInterface* layerInterface =
       Editor::nCoreInterface.FindInterface<Editor::LayerInterface>();
-    if (layerInterface == nullptr) {
-      return;
-    }
-    const World::Layer& worldLayer = *layerInterface->mLayerIt;
-    const World::Space& space = worldLayer.mSpace;
     const World::Object cameraObject = Editor::nCamera.GetObject();
+    if (layerInterface != nullptr) {
+      const World::Layer& worldLayer = *layerInterface->mLayerIt;
+      const World::Space& space = worldLayer.mSpace;
 
-    RenderLayer(space, cameraObject);
-    BlendLayer(nBlendedFbo, worldLayer.mPostMaterialId);
-    BloomAndTonemapPasses();
+      RenderLayer(space, cameraObject);
+      BlendLayer(nBlendedFbo, worldLayer.mPostMaterialId);
+      BloomAndTonemapPasses();
 
-    // Render an outline around the selected object.
-    Editor::InspectorInterface* inspectorInterface =
-      layerInterface->FindInterface<Editor::InspectorInterface>();
-    if (inspectorInterface != nullptr) {
-      Collection collection;
-      collection.Collect(inspectorInterface->mObject);
-      RenderMemberOutline(collection, cameraObject);
+      // Render an outline around the selected object.
+      Editor::InspectorInterface* inspectorInterface =
+        layerInterface->FindInterface<Editor::InspectorInterface>();
+      if (inspectorInterface != nullptr) {
+        Collection collection;
+        collection.Collect(inspectorInterface->mObject);
+        RenderMemberOutline(collection, cameraObject);
+      }
     }
 
     // Render the editor space and any debug draws.

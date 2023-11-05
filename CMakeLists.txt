@@ -26,6 +26,12 @@ add_executable(varkorStandalone)
 target_sources(varkorStandalone PRIVATE src/Main.cc)
 target_link_libraries(varkorStandalone varkor)
 
+# Create the test viewer target.
+add_executable(testViewer)
+target_sources(testViewer PRIVATE src/test/Viewer.cc src/test/math/Box.cc)
+target_link_libraries(testViewer varkor)
+target_compile_definitions(testViewer PUBLIC RemoveTestEntryPoint)
+
 # Create all of the test targets.
 add_subdirectory(src/test)
 
