@@ -17,7 +17,7 @@ namespace Editor {
 CoreInterface nCoreInterface;
 ImGuiContext* nImGuiContext;
 bool nSuppressObjectPicking = false;
-bool nEditorMode = true;
+bool nPlayMode = false;
 bool nHideInterface = false;
 World::Space nSpace;
 void (*nExtension)() = nullptr;
@@ -180,7 +180,7 @@ void RunInWorlds()
 
 void TrySaveLayer()
 {
-  if (!nEditorMode) {
+  if (nPlayMode) {
     return;
   }
   bool leftCtrl = Input::KeyDown(Input::Key::LeftControl);

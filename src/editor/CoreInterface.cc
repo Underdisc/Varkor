@@ -32,7 +32,7 @@ void CoreInterface::Show()
   ViewMenu();
   ImGui::EndMenuBar();
 
-  ImGui::Checkbox("Editor Mode", &nEditorMode);
+  ImGui::Checkbox("Play Mode", &nPlayMode);
   ImGui::Checkbox("Pause World", &World::nPause);
 
   // Display a button for layer creation.

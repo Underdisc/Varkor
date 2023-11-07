@@ -736,7 +736,7 @@ void Render()
   if (nCustomRender != nullptr) {
     nCustomRender();
   }
-  if (Editor::nEditorMode) {
+  if (!Editor::nPlayMode) {
     // Render the selected space.
     Editor::LayerInterface* layerInterface =
       Editor::nCoreInterface.FindInterface<Editor::LayerInterface>();
@@ -768,7 +768,7 @@ void Render()
     Result result = RenderWorld();
     if (!result.Success()) {
       LogError(result.mError.c_str());
-      Editor::nEditorMode = true;
+      Editor::nPlayMode = false;
     }
   }
 }
