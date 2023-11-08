@@ -1,6 +1,7 @@
 #ifndef math_Geometry_h
 #define math_Geometry_h
 
+#include "math/Sphere.h"
 #include "math/Vector.h"
 
 namespace Math {
@@ -43,18 +44,16 @@ struct Plane
   const Vec3& Normal() const;
 };
 
-struct Sphere
-{
-  Vec3 mCenter;
-  float mRadius;
-
-  Sphere();
-  Sphere(const Vec3& center, float radius);
-  void Init(const Vec3& center, float radius);
-};
-
 bool HasIntersection(const Ray& ray, const Plane& plane);
 Vec3 Intersection(const Ray& ray, const Plane& plane);
+
+struct SphereSphere
+{
+  bool mIntersecting;
+  // The distance sphere b needs to be moved to be outside of sphere a.
+  Vec3 mSeparation;
+};
+SphereSphere Intersection(const Sphere& a, const Sphere& b);
 
 struct RaySphere
 {

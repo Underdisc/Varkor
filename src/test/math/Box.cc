@@ -28,10 +28,10 @@ void Support1()
   std::cout << box.Support({0.5f, -0.5f, -0.5f}) << std::endl;
 }
 
-Ds::Vector<BoxIntersectionTest> GetBoxIntersectionTests()
+Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests()
 {
   Math::Box a, b;
-  Ds::Vector<BoxIntersectionTest> boxIntersectoinTests;
+  Ds::Vector<BoxBoxIntersectionTest> boxIntersectoinTests;
 
   a = {{0, 0, 0}, {1, 1, 1}, {1, 0, 0, 0}};
   b = {{1, 1, 1}, {1, 1, 1}, {1, 0, 0, 0}};
@@ -194,10 +194,10 @@ Ds::Vector<BoxIntersectionTest> GetBoxIntersectionTests()
   return boxIntersectoinTests;
 }
 
-void BoxIntersection()
+void BoxBoxIntersection()
 {
-  Ds::Vector<BoxIntersectionTest> tests = GetBoxIntersectionTests();
-  for (const BoxIntersectionTest& test : tests) {
+  Ds::Vector<BoxBoxIntersectionTest> tests = GetBoxBoxIntersectionTests();
+  for (const BoxBoxIntersectionTest& test : tests) {
     std::cout << test.mName << ": " << Math::HasIntersection(test.mA, test.mB)
               << '\n';
   }
@@ -211,6 +211,6 @@ int main()
   using namespace Test;
   RunTest(Support0);
   RunTest(Support1);
-  RunTest(BoxIntersection);
+  RunTest(BoxBoxIntersection);
 }
 #endif

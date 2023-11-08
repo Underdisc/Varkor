@@ -2,6 +2,9 @@
 
 #include "math/Geometry.h"
 #include "test/Test.h"
+#include "test/math/Geometry.h"
+
+namespace Test {
 
 std::ostream& operator<<(std::ostream& os, const Math::Ray& ray)
 {
@@ -99,10 +102,62 @@ void RaySphere()
   std::cout << Math::Intersection(rays[2], spheres[1]) << '\n';
 }
 
+Ds::Vector<SphereSphereIntersectionTest> GetSphereSphereIntersectionTests()
+{
+  Ds::Vector<SphereSphereIntersectionTest> tests;
+  Math::Sphere a, b;
+
+  a = {{0, 0, 0}, 1};
+  b = {{0, 0, 0}, 1};
+  tests.Emplace("0", a, b);
+
+  a = {{-1.3021f, 0.0000f, -0.1861f}, 1.0000f};
+  b = {{0.0000f, 0.0000f, 0.0000f}, 1.0000f};
+  tests.Emplace("1", a, b);
+
+  a = {{-1.3021f, 0.0000f, -0.1861f}, 1.0000f};
+  b = {{0.4662f, 0.4902f, -0.3273f}, 0.7095f};
+  tests.Emplace("2", a, b);
+
+  a = {{0.0658f, 0.0000f, 1.4832f}, 1.4719f};
+  b = {{0.4662f, 0.4902f, -0.3273f}, 0.7095f};
+  tests.Emplace("3", a, b);
+
+  a = {{-0.2620f, -0.0000f, 1.2747f}, 1.4719f};
+  b = {{0.6807f, 0.4902f, -1.7491f}, 2.5317f};
+  tests.Emplace("4", a, b);
+
+  a = {{1.7430f, -3.2200f, -0.4813f}, 1.4719f};
+  b = {{1.0906f, 0.8162f, -0.7119f}, 2.5347f};
+  tests.Emplace("5", a, b);
+
+  a = {{1.4530f, 4.1771f, -0.7421f}, 1.4719f};
+  b = {{1.0906f, 0.8162f, -0.7119f}, 2.5347f};
+  tests.Emplace("6", a, b);
+
+  return tests;
+}
+
+void SphereSphereIntersection()
+{
+  const auto tests = GetSphereSphereIntersectionTests();
+  for (const SphereSphereIntersectionTest& test : tests) {
+    Math::SphereSphere result = Math::Intersection(test.mA, test.mB);
+    std::cout << test.mName << ": " << result.mIntersecting << ", "
+              << result.mSeparation << "\n";
+  }
+}
+
+} // namespace Test
+
+#ifndef RemoveTestEntryPoint
 int main(void)
 {
+  using namespace Test;
   RunTest(At);
   RunTest(ClosestPoint);
   RunTest(Intersection);
   RunTest(RaySphere);
+  RunTest(SphereSphereIntersection);
 }
+#endif

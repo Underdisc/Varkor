@@ -3,20 +3,20 @@
 
 #include "../../math/Box.h"
 #include "ds/Vector.h"
+#include "test/Test.h"
 
 namespace Test {
 
-struct BoxIntersectionTest
+struct BoxBoxIntersectionTest: BaseTest
 {
-  BoxIntersectionTest(
+  BoxBoxIntersectionTest(
     const std::string& name, const Math::Box& a, const Math::Box& b):
-    mName(name), mA(a), mB(b)
+    BaseTest(name), mA(a), mB(b)
   {}
-  std::string mName;
   Math::Box mA, mB;
 };
 
-Ds::Vector<BoxIntersectionTest> GetBoxIntersectionTests();
+Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests();
 
 } // namespace Test
 

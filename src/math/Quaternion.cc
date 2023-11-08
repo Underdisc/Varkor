@@ -15,6 +15,11 @@ Quaternion::Quaternion(const Vec3& from, const Vec3& to)
   FromTo(from, to);
 }
 
+Quaternion::Quaternion(float angle, const Vec3& axis)
+{
+  AngleAxis(angle, axis);
+}
+
 void Quaternion::Identity()
 {
   mVec = {1.0f, 0.0, 0.0f, 0.0f};

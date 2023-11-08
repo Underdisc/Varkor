@@ -7,6 +7,7 @@
 #include "gfx/Mesh.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
+#include "math/Constants.h"
 #include "math/Geometry.h"
 #include "math/Matrix3.h"
 #include "rsl/Library.h"
@@ -100,6 +101,35 @@ void Box(const Math::Box& box, const Vec3& color)
     Line(corners[i + 4], corners[(i + 1) % 4 + 4], color);
     Line(corners[i], corners[i + 4], color);
   }
+}
+
+void Sphere(const Math::Sphere& sphere, const Vec3& color)
+{
+  // Create an array of points that outline a unit circle around the z axis.
+  constexpr int pointCount = 40;
+  static Vec3 circlePoints[pointCount];
+  static bool circlePointsInitialized = false;
+  if (!circlePointsInitialized) {
+    for (int i = 0; i < pointCount; ++i) {
+      float theta = 2 * Math::nPi * (i / (float)pointCount);
+      circlePoints[i] = {std::cosf(theta), std::sinf(theta), 0};
+    }
+  }
+
+  // Transform the points to create a sphere representation using lines.
+  auto createLines = [&](const Quat& rotation)
+  {
+    for (int i = 0; i < pointCount; ++i) {
+      Vec3 start = rotation.Rotate(circlePoints[i % pointCount]);
+      Vec3 end = rotation.Rotate(circlePoints[(i + 1) % pointCount]);
+      start = start * sphere.mRadius + sphere.mCenter;
+      end = end * sphere.mRadius + sphere.mCenter;
+      Line(start, end, color);
+    }
+  };
+  createLines(Quat({1, 0, 0, 0}));
+  createLines(Quat(Math::nPi * 0.5f, {0, 1, 0}));
+  createLines(Quat(Math::nPi * 0.5f, {1, 0, 0}));
 }
 
 void CartesianAxes()

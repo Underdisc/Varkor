@@ -1,5 +1,6 @@
 #include <imgui/imgui.h>
 
+#include "../math/Geometry.h"
 #include "VarkorMain.h"
 #include "debug/Draw.h"
 #include "editor/Camera.h"
@@ -16,10 +17,11 @@ namespace Test {
 
 enum class Type
 {
-  BoxIntersection = 0,
-  Invalid = 1,
+  BoxBoxIntersection = 0,
+  SphereSphereIntersection = 1,
+  Invalid = 2,
 };
-const char* nTypeStrs[] = {"BoxIntersection"};
+const char* nTypeStrs[] = {"BoxBoxIntersection", "SphereSphereIntersection"};
 
 struct Desc
 {
@@ -31,7 +33,7 @@ struct Desc
 
 namespace Viewer {
 
-void Show(const Test::BoxIntersectionTest& test)
+void Show(const Test::BoxBoxIntersectionTest& test)
 {
   Vec3 color = {1, 1, 1};
   if (Math::HasIntersection(test.mA, test.mB)) {
@@ -41,7 +43,7 @@ void Show(const Test::BoxIntersectionTest& test)
   Debug::Draw::Box(test.mB, color);
 }
 
-void Gizmo(Test::BoxIntersectionTest& test)
+void Gizmo(Test::BoxBoxIntersectionTest& test)
 {
   auto boxGizmo = [](Math::Box& box)
   {
@@ -66,14 +68,54 @@ void Gizmo(Test::BoxIntersectionTest& test)
   boxGizmo(test.mB);
 }
 
-Ds::Vector<Test::BoxIntersectionTest> nBoxIntersectionTests;
+void Show(const Test::SphereSphereIntersectionTest& test)
+{
+  Vec3 color = {1, 1, 1};
+  Math::SphereSphere result = Math::Intersection(test.mA, test.mB);
+  if (result.mIntersecting) {
+    color = {0, 1, 0};
+    Vec3 separationDir = Math::Normalize(result.mSeparation);
+    Vec3 start = test.mB.mCenter - test.mB.mRadius * separationDir;
+    Vec3 end = start + result.mSeparation;
+    Debug::Draw::Line(start, end, {1, 1, 1});
+  }
+  Debug::Draw::Sphere(test.mA, color);
+  Debug::Draw::Sphere(test.mB, color);
+}
+
+void Gizmo(Test::SphereSphereIntersectionTest& test)
+{
+  auto sphereGizmo = [](Math::Sphere& sphere)
+  {
+    using namespace Editor::Gizmos;
+    switch (nMode) {
+    case Mode::Translate:
+      sphere.mCenter =
+        Editor::Gizmo<Translator>::Next().Run(sphere.mCenter, {1, 0, 0, 0});
+      break;
+    case Mode::Scale:
+      Vec3 scale = {sphere.mRadius};
+      scale =
+        Editor::Gizmo<Scalor>::Next().Run(scale, sphere.mCenter, {1, 0, 0, 0});
+      sphere.mRadius = scale[0];
+      break;
+    }
+  };
+  sphereGizmo(test.mA);
+  sphereGizmo(test.mB);
+}
+
+Ds::Vector<Test::BoxBoxIntersectionTest> nBoxBoxIntersectionTests;
+Ds::Vector<Test::SphereSphereIntersectionTest> nSphereSphereIntersectionTests;
 Test::Desc nSelectedTest;
 bool nShowGizmo = false;
 
 size_t TestTypeCount(Test::Type type)
 {
   switch (type) {
-  case Test::Type::BoxIntersection: return nBoxIntersectionTests.Size();
+  case Test::Type::BoxBoxIntersection: return nBoxBoxIntersectionTests.Size();
+  case Test::Type::SphereSphereIntersection:
+    return nSphereSphereIntersectionTests.Size();
   }
   return 0;
 }
@@ -81,7 +123,10 @@ size_t TestTypeCount(Test::Type type)
 std::string TestName(Test::Type type, size_t idx)
 {
   switch (type) {
-  case Test::Type::BoxIntersection: return nBoxIntersectionTests[idx].mName;
+  case Test::Type::BoxBoxIntersection:
+    return nBoxBoxIntersectionTests[idx].mName;
+  case Test::Type::SphereSphereIntersection:
+    return nSphereSphereIntersectionTests[idx].mName;
   }
   return "Invalid";
 }
@@ -93,25 +138,31 @@ std::string TestName(const Test::Desc& test)
 
 void Show(const Test::Desc& test)
 {
+  if (nShowGizmo) {
+    switch (test.mType) {
+    case Test::Type::BoxBoxIntersection:
+      Gizmo(nBoxBoxIntersectionTests[test.mIdx]);
+      break;
+    case Test::Type::SphereSphereIntersection:
+      Gizmo(nSphereSphereIntersectionTests[test.mIdx]);
+      break;
+    }
+  }
   switch (test.mType) {
-  case Test::Type::BoxIntersection:
-    Show(nBoxIntersectionTests[test.mIdx]);
+  case Test::Type::BoxBoxIntersection:
+    Show(nBoxBoxIntersectionTests[test.mIdx]);
     break;
-  }
-  if (!nShowGizmo) {
-    return;
-  }
-  switch (test.mType) {
-  case Test::Type::BoxIntersection:
-    Gizmo(nBoxIntersectionTests[test.mIdx]);
+  case Test::Type::SphereSphereIntersection:
+    Show(nSphereSphereIntersectionTests[test.mIdx]);
     break;
   }
 }
 
 void Init()
 {
-  nBoxIntersectionTests = Test::GetBoxIntersectionTests();
-  nSelectedTest.mType = Test::Type::BoxIntersection;
+  nBoxBoxIntersectionTests = Test::GetBoxBoxIntersectionTests();
+  nSphereSphereIntersectionTests = Test::GetSphereSphereIntersectionTests();
+  nSelectedTest.mType = Test::Type::BoxBoxIntersection;
   nSelectedTest.mIdx = 0;
 }
 

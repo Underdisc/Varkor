@@ -102,21 +102,6 @@ const Vec3& Plane::Normal() const
   return mNormal;
 }
 
-// Sphere //////////////////////////////////////////////////////////////////////
-Sphere::Sphere() {}
-
-Sphere::Sphere(const Vec3& center, float radius):
-  mCenter(center), mRadius(radius)
-{
-  Init(center, radius);
-}
-
-void Sphere::Init(const Vec3& center, float radius)
-{
-  mCenter = center;
-  mRadius = radius;
-}
-
 // Functions ///////////////////////////////////////////////////////////////////
 bool HasIntersection(const Ray& ray, const Plane& plane)
 {
@@ -134,6 +119,30 @@ Vec3 Intersection(const Ray& ray, const Plane& plane)
   LogAbortIf(nd == 0.0f, "The Ray is perpendicular to the plane normal.");
   float t = (np - ns) / nd;
   return ray.At(t);
+}
+
+SphereSphere Intersection(const Sphere& a, const Sphere& b)
+{
+  // Determine whether there is an intersection.
+  SphereSphere info;
+  Vec3 distVec = b.mCenter - a.mCenter;
+  float sqrDist = Math::Dot(distVec, distVec);
+  float radiusSum = a.mRadius + b.mRadius;
+  float sqrMaxDist = radiusSum * radiusSum;
+  if (sqrDist > sqrMaxDist) {
+    info.mIntersecting = false;
+    return info;
+  }
+  info.mIntersecting = true;
+
+  // Find the separation vector when there is an intersection.
+  float dist = Math::Magnitude(distVec);
+  if (Near(dist, 0)) {
+    info.mSeparation = {radiusSum, 0, 0};
+    return info;
+  }
+  info.mSeparation = (radiusSum - dist) * (distVec / dist);
+  return info;
 }
 
 RaySphere Intersection(const Ray& ray, const Sphere& sphere)

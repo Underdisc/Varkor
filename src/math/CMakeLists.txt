@@ -4,5 +4,6 @@ target_sources(varkor PRIVATE
   Matrix3.cc
   Matrix4.cc
   Quaternion.cc
+  Sphere.cc
   Triangle.cc
   Utility.cc)
