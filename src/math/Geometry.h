@@ -1,6 +1,7 @@
 #ifndef math_Geometry_h
 #define math_Geometry_h
 
+#include "math/Box.h"
 #include "math/Sphere.h"
 #include "math/Vector.h"
 
@@ -54,6 +55,8 @@ struct SphereSphere
   Vec3 mSeparation;
 };
 SphereSphere Intersection(const Sphere& a, const Sphere& b);
+
+bool HasIntersection(const Box& a, const Box& b);
 
 struct RaySphere
 {

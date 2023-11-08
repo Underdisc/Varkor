@@ -18,8 +18,6 @@ struct Box
   Quat mRotation;
 };
 
-bool HasIntersection(const Box& a, const Box& b);
-
 } // namespace Math
 
 #endif

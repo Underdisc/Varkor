@@ -10,7 +10,6 @@
 #include "editor/gizmos/Rotator.h"
 #include "editor/gizmos/Scalor.h"
 #include "editor/gizmos/Translator.h"
-#include "test/math/Box.h"
 #include "world/World.h"
 
 namespace Test {
