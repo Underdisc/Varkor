@@ -27,6 +27,19 @@ struct BoxBoxIntersectionTest: BaseTest
 };
 Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests();
 
+struct SphereTriangleIntersectionTest: BaseTest
+{
+  SphereTriangleIntersectionTest(
+    const std::string& name,
+    const Math::Sphere& sphere,
+    const Math::Triangle& triangle):
+    BaseTest(name), mSphere(sphere), mTriangle(triangle)
+  {}
+  Math::Sphere mSphere;
+  Math::Triangle mTriangle;
+};
+Ds::Vector<SphereTriangleIntersectionTest> GetSphereTriangleIntersectionTests();
+
 } // namespace Test
 
 #endif

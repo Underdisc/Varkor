@@ -3,6 +3,7 @@
 
 #include "math/Box.h"
 #include "math/Sphere.h"
+#include "math/Triangle.h"
 #include "math/Vector.h"
 
 namespace Math {
@@ -57,6 +58,13 @@ struct SphereSphere
 SphereSphere Intersection(const Sphere& a, const Sphere& b);
 
 bool HasIntersection(const Box& a, const Box& b);
+
+struct SphereTriangle
+{
+  bool mIntersecting;
+  Vec3 mSeparation;
+};
+SphereTriangle Intersection(const Sphere& sphere, const Triangle& triangle);
 
 struct RaySphere
 {

@@ -323,6 +323,83 @@ void BoxBoxIntersection()
   }
 }
 
+Ds::Vector<SphereTriangleIntersectionTest> GetSphereTriangleIntersectionTests()
+{
+  Ds::Vector<SphereTriangleIntersectionTest> tests;
+  Math::Sphere sphere;
+  Math::Triangle triangle;
+
+  sphere = {{0, 0, 0}, 1};
+  triangle = {{-1, -1, 0}, {1, 0, 0}, {0, 1, 0}};
+  tests.Emplace("0", sphere, triangle);
+
+  sphere = {{-1.1826f, -2.1240f, 0.0000f}, 1.0000f};
+  triangle = {
+    {-1.0000f, -1.0000f, 0.0000f},
+    {1.0000f, 0.0000f, 0.0000f},
+    {0.0000f, 1.0000f, 0.0000f}};
+  tests.Emplace("1", sphere, triangle);
+
+  sphere = {{-0.3490f, 2.2126f, -11.0209f}, 7.1703f};
+  triangle = {
+    {-1.0000f, -1.0000f, 1.6633f},
+    {-0.5540f, 0.0000f, -2.7632f},
+    {-0.7289f, 1.6005f, 0.0000f}};
+  tests.Emplace("2", sphere, triangle);
+
+  sphere = {{-0.6043f, 4.4224f, -5.9788f}, 5.6594f};
+  triangle = {
+    {-6.0899f, 4.0454f, 4.2461f},
+    {7.6547f, -2.9160f, 7.7353f},
+    {-0.5894f, 2.7536f, -1.0266f}};
+  tests.Emplace("3", sphere, triangle);
+
+  sphere = {{-4.4862f, 0.9700f, 0.6243f}, 3.4907f};
+  tests.Emplace("4", sphere, triangle);
+
+  sphere = {{-8.5101f, 7.5530f, 4.4012f}, 4.9970f};
+  tests.Emplace("5", sphere, triangle);
+
+  sphere = {{0.9213f, 0.7249f, 6.6503f}, 0.7686f};
+  tests.Emplace("6", sphere, triangle);
+
+  sphere = {{9.4665f, -2.8856f, 10.0305f}, 2.1800f};
+  tests.Emplace("7", sphere, triangle);
+
+  sphere = {{8.3771f, -2.8856f, 7.4411f}, 0.9005f};
+  tests.Emplace("8", sphere, triangle);
+
+  sphere = {{3.9089f, -2.8856f, -1.4791f}, 4.0346f};
+  tests.Emplace("9", sphere, triangle);
+
+  sphere = {{-0.9630f, -4.5119f, 2.6363f}, 4.0346f};
+  tests.Emplace("10", sphere, triangle);
+
+  sphere = {{1.3387f, 4.6699f, 4.4361f}, 4.5919f};
+  tests.Emplace("11", sphere, triangle);
+
+  sphere = {{1.3212f, 1.0032f, 5.2379f}, 3.8955f};
+  triangle = {
+    {-8.3002f, -5.3403f, 0.9801f},
+    {4.6298f, -2.9160f, 10.3280f},
+    {-3.0387f, 2.7536f, 8.9678f}};
+  tests.Emplace("12", sphere, triangle);
+
+  return tests;
+}
+
+void SphereTriangleIntersection()
+{
+  Ds::Vector<SphereTriangleIntersectionTest> tests =
+    GetSphereTriangleIntersectionTests();
+  for (const SphereTriangleIntersectionTest& test : tests) {
+    Math::SphereTriangle intersection =
+      Math::Intersection(test.mSphere, test.mTriangle);
+    std::cout << test.mName << ": " << intersection.mIntersecting << ", "
+              << intersection.mSeparation << '\n';
+  }
+}
+
 } // namespace Test
 
 #ifndef RemoveTestEntryPoint
@@ -335,5 +412,6 @@ int main(void)
   RunTest(RaySphere);
   RunTest(SphereSphereIntersection);
   RunTest(BoxBoxIntersection);
+  RunTest(SphereTriangleIntersection);
 }
 #endif

@@ -132,6 +132,13 @@ void Sphere(const Math::Sphere& sphere, const Vec3& color)
   createLines(Quat(Math::nPi * 0.5f, {1, 0, 0}));
 }
 
+void Triangle(const Math::Triangle& triangle, const Vec3& color)
+{
+  Line(triangle.mA, triangle.mB, color);
+  Line(triangle.mB, triangle.mC, color);
+  Line(triangle.mC, triangle.mA, color);
+}
+
 void CartesianAxes()
 {
   Vec3 x = {1.0f, 0.0f, 0.0f};

@@ -225,4 +225,30 @@ bool HasIntersection(const Box& a, const Box& b)
   return true;
 }
 
+SphereTriangle Intersection(const Sphere& sphere, const Triangle& tri)
+{
+  Vec3 closestTriPoint = tri.ClosestPointTo(sphere.mCenter);
+  Vec3 distVec = sphere.mCenter - closestTriPoint;
+  float distSq = MagnitudeSq(distVec);
+  float radiusSq = sphere.mRadius * sphere.mRadius;
+  SphereTriangle intersection;
+  intersection.mIntersecting = distSq <= radiusSq;
+  if (!intersection.mIntersecting) {
+    return intersection;
+  }
+
+  // Find the separation vector since there's an intersection.
+  float dist = std::sqrtf(distSq);
+  if (Near(dist, 0)) {
+    intersection.mSeparation = Cross(tri.mB - tri.mA, tri.mC - tri.mA);
+    intersection.mSeparation = Normalize(intersection.mSeparation);
+    intersection.mSeparation *= sphere.mRadius;
+    return intersection;
+  }
+  float separationDist = sphere.mRadius - dist;
+  Vec3 separationDir = distVec / dist;
+  intersection.mSeparation = separationDir * separationDist;
+  return intersection;
+}
+
 } // namespace Math

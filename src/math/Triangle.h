@@ -5,10 +5,15 @@
 
 namespace Math {
 
-// Given triangle points a, b, and c, this finds the barycentric coordinates of
-// p. The barycentric vector's components relate to a, b, and c respectively.
-Vec3 BarycentricCoords(
-  const Vec3& a, const Vec3& b, const Vec3& c, const Vec3& p);
+struct Triangle
+{
+  Vec3 mA, mB, mC;
+  // Finds the barycentric coordinates of p. The barycentric vector's components
+  // relate to a, b, and c respectively.
+  Vec3 BarycentricCoords(const Vec3& p) const;
+  Vec3 BarycentricCoordsToPoint(const Vec3& barycentricCords) const;
+  Vec3 ClosestPointTo(const Vec3& point) const;
+};
 
 } // namespace Math
 
