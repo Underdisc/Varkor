@@ -9,19 +9,22 @@ namespace Test {
 
 void BarycentricCoords()
 {
-  Math::Triangle tri = {{-1, -1, -1}, {1, 0, 1}, {0, 1, 0}};
+  Math::Triangle tri = {{{-1, -1, -1}, {1, 0, 1}, {0, 1, 0}}};
 
   auto printBarycentricCoords = [&](const Vec3& point)
   {
     std::cout << tri.BarycentricCoords(point) << std::endl;
   };
-  printBarycentricCoords(tri.mA);
-  printBarycentricCoords(tri.mB);
-  printBarycentricCoords(tri.mC);
+  const Vec3& a = tri.mPoints[0];
+  const Vec3& b = tri.mPoints[1];
+  const Vec3& c = tri.mPoints[2];
+  printBarycentricCoords(a);
+  printBarycentricCoords(b);
+  printBarycentricCoords(c);
   printBarycentricCoords({0, 0, 0});
-  printBarycentricCoords(tri.mA + (tri.mB - tri.mA) + (tri.mC - tri.mA));
-  printBarycentricCoords(tri.mB + (tri.mC - tri.mB) + (tri.mA - tri.mB));
-  printBarycentricCoords(tri.mC + (tri.mA - tri.mC) + (tri.mB - tri.mC));
+  printBarycentricCoords(a + (b - a) + (c - a));
+  printBarycentricCoords(b + (c - b) + (a - b));
+  printBarycentricCoords(c + (a - c) + (b - c));
 }
 
 Ds::Vector<TriangleClosestPointToTest> GetTriangleClosestPointToTests()
@@ -30,14 +33,14 @@ Ds::Vector<TriangleClosestPointToTest> GetTriangleClosestPointToTests()
   Math::Triangle triangle;
   Vec3 point;
 
-  triangle = {{-1, -1, -1}, {1, 0, 1}, {0, 1, 0}};
+  triangle = {{{-1, -1, -1}, {1, 0, 1}, {0, 1, 0}}};
   point = {0, 0, 0};
   tests.Emplace("0", triangle, point);
 
   triangle = {
-    {1.3853f, -1.8971f, -3.9755f},
-    {1.5230f, 0.3896f, 5.2937f},
-    {1.6027f, 1.6739f, 0.0000f}};
+    {{1.3853f, -1.8971f, -3.9755f},
+     {1.5230f, 0.3896f, 5.2937f},
+     {1.6027f, 1.6739f, 0.0000f}}};
   point = {1.5780f, 2.0998f, -1.3459f};
   tests.Emplace("1", triangle, point);
 
@@ -78,23 +81,23 @@ Ds::Vector<TriangleClosestPointToTest> GetTriangleClosestPointToTests()
   tests.Emplace("13", triangle, point);
 
   triangle = {
-    {1.5320f, -1.8971f, -0.3838f},
-    {-3.0402f, 0.3896f, 2.1171f},
-    {-2.7721f, 1.6739f, -4.7477f}};
+    {{1.5320f, -1.8971f, -0.3838f},
+     {-3.0402f, 0.3896f, 2.1171f},
+     {-2.7721f, 1.6739f, -4.7477f}}};
   point = {-0.3757f, -3.2775f, 1.9126f};
   tests.Emplace("14", triangle, point);
 
   triangle = {
-    {-0.7954f, -1.8971f, 2.0919f},
-    {-4.2712f, 0.3896f, 0.4309f},
-    {-1.9782f, 1.6739f, -2.4372f}};
+    {{-0.7954f, -1.8971f, 2.0919f},
+     {-4.2712f, 0.3896f, 0.4309f},
+     {-1.9782f, 1.6739f, -2.4372f}}};
   point = {-3.6286f, -3.2775f, -2.5862f};
   tests.Emplace("15", triangle, point);
 
   triangle = {
-    {-0.9796f, -1.8971f, 3.6106f},
-    {-2.8847f, 0.3896f, 0.4309f},
-    {-1.9782f, 1.6739f, 2.8848f}};
+    {{-0.9796f, -1.8971f, 3.6106f},
+     {-2.8847f, 0.3896f, 0.4309f},
+     {-1.9782f, 1.6739f, 2.8848f}}};
   point = {-5.3429f, 3.7865f, 6.9613f};
   tests.Emplace("16", triangle, point);
 

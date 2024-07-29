@@ -105,9 +105,9 @@ void PointGizmo(Vec3* point)
 
 void TriangleGizmo(Math::Triangle* triangle)
 {
-  PointGizmo(&triangle->mA);
-  PointGizmo(&triangle->mB);
-  PointGizmo(&triangle->mC);
+  PointGizmo(&(*triangle).mPoints[0]);
+  PointGizmo(&(*triangle).mPoints[1]);
+  PointGizmo(&(*triangle).mPoints[2]);
 }
 
 void SphereGizmo(Math::Sphere* sphere)
@@ -207,16 +207,16 @@ void Show<Test::TriangleClosestPointToTest>(
       nTestVectorTypeData[(size_t)TestType::TriangleClosestPointTo].mCount();
     std::cout << std::fixed << std::setprecision(4);
     // clang-format off
-    std::cout << "triangle = {{"
-      << test.mTriangle.mA[0] << "f,"
-      << test.mTriangle.mA[1] << "f,"
-      << test.mTriangle.mA[2] << "f}, {"
-      << test.mTriangle.mB[0] << "f,"
-      << test.mTriangle.mB[1] << "f,"
-      << test.mTriangle.mB[2] << "f}, {"
-      << test.mTriangle.mC[0] << "f,"
-      << test.mTriangle.mC[1] << "f,"
-      << test.mTriangle.mC[2] << "f}};\n"
+    std::cout << "triangle = {{{"
+      << test.mTriangle.mPoints[0][0] << "f,"
+      << test.mTriangle.mPoints[0][1] << "f,"
+      << test.mTriangle.mPoints[0][2] << "f}, {"
+      << test.mTriangle.mPoints[1][0] << "f,"
+      << test.mTriangle.mPoints[1][1] << "f,"
+      << test.mTriangle.mPoints[1][2] << "f}, {"
+      << test.mTriangle.mPoints[2][0] << "f,"
+      << test.mTriangle.mPoints[2][1] << "f,"
+      << test.mTriangle.mPoints[2][2] << "f}}};\n"
       << "point = {"
       << test.mPoint[0] << "f,"
       << test.mPoint[1] << "f,"
@@ -268,15 +268,15 @@ void Show<Test::SphereTriangleIntersectionTest>(
       << test.mSphere.mCenter[2] << "f}, "
       << test.mSphere.mRadius << "f};\n"
       << "triangle = {{"
-      << test.mTriangle.mA[0] << "f,"
-      << test.mTriangle.mA[1] << "f,"
-      << test.mTriangle.mA[2] << "f}, {"
-      << test.mTriangle.mB[0] << "f,"
-      << test.mTriangle.mB[1] << "f,"
-      << test.mTriangle.mB[2] << "f}, {"
-      << test.mTriangle.mC[0] << "f,"
-      << test.mTriangle.mC[1] << "f,"
-      << test.mTriangle.mC[2] << "f}};\n"
+      << test.mTriangle.mPoints[0][0] << "f,"
+      << test.mTriangle.mPoints[0][1] << "f,"
+      << test.mTriangle.mPoints[0][2] << "f}, {"
+      << test.mTriangle.mPoints[1][0] << "f,"
+      << test.mTriangle.mPoints[1][1] << "f,"
+      << test.mTriangle.mPoints[1][2] << "f}, {"
+      << test.mTriangle.mPoints[2][0] << "f,"
+      << test.mTriangle.mPoints[2][1] << "f,"
+      << test.mTriangle.mPoints[2][2] << "f}};\n"
       << "tests.Emplace(\"" << currentTestNumber++
       << "\", sphere, triangle);\n";
     // clang-format on

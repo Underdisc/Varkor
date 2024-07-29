@@ -134,9 +134,12 @@ void Sphere(const Math::Sphere& sphere, const Vec3& color)
 
 void Triangle(const Math::Triangle& triangle, const Vec3& color)
 {
-  Line(triangle.mA, triangle.mB, color);
-  Line(triangle.mB, triangle.mC, color);
-  Line(triangle.mC, triangle.mA, color);
+  const Vec3& a = triangle.mPoints[0];
+  const Vec3& b = triangle.mPoints[1];
+  const Vec3& c = triangle.mPoints[2];
+  Line(a, b, color);
+  Line(b, c, color);
+  Line(c, a, color);
 }
 
 void CartesianAxes()

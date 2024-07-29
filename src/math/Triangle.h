@@ -7,7 +7,8 @@ namespace Math {
 
 struct Triangle
 {
-  Vec3 mA, mB, mC;
+  Vec3 mPoints[3];
+
   // Finds the barycentric coordinates of p. The barycentric vector's components
   // relate to a, b, and c respectively.
   Vec3 BarycentricCoords(const Vec3& p) const;

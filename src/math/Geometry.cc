@@ -240,7 +240,10 @@ SphereTriangle Intersection(const Sphere& sphere, const Triangle& tri)
   // Find the separation vector since there's an intersection.
   float dist = std::sqrtf(distSq);
   if (Near(dist, 0)) {
-    intersection.mSeparation = Cross(tri.mB - tri.mA, tri.mC - tri.mA);
+    const Vec3& a = tri.mPoints[0];
+    const Vec3& b = tri.mPoints[1];
+    const Vec3& c = tri.mPoints[2];
+    intersection.mSeparation = Cross(b - a, c - a);
     intersection.mSeparation = Normalize(intersection.mSeparation);
     intersection.mSeparation *= sphere.mRadius;
     return intersection;
