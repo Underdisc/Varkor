@@ -143,8 +143,11 @@ void SphereSphereIntersection()
   const auto tests = GetSphereSphereIntersectionTests();
   for (const SphereSphereIntersectionTest& test : tests) {
     Math::SphereSphere result = Math::Intersection(test.mA, test.mB);
-    std::cout << test.mName << ": " << result.mIntersecting << ", "
-              << result.mSeparation << "\n";
+    std::cout << test.mName << ": " << result.mIntersecting;
+    if (result.mIntersecting) {
+      std::cout << ", " << result.mSeparation;
+    }
+    std::cout << "\n";
   }
 }
 
@@ -392,8 +395,11 @@ void SphereTriangleIntersection()
   for (const SphereTriangleIntersectionTest& test : tests) {
     Math::SphereTriangle intersection =
       Math::Intersection(test.mSphere, test.mTriangle);
-    std::cout << test.mName << ": " << intersection.mIntersecting << ", "
-              << intersection.mSeparation << '\n';
+    std::cout << test.mName << ": " << intersection.mIntersecting;
+    if (intersection.mIntersecting) {
+      std::cout << ", " << intersection.mSeparation;
+    }
+    std::cout << "\n";
   }
 }
 
