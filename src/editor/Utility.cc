@@ -106,7 +106,7 @@ void DragResourceFile(const std::string& resFile)
 
 void DropResourceFileWidget(const char* label, std::string* resFile)
 {
-  Editor::InputText(label, resFile, -CalcBufferWidth(label));
+  InputText(label, resFile, -CalcBufferWidth(label));
   if (ImGui::BeginDragDropTarget()) {
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ResFile");
     if (payload != nullptr) {
