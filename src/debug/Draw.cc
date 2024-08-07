@@ -8,8 +8,8 @@
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
 #include "math/Constants.h"
-#include "math/Geometry.h"
 #include "math/Matrix3.h"
+#include "math/Plane.h"
 #include "rsl/Library.h"
 
 namespace Debug {

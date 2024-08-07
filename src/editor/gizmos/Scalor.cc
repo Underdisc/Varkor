@@ -7,6 +7,7 @@
 #include "gfx/Material.h"
 #include "gfx/Renderer.h"
 #include "math/Constants.h"
+#include "math/Intersection.h"
 #include "rsl/Library.h"
 
 namespace Editor {

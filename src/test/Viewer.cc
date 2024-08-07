@@ -1,6 +1,6 @@
 #include <imgui/imgui.h>
 
-#include "../math/Geometry.h"
+#include "../math/Intersection.h"
 #include "VarkorMain.h"
 #include "debug/Draw.h"
 #include "editor/Camera.h"
@@ -10,7 +10,7 @@
 #include "editor/gizmos/Rotator.h"
 #include "editor/gizmos/Scalor.h"
 #include "editor/gizmos/Translator.h"
-#include "test/math/Geometry.h"
+#include "test/math/Intersection.h"
 #include "test/math/Triangle.h"
 #include "world/World.h"
 

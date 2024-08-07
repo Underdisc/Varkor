@@ -23,7 +23,6 @@
 #include "gfx/Renderable.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
-#include "math/Geometry.h"
 #include "math/Vector.h"
 #include "rsl/Asset.h"
 #include "rsl/Library.h"

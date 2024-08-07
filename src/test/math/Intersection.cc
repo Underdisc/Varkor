@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "math/Geometry.h"
+#include "math/Intersection.h"
 #include "test/Test.h"
-#include "test/math/Geometry.h"
+#include "test/math/Intersection.h"
 
 namespace Test {
 

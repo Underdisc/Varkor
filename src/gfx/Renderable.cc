@@ -4,7 +4,6 @@
 #include "ext/Tracy.h"
 #include "gfx/Material.h"
 #include "gfx/Mesh.h"
-#include "math/Geometry.h"
 #include "rsl/Library.h"
 #include "world/Object.h"
 

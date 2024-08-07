@@ -1,8 +1,10 @@
-#ifndef test_math_Geometry_h
-#define test_math_Geometry_h
+#ifndef test_math_Intersection_h
+#define test_math_Intersection_h
 
 #include "ds/Vector.h"
+#include "math/Box.h"
 #include "math/Sphere.h"
+#include "math/Triangle.h"
 #include "test/Test.h"
 
 namespace Test {

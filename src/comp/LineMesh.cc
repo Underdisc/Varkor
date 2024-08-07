@@ -1,7 +1,7 @@
 #include "LineMesh.h"
 #include "gfx/Mesh.h"
-#include "math/Geometry.h"
 #include "math/Quaternion.h"
+#include "math/Ray.h"
 #include "rsl/Library.h"
 
 void InitLineMesh(

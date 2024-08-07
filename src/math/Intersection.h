@@ -1,5 +1,5 @@
-#ifndef math_Geometry_h
-#define math_Geometry_h
+#ifndef math_Intersection_h
+#define math_Intersection_h
 
 #include "math/Box.h"
 #include "math/Plane.h"

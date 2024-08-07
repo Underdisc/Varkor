@@ -3,8 +3,8 @@
 
 #include "gfx/Renderable.h"
 #include "math/Box.h"
-#include "math/Geometry.h"
 #include "math/Matrix4.h"
+#include "math/Plane.h"
 #include "math/Sphere.h"
 #include "math/Triangle.h"
 

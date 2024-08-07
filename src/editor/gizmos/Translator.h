@@ -1,8 +1,9 @@
 #ifndef editor_gizmo_Translator_h
 #define editor_gizmo_Translator_h
 
-#include "math/Geometry.h"
+#include "math/Plane.h"
 #include "math/Quaternion.h"
+#include "math/Ray.h"
 #include "rsl/ResourceId.h"
 #include "world/Types.h"
 

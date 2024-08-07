@@ -2,7 +2,7 @@
 #define editor_gizmo_Rotator_h
 
 #include "math/Constants.h"
-#include "math/Geometry.h"
+#include "math/Plane.h"
 #include "math/Quaternion.h"
 #include "math/Vector.h"
 #include "rsl/ResourceId.h"

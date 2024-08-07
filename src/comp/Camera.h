@@ -1,8 +1,8 @@
 #ifndef comp_Camera_h
 #define comp_Camera_h
 
-#include "math/Geometry.h"
 #include "math/Matrix4.h"
+#include "math/Ray.h"
 #include "vlk/Valkor.h"
 #include "world/Object.h"
 

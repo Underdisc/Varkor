@@ -1,4 +1,4 @@
-#include "math/Geometry.h"
+#include "math/Intersection.h"
 #include "math/Matrix3.h"
 #include "math/Utility.h"
 

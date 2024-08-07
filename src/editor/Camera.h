@@ -4,7 +4,6 @@
 #include "comp/Camera.h"
 #include "comp/Transform.h"
 #include "editor/Interface.h"
-#include "math/Geometry.h"
 #include "math/Matrix4.h"
 #include "math/Vector.h"
 
