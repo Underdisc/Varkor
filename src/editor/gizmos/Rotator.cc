@@ -102,8 +102,8 @@ void Rotator::SetNextOperation(
   }
 
   // Prepare mMouseOffset for the new operation.
-  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
-    Input::StandardMousePosition(), cameraObject);
+  Math::Ray mouseRay =
+    cameraComp.NdcPositionToWorldRay(Input::NdcMousePosition(), cameraObject);
   bool singleAxisOperation = mOperation != Operation::Xyz;
   if (singleAxisOperation && Math::HasIntersection(mouseRay, mRotationPlane)) {
     mMouseOffset = Math::Intersection(mouseRay, mRotationPlane) - translation;
@@ -149,8 +149,8 @@ Quat Rotator::Run(
   if (mOperation < Operation::Xyz) {
     // We get two rays on the rotation plane and find the angle between them to
     // determine the change in rotation.
-    Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
-      Input::StandardMousePosition(), cameraObject);
+    Math::Ray mouseRay =
+      cameraComp.NdcPositionToWorldRay(Input::NdcMousePosition(), cameraObject);
     if (!Math::HasIntersection(mouseRay, mRotationPlane)) {
       return rotation;
     }

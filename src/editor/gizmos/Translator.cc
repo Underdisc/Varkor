@@ -140,8 +140,8 @@ void Translator::SetNextOperation(
 
   // Set the mouse offset so it can be used to find the change in translation
   // during the following frames.
-  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
-    Input::StandardMousePosition(), cameraObject);
+  Math::Ray mouseRay =
+    cameraComp.NdcPositionToWorldRay(Input::NdcMousePosition(), cameraObject);
   if (mOperation < Operation::Xy) {
     if (!mTranslationRay.HasClosestTo(mouseRay)) {
       mOperation = Operation::None;
@@ -186,8 +186,8 @@ Vec3 Translator::Run(const Vec3& translation, const Quat& referenceFrame)
   // Find a new translation depending on the active operation.
   const World::Object cameraObject = nCamera.GetObject();
   const auto& cameraComp = cameraObject.Get<Comp::Camera>();
-  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
-    Input::StandardMousePosition(), cameraObject);
+  Math::Ray mouseRay =
+    cameraComp.NdcPositionToWorldRay(Input::NdcMousePosition(), cameraObject);
   if (mOperation < Operation::Xy) {
     // Perform translation on an axis.
     if (!mTranslationRay.HasClosestTo(mouseRay)) {

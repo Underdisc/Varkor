@@ -64,12 +64,12 @@ const Vec2& MousePosition()
 // This will give the mouse position in the window. Both values in the returned
 // vector are in the range of [-1, 1], where -1 represents the leftmost and
 // bottommost edges of the window.
-Vec2 StandardMousePosition()
+Vec2 NdcMousePosition()
 {
-  Vec2 standard = nMousePosition;
-  standard[0] = 2.0f * (standard[0] / Viewport::Width() - 0.5f);
-  standard[1] = -2.0f * (standard[1] / Viewport::Height() - 0.5f);
-  return standard;
+  Vec2 ndcPosition = nMousePosition;
+  ndcPosition[0] = 2.0f * (ndcPosition[0] / Viewport::Width() - 0.5f);
+  ndcPosition[1] = -2.0f * (ndcPosition[1] / Viewport::Height() - 0.5f);
+  return ndcPosition;
 }
 
 const Vec2& MouseMotion()

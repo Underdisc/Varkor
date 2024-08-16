@@ -34,12 +34,12 @@ struct Camera
 
   float ProjectedDistance(
     const World::Object& owner, const Vec3& worldTranslation) const;
-  Vec2 WorldTranslationToStandardTranslation(
+  Vec2 WorldTranslationToNdcPosition(
     Vec3 worldTranslation, const World::Object& owner) const;
-  Vec3 StandardTranslationToWorldTranslation(
-    Vec2 standardPosition, const World::Object& owner) const;
-  Math::Ray StandardTranslationToWorldRay(
-    const Vec2& standardPosition, const World::Object& owner) const;
+  Vec3 NdcPositionToWorldTranslation(
+    Vec2 ndcPosition, const World::Object& owner) const;
+  Math::Ray NdcPositionToWorldRay(
+    const Vec2& ndcPosition, const World::Object& owner) const;
 
   enum class ProjectionType
   {

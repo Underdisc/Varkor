@@ -145,7 +145,7 @@ enum class Key
 void Init();
 void Update();
 const Vec2& MousePosition();
-Vec2 StandardMousePosition();
+Vec2 NdcMousePosition();
 const Vec2& MouseMotion();
 const Vec2& MouseScroll();
 void SetMouseFocus(bool hasFocus);

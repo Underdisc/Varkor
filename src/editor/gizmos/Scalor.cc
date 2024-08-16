@@ -139,8 +139,8 @@ void Scalor::SetNextOperation(
   case Operation::Xyz: mScalePlane.Normal(forward); break;
   default: break;
   }
-  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
-    Input::StandardMousePosition(), cameraObject);
+  Math::Ray mouseRay =
+    cameraComp.NdcPositionToWorldRay(Input::NdcMousePosition(), cameraObject);
   if (mOperation < Operation::Xy) {
     if (!mScaleRay.HasClosestTo(mouseRay)) {
       mOperation = Operation::None;
@@ -207,8 +207,8 @@ Vec3 Scalor::Run(
   case Operation::Xyz: axes = {1.0f, 1.0f, 1.0f}; break;
   default: break;
   }
-  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
-    Input::StandardMousePosition(), cameraObject);
+  Math::Ray mouseRay =
+    cameraComp.NdcPositionToWorldRay(Input::NdcMousePosition(), cameraObject);
   if (mOperation < Operation::Xy) {
     if (!mScaleRay.HasClosestTo(mouseRay)) {
       return scale;
