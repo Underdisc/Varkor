@@ -105,11 +105,17 @@ void Rotator::SetNextOperation(
   Math::Ray mouseRay =
     cameraComp.NdcPositionToWorldRay(Input::NdcMousePosition(), cameraObject);
   bool singleAxisOperation = mOperation != Operation::Xyz;
-  if (singleAxisOperation && Math::HasIntersection(mouseRay, mRotationPlane)) {
-    mMouseOffset = Math::Intersection(mouseRay, mRotationPlane) - translation;
-    if (Math::Near(mMouseOffset, {0.0f, 0.0f, 0.0f})) {
-      mOperation = Operation::None;
-    }
+  if (!singleAxisOperation) {
+    return;
+  }
+  Math::RayPlane intersectionInfo =
+    Math::Intersection(mouseRay, mRotationPlane);
+  if (!intersectionInfo.mIntersecting) {
+    return;
+  }
+  mMouseOffset = intersectionInfo.mIntersection - translation;
+  if (Math::Near(mMouseOffset, {0.0f, 0.0f, 0.0f})) {
+    mOperation = Operation::None;
   }
 }
 
@@ -151,11 +157,12 @@ Quat Rotator::Run(
     // determine the change in rotation.
     Math::Ray mouseRay =
       cameraComp.NdcPositionToWorldRay(Input::NdcMousePosition(), cameraObject);
-    if (!Math::HasIntersection(mouseRay, mRotationPlane)) {
+    Math::RayPlane intersectionInfo =
+      Math::Intersection(mouseRay, mRotationPlane);
+    if (!intersectionInfo.mIntersecting) {
       return rotation;
     }
-    Vec3 newMouseOffset = Math::Intersection(mouseRay, mRotationPlane);
-    newMouseOffset -= translation;
+    Vec3 newMouseOffset = intersectionInfo.mIntersection - translation;
     if (Math::Near(Math::MagnitudeSq(newMouseOffset), 0.0f)) {
       return rotation;
     }

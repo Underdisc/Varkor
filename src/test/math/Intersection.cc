@@ -6,6 +6,15 @@
 
 namespace Test {
 
+std::ostream& operator<<(std::ostream& os, const Math::RayPlane& intersection)
+{
+  os << intersection.mIntersecting;
+  if (intersection.mIntersecting) {
+    os << ": " << intersection.mIntersection;
+  }
+  return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const Math::RaySphere& intersection)
 {
   os << '{';
@@ -30,15 +39,11 @@ void Intersection()
   planes[1].PointNormal({1.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f});
   planes[2].PointNormal({1.0f, 1.0f, 0.0f}, {1.0f, -1.0f, 0.0f});
   std::cout << Math::Intersection(rays[0], planes[0]) << '\n';
+  std::cout << Math::Intersection(rays[0], planes[2]) << '\n';
   std::cout << Math::Intersection(rays[1], planes[0]) << '\n';
+  std::cout << Math::Intersection(rays[1], planes[1]) << '\n';
   std::cout << Math::Intersection(rays[2], planes[0]) << '\n';
   std::cout << Math::Intersection(rays[2], planes[1]) << '\n';
-
-  std::cout << Math::HasIntersection(rays[1], planes[1]) << '\n';
-  std::cout << Math::HasIntersection(rays[0], planes[2]) << '\n';
-
-  // This will crash because the ray is perpendicular to the plane normal.
-  // Math::Intersection(rays[0], planes[2]);
 }
 
 void RaySphere()

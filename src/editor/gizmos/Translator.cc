@@ -151,12 +151,13 @@ void Translator::SetNextOperation(
     return;
   }
   else if (mOperation <= Operation::Xyz) {
-    if (!Math::HasIntersection(mouseRay, mTranslationPlane)) {
+    Math::RayPlane intersectionInfo =
+      Math::Intersection(mouseRay, mTranslationPlane);
+    if (!intersectionInfo.mIntersecting) {
       mOperation = Operation::None;
       return;
     }
-    Vec3 intersection = Math::Intersection(mouseRay, mTranslationPlane);
-    mMouseOffset = intersection - translation;
+    mMouseOffset = intersectionInfo.mIntersection - translation;
   }
 }
 
@@ -204,11 +205,12 @@ Vec3 Translator::Run(const Vec3& translation, const Quat& referenceFrame)
   }
   else if (mOperation < Operation::Xyz) {
     // Perform translation on a plane.
-    if (!Math::HasIntersection(mouseRay, mTranslationPlane)) {
+    Math::RayPlane intersectionInfo =
+      Math::Intersection(mouseRay, mTranslationPlane);
+    if (!intersectionInfo.mIntersecting) {
       return translation;
     }
-    Vec3 mousePoint = Math::Intersection(mouseRay, mTranslationPlane);
-    Vec3 newTranslation = mousePoint - mMouseOffset;
+    Vec3 newTranslation = intersectionInfo.mIntersection - mMouseOffset;
     if (!nSnapping) {
       return newTranslation;
     }
@@ -226,9 +228,10 @@ Vec3 Translator::Run(const Vec3& translation, const Quat& referenceFrame)
   }
   else if (mOperation == Operation::Xyz) {
     // Perform translation on the camera defined plane.
-    if (Math::HasIntersection(mouseRay, mTranslationPlane)) {
-      Vec3 mousePoint = Math::Intersection(mouseRay, mTranslationPlane);
-      Vec3 newTranslation = mousePoint - mMouseOffset;
+    Math::RayPlane intersectionInfo =
+      Math::Intersection(mouseRay, mTranslationPlane);
+    if (intersectionInfo.mIntersecting) {
+      Vec3 newTranslation = intersectionInfo.mIntersection - mMouseOffset;
       return newTranslation;
     }
   }

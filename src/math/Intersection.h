@@ -9,8 +9,12 @@
 
 namespace Math {
 
-bool HasIntersection(const Ray& ray, const Plane& plane);
-Vec3 Intersection(const Ray& ray, const Plane& plane);
+struct RayPlane
+{
+  bool mIntersecting;
+  Vec3 mIntersection;
+};
+RayPlane Intersection(const Ray& ray, const Plane& plane);
 
 struct SphereSphere
 {

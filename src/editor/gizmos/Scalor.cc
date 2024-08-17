@@ -149,14 +149,16 @@ void Scalor::SetNextOperation(
     mMousePosition = mScaleRay.ClosestPointTo(mouseRay);
   }
   else if (mOperation < Operation::Xyz) {
-    if (!Math::HasIntersection(mouseRay, mScalePlane)) {
+    Math::RayPlane intersectionInfo = Math::Intersection(mouseRay, mScalePlane);
+    if (!intersectionInfo.mIntersecting) {
       mOperation = Operation::None;
       return;
     }
-    mMousePosition = Math::Intersection(mouseRay, mScalePlane);
+    mMousePosition = intersectionInfo.mIntersection;
   }
   else {
-    mMousePosition = Math::Intersection(mouseRay, mScalePlane);
+    Math::RayPlane intersectionInfo = Math::Intersection(mouseRay, mScalePlane);
+    mMousePosition = intersectionInfo.mIntersection;
     mUniformScaleDirection = Math::Normalize(mMousePosition - translation);
     mNormalizedStartScale = Math::Normalize(scale);
   }
@@ -225,11 +227,11 @@ Vec3 Scalor::Run(
     return scale + axes * deltaMagnitude;
   }
   else if (mOperation < Operation::Xyz) {
-    if (!Math::HasIntersection(mouseRay, mScalePlane)) {
+    Math::RayPlane intersectionInfo = Math::Intersection(mouseRay, mScalePlane);
+    if (!intersectionInfo.mIntersecting) {
       return scale;
     }
-    Vec3 newMousePosition = Math::Intersection(mouseRay, mScalePlane);
-    Vec3 delta = newMousePosition - mMousePosition;
+    Vec3 delta = intersectionInfo.mIntersection - mMousePosition;
     delta = referenceFrame.Conjugate().Rotate(delta);
     delta = Math::ComponentwiseProduct(axes, delta);
     if (nSnapping) {
@@ -239,8 +241,11 @@ Vec3 Scalor::Run(
     return scale + delta;
   }
   else if (mOperation == Operation::Xyz) {
-    Vec3 newMousePosition = Math::Intersection(mouseRay, mScalePlane);
-    Vec3 mouseDelta = newMousePosition - mMousePosition;
+    Math::RayPlane intersectionInfo = Math::Intersection(mouseRay, mScalePlane);
+    if (!intersectionInfo.mIntersecting) {
+      return scale;
+    }
+    Vec3 mouseDelta = intersectionInfo.mIntersection - mMousePosition;
     float amount = Math::Dot(mouseDelta, mUniformScaleDirection);
     mMousePosition += amount * mUniformScaleDirection;
     return scale + mNormalizedStartScale * amount;

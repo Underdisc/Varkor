@@ -4,22 +4,20 @@
 
 namespace Math {
 
-bool HasIntersection(const Ray& ray, const Plane& plane)
+RayPlane Intersection(const Ray& ray, const Plane& plane)
 {
-  if (Math::Dot(plane.Normal(), ray.Direction()) == 0.0f) {
-    return false;
+  RayPlane info;
+  float nd = Math::Dot(plane.Normal(), ray.Direction());
+  if (nd == 0.0f) {
+    info.mIntersecting = false;
+    return info;
   }
-  return true;
-}
-
-Vec3 Intersection(const Ray& ray, const Plane& plane)
-{
+  info.mIntersecting = true;
   float np = Math::Dot(plane.Normal(), plane.mPoint);
   float ns = Math::Dot(plane.Normal(), ray.mStart);
-  float nd = Math::Dot(plane.Normal(), ray.Direction());
-  LogAbortIf(nd == 0.0f, "The Ray is perpendicular to the plane normal.");
   float t = (np - ns) / nd;
-  return ray.At(t);
+  info.mIntersection = ray.At(t);
+  return info;
 }
 
 SphereSphere Intersection(const Sphere& a, const Sphere& b)
