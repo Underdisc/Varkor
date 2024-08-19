@@ -10,3 +10,4 @@ working/imgui.ini
 working/log.txt
 working/test/*/coverage
 working/test/*/out_diff.txt
+working/vKeybinds.vlk

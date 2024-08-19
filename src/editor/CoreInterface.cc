@@ -1,5 +1,6 @@
 #include <imgui/imgui.h>
 
+#include "Input.h"
 #include "Options.h"
 #include "editor/Camera.h"
 #include "editor/CoreInterface.h"
@@ -128,6 +129,10 @@ void CoreInterface::FileMenu()
   }
   if (ImGui::MenuItem("Save Layer As", nullptr, false, layerSelected)) {
     layerInterface->SaveLayerAs();
+  }
+
+  if (ImGui::MenuItem("Save Keybinds")) {
+    Input::SaveKeybinds();
   }
 
   bool canSave = !Rsl::IsStandalone();

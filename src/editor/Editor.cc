@@ -183,9 +183,7 @@ void TrySaveLayer()
   if (nPlayMode) {
     return;
   }
-  bool leftCtrl = Input::KeyDown(Input::Key::LeftControl);
-  bool s = Input::KeyPressed(Input::Key::S);
-  if (leftCtrl && s) {
+  if (Input::ActionPressed(Input::Action::SaveLayer)) {
     auto* layerInterface = nCoreInterface.FindInterface<LayerInterface>();
     if (layerInterface != nullptr) {
       layerInterface->SaveLayer();
@@ -201,7 +199,7 @@ void EndFrame()
     RunInWorlds();
   }
 
-  if (Input::KeyPressed(Input::Key::GraveAccent)) {
+  if (Input::ActionPressed(Input::Action::ToggleEditor)) {
     nHideInterface = !nHideInterface;
   }
 

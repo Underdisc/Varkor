@@ -17,6 +17,7 @@ enum class Mouse
   Seven = GLFW_MOUSE_BUTTON_7,
   Eight = GLFW_MOUSE_BUTTON_8,
 };
+
 enum class Key
 {
   Unknown = GLFW_KEY_UNKNOWN,
@@ -142,8 +143,29 @@ enum class Key
   Menu = GLFW_KEY_MENU,
 };
 
+enum class Action
+{
+  MoveForward,
+  MoveBackward,
+  MoveLeft,
+  MoveRight,
+  MoveUp,
+  MoveDown,
+  ModeTranslate,
+  ModeScale,
+  ModeRotate,
+  ReferenceFrameWorld,
+  ReferenceFrameParent,
+  ReferenceFrameRelative,
+  ToggleEditor,
+  SaveLayer,
+  DuplicateEntity,
+  Count
+};
+
 void Init();
 void Update();
+void SaveKeybinds();
 const Vec2& MousePosition();
 Vec2 NdcMousePosition();
 const Vec2& MouseMotion();
@@ -156,6 +178,8 @@ bool MouseDown(Mouse mouseButton);
 bool KeyPressed(Key key);
 bool KeyReleased(Key key);
 bool KeyDown(Key key);
+bool ActionActive(Action action);
+bool ActionPressed(Action action);
 
 } // namespace Input
 

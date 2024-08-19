@@ -51,11 +51,6 @@ World::Object Camera::GetObject()
 
 void Camera::Update()
 {
-  // LeftControl disables camera motion because it's the editor's modifier key.
-  if (Input::KeyDown(Input::Key::LeftControl)) {
-    return;
-  }
-
   // Change the camera's yaw and pitch depending on input.
   const World::Object cameraObject = GetObject();
   auto& transformComp = cameraObject.Get<Comp::Transform>();
@@ -84,22 +79,22 @@ void Camera::Update()
   Vec3 forward = cameraComp.WorldForward(cameraObject);
   Vec3 right = cameraComp.WorldRight(cameraObject);
   Vec3 up = cameraComp.WorldUp(cameraObject);
-  if (Input::KeyDown(Input::Key::W)) {
+  if (Input::ActionActive(Input::Action::MoveForward)) {
     mTargetTranslation += forward * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::S)) {
+  if (Input::ActionActive(Input::Action::MoveBackward)) {
     mTargetTranslation -= forward * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::D)) {
+  if (Input::ActionActive(Input::Action::MoveRight)) {
     mTargetTranslation += right * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::A)) {
+  if (Input::ActionActive(Input::Action::MoveLeft)) {
     mTargetTranslation -= right * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::E)) {
+  if (Input::ActionActive(Input::Action::MoveUp)) {
     mTargetTranslation += up * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::Q)) {
+  if (Input::ActionActive(Input::Action::MoveDown)) {
     mTargetTranslation -= up * Temporal::DeltaTime() * mSpeed;
   }
   Vec3 translation = transformComp.GetTranslation();

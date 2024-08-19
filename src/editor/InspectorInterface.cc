@@ -14,9 +14,7 @@ InspectorInterface::InspectorInterface(World::Object& object): mObject(object)
 void InspectorInterface::Show()
 {
   // Perform a duplication and inspect the duplicate if requested.
-  bool duplicate =
-    Input::KeyDown(Input::Key::LeftControl) && Input::KeyPressed(Input::Key::D);
-  if (duplicate) {
+  if (Input::ActionPressed(Input::Action::DuplicateEntity)) {
     mObject = mObject.Duplicate();
   }
 
