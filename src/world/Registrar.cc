@@ -21,12 +21,28 @@
 #include "comp/Model.h"
 #include "comp/CameraOrbiter.h"
 #include "comp/BoxCollider.h"
+#include "comp/Name.h"
 // clang-format on
 
 namespace Registrar {
 
 void (*nRegisterCustomTypes)() = nullptr;
-void (*nProgressions[nCurrentProgression])(Vlk::Value& componentsVal);
+void (*nProgressions[nCurrentProgression + 1])(Vlk::Value& componentsVal);
+void (*nLayerProgressions[nCurrentLayerProgression + 1])(Vlk::Value& layerVal);
+
+template<int N>
+void LayerProgression(Vlk::Value& layerVal);
+
+template<int N>
+void AssignLayerProgressions()
+{
+  nLayerProgressions[N] = LayerProgression<N>;
+  AssignLayerProgressions<N - 1>();
+}
+
+template<>
+void AssignLayerProgressions<nInvalidProgression>()
+{}
 
 template<int N>
 void Progression(Vlk::Value& componentsVal);
@@ -70,6 +86,20 @@ void RegisterTypes()
   RegisterComponent(CameraOrbiter);
   RegisterDependencies(CameraOrbiter, Camera);
   RegisterComponent(BoxCollider);
+  RegisterComponent(Name);
+}
+
+template<>
+void LayerProgression<0>(Vlk::Value& layerVal)
+{
+  Vlk::Value* spaceVal = layerVal.TryGetPair("Space");
+  for (int i = 0; i < spaceVal->Size(); ++i) {
+    Vlk::Value& entityVal = (*spaceVal)[i];
+    Vlk::Value& nameVal = entityVal("Name");
+    Vlk::Value& componentsVal = entityVal("Components");
+    componentsVal("Name") = nameVal.As<std::string>();
+    entityVal.TryRemovePair("Name");
+  }
 }
 
 template<>
@@ -145,6 +175,14 @@ void Init()
   }
   Comp::AssessComponentsFile();
   AssignProgressions<nCurrentProgression>();
+  AssignLayerProgressions<nCurrentLayerProgression>();
+}
+
+void ProgressLayer(Vlk::Value& layerValue, int startProgression)
+{
+  for (int i = startProgression + 1; i <= nCurrentLayerProgression; ++i) {
+    nLayerProgressions[i](layerValue);
+  }
 }
 
 void ProgressComponents(Vlk::Value& spaceVal, int startProgression)

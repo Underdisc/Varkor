@@ -2,6 +2,7 @@
 #include <utility>
 
 #include "Error.h"
+#include "comp/Name.h"
 #include "vlk/Valkor.h"
 #include "world/Object.h"
 #include "world/Space.h"
@@ -20,12 +21,11 @@ bool ComponentDescriptor::InUse() const
 
 Member::Member(): mFirstDescriptorId(nInvalidDescriptorId) {}
 
-void Member::StartUse(DescriptorId firstDescId, const std::string& name)
+void Member::StartUse(DescriptorId firstDescId)
 {
   mFirstDescriptorId = firstDescId;
   mDescriptorCount = 0;
   mParent = nInvalidMemberId;
-  mName = name;
 }
 
 void Member::EndUse()
@@ -123,15 +123,14 @@ MemberId Space::CreateMember()
   if (mUnusedMemberIds.Size() > 0) {
     MemberId newMemberId = mUnusedMemberIds.Top();
     Member& newMember = mMembers[newMemberId];
-    name << "Member" << newMemberId;
-    newMember.StartUse(newDescId, name.str());
+    newMember.StartUse(newDescId);
     mUnusedMemberIds.Pop();
     return newMemberId;
   }
   Member newMember;
   MemberId newMemberId = (MemberId)mMembers.Size();
   name << "Member" << newMemberId;
-  newMember.StartUse(newDescId, name.str());
+  newMember.StartUse(newDescId);
   mMembers.Push(std::move(newMember));
   return newMemberId;
 }
@@ -158,7 +157,6 @@ MemberId Space::Duplicate(MemberId ogMemberId, bool duplicationRoot)
   VerifyMemberId(ogMemberId);
   MemberId newMemberId = CreateMember();
   const Member& ogMember = mMembers[ogMemberId];
-  mMembers[newMemberId].mName = ogMember.mName;
   DescriptorId ogDescId = ogMember.mFirstDescriptorId;
   while (ogDescId < ogMember.EndDescriptorId()) {
     ComponentDescriptor newDesc;
@@ -288,10 +286,14 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
   }
   const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
   if (HasComponent(typeId, memberId)) {
-    const Member& member = mMembers[memberId];
     std::stringstream error;
-    error << member.mName << " (MemberId: " << memberId << ") already has a "
-          << typeData.mName << " (TypeId: " << typeId << ") component.";
+    error << "Member " << memberId;
+    Comp::Name* nameComp = TryGetComponent<Comp::Name>(memberId);
+    if (nameComp != nullptr) {
+      error << " (" << nameComp->mName << ")";
+    }
+    error << " already has a " << typeData.mName << " (TypeId: " << typeId
+          << ") component.";
     LogAbort(error.str().c_str());
   }
 
@@ -366,8 +368,13 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
   const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
   if (descId == endDescId) {
     std::stringstream error;
-    error << member.mName << " (MemberId: " << memberId << ") does not have a "
-          << typeData.mName << " (TypeId: " << typeId << ") component.";
+    error << "Member " << memberId;
+    Comp::Name* nameComp = TryGetComponent<Comp::Name>(memberId);
+    if (nameComp != nullptr) {
+      error << " (" << nameComp->mName << ")";
+    }
+    error << " does not have a " << typeData.mName << " (TypeId: " << typeId
+          << ") component.";
     LogAbort(error.str().c_str());
   }
 
@@ -401,8 +408,13 @@ void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
     const Member& member = mMembers[memberId];
     const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
     std::stringstream error;
-    error << member.mName << " (" << memberId << ") did not contain a "
-          << typeData.mName << " (" << typeId << ") component.";
+    error << "Member " << memberId;
+    Comp::Name* nameComp = TryGetComponent<Comp::Name>(memberId);
+    if (nameComp != nullptr) {
+      error << " (" << nameComp->mName << ")";
+    }
+    error << " did not contain a " << typeData.mName << " (" << typeId
+          << ") component.";
     LogAbort(error.str().c_str());
   }
   return component;
@@ -506,7 +518,6 @@ void Space::Serialize(Vlk::Value& spaceVal) const
     // Serialize all of the member's data.
     Vlk::Value memberVal;
     memberVal("Id") = memberId;
-    memberVal("Name") = member.mName;
     memberVal("Parent") = member.mParent;
     Vlk::Value& childrenVal = memberVal("Children")[{member.mChildren.Size()}];
     for (size_t i = 0; i < member.mChildren.Size(); ++i) {
@@ -548,13 +559,8 @@ Result Space::Deserialize(const Vlk::Explorer& spaceEx)
       mMembers.Resize(memberId + 1);
     }
     Member& member = mMembers[memberId];
-    Vlk::Explorer nameEx = memberEx("Name");
-    if (!nameEx.Valid(Vlk::Value::Type::TrueValue)) {
-      return Result(
-        "Member at " + memberEx.Path() + " missing :Name: TrueValue");
-    }
     DescriptorId firstDescId = (DescriptorId)mDescriptorBin.Size();
-    member.StartUse(firstDescId, nameEx.As<std::string>());
+    member.StartUse(firstDescId);
 
     // Get the member's parent and children ids.
     member.mParent = memberEx("Parent").As<int>(nInvalidMemberId);

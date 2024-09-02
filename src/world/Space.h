@@ -26,8 +26,6 @@ struct ComponentDescriptor
 struct Member
 {
 public:
-  std::string mName;
-
   Member();
   DescriptorId FirstDescriptorId() const;
   DescriptorId LastDescriptorId() const;
@@ -46,7 +44,7 @@ private:
   MemberId mParent;
   Ds::Vector<MemberId> mChildren;
 
-  void StartUse(DescriptorId firstDescId, const std::string& name);
+  void StartUse(DescriptorId firstDescId);
   void EndUse();
   DescriptorId EndDescriptorId() const;
 

@@ -7,6 +7,7 @@ target_sources(varkor PRIVATE
   LineMesh.cc
   Mesh.cc
   Model.cc
+  Name.cc
   PointLight.cc
   ShadowMap.cc
   Skybox.cc

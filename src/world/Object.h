@@ -50,7 +50,6 @@ struct Object
   Object CreateChild() const;
   Object Duplicate() const;
   Member& GetMember() const;
-  std::string& GetName() const;
   const Ds::Vector<World::MemberId>& Children() const;
   bool HasParent() const;
   Object Parent() const;

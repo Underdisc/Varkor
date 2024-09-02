@@ -83,6 +83,19 @@ VResult<LayerIt> LoadLayer(const char* filename)
   newLayer.mPostMaterialId =
     postMaterialEx.As<ResId>(Gfx::Renderer::nDefaultPostId);
 
+  // Progress the layer forward.
+  int layerProgression =
+    metadataEx("LayerProgression").As<int>(Registrar::nInvalidProgression);
+  if (layerProgression < Registrar::nCurrentLayerProgression) {
+    Registrar::ProgressLayer(rootVal, layerProgression);
+    std::stringstream logString;
+    logString << "Progressed \"" << filename << "\" from layer progression "
+              << std::to_string(layerProgression) << " to "
+              << std::to_string(Registrar::nCurrentLayerProgression);
+    Log::String(logString.str());
+  }
+
+  // Progress all components forward.
   Vlk::Value& spaceVal = rootVal("Space");
   int progression =
     metadataEx("Progression").As<int>(Registrar::nInvalidProgression);
@@ -116,6 +129,7 @@ Result SaveLayer(LayerIt it, const char* filename)
   metadataVal("CameraId") = layer.mCameraId;
   metadataVal("PostMaterialId") = layer.mPostMaterialId;
   metadataVal("Progression") = Registrar::nCurrentProgression;
+  metadataVal("LayerProgression") = Registrar::nCurrentLayerProgression;
   Vlk::Value& spaceVal = rootVal("Space");
   layer.mSpace.Serialize(spaceVal);
   return rootVal.Write(filename);
