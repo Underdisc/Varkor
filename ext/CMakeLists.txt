@@ -24,13 +24,14 @@ target_include_directories(varkor PUBLIC "sub/stb")
 
 # imgui
 target_sources(varkor PRIVATE
-  local/imgui/imgui.cpp
-  local/imgui/imgui_demo.cpp
-  local/imgui/imgui_draw.cpp
-  local/imgui/imgui_tables.cpp
-  local/imgui/imgui_widgets.cpp
-  local/imgui/imgui_impl_glfw.cpp
-  local/imgui/imgui_impl_opengl3.cpp)
+  sub/imgui/imgui.cpp
+  sub/imgui/imgui_demo.cpp
+  sub/imgui/imgui_draw.cpp
+  sub/imgui/imgui_tables.cpp
+  sub/imgui/imgui_widgets.cpp
+  sub/imgui/backends/imgui_impl_glfw.cpp
+  sub/imgui/backends/imgui_impl_opengl3.cpp)
+target_include_directories(varkor PUBLIC "sub/imgui")
 
 # assimp
 if (MSVC)

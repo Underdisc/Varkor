@@ -16,3 +16,6 @@
 [submodule "ext/sub/dds-ktx"]
 	path = ext/sub/dds-ktx
 	url = https://github.com/septag/dds-ktx.git
+[submodule "ext/sub/imgui"]
+	path = ext/sub/imgui
+	url = https://github.com/ocornut/imgui.git

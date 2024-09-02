@@ -239,7 +239,8 @@ Result Shader::CompileSubShader(
   const CompileInfo& compileInfo, GLuint subShaderId)
 {
   // Add the version header and compile the subshader source.
-  std::string source = smVersionHeader + compileInfo.mSource;
+  std::string source = smVersionHeader;
+  source += "\n" + compileInfo.mSource;
   const char* sourceCStr = source.c_str();
   glShaderSource(subShaderId, 1, &sourceCStr, NULL);
   glCompileShader(subShaderId);

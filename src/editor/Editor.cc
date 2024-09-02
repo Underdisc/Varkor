@@ -1,6 +1,6 @@
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
 
 #include "Input.h"
 #include "Options.h"
@@ -9,6 +9,7 @@
 #include "editor/CoreInterface.h"
 #include "editor/LayerInterface.h"
 #include "editor/gizmos/Gizmos.h"
+#include "gfx/Shader.h"
 #include "rsl/Library.h"
 #include "world/World.h"
 
@@ -115,7 +116,7 @@ void Init()
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   ImGui_ImplGlfw_InitForOpenGL(Viewport::Window(), true);
-  ImGui_ImplOpenGL3_Init("#version 330");
+  ImGui_ImplOpenGL3_Init(Gfx::Shader::smVersionHeader);
   SetStyle();
 
   nCamera.Init();
@@ -150,6 +151,9 @@ void Purge()
   Gizmos::Purge();
   nCamera.Purge();
   nSpace.Clear();
+
+  ImGui_ImplGlfw_Shutdown();
+  ImGui_ImplOpenGL3_Shutdown();
   ImGui::DestroyContext(nImGuiContext);
 }
 
@@ -205,7 +209,8 @@ void EndFrame()
 
   if (!nHideInterface) {
     ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
-    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), flags);
+    ImGui::DockSpaceOverViewport(
+      ImGui::GetWindowDockID(), ImGui::GetMainViewport(), flags);
     if (Options::nConfig.mEditorLevel == Options::EditorLevel::Complete) {
       nCoreInterface.ShowAll();
     }
