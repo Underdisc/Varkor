@@ -98,13 +98,14 @@ VResult<LayerIt> LoadLayer(const char* filename)
   // Progress all components forward.
   Vlk::Value& spaceVal = rootVal("Space");
   int progression =
-    metadataEx("Progression").As<int>(Registrar::nInvalidProgression);
-  if (progression < Registrar::nCurrentProgression) {
+    metadataEx("ComponentProgression").As<int>(Registrar::nInvalidProgression);
+  if (progression < Registrar::nCurrentComponentProgression) {
     Registrar::ProgressComponents(spaceVal, progression);
     std::string logString = "Progressed \"";
     logString += filename;
-    logString += "\" from progression " + std::to_string(progression) + " to " +
-      std::to_string(Registrar::nCurrentProgression);
+    logString += "\" from component progression " +
+      std::to_string(progression) + " to " +
+      std::to_string(Registrar::nCurrentComponentProgression);
     Log::String(logString);
   }
 
@@ -128,7 +129,7 @@ Result SaveLayer(LayerIt it, const char* filename)
   metadataVal("Name") = layer.mName;
   metadataVal("CameraId") = layer.mCameraId;
   metadataVal("PostMaterialId") = layer.mPostMaterialId;
-  metadataVal("Progression") = Registrar::nCurrentProgression;
+  metadataVal("ComponentProgression") = Registrar::nCurrentComponentProgression;
   metadataVal("LayerProgression") = Registrar::nCurrentLayerProgression;
   Vlk::Value& spaceVal = rootVal("Space");
   layer.mSpace.Serialize(spaceVal);

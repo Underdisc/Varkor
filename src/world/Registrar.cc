@@ -27,7 +27,8 @@
 namespace Registrar {
 
 void (*nRegisterCustomTypes)() = nullptr;
-void (*nProgressions[nCurrentProgression + 1])(Vlk::Value& componentsVal);
+void (*nComponentProgressions[nCurrentComponentProgression + 1])(
+  Vlk::Value& componentsVal);
 void (*nLayerProgressions[nCurrentLayerProgression + 1])(Vlk::Value& layerVal);
 
 template<int N>
@@ -45,17 +46,17 @@ void AssignLayerProgressions<nInvalidProgression>()
 {}
 
 template<int N>
-void Progression(Vlk::Value& componentsVal);
+void ComponentProgression(Vlk::Value& componentsVal);
 
 template<int N>
-void AssignProgressions()
+void AssignComponentProgressions()
 {
-  nProgressions[N] = Progression<N>;
-  AssignProgressions<N - 1>();
+  nComponentProgressions[N] = ComponentProgression<N>;
+  AssignComponentProgressions<N - 1>();
 }
 
 template<>
-void AssignProgressions<nInvalidProgression>()
+void AssignComponentProgressions<nInvalidProgression>()
 {}
 
 void RegisterTypes()
@@ -92,18 +93,27 @@ void RegisterTypes()
 template<>
 void LayerProgression<0>(Vlk::Value& layerVal)
 {
-  Vlk::Value* spaceVal = layerVal.TryGetPair("Space");
-  for (int i = 0; i < spaceVal->Size(); ++i) {
-    Vlk::Value& entityVal = (*spaceVal)[i];
-    Vlk::Value& nameVal = entityVal("Name");
-    Vlk::Value& componentsVal = entityVal("Components");
+  Vlk::Value& spaceVal = layerVal.GetPair("Space");
+  for (int i = 0; i < spaceVal.Size(); ++i) {
+    Vlk::Value& entityVal = spaceVal[i];
+    Vlk::Value& nameVal = entityVal.GetPair("Name");
+    Vlk::Value& componentsVal = entityVal.GetPair("Components");
     componentsVal("Name") = nameVal.As<std::string>();
-    entityVal.TryRemovePair("Name");
+    entityVal.RemovePair("Name");
   }
 }
 
 template<>
-void Progression<0>(Vlk::Value& componentsVal)
+void LayerProgression<1>(Vlk::Value& layerVal)
+{
+  Vlk::Value& metadataVal = layerVal.GetPair("Metadata");
+  Vlk::Value& progressionVal = metadataVal.GetPair("Progression");
+  metadataVal("ComponentProgression") = progressionVal.As<int>();
+  metadataVal.RemovePair("Progression");
+}
+
+template<>
+void ComponentProgression<0>(Vlk::Value& componentsVal)
 {
   Vlk::Value* directionLightVal = componentsVal.TryGetPair("DirectionalLight");
   if (directionLightVal == nullptr) {
@@ -121,7 +131,7 @@ void Progression<0>(Vlk::Value& componentsVal)
 }
 
 template<>
-void Progression<1>(Vlk::Value& componentsVal)
+void ComponentProgression<1>(Vlk::Value& componentsVal)
 {
   Vlk::Value* pointLightVal = componentsVal.TryGetPair("PointLight");
   if (pointLightVal == nullptr) {
@@ -136,7 +146,7 @@ void Progression<1>(Vlk::Value& componentsVal)
 }
 
 template<>
-void Progression<2>(Vlk::Value& componentsVal)
+void ComponentProgression<2>(Vlk::Value& componentsVal)
 {
   Vlk::Value* spotLightVal = componentsVal.TryGetPair("SpotLight");
   if (spotLightVal == nullptr) {
@@ -156,7 +166,7 @@ void Progression<2>(Vlk::Value& componentsVal)
 }
 
 template<>
-void Progression<3>(Vlk::Value& componentsVal)
+void ComponentProgression<3>(Vlk::Value& componentsVal)
 {
   Vlk::Value* cameraOrbiterVal = componentsVal.TryGetPair("CameraOrbiter");
   if (cameraOrbiterVal == nullptr) {
@@ -174,7 +184,7 @@ void Init()
     nRegisterCustomTypes();
   }
   Comp::AssessComponentsFile();
-  AssignProgressions<nCurrentProgression>();
+  AssignComponentProgressions<nCurrentComponentProgression>();
   AssignLayerProgressions<nCurrentLayerProgression>();
 }
 
@@ -185,12 +195,13 @@ void ProgressLayer(Vlk::Value& layerValue, int startProgression)
   }
 }
 
-void ProgressComponents(Vlk::Value& spaceVal, int startProgression)
+void ProgressComponents(Vlk::Value& spaceVal, int startComponentProgression)
 {
-  for (int i = startProgression + 1; i <= nCurrentProgression; ++i) {
+  int i = startComponentProgression + 1;
+  for (; i <= nCurrentComponentProgression; ++i) {
     for (int j = 0; j < spaceVal.Size(); ++j) {
       Vlk::Value& componentsVal = spaceVal[j]("Components");
-      nProgressions[i](componentsVal);
+      nComponentProgressions[i](componentsVal);
     }
   }
 }

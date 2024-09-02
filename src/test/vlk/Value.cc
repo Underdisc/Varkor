@@ -147,15 +147,15 @@ void SerializeDeserialize()
     Vlk::Value rootVal;
     Result result = rootVal.Read(filename);
     LogAbortIf(!result.Success(), result.mError.c_str());
-    const Vlk::Pair& integer = *rootVal.TryGetPair("Integer");
+    const Vlk::Pair& integer = rootVal.GetPair("Integer");
     std::cout << integer.Key() << ": " << integer.As<int>() << std::endl;
-    const Vlk::Pair& floats = *rootVal.TryGetPair("Floats");
+    const Vlk::Pair& floats = rootVal.GetPair("Floats");
     std::cout << floats.Key() << ": " << std::endl;
     for (size_t i = 0; i < floats.Size(); ++i) {
       std::cout << "  " << floats.TryGetConstValue(i)->As<float>() << std::endl;
     }
 
-    const Vlk::Pair& container = *rootVal.TryGetPair("Container");
+    const Vlk::Pair& container = rootVal.GetPair("Container");
     const Vlk::Pair& sentenceString =
       *container.TryGetConstPair("SentenceString");
     std::cout << sentenceString.Key() << ": "
@@ -168,15 +168,14 @@ void SerializeDeserialize()
       }
     }
 
-    const Vlk::Pair& pairArray = *rootVal.TryGetPair("PairArray");
+    const Vlk::Pair& pairArray = rootVal.GetPair("PairArray");
     std::cout << pairArray.Key() << ": " << std::endl;
     for (size_t i = 0; i < pairArray.Size(); ++i) {
       std::cout << "  " << pairArray.TryGetConstPair(i)->Key() << ": "
                 << pairArray.TryGetConstPair(i)->As<int>() << std::endl;
     }
 
-    const Vlk::Pair& arrayOfPairArrays =
-      *rootVal.TryGetPair("ArrayOfPairArrays");
+    const Vlk::Pair& arrayOfPairArrays = rootVal.GetPair("ArrayOfPairArrays");
     std::cout << arrayOfPairArrays.Key() << ":\n";
     for (size_t i = 0; i < arrayOfPairArrays.Size(); ++i) {
       const Vlk::Value& elementPairArray = arrayOfPairArrays[i];
@@ -326,7 +325,7 @@ void Comparison()
   std::cout << "<- DifferentKey ->\n";
   rootValCopy = rootVal;
   Vlk::Value& pairArrayVal = rootValCopy("PairArray");
-  pairArrayVal.TryRemovePair("Pair-A");
+  pairArrayVal.RemovePair("Pair-A");
   pairArrayVal("Pair-F") = "Value-F";
   compare(rootVal, rootValCopy);
 }

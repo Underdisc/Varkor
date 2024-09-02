@@ -10,12 +10,12 @@
 namespace Registrar {
 
 constexpr int nInvalidProgression = -1;
-constexpr int nCurrentProgression = 3;
-constexpr int nCurrentLayerProgression = 0;
+constexpr int nCurrentComponentProgression = 3;
+constexpr int nCurrentLayerProgression = 1;
 
 extern void (*nRegisterCustomTypes)();
 void Init();
-void ProgressComponents(Vlk::Value& spaceVal, int startProgression);
+void ProgressComponents(Vlk::Value& spaceVal, int startComponentProgression);
 void ProgressLayer(Vlk::Value& layerVal, int startLayerProgression);
 
 } // namespace Registrar

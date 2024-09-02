@@ -312,6 +312,17 @@ Pair* Value::TryGetPair(size_t index)
   return const_cast<Pair*>(TryGetConstPair(index));
 }
 
+Pair& Value::GetPair(const std::string& key)
+{
+  Pair* pair = TryGetPair(key);
+  if (pair == nullptr) {
+    std::stringstream error;
+    error << "Pair with key \"" << key << "\" not found.";
+    LogAbort(error.str().c_str());
+  }
+  return *pair;
+}
+
 const Value* Value::TryGetConstValue(size_t index) const
 {
   if (mType != Type::ValueArray || index < 0 || mValueArray.Size() <= index) {
@@ -343,12 +354,22 @@ Pair& Value::operator()(size_t index)
   return mPairArray[index];
 }
 
-void Value::TryRemovePair(const std::string& key)
+bool Value::TryRemovePair(const std::string& key)
 {
   ExpectType(Type::PairArray);
   int pairIndex = TryGetPairIndex(key);
   if (pairIndex != smInvalidPairIndex) {
     mPairArray.Remove(pairIndex);
+    return true;
+  }
+  return false;
+}
+
+void Value::RemovePair(const std::string& key)
+{
+  if (!TryRemovePair(key)) {
+    std::stringstream error;
+    error << "Pair with key \"" << key << "\" not found.";
   }
 }
 
