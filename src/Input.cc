@@ -237,7 +237,7 @@ void Update()
   for (int action = 0; action <= (int)Action::Count; ++action) {
     const Keybind& keybind = nActionKeybinds[action];
     if (!keybind.ModifierTest()) {
-      break;
+      continue;
     }
     if (KeyPressed(keybind.mKey)) {
       nActionsPressed.Push((Action)action);
