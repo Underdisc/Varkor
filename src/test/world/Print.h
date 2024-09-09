@@ -79,23 +79,31 @@ void PrintKey()
 }
 
 template<typename T>
-void PrintSpaceComponentData(const World::Space& space)
+void PrintSpaceComponentData(std::ostream& os, const World::Space& space)
 {
-  std::cout << Comp::Type<T>::smId << ": ";
+  std::stringstream output;
   Ds::Vector<World::MemberId> slice = space.Slice<T>();
   for (int i = 0; i < slice.Size(); ++i) {
-    space.Get<T>(slice[i]).PrintData();
+    output << space.Get<T>(slice[i]);
   }
-  std::cout << std::endl;
+  std::string outputString = output.str();
+  if (!outputString.empty()) {
+    os << Comp::Type<T>::smId << ": " << outputString << '\n';
+  }
 }
 
 void PrintSpaceTestTypeComponentData(const World::Space& space)
 {
-  std::cout << "-ComponentData-\n";
-  PrintSpaceComponentData<Simple0>(space);
-  PrintSpaceComponentData<Simple1>(space);
-  PrintSpaceComponentData<Dynamic>(space);
-  PrintSpaceComponentData<Container>(space);
+  std::stringstream output;
+  PrintSpaceComponentData<Simple0>(output, space);
+  PrintSpaceComponentData<Simple1>(output, space);
+  PrintSpaceComponentData<Dynamic>(output, space);
+  PrintSpaceComponentData<Container>(output, space);
+  PrintSpaceComponentData<Dependant>(output, space);
+  std::string outputString = output.str();
+  if (!outputString.empty()) {
+    std::cout << "-ComponentData-\n" << outputString;
+  }
 }
 
 void PrintSpaceTablesStats(const World::Space& space)
@@ -125,28 +133,46 @@ void PrintSpaceTablesOwners(const World::Space& space)
   }
 }
 
+void PrintChildren(
+  const World::Space& space,
+  MemberId memberId,
+  std::stringstream* output,
+  std::string indent = "")
+{
+  auto* relationship = space.TryGet<Comp::Relationship>(memberId);
+  if (relationship == nullptr || relationship->mChildren.Empty()) {
+    return;
+  }
+  for (int i = 0; i < relationship->mChildren.Size(); ++i) {
+    MemberId childId = relationship->mChildren[i];
+    *output << indent << "\\-" << childId << '\n';
+    std::string newIndent = indent;
+    if (i < relationship->mChildren.Size() - 1) {
+      newIndent += "| ";
+    }
+    else {
+      newIndent += "  ";
+    }
+    PrintChildren(space, childId, output, newIndent);
+  }
+}
+
 void PrintSpaceRelationships(const World::Space& space)
 {
-  std::cout << "-Relationships-";
-  bool noRelationships = true;
-  const Ds::Vector<World::Member>& members = space.Members();
-  for (World::MemberId memberId = 0; memberId < members.Size(); ++memberId) {
-    const World::Member& member = members[memberId];
-    const Ds::Vector<World::MemberId> childrenIds = member.Children();
-    if (childrenIds.Size() == 0) {
+  std::stringstream output;
+  const Ds::Vector<MemberId> rootMembers = space.RootMemberIds();
+  for (MemberId rootMemberId : rootMembers) {
+    auto* relationship = space.TryGet<Comp::Relationship>(rootMemberId);
+    if (relationship == nullptr) {
       continue;
     }
-    noRelationships = false;
-    std::cout << '\n' << std::setfill('0') << std::setw(2) << memberId << ":";
-    for (World::MemberId childId : childrenIds) {
-      const World::Member& child = members[childId];
-      std::cout << " [" << childId << "|" << child.Parent() << "]";
-    }
+    output << rootMemberId << '\n';
+    PrintChildren(space, rootMemberId, &output);
   }
-  if (noRelationships) {
-    std::cout << "\nNone";
+  std::string outputStr = output.str();
+  if (!outputStr.empty()) {
+    std::cout << "-Relationships-" << '\n' << outputStr;
   }
-  std::cout << '\n';
 }
 
 void PrintSpaceMembers(const World::Space& space)
@@ -219,10 +245,11 @@ void PrintSpaceUnusedMemberIds(const World::Space& space)
 
 void PrintSpace(const World::Space& space)
 {
-  PrintSpaceTablesStats(space);
   PrintSpaceTablesOwners(space);
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
+  PrintSpaceRelationships(space);
+  PrintSpaceTestTypeComponentData(space);
 }
 
 #endif

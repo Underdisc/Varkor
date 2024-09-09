@@ -30,20 +30,12 @@ public:
   DescriptorId FirstDescriptorId() const;
   DescriptorId LastDescriptorId() const;
   DescriptorId DescriptorCount() const;
-  MemberId Parent() const;
-  const Ds::Vector<MemberId>& Children() const;
-  bool HasParent() const;
   bool InUse() const;
-  bool InUseRootMember() const;
 
 private:
   // The first DescriptorId and the number of ComponentDescriptors.
   DescriptorId mFirstDescriptorId;
   DescriptorId mDescriptorCount;
-  // These are values for tracking parent child relationships.
-  MemberId mParent;
-  Ds::Vector<MemberId> mChildren;
-
   void StartUse(DescriptorId firstDescId);
   void EndUse();
   DescriptorId EndDescriptorId() const;
@@ -63,17 +55,21 @@ struct Space
   Object CreateObject();
   Object CreateChildObject(const Object& parent);
   Object CreateChildObject(MemberId parentId);
-  void DeleteMember(MemberId member);
+  void DeleteMember(MemberId member, bool root = true);
   void TryDeleteMember(MemberId member);
-  MemberId Duplicate(MemberId memberId, bool duplicationRoot = true);
-  void MakeParent(MemberId parent, MemberId child);
-  void RemoveParent(MemberId childId);
+  MemberId Duplicate(MemberId memberId, bool root = true);
+  void MakeParent(MemberId parentId, MemberId childId);
+  void TryRemoveParent(MemberId memberId);
+  bool HasParent(MemberId memberId);
+  bool HasChildren(MemberId memberId);
   Member& GetMember(MemberId id);
   const Member& GetConstMember(MemberId id) const;
 
   // Component creation, deletion, and access.
   template<typename T>
   T& AddComponent(MemberId memberId);
+  template<typename T>
+  T& EnsureComponent(MemberId memberId);
   template<typename T>
   void RemComponent(MemberId memberId);
   template<typename T>
@@ -86,6 +82,8 @@ struct Space
   template<typename T>
   T& Add(MemberId memberId);
   template<typename T>
+  T& Ensure(MemberId memberId);
+  template<typename T>
   void Rem(MemberId memberId);
   template<typename T>
   T& Get(MemberId memberId) const;
@@ -95,6 +93,7 @@ struct Space
   bool Has(MemberId memberId) const;
 
   void* AddComponent(Comp::TypeId typeId, MemberId memberId, bool init = true);
+  void* EnsureComponent(Comp::TypeId typeId, MemberId memberId);
   void RemComponent(Comp::TypeId typeId, MemberId memberId);
   void* GetComponent(Comp::TypeId typeId, MemberId memberId) const;
   void* TryGetComponent(Comp::TypeId typeId, MemberId memberId) const;
@@ -110,7 +109,7 @@ struct Space
   const Ds::Map<Comp::TypeId, Table>& Tables() const;
   const Ds::Vector<Member>& Members() const;
   const Ds::Vector<MemberId>& UnusedMemberIds() const;
-  const Ds::Vector<ComponentDescriptor> DescriptorBin() const;
+  const Ds::Vector<ComponentDescriptor>& DescriptorBin() const;
 
   void Serialize(Vlk::Value& spaceVal) const;
   Result Deserialize(const Vlk::Explorer& spaceEx);

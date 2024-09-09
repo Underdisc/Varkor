@@ -11,7 +11,7 @@ namespace Registrar {
 
 constexpr int nInvalidProgression = -1;
 constexpr int nCurrentComponentProgression = 3;
-constexpr int nCurrentLayerProgression = 1;
+constexpr int nCurrentLayerProgression = 2;
 
 extern void (*nRegisterCustomTypes)();
 void Init();

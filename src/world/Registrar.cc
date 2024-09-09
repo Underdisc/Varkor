@@ -22,6 +22,7 @@
 #include "comp/CameraOrbiter.h"
 #include "comp/BoxCollider.h"
 #include "comp/Name.h"
+#include "comp/Relationship.h"
 // clang-format on
 
 namespace Registrar {
@@ -88,6 +89,7 @@ void RegisterTypes()
   RegisterDependencies(CameraOrbiter, Camera);
   RegisterComponent(BoxCollider);
   RegisterComponent(Name);
+  RegisterComponent(Relationship);
 }
 
 template<>
@@ -110,6 +112,26 @@ void LayerProgression<1>(Vlk::Value& layerVal)
   Vlk::Value& progressionVal = metadataVal.GetPair("Progression");
   metadataVal("ComponentProgression") = progressionVal.As<int>();
   metadataVal.RemovePair("Progression");
+}
+
+template<>
+void LayerProgression<2>(Vlk::Value& layerVal)
+{
+  Vlk::Value& spaceVal = layerVal.GetPair("Space");
+  for (int i = 0; i < spaceVal.Size(); ++i) {
+    Vlk::Value& entityVal = spaceVal[i];
+    Vlk::Value& componentsVal = entityVal.GetPair("Components");
+    Vlk::Value& parentVal = entityVal("Parent");
+    Vlk::Value& childrenVal = entityVal("Children");
+    MemberId parentId = parentVal.As<MemberId>(World::nInvalidMemberId);
+    if (parentId != World::nInvalidMemberId || childrenVal.Size() > 0) {
+      Vlk::Value& relationshipVal = componentsVal("Relationship");
+      relationshipVal("Parent") = std::move(entityVal("Parent"));
+      relationshipVal("Children") = std::move(entityVal("Children"));
+    }
+    entityVal.RemovePair("Parent");
+    entityVal.RemovePair("Children");
+  }
 }
 
 template<>

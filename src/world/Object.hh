@@ -9,6 +9,12 @@ T& Object::AddComponent() const
 }
 
 template<typename T>
+T& Object::EnsureComponent() const
+{
+  return mSpace->EnsureComponent<T>(mMemberId);
+}
+
+template<typename T>
 void Object::RemComponent() const
 {
   mSpace->RemComponent<T>(mMemberId);
@@ -36,6 +42,12 @@ template<typename T>
 inline T& Object::Add() const
 {
   return AddComponent<T>();
+}
+
+template<typename T>
+T& Object::Ensure() const
+{
+  return EnsureComponent<T>();
 }
 
 template<typename T>

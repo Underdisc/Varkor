@@ -9,6 +9,7 @@ target_sources(varkor PRIVATE
   Model.cc
   Name.cc
   PointLight.cc
+  Relationship.cc
   ShadowMap.cc
   Skybox.cc
   SpotLight.cc

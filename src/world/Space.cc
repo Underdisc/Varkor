@@ -3,6 +3,7 @@
 
 #include "Error.h"
 #include "comp/Name.h"
+#include "comp/Relationship.h"
 #include "vlk/Valkor.h"
 #include "world/Object.h"
 #include "world/Space.h"
@@ -25,28 +26,16 @@ void Member::StartUse(DescriptorId firstDescId)
 {
   mFirstDescriptorId = firstDescId;
   mDescriptorCount = 0;
-  mParent = nInvalidMemberId;
 }
 
 void Member::EndUse()
 {
   mFirstDescriptorId = nInvalidDescriptorId;
-  mChildren.Clear();
 }
 
 bool Member::InUse() const
 {
   return mFirstDescriptorId != nInvalidDescriptorId;
-}
-
-bool Member::HasParent() const
-{
-  return mParent != nInvalidMemberId;
-}
-
-bool Member::InUseRootMember() const
-{
-  return InUse() && !HasParent();
 }
 
 DescriptorId Member::EndDescriptorId() const
@@ -67,16 +56,6 @@ DescriptorId Member::FirstDescriptorId() const
 DescriptorId Member::DescriptorCount() const
 {
   return mDescriptorCount;
-}
-
-MemberId Member::Parent() const
-{
-  return mParent;
-}
-
-const Ds::Vector<MemberId>& Member::Children() const
-{
-  return mChildren;
 }
 
 Space::Space() {}
@@ -151,31 +130,39 @@ Object Space::CreateChildObject(MemberId parentId)
   return Object(this, CreateChildMember(parentId));
 }
 
-MemberId Space::Duplicate(MemberId ogMemberId, bool duplicationRoot)
+MemberId Space::Duplicate(MemberId memberId, bool root)
 {
-  // Duplicate all of the components from the original member.
-  VerifyMemberId(ogMemberId);
+  // Duplicate all components from the member except the relationship component.
+  VerifyMemberId(memberId);
   MemberId newMemberId = CreateMember();
-  const Member& ogMember = mMembers[ogMemberId];
-  DescriptorId ogDescId = ogMember.mFirstDescriptorId;
-  while (ogDescId < ogMember.EndDescriptorId()) {
+  const Member& member = mMembers[memberId];
+  DescriptorId descId = member.mFirstDescriptorId;
+  for (; descId < member.EndDescriptorId(); ++descId) {
+    const ComponentDescriptor& desc = mDescriptorBin[descId];
+    if (desc.mTypeId == Comp::Type<Comp::Relationship>::smId) {
+      continue;
+    }
     ComponentDescriptor newDesc;
-    const ComponentDescriptor& ogDesc = mDescriptorBin[ogDescId];
-    newDesc.mTypeId = ogDesc.mTypeId;
-    Table& table = mTables.Get(ogDesc.mTypeId);
-    newDesc.mTableIndex = table.Duplicate(ogDesc.mTableIndex, newMemberId);
+    newDesc.mTypeId = desc.mTypeId;
+    Table& table = mTables.Get(desc.mTypeId);
+    newDesc.mTableIndex = table.Duplicate(desc.mTableIndex, newMemberId);
     AddDescriptorToMember(newMemberId, newDesc);
-    ++ogDescId;
   }
 
   // Make the new member a child if we are duplicating a child and duplicate all
   // of the member's children.
-  if (duplicationRoot && ogMember.HasParent()) {
-    MakeParent(ogMember.Parent(), newMemberId);
-  }
-  for (MemberId childId : ogMember.mChildren) {
-    MemberId newChildId = Duplicate(childId, false);
-    MakeParent(newMemberId, newChildId);
+  auto* relationship = TryGet<Comp::Relationship>(memberId);
+  if (relationship != nullptr) {
+    if (root && relationship->HasParent()) {
+      MakeParent(relationship->mParent, newMemberId);
+      relationship = &Get<Comp::Relationship>(memberId);
+    }
+    for (MemberId childId : relationship->mChildren) {
+      MemberId newChildId = Duplicate(childId, false);
+      relationship = &Get<Comp::Relationship>(memberId);
+      MakeParent(newMemberId, newChildId);
+      relationship = &Get<Comp::Relationship>(memberId);
+    }
   }
   return newMemberId;
 }
@@ -187,16 +174,26 @@ MemberId Space::CreateChildMember(MemberId parentId)
   return childId;
 }
 
-void Space::DeleteMember(MemberId memberId)
+void Space::DeleteMember(MemberId memberId, bool root)
 {
-  // Delete all of the member's children.
-  VerifyMemberId(memberId);
-  Member& member = mMembers[memberId];
-  for (MemberId childId : member.mChildren) {
-    DeleteMember(childId);
+  // Delete all of the member's children and if there is parent remove the
+  // member's id from the parent's relationship .
+  auto* relationship = TryGet<Comp::Relationship>(memberId);
+  if (relationship != nullptr) {
+    for (int i = 0; i < relationship->mChildren.Size(); ++i) {
+      DeleteMember(relationship->mChildren[i], false);
+    }
+    if (root && relationship->HasParent()) {
+      auto& parentRelationship = Get<Comp::Relationship>(relationship->mParent);
+      parentRelationship.NullifyChild(memberId);
+      if (!parentRelationship.HasRelationship()) {
+        Rem<Comp::Relationship>(relationship->mParent);
+      }
+    }
   }
 
   // Remove all of the member's components.
+  Member& member = mMembers[memberId];
   DescriptorId descId = member.mFirstDescriptorId;
   while (descId < member.EndDescriptorId()) {
     ComponentDescriptor& desc = mDescriptorBin[descId];
@@ -204,15 +201,6 @@ void Space::DeleteMember(MemberId memberId)
     table.Rem(desc.mTableIndex);
     desc.EndUse();
     ++descId;
-  }
-
-  // Remove the parent's reference to the child.
-  if (member.mParent != nInvalidMemberId) {
-    Member& parent = mMembers[member.mParent];
-    VResult<size_t> findResult = parent.mChildren.Find(memberId);
-    if (findResult.Success()) {
-      parent.mChildren.LazyRemove(findResult.mValue);
-    }
   }
 
   member.EndUse();
@@ -228,38 +216,66 @@ void Space::TryDeleteMember(MemberId memberId)
 
 void Space::MakeParent(MemberId parentId, MemberId childId)
 {
-  // Verify the existance of the parent and child members.
+  // Verify the existence of the parent and child members.
   VerifyMemberId(parentId);
   VerifyMemberId(childId);
-  Member& parentMember = mMembers[parentId];
-  Member& childMember = mMembers[childId];
 
-  // If the child already has a parent, remove that parent relationship and
-  // create a new one.
-  if (childMember.HasParent()) {
-    RemoveParent(childId);
-  }
-  parentMember.mChildren.Push(childId);
-  childMember.mParent = parentId;
-}
-
-void Space::RemoveParent(MemberId childId)
-{
-  // Verify that the child exists and has a parent.
-  VerifyMemberId(childId);
-  Member& childMember = mMembers[childId];
-  LogAbortIf(!childMember.HasParent(), "This member has no parent.");
-
-  // End the relationship by removing the child from the parent's children and
-  // removing the parent from the child.
-  Member& parent = mMembers[childMember.mParent];
-  for (size_t i = 0; i < parent.mChildren.Size(); ++i) {
-    if (parent.mChildren[i] == childId) {
-      parent.mChildren.LazyRemove(i);
-      break;
+  // Remove the childId from the parent's relationship, remove the parent's
+  // relationship component if it no longer has relationships, and update the
+  // child's parent id.
+  auto& childRelationship = Ensure<Comp::Relationship>(childId);
+  if (childRelationship.HasParent()) {
+    auto& oldParentRelationship =
+      Get<Comp::Relationship>(childRelationship.mParent);
+    oldParentRelationship.NullifyChild(childId);
+    if (!oldParentRelationship.HasRelationship()) {
+      Rem<Comp::Relationship>(parentId);
     }
   }
-  childMember.mParent = nInvalidMemberId;
+  childRelationship.mParent = parentId;
+
+  // Ensure that the new parent has a relationship component and add the child
+  // id to the new parent's child vector.
+  auto& newParentRelationship = Ensure<Comp::Relationship>(parentId);
+  newParentRelationship.mChildren.Push(childId);
+}
+
+void Space::TryRemoveParent(MemberId memberId)
+{
+  VerifyMemberId(memberId);
+  auto* relationship = TryGet<Comp::Relationship>(memberId);
+  if (relationship == nullptr) {
+    return;
+  }
+  if (!relationship->HasParent()) {
+    return;
+  }
+
+  // Remove the child's id from the parent's children vector and the parent id
+  // from child's relationship.
+  auto& parentRelationship = Get<Comp::Relationship>(relationship->mParent);
+  parentRelationship.NullifyChild(memberId);
+  relationship->NullifyParent();
+
+  // Remove no longer needed relationship components.
+  if (!parentRelationship.HasRelationship()) {
+    Rem<Comp::Relationship>(relationship->mParent);
+  }
+  if (!relationship->HasChildren()) {
+    Rem<Comp::Relationship>(memberId);
+  }
+}
+
+bool Space::HasParent(MemberId memberId)
+{
+  auto* relationship = TryGet<Comp::Relationship>(memberId);
+  return relationship != nullptr && relationship->HasParent();
+}
+
+bool Space::HasChildren(MemberId memberId)
+{
+  auto* relationship = TryGet<Comp::Relationship>(memberId);
+  return relationship != nullptr && !relationship->mChildren.Empty();
 }
 
 Member& Space::GetMember(MemberId id)
@@ -321,6 +337,15 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
   if (init && typeData.mVInit.Open()) {
     Object owner(this, memberId);
     typeData.mVInit.Invoke(component, owner);
+  }
+  return component;
+}
+
+void* Space::EnsureComponent(Comp::TypeId typeId, MemberId memberId)
+{
+  void* component = TryGetComponent(typeId, memberId);
+  if (component == nullptr) {
+    component = AddComponent(typeId, memberId);
   }
   return component;
 }
@@ -478,8 +503,11 @@ Ds::Vector<MemberId> Space::RootMemberIds() const
 {
   Ds::Vector<MemberId> rootMembers;
   for (MemberId i = 0; i < mMembers.Size(); ++i) {
-    const Member& member = mMembers[i];
-    if (member.InUseRootMember()) {
+    if (!ValidMemberId(i)) {
+      continue;
+    }
+    auto* relationship = TryGet<Comp::Relationship>(i);
+    if (relationship == nullptr || !relationship->HasParent()) {
       rootMembers.Push(i);
     }
   }
@@ -501,7 +529,7 @@ const Ds::Vector<MemberId>& Space::UnusedMemberIds() const
   return mUnusedMemberIds;
 }
 
-const Ds::Vector<ComponentDescriptor> Space::DescriptorBin() const
+const Ds::Vector<ComponentDescriptor>& Space::DescriptorBin() const
 {
   return mDescriptorBin;
 }
@@ -518,11 +546,6 @@ void Space::Serialize(Vlk::Value& spaceVal) const
     // Serialize all of the member's data.
     Vlk::Value memberVal;
     memberVal("Id") = memberId;
-    memberVal("Parent") = member.mParent;
-    Vlk::Value& childrenVal = memberVal("Children")[{member.mChildren.Size()}];
-    for (size_t i = 0; i < member.mChildren.Size(); ++i) {
-      childrenVal[i] = member.mChildren[i];
-    }
     Vlk::Value& componentsVal = memberVal("Components");
     Ds::Vector<ComponentDescriptor> descriptors = GetDescriptors(memberId);
     for (int i = 0; i < descriptors.Size(); ++i) {
@@ -561,13 +584,6 @@ Result Space::Deserialize(const Vlk::Explorer& spaceEx)
     Member& member = mMembers[memberId];
     DescriptorId firstDescId = (DescriptorId)mDescriptorBin.Size();
     member.StartUse(firstDescId);
-
-    // Get the member's parent and children ids.
-    member.mParent = memberEx("Parent").As<int>(nInvalidMemberId);
-    Vlk::Explorer childrenEx = memberEx("Children");
-    for (size_t i = 0; i < childrenEx.Size(); ++i) {
-      member.mChildren.Push(childrenEx[i].As<int>());
-    }
 
     // Get the member's component data.
     Vlk::Explorer componentsEx = memberEx("Components");

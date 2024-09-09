@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "comp/Relationship.h"
 #include "comp/Type.h"
 #include "debug/MemLeak.h"
 #include "test/Test.h"
@@ -16,6 +17,7 @@ void Registration()
   PrintRegistration<Dynamic>();
   PrintRegistration<Container>();
   PrintRegistration<Dependant>();
+  PrintRegistration<Comp::Relationship>();
 }
 
 void CreateMember()
@@ -42,7 +44,21 @@ void DeleteMember()
   PrintSpaceUnusedMemberIds(space);
 }
 
-void ParentChildMembers()
+void Relationships0()
+{
+  // Ensures that all children are deleted and not skipped over due to an
+  // early removal of a child id from the relationship's children vector.
+  World::Space space;
+  MemberId parentId = space.CreateMember();
+  for (int i = 0; i < 3; ++i) {
+    space.CreateChildMember(parentId);
+  }
+  space.DeleteMember(parentId);
+  PrintSpaceMembers(space);
+  PrintSpaceRelationships(space);
+}
+
+void Relationships1()
 {
   World::Space space;
   World::MemberId memberIds[10];
@@ -68,6 +84,8 @@ void ParentChildMembers()
   space.CreateChildMember(memberIds[8]);
 
   PrintSpaceMembers(space);
+  PrintSpaceDescriptorBin(space);
+  PrintTableOwners(space.Tables().Get(Comp::Type<Comp::Relationship>::smId));
   PrintSpaceRelationships(space);
 
   // Delete the member with children and create members that take the MemberIds
@@ -106,8 +124,8 @@ void AddComponent()
   space.AddComponent<Container>(mem0).SetData(3);
   space.AddComponent<Dynamic>(mem2);
 
+  PrintSpaceTablesStats(space);
   PrintSpace(space);
-  PrintSpaceTestTypeComponentData(space);
 }
 
 void RemComponent()
@@ -226,8 +244,8 @@ void GetComponent()
   Dynamic& mem1comp2 = space.GetComponent<Dynamic>(mem1);
   mem1comp2.SetData(3);
 
+  PrintSpaceTablesStats(space);
   PrintSpace(space);
-  PrintSpaceTestTypeComponentData(space);
 }
 
 void HasComponent()
@@ -254,17 +272,65 @@ void HasComponent()
             << space.HasComponent<Simple0>(World::nInvalidMemberId) << '\n';
 }
 
-void Duplicate()
+void Duplicate0()
 {
+  // Duplicate a lone member.
   World::Space space;
+  World::MemberId testId = space.CreateMember();
+  space.AddComponent<Simple0>(testId).SetData(0);
+  space.AddComponent<Simple1>(testId).SetData(1);
+  space.Duplicate(testId);
+  PrintSpace(space);
+}
 
-  // A lone member.
+void Duplicate1()
+{
+  // Duplicate a member with children.
+  World::Space space;
+  MemberId testId = space.CreateMember();
+  space.AddComponent<Simple0>(testId).SetData(0);
+  space.AddComponent<Simple1>(testId).SetData(1);
+  PrintSpaceMembers(space);
+  World::MemberId childId = space.CreateChildMember(testId);
+  PrintSpaceMembers(space);
+  space.AddComponent<Dynamic>(childId).SetData(2);
+  space.AddComponent<Container>(childId).SetData(3);
+  PrintSpaceMembers(space);
+  childId = space.CreateChildMember(testId);
+  space.AddComponent<Dynamic>(childId).SetData(4);
+  space.Duplicate(testId);
+  PrintSpace(space);
+}
+
+void Duplicate2()
+{
+  // Duplicate a member with a parent and children.
+  World::Space space;
+  World::MemberId parentId = space.CreateMember();
+  World::MemberId testId = space.CreateChildMember(parentId);
+  space.AddComponent<Simple0>(testId).SetData(2);
+  space.AddComponent<Dynamic>(testId).SetData(2);
+  World::MemberId childId = space.CreateChildMember(testId);
+  space.AddComponent<Simple0>(childId).SetData(2);
+  space.AddComponent<Container>(childId).SetData(2);
+  childId = space.CreateChildMember(testId);
+  space.AddComponent<Simple1>(childId).SetData(2);
+  space.AddComponent<Container>(childId).SetData(2);
+  space.Duplicate(testId);
+  PrintSpace(space);
+}
+
+void Duplicate3()
+{
+  // A combination of the last three duplication tests. This will force the
+  // table for the relationship components to grow. The test makes sure that an
+  // access attempt on an invalidated relationship component isn't made.
+  World::Space space;
   World::MemberId testId = space.CreateMember();
   space.AddComponent<Simple0>(testId).SetData(0);
   space.AddComponent<Simple1>(testId).SetData(0);
   space.Duplicate(testId);
 
-  // A member with children.
   testId = space.CreateMember();
   space.AddComponent<Simple0>(testId).SetData(1);
   space.AddComponent<Simple1>(testId).SetData(1);
@@ -275,7 +341,6 @@ void Duplicate()
   space.AddComponent<Dynamic>(childId).SetData(1);
   space.Duplicate(testId);
 
-  // A member with a parent and children.
   World::MemberId parentId = space.CreateMember();
   testId = space.CreateChildMember(parentId);
   space.AddComponent<Simple0>(testId).SetData(2);
@@ -287,11 +352,7 @@ void Duplicate()
   space.AddComponent<Simple1>(childId).SetData(2);
   space.AddComponent<Container>(childId).SetData(2);
   space.Duplicate(testId);
-
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
-  PrintSpaceRelationships(space);
-  PrintSpaceTestTypeComponentData(space);
+  PrintSpace(space);
 }
 
 void Dependencies()
@@ -356,20 +417,24 @@ void Slice()
 
 int main(void)
 {
-  EnableLeakOutput();
+  Error::Init();
   RegisterComponentTypes();
   PrintKey();
 
   RunTest(Registration);
   RunTest(CreateMember);
   RunTest(DeleteMember);
-  RunTest(ParentChildMembers);
+  RunTest(Relationships0);
+  RunTest(Relationships1);
   RunTest(AddComponent);
   RunTest(RemComponent);
   RunTest(DeleteMembersWithComponents);
   RunTest(GetComponent);
   RunTest(HasComponent);
-  RunTest(Duplicate);
+  RunTest(Duplicate0);
+  RunTest(Duplicate1);
+  RunTest(Duplicate2);
+  RunTest(Duplicate3);
   RunTest(Dependencies);
   RunTest(Slice);
 }

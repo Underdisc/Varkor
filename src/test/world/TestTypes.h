@@ -3,10 +3,11 @@
 
 #include <iostream>
 
-#include "world/Registrar.h"
+#include "comp/Relationship.h"
 #include "comp/Type.h"
 #include "ds/Vector.h"
 #include "test/ds/Print.h"
+#include "world/Registrar.h"
 
 #pragma pack(push, 1)
 struct CallCounter
@@ -60,7 +61,6 @@ struct Simple0
 {
   float m0;
   float m1;
-
   Simple0()
   {
     SetData(Comp::Type<Simple0>::smId);
@@ -70,17 +70,18 @@ struct Simple0
     m0 = (float)value;
     m1 = (float)value;
   }
-  void PrintData() const
-  {
-    std::cout << "[" << m0 << ", " << m1 << "]";
-  }
 };
+
+std::ostream& operator<<(std::ostream& os, const Simple0& comp)
+{
+  os << "[" << comp.m0 << ", " << comp.m1 << "]";
+  return os;
+}
 
 struct Simple1
 {
   double m0;
   int m1;
-
   Simple1()
   {
     SetData(Comp::Type<Simple1>::smId);
@@ -90,18 +91,19 @@ struct Simple1
     m0 = (double)value;
     m1 = value;
   }
-  void PrintData() const
-  {
-    std::cout << "[" << m0 << ", " << m1 << "]";
-  }
 };
+
+std::ostream& operator<<(std::ostream& os, const Simple1& comp)
+{
+  os << "[" << comp.m0 << ", " << comp.m1 << "]";
+  return os;
+}
 
 struct Dynamic
 {
   int* m0;
   double m1;
   float m2;
-
   Dynamic(): m0(nullptr)
   {
     SetData(Comp::Type<Dynamic>::smId);
@@ -129,16 +131,17 @@ struct Dynamic
     m1 = (double)value;
     m2 = (float)value;
   }
-  void PrintData() const
-  {
-    std::cout << "[" << *m0 << ", " << m1 << ", " << m2 << "]";
-  }
 };
+
+std::ostream& operator<<(std::ostream& os, const Dynamic& comp)
+{
+  os << "[" << *comp.m0 << ", " << comp.m1 << ", " << comp.m2 << "]";
+  return os;
+}
 
 struct Container
 {
   Ds::Vector<int> mVector;
-
   Container()
   {
     SetData(Comp::Type<Container>::smId);
@@ -150,16 +153,17 @@ struct Container
       mVector.Push(value + i);
     }
   }
-  void PrintData() const
-  {
-    std::cout << mVector;
-  }
 };
+
+std::ostream& operator<<(std::ostream& os, const Container& comp)
+{
+  os << comp.mVector;
+  return os;
+}
 
 struct Dependant
 {
   int m0;
-
   Dependant()
   {
     SetData(Comp::Type<Dependant>::smId);
@@ -168,11 +172,14 @@ struct Dependant
   {
     m0 = value;
   }
-  void PrintData() const
-  {
-    std::cout << "[" << m0 << "]";
-  }
 };
+
+std::ostream& operator<<(std::ostream& os, const Dependant& comp)
+{
+  os << "[" << comp.m0 << "]";
+  return os;
+}
+
 #pragma pack(pop)
 
 void RegisterComponentTypes()
@@ -184,6 +191,7 @@ void RegisterComponentTypes()
   RegisterComponent(Container);
   RegisterComponent(Dependant);
   RegisterDependencies(Dependant, CallCounter, Dynamic);
+  RegisterComponent(Comp::Relationship);
 }
 
 #endif

@@ -3,6 +3,7 @@
 #include "Input.h"
 #include "Log.h"
 #include "comp/Name.h"
+#include "comp/Relationship.h"
 #include "editor/Editor.h"
 #include "editor/FileInterface.h"
 #include "editor/LayerInterface.h"
@@ -63,10 +64,7 @@ void LayerInterface::Show()
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
     if (payload != nullptr) {
       World::MemberId childId = *(const World::MemberId*)payload->Data;
-      World::Member& member = space.GetMember(childId);
-      if (member.HasParent()) {
-        space.RemoveParent(childId);
-      }
+      space.TryRemoveParent(childId);
     }
     ImGui::EndDragDropTarget();
   }
@@ -139,8 +137,7 @@ void LayerInterface::DisplayMember(
     flags |= ImGuiTreeNodeFlags_Selected;
   }
   World::Space& space = mLayerIt->mSpace;
-  World::Member& member = space.GetMember(memberId);
-  if (member.Children().Size() == 0) {
+  if (!space.HasChildren(memberId)) {
     flags |= ImGuiTreeNodeFlags_Leaf;
   }
   ImGui::PushID(memberId);
@@ -198,8 +195,11 @@ void LayerInterface::DisplayMember(
 
   // Display all of the children if the Member's tree node is opened.
   if (memberOpened) {
-    for (World::MemberId childId : member.Children()) {
-      DisplayMember(childId, inspector);
+    auto* relationship = space.TryGet<Comp::Relationship>(memberId);
+    if (relationship != nullptr) {
+      for (World::MemberId childId : relationship->mChildren) {
+        DisplayMember(childId, inspector);
+      }
     }
     ImGui::TreePop();
   }
