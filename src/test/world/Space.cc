@@ -41,7 +41,15 @@ void DeleteMember()
     space.DeleteMember(memberIds[i]);
   }
   PrintSpaceMembers(space);
-  PrintSpaceUnusedMemberIds(space);
+}
+
+void RootMemberIds()
+{
+  World::Space space;
+  MemberId mem0 = space.CreateMember();
+  MemberId mem1 = space.CreateMember();
+  space.DeleteMember(mem0);
+  std::cout << space.RootMemberIds() << '\n';
 }
 
 void Relationships0()
@@ -53,6 +61,7 @@ void Relationships0()
   for (int i = 0; i < 3; ++i) {
     space.CreateChildMember(parentId);
   }
+  space.CreateMember();
   space.DeleteMember(parentId);
   PrintSpaceMembers(space);
   PrintSpaceRelationships(space);
@@ -188,7 +197,6 @@ void DeleteMembersWithComponents()
   std::cout << "Members and Components Created\n";
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
-  PrintSpaceUnusedMemberIds(space);
   PrintSpaceTablesOwners(space);
 
   space.DeleteMember(memberIds[0]);
@@ -199,7 +207,6 @@ void DeleteMembersWithComponents()
   std::cout << "-----\nMembers Removed\n";
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
-  PrintSpaceUnusedMemberIds(space);
   PrintSpaceTablesOwners(space);
 
   World::MemberId newMemberId = space.CreateMember();
@@ -212,7 +219,6 @@ void DeleteMembersWithComponents()
   std::cout << "-----\nNew Members and Components\n";
   PrintSpaceMembers(space);
   PrintSpaceDescriptorBin(space);
-  PrintSpaceUnusedMemberIds(space);
   PrintSpaceTablesOwners(space);
 }
 
@@ -268,8 +274,7 @@ void HasComponent()
             << space.HasComponent<Simple0>(mem1)
             << space.HasComponent<Simple1>(mem1)
             << space.HasComponent<Dynamic>(mem1)
-            << space.HasComponent<Container>(mem1)
-            << space.HasComponent<Simple0>(World::nInvalidMemberId) << '\n';
+            << space.HasComponent<Container>(mem1) << '\n';
 }
 
 void Duplicate0()
@@ -424,6 +429,7 @@ int main(void)
   RunTest(Registration);
   RunTest(CreateMember);
   RunTest(DeleteMember);
+  RunTest(RootMemberIds);
   RunTest(Relationships0);
   RunTest(Relationships1);
   RunTest(AddComponent);

@@ -21,6 +21,20 @@ void Add()
   PrintPool(test);
 }
 
+void Request0()
+{
+  Ds::Pool<std::string> test;
+  test.Request(5) = 'a';
+  PrintPool(test);
+}
+
+void Request1()
+{
+  Ds::Pool<std::string> test = AlphabetSoup(10);
+  test.Request(20) = 'a' + 20;
+  PrintPool(test);
+}
+
 void Remove0()
 {
   Ds::Pool<std::string> test = AlphabetSoup(1);
@@ -91,6 +105,13 @@ void RemoveAdd2()
   PrintPool(test);
 }
 
+void Clear()
+{
+  Ds::Pool<std::string> test = AlphabetSoup(5);
+  test.Clear();
+  PrintPool(test);
+}
+
 void IndexOperator()
 {
   Ds::Pool<std::string> test = AlphabetSoup(3);
@@ -107,6 +128,8 @@ int main()
 {
   EnableLeakOutput();
   RunTest(Add);
+  RunTest(Request0);
+  RunTest(Request1);
   RunTest(Remove0);
   RunTest(Remove1);
   RunTest(Remove2);
@@ -115,5 +138,6 @@ int main()
   RunTest(RemoveAdd0);
   RunTest(RemoveAdd1);
   RunTest(RemoveAdd2);
+  RunTest(Clear);
   RunTest(IndexOperator);
 }

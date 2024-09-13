@@ -11,6 +11,39 @@
 |8     |8    |i   |
 +9     +9    +j   +
 
+<= Request0 =>
++Sparse+Dense+Data+
+|-1    |5    +a   +
+|-1    |
+|-1    |
+|-1    |
+|-1    |
++0     +
+
+<= Request1 =>
++Sparse+Dense+Data+
+|0     |0    |a   |
+|1     |1    |b   |
+|2     |2    |c   |
+|3     |3    |d   |
+|4     |4    |e   |
+|5     |5    |f   |
+|6     |6    |g   |
+|7     |7    |h   |
+|8     |8    |i   |
+|9     |9    |j   |
+|-1    |20   +u   +
+|-1    |
+|-1    |
+|-1    |
+|-1    |
+|-1    |
+|-1    |
+|-1    |
+|-1    |
+|-1    |
++10    +
+
 <= Remove0 =>
 +Sparse+Dense+Data+
 
@@ -74,6 +107,9 @@
 |0     |0    |f   |
 |1     |1    |g   |
 +5     +5    +h   +
+
+<= Clear =>
++Sparse+Dense+Data+
 
 <= IndexOperator =>
 a, b, c

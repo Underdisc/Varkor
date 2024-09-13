@@ -174,42 +174,41 @@ void PrintPool(const Ds::Pool<T>& pool)
     return;
   }
 
-  auto printRow = [&](int index, char* bars)
+  auto printRow = [&](int index, char* bars, int* barCount, int nextBarCount)
   {
-    // clang-format off
-    std::cout << bars[0] << std::setw(widths[0]) << pool.Sparse()[index]
-              << bars[1] << std::setw(widths[1]) << pool.Dense()[index]
-              << bars[2] << std::setw(widths[2]) << pool.Data()[index]
-              << bars[3] << '\n';
-    // clang-format on
-  };
-  auto printShortRow = [&](int index, char* bars)
-  {
-    // clang-format off
-    std::cout << bars[0] << std::setw(widths[0]) << pool.Sparse()[index]
-              << bars[1] << std::setw(widths[1]) << pool.Dense()[index]
-              << bars[2] << '\n';
-    // clang-format on
+    if (*barCount >= 2) {
+      std::cout << bars[0] << std::setw(widths[0]) << pool.Sparse()[index]
+                << bars[1];
+    }
+    if (*barCount >= 3) {
+      std::cout << std::setw(widths[1]) << pool.Dense()[index] << bars[2];
+    }
+    if (*barCount >= 4) {
+      std::cout << std::setw(widths[2]) << pool.Data()[index] << bars[3];
+    }
+    std::cout << '\n';
+    *barCount = nextBarCount;
   };
 
   // Print all of the rows.
+  char bars[4] = {'|', '|', '|', '|'};
+  int barCount = 4;
+  int nextBarCount = barCount;
   for (int i = 0; i < pool.Data().Size() - 1; ++i) {
-    char bars[4] = {'|', '|', '|', '|'};
-    printRow(i, bars);
+    printRow(i, bars, &barCount, nextBarCount);
   }
-  if (pool.Data().Size() == pool.Dense().Size()) {
-    char bars[4] = {'+', '+', '+', '+'};
-    printRow(pool.Data().Size() - 1, bars);
-    return;
+  --nextBarCount;
+  bars[3] = '+';
+  for (int i = pool.Data().Size() - 1; i < pool.Dense().Size() - 1; ++i) {
+    printRow(i, bars, &barCount, nextBarCount);
   }
-  else {
-    char bars[4] = {'|', '|', '|', '+'};
-    printRow(pool.Data().Size() - 1, bars);
+  --nextBarCount;
+  bars[2] = '+';
+  for (int i = pool.Dense().Size() - 1; i < pool.Sparse().Size() - 1; ++i) {
+    printRow(i, bars, &barCount, nextBarCount);
   }
-  for (int i = pool.Data().Size(); i < pool.Dense().Size() - 1; ++i) {
-    char bars[3] = {'|', '|', '|'};
-    printShortRow(i, bars);
-  }
-  char bars[3] = {'+', '+', '+'};
-  printShortRow(pool.Dense().Size() - 1, bars);
+  nextBarCount = 0;
+  bars[1] = '+';
+  bars[0] = '+';
+  printRow(pool.Sparse().Size() - 1, bars, &barCount, nextBarCount);
 }

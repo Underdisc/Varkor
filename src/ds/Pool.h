@@ -12,9 +12,13 @@ template<typename T>
 struct Pool
 {
   PoolId Add(const T& element);
+  T& Request(PoolId id);
   void Remove(PoolId id);
-  bool Valid(PoolId id);
+  void Clear();
+  bool Valid(PoolId id) const;
+  void Verify(PoolId id) const;
   T& GetWithDenseIndex(size_t denseIndex);
+  const T& GetWithDenseIndex(size_t denseIndex) const;
   T& operator[](PoolId id);
   const T& operator[](PoolId id) const;
 

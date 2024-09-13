@@ -20,23 +20,12 @@ bool ComponentDescriptor::InUse() const
   return mTypeId != Comp::nInvalidTypeId;
 }
 
-Member::Member(): mFirstDescriptorId(nInvalidDescriptorId) {}
+Member::Member(): mFirstDescriptorId(nInvalidDescriptorId), mDescriptorCount(0)
+{}
 
-void Member::StartUse(DescriptorId firstDescId)
-{
-  mFirstDescriptorId = firstDescId;
-  mDescriptorCount = 0;
-}
-
-void Member::EndUse()
-{
-  mFirstDescriptorId = nInvalidDescriptorId;
-}
-
-bool Member::InUse() const
-{
-  return mFirstDescriptorId != nInvalidDescriptorId;
-}
+Member::Member(DescriptorId FirstDescriptorId):
+  mFirstDescriptorId(FirstDescriptorId), mDescriptorCount(0)
+{}
 
 DescriptorId Member::EndDescriptorId() const
 {
@@ -64,7 +53,6 @@ void Space::Clear()
 {
   mTables.Clear();
   mMembers.Clear();
-  mUnusedMemberIds.Clear();
   mDescriptorBin.Clear();
 }
 
@@ -95,23 +83,8 @@ MemberId Space::CreateMember()
   // We should be more smart about what descriptor we hand out for a new member
   // in the future.
   DescriptorId newDescId = (DescriptorId)mDescriptorBin.Size();
-  std::stringstream name;
-
-  // If we have unused member ids, we use those for the new member before using
-  // member ids that have yet to be used.
-  if (mUnusedMemberIds.Size() > 0) {
-    MemberId newMemberId = mUnusedMemberIds.Top();
-    Member& newMember = mMembers[newMemberId];
-    newMember.StartUse(newDescId);
-    mUnusedMemberIds.Pop();
-    return newMemberId;
-  }
-  Member newMember;
-  MemberId newMemberId = (MemberId)mMembers.Size();
-  name << "Member" << newMemberId;
-  newMember.StartUse(newDescId);
-  mMembers.Push(std::move(newMember));
-  return newMemberId;
+  Member newMember(newDescId);
+  return mMembers.Add(std::move(newMember));
 }
 
 Object Space::CreateObject()
@@ -203,8 +176,7 @@ void Space::DeleteMember(MemberId memberId, bool root)
     ++descId;
   }
 
-  member.EndUse();
-  mUnusedMemberIds.Push(memberId);
+  mMembers.Remove(memberId);
 }
 
 void Space::TryDeleteMember(MemberId memberId)
@@ -502,13 +474,11 @@ Ds::Vector<ComponentDescriptor> Space::GetDescriptors(MemberId memberId) const
 Ds::Vector<MemberId> Space::RootMemberIds() const
 {
   Ds::Vector<MemberId> rootMembers;
-  for (MemberId i = 0; i < mMembers.Size(); ++i) {
-    if (!ValidMemberId(i)) {
-      continue;
-    }
-    auto* relationship = TryGet<Comp::Relationship>(i);
+  for (size_t i = 0; i < mMembers.Size(); ++i) {
+    MemberId memberId = mMembers.Dense()[i];
+    auto* relationship = TryGet<Comp::Relationship>(memberId);
     if (relationship == nullptr || !relationship->HasParent()) {
-      rootMembers.Push(i);
+      rootMembers.Push(memberId);
     }
   }
   return rootMembers;
@@ -519,14 +489,9 @@ const Ds::Map<Comp::TypeId, Table>& Space::Tables() const
   return mTables;
 }
 
-const Ds::Vector<Member>& Space::Members() const
+const Ds::Pool<Member>& Space::Members() const
 {
   return mMembers;
-}
-
-const Ds::Vector<MemberId>& Space::UnusedMemberIds() const
-{
-  return mUnusedMemberIds;
 }
 
 const Ds::Vector<ComponentDescriptor>& Space::DescriptorBin() const
@@ -536,15 +501,11 @@ const Ds::Vector<ComponentDescriptor>& Space::DescriptorBin() const
 
 void Space::Serialize(Vlk::Value& spaceVal) const
 {
-  for (MemberId memberId = 0; memberId < mMembers.Size(); ++memberId) {
-    // We only handle members that are in use.
-    const Member& member = mMembers[memberId];
-    if (!member.InUse()) {
-      continue;
-    }
-
+  for (int i = 0; i < mMembers.Size(); ++i) {
     // Serialize all of the member's data.
+    const Member& member = mMembers.GetWithDenseIndex(i);
     Vlk::Value memberVal;
+    Ds::PoolId memberId = mMembers.Dense()[i];
     memberVal("Id") = memberId;
     Vlk::Value& componentsVal = memberVal("Components");
     Ds::Vector<ComponentDescriptor> descriptors = GetDescriptors(memberId);
@@ -569,23 +530,17 @@ Result Space::Deserialize(const Vlk::Explorer& spaceEx)
   }
 
   for (size_t i = 0; i < spaceEx.Size(); ++i) {
-    // Get the member's id.
+    // Create the member.
     Vlk::Explorer memberEx = spaceEx[i];
     MemberId memberId = memberEx("Id").As<int>(nInvalidMemberId);
     if (memberId == nInvalidMemberId) {
       return Result("Member at " + memberEx.Path() + " has an invalid Id.");
     }
-    World::Object owner(this, memberId);
-
-    // Get the member's name.
-    if (memberId >= mMembers.Size()) {
-      mMembers.Resize(memberId + 1);
-    }
-    Member& member = mMembers[memberId];
-    DescriptorId firstDescId = (DescriptorId)mDescriptorBin.Size();
-    member.StartUse(firstDescId);
+    Member& member = mMembers.Request(memberId);
+    member.mFirstDescriptorId = (DescriptorId)mDescriptorBin.Size();
 
     // Get the member's component data.
+    World::Object owner(this, memberId);
     Vlk::Explorer componentsEx = memberEx("Components");
     for (size_t i = 0; i < componentsEx.Size(); ++i) {
       Vlk::Explorer componentEx = componentsEx(i);
@@ -613,8 +568,7 @@ Result Space::Deserialize(const Vlk::Explorer& spaceEx)
 
 bool Space::ValidMemberId(MemberId memberId) const
 {
-  return memberId >= 0 && memberId < mMembers.Size() &&
-    mMembers[memberId].InUse();
+  return mMembers.Valid(memberId);
 }
 
 void Space::VerifyMemberId(MemberId memberId) const

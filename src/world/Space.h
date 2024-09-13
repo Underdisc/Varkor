@@ -6,6 +6,7 @@
 
 #include "comp/Type.h"
 #include "ds/Map.h"
+#include "ds/Pool.h"
 #include "ds/Vector.h"
 #include "world/Table.h"
 #include "world/Types.h"
@@ -27,17 +28,15 @@ struct Member
 {
 public:
   Member();
+  Member(DescriptorId firstDescriptorId);
   DescriptorId FirstDescriptorId() const;
   DescriptorId LastDescriptorId() const;
   DescriptorId DescriptorCount() const;
-  bool InUse() const;
 
 private:
   // The first DescriptorId and the number of ComponentDescriptors.
   DescriptorId mFirstDescriptorId;
   DescriptorId mDescriptorCount;
-  void StartUse(DescriptorId firstDescId);
-  void EndUse();
   DescriptorId EndDescriptorId() const;
 
   friend Space;
@@ -107,7 +106,7 @@ struct Space
 
   // Private member access.
   const Ds::Map<Comp::TypeId, Table>& Tables() const;
-  const Ds::Vector<Member>& Members() const;
+  const Ds::Pool<Member>& Members() const;
   const Ds::Vector<MemberId>& UnusedMemberIds() const;
   const Ds::Vector<ComponentDescriptor>& DescriptorBin() const;
 
@@ -116,8 +115,7 @@ struct Space
 
 private:
   Ds::Map<Comp::TypeId, Table> mTables;
-  Ds::Vector<Member> mMembers;
-  Ds::Vector<MemberId> mUnusedMemberIds;
+  Ds::Pool<Member> mMembers;
   Ds::Vector<ComponentDescriptor> mDescriptorBin;
 
   void AddDescriptorToMember(

@@ -177,31 +177,25 @@ void PrintSpaceRelationships(const World::Space& space)
 
 void PrintSpaceMembers(const World::Space& space)
 {
-  std::cout << "-MemberBin-";
-  const Ds::Vector<World::Member>& members = space.Members();
+  std::cout << "-MemberPool- [memberId|firstDescriptorId|descriptorCount]";
+  const Ds::Pool<World::Member>& members = space.Members();
   const size_t rowSize = 5;
-  for (World::MemberId memberId = 0; memberId < members.Size(); ++memberId) {
-    if (memberId % rowSize == 0) {
-      std::cout << "\n"
-                << std::setfill('0') << std::setw(2) << memberId << ": ";
+  for (int i = 0; i < members.Size(); ++i) {
+    const World::Member& member = members.GetWithDenseIndex(i);
+    if (i % rowSize == 0) {
+      std::cout << '\n' << std::setfill('0') << std::setw(2) << i << ": ";
     }
     else {
-      std::cout << " ";
+      std::cout << ' ';
     }
-    const World::Member& member = members[memberId];
-    if (!member.InUse()) {
-      std::cout << "[ inv ]";
-    }
-    else if (member.DescriptorCount() == 0) {
-      std::cout << "[empty]";
-    }
-    else {
-      std::cout << "[" << std::setfill('0') << std::setw(2)
-                << member.FirstDescriptorId() << "|" << std::setfill('0')
-                << std::setw(2) << member.LastDescriptorId() << "]";
-    }
+
+    Ds::PoolId memberId = members.Dense()[i];
+    std::cout << '[' << std::setfill('0') << std::setw(2) << memberId << '|'
+              << std::setfill('0') << std::setw(2) << member.FirstDescriptorId()
+              << '|' << std::setfill('0') << std::setw(2)
+              << member.DescriptorCount() << ']';
   }
-  std::cout << "\n";
+  std::cout << '\n';
 }
 
 void PrintSpaceDescriptorBin(const World::Space& space)
@@ -226,21 +220,6 @@ void PrintSpaceDescriptorBin(const World::Space& space)
     }
   }
   std::cout << "\n";
-}
-
-void PrintSpaceUnusedMemberIds(const World::Space& space)
-{
-  const Ds::Vector<World::MemberId>& unusedMemberIds = space.UnusedMemberIds();
-  std::cout << "UnusedMemberIds: ";
-  if (unusedMemberIds.Size() == 0) {
-    std::cout << "None" << std::endl;
-    return;
-  }
-  std::cout << unusedMemberIds[0];
-  for (size_t i = 1; i < unusedMemberIds.Size(); ++i) {
-    std::cout << ", " << unusedMemberIds[i];
-  }
-  std::cout << std::endl;
 }
 
 void PrintSpace(const World::Space& space)
