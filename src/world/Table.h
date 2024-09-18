@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "comp/Type.h"
-#include "ds/Vector.h"
+#include "ds/Pool.h"
 #include "world/Types.h"
 
 namespace World {
@@ -16,16 +16,15 @@ public:
   ~Table();
 
   // Add, remove, and act on components.
-  size_t Add(MemberId member);
-  size_t AllocateComponent(MemberId member);
-  size_t Duplicate(size_t index, MemberId duplicateId);
-  void Rem(size_t index);
+  SparseId Add(MemberId owner);
+  SparseId Duplicate(SparseId id, MemberId owner);
+  void Remove(SparseId id);
 
   // Access component data and the owner of that component data.
-  void* operator[](size_t index) const;
-  void* GetComponent(size_t index) const;
-  MemberId GetOwner(size_t index) const;
-  bool ActiveIndex(size_t index) const;
+  void* GetComponent(SparseId id) const;
+  void* GetComponentAtDenseIndex(size_t denseIndex) const;
+  MemberId GetOwnerAtDenseIndex(size_t denseIndex) const;
+  SparseId GetSparseIdAtDenseIndex(size_t denseIndex) const;
 
   // Access private members that allow the component table to function.
   Comp::TypeId TypeId() const;
@@ -33,19 +32,21 @@ public:
   size_t Stride() const;
   size_t Size() const;
   size_t Capacity() const;
+  void VerifyId(SparseId id) const;
+  void VerifyDenseIndex(size_t denseIndex) const;
 
   static constexpr size_t smStartCapacity = 10;
   static constexpr float smGrowthFactor = 2.0f;
 
 private:
-  char* mData;
   Comp::TypeId mTypeId;
-  size_t mSize;
+  Ds::SparseSet mSparseSet;
+  char* mData;
   size_t mCapacity;
   Ds::Vector<MemberId> mOwners;
 
+  SparseId AllocateComponent(MemberId owner);
   void Grow();
-  void VerifyIndex(size_t index) const;
 };
 
 } // namespace World

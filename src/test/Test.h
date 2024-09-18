@@ -5,10 +5,12 @@
 
 namespace Test {
 
-#define RunTest(function)                     \
-  std::cout << "<= " << #function << " =>\n"; \
-  function();                                 \
-  std::cout << std::endl;
+#define TestHeader(function) std::cout << "<= " << #function << " =>\n"
+
+#define RunTest(function) \
+  TestHeader(function);   \
+  function();             \
+  std::cout << std::endl
 
 struct BaseTest
 {

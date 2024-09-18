@@ -43,7 +43,7 @@ void PrintTableOwners(const World::Table& table)
 {
   std::cout << "-TableOwners-\n[";
   for (size_t i = 0; i < table.Size(); ++i) {
-    std::cout << table.GetOwner(i);
+    std::cout << table.GetOwnerAtDenseIndex(i);
     if (i < table.Size() - 1) {
       std::cout << ", ";
     }
@@ -54,16 +54,11 @@ void PrintTableOwners(const World::Table& table)
 template<typename T>
 void PrintTable(const World::Table& table)
 {
-  std::cout << "-TableData-\n";
+  std::cout << "-TableData- [id, owner, data]\n";
   for (size_t i = 0; i < table.Size(); ++i) {
-    World::MemberId owner = table.GetOwner(i);
-    if (owner == World::nInvalidMemberId) {
-      continue;
-    }
-    std::cout << table.GetOwner(i) << ": ";
-    T* component = (T*)table.GetComponent(i);
-    component->PrintData();
-    std::cout << "\n";
+    T* component = (T*)table.GetComponentAtDenseIndex(i);
+    std::cout << "[" << table.GetSparseIdAtDenseIndex(i) << ", "
+              << table.GetOwnerAtDenseIndex(i) << ", " << *component << "]\n";
   }
 }
 
@@ -124,7 +119,7 @@ void PrintSpaceTablesOwners(const World::Space& space)
     std::cout << tablePair.Key() << ": [";
     const World::Table& table = tablePair.mValue;
     for (size_t i = 0; i < table.Size(); ++i) {
-      std::cout << table.GetOwner(i);
+      std::cout << table.GetOwnerAtDenseIndex(i);
       if (i < table.Size() - 1) {
         std::cout << ", ";
       }
@@ -216,7 +211,7 @@ void PrintSpaceDescriptorBin(const World::Space& space)
       std::cout << "[inv]";
     }
     else {
-      std::cout << "[" << desc.mTypeId << "|" << desc.mTableIndex << "]";
+      std::cout << "[" << desc.mTypeId << "|" << desc.mComponentId << "]";
     }
   }
   std::cout << "\n";

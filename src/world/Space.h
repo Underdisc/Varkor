@@ -21,7 +21,7 @@ struct ComponentDescriptor
   void EndUse();
   bool InUse() const;
   Comp::TypeId mTypeId;
-  size_t mTableIndex;
+  SparseId mComponentId;
 };
 
 struct Member

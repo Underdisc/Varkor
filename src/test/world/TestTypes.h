@@ -6,6 +6,7 @@
 #include "comp/Relationship.h"
 #include "comp/Type.h"
 #include "ds/Vector.h"
+#include "test/Test.h"
 #include "test/ds/Print.h"
 #include "world/Registrar.h"
 
@@ -24,6 +25,12 @@ struct CallCounter
   {
     ++smMoveConstructorCount;
   }
+  CallCounter& operator=(CallCounter&& other)
+  {
+    ++smMoveAssignmentCount;
+    mData = other.mData;
+    return *this;
+  }
   ~CallCounter()
   {
     ++smDestructorCount;
@@ -33,29 +40,37 @@ struct CallCounter
     smDefaultConstructorCount = 0;
     smCopyConstructorCount = 0;
     smMoveConstructorCount = 0;
+    smMoveAssignmentCount = 0;
     smDestructorCount = 0;
   }
   static void Print()
   {
-    std::cout << "-Call Counts-" << std::endl
-              << "Default Constructor Count: " << smDefaultConstructorCount
-              << std::endl
-              << "Copy Constructor Count: " << smCopyConstructorCount
-              << std::endl
-              << "Move Constructor Count: " << smMoveConstructorCount
-              << std::endl
-              << "Destructor Count: " << smDestructorCount << std::endl;
+    std::cout << "-Call Counts-"
+              << "\nDefault Constructor Count: " << smDefaultConstructorCount
+              << "\nCopy Constructor Count: " << smCopyConstructorCount
+              << "\nMove Constructor Count: " << smMoveConstructorCount
+              << "\nMove Assignment Count: " << smMoveAssignmentCount
+              << "\nDestructor Count: " << smDestructorCount << '\n';
   }
   int mData;
   static int smDefaultConstructorCount;
   static int smCopyConstructorCount;
   static int smMoveConstructorCount;
+  static int smMoveAssignmentCount;
   static int smDestructorCount;
 };
 int CallCounter::smDefaultConstructorCount;
 int CallCounter::smCopyConstructorCount;
 int CallCounter::smMoveConstructorCount;
+int CallCounter::smMoveAssignmentCount;
 int CallCounter::smDestructorCount;
+
+#define RunCallCounterTest(function) \
+  TestHeader(function);              \
+  function();                        \
+  CallCounter::Print();              \
+  CallCounter::Reset();              \
+  std::cout << std::endl
 
 struct Simple0
 {
@@ -118,9 +133,22 @@ struct Dynamic
     other.m1 = 0.0;
     other.m2 = 0.0f;
   }
-  ~Dynamic()
+  Dynamic& operator=(Dynamic&& other)
   {
     delete m0;
+    m0 = other.m0;
+    m1 = other.m1;
+    m2 = other.m2;
+    other.m0 = nullptr;
+    other.m1 = 0.0;
+    other.m2 = 0.0f;
+    return *this;
+  }
+  ~Dynamic()
+  {
+    if (m0 != nullptr) {
+      delete m0;
+    }
   }
   void SetData(int value)
   {

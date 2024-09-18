@@ -66,11 +66,10 @@ void Space::Update()
       continue;
     }
 
-    for (int i = 0; i < table.Size(); ++i) {
-      if (table.ActiveIndex(i)) {
-        currentObject.mMemberId = table.GetOwner(i);
-        typeData.mVUpdate.Invoke(table[i], currentObject);
-      }
+    for (size_t i = 0; i < table.Size(); ++i) {
+      currentObject.mMemberId = table.GetOwnerAtDenseIndex(i);
+      void* component = table.GetComponentAtDenseIndex(i);
+      typeData.mVUpdate.Invoke(component, currentObject);
     }
   }
 }
@@ -118,7 +117,7 @@ MemberId Space::Duplicate(MemberId memberId, bool root)
     ComponentDescriptor newDesc;
     newDesc.mTypeId = desc.mTypeId;
     Table& table = mTables.Get(desc.mTypeId);
-    newDesc.mTableIndex = table.Duplicate(desc.mTableIndex, newMemberId);
+    newDesc.mComponentId = table.Duplicate(desc.mComponentId, newMemberId);
     AddDescriptorToMember(newMemberId, newDesc);
   }
 
@@ -171,7 +170,7 @@ void Space::DeleteMember(MemberId memberId, bool root)
   while (descId < member.EndDescriptorId()) {
     ComponentDescriptor& desc = mDescriptorBin[descId];
     Table& table = mTables.Get(desc.mTypeId);
-    table.Rem(desc.mTableIndex);
+    table.Remove(desc.mComponentId);
     desc.EndUse();
     ++descId;
   }
@@ -301,11 +300,11 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
   // Create the component's descriptor.
   ComponentDescriptor newDesc;
   newDesc.mTypeId = typeId;
-  newDesc.mTableIndex = table->Add(memberId);
+  newDesc.mComponentId = table->Add(memberId);
   AddDescriptorToMember(memberId, newDesc);
 
   // Initialize the component if requested.
-  void* component = table->GetComponent(newDesc.mTableIndex);
+  void* component = table->GetComponent(newDesc.mComponentId);
   if (init && typeData.mVInit.Open()) {
     Object owner(this, memberId);
     typeData.mVInit.Invoke(component, owner);
@@ -385,7 +384,7 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
   // Remove the old ComponentDescriptor from the member.
   Table& table = mTables.Get(typeId);
   ComponentDescriptor& desc = mDescriptorBin[descId];
-  table.Rem(desc.mTableIndex);
+  table.Remove(desc.mComponentId);
   if (descId == member.LastDescriptorId()) {
     desc.EndUse();
   }
@@ -428,7 +427,7 @@ void* Space::TryGetComponent(Comp::TypeId typeId, MemberId memberId) const
       mDescriptorBin[member.mFirstDescriptorId + i];
     if (desc.mTypeId == typeId) {
       Table& table = mTables.Get(typeId);
-      return table[desc.mTableIndex];
+      return table.GetComponent(desc.mComponentId);
     }
   }
   return nullptr;
@@ -450,10 +449,8 @@ Ds::Vector<MemberId> Space::Slice(Comp::TypeId typeId) const
   if (table == nullptr) {
     return members;
   }
-  for (int i = 0; i < table->Size(); ++i) {
-    if (table->ActiveIndex(i)) {
-      members.Push(table->GetOwner(i));
-    }
+  for (size_t i = 0; i < table->Size(); ++i) {
+    members.Push(table->GetOwnerAtDenseIndex(i));
   }
   return members;
 }
@@ -474,7 +471,7 @@ Ds::Vector<ComponentDescriptor> Space::GetDescriptors(MemberId memberId) const
 Ds::Vector<MemberId> Space::RootMemberIds() const
 {
   Ds::Vector<MemberId> rootMembers;
-  for (size_t i = 0; i < mMembers.Size(); ++i) {
+  for (size_t i = 0; i < mMembers.DenseUsage(); ++i) {
     MemberId memberId = mMembers.Dense()[i];
     auto* relationship = TryGet<Comp::Relationship>(memberId);
     if (relationship == nullptr || !relationship->HasParent()) {
@@ -501,7 +498,7 @@ const Ds::Vector<ComponentDescriptor>& Space::DescriptorBin() const
 
 void Space::Serialize(Vlk::Value& spaceVal) const
 {
-  for (int i = 0; i < mMembers.Size(); ++i) {
+  for (int i = 0; i < mMembers.DenseUsage(); ++i) {
     // Serialize all of the member's data.
     const Member& member = mMembers.GetWithDenseIndex(i);
     Vlk::Value memberVal;
@@ -517,7 +514,8 @@ void Space::Serialize(Vlk::Value& spaceVal) const
         continue;
       }
       Table& table = mTables.Get(desc.mTypeId);
-      typeData.mVSerialize.Invoke(table[desc.mTableIndex], componentVal);
+      void* component = table.GetComponent(desc.mComponentId);
+      typeData.mVSerialize.Invoke(component, componentVal);
     }
     spaceVal.EmplaceValue(std::move(memberVal));
   }

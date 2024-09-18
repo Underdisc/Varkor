@@ -118,7 +118,10 @@ void IndexOperator()
   test.Remove(0);
   test.Remove(2);
   test.Remove(1);
-  Ds::PoolId ids[3] = {test.Add("a"), test.Add("b"), test.Add("c")};
+  Ds::PoolId ids[3];
+  ids[0] = test.Add("a");
+  ids[1] = test.Add("b");
+  ids[2] = test.Add("c");
   std::cout << test[ids[0]] << ", " << test[ids[1]] << ", " << test[ids[2]]
             << '\n';
   PrintPool(test);

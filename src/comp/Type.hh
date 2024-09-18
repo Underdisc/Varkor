@@ -78,6 +78,7 @@ void Type<T>::Register(const std::string& name)
   data.mDefaultConstruct = &Util::DefaultConstruct<T>;
   data.mCopyConstruct = &Util::CopyConstruct<T>;
   data.mMoveConstruct = &Util::MoveConstruct<T>;
+  data.mMoveAssign = &Util::MoveAssign<T>;
   data.mDestruct = &Util::Destruct<T>;
   BindVStaticInit<T>(&data.mVStaticInit);
   BindVInit<T>(&data.mVInit);

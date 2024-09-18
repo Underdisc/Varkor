@@ -25,6 +25,12 @@ void MoveConstruct(void* from, void* to)
 }
 
 template<typename T>
+void MoveAssign(void* from, void* to)
+{
+  *(T*)to = std::move(*(T*)from);
+}
+
+template<typename T>
 void Destruct(void* data)
 {
   (*(T*)data).~T();
