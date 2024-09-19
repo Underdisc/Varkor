@@ -26,7 +26,7 @@ void CreateMember()
   for (size_t i = 0; i < 20; ++i) {
     space.CreateMember();
   }
-  PrintSpaceMembers(space);
+  PrintSpace(space);
 }
 
 void DeleteMember()
@@ -40,7 +40,7 @@ void DeleteMember()
   for (size_t i = 0; i < 10; i += 2) {
     space.DeleteMember(memberIds[i]);
   }
-  PrintSpaceMembers(space);
+  PrintSpace(space);
 }
 
 void RootMemberIds()
@@ -63,8 +63,7 @@ void Relationships0()
   }
   space.CreateMember();
   space.DeleteMember(parentId);
-  PrintSpaceMembers(space);
-  PrintSpaceRelationships(space);
+  PrintSpace(space);
 }
 
 void Relationships1()
@@ -92,8 +91,7 @@ void Relationships1()
   space.MakeParent(memberIds[8], memberIds[9]);
   space.CreateChildMember(memberIds[8]);
 
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
+  PrintSpace(space);
   PrintTableOwners(space.Tables().Get(Comp::Type<Comp::Relationship>::smId));
   PrintSpaceRelationships(space);
 
@@ -107,7 +105,7 @@ void Relationships1()
   // Delete a member that has a parent.
   space.DeleteMember(memberIds[9]);
 
-  PrintSpaceMembers(space);
+  PrintSpace(space);
   PrintSpaceRelationships(space);
 }
 
@@ -126,14 +124,14 @@ void AddComponent()
   space.AddComponent<Simple0>(mem2);
   space.AddComponent<Container>(mem2).SetData(5);
 
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
+  PrintSpace(space);
 
   space.AddComponent<Container>(mem1).SetData(4);
   space.AddComponent<Container>(mem0).SetData(3);
   space.AddComponent<Dynamic>(mem2);
 
   PrintSpaceTablesStats(space);
+  PrintSpaceTablesOwners(space);
   PrintSpace(space);
 }
 
@@ -158,21 +156,14 @@ void RemComponent()
   space.AddComponent<Dynamic>(mem3);
   space.AddComponent<Simple0>(mem3);
 
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
-
   space.RemComponent<Dynamic>(mem2);
   space.RemComponent<Simple0>(mem1);
   space.RemComponent<Simple1>(mem2);
   space.RemComponent<Simple1>(mem0);
 
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
-
   space.AddComponent<Simple0>(mem2);
 
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
+  PrintSpace(space);
   PrintSpaceTablesStats(space);
   PrintSpaceTablesOwners(space);
 }
@@ -194,9 +185,7 @@ void DeleteMembersWithComponents()
       space.AddComponent<Container>(memberIds[i]);
     }
   }
-  std::cout << "Members and Components Created\n";
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
+  PrintSpace(space);
   PrintSpaceTablesOwners(space);
 
   space.DeleteMember(memberIds[0]);
@@ -204,9 +193,7 @@ void DeleteMembersWithComponents()
   space.DeleteMember(memberIds[4]);
   space.DeleteMember(memberIds[6]);
   space.DeleteMember(memberIds[7]);
-  std::cout << "-----\nMembers Removed\n";
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
+  PrintSpace(space);
   PrintSpaceTablesOwners(space);
 
   World::MemberId newMemberId = space.CreateMember();
@@ -216,9 +203,7 @@ void DeleteMembersWithComponents()
   newMemberId = space.CreateMember();
   space.AddComponent<Container>(newMemberId);
   space.AddComponent<Simple1>(newMemberId);
-  std::cout << "-----\nNew Members and Components\n";
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
+  PrintSpace(space);
   PrintSpaceTablesOwners(space);
 }
 
@@ -235,22 +220,16 @@ void GetComponent()
   space.AddComponent<Simple1>(mem1);
   space.AddComponent<Dynamic>(mem1);
 
-  Simple0& mem0comp0 = space.GetComponent<Simple0>(mem0);
-  mem0comp0.SetData(0);
-  Simple1& mem0comp1 = space.GetComponent<Simple1>(mem0);
-  mem0comp1.SetData(1);
-  Dynamic& mem0comp2 = space.GetComponent<Dynamic>(mem0);
-  mem0comp2.SetData(2);
-  Container& mem0comp3 = space.GetComponent<Container>(mem0);
-  mem0comp3.SetData(3);
-  Simple0& mem1comp0 = space.GetComponent<Simple0>(mem1);
-  mem1comp0.SetData(1);
-  Simple1& mem1comp1 = space.GetComponent<Simple1>(mem1);
-  mem1comp1.SetData(2);
-  Dynamic& mem1comp2 = space.GetComponent<Dynamic>(mem1);
-  mem1comp2.SetData(3);
+  space.GetComponent<Simple0>(mem0).SetData(9);
+  space.GetComponent<Simple1>(mem0).SetData(8);
+  space.GetComponent<Dynamic>(mem0).SetData(7);
+  space.GetComponent<Container>(mem0).SetData(6);
+  space.GetComponent<Simple0>(mem1).SetData(9);
+  space.GetComponent<Simple1>(mem1).SetData(8);
+  space.GetComponent<Dynamic>(mem1).SetData(7);
 
   PrintSpaceTablesStats(space);
+  PrintSpaceTablesOwners(space);
   PrintSpace(space);
 }
 
@@ -265,8 +244,7 @@ void HasComponent()
   space.AddComponent<Container>(mem1);
   space.AddComponent<Container>(mem0);
 
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
+  PrintSpace(space);
   std::cout << space.HasComponent<Simple0>(mem0)
             << space.HasComponent<Simple1>(mem0)
             << space.HasComponent<Dynamic>(mem0)
@@ -285,6 +263,7 @@ void Duplicate0()
   space.AddComponent<Simple0>(testId).SetData(0);
   space.AddComponent<Simple1>(testId).SetData(1);
   space.Duplicate(testId);
+  PrintSpaceTablesOwners(space);
   PrintSpace(space);
 }
 
@@ -293,18 +272,17 @@ void Duplicate1()
   // Duplicate a member with children.
   World::Space space;
   MemberId testId = space.CreateMember();
-  space.AddComponent<Simple0>(testId).SetData(0);
-  space.AddComponent<Simple1>(testId).SetData(1);
-  PrintSpaceMembers(space);
+  space.AddComponent<Simple0>(testId).SetData(9);
+  space.AddComponent<Simple1>(testId).SetData(8);
   World::MemberId childId = space.CreateChildMember(testId);
-  PrintSpaceMembers(space);
-  space.AddComponent<Dynamic>(childId).SetData(2);
-  space.AddComponent<Container>(childId).SetData(3);
-  PrintSpaceMembers(space);
+  space.AddComponent<Dynamic>(childId).SetData(7);
+  space.AddComponent<Container>(childId).SetData(6);
   childId = space.CreateChildMember(testId);
-  space.AddComponent<Dynamic>(childId).SetData(4);
+  space.AddComponent<Dynamic>(childId).SetData(5);
   space.Duplicate(testId);
+  PrintSpaceTablesOwners(space);
   PrintSpace(space);
+  PrintSpaceRelationships(space);
 }
 
 void Duplicate2()
@@ -322,7 +300,9 @@ void Duplicate2()
   space.AddComponent<Simple1>(childId).SetData(2);
   space.AddComponent<Container>(childId).SetData(2);
   space.Duplicate(testId);
+  PrintSpaceTablesOwners(space);
   PrintSpace(space);
+  PrintSpaceRelationships(space);
 }
 
 void Duplicate3()
@@ -357,7 +337,9 @@ void Duplicate3()
   space.AddComponent<Simple1>(childId).SetData(2);
   space.AddComponent<Container>(childId).SetData(2);
   space.Duplicate(testId);
+  PrintSpaceTablesOwners(space);
   PrintSpace(space);
+  PrintSpaceRelationships(space);
 }
 
 void Dependencies()
@@ -372,18 +354,11 @@ void Dependencies()
   space.AddComponent<Dependant>(mem1);
   World::MemberId mem2 = space.CreateMember();
   space.AddComponent<Dependant>(mem2);
-  std::cout << "=Add=\n";
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
 
   space.RemComponent<CallCounter>(mem0);
   space.RemComponent<Dynamic>(mem1);
   space.RemComponent<Dependant>(mem2);
-  std::cout << "=Rem=\n";
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
-  CallCounter::Print();
-  CallCounter::Reset();
+  PrintSpace(space);
 }
 
 void Slice()
@@ -424,7 +399,6 @@ int main(void)
 {
   Error::Init();
   RegisterComponentTypes();
-  PrintKey();
 
   RunTest(Registration);
   RunTest(CreateMember);
@@ -441,6 +415,6 @@ int main(void)
   RunTest(Duplicate1);
   RunTest(Duplicate2);
   RunTest(Duplicate3);
-  RunTest(Dependencies);
+  RunCallCounterTest(Dependencies);
   RunTest(Slice);
 }

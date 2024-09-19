@@ -8,6 +8,7 @@
 #include "ds/Vector.h"
 #include "test/Test.h"
 #include "test/ds/Print.h"
+#include "vlk/Valkor.h"
 #include "world/Registrar.h"
 
 #pragma pack(push, 1)
@@ -85,6 +86,11 @@ struct Simple0
     m0 = (float)value;
     m1 = (float)value;
   }
+  void VSerialize(Vlk::Value& val)
+  {
+    val("m0") = m0;
+    val("m1") = m1;
+  }
 };
 
 std::ostream& operator<<(std::ostream& os, const Simple0& comp)
@@ -105,6 +111,11 @@ struct Simple1
   {
     m0 = (double)value;
     m1 = value;
+  }
+  void VSerialize(Vlk::Value& val)
+  {
+    val("m0") = m0;
+    val("m1") = m1;
   }
 };
 
@@ -159,6 +170,12 @@ struct Dynamic
     m1 = (double)value;
     m2 = (float)value;
   }
+  void VSerialize(Vlk::Value& val)
+  {
+    val("m0") = *m0;
+    val("m1") = m1;
+    val("m2") = m2;
+  }
 };
 
 std::ostream& operator<<(std::ostream& os, const Dynamic& comp)
@@ -181,6 +198,10 @@ struct Container
       mVector.Push(value + i);
     }
   }
+  void VSerialize(Vlk::Value& val)
+  {
+    val("m0") = mVector;
+  }
 };
 
 std::ostream& operator<<(std::ostream& os, const Container& comp)
@@ -199,6 +220,10 @@ struct Dependant
   void SetData(int value)
   {
     m0 = value;
+  }
+  void VSerialize(Vlk::Value& val)
+  {
+    val("m0") = m0;
   }
 };
 

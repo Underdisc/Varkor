@@ -51,56 +51,6 @@ void PrintTableOwners(const World::Table& table)
   std::cout << "]\n";
 }
 
-template<typename T>
-void PrintTable(const World::Table& table)
-{
-  std::cout << "-TableData- [id, owner, data]\n";
-  for (size_t i = 0; i < table.Size(); ++i) {
-    T* component = (T*)table.GetComponentAtDenseIndex(i);
-    std::cout << "[" << table.GetSparseIdAtDenseIndex(i) << ", "
-              << table.GetOwnerAtDenseIndex(i) << ", " << *component << "]\n";
-  }
-}
-
-void PrintKey()
-{
-  std::cout << "=Key=\n"
-            << "-ComponentData-\nTypeId: [Data]...\n"
-            << "-DescriptorBin-\nRowIndex: [TypeId|TableIndex]...\n"
-            << "-MemberBin-\nRowMemberId: [FirstDescriptor|LastDescriptor]...\n"
-            << "-Relationships-\nMemberId: [ChildId|ChildParentId]\n"
-            << "-TableOwners-\nTypeId: [Owner, ...]\n"
-            << "-TableStats-\nTypeId: Stats, ...\n\n";
-}
-
-template<typename T>
-void PrintSpaceComponentData(std::ostream& os, const World::Space& space)
-{
-  std::stringstream output;
-  Ds::Vector<World::MemberId> slice = space.Slice<T>();
-  for (int i = 0; i < slice.Size(); ++i) {
-    output << space.Get<T>(slice[i]);
-  }
-  std::string outputString = output.str();
-  if (!outputString.empty()) {
-    os << Comp::Type<T>::smId << ": " << outputString << '\n';
-  }
-}
-
-void PrintSpaceTestTypeComponentData(const World::Space& space)
-{
-  std::stringstream output;
-  PrintSpaceComponentData<Simple0>(output, space);
-  PrintSpaceComponentData<Simple1>(output, space);
-  PrintSpaceComponentData<Dynamic>(output, space);
-  PrintSpaceComponentData<Container>(output, space);
-  PrintSpaceComponentData<Dependant>(output, space);
-  std::string outputString = output.str();
-  if (!outputString.empty()) {
-    std::cout << "-ComponentData-\n" << outputString;
-  }
-}
-
 void PrintSpaceTablesStats(const World::Space& space)
 {
   std::cout << "-TableStats-\n";
@@ -170,60 +120,12 @@ void PrintSpaceRelationships(const World::Space& space)
   }
 }
 
-void PrintSpaceMembers(const World::Space& space)
-{
-  std::cout << "-MemberPool- [memberId|firstDescriptorId|descriptorCount]";
-  const Ds::Pool<World::Member>& members = space.Members();
-  const size_t rowSize = 5;
-  for (int i = 0; i < members.Size(); ++i) {
-    const World::Member& member = members.GetWithDenseIndex(i);
-    if (i % rowSize == 0) {
-      std::cout << '\n' << std::setfill('0') << std::setw(2) << i << ": ";
-    }
-    else {
-      std::cout << ' ';
-    }
-
-    Ds::PoolId memberId = members.Dense()[i];
-    std::cout << '[' << std::setfill('0') << std::setw(2) << memberId << '|'
-              << std::setfill('0') << std::setw(2) << member.FirstDescriptorId()
-              << '|' << std::setfill('0') << std::setw(2)
-              << member.DescriptorCount() << ']';
-  }
-  std::cout << '\n';
-}
-
-void PrintSpaceDescriptorBin(const World::Space& space)
-{
-  const Ds::Vector<World::ComponentDescriptor>& descriptorBin =
-    space.DescriptorBin();
-  const size_t rowSize = 5;
-  std::cout << "-DescriptorBin-";
-  for (size_t i = 0; i < descriptorBin.Size(); ++i) {
-    if (i % rowSize == 0) {
-      std::cout << "\n" << std::setfill('0') << std::setw(2) << i << ": ";
-    }
-    else {
-      std::cout << " ";
-    }
-    const World::ComponentDescriptor& desc = descriptorBin[i];
-    if (!desc.InUse()) {
-      std::cout << "[inv]";
-    }
-    else {
-      std::cout << "[" << desc.mTypeId << "|" << desc.mComponentId << "]";
-    }
-  }
-  std::cout << "\n";
-}
-
 void PrintSpace(const World::Space& space)
 {
-  PrintSpaceTablesOwners(space);
-  PrintSpaceMembers(space);
-  PrintSpaceDescriptorBin(space);
-  PrintSpaceRelationships(space);
-  PrintSpaceTestTypeComponentData(space);
+  std::cout << "-Space-\n";
+  Vlk::Value spaceVal;
+  space.Serialize(spaceVal);
+  std::cout << spaceVal << '\n';
 }
 
 #endif
