@@ -192,7 +192,7 @@ ArrayOfPairArrays:
     Key0: 0
     Key1: 1
 
-<= Move =>
+<= Move0 =>
 <- MovedTrueValue ->
 'Value'
 <- MovedValueArray ->
@@ -210,6 +210,22 @@ ArrayOfPairArrays:
   :TrueValue: {}
   :ValueArray: {}
   :PairArray: {}
+}
+
+<= Move1 =>
+{
+  :FromPair: {}
+  :toPair: {
+    :TrueValue: 'Value'
+    :ValueArray: ['Value-A', 'Value-B', 'Value-C', 'Value-D', 'Value-E']
+    :PairArray: {
+      :Pair-A: 'Value-A'
+      :Pair-B: 'Value-B'
+      :Pair-C: 'Value-C'
+      :Pair-D: 'Value-D'
+      :Pair-E: 'Value-E'
+    }
+  }
 }
 
 <= Errors =>

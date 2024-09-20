@@ -181,6 +181,8 @@ void Value::operator=(const T& value)
 
 struct Pair: public Value
 {
+  Pair& operator=(Value&& value);
+
   const std::string& Key() const;
   bool operator==(const Pair& other) const;
   bool operator!=(const Pair& other) const;

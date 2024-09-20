@@ -210,7 +210,7 @@ Vlk::Value CreateTestValue()
   return rootVal;
 }
 
-void Move()
+void Move0()
 {
   Vlk::Value rootVal = CreateTestValue();
 
@@ -226,6 +226,17 @@ void Move()
   movedVal("Pair-A") = "Replaced";
   std::cout << "<- MovedPairArray ->\n" << movedVal << '\n';
   std::cout << "<- Original ->\n" << rootVal << '\n';
+}
+
+void Move1()
+{
+  // Ensure that Pair implements a move assignment that takes a Value argument.
+  Vlk::Value rootVal;
+  Vlk::Value& fromVal = rootVal("FromPair");
+  fromVal = CreateTestValue();
+  Vlk::Pair& toPair = rootVal("toPair");
+  toPair = std::move(fromVal);
+  std::cout << rootVal << '\n';
 }
 
 void Errors()
@@ -356,7 +367,8 @@ int main()
   RunTest(MultidimensionalArrays);
   RunTest(ValueArrayPairArray);
   RunTest(SerializeDeserialize);
-  RunTest(Move);
+  RunTest(Move0);
+  RunTest(Move1);
   RunTest(Errors);
   RunTest(FindPair);
   RunTest(Copy);

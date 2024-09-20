@@ -531,6 +531,12 @@ const std::string& Pair::Key() const
   return mKey;
 }
 
+Pair& Pair::operator=(Value&& value)
+{
+  Value::operator=(std::move(value));
+  return *this;
+}
+
 bool Pair::operator==(const Pair& other) const
 {
   if (mKey != other.mKey) {
