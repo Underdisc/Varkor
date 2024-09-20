@@ -499,17 +499,18 @@ const Ds::Vector<ComponentDescriptor>& Space::DescriptorBin() const
 void Space::Serialize(Vlk::Value& spaceVal) const
 {
   for (int i = 0; i < mMembers.DenseUsage(); ++i) {
-    // Serialize all of the member's data.
+    // Create the member's value.
     const Member& member = mMembers.GetWithDenseIndex(i);
-    Vlk::Value memberVal;
     Ds::PoolId memberId = mMembers.Dense()[i];
-    memberVal("Id") = memberId;
-    Vlk::Value& componentsVal = memberVal("Components");
+    std::string memberIdStr(std::to_string(memberId));
+    Vlk::Value& memberVal = spaceVal(memberIdStr);
+
+    // Serialize all of the components.
     Ds::Vector<ComponentDescriptor> descriptors = GetDescriptors(memberId);
     for (int i = 0; i < descriptors.Size(); ++i) {
       const ComponentDescriptor& desc = descriptors[i];
       const Comp::TypeData& typeData = Comp::nTypeData[desc.mTypeId];
-      Vlk::Value& componentVal = componentsVal(typeData.mName);
+      Vlk::Value& componentVal = memberVal(typeData.mName);
       if (!typeData.mVSerialize.Open()) {
         continue;
       }
@@ -517,31 +518,28 @@ void Space::Serialize(Vlk::Value& spaceVal) const
       void* component = table.GetComponent(desc.mComponentId);
       typeData.mVSerialize.Invoke(component, componentVal);
     }
-    spaceVal.EmplaceValue(std::move(memberVal));
   }
 }
 
 Result Space::Deserialize(const Vlk::Explorer& spaceEx)
 {
-  if (!spaceEx.Valid(Vlk::Value::Type::ValueArray)) {
+  if (!spaceEx.Valid(Vlk::Value::Type::PairArray)) {
     return Result("Space Value must be a ValueArray");
   }
 
   for (size_t i = 0; i < spaceEx.Size(); ++i) {
     // Create the member.
-    Vlk::Explorer memberEx = spaceEx[i];
-    MemberId memberId = memberEx("Id").As<int>(nInvalidMemberId);
-    if (memberId == nInvalidMemberId) {
-      return Result("Member at " + memberEx.Path() + " has an invalid Id.");
-    }
+    Vlk::Explorer memberEx = spaceEx(i);
+    std::stringstream idStream(memberEx.Key());
+    MemberId memberId;
+    idStream >> memberId;
     Member& member = mMembers.Request(memberId);
     member.mFirstDescriptorId = (DescriptorId)mDescriptorBin.Size();
 
     // Get the member's component data.
     World::Object owner(this, memberId);
-    Vlk::Explorer componentsEx = memberEx("Components");
-    for (size_t i = 0; i < componentsEx.Size(); ++i) {
-      Vlk::Explorer componentEx = componentsEx(i);
+    for (size_t i = 0; i < memberEx.Size(); ++i) {
+      Vlk::Explorer componentEx = memberEx(i);
       Comp::TypeId typeId = Comp::GetTypeId(componentEx.Key());
       if (typeId == Comp::nInvalidTypeId) {
         return Result(

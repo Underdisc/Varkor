@@ -135,6 +135,23 @@ void LayerProgression<2>(Vlk::Value& layerVal)
 }
 
 template<>
+void LayerProgression<3>(Vlk::Value& layerVal)
+{
+  // Convert the Space value from a value array to a pair array where each
+  // pairs' key is a member id and the value is a pair array of the components.
+  Vlk::Value& spaceVal = layerVal.GetPair("Space");
+  Vlk::Value& oldSpaceVal = layerVal("OldSpace");
+  oldSpaceVal = std::move(spaceVal);
+  for (int i = 0; i < oldSpaceVal.Size(); ++i) {
+    Vlk::Value& oldEntityVal = oldSpaceVal[i];
+    const Vlk::Pair& oldIdVal = oldEntityVal.GetPair("Id");
+    Vlk::Value& oldComponentsVal = oldEntityVal.GetPair("Components");
+    spaceVal(oldIdVal.As<std::string>()) = std::move(oldComponentsVal);
+  }
+  layerVal.RemovePair("OldSpace");
+}
+
+template<>
 void ComponentProgression<0>(Vlk::Value& componentsVal)
 {
   Vlk::Value* directionLightVal = componentsVal.TryGetPair("DirectionalLight");

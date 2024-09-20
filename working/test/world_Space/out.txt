@@ -37,265 +37,142 @@ Dependants: []
 
 <= CreateMember =>
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {}
-  },
-  {
-    :Id: '1'
-    :Components: {}
-  },
-  {
-    :Id: '2'
-    :Components: {}
-  },
-  {
-    :Id: '3'
-    :Components: {}
-  },
-  {
-    :Id: '4'
-    :Components: {}
-  },
-  {
-    :Id: '5'
-    :Components: {}
-  },
-  {
-    :Id: '6'
-    :Components: {}
-  },
-  {
-    :Id: '7'
-    :Components: {}
-  },
-  {
-    :Id: '8'
-    :Components: {}
-  },
-  {
-    :Id: '9'
-    :Components: {}
-  },
-  {
-    :Id: '10'
-    :Components: {}
-  },
-  {
-    :Id: '11'
-    :Components: {}
-  },
-  {
-    :Id: '12'
-    :Components: {}
-  },
-  {
-    :Id: '13'
-    :Components: {}
-  },
-  {
-    :Id: '14'
-    :Components: {}
-  },
-  {
-    :Id: '15'
-    :Components: {}
-  },
-  {
-    :Id: '16'
-    :Components: {}
-  },
-  {
-    :Id: '17'
-    :Components: {}
-  },
-  {
-    :Id: '18'
-    :Components: {}
-  },
-  {
-    :Id: '19'
-    :Components: {}
-  }
-]
+{
+  :0: {}
+  :1: {}
+  :2: {}
+  :3: {}
+  :4: {}
+  :5: {}
+  :6: {}
+  :7: {}
+  :8: {}
+  :9: {}
+  :10: {}
+  :11: {}
+  :12: {}
+  :13: {}
+  :14: {}
+  :15: {}
+  :16: {}
+  :17: {}
+  :18: {}
+  :19: {}
+}
 
 <= DeleteMember =>
 -Space-
-[
-  {
-    :Id: '9'
-    :Components: {}
-  },
-  {
-    :Id: '1'
-    :Components: {}
-  },
-  {
-    :Id: '5'
-    :Components: {}
-  },
-  {
-    :Id: '3'
-    :Components: {}
-  },
-  {
-    :Id: '7'
-    :Components: {}
-  }
-]
+{
+  :9: {}
+  :1: {}
+  :5: {}
+  :3: {}
+  :7: {}
+}
 
 <= RootMemberIds =>
 [1]
 
 <= Relationships0 =>
 -Space-
-[
-  {
-    :Id: '4'
-    :Components: {}
-  }
-]
+{
+  :4: {}
+}
 
 <= Relationships1 =>
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '-1'
-        :Children: ['1', '2', '3', '10']
-      }
-    }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '0'
-        :Children: ['4', '11']
-      }
-    }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '0'
-        :Children: ['5', '12']
-      }
-    }
-  },
-  {
-    :Id: '3'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '0'
-        :Children: ['6', '7', '13']
-      }
-    }
-  },
-  {
-    :Id: '4'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '1'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '5'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '2'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '6'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '3'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '7'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '3'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '8'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '-1'
-        :Children: ['9', '14']
-      }
-    }
-  },
-  {
-    :Id: '9'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '8'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '10'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '0'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '11'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '1'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '12'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '2'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '13'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '3'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '14'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '8'
-        :Children: {}
-      }
+{
+  :0: {
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['1', '2', '3', '10']
     }
   }
-]
+  :1: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['4', '11']
+    }
+  }
+  :2: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['5', '12']
+    }
+  }
+  :3: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['6', '7', '13']
+    }
+  }
+  :4: {
+    :Comp/Relationship: {
+      :Parent: '1'
+      :Children: {}
+    }
+  }
+  :5: {
+    :Comp/Relationship: {
+      :Parent: '2'
+      :Children: {}
+    }
+  }
+  :6: {
+    :Comp/Relationship: {
+      :Parent: '3'
+      :Children: {}
+    }
+  }
+  :7: {
+    :Comp/Relationship: {
+      :Parent: '3'
+      :Children: {}
+    }
+  }
+  :8: {
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['9', '14']
+    }
+  }
+  :9: {
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: {}
+    }
+  }
+  :10: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: {}
+    }
+  }
+  :11: {
+    :Comp/Relationship: {
+      :Parent: '1'
+      :Children: {}
+    }
+  }
+  :12: {
+    :Comp/Relationship: {
+      :Parent: '2'
+      :Children: {}
+    }
+  }
+  :13: {
+    :Comp/Relationship: {
+      :Parent: '3'
+      :Children: {}
+    }
+  }
+  :14: {
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: {}
+    }
+  }
+}
 -TableOwners-
 [1, 0, 2, 3, 10, 4, 11, 5, 12, 6, 7, 13, 9, 8, 14]
 -Relationships-
@@ -315,126 +192,78 @@ Dependants: []
 \-9
 \-14
 -Space-
-[
-  {
-    :Id: '8'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '-1'
-        :Children: ['14']
-      }
+{
+  :8: {
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['14']
     }
-  },
-  {
-    :Id: '14'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '8'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '11'
-    :Components: {}
-  },
-  {
-    :Id: '0'
-    :Components: {}
-  },
-  {
-    :Id: '10'
-    :Components: {}
-  },
-  {
-    :Id: '3'
-    :Components: {}
-  },
-  {
-    :Id: '13'
-    :Components: {}
-  },
-  {
-    :Id: '7'
-    :Components: {}
-  },
-  {
-    :Id: '6'
-    :Components: {}
-  },
-  {
-    :Id: '2'
-    :Components: {}
-  },
-  {
-    :Id: '12'
-    :Components: {}
-  },
-  {
-    :Id: '5'
-    :Components: {}
-  },
-  {
-    :Id: '1'
-    :Components: {}
   }
-]
+  :14: {
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: {}
+    }
+  }
+  :11: {}
+  :0: {}
+  :10: {}
+  :3: {}
+  :13: {}
+  :7: {}
+  :6: {}
+  :2: {}
+  :12: {}
+  :5: {}
+  :1: {}
+}
 -Relationships-
 8
 \-14
 
 <= AddComponent =>
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
+{
+  :0: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
     }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Container: {
-        :m0: ['5', '6']
-      }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
     }
   }
-]
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Container: {
+      :m0: ['5', '6']
+    }
+  }
+}
 -TableStats-
 1: Stride: 8, Size: 3, Capacity: 10
 2: Stride: 12, Size: 2, Capacity: 10
@@ -446,132 +275,111 @@ Dependants: []
 3: [0, 1, 2]
 4: [2, 1, 0]
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
-      :Container: {
-        :m0: ['3']
-      }
+{
+  :0: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
-      :Container: {
-        :m0: ['4', '5']
-      }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
     }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Container: {
-        :m0: ['5', '6']
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Container: {
+      :m0: ['3']
     }
   }
-]
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Container: {
+      :m0: ['5', '6']
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+}
 
 <= RemComponent =>
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Container: {
-        :m0: ['4', '5']
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
+{
+  :0: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
+    :Container: {
+      :m0: ['4', '5']
     }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :Container: {
-        :m0: ['4', '5']
-      }
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-    }
-  },
-  {
-    :Id: '3'
-    :Components: {
-      :Container: {
-        :m0: ['4', '5']
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
     }
   }
-]
+  :1: {
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+  }
+  :2: {
+    :Container: {
+      :m0: ['4', '5']
+    }
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+  :3: {
+    :Container: {
+      :m0: ['4', '5']
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+}
 -TableStats-
 1: Stride: 8, Size: 3, Capacity: 10
 2: Stride: 12, Size: 1, Capacity: 10
@@ -585,231 +393,183 @@ Dependants: []
 
 <= DeleteMembersWithComponents =>
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
-      :Container: {
-        :m0: ['4', '5']
-      }
+{
+  :0: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
     }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
     }
-  },
-  {
-    :Id: '3'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
-    }
-  },
-  {
-    :Id: '4'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-    }
-  },
-  {
-    :Id: '5'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Container: {
-        :m0: ['4', '5']
-      }
-    }
-  },
-  {
-    :Id: '6'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
-    }
-  },
-  {
-    :Id: '7'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
+    :Container: {
+      :m0: ['4', '5']
     }
   }
-]
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+  }
+  :3: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :4: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+  }
+  :5: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+  :6: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :7: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+}
 -TableOwners-
 1: [0, 1, 2, 3, 4, 5, 6, 7]
 2: [0, 2, 4, 6]
 3: [0, 3, 6]
 4: [0, 5]
 -Space-
-[
-  {
-    :Id: '5'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Container: {
-        :m0: ['4', '5']
-      }
+{
+  :5: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-    }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
+    :Container: {
+      :m0: ['4', '5']
     }
   }
-]
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+  }
+}
 -TableOwners-
 1: [5, 1, 2]
 2: [2]
 3: []
 4: [5]
 -Space-
-[
-  {
-    :Id: '5'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Container: {
-        :m0: ['4', '5']
-      }
+{
+  :5: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-    }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-    }
-  },
-  {
-    :Id: '7'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
-    }
-  },
-  {
-    :Id: '6'
-    :Components: {
-      :Container: {
-        :m0: ['4', '5']
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
+    :Container: {
+      :m0: ['4', '5']
     }
   }
-]
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+  }
+  :7: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :6: {
+    :Container: {
+      :m0: ['4', '5']
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+  }
+}
 -TableOwners-
 1: [5, 1, 2, 7]
 2: [2, 7, 6]
@@ -828,81 +588,69 @@ Dependants: []
 3: [0, 1]
 4: [0]
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Simple0: {
-        :m0: '9'
-        :m1: '9'
-      }
-      :Simple1: {
-        :m0: '8'
-        :m1: '8'
-      }
-      :Dynamic: {
-        :m0: '7'
-        :m1: '7'
-        :m2: '7'
-      }
-      :Container: {
-        :m0: ['6', '7', '8']
-      }
+{
+  :0: {
+    :Simple0: {
+      :m0: '9'
+      :m1: '9'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Simple0: {
-        :m0: '9'
-        :m1: '9'
-      }
-      :Simple1: {
-        :m0: '8'
-        :m1: '8'
-      }
-      :Dynamic: {
-        :m0: '7'
-        :m1: '7'
-        :m2: '7'
-      }
+    :Simple1: {
+      :m0: '8'
+      :m1: '8'
+    }
+    :Dynamic: {
+      :m0: '7'
+      :m1: '7'
+      :m2: '7'
+    }
+    :Container: {
+      :m0: ['6', '7', '8']
     }
   }
-]
+  :1: {
+    :Simple0: {
+      :m0: '9'
+      :m1: '9'
+    }
+    :Simple1: {
+      :m0: '8'
+      :m1: '8'
+    }
+    :Dynamic: {
+      :m0: '7'
+      :m1: '7'
+      :m2: '7'
+    }
+  }
+}
 
 <= HasComponent =>
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
-      :Container: {
-        :m0: ['4', '5']
-      }
+{
+  :0: {
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Container: {
-        :m0: ['4', '5']
-      }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Container: {
+      :m0: ['4', '5']
     }
   }
-]
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+}
 01111001
 
 <= Duplicate0 =>
@@ -910,34 +658,28 @@ Dependants: []
 1: [0, 1]
 2: [0, 1]
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Simple0: {
-        :m0: '0'
-        :m1: '0'
-      }
-      :Simple1: {
-        :m0: '1'
-        :m1: '1'
-      }
+{
+  :0: {
+    :Simple0: {
+      :m0: '0'
+      :m1: '0'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Simple0: {
-        :m0: '0'
-        :m1: '0'
-      }
-      :Simple1: {
-        :m0: '1'
-        :m1: '1'
-      }
+    :Simple1: {
+      :m0: '1'
+      :m1: '1'
     }
   }
-]
+  :1: {
+    :Simple0: {
+      :m0: '0'
+      :m1: '0'
+    }
+    :Simple1: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+}
 
 <= Duplicate1 =>
 -TableOwners-
@@ -947,104 +689,86 @@ Dependants: []
 4: [1, 4]
 6: [1, 0, 2, 4, 3, 5]
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Simple0: {
-        :m0: '9'
-        :m1: '9'
-      }
-      :Simple1: {
-        :m0: '8'
-        :m1: '8'
-      }
-      :Comp/Relationship: {
-        :Parent: '-1'
-        :Children: ['1', '2']
-      }
+{
+  :0: {
+    :Simple0: {
+      :m0: '9'
+      :m1: '9'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '0'
-        :Children: {}
-      }
-      :Dynamic: {
-        :m0: '7'
-        :m1: '7'
-        :m2: '7'
-      }
-      :Container: {
-        :m0: ['6', '7', '8']
-      }
+    :Simple1: {
+      :m0: '8'
+      :m1: '8'
     }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '0'
-        :Children: {}
-      }
-      :Dynamic: {
-        :m0: '5'
-        :m1: '5'
-        :m2: '5'
-      }
-    }
-  },
-  {
-    :Id: '3'
-    :Components: {
-      :Simple0: {
-        :m0: '9'
-        :m1: '9'
-      }
-      :Simple1: {
-        :m0: '8'
-        :m1: '8'
-      }
-      :Comp/Relationship: {
-        :Parent: '-1'
-        :Children: ['4', '5']
-      }
-    }
-  },
-  {
-    :Id: '4'
-    :Components: {
-      :Dynamic: {
-        :m0: '7'
-        :m1: '7'
-        :m2: '7'
-      }
-      :Container: {
-        :m0: ['6', '7', '8']
-      }
-      :Comp/Relationship: {
-        :Parent: '3'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '5'
-    :Components: {
-      :Dynamic: {
-        :m0: '5'
-        :m1: '5'
-        :m2: '5'
-      }
-      :Comp/Relationship: {
-        :Parent: '3'
-        :Children: {}
-      }
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['1', '2']
     }
   }
-]
+  :1: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: {}
+    }
+    :Dynamic: {
+      :m0: '7'
+      :m1: '7'
+      :m2: '7'
+    }
+    :Container: {
+      :m0: ['6', '7', '8']
+    }
+  }
+  :2: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: {}
+    }
+    :Dynamic: {
+      :m0: '5'
+      :m1: '5'
+      :m2: '5'
+    }
+  }
+  :3: {
+    :Simple0: {
+      :m0: '9'
+      :m1: '9'
+    }
+    :Simple1: {
+      :m0: '8'
+      :m1: '8'
+    }
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['4', '5']
+    }
+  }
+  :4: {
+    :Dynamic: {
+      :m0: '7'
+      :m1: '7'
+      :m2: '7'
+    }
+    :Container: {
+      :m0: ['6', '7', '8']
+    }
+    :Comp/Relationship: {
+      :Parent: '3'
+      :Children: {}
+    }
+  }
+  :5: {
+    :Dynamic: {
+      :m0: '5'
+      :m1: '5'
+      :m2: '5'
+    }
+    :Comp/Relationship: {
+      :Parent: '3'
+      :Children: {}
+    }
+  }
+}
 -Relationships-
 0
 \-1
@@ -1061,117 +785,96 @@ Dependants: []
 4: [2, 3, 5, 6]
 6: [1, 0, 2, 3, 4, 5, 6]
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '-1'
-        :Children: ['1', '4']
-      }
-    }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '0'
-        :Children: ['2', '3']
-      }
-      :Simple0: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '2'
-        :m1: '2'
-        :m2: '2'
-      }
-    }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '1'
-        :Children: {}
-      }
-      :Simple0: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Container: {
-        :m0: ['2']
-      }
-    }
-  },
-  {
-    :Id: '3'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '1'
-        :Children: {}
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Container: {
-        :m0: ['2']
-      }
-    }
-  },
-  {
-    :Id: '4'
-    :Components: {
-      :Simple0: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '2'
-        :m1: '2'
-        :m2: '2'
-      }
-      :Comp/Relationship: {
-        :Parent: '0'
-        :Children: ['5', '6']
-      }
-    }
-  },
-  {
-    :Id: '5'
-    :Components: {
-      :Simple0: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Container: {
-        :m0: ['2']
-      }
-      :Comp/Relationship: {
-        :Parent: '4'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '6'
-    :Components: {
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Container: {
-        :m0: ['2']
-      }
-      :Comp/Relationship: {
-        :Parent: '4'
-        :Children: {}
-      }
+{
+  :0: {
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['1', '4']
     }
   }
-]
+  :1: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['2', '3']
+    }
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '2'
+      :m1: '2'
+      :m2: '2'
+    }
+  }
+  :2: {
+    :Comp/Relationship: {
+      :Parent: '1'
+      :Children: {}
+    }
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+  }
+  :3: {
+    :Comp/Relationship: {
+      :Parent: '1'
+      :Children: {}
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+  }
+  :4: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '2'
+      :m1: '2'
+      :m2: '2'
+    }
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['5', '6']
+    }
+  }
+  :5: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '4'
+      :Children: {}
+    }
+  }
+  :6: {
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '4'
+      :Children: {}
+    }
+  }
+}
 -Relationships-
 0
 \-1
@@ -1189,239 +892,194 @@ Dependants: []
 4: [3, 6, 10, 11, 13, 14]
 6: [3, 2, 4, 6, 5, 7, 9, 8, 10, 11, 12, 13, 14]
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Simple0: {
-        :m0: '0'
-        :m1: '0'
-      }
-      :Simple1: {
-        :m0: '0'
-        :m1: '0'
-      }
+{
+  :0: {
+    :Simple0: {
+      :m0: '0'
+      :m1: '0'
     }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :Simple0: {
-        :m0: '0'
-        :m1: '0'
-      }
-      :Simple1: {
-        :m0: '0'
-        :m1: '0'
-      }
-    }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Comp/Relationship: {
-        :Parent: '-1'
-        :Children: ['3', '4']
-      }
-    }
-  },
-  {
-    :Id: '3'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '2'
-        :Children: {}
-      }
-      :Dynamic: {
-        :m0: '1'
-        :m1: '1'
-        :m2: '1'
-      }
-      :Container: {
-        :m0: []
-      }
-    }
-  },
-  {
-    :Id: '4'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '2'
-        :Children: {}
-      }
-      :Dynamic: {
-        :m0: '1'
-        :m1: '1'
-        :m2: '1'
-      }
-    }
-  },
-  {
-    :Id: '5'
-    :Components: {
-      :Simple0: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Simple1: {
-        :m0: '1'
-        :m1: '1'
-      }
-      :Comp/Relationship: {
-        :Parent: '-1'
-        :Children: ['6', '7']
-      }
-    }
-  },
-  {
-    :Id: '6'
-    :Components: {
-      :Dynamic: {
-        :m0: '1'
-        :m1: '1'
-        :m2: '1'
-      }
-      :Container: {
-        :m0: []
-      }
-      :Comp/Relationship: {
-        :Parent: '5'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '7'
-    :Components: {
-      :Dynamic: {
-        :m0: '1'
-        :m1: '1'
-        :m2: '1'
-      }
-      :Comp/Relationship: {
-        :Parent: '5'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '8'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '-1'
-        :Children: ['9', '12']
-      }
-    }
-  },
-  {
-    :Id: '9'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '8'
-        :Children: ['10', '11']
-      }
-      :Simple0: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '2'
-        :m1: '2'
-        :m2: '2'
-      }
-    }
-  },
-  {
-    :Id: '10'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '9'
-        :Children: {}
-      }
-      :Simple0: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Container: {
-        :m0: ['2']
-      }
-    }
-  },
-  {
-    :Id: '11'
-    :Components: {
-      :Comp/Relationship: {
-        :Parent: '9'
-        :Children: {}
-      }
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Container: {
-        :m0: ['2']
-      }
-    }
-  },
-  {
-    :Id: '12'
-    :Components: {
-      :Simple0: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Dynamic: {
-        :m0: '2'
-        :m1: '2'
-        :m2: '2'
-      }
-      :Comp/Relationship: {
-        :Parent: '8'
-        :Children: ['13', '14']
-      }
-    }
-  },
-  {
-    :Id: '13'
-    :Components: {
-      :Simple0: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Container: {
-        :m0: ['2']
-      }
-      :Comp/Relationship: {
-        :Parent: '12'
-        :Children: {}
-      }
-    }
-  },
-  {
-    :Id: '14'
-    :Components: {
-      :Simple1: {
-        :m0: '2'
-        :m1: '2'
-      }
-      :Container: {
-        :m0: ['2']
-      }
-      :Comp/Relationship: {
-        :Parent: '12'
-        :Children: {}
-      }
+    :Simple1: {
+      :m0: '0'
+      :m1: '0'
     }
   }
-]
+  :1: {
+    :Simple0: {
+      :m0: '0'
+      :m1: '0'
+    }
+    :Simple1: {
+      :m0: '0'
+      :m1: '0'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['3', '4']
+    }
+  }
+  :3: {
+    :Comp/Relationship: {
+      :Parent: '2'
+      :Children: {}
+    }
+    :Dynamic: {
+      :m0: '1'
+      :m1: '1'
+      :m2: '1'
+    }
+    :Container: {
+      :m0: []
+    }
+  }
+  :4: {
+    :Comp/Relationship: {
+      :Parent: '2'
+      :Children: {}
+    }
+    :Dynamic: {
+      :m0: '1'
+      :m1: '1'
+      :m2: '1'
+    }
+  }
+  :5: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['6', '7']
+    }
+  }
+  :6: {
+    :Dynamic: {
+      :m0: '1'
+      :m1: '1'
+      :m2: '1'
+    }
+    :Container: {
+      :m0: []
+    }
+    :Comp/Relationship: {
+      :Parent: '5'
+      :Children: {}
+    }
+  }
+  :7: {
+    :Dynamic: {
+      :m0: '1'
+      :m1: '1'
+      :m2: '1'
+    }
+    :Comp/Relationship: {
+      :Parent: '5'
+      :Children: {}
+    }
+  }
+  :8: {
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['9', '12']
+    }
+  }
+  :9: {
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: ['10', '11']
+    }
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '2'
+      :m1: '2'
+      :m2: '2'
+    }
+  }
+  :10: {
+    :Comp/Relationship: {
+      :Parent: '9'
+      :Children: {}
+    }
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+  }
+  :11: {
+    :Comp/Relationship: {
+      :Parent: '9'
+      :Children: {}
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+  }
+  :12: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '2'
+      :m1: '2'
+      :m2: '2'
+    }
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: ['13', '14']
+    }
+  }
+  :13: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '12'
+      :Children: {}
+    }
+  }
+  :14: {
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '12'
+      :Children: {}
+    }
+  }
+}
 -Relationships-
 2
 \-3
@@ -1439,35 +1097,26 @@ Dependants: []
 
 <= Dependencies =>
 -Space-
-[
-  {
-    :Id: '0'
-    :Components: {
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
-    }
-  },
-  {
-    :Id: '1'
-    :Components: {
-      :CallCounter: {}
-    }
-  },
-  {
-    :Id: '2'
-    :Components: {
-      :CallCounter: {}
-      :Dynamic: {
-        :m0: '3'
-        :m1: '3'
-        :m2: '3'
-      }
+{
+  :0: {
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
     }
   }
-]
+  :1: {
+    :CallCounter: {}
+  }
+  :2: {
+    :CallCounter: {}
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+}
 -Call Counts-
 Default Constructor Count: 3
 Copy Constructor Count: 0
