@@ -28,16 +28,18 @@ void SparseSet::Request(SparseId id)
   }
   LogAbortIf(Valid(id), "The requested id is already being used.");
 
-  mSparse.Swap(id, mDense[mDenseUsage]);
-  mDense.Swap(mDenseUsage, mSparse[mDense[mDenseUsage]]);
+  size_t temp = mSparse[id];
+  mSparse.Swap((size_t)id, (size_t)mDense[mDenseUsage]);
+  mDense.Swap(mDenseUsage, temp);
   ++mDenseUsage;
 }
 
 void SparseSet::Remove(SparseId id)
 {
   Verify(id);
-  mDense.Swap(mDenseUsage - 1, mSparse[id]);
-  mSparse.Swap(id, mDense[mSparse[id]]);
+  size_t temp = mSparse[id];
+  mSparse.Swap((size_t)id, (size_t)mDense[mDenseUsage - 1]);
+  mDense.Swap(mDenseUsage - 1, temp);
   --mDenseUsage;
 }
 
