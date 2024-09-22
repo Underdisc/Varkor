@@ -5,7 +5,8 @@
 
 namespace Ds {
 
-typedef size_t SparseId;
+typedef int SparseId;
+constexpr SparseId nInvalidSparseId = -1;
 
 struct SparseSet
 {
