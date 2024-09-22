@@ -177,14 +177,24 @@ void PrintPool(const Ds::Pool<T>& pool)
   auto printRow = [&](int index, char* bars, int* barCount, int nextBarCount)
   {
     if (*barCount >= 2) {
-      std::cout << bars[0] << std::setw(widths[0]) << pool.Sparse()[index]
-                << bars[1];
+      std::stringstream sparseElementStream;
+      sparseElementStream << pool.Sparse()[index];
+      if (pool.Valid(index)) {
+        sparseElementStream << "*";
+      }
+      else {
+        sparseElementStream << "-";
+      }
+      std::cout << bars[0] << std::right << std::setw(widths[0])
+                << sparseElementStream.str() << bars[1];
     }
     if (*barCount >= 3) {
-      std::cout << std::setw(widths[1]) << pool.Dense()[index] << bars[2];
+      std::cout << std::right << std::setw(widths[1]) << pool.Dense()[index]
+                << bars[2];
     }
     if (*barCount >= 4) {
-      std::cout << std::setw(widths[2]) << pool.Data()[index] << bars[3];
+      std::cout << std::right << std::setw(widths[2]) << pool.Data()[index]
+                << bars[3];
     }
     std::cout << '\n';
     *barCount = nextBarCount;

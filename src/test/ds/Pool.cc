@@ -30,8 +30,17 @@ void Request0()
 
 void Request1()
 {
-  Ds::Pool<std::string> test = AlphabetSoup(10);
-  test.Request(20) = 'a' + 20;
+  Ds::Pool<std::string> test = AlphabetSoup(5);
+  test.Request(10) = 'a' + 9;
+  PrintPool(test);
+}
+
+void Request2()
+{
+  Ds::Pool<std::string> test;
+  test.Request(4) = 'e';
+  test.Request(0) = 'a';
+  test.Request(1) = 'b';
   PrintPool(test);
 }
 
@@ -76,6 +85,16 @@ void Remove4()
   PrintPool(test);
 }
 
+void Remove5()
+{
+  Ds::Pool<std::string> test;
+  test.Request(4) = 'e';
+  test.Request(0) = 'a';
+  test.Request(1) = 'b';
+  test.Remove(4);
+  PrintPool(test);
+}
+
 void RemoveAdd0()
 {
   Ds::Pool<std::string> test = AlphabetSoup(4);
@@ -102,6 +121,24 @@ void RemoveAdd2()
   test.Add("f");
   test.Add("g");
   test.Add("h");
+  PrintPool(test);
+}
+
+void RemoveRequest0()
+{
+  Ds::Pool<std::string> test = AlphabetSoup(2);
+  test.Remove(0);
+  test.Request(3) = "c";
+  PrintPool(test);
+}
+
+void RemoveRequestAdd0()
+{
+  Ds::Pool<std::string> test = AlphabetSoup(2);
+  test.Remove(0);
+  test.Request(3) = "c";
+  test.Add("d");
+  test.Add("e");
   PrintPool(test);
 }
 
@@ -133,14 +170,18 @@ int main()
   RunTest(Add);
   RunTest(Request0);
   RunTest(Request1);
+  RunTest(Request2);
   RunTest(Remove0);
   RunTest(Remove1);
   RunTest(Remove2);
   RunTest(Remove3);
   RunTest(Remove4);
+  RunTest(Remove5);
   RunTest(RemoveAdd0);
   RunTest(RemoveAdd1);
   RunTest(RemoveAdd2);
+  RunTest(RemoveRequest0);
+  RunTest(RemoveRequestAdd0);
   RunTest(Clear);
   RunTest(IndexOperator);
 }

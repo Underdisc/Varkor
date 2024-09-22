@@ -5,8 +5,7 @@
 
 namespace Ds {
 
-typedef int SparseId;
-constexpr SparseId nInvalidSparseId = -1;
+typedef size_t SparseId;
 
 struct SparseSet
 {
@@ -20,12 +19,12 @@ public:
   void Verify(SparseId id) const;
 
   const Ds::Vector<SparseId>& Dense() const;
-  const Ds::Vector<int>& Sparse() const;
+  const Ds::Vector<size_t>& Sparse() const;
   size_t DenseUsage() const;
 
 protected:
   Ds::Vector<SparseId> mDense;
-  Ds::Vector<int> mSparse;
+  Ds::Vector<size_t> mSparse;
   size_t mDenseUsage;
 };
 
