@@ -317,13 +317,13 @@ Dependants: []
       :m0: '1'
       :m1: '1'
     }
-    :Container: {
-      :m0: ['5', '6']
-    }
     :Dynamic: {
       :m0: '3'
       :m1: '3'
       :m2: '3'
+    }
+    :Container: {
+      :m0: ['5', '6']
     }
   }
 }
@@ -336,47 +336,47 @@ Dependants: []
       :m0: '1'
       :m1: '1'
     }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
     :Container: {
       :m0: ['4', '5']
     }
-    :Dynamic: {
-      :m0: '3'
-      :m1: '3'
-      :m2: '3'
-    }
   }
   :1: {
-    :Dynamic: {
-      :m0: '3'
-      :m1: '3'
-      :m2: '3'
-    }
     :Simple1: {
       :m0: '2'
       :m1: '2'
     }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
   }
   :2: {
-    :Container: {
-      :m0: ['4', '5']
-    }
     :Simple0: {
       :m0: '1'
       :m1: '1'
     }
-  }
-  :3: {
     :Container: {
       :m0: ['4', '5']
+    }
+  }
+  :3: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
     }
     :Dynamic: {
       :m0: '3'
       :m1: '3'
       :m2: '3'
     }
-    :Simple0: {
-      :m0: '1'
-      :m1: '1'
+    :Container: {
+      :m0: ['4', '5']
     }
   }
 }
@@ -561,12 +561,12 @@ Dependants: []
     }
   }
   :6: {
-    :Container: {
-      :m0: ['4', '5']
-    }
     :Simple1: {
       :m0: '2'
       :m1: '2'
+    }
+    :Container: {
+      :m0: ['4', '5']
     }
   }
 }
@@ -705,10 +705,6 @@ Dependants: []
     }
   }
   :1: {
-    :Comp/Relationship: {
-      :Parent: '0'
-      :Children: {}
-    }
     :Dynamic: {
       :m0: '7'
       :m1: '7'
@@ -717,16 +713,20 @@ Dependants: []
     :Container: {
       :m0: ['6', '7', '8']
     }
-  }
-  :2: {
     :Comp/Relationship: {
       :Parent: '0'
       :Children: {}
     }
+  }
+  :2: {
     :Dynamic: {
       :m0: '5'
       :m1: '5'
       :m2: '5'
+    }
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: {}
     }
   }
   :3: {
@@ -793,10 +793,6 @@ Dependants: []
     }
   }
   :1: {
-    :Comp/Relationship: {
-      :Parent: '0'
-      :Children: ['2', '3']
-    }
     :Simple0: {
       :m0: '2'
       :m1: '2'
@@ -806,12 +802,12 @@ Dependants: []
       :m1: '2'
       :m2: '2'
     }
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['2', '3']
+    }
   }
   :2: {
-    :Comp/Relationship: {
-      :Parent: '1'
-      :Children: {}
-    }
     :Simple0: {
       :m0: '2'
       :m1: '2'
@@ -819,18 +815,22 @@ Dependants: []
     :Container: {
       :m0: ['2']
     }
-  }
-  :3: {
     :Comp/Relationship: {
       :Parent: '1'
       :Children: {}
     }
+  }
+  :3: {
     :Simple1: {
       :m0: '2'
       :m1: '2'
     }
     :Container: {
       :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '1'
+      :Children: {}
     }
   }
   :4: {
@@ -928,10 +928,6 @@ Dependants: []
     }
   }
   :3: {
-    :Comp/Relationship: {
-      :Parent: '2'
-      :Children: {}
-    }
     :Dynamic: {
       :m0: '1'
       :m1: '1'
@@ -940,16 +936,20 @@ Dependants: []
     :Container: {
       :m0: []
     }
-  }
-  :4: {
     :Comp/Relationship: {
       :Parent: '2'
       :Children: {}
     }
+  }
+  :4: {
     :Dynamic: {
       :m0: '1'
       :m1: '1'
       :m2: '1'
+    }
+    :Comp/Relationship: {
+      :Parent: '2'
+      :Children: {}
     }
   }
   :5: {
@@ -998,10 +998,6 @@ Dependants: []
     }
   }
   :9: {
-    :Comp/Relationship: {
-      :Parent: '8'
-      :Children: ['10', '11']
-    }
     :Simple0: {
       :m0: '2'
       :m1: '2'
@@ -1011,12 +1007,12 @@ Dependants: []
       :m1: '2'
       :m2: '2'
     }
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: ['10', '11']
+    }
   }
   :10: {
-    :Comp/Relationship: {
-      :Parent: '9'
-      :Children: {}
-    }
     :Simple0: {
       :m0: '2'
       :m1: '2'
@@ -1024,18 +1020,22 @@ Dependants: []
     :Container: {
       :m0: ['2']
     }
-  }
-  :11: {
     :Comp/Relationship: {
       :Parent: '9'
       :Children: {}
     }
+  }
+  :11: {
     :Simple1: {
       :m0: '2'
       :m1: '2'
     }
     :Container: {
       :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '9'
+      :Children: {}
     }
   }
   :12: {

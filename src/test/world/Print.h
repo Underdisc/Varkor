@@ -32,6 +32,16 @@ void PrintRegistration()
   std::cout << "]\n";
 }
 
+template<typename T>
+void PrintTable(const World::Table& table)
+{
+  std::cout << "-TableData- [owner, data]\n";
+  for (size_t i = 0; i < table.Size(); ++i) {
+    std::cout << "[" << table.GetOwnerAtDenseIndex(i) << ", "
+              << *(T*)table.GetComponentAtDenseIndex(i) << "]\n";
+  }
+}
+
 void PrintTableStats(const World::Table& table)
 {
   std::cout << "-TableStats-\n"

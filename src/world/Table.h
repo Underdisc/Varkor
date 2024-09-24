@@ -16,15 +16,15 @@ public:
   ~Table();
 
   // Add, remove, and act on components.
-  SparseId Add(MemberId owner);
-  SparseId Duplicate(SparseId id, MemberId owner);
-  void Remove(SparseId id);
+  void* Request(MemberId owner);
+  void* Duplicate(MemberId owner, MemberId duplicateOwner);
+  void Remove(MemberId owner);
 
   // Access component data and the owner of that component data.
-  void* GetComponent(SparseId id) const;
+  void* GetComponent(MemberId owner) const;
   void* GetComponentAtDenseIndex(size_t denseIndex) const;
   MemberId GetOwnerAtDenseIndex(size_t denseIndex) const;
-  SparseId GetSparseIdAtDenseIndex(size_t denseIndex) const;
+  MemberId GetMemberIdAtDenseIndex(size_t denseIndex) const;
 
   // Access private members that allow the component table to function.
   Comp::TypeId TypeId() const;
@@ -32,7 +32,8 @@ public:
   size_t Stride() const;
   size_t Size() const;
   size_t Capacity() const;
-  void VerifyId(SparseId id) const;
+  bool ValidComponent(MemberId owner) const;
+  void VerifyComponent(MemberId owner) const;
   void VerifyDenseIndex(size_t denseIndex) const;
 
   static constexpr size_t smStartCapacity = 10;
@@ -40,12 +41,11 @@ public:
 
 private:
   Comp::TypeId mTypeId;
-  Ds::SparseSet mSparseSet;
+  Ds::SparseSet mMemberIdToIndexMap;
   char* mData;
   size_t mCapacity;
-  Ds::Vector<MemberId> mOwners;
 
-  SparseId AllocateComponent(MemberId owner);
+  void* AllocateComponent(MemberId owner);
   void Grow();
 };
 

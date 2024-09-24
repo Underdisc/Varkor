@@ -16,32 +16,6 @@ namespace World {
 struct Object;
 struct Space;
 
-struct ComponentDescriptor
-{
-  void EndUse();
-  bool InUse() const;
-  Comp::TypeId mTypeId;
-  SparseId mComponentId;
-};
-
-struct Member
-{
-public:
-  Member();
-  Member(DescriptorId firstDescriptorId);
-  DescriptorId FirstDescriptorId() const;
-  DescriptorId LastDescriptorId() const;
-  DescriptorId DescriptorCount() const;
-
-private:
-  // The first DescriptorId and the number of ComponentDescriptors.
-  DescriptorId mFirstDescriptorId;
-  DescriptorId mDescriptorCount;
-  DescriptorId EndDescriptorId() const;
-
-  friend Space;
-};
-
 struct Space
 {
   Space();
@@ -61,8 +35,6 @@ struct Space
   void TryRemoveParent(MemberId memberId);
   bool HasParent(MemberId memberId);
   bool HasChildren(MemberId memberId);
-  Member& GetMember(MemberId id);
-  const Member& GetConstMember(MemberId id) const;
 
   // Component creation, deletion, and access.
   template<typename T>
@@ -101,25 +73,18 @@ struct Space
   template<typename T>
   Ds::Vector<MemberId> Slice() const;
   Ds::Vector<MemberId> Slice(Comp::TypeId typeId) const;
-  Ds::Vector<ComponentDescriptor> GetDescriptors(MemberId memberId) const;
   Ds::Vector<MemberId> RootMemberIds() const;
+  Ds::Vector<Comp::TypeId> GetComponentTypes(MemberId owner) const;
 
-  // Private member access.
   const Ds::Map<Comp::TypeId, Table>& Tables() const;
-  const Ds::Pool<Member>& Members() const;
-  const Ds::Vector<MemberId>& UnusedMemberIds() const;
-  const Ds::Vector<ComponentDescriptor>& DescriptorBin() const;
 
   void Serialize(Vlk::Value& spaceVal) const;
   Result Deserialize(const Vlk::Explorer& spaceEx);
 
 private:
+  Ds::SparseSet mMembers;
   Ds::Map<Comp::TypeId, Table> mTables;
-  Ds::Pool<Member> mMembers;
-  Ds::Vector<ComponentDescriptor> mDescriptorBin;
 
-  void AddDescriptorToMember(
-    MemberId memberId, const ComponentDescriptor& desc);
   bool ValidMemberId(MemberId memberId) const;
   void VerifyMemberId(MemberId memberId) const;
 

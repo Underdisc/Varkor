@@ -11,51 +11,48 @@ Table::Table(Comp::TypeId typeId): mData(nullptr), mTypeId(typeId), mCapacity(0)
 Table::~Table()
 {
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
-  for (int i = 0; i < mSparseSet.DenseUsage(); ++i) {
+  for (int i = 0; i < mMemberIdToIndexMap.DenseUsage(); ++i) {
     typeData.mDestruct(GetComponentAtDenseIndex(i));
   }
   if (mData != nullptr) {
     delete[] mData;
   }
 }
-// This function allows adding the same member id to the table multiple times.
-SparseId Table::Add(MemberId owner)
+
+void* Table::Request(MemberId owner)
 {
-  SparseId id = AllocateComponent(owner);
-  void* component = GetComponent(id);
+  void* component = AllocateComponent(owner);
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   typeData.mDefaultConstruct(component);
-  return id;
+  return component;
 }
 
-SparseId Table::Duplicate(SparseId id, MemberId owner)
+void* Table::Duplicate(MemberId owner, MemberId duplicateOwner)
 {
-  SparseId newId = AllocateComponent(owner);
-  void* component = GetComponent(id);
-  void* newComponent = GetComponent(newId);
+  void* duplicateComponent = AllocateComponent(duplicateOwner);
+  void* component = GetComponent(owner);
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
-  typeData.mCopyConstruct(component, newComponent);
-  return newId;
+  typeData.mCopyConstruct(component, duplicateComponent);
+  return duplicateComponent;
 }
 
-void Table::Remove(SparseId id)
+void Table::Remove(MemberId owner)
 {
-  mSparseSet.Verify(id);
-  int removeIndex = mSparseSet.Sparse()[id];
-  size_t replaceIndex = mSparseSet.DenseUsage() - 1;
+  VerifyComponent(owner);
+  size_t removeIndex = mMemberIdToIndexMap.Sparse()[owner];
+  size_t replaceIndex = mMemberIdToIndexMap.DenseUsage() - 1;
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   void* removedComponent = mData + typeData.mSize * removeIndex;
   void* replaceComponent = mData + typeData.mSize * replaceIndex;
   typeData.mMoveAssign(replaceComponent, removedComponent);
   typeData.mDestruct(replaceComponent);
-  mOwners.LazyRemove(removeIndex);
-  mSparseSet.Remove(id);
+  mMemberIdToIndexMap.Remove(owner);
 }
 
-void* Table::GetComponent(SparseId id) const
+void* Table::GetComponent(MemberId owner) const
 {
-  VerifyId(id);
-  int denseIndex = mSparseSet.Sparse()[id];
+  VerifyComponent(owner);
+  size_t denseIndex = mMemberIdToIndexMap.Sparse()[owner];
   return GetComponentAtDenseIndex(denseIndex);
 }
 
@@ -69,13 +66,13 @@ void* Table::GetComponentAtDenseIndex(size_t denseIndex) const
 MemberId Table::GetOwnerAtDenseIndex(size_t denseIndex) const
 {
   VerifyDenseIndex(denseIndex);
-  return mOwners[denseIndex];
+  return mMemberIdToIndexMap.Dense()[denseIndex];
 }
 
-SparseId Table::GetSparseIdAtDenseIndex(size_t denseIndex) const
+MemberId Table::GetMemberIdAtDenseIndex(size_t denseIndex) const
 {
   VerifyDenseIndex(denseIndex);
-  return mSparseSet.Dense()[denseIndex];
+  return mMemberIdToIndexMap.Dense()[denseIndex];
 }
 
 Comp::TypeId Table::TypeId() const
@@ -96,7 +93,7 @@ size_t Table::Stride() const
 
 size_t Table::Size() const
 {
-  return mSparseSet.DenseUsage();
+  return mMemberIdToIndexMap.DenseUsage();
 }
 
 size_t Table::Capacity() const
@@ -104,25 +101,30 @@ size_t Table::Capacity() const
   return mCapacity;
 }
 
-void Table::VerifyId(SparseId id) const
+bool Table::ValidComponent(MemberId owner) const
 {
-  mSparseSet.Verify(id);
+  return mMemberIdToIndexMap.Valid(owner);
+}
+
+void Table::VerifyComponent(MemberId owner) const
+{
+  mMemberIdToIndexMap.Verify(owner);
 }
 
 void Table::VerifyDenseIndex(size_t denseIndex) const
 {
-  if (denseIndex >= mSparseSet.DenseUsage()) {
+  if (denseIndex >= mMemberIdToIndexMap.DenseUsage()) {
     LogAbort("The provided dense index is invalid.");
   }
 }
 
-SparseId Table::AllocateComponent(MemberId owner)
+void* Table::AllocateComponent(MemberId owner)
 {
-  if (mSparseSet.DenseUsage() == mCapacity) {
+  if (mMemberIdToIndexMap.DenseUsage() == mCapacity) {
     Grow();
   }
-  mOwners.Push(owner);
-  return mSparseSet.Add();
+  mMemberIdToIndexMap.Request(owner);
+  return GetComponent(owner);
 }
 
 void Table::Grow()
@@ -136,7 +138,7 @@ void Table::Grow()
     char* oldData = mData;
     mCapacity = (size_t)((float)mCapacity * smGrowthFactor);
     char* newData = alloc char[mCapacity * typeData.mSize];
-    for (int i = 0; i < mSparseSet.DenseUsage(); ++i) {
+    for (int i = 0; i < mMemberIdToIndexMap.DenseUsage(); ++i) {
       void* oldComponent = (void*)(oldData + i * typeData.mSize);
       void* newComponent = (void*)(newData + i * typeData.mSize);
       typeData.mMoveConstruct(oldComponent, newComponent);

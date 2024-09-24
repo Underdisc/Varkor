@@ -54,7 +54,6 @@ struct Object
   void Delete() const;
   Object CreateChild() const;
   Object Duplicate() const;
-  Member& GetMember() const;
   void TryRemoveParent();
   Object Parent() const;
   bool Valid() const;

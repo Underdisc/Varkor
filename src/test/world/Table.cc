@@ -14,10 +14,10 @@ void Add()
   World::Table dynamic(Comp::Type<Dynamic>::smId);
   World::Table container(Comp::Type<Container>::smId);
   for (World::MemberId i = 0; i < 15; ++i) {
-    counter.Add(i);
-    simple.Add(i);
-    dynamic.Add(i);
-    container.Add(i);
+    counter.Request(i);
+    simple.Request(i);
+    dynamic.Request(i);
+    container.Request(i);
   }
   std::cout << "-Simple-\n";
   PrintTableStats(simple);
@@ -33,9 +33,8 @@ void Add()
 void Remove0()
 {
   World::Table table(Comp::Type<Dynamic>::smId);
-  SparseId ids[2];
-  ids[0] = table.Add(0);
-  ids[1] = table.Add(1);
+  table.Request(0);
+  table.Request(1);
   table.Remove(0);
   PrintTable<Dynamic>(table);
 }
@@ -43,13 +42,12 @@ void Remove0()
 void Remove1()
 {
   World::Table table(Comp::Type<Dynamic>::smId);
-  SparseId ids[3];
-  ids[0] = table.Add(0);
-  ids[1] = table.Add(1);
-  ids[2] = table.Add(2);
-  table.Remove(ids[1]);
-  table.Remove(ids[0]);
-  ids[0] = table.Add(0);
+  table.Request(0);
+  table.Request(1);
+  table.Request(2);
+  table.Remove(1);
+  table.Remove(0);
+  table.Request(0);
   PrintTable<Dynamic>(table);
 }
 
@@ -62,15 +60,14 @@ void Remove2()
     Comp::Type<Container>::smId};
   for (size_t currentTable = 0; currentTable < 4; ++currentTable) {
     World::Table& table = tables[currentTable];
-    SparseId ids[10];
     for (World::MemberId i = 0; i < 10; ++i) {
-      ids[i] = table.Add(i);
+      table.Request(i);
     }
     for (World::MemberId i = 0; i < 10; i += 2) {
-      table.Remove(ids[i]);
+      table.Remove(i);
     }
     for (World::MemberId i = 10; i < 15; ++i) {
-      table.Add(i);
+      table.Request(i);
     }
   }
   std::cout << "-Simple-\n";
@@ -84,9 +81,8 @@ void Remove2()
 void Duplicate0()
 {
   World::Table table(Comp::Type<Dynamic>::smId);
-  SparseId componentId = table.Add(0);
-  ((Dynamic*)table.GetComponent(componentId))->SetData(0);
-  table.Duplicate(componentId, 1);
+  ((Dynamic*)table.Request(0))->SetData(0);
+  table.Duplicate(0, 1);
   PrintTable<Dynamic>(table);
 }
 
@@ -95,26 +91,22 @@ void Duplicate1()
   World::Table counterTable(Comp::Type<CallCounter>::smId);
   World::Table dynamicTable(Comp::Type<Dynamic>::smId);
   World::Table containerTable(Comp::Type<Container>::smId);
-  SparseId ogCounterIds[10], ogDynamicIds[10], ogContainerIds[10];
   for (World::MemberId i = 0; i < 10; ++i) {
-    ogCounterIds[i] = counterTable.Add(i);
-    ogDynamicIds[i] = dynamicTable.Add(i);
-    ogContainerIds[i] = containerTable.Add(i);
-    ((Dynamic*)dynamicTable.GetComponent(ogDynamicIds[i]))->SetData(i);
-    ((Container*)containerTable.GetComponent(ogContainerIds[i]))->SetData(i);
+    counterTable.Request(i);
+    ((Dynamic*)dynamicTable.Request(i))->SetData(i);
+    ((Container*)containerTable.Request(i))->SetData(i);
   }
   SparseId cpDynamicIds[10], cpContainerIds[10];
   for (World::MemberId i = 0; i < 10; ++i) {
-    counterTable.Duplicate(ogCounterIds[i], i + 10);
-    cpDynamicIds[i] = dynamicTable.Duplicate(ogDynamicIds[i], i + 10);
-    cpContainerIds[i] = containerTable.Duplicate(ogContainerIds[i], i + 10);
+    counterTable.Duplicate(i, i + 10);
+    dynamicTable.Duplicate(i, i + 10);
+    containerTable.Duplicate(i, i + 10);
   }
   for (size_t i = 0; i < 10; ++i) {
-    std::cout << *(Dynamic*)dynamicTable.GetComponent(ogDynamicIds[i])
-              << *(Dynamic*)dynamicTable.GetComponent(cpDynamicIds[i]) << '\n'
-              << *(Container*)containerTable.GetComponent(ogContainerIds[i])
-              << *(Container*)containerTable.GetComponent(cpContainerIds[i])
-              << '\n';
+    std::cout << *(Dynamic*)dynamicTable.GetComponent(i)
+              << *(Dynamic*)dynamicTable.GetComponent(i + 10) << '\n'
+              << *(Container*)containerTable.GetComponent(i)
+              << *(Container*)containerTable.GetComponent(i + 10) << '\n';
   }
 }
 
@@ -124,22 +116,17 @@ void GetComponent()
   // some data to ensure that data is copied when the tables grow.
   World::Table dynamic(Comp::Type<Dynamic>::smId);
   World::Table container(Comp::Type<Container>::smId);
-  SparseId dynamicIds[World::Table::smStartCapacity],
-    containerIds[World::Table::smStartCapacity];
-  for (int i = 0; i < World::Table::smStartCapacity; ++i) {
-    dynamicIds[i] = dynamic.Add((MemberId)i);
-    containerIds[i] = container.Add((MemberId)i);
+  for (MemberId i = 0; i < World::Table::smStartCapacity; ++i) {
+    dynamic.Request(i);
+    container.Request(i);
   }
   for (size_t i = 0; i < 4; ++i) {
-    Dynamic* dynamicComponent = (Dynamic*)dynamic.GetComponent(dynamicIds[i]);
-    dynamicComponent->SetData((int)i);
-    Container* containerComponent =
-      (Container*)container.GetComponent(containerIds[i]);
-    containerComponent->SetData((int)i);
+    ((Dynamic*)dynamic.GetComponent(i))->SetData((int)i);
+    ((Container*)container.GetComponent(i))->SetData((int)i);
   }
-  for (int i = World::Table::smStartCapacity; i < 15; ++i) {
-    dynamic.Add((MemberId)i);
-    container.Add((MemberId)i);
+  for (MemberId i = World::Table::smStartCapacity; i < 15; ++i) {
+    dynamic.Request(i);
+    container.Request(i);
   }
   std::cout << "-Dynamic-\n";
   PrintTable<Dynamic>(dynamic);

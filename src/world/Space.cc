@@ -10,50 +10,12 @@
 
 namespace World {
 
-void ComponentDescriptor::EndUse()
-{
-  mTypeId = Comp::nInvalidTypeId;
-}
-
-bool ComponentDescriptor::InUse() const
-{
-  return mTypeId != Comp::nInvalidTypeId;
-}
-
-Member::Member(): mFirstDescriptorId(nInvalidDescriptorId), mDescriptorCount(0)
-{}
-
-Member::Member(DescriptorId FirstDescriptorId):
-  mFirstDescriptorId(FirstDescriptorId), mDescriptorCount(0)
-{}
-
-DescriptorId Member::EndDescriptorId() const
-{
-  return mFirstDescriptorId + mDescriptorCount;
-}
-
-DescriptorId Member::LastDescriptorId() const
-{
-  return mFirstDescriptorId + mDescriptorCount - 1;
-}
-
-DescriptorId Member::FirstDescriptorId() const
-{
-  return mFirstDescriptorId;
-}
-
-DescriptorId Member::DescriptorCount() const
-{
-  return mDescriptorCount;
-}
-
 Space::Space() {}
 
 void Space::Clear()
 {
   mTables.Clear();
   mMembers.Clear();
-  mDescriptorBin.Clear();
 }
 
 void Space::Update()
@@ -76,14 +38,7 @@ void Space::Update()
 
 MemberId Space::CreateMember()
 {
-  // todo: The new ComponentDescriptor is always at the end of the descriptor
-  // bin. This ignores unused memory within the descriptor bin. Without garbage
-  // collection, this will result in a perpetually increasing memory overhead.
-  // We should be more smart about what descriptor we hand out for a new member
-  // in the future.
-  DescriptorId newDescId = (DescriptorId)mDescriptorBin.Size();
-  Member newMember(newDescId);
-  return mMembers.Add(std::move(newMember));
+  return mMembers.Add();
 }
 
 Object Space::CreateObject()
@@ -106,19 +61,16 @@ MemberId Space::Duplicate(MemberId memberId, bool root)
 {
   // Duplicate all components from the member except the relationship component.
   VerifyMemberId(memberId);
-  MemberId newMemberId = CreateMember();
-  const Member& member = mMembers[memberId];
-  DescriptorId descId = member.mFirstDescriptorId;
-  for (; descId < member.EndDescriptorId(); ++descId) {
-    const ComponentDescriptor& desc = mDescriptorBin[descId];
-    if (desc.mTypeId == Comp::Type<Comp::Relationship>::smId) {
+  MemberId duplicateMemberId = CreateMember();
+  for (auto it = mTables.begin(); it != mTables.end(); ++it) {
+    Table& table = it->mValue;
+    if (table.TypeId() == Comp::Type<Comp::Relationship>::smId) {
       continue;
     }
-    ComponentDescriptor newDesc;
-    newDesc.mTypeId = desc.mTypeId;
-    Table& table = mTables.Get(desc.mTypeId);
-    newDesc.mComponentId = table.Duplicate(desc.mComponentId, newMemberId);
-    AddDescriptorToMember(newMemberId, newDesc);
+    if (!table.ValidComponent(memberId)) {
+      continue;
+    }
+    table.Duplicate(memberId, duplicateMemberId);
   }
 
   // Make the new member a child if we are duplicating a child and duplicate all
@@ -126,17 +78,17 @@ MemberId Space::Duplicate(MemberId memberId, bool root)
   auto* relationship = TryGet<Comp::Relationship>(memberId);
   if (relationship != nullptr) {
     if (root && relationship->HasParent()) {
-      MakeParent(relationship->mParent, newMemberId);
+      MakeParent(relationship->mParent, duplicateMemberId);
       relationship = &Get<Comp::Relationship>(memberId);
     }
     for (MemberId childId : relationship->mChildren) {
       MemberId newChildId = Duplicate(childId, false);
       relationship = &Get<Comp::Relationship>(memberId);
-      MakeParent(newMemberId, newChildId);
+      MakeParent(duplicateMemberId, newChildId);
       relationship = &Get<Comp::Relationship>(memberId);
     }
   }
-  return newMemberId;
+  return duplicateMemberId;
 }
 
 MemberId Space::CreateChildMember(MemberId parentId)
@@ -150,6 +102,7 @@ void Space::DeleteMember(MemberId memberId, bool root)
 {
   // Delete all of the member's children and if there is parent remove the
   // member's id from the parent's relationship .
+  VerifyMemberId(memberId);
   auto* relationship = TryGet<Comp::Relationship>(memberId);
   if (relationship != nullptr) {
     for (int i = 0; i < relationship->mChildren.Size(); ++i) {
@@ -164,17 +117,12 @@ void Space::DeleteMember(MemberId memberId, bool root)
     }
   }
 
-  // Remove all of the member's components.
-  Member& member = mMembers[memberId];
-  DescriptorId descId = member.mFirstDescriptorId;
-  while (descId < member.EndDescriptorId()) {
-    ComponentDescriptor& desc = mDescriptorBin[descId];
-    Table& table = mTables.Get(desc.mTypeId);
-    table.Remove(desc.mComponentId);
-    desc.EndUse();
-    ++descId;
+  for (auto it = mTables.begin(); it != mTables.end(); ++it) {
+    Table& table = it->mValue;
+    if (table.ValidComponent(memberId)) {
+      table.Remove(memberId);
+    }
   }
-
   mMembers.Remove(memberId);
 }
 
@@ -249,33 +197,19 @@ bool Space::HasChildren(MemberId memberId)
   return relationship != nullptr && !relationship->mChildren.Empty();
 }
 
-Member& Space::GetMember(MemberId id)
-{
-  VerifyMemberId(id);
-  return mMembers[id];
-}
-
-const Member& Space::GetConstMember(MemberId id) const
-{
-  VerifyMemberId(id);
-  return mMembers[id];
-}
-
-void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
+void* Space::AddComponent(Comp::TypeId typeId, MemberId owner, bool init)
 {
   // Create the component table if necessary and make sure the member doesn't
   // already have the component.
   Table* table = mTables.TryGet(typeId);
   if (table == nullptr) {
-    Table newTable(typeId);
-    mTables.Insert(typeId, newTable);
-    table = mTables.TryGet(typeId);
+    table = &mTables.Emplace(typeId, typeId);
   }
   const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-  if (HasComponent(typeId, memberId)) {
+  if (table->ValidComponent(owner)) {
     std::stringstream error;
-    error << "Member " << memberId;
-    Comp::Name* nameComp = TryGetComponent<Comp::Name>(memberId);
+    error << "Member " << owner;
+    Comp::Name* nameComp = TryGetComponent<Comp::Name>(owner);
     if (nameComp != nullptr) {
       error << " (" << nameComp->mName << ")";
     }
@@ -286,8 +220,8 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
 
   // Add any missing dependencies.
   for (Comp::TypeId dependencyId : typeData.mDependencies) {
-    if (!HasComponent(dependencyId, memberId)) {
-      void* depedency = AddComponent(dependencyId, memberId, init);
+    if (!HasComponent(dependencyId, owner)) {
+      void* depedency = AddComponent(dependencyId, owner, init);
       const Comp::TypeData& dependencyTypeData =
         Comp::GetTypeData(dependencyId);
       if (dependencyTypeData.mVInit.Open()) {
@@ -297,75 +231,33 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId memberId, bool init)
     }
   }
 
-  // Create the component's descriptor.
-  ComponentDescriptor newDesc;
-  newDesc.mTypeId = typeId;
-  newDesc.mComponentId = table->Add(memberId);
-  AddDescriptorToMember(memberId, newDesc);
-
-  // Initialize the component if requested.
-  void* component = table->GetComponent(newDesc.mComponentId);
+  // Create the component.
+  void* component = table->Request(owner);
   if (init && typeData.mVInit.Open()) {
-    Object owner(this, memberId);
-    typeData.mVInit.Invoke(component, owner);
+    Object ownerObject(this, owner);
+    typeData.mVInit.Invoke(component, ownerObject);
   }
   return component;
 }
 
-void* Space::EnsureComponent(Comp::TypeId typeId, MemberId memberId)
+void* Space::EnsureComponent(Comp::TypeId typeId, MemberId owner)
 {
-  void* component = TryGetComponent(typeId, memberId);
+  void* component = TryGetComponent(typeId, owner);
   if (component == nullptr) {
-    component = AddComponent(typeId, memberId);
+    component = AddComponent(typeId, owner);
   }
   return component;
 }
 
-void Space::AddDescriptorToMember(
-  MemberId memberId, const ComponentDescriptor& descriptor)
+void Space::RemComponent(Comp::TypeId typeId, MemberId owner)
 {
-  Member& member = mMembers[memberId];
-  DescriptorId nextDescId = member.EndDescriptorId();
-  if (nextDescId >= mDescriptorBin.Size()) {
-    mDescriptorBin.Push(descriptor);
-    ++member.mDescriptorCount;
-    return;
-  }
-  if (!mDescriptorBin[nextDescId].InUse()) {
-    mDescriptorBin[nextDescId] = descriptor;
-    ++member.mDescriptorCount;
-    return;
-  }
-  for (size_t i = 0; i < member.mDescriptorCount; ++i) {
-    DescriptorId ogDescId = member.mFirstDescriptorId + (DescriptorId)i;
-    ComponentDescriptor ogDesc = mDescriptorBin[ogDescId];
-    mDescriptorBin.Push(ogDesc);
-    mDescriptorBin[ogDescId].EndUse();
-  }
-  mDescriptorBin.Push(descriptor);
-  ++member.mDescriptorCount;
-  member.mFirstDescriptorId =
-    (DescriptorId)mDescriptorBin.Size() - member.mDescriptorCount;
-}
-
-void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
-{
-  // Find the ComponentDescriptor for the member's component.
-  VerifyMemberId(memberId);
-  Member& member = mMembers[memberId];
-  DescriptorId descId = member.mFirstDescriptorId;
-  DescriptorId endDescId = member.EndDescriptorId();
-  while (descId < endDescId) {
-    if (mDescriptorBin[descId].mTypeId == typeId) {
-      break;
-    }
-    ++descId;
-  }
+  VerifyMemberId(owner);
   const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-  if (descId == endDescId) {
+  Table& table = mTables.Get(typeId);
+  if (!table.ValidComponent(owner)) {
     std::stringstream error;
-    error << "Member " << memberId;
-    Comp::Name* nameComp = TryGetComponent<Comp::Name>(memberId);
+    error << "Member " << owner;
+    Comp::Name* nameComp = TryGetComponent<Comp::Name>(owner);
     if (nameComp != nullptr) {
       error << " (" << nameComp->mName << ")";
     }
@@ -374,38 +266,24 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
     LogAbort(error.str().c_str());
   }
 
-  // Remove all of the dependant components.
+  // Remove all of the dependant components and the requested component.
   for (Comp::TypeId dependantId : typeData.mDependants) {
-    if (HasComponent(dependantId, memberId)) {
-      RemComponent(dependantId, memberId);
+    if (HasComponent(dependantId, owner)) {
+      RemComponent(dependantId, owner);
     }
   }
-
-  // Remove the old ComponentDescriptor from the member.
-  Table& table = mTables.Get(typeId);
-  ComponentDescriptor& desc = mDescriptorBin[descId];
-  table.Remove(desc.mComponentId);
-  if (descId == member.LastDescriptorId()) {
-    desc.EndUse();
-  }
-  else {
-    ComponentDescriptor& lastDesc = mDescriptorBin[member.LastDescriptorId()];
-    desc = lastDesc;
-    lastDesc.EndUse();
-  }
-  --member.mDescriptorCount;
+  table.Remove(owner);
 }
 
-void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
+void* Space::GetComponent(Comp::TypeId typeId, MemberId owner) const
 {
-  VerifyMemberId(memberId);
-  void* component = TryGetComponent(typeId, memberId);
+  VerifyMemberId(owner);
+  void* component = TryGetComponent(typeId, owner);
   if (component == nullptr) {
-    const Member& member = mMembers[memberId];
     const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
     std::stringstream error;
-    error << "Member " << memberId;
-    Comp::Name* nameComp = TryGetComponent<Comp::Name>(memberId);
+    error << "Member " << owner;
+    Comp::Name* nameComp = TryGetComponent<Comp::Name>(owner);
     if (nameComp != nullptr) {
       error << " (" << nameComp->mName << ")";
     }
@@ -416,28 +294,23 @@ void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
   return component;
 }
 
-void* Space::TryGetComponent(Comp::TypeId typeId, MemberId memberId) const
+void* Space::TryGetComponent(Comp::TypeId typeId, MemberId owner) const
 {
-  if (!ValidMemberId(memberId)) {
+  if (!ValidMemberId(owner)) {
     return nullptr;
   }
-  const Member& member = mMembers[memberId];
-  for (size_t i = 0; i < member.mDescriptorCount; ++i) {
-    const ComponentDescriptor& desc =
-      mDescriptorBin[member.mFirstDescriptorId + i];
-    if (desc.mTypeId == typeId) {
-      Table& table = mTables.Get(typeId);
-      return table.GetComponent(desc.mComponentId);
-    }
+  Table* table = mTables.TryGet(typeId);
+  if (table == nullptr) {
+    return nullptr;
   }
-  return nullptr;
+  if (!table->ValidComponent(owner)) {
+    return nullptr;
+  }
+  return table->GetComponent(owner);
 }
 
 bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
 {
-  if (!ValidMemberId(memberId)) {
-    return false;
-  }
   void* component = TryGetComponent(typeId, memberId);
   return component != nullptr;
 }
@@ -455,19 +328,6 @@ Ds::Vector<MemberId> Space::Slice(Comp::TypeId typeId) const
   return members;
 }
 
-Ds::Vector<ComponentDescriptor> Space::GetDescriptors(MemberId memberId) const
-{
-  VerifyMemberId(memberId);
-  Ds::Vector<ComponentDescriptor> descriptors;
-  const Member& member = mMembers[memberId];
-  DescriptorId descId = member.mFirstDescriptorId;
-  while (descId < member.EndDescriptorId()) {
-    descriptors.Push(mDescriptorBin[descId]);
-    ++descId;
-  }
-  return descriptors;
-}
-
 Ds::Vector<MemberId> Space::RootMemberIds() const
 {
   Ds::Vector<MemberId> rootMembers;
@@ -481,41 +341,42 @@ Ds::Vector<MemberId> Space::RootMemberIds() const
   return rootMembers;
 }
 
+Ds::Vector<Comp::TypeId> Space::GetComponentTypes(MemberId owner) const
+{
+  Ds::Vector<Comp::TypeId> componentTypes;
+  for (auto it = mTables.cbegin(); it != mTables.cend(); ++it) {
+    const Table& table = it->mValue;
+    if (table.ValidComponent(owner)) {
+      componentTypes.Push(table.TypeId());
+    }
+  }
+  return componentTypes;
+}
+
 const Ds::Map<Comp::TypeId, Table>& Space::Tables() const
 {
   return mTables;
-}
-
-const Ds::Pool<Member>& Space::Members() const
-{
-  return mMembers;
-}
-
-const Ds::Vector<ComponentDescriptor>& Space::DescriptorBin() const
-{
-  return mDescriptorBin;
 }
 
 void Space::Serialize(Vlk::Value& spaceVal) const
 {
   for (int i = 0; i < mMembers.DenseUsage(); ++i) {
     // Create the member's value.
-    const Member& member = mMembers.GetWithDenseIndex(i);
-    Ds::PoolId memberId = mMembers.Dense()[i];
+    MemberId memberId = mMembers.Dense()[i];
     std::string memberIdStr(std::to_string(memberId));
     Vlk::Value& memberVal = spaceVal(memberIdStr);
 
-    // Serialize all of the components.
-    Ds::Vector<ComponentDescriptor> descriptors = GetDescriptors(memberId);
-    for (int i = 0; i < descriptors.Size(); ++i) {
-      const ComponentDescriptor& desc = descriptors[i];
-      const Comp::TypeData& typeData = Comp::nTypeData[desc.mTypeId];
+    for (auto it = mTables.begin(); it != mTables.end(); ++it) {
+      Table& table = it->mValue;
+      if (!table.ValidComponent(memberId)) {
+        continue;
+      }
+      const Comp::TypeData& typeData = Comp::nTypeData[table.TypeId()];
       Vlk::Value& componentVal = memberVal(typeData.mName);
       if (!typeData.mVSerialize.Open()) {
         continue;
       }
-      Table& table = mTables.Get(desc.mTypeId);
-      void* component = table.GetComponent(desc.mComponentId);
+      void* component = table.GetComponent(memberId);
       typeData.mVSerialize.Invoke(component, componentVal);
     }
   }
@@ -533,8 +394,7 @@ Result Space::Deserialize(const Vlk::Explorer& spaceEx)
     std::stringstream idStream(memberEx.Key());
     MemberId memberId;
     idStream >> memberId;
-    Member& member = mMembers.Request(memberId);
-    member.mFirstDescriptorId = (DescriptorId)mDescriptorBin.Size();
+    mMembers.Request(memberId);
 
     // Get the member's component data.
     World::Object owner(this, memberId);

@@ -60,11 +60,6 @@ Object Object::Duplicate() const
   return Object(mSpace, mSpace->Duplicate(mMemberId));
 }
 
-Member& Object::GetMember() const
-{
-  return mSpace->mMembers[mMemberId];
-}
-
 void Object::TryRemoveParent()
 {
   mSpace->TryRemoveParent(mMemberId);

@@ -26,7 +26,6 @@ void LayerInterface::Show()
   std::stringstream cameraLabel;
   cameraLabel << "Camera: ";
   if (cameraId != World::nInvalidMemberId) {
-    const World::Member& camera = space.GetMember(cameraId);
     cameraLabel << cameraId;
     Comp::Name* nameComp = space.TryGet<Comp::Name>(cameraId);
     if (nameComp != nullptr) {
