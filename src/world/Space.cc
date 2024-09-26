@@ -107,6 +107,7 @@ void Space::DeleteMember(MemberId memberId, bool root)
   if (relationship != nullptr) {
     for (int i = 0; i < relationship->mChildren.Size(); ++i) {
       DeleteMember(relationship->mChildren[i], false);
+      relationship = &Get<Comp::Relationship>(memberId);
     }
     if (root && relationship->HasParent()) {
       auto& parentRelationship = Get<Comp::Relationship>(relationship->mParent);

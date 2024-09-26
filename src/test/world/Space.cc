@@ -69,6 +69,18 @@ void Relationships0()
 void Relationships1()
 {
   World::Space space;
+  MemberId parentId = space.CreateMember();
+  MemberId childId = space.CreateMember();
+  MemberId grandchildId = space.CreateChildMember(childId);
+  space.CreateChildMember(parentId);
+  space.MakeParent(parentId, childId);
+  space.DeleteMember(parentId);
+  PrintSpace(space);
+}
+
+void Relationships2()
+{
+  World::Space space;
   World::MemberId memberIds[10];
   for (size_t i = 0; i < 10; ++i) {
     memberIds[i] = space.CreateMember();
@@ -406,6 +418,7 @@ int main(void)
   RunTest(RootMemberIds);
   RunTest(Relationships0);
   RunTest(Relationships1);
+  RunTest(Relationships2);
   RunTest(AddComponent);
   RunTest(RemComponent);
   RunTest(DeleteMembersWithComponents);
