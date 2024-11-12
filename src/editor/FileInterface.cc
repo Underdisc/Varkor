@@ -1,4 +1,8 @@
+#if defined WIN32
+#define NOMINMAX
+#endif
 #include <dirent.h>
+
 #include <imgui/imgui.h>
 
 #include "editor/FileInterface.h"
