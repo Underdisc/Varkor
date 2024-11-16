@@ -18,7 +18,7 @@ void SparseSet::Request(SparseId id)
   // Ensure that the sparse set is large enough to include the requested id.
   if (id >= mSparse.Size()) {
     size_t oldSize = mSparse.Size();
-    size_t newSize = id + 1;
+    size_t newSize = (size_t)((id + 1) * Vector<SparseId>::smGrowthFactor);
     mSparse.Resize(newSize);
     mDense.Resize(newSize);
     for (size_t i = oldSize; i < newSize; ++i) {
