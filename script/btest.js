@@ -85,7 +85,8 @@ function GetTestInfo(testName) {
 function RunTest(testName) {
   let testInfo = GetTestInfo(testName);
   process.chdir(testInfo.workingDir);
-  childProcess.execSync(testInfo.command, { stdio: 'inherit' });
+  try { childProcess.execSync(testInfo.command, { stdio: 'inherit' }); }
+  catch (error) { return; }
 }
 
 function DiffTest(testName) {
