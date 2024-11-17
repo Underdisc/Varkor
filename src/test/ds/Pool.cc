@@ -166,6 +166,7 @@ void IndexOperator()
 
 int main()
 {
+  Error::Init();
   EnableLeakOutput();
   RunTest(Add);
   RunTest(Request0);

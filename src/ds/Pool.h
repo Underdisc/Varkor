@@ -2,6 +2,7 @@
 #define ds_Pool_h
 
 #include "ds/SparseSet.h"
+#include "ds/Vector.h"
 
 namespace Ds {
 

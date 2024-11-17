@@ -84,6 +84,16 @@ void Fill(T* data, const T& value, size_t amount)
   }
 }
 
+template<typename T>
+void Swap(T* data, size_t indexA, size_t indexB)
+{
+  T& a = *(data + indexA);
+  T& b = *(data + indexB);
+  T temp = std::move(a);
+  a = std::move(b);
+  b = std::move(temp);
+}
+
 } // namespace Util
 
 #endif

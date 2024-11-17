@@ -204,21 +204,17 @@ void PrintPool(const Ds::Pool<T>& pool)
   char bars[4] = {'|', '|', '|', '|'};
   int barCount = 4;
   int nextBarCount = barCount;
-  for (int i = 0; i < pool.Data().Size() - 1; ++i) {
+  for (int i = 0; i < pool.DenseUsage() - 1; ++i) {
     printRow(i, bars, &barCount, nextBarCount);
   }
   --nextBarCount;
   bars[3] = '+';
-  for (int i = pool.Data().Size() - 1; i < pool.Dense().Size() - 1; ++i) {
-    printRow(i, bars, &barCount, nextBarCount);
-  }
-  --nextBarCount;
-  bars[2] = '+';
-  for (int i = pool.Dense().Size() - 1; i < pool.Sparse().Size() - 1; ++i) {
+  for (int i = pool.DenseUsage() - 1; i < pool.Capacity() - 1; ++i) {
     printRow(i, bars, &barCount, nextBarCount);
   }
   nextBarCount = 0;
+  bars[2] = '+';
   bars[1] = '+';
   bars[0] = '+';
-  printRow(pool.Sparse().Size() - 1, bars, &barCount, nextBarCount);
+  printRow(pool.Capacity() - 1, bars, &barCount, nextBarCount);
 }
