@@ -276,6 +276,13 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId owner)
   table.Remove(owner);
 }
 
+void Space::TryRemComponent(Comp::TypeId typeId, MemberId owner)
+{
+  if (HasComponent(typeId, owner)) {
+    RemComponent(typeId, owner);
+  }
+}
+
 void* Space::GetComponent(Comp::TypeId typeId, MemberId owner) const
 {
   VerifyMemberId(owner);
@@ -352,6 +359,11 @@ Ds::Vector<Comp::TypeId> Space::GetComponentTypes(MemberId owner) const
     }
   }
   return componentTypes;
+}
+
+const Ds::SparseSet& Space::Members() const
+{
+  return mMembers;
 }
 
 const Ds::Map<Comp::TypeId, Table>& Space::Tables() const
