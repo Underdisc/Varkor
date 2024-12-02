@@ -16,6 +16,12 @@ void Space::RemComponent(MemberId memberId)
 }
 
 template<typename T>
+void Space::TryRemComponent(MemberId memberId)
+{
+  TryRemComponent(Comp::Type<T>::smId, memberId);
+}
+
+template<typename T>
 T& Space::GetComponent(MemberId memberId) const
 {
   return *(T*)GetComponent(Comp::Type<T>::smId, memberId);
@@ -43,6 +49,12 @@ template<typename T>
 inline void Space::Rem(MemberId memberId)
 {
   RemComponent<T>(memberId);
+}
+
+template<typename T>
+inline void Space::TryRem(MemberId memberId)
+{
+  TryRemComponent<T>(memberId);
 }
 
 template<typename T>

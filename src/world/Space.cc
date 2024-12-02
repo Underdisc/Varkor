@@ -393,6 +393,13 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId memberId)
   --member.mDescriptorCount;
 }
 
+void Space::TryRemComponent(Comp::TypeId typeId, MemberId owner)
+{
+  if (HasComponent(typeId, owner)) {
+    RemComponent(typeId, owner);
+  }
+}
+
 void* Space::GetComponent(Comp::TypeId typeId, MemberId memberId) const
 {
   VerifyMemberId(memberId);
