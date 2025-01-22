@@ -17,6 +17,11 @@ SparseSet::~SparseSet()
   Clear();
 }
 
+SparseSet::SparseSet(const SparseSet& other)
+{
+  *this = other;
+}
+
 SparseSet::SparseSet(SparseSet&& other)
 {
   mDense = other.mDense;
@@ -28,6 +33,18 @@ SparseSet::SparseSet(SparseSet&& other)
   other.mSparse = nullptr;
   other.mCapacity = 0;
   other.mDenseUsage = 0;
+}
+
+SparseSet& SparseSet::operator=(const SparseSet& other)
+{
+  size_t allocSize = other.mCapacity * (sizeof(SparseId) + sizeof(size_t));
+  char* newData = alloc char[allocSize];
+  mDense = (SparseId*)newData;
+  mSparse = (size_t*)(newData + (other.mCapacity * sizeof(SparseId)));
+  mCapacity = other.mCapacity;
+  mDenseUsage = other.mDenseUsage;
+  memcpy(mDense, other.mDense, allocSize);
+  return *this;
 }
 
 SparseId SparseSet::Add()

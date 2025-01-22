@@ -11,7 +11,10 @@ struct SparseSet
 public:
   SparseSet();
   ~SparseSet();
+  SparseSet(const SparseSet& other);
   SparseSet(SparseSet&& other);
+  SparseSet& operator=(const SparseSet& other);
+
   SparseId Add();
   void Request(SparseId id);
   void Remove(SparseId id);
