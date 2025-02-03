@@ -14,6 +14,7 @@ public:
   SparseSet(const SparseSet& other);
   SparseSet(SparseSet&& other);
   SparseSet& operator=(const SparseSet& other);
+  SparseSet& operator=(SparseSet&& other);
 
   SparseId Add();
   void Request(SparseId id);

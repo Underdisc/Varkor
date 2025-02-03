@@ -21,8 +21,8 @@ void Space::Clear()
 void Space::Update()
 {
   Object currentObject(this);
-  for (const Ds::KvPair<Comp::TypeId, Table>& tablePair : mTables) {
-    const Table& table = tablePair.mValue;
+  for (int i = 0; i < mTables.DenseUsage(); ++i) {
+    const Table& table = mTables.GetWithDenseIndex(i);
     const Comp::TypeData& typeData = Comp::GetTypeData(table.TypeId());
     if (!typeData.mVUpdate.Open()) {
       continue;
@@ -62,8 +62,8 @@ MemberId Space::Duplicate(MemberId memberId, bool root)
   // Duplicate all components from the member except the relationship component.
   VerifyMemberId(memberId);
   MemberId duplicateMemberId = CreateMember();
-  for (auto it = mTables.begin(); it != mTables.end(); ++it) {
-    Table& table = it->mValue;
+  for (int i = 0; i < mTables.DenseUsage(); ++i) {
+    Table& table = mTables.GetWithDenseIndex(i);
     if (table.TypeId() == Comp::Type<Comp::Relationship>::smId) {
       continue;
     }
@@ -118,8 +118,8 @@ void Space::DeleteMember(MemberId memberId, bool root)
     }
   }
 
-  for (auto it = mTables.begin(); it != mTables.end(); ++it) {
-    Table& table = it->mValue;
+  for (int i = 0; i < mTables.DenseUsage(); ++i) {
+    Table& table = mTables.GetWithDenseIndex(i);
     if (table.ValidComponent(memberId)) {
       table.Remove(memberId);
     }
@@ -202,9 +202,12 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId owner, bool init)
 {
   // Create the component table if necessary and make sure the member doesn't
   // already have the component.
-  Table* table = mTables.TryGet(typeId);
-  if (table == nullptr) {
-    table = &mTables.Emplace(typeId, typeId);
+  Table* table;
+  if (!mTables.Valid((SparseId)typeId)) {
+    table = &mTables.Request((SparseId)typeId, typeId);
+  }
+  else {
+    table = &mTables[(SparseId)typeId];
   }
   const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
   if (table->ValidComponent(owner)) {
@@ -254,7 +257,7 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId owner)
 {
   VerifyMemberId(owner);
   const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-  Table& table = mTables.Get(typeId);
+  Table& table = mTables[(SparseId)typeId];
   if (!table.ValidComponent(owner)) {
     std::stringstream error;
     error << "Member " << owner;
@@ -307,14 +310,14 @@ void* Space::TryGetComponent(Comp::TypeId typeId, MemberId owner) const
   if (!ValidMemberId(owner)) {
     return nullptr;
   }
-  Table* table = mTables.TryGet(typeId);
-  if (table == nullptr) {
+  if (!mTables.Valid((SparseId)typeId)) {
     return nullptr;
   }
-  if (!table->ValidComponent(owner)) {
+  const Table& table = mTables[(SparseId)typeId];
+  if (!table.ValidComponent(owner)) {
     return nullptr;
   }
-  return table->GetComponent(owner);
+  return table.GetComponent(owner);
 }
 
 bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
@@ -326,12 +329,14 @@ bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
 Ds::Vector<MemberId> Space::Slice(Comp::TypeId typeId) const
 {
   Ds::Vector<MemberId> members;
-  Table* table = mTables.TryGet(typeId);
-  if (table == nullptr) {
+  if (!mTables.Valid((SparseId)typeId)) {
     return members;
   }
-  for (size_t i = 0; i < table->Size(); ++i) {
-    members.Push(table->GetOwnerAtDenseIndex(i));
+
+  const Table& table = mTables[(SparseId)typeId];
+  members.Reserve(table.Size());
+  for (size_t i = 0; i < table.Size(); ++i) {
+    members.Push(table.GetOwnerAtDenseIndex(i));
   }
   return members;
 }
@@ -352,8 +357,8 @@ Ds::Vector<MemberId> Space::RootMemberIds() const
 Ds::Vector<Comp::TypeId> Space::GetComponentTypes(MemberId owner) const
 {
   Ds::Vector<Comp::TypeId> componentTypes;
-  for (auto it = mTables.cbegin(); it != mTables.cend(); ++it) {
-    const Table& table = it->mValue;
+  for (int i = 0; i < mTables.DenseUsage(); ++i) {
+    const Table& table = mTables.GetWithDenseIndex(i);
     if (table.ValidComponent(owner)) {
       componentTypes.Push(table.TypeId());
     }
@@ -366,7 +371,7 @@ const Ds::SparseSet& Space::Members() const
   return mMembers;
 }
 
-const Ds::Map<Comp::TypeId, Table>& Space::Tables() const
+const Ds::Pool<Table>& Space::Tables() const
 {
   return mTables;
 }
@@ -379,8 +384,11 @@ void Space::Serialize(Vlk::Value& spaceVal) const
     std::string memberIdStr(std::to_string(memberId));
     Vlk::Value& memberVal = spaceVal(memberIdStr);
 
-    for (auto it = mTables.begin(); it != mTables.end(); ++it) {
-      Table& table = it->mValue;
+    for (Ds::PoolId i = 0; i < mTables.Capacity(); ++i) {
+      if (!mTables.Valid(i)) {
+        continue;
+      }
+      const Table& table = mTables[i];
       if (!table.ValidComponent(memberId)) {
         continue;
       }

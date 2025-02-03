@@ -24,15 +24,7 @@ SparseSet::SparseSet(const SparseSet& other)
 
 SparseSet::SparseSet(SparseSet&& other)
 {
-  mDense = other.mDense;
-  mSparse = other.mSparse;
-  mCapacity = other.mCapacity;
-  mDenseUsage = other.mDenseUsage;
-
-  other.mDense = nullptr;
-  other.mSparse = nullptr;
-  other.mCapacity = 0;
-  other.mDenseUsage = 0;
+  *this = std::move(other);
 }
 
 SparseSet& SparseSet::operator=(const SparseSet& other)
@@ -44,6 +36,20 @@ SparseSet& SparseSet::operator=(const SparseSet& other)
   mCapacity = other.mCapacity;
   mDenseUsage = other.mDenseUsage;
   memcpy(mDense, other.mDense, allocSize);
+  return *this;
+}
+
+SparseSet& SparseSet::operator=(SparseSet&& other)
+{
+  mDense = other.mDense;
+  mSparse = other.mSparse;
+  mCapacity = other.mCapacity;
+  mDenseUsage = other.mDenseUsage;
+
+  other.mDense = nullptr;
+  other.mSparse = nullptr;
+  other.mCapacity = 0;
+  other.mDenseUsage = 0;
   return *this;
 }
 

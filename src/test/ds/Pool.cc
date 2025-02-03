@@ -24,8 +24,17 @@ void Add()
 void Copy()
 {
   Ds::Pool<std::string> test = AlphabetSoup(10);
-  Ds::Pool<std::string> copy(test);
-  PrintPool(copy);
+  Ds::Pool<std::string> copied(test);
+  PrintPool(test);
+  PrintPool(copied);
+}
+
+void Move()
+{
+  Ds::Pool<std::string> test = AlphabetSoup(10);
+  Ds::Pool<std::string> moved(std::move(test));
+  PrintPool(test);
+  PrintPool(moved);
 }
 
 void Request0()
@@ -177,6 +186,7 @@ int main()
   EnableLeakOutput();
   RunTest(Add);
   RunTest(Copy);
+  RunTest(Move);
   RunTest(Request0);
   RunTest(Request1);
   RunTest(Request2);

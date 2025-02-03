@@ -30,6 +30,17 @@ void Add()
   PrintTableOwners(container);
 }
 
+void Move()
+{
+  World::Table container(Comp::Type<Container>::smId);
+  for (World::MemberId i = 0; i < 15; ++i) {
+    ((Container*)container.Request(i))->SetData(i);
+  }
+  World::Table moved(std::move(container));
+  PrintTable<Container>(container);
+  PrintTable<Container>(moved);
+}
+
 void Remove0()
 {
   World::Table table(Comp::Type<Dynamic>::smId);
@@ -140,6 +151,7 @@ int main(void)
   RegisterComponentTypes();
 
   RunCallCounterTest(Add);
+  RunTest(Move);
   RunTest(Remove0);
   RunTest(Remove1);
   RunCallCounterTest(Remove2);

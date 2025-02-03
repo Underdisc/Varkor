@@ -13,7 +13,8 @@ template<typename T>
 struct Pool: public SparseSet
 {
   PoolId Add(const T& element);
-  T& Request(PoolId id);
+  template<typename... Args>
+  T& Request(PoolId id, Args&&... args);
   void Remove(PoolId id);
   void Clear();
   T& GetWithDenseIndex(size_t denseIndex);

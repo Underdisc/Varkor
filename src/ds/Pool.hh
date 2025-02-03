@@ -9,10 +9,11 @@ PoolId Pool<T>::Add(const T& element)
 }
 
 template<typename T>
-T& Pool<T>::Request(PoolId id)
+template<typename... Args>
+T& Pool<T>::Request(PoolId id, Args&&... args)
 {
   SparseSet::Request(id);
-  mData.Emplace();
+  mData.Emplace(std::forward<Args>(args)...);
   return mData[mData.Size() - 1];
 }
 

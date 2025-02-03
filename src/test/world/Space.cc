@@ -104,7 +104,8 @@ void Relationships2()
   space.CreateChildMember(memberIds[8]);
 
   PrintSpace(space);
-  PrintTableOwners(space.Tables().Get(Comp::Type<Comp::Relationship>::smId));
+  PrintTableOwners(
+    space.Tables()[(SparseId)Comp::Type<Comp::Relationship>::smId]);
   PrintSpaceRelationships(space);
 
   // Delete the member with children and create members that take the MemberIds

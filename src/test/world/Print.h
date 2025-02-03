@@ -64,9 +64,13 @@ void PrintTableOwners(const World::Table& table)
 void PrintSpaceTablesStats(const World::Space& space)
 {
   std::cout << "-TableStats-\n";
-  for (const auto& tablePair : space.Tables()) {
-    const World::Table& table = tablePair.mValue;
-    std::cout << tablePair.Key() << ": Stride: " << table.Stride()
+  const Ds::Pool<World::Table>& tables = space.Tables();
+  for (Ds::PoolId id = 0; id < tables.Capacity(); ++id) {
+    if (!tables.Valid(id)) {
+      continue;
+    }
+    const World::Table& table = tables[id];
+    std::cout << id << ": Stride: " << table.Stride()
               << ", Size: " << table.Size()
               << ", Capacity: " << table.Capacity() << "\n";
   }
@@ -75,9 +79,13 @@ void PrintSpaceTablesStats(const World::Space& space)
 void PrintSpaceTablesOwners(const World::Space& space)
 {
   std::cout << "-TableOwners-\n";
-  for (const auto& tablePair : space.Tables()) {
-    std::cout << tablePair.Key() << ": [";
-    const World::Table& table = tablePair.mValue;
+  const Ds::Pool<World::Table>& tables = space.Tables();
+  for (Ds::PoolId id = 0; id < tables.Capacity(); ++id) {
+    if (!tables.Valid(id)) {
+      continue;
+    }
+    const World::Table& table = tables[id];
+    std::cout << id << ": [";
     for (size_t i = 0; i < table.Size(); ++i) {
       std::cout << table.GetOwnerAtDenseIndex(i);
       if (i < table.Size() - 1) {

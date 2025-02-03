@@ -13,6 +13,7 @@ class Table
 {
 public:
   Table(Comp::TypeId typeId);
+  Table(Table&& other);
   ~Table();
 
   // Add, remove, and act on components.
@@ -28,6 +29,7 @@ public:
 
   // Access private members that allow the component table to function.
   Comp::TypeId TypeId() const;
+  const Ds::SparseSet& MemberIdToIndexMap() const;
   const void* Data() const;
   size_t Stride() const;
   size_t Size() const;

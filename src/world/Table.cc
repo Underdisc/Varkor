@@ -8,6 +8,17 @@ namespace World {
 Table::Table(Comp::TypeId typeId): mData(nullptr), mTypeId(typeId), mCapacity(0)
 {}
 
+Table::Table(Table&& other)
+{
+  mTypeId = other.mTypeId;
+  mMemberIdToIndexMap = std::move(other.mMemberIdToIndexMap);
+  mData = other.mData;
+  mCapacity = other.mCapacity;
+
+  other.mData = nullptr;
+  mCapacity = 0;
+}
+
 Table::~Table()
 {
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
@@ -78,6 +89,11 @@ MemberId Table::GetMemberIdAtDenseIndex(size_t denseIndex) const
 Comp::TypeId Table::TypeId() const
 {
   return mTypeId;
+}
+
+const Ds::SparseSet& Table::MemberIdToIndexMap() const
+{
+  return mMemberIdToIndexMap;
 }
 
 const void* Table::Data() const

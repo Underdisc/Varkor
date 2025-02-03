@@ -5,7 +5,6 @@
 #include <string>
 
 #include "comp/Type.h"
-#include "ds/Map.h"
 #include "ds/Pool.h"
 #include "ds/Vector.h"
 #include "world/Table.h"
@@ -82,14 +81,14 @@ struct Space
   Ds::Vector<Comp::TypeId> GetComponentTypes(MemberId owner) const;
 
   const Ds::SparseSet& Members() const;
-  const Ds::Map<Comp::TypeId, Table>& Tables() const;
+  const Ds::Pool<Table>& Tables() const;
 
   void Serialize(Vlk::Value& spaceVal) const;
   Result Deserialize(const Vlk::Explorer& spaceEx);
 
 private:
   Ds::SparseSet mMembers;
-  Ds::Map<Comp::TypeId, Table> mTables;
+  Ds::Pool<Table> mTables;
 
   bool ValidMemberId(MemberId memberId) const;
   void VerifyMemberId(MemberId memberId) const;
