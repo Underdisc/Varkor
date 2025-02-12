@@ -2,13 +2,13 @@ let helpText = `\
 node build.js [options] [-- targetArgs]
 [] - optional
 <> - required
-[-c |--compiler] <compiler> - The compiler directory.
-[-cf|--configuration] <configuration> - The configuration directory.
-[-t |--target] <target> - The target to build.
-[-r |--run] <yes/no> - Decide whether to run the target.
-[-h |--help] - Show help text.
-[-s |--show-saved-options] - Exactly what it sounds like.
-[targetArgs] - The command line arguments passed to the built target.`
+[-b |--subBuildDirectory] <directory> - A directory relative to build/ that
+  contains a 'build.ninja' file
+[-t |--target] <target> - The target to build
+[-r |--run] <yes/no> - Decide whether to run the target
+[-h |--help] - Show help text
+[-s |--showSavedOptions] - Show the current option values
+[targetArgs] - The command line arguments passed to the built target`
 function HelpText() {
   console.log(helpText);
 }
@@ -20,7 +20,6 @@ const path = require('path');
 // Parses command line arguments and saves certain options to file so the
 // script can be run without having to enter the same arguments.
 class OptionCache {
-
   AddSwitch(long, short, defaultValue) {
     if (typeof this.switches == 'undefined') {
       this.switches = [];
@@ -39,12 +38,11 @@ class OptionCache {
   }
 
   constructor(args) {
-    this.AddSwitch('compiler', 'c', '');
-    this.AddSwitch('configuration', 'cf', '');
+    this.AddSwitch('subBuildDirectory', 'b', '');
     this.AddSwitch('target', 't', '');
     this.AddSwitch('run', 'r', 'no');
     this.AddSwitch('help', 'h', null);
-    this.AddSwitch('show-saved-options', 's');
+    this.AddSwitch('showSavedOptions', 's', null);
 
     // Initialize all saved options.
     this.options = {};
@@ -103,32 +101,30 @@ class OptionCache {
       this.options.saved.targetArgs.push(args[a]);
     }
 
-
     // Check the validity of options and derive options the from saved options.
     if (this.options.saved.target == '') {
       throw 'No target set. Set one with \'-t\'.';
     }
     if (this.options.saved.run != 'yes' && this.options.saved.run != 'no') {
       throw 'Invalid argument \'' + this.options.saved.run
-      + '\' used for the \'run\' option. Expects \'yes\' or \'no\'.';
+        + '\' used for the \'run\' option. Expects \'yes\' or \'no\'.';
     }
 
-    this.options.buildDir = path.join(__dirname, '..', 'build');
-    if (this.options.saved.compiler != '') {
-      this.options.buildDir = path.join(
-        this.options.buildDir, this.options.saved.compiler);
+    // Create the full build diretory and ensure its validity.
+    this.options.fullBuildDir = path.join(__dirname, '..', 'build');
+    if (this.options.saved.subBuildDirectory != '') {
+      this.options.fullBuildDir = path.join(
+        this.options.fullBuildDir, this.options.saved.subBuildDirectory);
     }
-    if (this.options.saved.configuration != '') {
-      this.options.buildDir = path.join(
-        this.options.buildDir, this.options.saved.configuration);
-    }
-    if (!fs.existsSync(this.options.buildDir)) {
-      throw 'Build directory \'' + this.options.buildDir + '\' does not exist.';
+    if (!fs.existsSync(this.options.fullBuildDir + '/build.ninja')) {
+      throw 'build.ninja was not found in \'' + this.options.fullBuildDir
+        + '\'.';
     }
 
+    // Create the build command.
     this.options.targetNinjaCommand = 'ninja ' + this.options.saved.target;
     this.options.targetCommand = path.join(
-      this.options.buildDir, this.options.saved.target);
+      this.options.fullBuildDir, this.options.saved.target);
     for (let i = 0; i < this.options.saved.targetArgs.length; ++i) {
       this.options.targetCommand += ' ' + this.options.saved.targetArgs[i];
     }
@@ -156,7 +152,7 @@ if (options.showSavedOptions) {
 }
 
 // Build the target.
-process.chdir(options.buildDir);
+process.chdir(options.fullBuildDir);
 try { childProcess.execSync(options.targetNinjaCommand, { stdio: 'inherit' }); }
 catch (error) { return; }
 
