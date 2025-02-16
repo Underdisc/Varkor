@@ -47,85 +47,17 @@ function HelpText()
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
-
-const ArgType = {
-  Single: "single",
-  Optional: "optional",
-  Required: "required"
-};
-
-// Used for identifying commandline arguments and what those arguments expect.
-class Switch
-{
-  constructor(long, short, argType)
-  {
-    this.name = long;
-    this.long = '--' + long;
-    this.short = '-' + short;
-    this.argType = argType
-  }
-  MatchingClArg(clArg)
-  {
-    return this.long == clArg || this.short == clArg;
-  }
-  static IsSwitch(arg)
-  {
-    return arg.slice(0, 1) == '-';
-  }
-}
-
-// Processes the arguments given on the command line.
-function ProcessClArgs(switches, args)
-{
-  let options = {};
-  for (let a = 0; a < args.length; ++a) {
-    if (args[a] == '--') {
-      options.extras = args.slice(a + 1);
-      break;
-    }
-    let matchFound = false;
-    for (const currentSwitch of switches) {
-      const arg = args[a];
-      if (!currentSwitch.MatchingClArg(arg)) {
-        continue;
-      }
-      matchFound = true;
-      let subArg = args[a + 1];
-      switch (currentSwitch.argType) {
-      case ArgType.Single: options[currentSwitch.name] = true; break;
-      case ArgType.Optional:
-        options[currentSwitch.name] = [];
-        if (subArg !== undefined && !Switch.IsSwitch(subArg)) {
-          options[currentSwitch.name].push(subArg);
-          ++a;
-        }
-        break;
-      case ArgType.Required:
-        if (subArg === undefined || Switch.IsSwitch(subArg)) {
-          throw '\'' + currentSwitch.short + '\'/\'' + currentSwitch.long +
-            '\' requires an argument.';
-        }
-        options[currentSwitch.name] = subArg;
-        ++a;
-        break;
-      }
-    }
-    if (!matchFound) {
-      throw 'Invalid arg \'' + arg + '\' used.';
-    }
-  }
-  return options;
-}
+const opt = require('./option');
 
 let switches = [
-  new Switch('help', 'h', ArgType.Single),
-  new Switch('showSavedOptions', 's', ArgType.Single),
-  new Switch('subBuildDirectory', 'b', ArgType.Required),
-  new Switch('target', 't', ArgType.Required),
-  new Switch('run', 'r', ArgType.Optional),
-  new Switch('testMode', 'tm', ArgType.Optional),
-  new Switch('testTarget', 'tt', ArgType.Required),
-  new Switch('testAction', 'ta', ArgType.Required),
+  new opt.Switch('help', 'h', opt.ArgType.Single),
+  new opt.Switch('showSavedOptions', 's', opt.ArgType.Single),
+  new opt.Switch('subBuildDirectory', 'b', opt.ArgType.Required),
+  new opt.Switch('target', 't', opt.ArgType.Required),
+  new opt.Switch('run', 'r', opt.ArgType.Optional),
+  new opt.Switch('testMode', 'tm', opt.ArgType.Optional),
+  new opt.Switch('testTarget', 'tt', opt.ArgType.Required),
+  new opt.Switch('testAction', 'ta', opt.ArgType.Required),
 ];
 
 // The default values of the saved options.
@@ -141,7 +73,7 @@ let savedOptions = {
 // Process the options from the commandline and read the saved options.
 let options;
 try {
-  options = ProcessClArgs(switches, process.argv.slice(2));
+  options = opt.ProcessClArgs(switches, process.argv.slice(2));
 }
 catch (error) {
   console.error(error);
