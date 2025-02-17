@@ -9,6 +9,7 @@ node build.js [options] [-- targetArgs]
 [-t |--target] <target> - The target to build
 [-r |--run] <yes|no> - Decide whether to run the target
 [-tm|--testMode] <yes|no> - Enable or disable test mode
+[-st|--showTests] - Show the possible test targets
 [-tt|--testTarget] <target|all> - Test target to build
 [-ta|--testAction] <r|d|o|t|c> - The test action to perform
 [targetArgs] - The command line arguments passed to the built target
@@ -37,8 +38,8 @@ A <yes|no> option can be toggled by using the option without an argument.
   c(overage): Creates a directory named {target}/coverage that contains a code
     coverage report. This makes finding the code that a unit test did and did
     not run easy. A build of OpenCppCoverage needs to be in your path. It can
-    be found here (https://github.com/OpenCppCoverage/OpenCppCoverage). Only on
-    Windows under msvc.`
+    be found here (https://github.com/OpenCppCoverage/OpenCppCoverage). Only
+    works on Windows with msvc debug builds.`;
 function HelpText()
 {
   console.log(helpText);
@@ -48,6 +49,7 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const opt = require('./option');
+const test = require('./btest');
 
 let switches = [
   new opt.Switch('help', 'h', opt.ArgType.Single),
@@ -56,11 +58,12 @@ let switches = [
   new opt.Switch('target', 't', opt.ArgType.Required),
   new opt.Switch('run', 'r', opt.ArgType.Optional),
   new opt.Switch('testMode', 'tm', opt.ArgType.Optional),
+  new opt.Switch('showTests', 'st', opt.ArgType.Single),
   new opt.Switch('testTarget', 'tt', opt.ArgType.Required),
   new opt.Switch('testAction', 'ta', opt.ArgType.Required),
 ];
 
-// The default values of the saved options.
+// Default values of the saved options.
 let savedOptions = {
   subBuildDirectory: '',
   target: '',
@@ -120,6 +123,10 @@ if (options.showSavedOptions) {
   console.log(savedOptions);
   return;
 }
+if (options.showTests) {
+  console.log(test.GetTargets());
+  return;
+}
 
 // Create the full build diretory and ensure its validity.
 const fullBuildDir =
@@ -129,42 +136,102 @@ if (!fs.existsSync(fullBuildDir + '/build.ninja')) {
   return;
 }
 
-// Ensure that a target is set.
-if (savedOptions.testMode == 'no' && savedOptions.target == '') {
-  console.error('No target set. Set one with \'-t\'.');
-  return;
-}
-if (savedOptions.testMode == 'yes' && savedOptions.testTarget == '') {
-  console.error('No test target set. Set one with \'-tt\'.');
-  return;
-}
-
-// Build the target.
-const targetNinjaCommand = 'ninja ' + savedOptions.target;
-process.chdir(fullBuildDir);
-try {
+function BuildTarget(target)
+{
+  const targetNinjaCommand = 'ninja ' + target;
+  process.chdir(fullBuildDir);
   childProcess.execSync(targetNinjaCommand, {stdio: 'inherit'});
 }
-catch (error) {
-  return;
-}
 
-// Run the built target if requested.
-if (savedOptions.run == 'no') {
-  return;
+if (savedOptions.testMode == 'no') {
+  // Perform normal mode operations.
+  if (savedOptions.target == '') {
+    console.error('No target set. Set one with \'-t\'.');
+    return;
+  }
+
+  // Build the target.
+  try {
+    BuildTarget(savedOptions.target);
+  }
+  catch (error) {
+    return;
+  }
+
+  // Run the built target if requested.
+  if (savedOptions.run == 'no') {
+    return;
+  }
+  const workingDir = path.join(__dirname, '..', 'working');
+  process.chdir(workingDir);
+  try {
+    let targetCommand = path.join(fullBuildDir, savedOptions.target);
+    const targetArgs = savedOptions.targetArgs[savedOptions.target];
+    if (targetArgs !== undefined) {
+      for (const targetArg of targetArgs) {
+        targetCommand += ' ' + targetArg;
+      }
+    }
+    childProcess.execSync(targetCommand, {stdio: 'inherit'});
+  }
+  catch (error) {
+    return;
+  }
 }
-const workingDir = path.join(__dirname, '..', 'working');
-process.chdir(workingDir);
-try {
-  let targetCommand = path.join(fullBuildDir, savedOptions.target);
-  const targetArgs = savedOptions.targetArgs[savedOptions.target];
-  if (targetArgs !== undefined) {
-    for (const targetArg of targetArgs) {
-      targetCommand += ' ' + targetArg;
+else {
+  // Perform test mode operations.
+  if (savedOptions.testTarget == '') {
+    console.error('No test target set. Set one with \'-tt\'.');
+    return;
+  }
+
+  // Build the target.
+  try {
+    if (savedOptions.testTarget == 'all') {
+      BuildTarget('tests');
+    }
+    else {
+      BuildTarget(savedOptions.testTarget);
     }
   }
-  childProcess.execSync(targetCommand, {stdio: 'inherit'});
-}
-catch (error) {
-  return;
+  catch (error) {
+    return;
+  }
+
+  if (options.testAction === undefined) {
+    return;
+  }
+  if (options.testAction === 'c' && process.platform !== 'win32') {
+    console.error('Coverage reports only available on Windows under msvc');
+    return;
+  }
+
+  // Run the desired action for all tests.
+  if (savedOptions.testTarget === 'all') {
+    const targets = test.GetTargets();
+    for (const target of targets) {
+      const testInfo = test.GetInfo(target, fullBuildDir);
+      switch (options.testAction) {
+      case 't': test.Test(testInfo); break;
+      case 'c': test.Coverage(testInfo); break;
+      default:
+        console.error(
+          '\'' + options.testAction + '\' is not a valid action for all.');
+        return;
+      }
+    }
+    return;
+  }
+
+  // Run the desired action for a single test.
+  const testInfo = test.GetInfo(savedOptions.testTarget, fullBuildDir);
+  switch (options.testAction) {
+  case 'r': test.Run(testInfo); break;
+  case 'd': test.Diff(testInfo); break;
+  case 'o': test.Overwrite(testInfo); break;
+  case 't': test.Test(testInfo); break;
+  case 'c': test.Coverage(testInfo); break;
+  default:
+    console.error('\'' + options.testAction + '\' is not a valid action.');
+  }
 }
