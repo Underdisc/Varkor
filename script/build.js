@@ -49,7 +49,7 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const opt = require('./option');
-const test = require('./btest');
+const test = require('./test');
 
 let switches = [
   new opt.Switch('help', 'h', opt.ArgType.Single),
