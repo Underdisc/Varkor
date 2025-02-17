@@ -29,13 +29,13 @@ function ProcessClArgs(switches, args)
 {
   let options = {};
   for (let a = 0; a < args.length; ++a) {
-    if (args[a] == '--') {
+    const arg = args[a];
+    if (arg == '--') {
       options.extras = args.slice(a + 1);
       break;
     }
     let matchFound = false;
     for (const currentSwitch of switches) {
-      const arg = args[a];
       if (!currentSwitch.MatchingClArg(arg)) {
         continue;
       }
