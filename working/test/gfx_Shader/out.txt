@@ -48,3 +48,4 @@ Failed to link.
 Vertex info
 -----------
 0(10) : error C3002: call to undefined function "void UndefFunc();"
+

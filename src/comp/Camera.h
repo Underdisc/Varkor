@@ -1,8 +1,8 @@
 #ifndef comp_Camera_h
 #define comp_Camera_h
 
-#include "math/Geometry.h"
 #include "math/Matrix4.h"
+#include "math/Ray.h"
 #include "vlk/Valkor.h"
 #include "world/Object.h"
 
@@ -34,10 +34,12 @@ struct Camera
 
   float ProjectedDistance(
     const World::Object& owner, const Vec3& worldTranslation) const;
-  Vec3 StandardTranslationToWorldTranslation(
-    Vec2 standardPosition, const World::Object& owner) const;
-  Math::Ray StandardTranslationToWorldRay(
-    const Vec2& standardPosition, const World::Object& owner) const;
+  Vec2 WorldTranslationToNdcPosition(
+    Vec3 worldTranslation, const World::Object& owner) const;
+  Vec3 NdcPositionToWorldTranslation(
+    Vec2 ndcPosition, const World::Object& owner) const;
+  Math::Ray NdcPositionToWorldRay(
+    const Vec2& ndcPosition, const World::Object& owner) const;
 
   enum class ProjectionType
   {

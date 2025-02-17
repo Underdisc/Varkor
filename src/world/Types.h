@@ -11,4 +11,6 @@ constexpr DescriptorId nInvalidDescriptorId = -1;
 
 } // namespace World
 
+typedef World::MemberId MemberId;
+
 #endif

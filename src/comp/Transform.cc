@@ -2,6 +2,7 @@
 
 #include "Input.h"
 #include "comp/Transform.h"
+#include "editor/Utility.h"
 #include "editor/gizmos/Gizmos.h"
 #include "editor/gizmos/Rotator.h"
 #include "editor/gizmos/Scalor.h"
@@ -62,18 +63,9 @@ void Transform::VEdit(const World::Object& owner)
     SetScale(scale);
   }
 
-  Quat rotation = GetRotation();
-  Vec3 eulerAngles = rotation.EulerAngles();
-  Vec3 newAngles = eulerAngles;
-  bool rotationDragged =
-    ImGui::DragFloat3("Rotation", newAngles.mD, 0.01f, 0.0f, 0.0f, "%.3f");
+  bool rotationDragged = Editor::RotationEdit(&mRotation);
   if (rotationDragged) {
-    Math::Quaternion xDelta, yDelta, zDelta;
-    xDelta.AngleAxis(newAngles[0], {1.0f, 0.0f, 0.0f});
-    yDelta.AngleAxis(newAngles[1], {0.0f, 1.0f, 0.0f});
-    zDelta.AngleAxis(newAngles[2], {0.0f, 0.0f, 1.0f});
-    rotation = zDelta * yDelta * xDelta;
-    SetRotation(rotation);
+    mUpdated = false;
   }
   ImGui::PopItemWidth();
   Editor::Gizmos::ImGuiOptions();
@@ -99,11 +91,8 @@ void Transform::VGizmoEdit(const World::Object& owner)
   // Display the gizmo for the current mode we are in.
   Vec3 worldTranslation = GetWorldTranslation(owner);
   if (nMode == Mode::Translate) {
-    Vec3 newTranslation = Editor::Gizmos::Translate(
-      worldTranslation,
-      referenceFrameRotation,
-      nSnapping,
-      nTranslateSnapInterval);
+    Vec3 newTranslation = Editor::Gizmo<Translator>::Next().Run(
+      worldTranslation, referenceFrameRotation);
     if (!Math::Near(newTranslation, worldTranslation)) {
       SetWorldTranslation(newTranslation, owner);
     }
@@ -111,24 +100,16 @@ void Transform::VGizmoEdit(const World::Object& owner)
   else if (nMode == Mode::Scale) {
     referenceFrameRotation = GetWorldRotation(owner);
     Vec3 scale = GetScale();
-    Vec3 newScale = Editor::Gizmos::Scale(
-      scale,
-      worldTranslation,
-      referenceFrameRotation,
-      nSnapping,
-      nScaleSnapInterval);
+    Vec3 newScale = Editor::Gizmo<Scalor>::Next().Run(
+      scale, worldTranslation, referenceFrameRotation);
     if (!Math::Near(newScale, scale)) {
       SetScale(newScale);
     }
   }
   else {
     Quat worldRotation = GetWorldRotation(owner);
-    Quat newWorldRotation = Editor::Gizmos::Rotate(
-      worldRotation,
-      worldTranslation,
-      referenceFrameRotation,
-      nSnapping,
-      nRotateSnapInterval);
+    Quat newWorldRotation = Editor::Gizmo<Rotator>::Next().Run(
+      worldRotation, worldTranslation, referenceFrameRotation);
     if (!Math::Near(worldRotation.mVec, newWorldRotation.mVec)) {
       SetWorldRotation(newWorldRotation, owner);
     }

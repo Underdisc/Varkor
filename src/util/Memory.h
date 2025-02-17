@@ -25,6 +25,12 @@ void MoveConstruct(void* from, void* to)
 }
 
 template<typename T>
+void MoveAssign(void* from, void* to)
+{
+  *(T*)to = std::move(*(T*)from);
+}
+
+template<typename T>
 void Destruct(void* data)
 {
   (*(T*)data).~T();
@@ -76,6 +82,16 @@ void Fill(T* data, const T& value, size_t amount)
   for (size_t i = 0; i < amount; ++i) {
     data[i] = value;
   }
+}
+
+template<typename T>
+void Swap(T* data, size_t indexA, size_t indexB)
+{
+  T& a = *(data + indexA);
+  T& b = *(data + indexB);
+  T temp = std::move(a);
+  a = std::move(b);
+  b = std::move(temp);
 }
 
 } // namespace Util

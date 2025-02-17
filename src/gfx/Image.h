@@ -18,6 +18,7 @@ public:
   static void EditConfig(Vlk::Value* configValP);
   Result Init(const Vlk::Explorer& configEx);
   Result Init(const std::string& file);
+  Result InitDDS(FILE* fileStream);
   Result Init(const void* fileData, int size);
   Result Init(const void* imageData, int width, int height, int channels);
   Result Init(
@@ -27,6 +28,7 @@ public:
     GLenum internalFormat,
     GLenum format,
     GLint pixelAlignment);
+  void CreateTexutre();
 
   GLuint Id() const;
   float Aspect() const;

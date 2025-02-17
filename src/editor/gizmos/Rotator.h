@@ -2,7 +2,7 @@
 #define editor_gizmo_Rotator_h
 
 #include "math/Constants.h"
-#include "math/Geometry.h"
+#include "math/Plane.h"
 #include "math/Quaternion.h"
 #include "math/Vector.h"
 #include "rsl/ResourceId.h"
@@ -11,28 +11,20 @@
 namespace Editor {
 namespace Gizmos {
 
-Quat Rotate(
-  const Quat& rotation,
-  const Vec3& translation,
-  const Quat& referenceFrame,
-  bool snapping = false,
-  float snapInterval = Math::nPi / 4.0f);
-
 struct Rotator
 {
   Rotator();
   ~Rotator();
+  Rotator(Rotator&& other);
   void SetNextOperation(const Vec3& translation, const Quat& referenceFrame);
   Quat Run(
-    const Quat& rotation,
-    const Vec3& translation,
-    const Quat& referenceFrame,
-    bool snapping,
-    float snapInterval);
+    const Quat& rotation, const Vec3& translation, const Quat& referenceFrame);
 
+  static void Init();
+  static void Purge();
   constexpr static const char* smRotatorAssetName = "vres/rotator";
   constexpr static int smHandleCount = 4;
-  constexpr static Vec4 smActiveColor = {1.0f, 1.0f, 1.0f, 1.0f};
+  constexpr static const char* smMaterialNames[] = {"X", "Y", "Z", "Xyz"};
   constexpr static Vec4 smHandleColors[] = {
     {0.7f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.7f, 0.0f, 1.0f},
@@ -49,7 +41,6 @@ struct Rotator
   };
 
   World::MemberId mParent;
-  ResId mHandleMaterialIds[smHandleCount];
   union
   {
     World::MemberId mHandles[smHandleCount];

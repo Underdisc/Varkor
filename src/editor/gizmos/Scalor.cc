@@ -7,43 +7,26 @@
 #include "gfx/Material.h"
 #include "gfx/Renderer.h"
 #include "math/Constants.h"
+#include "math/Intersection.h"
 #include "rsl/Library.h"
 
 namespace Editor {
 namespace Gizmos {
 
-Vec3 Scale(
-  const Vec3& scale,
-  const Vec3& translation,
-  const Quat& referenceFrame,
-  bool snapping,
-  float snapInterval)
-{
-  return GetInstance<Scalor>()->Run(
-    scale, translation, referenceFrame, snapping, snapInterval);
-}
-
 Scalor::Scalor(): mOperation(Operation::None)
 {
-  // Create all of the handles.
-  const char* handleNames[] = {"X", "Y", "Z", "Xy", "Xz", "Yz", "Xyz"};
-  Rsl::Asset& scalorAsset = Rsl::AddAsset(smScalorAssetName);
   mParent = nSpace.CreateMember();
   nSpace.AddComponent<Comp::Transform>(mParent);
   for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = nSpace.CreateChildMember(mParent);
-    mHandleMaterialIds[i].Init(smScalorAssetName, handleNames[i]);
-    Gfx::Material& material =
-      scalorAsset.InitRes<Gfx::Material>(handleNames[i], nColorShaderId);
-    material.mUniforms.Add<Vec4>("uColor") = smHandleColors[i];
   }
-  scalorAsset.Finalize();
 
   Comp::Transform& xT = nSpace.AddComponent<Comp::Transform>(mX);
   xT.SetTranslation({0.5f, 0.0f, 0.0f});
   auto& xMesh = nSpace.AddComponent<Comp::Mesh>(mX);
   xMesh.mMeshId = nScaleMeshId;
-  xMesh.mMaterialId = mHandleMaterialIds[(int)Operation::X];
+  xMesh.mMaterialId =
+    ResId(smScalorAssetName, smMaterialNames[(int)Operation::X]);
 
   Comp::Transform& yT = nSpace.AddComponent<Comp::Transform>(mY);
   yT.SetTranslation({0.0f, 0.5f, 0.0f});
@@ -52,7 +35,8 @@ Scalor::Scalor(): mOperation(Operation::None)
   yT.SetRotation(yRotation);
   auto& yMesh = nSpace.AddComponent<Comp::Mesh>(mY);
   yMesh.mMeshId = nScaleMeshId;
-  yMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Y];
+  yMesh.mMaterialId =
+    ResId(smScalorAssetName, smMaterialNames[(int)Operation::Y]);
 
   Comp::Transform& zT = nSpace.AddComponent<Comp::Transform>(mZ);
   zT.SetTranslation({0.0f, 0.0f, 0.5f});
@@ -61,40 +45,62 @@ Scalor::Scalor(): mOperation(Operation::None)
   zT.SetRotation(zRotation);
   auto& zMesh = nSpace.AddComponent<Comp::Mesh>(mZ);
   zMesh.mMeshId = nScaleMeshId;
-  zMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Z];
+  zMesh.mMaterialId =
+    ResId(smScalorAssetName, smMaterialNames[(int)Operation::Z]);
 
   Comp::Transform& xyT = nSpace.AddComponent<Comp::Transform>(mXy);
   xyT.SetTranslation({0.5f, 0.5f, 0.0f});
   xyT.SetScale({0.15f, 0.15f, 0.01f});
   auto& xyMesh = nSpace.AddComponent<Comp::Mesh>(mXy);
   xyMesh.mMeshId = nCubeMeshId;
-  xyMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Xy];
+  xyMesh.mMaterialId =
+    ResId(smScalorAssetName, smMaterialNames[(int)Operation::Xy]);
 
   Comp::Transform& xzT = nSpace.AddComponent<Comp::Transform>(mXz);
   xzT.SetTranslation({0.5f, 0.0f, 0.5f});
   xzT.SetScale({0.15f, 0.01f, 0.15f});
   auto& xzMesh = nSpace.AddComponent<Comp::Mesh>(mXz);
   xzMesh.mMeshId = nCubeMeshId;
-  xzMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Xz];
+  xzMesh.mMaterialId =
+    ResId(smScalorAssetName, smMaterialNames[(int)Operation::Xz]);
 
   Comp::Transform& yzT = nSpace.AddComponent<Comp::Transform>(mYz);
   yzT.SetTranslation({0.0f, 0.5f, 0.5f});
   yzT.SetScale({0.01f, 0.15f, 0.15f});
   auto& yzMesh = nSpace.AddComponent<Comp::Mesh>(mYz);
   yzMesh.mMeshId = nCubeMeshId;
-  yzMesh.mMaterialId = mHandleMaterialIds[(int)Operation::X];
+  yzMesh.mMaterialId =
+    ResId(smScalorAssetName, smMaterialNames[(int)Operation::X]);
 
   Comp::Transform& xyzT = nSpace.AddComponent<Comp::Transform>(mXyz);
   xyzT.SetUniformScale(1.2f);
   auto& xyzMesh = nSpace.AddComponent<Comp::Mesh>(mXyz);
   xyzMesh.mMeshId = nTorusMeshId;
-  xyzMesh.mMaterialId = mHandleMaterialIds[(int)Operation::Xyz];
+  xyzMesh.mMaterialId =
+    ResId(smScalorAssetName, smMaterialNames[(int)Operation::Xyz]);
 }
 
 Scalor::~Scalor()
 {
-  nSpace.DeleteMember(mParent);
-  Rsl::RemAsset(smScalorAssetName);
+  if (mParent != World::nInvalidMemberId) {
+    nSpace.DeleteMember(mParent);
+  }
+}
+
+Scalor::Scalor(Scalor&& other)
+{
+  mParent = other.mParent;
+  for (int i = 0; i < smHandleCount; ++i) {
+    mHandles[i] = other.mHandles[i];
+  }
+  mOperation = other.mOperation;
+  mMousePosition = other.mMousePosition;
+  mScaleRay = other.mScaleRay;
+  mScalePlane = other.mScalePlane;
+  mUniformScaleDirection = other.mUniformScaleDirection;
+  mNormalizedStartScale = other.mNormalizedStartScale;
+
+  other.mParent = World::nInvalidMemberId;
 }
 
 void Scalor::SetNextOperation(
@@ -133,8 +139,8 @@ void Scalor::SetNextOperation(
   case Operation::Xyz: mScalePlane.Normal(forward); break;
   default: break;
   }
-  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
-    Input::StandardMousePosition(), cameraObject);
+  Math::Ray mouseRay =
+    cameraComp.NdcPositionToWorldRay(Input::NdcMousePosition(), cameraObject);
   if (mOperation < Operation::Xy) {
     if (!mScaleRay.HasClosestTo(mouseRay)) {
       mOperation = Operation::None;
@@ -143,25 +149,23 @@ void Scalor::SetNextOperation(
     mMousePosition = mScaleRay.ClosestPointTo(mouseRay);
   }
   else if (mOperation < Operation::Xyz) {
-    if (!Math::HasIntersection(mouseRay, mScalePlane)) {
+    Math::RayPlane intersectionInfo = Math::Intersection(mouseRay, mScalePlane);
+    if (!intersectionInfo.mIntersecting) {
       mOperation = Operation::None;
       return;
     }
-    mMousePosition = Math::Intersection(mouseRay, mScalePlane);
+    mMousePosition = intersectionInfo.mIntersection;
   }
   else {
-    mMousePosition = Math::Intersection(mouseRay, mScalePlane);
+    Math::RayPlane intersectionInfo = Math::Intersection(mouseRay, mScalePlane);
+    mMousePosition = intersectionInfo.mIntersection;
     mUniformScaleDirection = Math::Normalize(mMousePosition - translation);
     mNormalizedStartScale = Math::Normalize(scale);
   }
 }
 
 Vec3 Scalor::Run(
-  const Vec3& scale,
-  const Vec3& translation,
-  const Quat& referenceFrame,
-  bool snapping,
-  float snapInterval)
+  const Vec3& scale, const Vec3& translation, const Quat& referenceFrame)
 {
   // Set the transformations for the handles that change every frame.
   SetParentTransformation(mParent, translation, referenceFrame);
@@ -176,9 +180,9 @@ Vec3 Scalor::Run(
 
   // Handle any switching between operations.
   if (!Input::MouseDown(Input::Mouse::Left) && mOperation != Operation::None) {
-    auto& material =
-      Rsl::GetRes<Gfx::Material>(mHandleMaterialIds[(int)mOperation]);
-    material.mUniforms.Get<Vec4>("uColor") = smHandleColors[(int)mOperation];
+    auto& meshComp = nSpace.Get<Comp::Mesh>(mHandles[(int)mOperation]);
+    meshComp.mMaterialId =
+      ResId(smScalorAssetName, smMaterialNames[(int)mOperation]);
     mOperation = Operation::None;
     return scale;
   }
@@ -188,9 +192,8 @@ Vec3 Scalor::Run(
       return scale;
     }
     Editor::nSuppressObjectPicking |= true;
-    auto& material =
-      Rsl::GetRes<Gfx::Material>(mHandleMaterialIds[(int)mOperation]);
-    material.mUniforms.Get<Vec4>("uColor") = smActiveColor;
+    auto& meshComp = nSpace.Get<Comp::Mesh>(mHandles[(int)mOperation]);
+    meshComp.mMaterialId = ResId(smScalorAssetName, "ActiveColor");
     return scale;
   }
 
@@ -206,8 +209,8 @@ Vec3 Scalor::Run(
   case Operation::Xyz: axes = {1.0f, 1.0f, 1.0f}; break;
   default: break;
   }
-  Math::Ray mouseRay = cameraComp.StandardTranslationToWorldRay(
-    Input::StandardMousePosition(), cameraObject);
+  Math::Ray mouseRay =
+    cameraComp.NdcPositionToWorldRay(Input::NdcMousePosition(), cameraObject);
   if (mOperation < Operation::Xy) {
     if (!mScaleRay.HasClosestTo(mouseRay)) {
       return scale;
@@ -215,36 +218,58 @@ Vec3 Scalor::Run(
     Vec3 newMousePosition = mScaleRay.ClosestPointTo(mouseRay);
     Vec3 mouseDelta = newMousePosition - mMousePosition;
     float deltaMagnitude = Math::Dot(mouseDelta, mScaleRay.Direction());
-    if (!snapping) {
+    if (!nSnapping) {
       mMousePosition = newMousePosition;
       return scale + axes * deltaMagnitude;
     }
-    deltaMagnitude = Math::RoundToNearest(deltaMagnitude, snapInterval);
+    deltaMagnitude = Math::RoundToNearest(deltaMagnitude, nScaleSnapInterval);
     mMousePosition += mScaleRay.Direction() * deltaMagnitude;
     return scale + axes * deltaMagnitude;
   }
   else if (mOperation < Operation::Xyz) {
-    if (!Math::HasIntersection(mouseRay, mScalePlane)) {
+    Math::RayPlane intersectionInfo = Math::Intersection(mouseRay, mScalePlane);
+    if (!intersectionInfo.mIntersecting) {
       return scale;
     }
-    Vec3 newMousePosition = Math::Intersection(mouseRay, mScalePlane);
-    Vec3 delta = newMousePosition - mMousePosition;
+    Vec3 delta = intersectionInfo.mIntersection - mMousePosition;
     delta = referenceFrame.Conjugate().Rotate(delta);
     delta = Math::ComponentwiseProduct(axes, delta);
-    if (snapping) {
-      delta = Math::ScaleComponentsToInterval(delta, snapInterval);
+    if (nSnapping) {
+      delta = Math::ScaleComponentsToInterval(delta, nScaleSnapInterval);
     }
     mMousePosition += referenceFrame.Rotate(delta);
     return scale + delta;
   }
   else if (mOperation == Operation::Xyz) {
-    Vec3 newMousePosition = Math::Intersection(mouseRay, mScalePlane);
-    Vec3 mouseDelta = newMousePosition - mMousePosition;
+    Math::RayPlane intersectionInfo = Math::Intersection(mouseRay, mScalePlane);
+    if (!intersectionInfo.mIntersecting) {
+      return scale;
+    }
+    Vec3 mouseDelta = intersectionInfo.mIntersection - mMousePosition;
     float amount = Math::Dot(mouseDelta, mUniformScaleDirection);
     mMousePosition += amount * mUniformScaleDirection;
     return scale + mNormalizedStartScale * amount;
   }
   return scale;
+}
+
+void Scalor::Init()
+{
+  Rsl::Asset& scalorAsset = Rsl::AddAsset(smScalorAssetName);
+  for (int i = 0; i < smHandleCount; ++i) {
+    Gfx::Material& material =
+      scalorAsset.InitRes<Gfx::Material>(smMaterialNames[i], nColorShaderId);
+    material.mUniforms.Add<Vec4>("uColor") = smHandleColors[i];
+  }
+  Gfx::Material& material =
+    scalorAsset.InitRes<Gfx::Material>("ActiveColor", nColorShaderId);
+  material.mUniforms.Add<Vec4>("uColor") = {1, 1, 1, 1};
+  scalorAsset.Finalize();
+}
+
+void Scalor::Purge()
+{
+  Rsl::RemAsset(smScalorAssetName);
 }
 
 } // namespace Gizmos

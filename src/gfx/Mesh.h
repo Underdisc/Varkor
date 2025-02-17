@@ -6,6 +6,7 @@
 
 #include "Result.h"
 #include "ds/Vector.h"
+#include "math/Vector.h"
 #include "vlk/Valkor.h"
 
 namespace Gfx {
@@ -28,9 +29,14 @@ struct Mesh
   ~Mesh();
 
   static void EditConfig(Vlk::Value* configValP);
+  Result Init();
   Result Init(const Vlk::Explorer& configEx);
   Result Init(const std::string& file, bool flipUvs, float scale);
   Result Init(const aiMesh& assimpMesh, float scale);
+  Result Init(
+    unsigned int attributes,
+    const Ds::Vector<Vec3>& vertices,
+    const Ds::Vector<unsigned int>& indices);
   Result Init(
     unsigned int attributes,
     const Ds::Vector<char>& vertexBuffer,
@@ -43,16 +49,19 @@ struct Mesh
     size_t elementBufferSize,
     size_t elementCount);
   void Finalize();
+  void UpdateVbo(size_t byteOffset, size_t byteCount, const void* data) const;
+  void Purge();
 
   void Render() const;
   GLuint Vao() const;
   GLuint Ebo() const;
-  size_t IndexCount() const;
+  bool Initialized() const;
+
+  size_t mIndexCount;
 
 private:
   unsigned int mAttributes;
   GLuint mVao, mVbo, mEbo;
-  size_t mIndexCount;
 };
 
 } // namespace Gfx

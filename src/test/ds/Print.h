@@ -5,6 +5,7 @@
 
 #include "ds/List.h"
 #include "ds/Map.h"
+#include "ds/Pool.h"
 #include "ds/RbTree.h"
 #include "ds/Vector.h"
 
@@ -18,6 +19,8 @@ template<typename T>
 void PrintRbTree(const Ds::RbTree<T>& rbTree);
 template<typename K, typename V>
 void PrintMap(const Ds::Map<K, V>& map);
+template<typename T>
+void PrintPool(const Ds::Pool<T>& pool);
 
 #include "Print.hh"
 

@@ -120,11 +120,73 @@ void Vector<T>::Insert(size_t index, T&& value)
 }
 
 template<typename T>
+void Vector<T>::Swap(size_t indexA, size_t indexB)
+{
+  T temp = std::move(mData[indexA]);
+  mData[indexA] = std::move(mData[indexB]);
+  mData[indexB] = std::move(temp);
+}
+
+template<typename T>
 void Vector<T>::Pop()
 {
   if (mSize != 0) {
     mData[mSize - 1].~T();
     --mSize;
+  }
+}
+
+template<typename T>
+void Vector<T>::Sort()
+{
+  auto greaterThan = [](const T& a, const T& b) -> bool
+  {
+    return a > b;
+  };
+  Quicksort(0, mSize - 1, greaterThan);
+}
+
+template<typename T>
+void Vector<T>::Sort(bool (*greaterThan)(const T&, const T&))
+{
+  Quicksort(0, (int)mSize - 1, greaterThan);
+}
+
+template<typename T>
+void Vector<T>::Quicksort(
+  int start, int end, bool (*greaterThan)(const T&, const T&))
+{
+  if (end <= start) {
+    return;
+  }
+  int pivot = Partition(start, end, greaterThan);
+  Quicksort(start, pivot - 1, greaterThan);
+  Quicksort(pivot + 1, end, greaterThan);
+}
+
+template<typename T>
+int Vector<T>::Partition(
+  int start, int end, bool (*greaterThan)(const T&, const T&))
+{
+  // A Hoare partition that uses the center element as the pivot.
+  Swap(start, start + (end - start) / 2);
+  const T& pivot = mData[start];
+  int i = start + 1;
+  int j = end;
+  while (true) {
+    while (greaterThan(mData[j], pivot)) {
+      --j;
+    }
+    while (i <= end && greaterThan(pivot, mData[i])) {
+      ++i;
+    }
+    if (j < i) {
+      Swap(start, j);
+      return j;
+    }
+    Swap(i, j);
+    --j;
+    ++i;
   }
 }
 
@@ -154,9 +216,9 @@ void Vector<T>::LazyRemove(size_t index)
     Pop();
     return;
   }
-  mData[index].~T();
-  mData[index] = std::move(mData[mSize - 1]);
   --mSize;
+  mData[index] = std::move(mData[mSize]);
+  mData[mSize].~T();
 }
 
 template<typename T>
@@ -236,6 +298,12 @@ size_t Vector<T>::Capacity() const
 
 template<typename T>
 const T* Vector<T>::CData() const
+{
+  return mData;
+}
+
+template<typename T>
+T* Vector<T>::Data()
 {
   return mData;
 }

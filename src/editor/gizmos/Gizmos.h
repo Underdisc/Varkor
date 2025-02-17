@@ -2,6 +2,7 @@
 #define editor_gizmo_Gizmos_h
 
 #include "debug/MemLeak.h"
+#include "ds/Vector.h"
 #include "math/Quaternion.h"
 #include "math/Vector.h"
 #include "rsl/ResourceId.h"
@@ -16,6 +17,9 @@ extern ResId nScaleMeshId;
 extern ResId nSphereMeshId;
 extern ResId nTorusMeshId;
 extern ResId nColorShaderId;
+
+extern Ds::Vector<void (*)()> nUpdates;
+extern Ds::Vector<void (*)()> nClears;
 
 // Options for switching between gizmo types, reference frames, etc.
 enum class Mode
@@ -47,52 +51,58 @@ void SetParentTransformation(
   const Vec3& translation,
   const Quat& referenceFrame);
 
-template<typename GizmoType>
+} // namespace Gizmos
+
+template<typename T>
 struct Gizmo
 {
-  static GizmoType* smInstance;
-  // This tracks whether the gizmo should be deleted during the next purge
-  // attempt (call to TryPurge).
-  static bool smDestruct;
+  static Ds::Vector<T> smInstances;
+  static int smNext;
+  static bool smRegistered;
+
+  static T& Next()
+  {
+    if (!smRegistered) {
+      Gizmos::nUpdates.Push(Update);
+      Gizmos::nClears.Push(Clear);
+      smRegistered = true;
+    }
+
+    if (smInstances.Size() == 0) {
+      T::Init();
+    }
+    if (smNext == smInstances.Size()) {
+      smInstances.Emplace();
+    }
+    return smInstances[smNext++];
+  }
+
+  static void Update()
+  {
+    if (smNext == 0) {
+      Clear();
+      return;
+    }
+    smInstances.Resize(smNext);
+    smNext = 0;
+  }
+
+  static void Clear()
+  {
+    if (smInstances.Size() != 0) {
+      T::Purge();
+    }
+    smInstances.Clear();
+  }
 };
-template<typename GizmoType>
-GizmoType* Gizmo<GizmoType>::smInstance = nullptr;
-template<typename GizmoType>
-bool Gizmo<GizmoType>::smDestruct = false;
 
-template<typename GizmoType>
-GizmoType* GetInstance()
-{
-  if (Gizmo<GizmoType>::smInstance == nullptr) {
-    Gizmo<GizmoType>::smInstance = alloc GizmoType;
-  }
-  // We prevent gizmo deletion during the next purge attempt.
-  Gizmo<GizmoType>::smDestruct = false;
-  return Gizmo<GizmoType>::smInstance;
-}
+template<typename T>
+Ds::Vector<T> Gizmo<T>::smInstances;
+template<typename T>
+int Gizmo<T>::smNext = 0;
+template<typename T>
+bool Gizmo<T>::smRegistered = false;
 
-template<typename GizmoType>
-void Purge()
-{
-  if (Gizmo<GizmoType>::smInstance != nullptr) {
-    delete Gizmo<GizmoType>::smInstance;
-    Gizmo<GizmoType>::smInstance = nullptr;
-    Gizmo<GizmoType>::smDestruct = false;
-  }
-}
-
-template<typename GizmoType>
-void TryPurge()
-{
-  if (Gizmo<GizmoType>::smDestruct) {
-    Purge<GizmoType>();
-  }
-  // If the gizmo instance is not requested between now and the next purge
-  // attempt, we want it deleted.
-  Gizmo<GizmoType>::smDestruct = true;
-}
-
-} // namespace Gizmos
 } // namespace Editor
 
 #endif

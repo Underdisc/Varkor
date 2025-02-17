@@ -4,6 +4,7 @@
 #include "math/Matrix4.h"
 #include "math/Print.h"
 #include "math/Quaternion.h"
+#include "test/Test.h"
 
 Mat4 CreateGenericMat4()
 {
@@ -18,66 +19,58 @@ Mat4 CreateGenericMat4()
 
 void Multiply()
 {
-  std::cout << "<= Multiply =>" << std::endl;
   Mat4 matrix = CreateGenericMat4();
   Mat4 product = matrix * matrix;
-  std::cout << product << std::endl;
+  std::cout << product;
 }
 
 void MultiplyEquals()
 {
-  std::cout << "<= MultiplyEquals =>" << std::endl;
   Mat4 matrix = CreateGenericMat4();
   matrix *= matrix;
-  std::cout << matrix << std::endl;
+  std::cout << matrix;
 }
 
 void Scale()
 {
-  std::cout << "<= Scale =>" << std::endl;
   Mat4 matrix;
   Vec3 scale = {1.0f, 2.0f, 3.0f};
   Math::Scale(&matrix, scale);
-  std::cout << matrix << std::endl;
+  std::cout << matrix;
 }
 
 void UniformScale()
 {
-  std::cout << "<= UniformScale =>" << std::endl;
   Mat4 matrix;
   Math::Scale(&matrix, 3.0f);
-  std::cout << matrix << std::endl;
+  std::cout << matrix;
 }
 
 void Translate()
 {
-  std::cout << "<= Translate =>" << std::endl;
   Mat4 matrix;
   Vec3 translation = {1.0f, 2.0f, 3.0f};
   Math::Translate(&matrix, translation);
-  std::cout << matrix << std::endl;
+  std::cout << matrix;
 }
 
 void Rotate()
 {
-  std::cout << "<= Rotate =>" << std::endl;
   Mat4 matrix;
   Math::Quaternion quat = {1.0f, 2.0f, 3.0f, 4.0f};
   Math::Rotate(&matrix, quat);
-  std::cout << matrix << std::endl;
+  std::cout << matrix;
 }
 
 void Perspective()
 {
-  std::cout << "<= Perspecive =>" << std::endl;
   Mat4 matrix;
   Math::Perspective(&matrix, Math::nPi / 2.0f, 1.5f, 0.1f, 100.0f);
-  std::cout << matrix << std::endl;
+  std::cout << matrix;
 }
 
 void Orthographic()
 {
-  std::cout << "<= Orthographic =>" << std::endl;
   auto useInputs = [](float height, float aspect, float near, float far)
   {
     Mat4 matrix;
@@ -87,17 +80,16 @@ void Orthographic()
   useInputs(5.0f, 2.0f, 0.0f, 100.0f);
   useInputs(30.0f, 1.5f, 1.0f, 200.0f);
   useInputs(15.0f, 10.0f, 0.5f, 1000.0f);
-  std::cout << '\n';
 }
 
 int main(void)
 {
-  Multiply();
-  MultiplyEquals();
-  Scale();
-  UniformScale();
-  Translate();
-  Rotate();
-  Perspective();
-  Orthographic();
+  RunTest(Multiply);
+  RunTest(MultiplyEquals);
+  RunTest(Scale);
+  RunTest(UniformScale);
+  RunTest(Translate);
+  RunTest(Rotate);
+  RunTest(Perspective);
+  RunTest(Orthographic);
 }

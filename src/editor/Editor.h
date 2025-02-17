@@ -7,12 +7,12 @@
 
 namespace Editor {
 
-extern bool nEditorMode;
+extern bool nPlayMode;
 extern bool nSuppressObjectPicking;
 extern bool nHideInterface;
 extern World::Space nSpace;
-extern Camera nCamera;
 extern CoreInterface nCoreInterface;
+extern void (*nExtension)();
 
 void Init();
 void Purge();

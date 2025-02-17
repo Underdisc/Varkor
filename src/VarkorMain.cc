@@ -15,18 +15,17 @@
 #include "rsl/Library.h"
 #include "world/World.h"
 
-Result VarkorInit(
-  int argc, char* argv[], const char* windowName, const char* projectDirectory)
+Result VarkorInit(int argc, char* argv[], Options::Config&& config)
 {
   ProfileThread("Main");
 
-  Result result = Options::Init(argc, argv, projectDirectory);
+  Result result = Options::Init(argc, argv, std::move(config));
   if (!result.Success()) {
     return result;
   }
   Log::Init("log.txt");
   Error::Init();
-  Viewport::Init(windowName);
+  Viewport::Init(Options::nConfig.mWindowName.c_str());
   Gfx::GlError::Init();
   Gfx::UniformVector::Init();
   Rsl::Init();

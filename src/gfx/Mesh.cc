@@ -56,9 +56,7 @@ Mesh& Mesh::operator=(Mesh&& other)
 
 Mesh::~Mesh()
 {
-  glDeleteVertexArrays(1, &mVao);
-  glDeleteBuffers(1, &mVbo);
-  glDeleteBuffers(1, &mEbo);
+  Purge();
 }
 
 void Mesh::EditConfig(Vlk::Value* configValP)
@@ -80,6 +78,11 @@ void Mesh::EditConfig(Vlk::Value* configValP)
   ImGui::DragFloat("Scale", &scale, 0.01f);
   ImGui::PopItemWidth();
   scaleVal = scale;
+}
+
+Result Mesh::Init()
+{
+  return Result();
 }
 
 Result Mesh::Init(const Vlk::Explorer& configEx)
@@ -205,16 +208,30 @@ Result Mesh::Init(const aiMesh& assimpMesh, float scale)
 
 Result Mesh::Init(
   unsigned int attributes,
+  const Ds::Vector<Vec3>& vertices,
+  const Ds::Vector<unsigned int>& indices)
+{
+  return Init(
+    (void*)vertices.CData(),
+    3 * sizeof(float) * vertices.Size(),
+    attributes,
+    (void*)indices.CData(),
+    indices.Size() * sizeof(unsigned int),
+    indices.Size());
+}
+
+Result Mesh::Init(
+  unsigned int attributes,
   const Ds::Vector<char>& vertexBuffer,
   const Ds::Vector<unsigned int>& elementBuffer)
 {
   return Init(
     (void*)vertexBuffer.CData(),
-    (unsigned int)vertexBuffer.Size(),
+    vertexBuffer.Size(),
     attributes,
     (void*)elementBuffer.CData(),
-    (unsigned int)(sizeof(unsigned int) * elementBuffer.Size()),
-    (unsigned int)elementBuffer.Size());
+    sizeof(unsigned int) * elementBuffer.Size(),
+    elementBuffer.Size());
 }
 
 Result Mesh::Init(
@@ -295,6 +312,21 @@ void Mesh::Finalize()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void Mesh::UpdateVbo(
+  size_t byteOffset, size_t byteCount, const void* data) const
+{
+  glBindBuffer(GL_ARRAY_BUFFER, mVbo);
+  glBufferSubData(GL_ARRAY_BUFFER, byteOffset, byteCount, data);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Mesh::Purge()
+{
+  glDeleteVertexArrays(1, &mVao);
+  glDeleteBuffers(1, &mVbo);
+  glDeleteBuffers(1, &mEbo);
+}
+
 void Mesh::Render() const
 {
   glBindVertexArray(mVao);
@@ -312,9 +344,9 @@ GLuint Mesh::Ebo() const
   return mEbo;
 }
 
-size_t Mesh::IndexCount() const
+bool Mesh::Initialized() const
 {
-  return mIndexCount;
+  return mVao != 0;
 }
 
 } // namespace Gfx

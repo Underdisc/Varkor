@@ -1,6 +1,7 @@
 #include <sstream>
 #include <utility>
 
+#include "Log.h"
 #include "gfx/Renderer.h"
 #include "vlk/Valkor.h"
 #include "world/Registrar.h"
@@ -82,10 +83,31 @@ VResult<LayerIt> LoadLayer(const char* filename)
   newLayer.mPostMaterialId =
     postMaterialEx.As<ResId>(Gfx::Renderer::nDefaultPostId);
 
+  // Progress the layer forward.
+  int layerProgression =
+    metadataEx("LayerProgression").As<int>(Registrar::nInvalidProgression);
+  if (layerProgression < Registrar::nCurrentLayerProgression) {
+    Registrar::ProgressLayer(rootVal, layerProgression);
+    std::stringstream logString;
+    logString << "Progressed \"" << filename << "\" from layer progression "
+              << std::to_string(layerProgression) << " to "
+              << std::to_string(Registrar::nCurrentLayerProgression);
+    Log::String(logString.str());
+  }
+
+  // Progress all components forward.
   Vlk::Value& spaceVal = rootVal("Space");
   int progression =
-    metadataEx("Progression").As<int>(Registrar::nInvalidProgression);
-  Registrar::ProgressComponents(spaceVal, progression);
+    metadataEx("ComponentProgression").As<int>(Registrar::nInvalidProgression);
+  if (progression < Registrar::nCurrentComponentProgression) {
+    Registrar::ProgressComponents(spaceVal, progression);
+    std::string logString = "Progressed \"";
+    logString += filename;
+    logString += "\" from component progression " +
+      std::to_string(progression) + " to " +
+      std::to_string(Registrar::nCurrentComponentProgression);
+    Log::String(logString);
+  }
 
   Vlk::Explorer spaceEx(spaceVal);
   result = newLayer.mSpace.Deserialize(spaceEx);
@@ -107,7 +129,8 @@ Result SaveLayer(LayerIt it, const char* filename)
   metadataVal("Name") = layer.mName;
   metadataVal("CameraId") = layer.mCameraId;
   metadataVal("PostMaterialId") = layer.mPostMaterialId;
-  metadataVal("Progression") = Registrar::nCurrentProgression;
+  metadataVal("ComponentProgression") = Registrar::nCurrentComponentProgression;
+  metadataVal("LayerProgression") = Registrar::nCurrentLayerProgression;
   Vlk::Value& spaceVal = rootVal("Space");
   layer.mSpace.Serialize(spaceVal);
   return rootVal.Write(filename);

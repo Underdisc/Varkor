@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "ds/Vector.h"
 #include "gfx/HdrColor.h"
 #include "math/Quaternion.h"
 #include "math/Vector.h"
@@ -10,6 +11,27 @@
 #include "vlk/Valkor.h"
 
 namespace Vlk {
+
+template<typename T>
+struct Converter<Ds::Vector<T>>
+{
+  static void Serialize(Value& val, const Ds::Vector<T>& vector)
+  {
+    val[{vector.Size()}];
+    for (int i = 0; i < vector.Size(); ++i) {
+      val[i] = vector[i];
+    }
+  }
+
+  static void Deserialize(const Value& val, Ds::Vector<T>* vector)
+  {
+    for (int i = 0; i < val.Size(); ++i) {
+      T element;
+      Converter<T>::Deserialize(val[i], &element);
+      vector->Push(element);
+    }
+  }
+};
 
 template<typename T, unsigned int N>
 struct Converter<Math::Vector<T, N>>

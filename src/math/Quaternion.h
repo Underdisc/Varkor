@@ -17,9 +17,11 @@ struct Quaternion
   };
   Quaternion();
   Quaternion(float a, float b, float c, float d);
+  Quaternion(const Vec3& from, const Vec3& to);
+  Quaternion(float angle, const Vec3& axis);
   void Identity();
   void AngleAxis(float angle, Vec3 axis);
-  void FromTo(Vec3 from, Vec3 to);
+  void FromTo(const Vec3& from, const Vec3& to);
   void BasisVectors(const Vec3& right, const Vec3& up, const Vec3& forward);
 
   Quaternion Interpolate(float t) const;

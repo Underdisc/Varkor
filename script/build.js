@@ -1,162 +1,237 @@
-let helpText = `\
+const helpText =
+  `\
 node build.js [options] [-- targetArgs]
 [] - optional
 <> - required
-[-c |--compiler] <compiler> - The compiler directory.
-[-cf|--configuration] <configuration> - The configuration directory.
-[-t |--target] <target> - The target to build.
-[-r |--run] <yes/no> - Decide whether to run the target.
-[-h |--help] - Show help text.
-[targetArgs] - The command line arguments passed to the built target.`
-function HelpText() {
+[-h |--help] - Show help text
+[-s |--showSavedOptions] - Show the current option values
+[-b |--subBuildDir] <directory> - Directory in build/ containing 'build.ninja'
+[-t |--target] <target> - The target to build
+[-r |--run] <yes|no> - Decide whether to run the target
+[-tm|--testMode] <yes|no> - Enable or disable test mode
+[-st|--showTests] - Show the possible test targets
+[-tt|--testTarget] <target|all> - Test target to build
+[-ta|--testAction] <r|d|o|t|c> - The test action to perform
+[targetArgs] - The command line arguments passed to the built target
+
+Details
+A <yes|no> option can be toggled by using the option without an argument.
+
+--subBuildDir: It is expected that there is a directory called build/ in the
+  root of the repository. 'subBuildDir' is the subdirectory within build/ that
+  contains a 'ninja.build' file that's used for building with ninja.
+
+--testTarget: A single test target can be specified but 'all' can also be used
+  for building all tests.
+
+--testAction: The possible actions are specified below. If the test target is
+  'all', only the 't' and 'c' options are usable.
+  r(un): Runs the target executable if successfully built.
+  d(iff): Creates a file containing the output of the target executable named
+    {target}/out_diff.txt and git diffs it against {target}/out.txt.
+  o(verwrite): Creates a file containing the output of the target executable
+    named {target}/out.txt. The file will be overwritten if it already exists.
+  t(est): Does the same as the d option, but only prints out "{target}: Passed"
+    or "{target}: Failed" depending on the result of the diff. When this
+    option is used with the all argument, every existing test will be executed
+    and dispalyed with "{target}: Passed" or {target}: Failed".
+  c(overage): Creates a directory named {target}/coverage that contains a code
+    coverage report. This makes finding the code that a unit test did and did
+    not run easy. A build of OpenCppCoverage needs to be in your path. It can
+    be found here (https://github.com/OpenCppCoverage/OpenCppCoverage). Only
+    works on Windows with msvc debug builds.`;
+function HelpText()
+{
   console.log(helpText);
 }
 
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const opt = require('./option');
+const test = require('./test');
 
-// Parses command line arguments and saves certain options to file so the
-// script can be run without having to enter the same arguments.
-class OptionCache {
+let switches = [
+  new opt.Switch('help', 'h', opt.ArgType.Single),
+  new opt.Switch('showSavedOptions', 's', opt.ArgType.Single),
+  new opt.Switch('subBuildDirectory', 'b', opt.ArgType.Required),
+  new opt.Switch('target', 't', opt.ArgType.Required),
+  new opt.Switch('run', 'r', opt.ArgType.Optional),
+  new opt.Switch('testMode', 'tm', opt.ArgType.Optional),
+  new opt.Switch('showTests', 'st', opt.ArgType.Single),
+  new opt.Switch('testTarget', 'tt', opt.ArgType.Required),
+  new opt.Switch('testAction', 'ta', opt.ArgType.Required),
+];
 
-  AddSwitch(long, short, defaultValue) {
-    if (typeof this.switches == 'undefined') {
-      this.switches = [];
-    }
-    this.switches.push({});
-    let newSwitch = this.switches[this.switches.length - 1];
-    newSwitch.name = long;
-    newSwitch.longSwitch = '--' + long;
-    newSwitch.shortSwitch = '-' + short;
-    newSwitch.defaultValue = defaultValue;
-  }
+// Default values of the saved options.
+let savedOptions = {
+  subBuildDirectory: '',
+  target: '',
+  targetArgs: {},
+  run: 'no',
+  testMode: 'no',
+  testTarget: '',
+};
 
-  IsSwitch(selectedSwitch, arg) {
-    return selectedSwitch.longSwitch == arg
-      || selectedSwitch.shortSwitch == arg;
-  }
-
-  constructor(args) {
-    this.AddSwitch('compiler', 'c', '');
-    this.AddSwitch('configuration', 'cf', '');
-    this.AddSwitch('target', 't', '');
-    this.AddSwitch('run', 'r', 'no');
-    this.AddSwitch('help', 'h', null);
-
-    // Initialize all saved options.
-    this.options = {};
-    this.options.help = false;
-    this.options.saved = {};
-    try { this.options.saved = require('./options.json'); } catch (error) { }
-    for (let i = 0; i < this.switches.length; ++i) {
-      let savable = this.switches[i].defaultValue != null;
-      let name = this.switches[i].name;
-      if (savable && typeof this.options.saved[name] == 'undefined') {
-        this.options.saved[name] = this.switches[i].defaultValue;
-      }
-    }
-
-    // Set options gathered from command line arguments.
-    let a = 0;
-    while (a < args.length) {
-      if (args[a] == '--') {
-        a += 1;
-        break;
-      }
-
-      let s = 0;
-      for (; s < this.switches.length; ++s) {
-        let currentSwitch = this.switches[s];
-        if (!this.IsSwitch(currentSwitch, args[a])) {
-          continue;
-        }
-        if (currentSwitch.name == 'help') {
-          this.options.help = true;
-          a += 1;
-          break;
-        }
-
-        let nextArg = args[a + 1];
-        if (typeof nextArg == 'undefined') {
-          throw '\'' + currentSwitch.shortSwitch + '\'/\''
-          + currentSwitch.longSwitch + '\' requires an argument.';
-        }
-        this.options.saved[currentSwitch.name] = nextArg;
-        a += 2;
-        break;
-      }
-      if (s == this.switches.length) {
-        throw 'Invalid arg \'' + args[a] + '\' used.';
-      }
-    }
-
-    let undefined = typeof this.options.saved.targetArgs == 'undefined';
-    if (undefined || a < args.length) {
-      this.options.saved.targetArgs = [];
-    }
-    for (; a < args.length; ++a) {
-      this.options.saved.targetArgs.push(args[a]);
-    }
-
-
-    // Check the validity of options and derive options the from saved options.
-    if (this.options.saved.target == '') {
-      throw 'No target set. Set one with \'-t\'.';
-    }
-    if (this.options.saved.run != 'yes' && this.options.saved.run != 'no') {
-      throw 'Invalid argument \'' + this.options.saved.run
-      + '\' used for the \'run\' option. Expects \'yes\' or \'no\'.';
-    }
-
-    this.options.buildDir = path.join(__dirname, '..', 'build');
-    if (this.options.saved.compiler != '') {
-      this.options.buildDir = path.join(
-        this.options.buildDir, this.options.saved.compiler);
-    }
-    if (this.options.saved.configuration != '') {
-      this.options.buildDir = path.join(
-        this.options.buildDir, this.options.saved.configuration);
-    }
-    if (!fs.existsSync(this.options.buildDir)) {
-      throw 'Build directory \'' + this.options.buildDir + '\' does not exist.';
-    }
-
-    this.options.targetNinjaCommand = 'ninja ' + this.options.saved.target;
-    this.options.targetCommand = path.join(
-      this.options.buildDir, this.options.saved.target);
-    for (let i = 0; i < this.options.saved.targetArgs.length; ++i) {
-      this.options.targetCommand += ' ' + this.options.saved.targetArgs[i];
-    }
-
-    fs.writeFileSync('options.json', JSON.stringify(this.options.saved));
-  }
-}
-
+// Process the options from the commandline and read the saved options.
 let options;
 try {
-  let optionCache = new OptionCache(process.argv.slice(2));
-  options = optionCache.options;
-} catch (error) {
-  console.log(error);
+  options = opt.ProcessClArgs(switches, process.argv.slice(2));
+}
+catch (error) {
+  console.error(error);
   return;
 }
+try {
+  savedOptions = require('./options.json');
+}
+catch (error) {
+}
 
+// Overwrite all saveable options.
+for (const key in savedOptions) {
+  if (options[key] === undefined) {
+    continue;
+  }
+  if (['yes', 'no'].includes(savedOptions[key])) {
+    if (options[key].length == 0) {
+      savedOptions[key] = savedOptions[key] == 'yes' ? 'no' : 'yes';
+      continue;
+    }
+    if (!['yes', 'no'].includes(options[key][0])) {
+      console.error(
+        'Invalid argument \'' + options[key] + '\' used for the \'' + key +
+        '\' option. Expects \'yes\' or \'no\'.');
+      continue;
+    }
+    savedOptions[key] = options[key][0];
+    continue;
+  }
+  savedOptions[key] = options[key];
+}
+if (savedOptions.target != '' && options.extras !== undefined) {
+  savedOptions.targetArgs[savedOptions.target] = options.extras;
+}
+fs.writeFileSync('options.json', JSON.stringify(savedOptions));
+
+// Handle all early out arguments.
 if (options.help) {
   HelpText();
   return;
 }
-
-// Build the target.
-process.chdir(options.buildDir);
-try { childProcess.execSync(options.targetNinjaCommand, { stdio: 'inherit' }); }
-catch (error) { return; }
-
-// Run the built target if requested.
-if (options.saved.run == 'no') {
+if (options.showSavedOptions) {
+  console.log(savedOptions);
   return;
 }
-let workingDir = path.join(__dirname, '..', 'working');
-process.chdir(workingDir);
-try { childProcess.execSync(options.targetCommand, { stdio: 'inherit' }); }
-catch (error) { return; }
+if (options.showTests) {
+  console.log(test.GetTargets());
+  return;
+}
+
+// Create the full build diretory and ensure its validity.
+const fullBuildDir =
+  path.join(__dirname, '..', 'build', savedOptions.subBuildDirectory);
+if (!fs.existsSync(fullBuildDir + '/build.ninja')) {
+  console.error('build.ninja was not found in \'' + fullBuildDir + '\'.');
+  return;
+}
+
+function BuildTarget(target)
+{
+  const targetNinjaCommand = 'ninja ' + target;
+  process.chdir(fullBuildDir);
+  childProcess.execSync(targetNinjaCommand, {stdio: 'inherit'});
+}
+
+if (savedOptions.testMode == 'no') {
+  // Perform normal mode operations.
+  if (savedOptions.target == '') {
+    console.error('No target set. Set one with \'-t\'.');
+    return;
+  }
+
+  // Build the target.
+  try {
+    BuildTarget(savedOptions.target);
+  }
+  catch (error) {
+    return;
+  }
+
+  // Run the built target if requested.
+  if (savedOptions.run == 'no') {
+    return;
+  }
+  const workingDir = path.join(__dirname, '..', 'working');
+  process.chdir(workingDir);
+  try {
+    let targetCommand = path.join(fullBuildDir, savedOptions.target);
+    const targetArgs = savedOptions.targetArgs[savedOptions.target];
+    if (targetArgs !== undefined) {
+      for (const targetArg of targetArgs) {
+        targetCommand += ' ' + targetArg;
+      }
+    }
+    childProcess.execSync(targetCommand, {stdio: 'inherit'});
+  }
+  catch (error) {
+    return;
+  }
+}
+else {
+  // Perform test mode operations.
+  if (savedOptions.testTarget == '') {
+    console.error('No test target set. Set one with \'-tt\'.');
+    return;
+  }
+
+  // Build the target.
+  try {
+    if (savedOptions.testTarget == 'all') {
+      BuildTarget('tests');
+    }
+    else {
+      BuildTarget(savedOptions.testTarget);
+    }
+  }
+  catch (error) {
+    return;
+  }
+
+  if (options.testAction === undefined) {
+    return;
+  }
+  if (options.testAction === 'c' && process.platform !== 'win32') {
+    console.error('Coverage reports only available on Windows under msvc');
+    return;
+  }
+
+  // Run the desired action for all tests.
+  if (savedOptions.testTarget === 'all') {
+    const targets = test.GetTargets();
+    for (const target of targets) {
+      const testInfo = test.GetInfo(target, fullBuildDir);
+      switch (options.testAction) {
+      case 't': test.Test(testInfo); break;
+      case 'c': test.Coverage(testInfo); break;
+      default:
+        console.error(
+          '\'' + options.testAction + '\' is not a valid action for all.');
+        return;
+      }
+    }
+    return;
+  }
+
+  // Run the desired action for a single test.
+  const testInfo = test.GetInfo(savedOptions.testTarget, fullBuildDir);
+  switch (options.testAction) {
+  case 'r': test.Run(testInfo); break;
+  case 'd': test.Diff(testInfo); break;
+  case 'o': test.Overwrite(testInfo); break;
+  case 't': test.Test(testInfo); break;
+  case 'c': test.Coverage(testInfo); break;
+  default:
+    console.error('\'' + options.testAction + '\' is not a valid action.');
+  }
+}

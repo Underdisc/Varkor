@@ -26,6 +26,15 @@ add_executable(varkorStandalone)
 target_sources(varkorStandalone PRIVATE src/Main.cc)
 target_link_libraries(varkorStandalone varkor)
 
+# Create the test viewer target.
+add_executable(testViewer)
+target_sources(testViewer PRIVATE
+  src/test/Viewer.cc
+  src/test/math/Intersection.cc
+  src/test/math/Triangle.cc)
+target_link_libraries(testViewer varkor)
+target_compile_definitions(testViewer PUBLIC RemoveTestEntryPoint)
+
 # Create all of the test targets.
 add_subdirectory(src/test)
 
@@ -34,6 +43,7 @@ function(AddProject targetName directory)
   project(${targetName})
   add_executable(${targetName})
   add_subdirectory(${directory}/src ${targetName}Obj)
+  target_include_directories(${targetName} PUBLIC ${directory}/src)
   target_compile_definitions(${targetName}
     PUBLIC PROJECT_DIRECTORY="${directory}")
   target_link_libraries(${targetName} varkor)

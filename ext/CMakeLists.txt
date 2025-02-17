@@ -1,4 +1,5 @@
 target_include_directories(varkor PUBLIC "local")
+target_include_directories(varkor PUBLIC "sub")
 
 # dirent
 if (WIN32)
@@ -6,7 +7,8 @@ if (WIN32)
 endif()
 
 # glad
-target_sources(varkor PRIVATE local/glad/glad.c)
+target_sources(varkor PRIVATE local/glad/src/glad.c)
+target_include_directories(varkor PUBLIC local/glad/include)
 
 # getopt
 if (WIN32)
@@ -22,13 +24,14 @@ target_include_directories(varkor PUBLIC "sub/stb")
 
 # imgui
 target_sources(varkor PRIVATE
-  local/imgui/imgui.cpp
-  local/imgui/imgui_demo.cpp
-  local/imgui/imgui_draw.cpp
-  local/imgui/imgui_tables.cpp
-  local/imgui/imgui_widgets.cpp
-  local/imgui/imgui_impl_glfw.cpp
-  local/imgui/imgui_impl_opengl3.cpp)
+  sub/imgui/imgui.cpp
+  sub/imgui/imgui_demo.cpp
+  sub/imgui/imgui_draw.cpp
+  sub/imgui/imgui_tables.cpp
+  sub/imgui/imgui_widgets.cpp
+  sub/imgui/backends/imgui_impl_glfw.cpp
+  sub/imgui/backends/imgui_impl_opengl3.cpp)
+target_include_directories(varkor PUBLIC "sub/imgui")
 
 # assimp
 if (MSVC)
@@ -61,8 +64,9 @@ target_include_directories(varkor PUBLIC "sub/glfw/include")
 # tracy
 target_include_directories(varkor PUBLIC "sub/tracy/public/tracy")
 if("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
-  option(TRACY_ENABLE "" ON)
-  option(TRACY_ON_DEMAND "" ON)
+  set(TRACY_ENABLE ON)
+  set(TRACY_ON_DEMAND OFF)
+  set(TRACY_NO_EXIT ON)
   add_subdirectory(sub/tracy)
 endif()
 

@@ -158,10 +158,14 @@ B: [7, [7, 7]]
   | \B: [2, [2, 2]]
   \B: [0, [0, 0]]
 --- 0 ---
-ConstructorCount: 30
-MoveConstructorCount: 10
-CopyConstructorCount: 10
-DestructorCount: 50
+-Counts-
+DefaultConstructor: 0
+Constructor: 30
+CopyConstructor: 10
+MoveConstructor: 10
+Destructor: 50
+CopyAssignment: 0
+MoveAssignment: 0
 
 <= Iterator =>
 B: [73, 2]
@@ -226,3 +230,4 @@ B: [73, 15]
 79: [79, 17]
 81: [81, 18]
 95: [95, 19]
+

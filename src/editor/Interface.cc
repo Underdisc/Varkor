@@ -65,10 +65,10 @@ void Interface::PurgeInterfaces()
 
 void Interface::ShowAll()
 {
-  Show();
   for (auto it = mInterfaces.begin(); it != mInterfaces.end(); ++it) {
     it->mValue->ShowAll();
   }
+  Show();
 }
 
 } // namespace Editor

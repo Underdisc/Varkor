@@ -5,12 +5,12 @@
 #include "debug/MemLeak.h"
 #include "ds/Map.h"
 #include "test/ds/Print.h"
+#include "test/ds/Test.h"
 #include "test/ds/TestType.h"
 #include "util/Utility.h"
 
 void InsertRemoveTryGet()
 {
-  std::cout << "<= InsertRemoveTryGet =>\n";
   // Start by inserting random keys with incrementing values.
   Ds::Map<int, int> map;
   constexpr int insertions = 50;
@@ -45,12 +45,10 @@ void InsertRemoveTryGet()
       std::cout << *value << '\n';
     }
   }
-  std::cout << '\n';
 }
 
 void StringMap()
 {
-  std::cout << "<= StringMap =>" << std::endl;
   // Add a sequence of strings to a map.
   Ds::Map<std::string, int> map;
   const char* sequence[] = {
@@ -60,7 +58,7 @@ void StringMap()
     map.Insert(sequence[i], i);
   }
   PrintMap(map);
-  std::cout << "--- 0 ---" << std::endl;
+  std::cout << "--- 0 ---\n";
 
   // Try to get values paired with key strings. Some key strings will be in the
   // map and others won't.
@@ -71,25 +69,23 @@ void StringMap()
     std::cout << findSequence[i] << ": ";
     int* value = map.TryGet(findSequence[i]);
     if (value == nullptr) {
-      std::cout << " not found" << std::endl;
+      std::cout << " not found\n";
     }
     else {
-      std::cout << *value << std::endl;
+      std::cout << *value << '\n';
     }
   }
-  std::cout << "--- 1 ---" << std::endl;
+  std::cout << "--- 1 ---\n";
 
   // Remove all of the values in the map.
   for (int i = 0; i < sequenceSize; ++i) {
     map.Remove(sequence[i]);
   }
   PrintMap(map);
-  std::cout << std::endl;
 }
 
 void InsertEmplace()
 {
-  std::cout << "<= InsertEmplace =>" << std::endl;
   // This will test the usage of move, copy, and special constructors when
   // inserting or emplacing. It will also test writing to newly added elements.
   Ds::Map<int, TestType> map;
@@ -112,20 +108,12 @@ void InsertEmplace()
   }
   PrintMap(map);
   map.Clear();
-  std::cout << "--- 0 ---" << std::endl;
-  std::cout << "ConstructorCount: " << TestType::smConstructorCount << std::endl
-            << "MoveConstructorCount: " << TestType::smMoveConstructorCount
-            << std::endl
-            << "CopyConstructorCount: " << TestType::smCopyConstructorCount
-            << std::endl
-            << "DestructorCount: " << TestType::smDestructorCount << std::endl
-            << std::endl;
-  TestType::ResetCounts();
+  std::cout << "--- 0 ---\n";
+  TestType::PrintCounts();
 }
 
 void Iterator()
 {
-  std::cout << "<= Iterator =>\n";
   // Insert random key value pairs into the map.
   Ds::Map<int, int> map;
   constexpr int insertions = 20;
@@ -161,8 +149,8 @@ void Iterator()
 int main()
 {
   EnableLeakOutput();
-  InsertRemoveTryGet();
-  StringMap();
-  InsertEmplace();
-  Iterator();
+  RunDsTest(InsertRemoveTryGet);
+  RunDsTest(StringMap);
+  RunDsTest(InsertEmplace);
+  RunDsTest(Iterator);
 }

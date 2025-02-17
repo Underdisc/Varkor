@@ -74,7 +74,7 @@ struct Shader
 
   constexpr static bool smLogMissingUniforms = false;
   constexpr static GLint smInvalidLocation = -1;
-  constexpr static const char* smVersionHeader = "#version 430 core\n";
+  constexpr static const char* smVersionHeader = "#version 430 core";
 
 private:
   GLuint mId;

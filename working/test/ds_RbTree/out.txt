@@ -75,8 +75,14 @@ B: [6, 6]
 \B: [2, 2]
  | \R: [5, 5]
  \R: [1, 1]
-ConstructorCount: 7
-MoveConstructorCount: 7
+-Counts-
+DefaultConstructor: 0
+Constructor: 7
+CopyConstructor: 0
+MoveConstructor: 7
+Destructor: 7
+CopyAssignment: 0
+MoveAssignment: 0
 
 <= Emplace =>
 B: [3, 3]
@@ -89,7 +95,14 @@ B: [3, 3]
 \B: [1, 1]
  | \B: [2, 2]
  \B: [0, 0]
-ConstructorCount: 10
+-Counts-
+DefaultConstructor: 0
+Constructor: 10
+CopyConstructor: 0
+MoveConstructor: 0
+Destructor: 0
+CopyAssignment: 0
+MoveAssignment: 0
 
 <= BasicRemove =>
 Empty Tree
@@ -361,3 +374,4 @@ B: 460
     \R: 193
 --- 9 ---
 Empty Tree
+

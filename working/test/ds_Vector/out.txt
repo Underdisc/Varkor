@@ -112,6 +112,22 @@ Destructor: 5
 CopyAssignment: 0
 MoveAssignment: 20
 
+<= Swap =>
+Size: 5
+Capactiy: 10
+[[4, 4], [1, 1], [0, 0], [3, 3], [2, 2]]
+-Counts-
+DefaultConstructor: 0
+Constructor: 5
+CopyConstructor: 0
+MoveConstructor: 2
+Destructor: 2
+CopyAssignment: 0
+MoveAssignment: 4
+
+<= Sort =>
+Sorts Successful
+
 <= Pop =>
 Size: 5
 Capactiy: 10
@@ -156,7 +172,7 @@ Size: 2
 Capactiy: 10
 [C, D]
 
-<= LazyRemove =>
+<= LazyRemove0 =>
 [[5, 5], [1, 1], [9, 9], [3, 3], [7, 7]]
 []
 -Counts-
@@ -167,6 +183,9 @@ MoveConstructor: 0
 Destructor: 10
 CopyAssignment: 0
 MoveAssignment: 9
+
+<= LazyRemove1 =>
+[9, 8, 7, 6, 5]
 
 <= IndexOperator =>
 [5]: 5
@@ -355,3 +374,4 @@ MoveAssignment: 0
 
 <= Empty =>
 Empty: 1
+

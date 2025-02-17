@@ -1,9 +1,9 @@
 [
   {
-    :Name: 'Line'
+    :Name: 'Basic'
     :Type: 'Shader'
     :Config: {
-      :Files: ['vres/shader/DebugLine.glv', 'vres/shader/Color.glf']
+      :Files: ['vres/shader/Debug.glvf']
     }
   },
   {

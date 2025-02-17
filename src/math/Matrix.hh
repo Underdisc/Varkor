@@ -22,6 +22,36 @@ T* Matrix<T, N>::operator[](int row)
 }
 
 template<typename T, unsigned int N>
+template<unsigned int M>
+Matrix<T, N>::operator Matrix<T, M>() const
+{
+  // Copy all needed elements from the old matrix into the new matrix.
+  Matrix<T, M> matrix;
+  for (int i = 0; i < N && i < M; ++i) {
+    for (int j = 0; j < N && j < M; ++j) {
+      matrix[i][j] = mD[i][j];
+    }
+  }
+
+  // If necessary, extend the matrix with 0s everywhere except the diagonal.
+  for (int i = N; i < M; ++i) {
+    for (int j = 0; j < N; ++j) {
+      matrix[i][j] = 0;
+      matrix[j][i] = 0;
+    }
+  }
+  for (int i = N; i < M; ++i) {
+    for (int j = N; j < M; ++j) {
+      matrix[i][j] = 0;
+    }
+  }
+  for (int i = N; i < M; ++i) {
+    matrix[i][i] = 1;
+  }
+  return matrix;
+}
+
+template<typename T, unsigned int N>
 const T* Matrix<T, N>::operator[](int row) const
 {
   return (const T*)mD[row];
@@ -137,6 +167,16 @@ Vector<T, N - 1> ApplyToVector(
 {
   Vec4 fullVector = {vector[0], vector[1], vector[2], 0.0f};
   return (Vector<T, N - 1>)(matrix * fullVector);
+}
+
+template<typename T, unsigned int N>
+Vector<T, N> GetBasisVector(const Matrix<T, N>& matrix, unsigned int column)
+{
+  Vector<T, N> basisAxis;
+  for (int i = 0; i < N; ++i) {
+    basisAxis[i] = matrix[i][column];
+  }
+  return basisAxis;
 }
 
 template<typename T, unsigned int N>

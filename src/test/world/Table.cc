@@ -2,146 +2,160 @@
 
 #include "comp/Type.h"
 #include "debug/MemLeak.h"
+#include "test/Test.h"
 #include "test/world/Print.h"
 #include "test/world/TestTypes.h"
 #include "world/Table.h"
 
 void Add()
 {
-  std::cout << "<= Add =>" << std::endl;
-  CallCounter::Reset();
-  {
-    World::Table counter(Comp::Type<CallCounter>::smId);
-    World::Table simple(Comp::Type<Simple0>::smId);
-    World::Table dynamic(Comp::Type<Dynamic>::smId);
-    World::Table container(Comp::Type<Container>::smId);
-    for (World::MemberId i = 0; i < 15; ++i) {
-      counter.Add(i);
-      simple.Add(i);
-      dynamic.Add(i);
-      container.Add(i);
-    }
-    std::cout << "-Simple-" << std::endl;
-    PrintTableStats(simple);
-    PrintTableOwners(simple);
-    std::cout << "-Dynamic-" << std::endl;
-    PrintTableStats(dynamic);
-    PrintTableOwners(dynamic);
-    std::cout << "-Container-" << std::endl;
-    PrintTableStats(container);
-    PrintTableOwners(container);
+  World::Table counter(Comp::Type<CallCounter>::smId);
+  World::Table simple(Comp::Type<Simple0>::smId);
+  World::Table dynamic(Comp::Type<Dynamic>::smId);
+  World::Table container(Comp::Type<Container>::smId);
+  for (World::MemberId i = 0; i < 15; ++i) {
+    counter.Request(i);
+    simple.Request(i);
+    dynamic.Request(i);
+    container.Request(i);
   }
-  CallCounter::Print();
-  std::cout << std::endl;
+  std::cout << "-Simple-\n";
+  PrintTableStats(simple);
+  PrintTableOwners(simple);
+  std::cout << "-Dynamic-\n";
+  PrintTableStats(dynamic);
+  PrintTableOwners(dynamic);
+  std::cout << "-Container-\n";
+  PrintTableStats(container);
+  PrintTableOwners(container);
 }
 
-void Rem()
+void Move()
 {
-  std::cout << "<= Rem =>" << std::endl;
-  CallCounter::Reset();
-  {
-    World::Table tables[4] = {
-      Comp::Type<CallCounter>::smId,
-      Comp::Type<Simple0>::smId,
-      Comp::Type<Dynamic>::smId,
-      Comp::Type<Container>::smId};
-    for (size_t currentTable = 0; currentTable < 4; ++currentTable) {
-      World::Table& table = tables[currentTable];
-      for (World::MemberId i = 0; i < 10; ++i) {
-        table.Add(i);
-      }
-      for (World::MemberId i = 0; i < 10; i += 2) {
-        table.Rem(i);
-      }
-      for (World::MemberId i = 10; i < 15; ++i) {
-        table.Add(i);
-      }
-    }
-    std::cout << "-Simple-" << std::endl;
-    PrintTable<Simple0>(tables[1]);
-    std::cout << "-Dynamic-" << std::endl;
-    PrintTable<Dynamic>(tables[2]);
-    std::cout << "-Container-" << std::endl;
-    PrintTable<Container>(tables[3]);
+  World::Table container(Comp::Type<Container>::smId);
+  for (World::MemberId i = 0; i < 15; ++i) {
+    ((Container*)container.Request(i))->SetData(i);
   }
-  CallCounter::Print();
-  std::cout << std::endl;
+  World::Table moved(std::move(container));
+  PrintTable<Container>(container);
+  PrintTable<Container>(moved);
 }
 
-void Duplicate()
+void Remove0()
 {
-  std::cout << "<= Duplicate =>" << std::endl;
-  CallCounter::Reset();
-  {
-    World::Table counterTable(Comp::Type<CallCounter>::smId);
-    World::Table dynamicTable(Comp::Type<Dynamic>::smId);
-    World::Table containerTable(Comp::Type<Container>::smId);
+  World::Table table(Comp::Type<Dynamic>::smId);
+  table.Request(0);
+  table.Request(1);
+  table.Remove(0);
+  PrintTable<Dynamic>(table);
+}
+
+void Remove1()
+{
+  World::Table table(Comp::Type<Dynamic>::smId);
+  table.Request(0);
+  table.Request(1);
+  table.Request(2);
+  table.Remove(1);
+  table.Remove(0);
+  table.Request(0);
+  PrintTable<Dynamic>(table);
+}
+
+void Remove2()
+{
+  World::Table tables[4] = {
+    Comp::Type<CallCounter>::smId,
+    Comp::Type<Simple0>::smId,
+    Comp::Type<Dynamic>::smId,
+    Comp::Type<Container>::smId};
+  for (size_t currentTable = 0; currentTable < 4; ++currentTable) {
+    World::Table& table = tables[currentTable];
     for (World::MemberId i = 0; i < 10; ++i) {
-      counterTable.Add(i);
-      size_t dynamicIndex = dynamicTable.Add(i);
-      Dynamic* dynamicComponent = (Dynamic*)dynamicTable[dynamicIndex];
-      dynamicComponent->SetData(i);
-      size_t containerIndex = containerTable.Add(i);
-      Container* containerComponent =
-        (Container*)containerTable[containerIndex];
-      containerComponent->SetData(i);
+      table.Request(i);
     }
-    for (World::MemberId i = 0; i < 10; ++i) {
-      counterTable.Duplicate(i, i + 10);
-      dynamicTable.Duplicate(i, i + 10);
-      containerTable.Duplicate(i, i + 10);
+    for (World::MemberId i = 0; i < 10; i += 2) {
+      table.Remove(i);
     }
-    for (size_t i = 0; i < 10; ++i) {
-      Dynamic* ogDynamic = (Dynamic*)dynamicTable[i];
-      Dynamic* cpDynamic = (Dynamic*)dynamicTable[i + 10];
-      ogDynamic->PrintData();
-      cpDynamic->PrintData();
-      std::cout << std::endl;
-      Container* ogContainer = (Container*)containerTable[i];
-      Container* cpContainer = (Container*)containerTable[i + 10];
-      ogContainer->PrintData();
-      cpContainer->PrintData();
-      std::cout << std::endl;
+    for (World::MemberId i = 10; i < 15; ++i) {
+      table.Request(i);
     }
   }
-  CallCounter::Print();
-  std::cout << std::endl;
+  std::cout << "-Simple-\n";
+  PrintTable<Simple0>(tables[1]);
+  std::cout << "-Dynamic-\n";
+  PrintTable<Dynamic>(tables[2]);
+  std::cout << "-Container-\n";
+  PrintTable<Container>(tables[3]);
+}
+
+void Duplicate0()
+{
+  World::Table table(Comp::Type<Dynamic>::smId);
+  ((Dynamic*)table.Request(0))->SetData(0);
+  table.Duplicate(0, 1);
+  PrintTable<Dynamic>(table);
+}
+
+void Duplicate1()
+{
+  World::Table counterTable(Comp::Type<CallCounter>::smId);
+  World::Table dynamicTable(Comp::Type<Dynamic>::smId);
+  World::Table containerTable(Comp::Type<Container>::smId);
+  for (World::MemberId i = 0; i < 10; ++i) {
+    counterTable.Request(i);
+    ((Dynamic*)dynamicTable.Request(i))->SetData(i);
+    ((Container*)containerTable.Request(i))->SetData(i);
+  }
+  SparseId cpDynamicIds[10], cpContainerIds[10];
+  for (World::MemberId i = 0; i < 10; ++i) {
+    counterTable.Duplicate(i, i + 10);
+    dynamicTable.Duplicate(i, i + 10);
+    containerTable.Duplicate(i, i + 10);
+  }
+  for (size_t i = 0; i < 10; ++i) {
+    std::cout << *(Dynamic*)dynamicTable.GetComponent(i)
+              << *(Dynamic*)dynamicTable.GetComponent(i + 10) << '\n'
+              << *(Container*)containerTable.GetComponent(i)
+              << *(Container*)containerTable.GetComponent(i + 10) << '\n';
+  }
 }
 
 void GetComponent()
 {
-  std::cout << "<= GetComponent =>" << std::endl;
-  // We create some components, but before creating all components, we set some
-  // data to ensure that data is copied when the tables grow.
+  // We create some components, but before creating all components, we set
+  // some data to ensure that data is copied when the tables grow.
   World::Table dynamic(Comp::Type<Dynamic>::smId);
   World::Table container(Comp::Type<Container>::smId);
-  for (World::MemberId i = 0; i < World::Table::smStartCapacity; ++i) {
-    dynamic.Add(i);
-    container.Add(i);
+  for (MemberId i = 0; i < World::Table::smStartCapacity; ++i) {
+    dynamic.Request(i);
+    container.Request(i);
   }
   for (size_t i = 0; i < 4; ++i) {
-    Dynamic* dynamicComponent = (Dynamic*)dynamic.GetComponent(i);
-    dynamicComponent->SetData((int)i);
-    Container* containerComponent = (Container*)container.GetComponent(i);
-    containerComponent->SetData((int)i);
+    ((Dynamic*)dynamic.GetComponent(i))->SetData((int)i);
+    ((Container*)container.GetComponent(i))->SetData((int)i);
   }
-  for (World::MemberId i = World::Table::smStartCapacity; i < 15; ++i) {
-    dynamic.Add(i);
-    container.Add(i);
+  for (MemberId i = World::Table::smStartCapacity; i < 15; ++i) {
+    dynamic.Request(i);
+    container.Request(i);
   }
-  std::cout << "-Dynamic-" << std::endl;
+  std::cout << "-Dynamic-\n";
   PrintTable<Dynamic>(dynamic);
-  std::cout << "-Container-" << std::endl;
+  std::cout << "-Container-\n";
   PrintTable<Container>(container);
 }
 
 int main(void)
 {
-  EnableLeakOutput();
+  Error::Init();
   RegisterComponentTypes();
 
-  Add();
-  Rem();
-  Duplicate();
-  GetComponent();
+  RunCallCounterTest(Add);
+  RunTest(Move);
+  RunTest(Remove0);
+  RunTest(Remove1);
+  RunCallCounterTest(Remove2);
+  RunTest(Duplicate0);
+  RunCallCounterTest(Duplicate1);
+  RunTest(GetComponent);
 }

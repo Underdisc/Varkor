@@ -1,6 +1,8 @@
 #include <imgui/imgui.h>
 
+#include "Input.h"
 #include "Options.h"
+#include "editor/Camera.h"
 #include "editor/CoreInterface.h"
 #include "editor/Editor.h"
 #include "editor/FileInterface.h"
@@ -31,7 +33,7 @@ void CoreInterface::Show()
   ViewMenu();
   ImGui::EndMenuBar();
 
-  ImGui::Checkbox("Editor Mode", &nEditorMode);
+  ImGui::Checkbox("Play Mode", &nPlayMode);
   ImGui::Checkbox("Pause World", &World::nPause);
 
   // Display a button for layer creation.
@@ -129,6 +131,10 @@ void CoreInterface::FileMenu()
     layerInterface->SaveLayerAs();
   }
 
+  if (ImGui::MenuItem("Save Keybinds")) {
+    Input::SaveKeybinds();
+  }
+
   bool canSave = !Rsl::IsStandalone();
   if (ImGui::MenuItem("Save Components", nullptr, false, canSave)) {
     Comp::SaveComponentsFile();
@@ -142,6 +148,7 @@ void CoreInterface::ViewMenu()
     InterfaceMenuItem<LogInterface>("Log");
     InterfaceMenuItem<FramerInterface>("Framer");
     InterfaceMenuItem<LibraryInterface>("Library");
+    InterfaceMenuItem<CameraInterface>("Camera");
     InterfaceMenuItem<TempInterface>("Temp");
     ImGui::MenuItem("Demo", NULL, &mShowImGuiDemo);
     ImGui::EndMenu();

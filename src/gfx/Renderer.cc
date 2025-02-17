@@ -23,7 +23,6 @@
 #include "gfx/Renderable.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
-#include "math/Geometry.h"
 #include "math/Vector.h"
 #include "rsl/Asset.h"
 #include "rsl/Library.h"
@@ -271,6 +270,9 @@ void Clear()
   glClear(GL_COLOR_BUFFER_BIT);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glClear(GL_DEPTH_BUFFER_BIT);
 
   // Delete the MemberId buffer if it wasn't used during the last frame.
   if (!nMemberIdFboUsed) {
@@ -733,28 +735,27 @@ void Render()
   if (nCustomRender != nullptr) {
     nCustomRender();
   }
-  if (Editor::nEditorMode) {
+  if (!Editor::nPlayMode) {
     // Render the selected space.
     Editor::LayerInterface* layerInterface =
       Editor::nCoreInterface.FindInterface<Editor::LayerInterface>();
-    if (layerInterface == nullptr) {
-      return;
-    }
-    const World::Layer& worldLayer = *layerInterface->mLayerIt;
-    const World::Space& space = worldLayer.mSpace;
     const World::Object cameraObject = Editor::nCamera.GetObject();
+    if (layerInterface != nullptr) {
+      const World::Layer& worldLayer = *layerInterface->mLayerIt;
+      const World::Space& space = worldLayer.mSpace;
 
-    RenderLayer(space, cameraObject);
-    BlendLayer(nBlendedFbo, worldLayer.mPostMaterialId);
-    BloomAndTonemapPasses();
+      RenderLayer(space, cameraObject);
+      BlendLayer(nBlendedFbo, worldLayer.mPostMaterialId);
+      BloomAndTonemapPasses();
 
-    // Render an outline around the selected object.
-    Editor::InspectorInterface* inspectorInterface =
-      layerInterface->FindInterface<Editor::InspectorInterface>();
-    if (inspectorInterface != nullptr) {
-      Collection collection;
-      collection.Collect(inspectorInterface->mObject);
-      RenderMemberOutline(collection, cameraObject);
+      // Render an outline around the selected object.
+      Editor::InspectorInterface* inspectorInterface =
+        layerInterface->FindInterface<Editor::InspectorInterface>();
+      if (inspectorInterface != nullptr) {
+        Collection collection;
+        collection.Collect(inspectorInterface->mObject);
+        RenderMemberOutline(collection, cameraObject);
+      }
     }
 
     // Render the editor space and any debug draws.
@@ -766,7 +767,7 @@ void Render()
     Result result = RenderWorld();
     if (!result.Success()) {
       LogError(result.mError.c_str());
-      Editor::nEditorMode = true;
+      Editor::nPlayMode = false;
     }
   }
 }

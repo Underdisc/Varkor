@@ -22,4 +22,9 @@
 void EnableLeakOutput();
 void DisableLeakOutput();
 
+#ifdef TRACY_ENABLE
+void* operator new(size_t size);
+void operator delete(void* data) noexcept;
+#endif
+
 #endif

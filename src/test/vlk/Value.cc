@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "debug/MemLeak.h"
+#include "test/Test.h"
 #include "test/vlk/Util.h"
 #include "vlk/Value.h"
 
@@ -15,7 +16,6 @@ void PrintParseError(const char* text)
 
 void TrueValue()
 {
-  std::cout << "<= TrueValue =>" << std::endl;
   Vlk::Value rootVal;
   rootVal(std::string("Integer")) = 10;
   rootVal(std::string("Float")) = 10.5f;
@@ -25,7 +25,6 @@ void TrueValue()
 
 void ValueArray()
 {
-  std::cout << "<= ValueArray =>" << std::endl;
   Vlk::Value rootVal;
   Vlk::Value& intergerArrayVal = rootVal("Integers")[{5}];
   for (size_t i = 0; i < 5; ++i) {
@@ -53,7 +52,6 @@ void ValueArray()
 
 void PairArray()
 {
-  std::cout << "<= PairArray =>" << std::endl;
   Vlk::Value rootVal;
   rootVal("Integer") = 5;
   Vlk::Value& array1Val = rootVal("Array1");
@@ -71,7 +69,6 @@ void PairArray()
 
 void MultidimensionalArrays()
 {
-  std::cout << "<= MultidimensionalArrays =>" << std::endl;
   Vlk::Value rootVal;
   Vlk::Value& valueArraysVal = rootVal("ValueArrays");
   Vlk::Value& float1DVal = valueArraysVal("Float1D")[{4}];
@@ -98,7 +95,6 @@ void MultidimensionalArrays()
 
 void ValueArrayPairArray()
 {
-  std::cout << "<= ValueArrayPairArray =>\n";
   Vlk::Value rootVal;
   Vlk::Value& valueArrayVal = rootVal("ValueArray")[{5}];
   for (int i = 0; i < 5; ++i) {
@@ -110,7 +106,6 @@ void ValueArrayPairArray()
 
 void SerializeDeserialize()
 {
-  std::cout << "<= SerializeDeserialize =>" << std::endl;
   const char* filename = "SerializeDeserialize.vlk";
   // Serialization
   {
@@ -152,15 +147,15 @@ void SerializeDeserialize()
     Vlk::Value rootVal;
     Result result = rootVal.Read(filename);
     LogAbortIf(!result.Success(), result.mError.c_str());
-    const Vlk::Pair& integer = *rootVal.TryGetPair("Integer");
+    const Vlk::Pair& integer = rootVal.GetPair("Integer");
     std::cout << integer.Key() << ": " << integer.As<int>() << std::endl;
-    const Vlk::Pair& floats = *rootVal.TryGetPair("Floats");
+    const Vlk::Pair& floats = rootVal.GetPair("Floats");
     std::cout << floats.Key() << ": " << std::endl;
     for (size_t i = 0; i < floats.Size(); ++i) {
       std::cout << "  " << floats.TryGetConstValue(i)->As<float>() << std::endl;
     }
 
-    const Vlk::Pair& container = *rootVal.TryGetPair("Container");
+    const Vlk::Pair& container = rootVal.GetPair("Container");
     const Vlk::Pair& sentenceString =
       *container.TryGetConstPair("SentenceString");
     std::cout << sentenceString.Key() << ": "
@@ -173,15 +168,14 @@ void SerializeDeserialize()
       }
     }
 
-    const Vlk::Pair& pairArray = *rootVal.TryGetPair("PairArray");
+    const Vlk::Pair& pairArray = rootVal.GetPair("PairArray");
     std::cout << pairArray.Key() << ": " << std::endl;
     for (size_t i = 0; i < pairArray.Size(); ++i) {
       std::cout << "  " << pairArray.TryGetConstPair(i)->Key() << ": "
                 << pairArray.TryGetConstPair(i)->As<int>() << std::endl;
     }
 
-    const Vlk::Pair& arrayOfPairArrays =
-      *rootVal.TryGetPair("ArrayOfPairArrays");
+    const Vlk::Pair& arrayOfPairArrays = rootVal.GetPair("ArrayOfPairArrays");
     std::cout << arrayOfPairArrays.Key() << ":\n";
     for (size_t i = 0; i < arrayOfPairArrays.Size(); ++i) {
       const Vlk::Value& elementPairArray = arrayOfPairArrays[i];
@@ -189,7 +183,7 @@ void SerializeDeserialize()
       for (size_t j = 0; j < elementPairArray.Size(); ++j) {
         std::cout << "    " << elementPairArray.TryGetConstPair(j)->Key()
                   << ": " << elementPairArray.TryGetConstPair(j)->As<int>()
-                  << "\n";
+                  << '\n';
       }
     }
   }
@@ -216,28 +210,37 @@ Vlk::Value CreateTestValue()
   return rootVal;
 }
 
-void Move()
+void Move0()
 {
-  std::cout << "<= Move =>\n";
   Vlk::Value rootVal = CreateTestValue();
 
   Vlk::Value movedVal(std::move(rootVal("TrueValue")));
-  std::cout << "<- MovedTrueValue ->\n" << movedVal << "\n";
+  std::cout << "<- MovedTrueValue ->\n" << movedVal << '\n';
 
   movedVal = std::move(rootVal("ValueArray"));
   movedVal[1] = "Replaced";
   movedVal[3] = "Replaced";
-  std::cout << "<- MovedValueArray ->\n" << movedVal << "\n";
+  std::cout << "<- MovedValueArray ->\n" << movedVal << '\n';
 
   movedVal = std::move(rootVal("PairArray"));
   movedVal("Pair-A") = "Replaced";
-  std::cout << "<- MovedPairArray ->\n" << movedVal << "\n";
-  std::cout << "<- Original ->\n" << rootVal << "\n";
+  std::cout << "<- MovedPairArray ->\n" << movedVal << '\n';
+  std::cout << "<- Original ->\n" << rootVal << '\n';
+}
+
+void Move1()
+{
+  // Ensure that Pair implements a move assignment that takes a Value argument.
+  Vlk::Value rootVal;
+  Vlk::Value& fromVal = rootVal("FromPair");
+  fromVal = CreateTestValue();
+  Vlk::Pair& toPair = rootVal("toPair");
+  toPair = std::move(fromVal);
+  std::cout << rootVal << '\n';
 }
 
 void Errors()
 {
-  std::cout << "<= Errors =>" << std::endl;
   PrintParseError(".");
   PrintParseError("}");
   PrintParseError("{");
@@ -255,45 +258,41 @@ void Errors()
 
 void FindPair()
 {
-  std::cout << "<= FindPair =>\n";
   Vlk::Value rootVal = CreateTestValue();
   rootVal("TrueValue") = "Replaced";
   rootVal("ValueArray")[1] = "Replaced";
   rootVal("ValueArray")[3] = "Replaced";
   rootVal("PairArray")("Pair-C") = "Replaced";
-  std::cout << rootVal << "\n";
+  std::cout << rootVal << '\n';
 }
 
 void Copy()
 {
-  std::cout << "<= Copy =>\n";
-
   Vlk::Value rootVal = CreateTestValue();
   Vlk::Value rootValCopy(rootVal);
   rootValCopy("TrueValue") = "Replaced";
   rootValCopy("ValueArray")[3] = "Replaced";
   rootValCopy("PairArray")("Pair-B") = "Replaced";
-  std::cout << "<- Copy ->\n" << rootValCopy << "\n";
+  std::cout << "<- Copy ->\n" << rootValCopy << '\n';
 
   rootValCopy = rootVal("TrueValue");
-  std::cout << "<- TrueValueOverwrite ->\n" << rootValCopy << "\n";
+  std::cout << "<- TrueValueOverwrite ->\n" << rootValCopy << '\n';
 
   rootValCopy = rootVal("ValueArray");
   rootValCopy[0] = "Replaced";
   rootValCopy[4] = "Replaced";
-  std::cout << "<- ValueArrayOverwrite ->\n" << rootValCopy << "\n";
+  std::cout << "<- ValueArrayOverwrite ->\n" << rootValCopy << '\n';
 
   rootValCopy = rootVal("PairArray");
   rootValCopy("Pair-A") = "Replaced";
   rootValCopy("Pair-E") = "Replaced";
-  std::cout << "<- PairArrayOverwrite ->\n" << rootValCopy << "\n";
+  std::cout << "<- PairArrayOverwrite ->\n" << rootValCopy << '\n';
 
-  std::cout << "<- Original ->\n" << rootVal << "\n";
+  std::cout << "<- Original ->\n" << rootVal << '\n';
 }
 
 void Comparison()
 {
-  std::cout << "<= Comparison =>\n";
   auto compare = [](const Vlk::Value& a, const Vlk::Value& b)
   {
     std::cout << "==:" << (a == b) << " | !=:" << (a != b) << '\n';
@@ -337,14 +336,13 @@ void Comparison()
   std::cout << "<- DifferentKey ->\n";
   rootValCopy = rootVal;
   Vlk::Value& pairArrayVal = rootValCopy("PairArray");
-  pairArrayVal.TryRemovePair("Pair-A");
+  pairArrayVal.RemovePair("Pair-A");
   pairArrayVal("Pair-F") = "Value-F";
   compare(rootVal, rootValCopy);
 }
 
 void PushPopRemoveValue()
 {
-  std::cout << "<= PushPopRemoveValue =>\n";
   Vlk::Value arrayVal;
   for (int i = 0; i < 20; ++i) {
     std::stringstream valueStream;
@@ -360,18 +358,6 @@ void PushPopRemoveValue()
   std::cout << arrayVal << '\n';
 }
 
-void RunTest(void (*test)())
-{
-  static bool firstTest = true;
-  if (firstTest) {
-    firstTest = false;
-  }
-  else {
-    std::cout << '\n';
-  }
-  test();
-}
-
 int main()
 {
   EnableLeakOutput();
@@ -381,7 +367,8 @@ int main()
   RunTest(MultidimensionalArrays);
   RunTest(ValueArrayPairArray);
   RunTest(SerializeDeserialize);
-  RunTest(Move);
+  RunTest(Move0);
+  RunTest(Move1);
   RunTest(Errors);
   RunTest(FindPair);
   RunTest(Copy);

@@ -8,11 +8,26 @@
 
 namespace Options {
 
-extern Ds::Vector<std::string> nLoadLayers;
-extern std::string nProjectDirectory;
+enum class EditorLevel
+{
+  // Allows the creation of windows. No other windows are shown and no other
+  // editor features are available.
+  Simple = 0,
+  // Shows the entire editor.
+  Complete = 1,
+};
 
-Result Init(int argc, char* argv[], const char* projectDirectory);
+struct Config
+{
+  std::string mWindowName;
+  std::string mProjectDirectory;
+  EditorLevel mEditorLevel;
+  Ds::Vector<std::string> mLoadLayers;
+};
 
-} // namespace Options
+extern Config nConfig;
+Result Init(int argc, char* argv[], Config&& config);
+
+}; // namespace Options
 
 #endif

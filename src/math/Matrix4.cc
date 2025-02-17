@@ -2,7 +2,8 @@
 
 #include "Error.h"
 
-#include "Matrix4.h"
+#include "math/Matrix3.h"
+#include "math/Matrix4.h"
 
 namespace Math {
 
@@ -105,22 +106,9 @@ void Translate(Matrix<float, 4>* m, const Vec3& t)
 
 void Rotate(Matrix<float, 4>* m, const Quaternion& rot)
 {
-  m->mD[0][0] = 1.0f - 2.0f * rot.mC * rot.mC - 2.0f * rot.mD * rot.mD;
-  m->mD[0][1] = 2.0f * rot.mB * rot.mC - 2.0f * rot.mD * rot.mA;
-  m->mD[0][2] = 2.0f * rot.mB * rot.mD + 2.0f * rot.mC * rot.mA;
-  m->mD[0][3] = 0.0f;
-  m->mD[1][0] = 2.0f * rot.mB * rot.mC + 2.0f * rot.mD * rot.mA;
-  m->mD[1][1] = 1.0f - 2.0f * rot.mB * rot.mB - 2.0f * rot.mD * rot.mD;
-  m->mD[1][2] = 2.0f * rot.mC * rot.mD - 2.0f * rot.mB * rot.mA;
-  m->mD[1][3] = 0.0f;
-  m->mD[2][0] = 2.0f * rot.mB * rot.mD - 2.0f * rot.mC * rot.mA;
-  m->mD[2][1] = 2.0f * rot.mC * rot.mD + 2.0f * rot.mB * rot.mA;
-  m->mD[2][2] = 1.0f - 2.0f * rot.mB * rot.mB - 2.0f * rot.mC * rot.mC;
-  m->mD[2][3] = 0.0f;
-  m->mD[3][0] = 0.0f;
-  m->mD[3][1] = 0.0f;
-  m->mD[3][2] = 0.0f;
-  m->mD[3][3] = 1.0f;
+  Mat3 orientation;
+  Rotate(&orientation, rot);
+  *m = (Mat4)orientation;
 }
 
 void Perspective(

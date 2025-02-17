@@ -3,27 +3,36 @@
 #include "Error.h"
 #include "debug/Draw.h"
 #include "ds/Vector.h"
+#include "ext/Tracy.h"
 #include "gfx/Mesh.h"
 #include "gfx/Renderer.h"
 #include "gfx/Shader.h"
-#include "math/Geometry.h"
-#include "math/Matrix4.h"
+#include "math/Constants.h"
+#include "math/Matrix3.h"
+#include "math/Plane.h"
 #include "rsl/Library.h"
 
 namespace Debug {
 namespace Draw {
 
-struct Renderable
+struct PointData
 {
-  unsigned int mVao;
-  unsigned int mVbo;
-  unsigned int mCount;
+  Vec3 mPoint;
   Vec3 mColor;
 };
-Ds::Vector<Renderable> nRenderables;
+Ds::Vector<PointData> nPoints;
+
+struct LineData
+{
+  Vec3 mStart;
+  Vec3 mStartColor;
+  Vec3 mEnd;
+  Vec3 mEndColor;
+};
+Ds::Vector<LineData> nLines;
 
 const char* nDebugDrawAssetName = "vres/debugDraw";
-const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Line");
+const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Basic");
 const ResId nTbnShaderId(nDebugDrawAssetName, "Tbn");
 
 void Init()
@@ -34,38 +43,19 @@ void Init()
 
 void Point(const Vec3& point, const Vec3& color)
 {
-  unsigned int vao, vbo;
-  glGenVertexArrays(1, &vao);
-  glGenBuffers(1, &vbo);
-
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Vec3), point.mD, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3), (void*)0);
-  glEnableVertexAttribArray(0);
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  nRenderables.Push({vao, vbo, 1, color});
+  nPoints.Push({point, color});
 }
 
 void Line(const Vec3& a, const Vec3& b, const Vec3& color)
 {
-  unsigned int vao, vbo;
-  glGenVertexArrays(1, &vao);
-  glGenBuffers(1, &vbo);
+  ZoneScoped;
+  nLines.Push({a, color, b, color});
+}
 
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  Vec3 vertexBuffer[2] = {a, b};
-  glBufferData(
-    GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STREAM_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3), (void*)0);
-  glEnableVertexAttribArray(0);
-  glBindVertexArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  nRenderables.Push({vao, vbo, 2, color});
+void Line(const Vec3& a, const Vec3& b, const Vec3& aColor, const Vec3& bColor)
+{
+  ZoneScoped;
+  nLines.Push({a, aColor, b, bColor});
 }
 
 void Plane(const Math::Plane& plane, const Vec3& color)
@@ -87,6 +77,71 @@ void Plane(const Math::Plane& plane, const Vec3& color)
   Line(corners[3], corners[0], color);
 }
 
+void Box(const Math::Box& box, const Vec3& color)
+{
+  Mat3 orientation;
+  Math::Rotate(&orientation, box.mRotation);
+  Vec3 scaledBasis[3];
+  for (int i = 0; i < 3; ++i) {
+    scaledBasis[i] = Math::GetBasisVector(orientation, i) * (box.mScale[i] / 2);
+  }
+
+  Vec3 corners[8];
+  corners[0] = box.mCenter + scaledBasis[0] + scaledBasis[1] + scaledBasis[2];
+  corners[1] = box.mCenter + scaledBasis[0] - scaledBasis[1] + scaledBasis[2];
+  corners[2] = box.mCenter + scaledBasis[0] - scaledBasis[1] - scaledBasis[2];
+  corners[3] = box.mCenter + scaledBasis[0] + scaledBasis[1] - scaledBasis[2];
+  corners[4] = box.mCenter - scaledBasis[0] + scaledBasis[1] + scaledBasis[2];
+  corners[5] = box.mCenter - scaledBasis[0] - scaledBasis[1] + scaledBasis[2];
+  corners[6] = box.mCenter - scaledBasis[0] - scaledBasis[1] - scaledBasis[2];
+  corners[7] = box.mCenter - scaledBasis[0] + scaledBasis[1] - scaledBasis[2];
+
+  for (int i = 0; i < 4; ++i) {
+    Line(corners[i], corners[(i + 1) % 4], color);
+    Line(corners[i + 4], corners[(i + 1) % 4 + 4], color);
+    Line(corners[i], corners[i + 4], color);
+  }
+}
+
+void Sphere(const Math::Sphere& sphere, const Vec3& color)
+{
+  // Create an array of points that outline a unit circle around the z axis.
+  constexpr int pointCount = 40;
+  static Vec3 circlePoints[pointCount];
+  static bool circlePointsInitialized = false;
+  if (!circlePointsInitialized) {
+    for (int i = 0; i < pointCount; ++i) {
+      float theta = 2 * Math::nPi * (i / (float)pointCount);
+      circlePoints[i] = {std::cosf(theta), std::sinf(theta), 0};
+    }
+  }
+
+  // Transform the points to create a sphere representation using lines.
+  auto createLines = [&](const Quat& rotation)
+  {
+    for (int i = 0; i < pointCount; ++i) {
+      Vec3 start = rotation.Rotate(circlePoints[i % pointCount]);
+      Vec3 end = rotation.Rotate(circlePoints[(i + 1) % pointCount]);
+      start = start * sphere.mRadius + sphere.mCenter;
+      end = end * sphere.mRadius + sphere.mCenter;
+      Line(start, end, color);
+    }
+  };
+  createLines(Quat({1, 0, 0, 0}));
+  createLines(Quat(Math::nPi * 0.5f, {0, 1, 0}));
+  createLines(Quat(Math::nPi * 0.5f, {1, 0, 0}));
+}
+
+void Triangle(const Math::Triangle& triangle, const Vec3& color)
+{
+  const Vec3& a = triangle.mPoints[0];
+  const Vec3& b = triangle.mPoints[1];
+  const Vec3& c = triangle.mPoints[2];
+  Line(a, b, color);
+  Line(b, c, color);
+  Line(c, a, color);
+}
+
 void CartesianAxes()
 {
   Vec3 x = {1.0f, 0.0f, 0.0f};
@@ -100,30 +155,57 @@ void CartesianAxes()
 
 void Render(const World::Object& cameraObject)
 {
+  ZoneScoped;
+
   Gfx::Shader* shader = Rsl::TryGetRes<Gfx::Shader>(nDebugDrawShaderId);
   if (shader == nullptr) {
     return;
   }
   Gfx::Renderer::InitializeUniversalUniformBuffer(cameraObject);
-
   shader->Use();
-  for (int i = 0; i < nRenderables.Size(); ++i) {
-    const Renderable& renderable = nRenderables[i];
-    Vec4 fullColor = (Vec4)renderable.mColor;
-    fullColor[3] = 1.0f;
-    shader->SetUniform("uColor", fullColor);
-    glBindVertexArray(renderable.mVao);
-    if (renderable.mCount == 1) {
-      glDrawArrays(GL_POINTS, 0, renderable.mCount);
-    }
-    else {
-      glDrawArrays(GL_LINES, 0, renderable.mCount);
-    }
-    glBindVertexArray(0);
-    glDeleteVertexArrays(1, &renderable.mVao);
-    glDeleteBuffers(1, &renderable.mVbo);
-  }
-  nRenderables.Clear();
+
+  unsigned int pointVao, pointVbo;
+  glGenVertexArrays(1, &pointVao);
+  glGenBuffers(1, &pointVbo);
+  glBindVertexArray(pointVao);
+  glBindBuffer(GL_ARRAY_BUFFER, pointVbo);
+  glBufferData(
+    GL_ARRAY_BUFFER,
+    sizeof(PointData) * nPoints.Size(),
+    nPoints.Data(),
+    GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(Vec3), (void*)0);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(
+    1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(Vec3), (void*)sizeof(Vec3));
+  glEnableVertexAttribArray(1);
+  glDrawArrays(GL_POINTS, 0, (GLsizei)(nPoints.Size()));
+  glBindVertexArray(0);
+  glDeleteBuffers(1, &pointVbo);
+  glDeleteVertexArrays(1, &pointVao);
+  nPoints.Clear();
+
+  // Upload, draw, and delete the line buffer.
+  unsigned int lineVao, lineVbo;
+  glGenVertexArrays(1, &lineVao);
+  glGenBuffers(1, &lineVbo);
+  glBindVertexArray(lineVao);
+  glBindBuffer(GL_ARRAY_BUFFER, lineVbo);
+  glBufferData(
+    GL_ARRAY_BUFFER,
+    sizeof(LineData) * nLines.Size(),
+    nLines.Data(),
+    GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(Vec3), (void*)0);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(
+    1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(Vec3), (void*)sizeof(Vec3));
+  glEnableVertexAttribArray(1);
+  glDrawArrays(GL_LINES, 0, (GLsizei)(2 * nLines.Size()));
+  glBindVertexArray(0);
+  glDeleteBuffers(1, &lineVbo);
+  glDeleteVertexArrays(1, &lineVao);
+  nLines.Clear();
 }
 
 void RenderTbnVectors(const Gfx::Collection& collection)

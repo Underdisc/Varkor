@@ -1,22 +1,42 @@
-#include "editor/Camera.h"
+#include <imgui/imgui.h>
+
 #include "Input.h"
 #include "Temporal.h"
+#include "editor/Camera.h"
 #include "editor/Editor.h"
+#include "editor/Utility.h"
 #include "math/Constants.h"
 #include "world/Object.h"
 
 namespace Editor {
 
+Camera nCamera;
+
+void CameraInterface::Show()
+{
+  ImGui::Begin("Camera");
+  ImGui::PushItemWidth(-Editor::CalcBufferWidth("TranslationT"));
+  ImGui::DragFloat(
+    "Speed", &nCamera.mSpeed, 1, 0, 0, "%.5f", ImGuiSliderFlags_Logarithmic);
+  ImGui::SliderFloat("TranslationT", &nCamera.mTranslationT, 0, 1);
+  ImGui::SliderFloat("Sensitivity", &nCamera.mSensitivity, 0, 0.02f, "%.5f");
+  ImGui::SliderFloat("RotationT", &nCamera.mRotationT, 0, 1);
+  ImGui::PopItemWidth();
+  ImGui::End();
+}
+
 void Camera::Init()
 {
+  mSpeed = 1.0f;
+  mTranslationT = 0.5f;
+  mSensitivity = 0.001f * Math::nPi;
+  mRotationT = 0.5f;
+
   mCameraId = Editor::nSpace.CreateMember();
   GetObject().Add<Comp::Camera>();
-
-  mYaw = 0.0f;
-  mPitch = 0.0f;
-
-  mSpeed = 1.0f;
-  mSensitivity = 0.001f * Math::nPi;
+  mTargetTranslation = {0, 0, 0};
+  mEulerRotation = {0, 0};
+  mTargetEulerRotation = {0, 0};
 }
 
 void Camera::Purge()
@@ -31,25 +51,20 @@ World::Object Camera::GetObject()
 
 void Camera::Update()
 {
-  // LeftControl disables camera motion because it's the editor's modifier key.
-  if (Input::KeyDown(Input::Key::LeftControl)) {
-    return;
-  }
-
   // Change the camera's yaw and pitch depending on input.
   const World::Object cameraObject = GetObject();
   auto& transformComp = cameraObject.Get<Comp::Transform>();
   auto& cameraComp = cameraObject.Get<Comp::Camera>();
   if (Input::MouseDown(Input::Mouse::Right)) {
     Vec2 mouseMotion = Input::MouseMotion();
-    mYaw -= mouseMotion[0] * mSensitivity;
-    mPitch -= mouseMotion[1] * mSensitivity;
-    Math::Quaternion hRot, vRot;
-    hRot.AngleAxis(mYaw, {0.0f, 1.0f, 0.0f});
-    vRot.AngleAxis(mPitch, {1.0f, 0.0f, 0.0f});
-    Math::Quaternion rotation = hRot * vRot;
-    transformComp.SetRotation(rotation);
+    mTargetEulerRotation -= mouseMotion * mSensitivity;
   }
+  mEulerRotation += mRotationT * (mTargetEulerRotation - mEulerRotation);
+  Math::Quaternion hRot, vRot;
+  hRot.AngleAxis(mEulerRotation[0], {0.0f, 1.0f, 0.0f});
+  vRot.AngleAxis(mEulerRotation[1], {1.0f, 0.0f, 0.0f});
+  Math::Quaternion rotation = hRot * vRot;
+  transformComp.SetRotation(rotation);
 
   // Change the camera speed using scroll wheel input.
   const Vec2& scroll = Input::MouseScroll();
@@ -61,28 +76,29 @@ void Camera::Update()
   }
 
   // Change the camera position depending on input.
-  Vec3 translation = transformComp.GetTranslation();
   Vec3 forward = cameraComp.WorldForward(cameraObject);
   Vec3 right = cameraComp.WorldRight(cameraObject);
   Vec3 up = cameraComp.WorldUp(cameraObject);
-  if (Input::KeyDown(Input::Key::W)) {
-    translation += forward * Temporal::DeltaTime() * mSpeed;
+  if (Input::ActionActive(Input::Action::MoveForward)) {
+    mTargetTranslation += forward * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::S)) {
-    translation -= forward * Temporal::DeltaTime() * mSpeed;
+  if (Input::ActionActive(Input::Action::MoveBackward)) {
+    mTargetTranslation -= forward * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::D)) {
-    translation += right * Temporal::DeltaTime() * mSpeed;
+  if (Input::ActionActive(Input::Action::MoveRight)) {
+    mTargetTranslation += right * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::A)) {
-    translation -= right * Temporal::DeltaTime() * mSpeed;
+  if (Input::ActionActive(Input::Action::MoveLeft)) {
+    mTargetTranslation -= right * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::E)) {
-    translation += up * Temporal::DeltaTime() * mSpeed;
+  if (Input::ActionActive(Input::Action::MoveUp)) {
+    mTargetTranslation += up * Temporal::DeltaTime() * mSpeed;
   }
-  if (Input::KeyDown(Input::Key::Q)) {
-    translation -= up * Temporal::DeltaTime() * mSpeed;
+  if (Input::ActionActive(Input::Action::MoveDown)) {
+    mTargetTranslation -= up * Temporal::DeltaTime() * mSpeed;
   }
+  Vec3 translation = transformComp.GetTranslation();
+  translation += mTranslationT * (mTargetTranslation - translation);
   transformComp.SetTranslation(translation);
 }
 

@@ -3,13 +3,21 @@
 
 #include "comp/Camera.h"
 #include "comp/Transform.h"
-#include "math/Geometry.h"
+#include "editor/Interface.h"
 #include "math/Matrix4.h"
 #include "math/Vector.h"
 
 namespace Editor {
 
-class Camera
+struct Camera;
+extern Camera nCamera;
+
+struct CameraInterface: public Interface
+{
+  void Show();
+};
+
+struct Camera
 {
 public:
   void Init();
@@ -17,14 +25,18 @@ public:
   World::Object GetObject();
   void Update();
 
-private:
-  World::MemberId mCameraId;
-  float mYaw;
-  float mPitch;
-
   // Settings used for the camera controls.
   float mSpeed;
+  float mTranslationT;
   float mSensitivity;
+  float mRotationT;
+
+private:
+  World::MemberId mCameraId;
+  Vec3 mTargetTranslation;
+  // Yaw and pitch, respectively.
+  Vec2 mEulerRotation;
+  Vec2 mTargetEulerRotation;
 };
 
 } // namespace Editor

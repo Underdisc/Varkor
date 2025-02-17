@@ -22,6 +22,9 @@ public:
   void Emplace(Args&&... args);
   void Insert(size_t index, const T& value);
   void Insert(size_t index, T&& value);
+  void Swap(size_t indexA, size_t indexB);
+  void Sort();
+  void Sort(bool (*greaterThan)(const T&, const T&));
   void Pop();
   void Clear();
   void Remove(size_t index);
@@ -37,6 +40,7 @@ public:
   bool Empty() const;
   size_t Capacity() const;
   const T* CData() const;
+  T* Data();
   T& Top() const;
 
   const T& operator[](size_t index) const;
@@ -58,6 +62,9 @@ private:
   size_t mCapacity;
 
 private:
+  void Quicksort(int start, int end, bool (*greaterThan)(const T&, const T&));
+  int Partition(int start, int end, bool (*greaterThan)(const T&, const T&));
+
   void VerifyIndex(size_t index) const;
   void CreateGap(size_t index);
   void Grow();

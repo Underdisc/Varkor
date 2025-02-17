@@ -14,9 +14,7 @@ InspectorInterface::InspectorInterface(World::Object& object): mObject(object)
 void InspectorInterface::Show()
 {
   // Perform a duplication and inspect the duplicate if requested.
-  bool duplicate =
-    Input::KeyDown(Input::Key::LeftControl) && Input::KeyPressed(Input::Key::D);
-  if (duplicate) {
+  if (Input::ActionPressed(Input::Action::DuplicateEntity)) {
     mObject = mObject.Duplicate();
   }
 
@@ -26,12 +24,11 @@ void InspectorInterface::Show()
   }
 
   // Display all of the Member's components and the active component hooks.
-  Ds::Vector<World::ComponentDescriptor> descriptors =
-    mObject.mSpace->GetDescriptors(mObject.mMemberId);
-  for (int i = 0; i < descriptors.Size(); ++i) {
+  Ds::Vector<Comp::TypeId> componentTypes =
+    mObject.mSpace->GetComponentTypes(mObject.mMemberId);
+  for (Comp::TypeId typeId : componentTypes) {
     bool removeComponent = false;
-    const World::ComponentDescriptor& desc = descriptors[i];
-    const Comp::TypeData& typeData = Comp::GetTypeData(desc.mTypeId);
+    const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
     bool inspecting = ImGui::CollapsingHeader(typeData.mName.c_str());
     if (ImGui::BeginPopupContextItem()) {
       if (ImGui::Selectable("Remove")) {
@@ -39,13 +36,13 @@ void InspectorInterface::Show()
       }
       ImGui::EndPopup();
     }
-    VResult<size_t> findResult = smOpenTypes.Find(desc.mTypeId);
+    VResult<size_t> findResult = smOpenTypes.Find(typeId);
     if (inspecting) {
       if (!findResult.Success()) {
-        smOpenTypes.Push(desc.mTypeId);
+        smOpenTypes.Push(typeId);
       }
       if (typeData.mVEdit.Open()) {
-        void* component = mObject.GetComponent(desc.mTypeId);
+        void* component = mObject.GetComponent(typeId);
         typeData.mVEdit.Invoke(component, mObject);
       }
     }
@@ -53,7 +50,7 @@ void InspectorInterface::Show()
       smOpenTypes.Remove(findResult.mValue);
     }
     if (removeComponent == true) {
-      mObject.RemComponent(desc.mTypeId);
+      mObject.RemComponent(typeId);
     }
   }
   ImGui::End();
@@ -84,7 +81,7 @@ void AddComponentInterface::Show()
       continue;
     }
     const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
-    if (ImGui::Button(typeData.mName.c_str(), ImVec2(-1, 0))) {
+    if (ImGui::Selectable(typeData.mName.c_str())) {
       mObject.AddComponent(typeId);
     }
   }

@@ -188,12 +188,23 @@ float Camera::ProjectedDistance(
   return Math::Magnitude(distance);
 }
 
+// Retruns a point's ndc.
+Vec2 Camera::WorldTranslationToNdcPosition(
+  Vec3 worldTranslation, const World::Object& owner) const
+{
+  Vec4 projectedPoint = (Vec4)worldTranslation;
+  projectedPoint[3] = 1;
+  projectedPoint = Proj() * View(owner) * projectedPoint;
+  projectedPoint /= projectedPoint[3];
+  return (Vec2)projectedPoint;
+}
+
 // This will take a position in the window and convert it to a position in the
-// world. The values in standard position should be in the range of [-1, 1],
-// where -1 represents the leftmost and bottommost edges of the window. The
-// value returned will be on the view frustrum's near plane.
-Vec3 Camera::StandardTranslationToWorldTranslation(
-  Vec2 standardPosition, const World::Object& owner) const
+// world. The values in ndc position should be in the range of [-1, 1], where -1
+// represents the leftmost and bottommost edges of the window. The value
+// returned will be on the view frustrum's near plane.
+Vec3 Camera::NdcPositionToWorldTranslation(
+  Vec2 ndcPosition, const World::Object& owner) const
 {
   float heightOver2;
   switch (mProjectionType) {
@@ -202,9 +213,9 @@ Vec3 Camera::StandardTranslationToWorldTranslation(
     break;
   case ProjectionType::Orthographic: heightOver2 = mHeight / 2.0f; break;
   }
-  standardPosition[0] *= heightOver2 * Viewport::Aspect();
-  standardPosition[1] *= heightOver2;
-  Vec4 worldPosition = {standardPosition[0], standardPosition[1], -mNear, 1.0f};
+  ndcPosition[0] *= heightOver2 * Viewport::Aspect();
+  ndcPosition[1] *= heightOver2;
+  Vec4 worldPosition = {ndcPosition[0], ndcPosition[1], -mNear, 1.0f};
   worldPosition = InverseView(owner) * worldPosition;
   return (Vec3)worldPosition;
 }
@@ -212,13 +223,12 @@ Vec3 Camera::StandardTranslationToWorldTranslation(
 // Imagine a position on the window extending as a line into space such that we
 // are only able to see it as a single point. This function will return a
 // ray that represents exactly that.
-Math::Ray Camera::StandardTranslationToWorldRay(
-  const Vec2& standardPosition, const World::Object& owner) const
+Math::Ray Camera::NdcPositionToWorldRay(
+  const Vec2& ndcPosition, const World::Object& owner) const
 {
   Math::Ray ray;
   Vec3 cameraTranslation = WorldTranslation(owner);
-  Vec3 worldTranslation =
-    StandardTranslationToWorldTranslation(standardPosition, owner);
+  Vec3 worldTranslation = NdcPositionToWorldTranslation(ndcPosition, owner);
   switch (mProjectionType) {
   case ProjectionType::Perspective:
     ray.StartDirection(cameraTranslation, worldTranslation - cameraTranslation);

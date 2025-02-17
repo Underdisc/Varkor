@@ -26,3 +26,4 @@ Comma: ,
 [1] Invalid token: :an incomplete key
 [1] Invalid token: :an incomplete key with a newline
 [4] Invalid token: i
+

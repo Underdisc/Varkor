@@ -2,10 +2,10 @@
 
 #include "math/Constants.h"
 #include "math/Vector.h"
+#include "test/Test.h"
 
 void Cast()
 {
-  std::cout << "<= Cast =>" << std::endl;
   Math::Vector<float, 4> vec;
   vec[0] = 0;
   vec[1] = 1;
@@ -14,121 +14,109 @@ void Cast()
 
   Math::Vector<float, 2> smallerVec = (Math::Vector<float, 2>)vec;
   Math::Vector<float, 6> largerVec = (Math::Vector<float, 6>)vec;
-  std::cout << "vec " << vec << std::endl;
-  std::cout << "smallerVec " << smallerVec << std::endl;
-  std::cout << "largerVec " << largerVec << std::endl << std::endl;
+  std::cout << "vec " << vec << '\n';
+  std::cout << "smallerVec " << smallerVec << '\n';
+  std::cout << "largerVec " << largerVec << '\n';
 }
 
 void Addition()
 {
-  std::cout << "<= Addition =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = a;
   Vec3 c = a + b;
   Vec3 d = {0.0f, 0.0f, 0.0f};
   d += c;
-  std::cout << "a: " << a << std::endl;
-  std::cout << "b: " << b << std::endl;
-  std::cout << "c: " << c << std::endl;
-  std::cout << "d: " << d << std::endl << std::endl;
+  std::cout << "a: " << a << '\n';
+  std::cout << "b: " << b << '\n';
+  std::cout << "c: " << c << '\n';
+  std::cout << "d: " << d << '\n';
 }
 
 void Subtraction()
 {
-  std::cout << "<= Subtraction =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = a;
   Vec3 c = a - b;
   Vec3 d = {0.0f, 0.0f, 0.0f};
   d -= a;
-  std::cout << "a: " << a << std::endl;
-  std::cout << "b: " << b << std::endl;
-  std::cout << "c: " << c << std::endl;
-  std::cout << "d: " << d << std::endl << std::endl;
+  std::cout << "a: " << a << '\n';
+  std::cout << "b: " << b << '\n';
+  std::cout << "c: " << c << '\n';
+  std::cout << "d: " << d << '\n';
 }
 
 void ScalerMultiplication()
 {
-  std::cout << "<= ScalerMultiplication =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = a * 2.0f;
   Vec3 c = 3.0f * a;
   Vec3 d = a;
   d *= 4.0f;
-  std::cout << "a: " << a << std::endl;
-  std::cout << "b: " << b << std::endl;
-  std::cout << "c: " << c << std::endl;
-  std::cout << "d: " << d << std::endl << std::endl;
+  std::cout << "a: " << a << '\n';
+  std::cout << "b: " << b << '\n';
+  std::cout << "c: " << c << '\n';
+  std::cout << "d: " << d << '\n';
 }
 
 void ScalerDivision()
 {
-  std::cout << "<= ScalerDivision =>" << std::endl;
   Vec3 a = {2.0f, 4.0f, 6.0f};
   Vec3 b = a / 2.0f;
   Vec3 c = a;
   c /= 2.0f;
   Vec3 d = 12.0f / a;
-  std::cout << "a: " << a << std::endl;
-  std::cout << "b: " << b << std::endl;
-  std::cout << "c: " << c << std::endl;
-  std::cout << "d: " << d << std::endl << std::endl;
+  std::cout << "a: " << a << '\n';
+  std::cout << "b: " << b << '\n';
+  std::cout << "c: " << c << '\n';
+  std::cout << "d: " << d << '\n';
 }
 
 void Negation()
 {
-  std::cout << "<= Negation =>" << std::endl;
   Vec3 a = {2.0f, -4.0f, 6.0f};
   Vec3 b = -a;
-  std::cout << "a: " << a << std::endl;
-  std::cout << "b: " << b << std::endl << std::endl;
+  std::cout << "a: " << a << '\n';
+  std::cout << "b: " << b << '\n';
 }
 
 void Equality()
 {
-  std::cout << "<= Eqaulity =>" << std::endl;
   Vec3 a = {1.0f, 0.0f, 0.0f};
   Vec3 b = {2.0f, 0.0f, 1.0f};
   Vec3 c = {2.0f, 0.0f, 1.0f};
-  std::cout << (a == a) << (a == b) << (b == c) << std::endl << std::endl;
+  std::cout << (a == a) << (a == b) << (b == c) << '\n';
 }
 
 void Near()
 {
-  std::cout << "<= Near =>" << std::endl;
   Vec3 a = {1.0f, 0.0f, 0.0f};
   Vec3 b = {0.0f, 1.0f, 0.0f};
   Vec3 c = {Math::nEpsilon * Math::nEpsilon, 1.0f, 0.0f};
-  std::cout << Math::Near(a, b) << Math::Near(a, c) << Math::Near(b, c)
-            << std::endl
-            << std::endl;
+  std::cout << Math::Near(a, b) << Math::Near(a, c) << Math::Near(b, c) << '\n';
 }
 
 void MagnitudeSquared()
 {
-  std::cout << "<= MagnitudeSquared =>" << std::endl;
   Vec3 a = {1.0f, -2.0f, 3.0f};
   float magSq = Math::MagnitudeSq(a);
-  std::cout << "a: " << a << std::endl;
-  std::cout << "magnitude squared: " << magSq << std::endl << std::endl;
+  std::cout << "a: " << a << '\n';
+  std::cout << "magnitude squared: " << magSq << '\n';
 }
 
 void Magnitude()
 {
-  std::cout << "<= Magnitude =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   float mag = Math::Magnitude(a);
-  std::cout << "a: " << a << std::endl;
-  std::cout << "magnitude: " << mag << std::endl << std::endl;
+  std::cout << "a: " << a << '\n';
+  std::cout << "magnitude: " << mag << '\n';
 }
 
 void Normalize()
 {
-  std::cout << "<= Normalize =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
-  std::cout << "original: " << a << std::endl;
+  std::cout << "original: " << a << '\n';
   a = Math::Normalize(a);
-  std::cout << "normalized: " << a << std::endl << std::endl;
+  std::cout << "normalized: " << a << '\n';
 
   // This should cause an abort because the vector has a magnitude of zero.
   // a = {0.0f, 0.0f, 0.0f};
@@ -137,88 +125,82 @@ void Normalize()
 
 void Cross()
 {
-  std::cout << "<= Cross =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = {4.0f, 5.0f, 6.0f};
   Vec3 cross = Math::Cross(a, b);
-  std::cout << "a: " << a << std::endl;
-  std::cout << "b: " << b << std::endl;
-  std::cout << "cross: " << cross << std::endl << std::endl;
+  std::cout << "a: " << a << '\n';
+  std::cout << "b: " << b << '\n';
+  std::cout << "cross: " << cross << '\n';
 }
 
 void Dot()
 {
-  std::cout << "<= Dot =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = {4.0f, 5.0f, 6.0f};
   float dot = Math::Dot(a, b);
-  std::cout << "a: " << a << std::endl;
-  std::cout << "b: " << b << std::endl;
-  std::cout << "dot: " << dot << std::endl << std::endl;
+  std::cout << "a: " << a << '\n';
+  std::cout << "b: " << b << '\n';
+  std::cout << "dot: " << dot << '\n';
 }
 
 void ComponentwiseProduct()
 {
-  std::cout << "<= ComponentwiseProduct =>" << std::endl;
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = {3.0f, 2.0f, 1.0f};
-  std::cout << Math::ComponentwiseProduct(a, a) << std::endl;
-  std::cout << Math::ComponentwiseProduct(b, b) << std::endl;
-  std::cout << Math::ComponentwiseProduct(a, b) << std::endl << std::endl;
+  std::cout << Math::ComponentwiseProduct(a, a) << '\n';
+  std::cout << Math::ComponentwiseProduct(b, b) << '\n';
+  std::cout << Math::ComponentwiseProduct(a, b) << '\n';
 }
 
 void PerpendicularTo()
 {
-  std::cout << "<= PerpendicularTo =>" << std::endl;
   Vec3 a = {0.0f, 0.5f, 0.0f};
   Vec3 b = {1.0f, 1.0f, -1.0f};
   Vec3 c = {1.0f, 0.0f, -2.0f};
-  std::cout << Math::PerpendicularTo(a) << std::endl;
-  std::cout << Math::PerpendicularTo(b) << std::endl;
-  std::cout << Math::PerpendicularTo(c) << std::endl << std::endl;
+  std::cout << Math::PerpendicularTo(a) << '\n';
+  std::cout << Math::PerpendicularTo(b) << '\n';
+  std::cout << Math::PerpendicularTo(c) << '\n';
 }
 
 void ScaleToInterval()
 {
-  std::cout << "<= ScaleToInterval =>\n"
-            << Math::ScaleToInterval(Vec3({1.0f, 0.0f, 0.0f}), 0.5f) << "\n"
-            << Math::ScaleToInterval(Vec3({0.2f, 0.0f, 0.0f}), 0.5f) << "\n"
-            << Math::ScaleToInterval(Vec3({0.0f, 0.6f, 0.6f}), 1.0f) << "\n"
-            << Math::ScaleToInterval(Vec3({1.0f, 1.0f, 1.0f}), 2.5f) << "\n"
-            << Math::ScaleToInterval(Vec3({-1.0f, -1.0f, -1.0f}), 0.5f)
-            << "\n\n";
+  std::cout << Math::ScaleToInterval(Vec3({1.0f, 0.0f, 0.0f}), 0.5f) << '\n'
+            << Math::ScaleToInterval(Vec3({0.2f, 0.0f, 0.0f}), 0.5f) << '\n'
+            << Math::ScaleToInterval(Vec3({0.0f, 0.6f, 0.6f}), 1.0f) << '\n'
+            << Math::ScaleToInterval(Vec3({1.0f, 1.0f, 1.0f}), 2.5f) << '\n'
+            << Math::ScaleToInterval(Vec3({-1.0f, -1.0f, -1.0f}), 0.5f) << '\n';
 }
 
 void ScaleComponentsToInterval()
 {
   // clang-format off
-  std::cout << "<= ScaleComponentsToInterval =>\n"
-    << Math::ScaleComponentsToInterval(Vec3({1.0f, 0.5f, 6.6f}), 0.5f) << "\n"
-    << Math::ScaleComponentsToInterval(Vec3({0.2f, 0.3f, 0.4f}), 0.5f) << "\n"
-    << Math::ScaleComponentsToInterval(Vec3({-0.8f, 0.4f, 0.6f}), 1.0f) << "\n"
-    << Math::ScaleComponentsToInterval(Vec3({1.0f, 4.9f, -14.4f}), 2.5f) << "\n"
+  std::cout
+    << Math::ScaleComponentsToInterval(Vec3({1.0f, 0.5f, 6.6f}), 0.5f) << '\n'
+    << Math::ScaleComponentsToInterval(Vec3({0.2f, 0.3f, 0.4f}), 0.5f) << '\n'
+    << Math::ScaleComponentsToInterval(Vec3({-0.8f, 0.4f, 0.6f}), 1.0f) << '\n'
+    << Math::ScaleComponentsToInterval(Vec3({1.0f, 4.9f, -14.4f}), 2.5f) << '\n'
     << Math::ScaleComponentsToInterval(Vec3({-1.4f, -1.2f, 6.1f}), 0.5f)
-    << "\n";
+    << '\n';
   // clang-format on
 }
 
 int main(void)
 {
-  Cast();
-  Addition();
-  Subtraction();
-  ScalerMultiplication();
-  ScalerDivision();
-  Negation();
-  Equality();
-  Near();
-  MagnitudeSquared();
-  Magnitude();
-  Normalize();
-  Cross();
-  Dot();
-  ComponentwiseProduct();
-  PerpendicularTo();
-  ScaleToInterval();
-  ScaleComponentsToInterval();
+  RunTest(Cast);
+  RunTest(Addition);
+  RunTest(Subtraction);
+  RunTest(ScalerMultiplication);
+  RunTest(ScalerDivision);
+  RunTest(Negation);
+  RunTest(Equality);
+  RunTest(Near);
+  RunTest(MagnitudeSquared);
+  RunTest(Magnitude);
+  RunTest(Normalize);
+  RunTest(Cross);
+  RunTest(Dot);
+  RunTest(ComponentwiseProduct);
+  RunTest(PerpendicularTo);
+  RunTest(ScaleToInterval);
+  RunTest(ScaleComponentsToInterval);
 }

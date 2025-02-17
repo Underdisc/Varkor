@@ -1,37 +1,31 @@
 #ifndef editor_gizmo_Scalor_h
 #define editor_gizmo_Scalor_h
 
-#include "math/Geometry.h"
+#include "math/Plane.h"
 #include "math/Quaternion.h"
+#include "math/Ray.h"
 #include "rsl/ResourceId.h"
 #include "world/Types.h"
 
 namespace Editor {
 namespace Gizmos {
 
-Vec3 Scale(
-  const Vec3& scale,
-  const Vec3& translation,
-  const Quat& referenceFrame,
-  bool snapping = false,
-  float snapInterval = 0.5f);
-
 struct Scalor
 {
   Scalor();
   ~Scalor();
+  Scalor(Scalor&& other);
   void SetNextOperation(
     const Vec3& scale, const Vec3& translation, const Quat& referenceFrame);
   Vec3 Run(
-    const Vec3& scale,
-    const Vec3& translation,
-    const Quat& referenceFrame,
-    bool snapping,
-    float snapInterval);
+    const Vec3& scale, const Vec3& translation, const Quat& referenceFrame);
 
+  static void Init();
+  static void Purge();
   constexpr static const char* smScalorAssetName = "vres/scalor";
   constexpr static int smHandleCount = 7;
-  constexpr static Vec4 smActiveColor = {1.0f, 1.0f, 1.0f, 1.0f};
+  constexpr static const char* smMaterialNames[] = {
+    "X", "Y", "Z", "Xy", "Xz", "Yz", "Xyz"};
   constexpr static Vec4 smHandleColors[] = {
     {0.7f, 0.0f, 0.0f, 1.0f},
     {0.0f, 0.7f, 0.0f, 1.0f},
@@ -54,7 +48,6 @@ struct Scalor
   };
 
   World::MemberId mParent;
-  ResId mHandleMaterialIds[smHandleCount];
   union
   {
     World::MemberId mHandles[smHandleCount];

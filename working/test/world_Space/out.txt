@@ -1,17 +1,3 @@
-=Key=
--ComponentData-
-TypeId: [Data]...
--DescriptorBin-
-RowIndex: [TypeId|TableIndex]...
--MemberBin-
-RowMemberId: [FirstDescriptor|LastDescriptor]...
--Relationships-
-MemberId: [ChildId|ChildParentId]
--TableOwners-
-TypeId: [Owner, ...]
--TableStats-
-TypeId: Stats, ...
-
 <= Registration =>
 -0-
 Name: CallCounter
@@ -43,44 +29,245 @@ Name: Dependant
 Size: 4
 Dependencies: [0, 3]
 Dependants: []
+-6-
+Name: Comp/Relationship
+Size: 28
+Dependencies: []
+Dependants: []
 
 <= CreateMember =>
--MemberBin-
-00: [empty] [empty] [empty] [empty] [empty]
-05: [empty] [empty] [empty] [empty] [empty]
-10: [empty] [empty] [empty] [empty] [empty]
-15: [empty] [empty] [empty] [empty] [empty]
+-Space-
+{
+  :0: {}
+  :1: {}
+  :2: {}
+  :3: {}
+  :4: {}
+  :5: {}
+  :6: {}
+  :7: {}
+  :8: {}
+  :9: {}
+  :10: {}
+  :11: {}
+  :12: {}
+  :13: {}
+  :14: {}
+  :15: {}
+  :16: {}
+  :17: {}
+  :18: {}
+  :19: {}
+}
 
 <= DeleteMember =>
--MemberBin-
-00: [ inv ] [empty] [ inv ] [empty] [ inv ]
-05: [empty] [ inv ] [empty] [ inv ] [empty]
-UnusedMemberIds: 0, 2, 4, 6, 8
+-Space-
+{
+  :9: {}
+  :1: {}
+  :5: {}
+  :3: {}
+  :7: {}
+}
 
-<= ParentChildMembers =>
--MemberBin-
-00: [empty] [empty] [empty] [empty] [empty]
-05: [empty] [empty] [empty] [empty] [empty]
-10: [empty] [empty] [empty] [empty] [empty]
+<= RootMemberIds =>
+[1]
+
+<= Relationships0 =>
+-Space-
+{
+  :4: {}
+}
+
+<= Relationships1 =>
+-Space-
+{}
+
+<= Relationships2 =>
+-Space-
+{
+  :0: {
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['1', '2', '3', '10']
+    }
+  }
+  :1: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['4', '11']
+    }
+  }
+  :2: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['5', '12']
+    }
+  }
+  :3: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['6', '7', '13']
+    }
+  }
+  :4: {
+    :Comp/Relationship: {
+      :Parent: '1'
+      :Children: {}
+    }
+  }
+  :5: {
+    :Comp/Relationship: {
+      :Parent: '2'
+      :Children: {}
+    }
+  }
+  :6: {
+    :Comp/Relationship: {
+      :Parent: '3'
+      :Children: {}
+    }
+  }
+  :7: {
+    :Comp/Relationship: {
+      :Parent: '3'
+      :Children: {}
+    }
+  }
+  :8: {
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['9', '14']
+    }
+  }
+  :9: {
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: {}
+    }
+  }
+  :10: {
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: {}
+    }
+  }
+  :11: {
+    :Comp/Relationship: {
+      :Parent: '1'
+      :Children: {}
+    }
+  }
+  :12: {
+    :Comp/Relationship: {
+      :Parent: '2'
+      :Children: {}
+    }
+  }
+  :13: {
+    :Comp/Relationship: {
+      :Parent: '3'
+      :Children: {}
+    }
+  }
+  :14: {
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: {}
+    }
+  }
+}
+-TableOwners-
+[1, 0, 2, 3, 10, 4, 11, 5, 12, 6, 7, 13, 9, 8, 14]
 -Relationships-
-00: [1|0] [2|0] [3|0] [10|0]
-01: [4|1] [11|1]
-02: [5|2] [12|2]
-03: [6|3] [7|3] [13|3]
-08: [9|8] [14|8]
--MemberBin-
-00: [empty] [empty] [empty] [empty] [ inv ]
-05: [empty] [empty] [empty] [empty] [ inv ]
-10: [empty] [empty] [empty] [empty] [empty]
+0
+\-1
+| \-4
+| \-11
+\-2
+| \-5
+| \-12
+\-3
+| \-6
+| \-7
+| \-13
+\-10
+8
+\-9
+\-14
+-Space-
+{
+  :8: {
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['14']
+    }
+  }
+  :14: {
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: {}
+    }
+  }
+  :11: {}
+  :0: {}
+  :10: {}
+  :3: {}
+  :13: {}
+  :7: {}
+  :6: {}
+  :2: {}
+  :12: {}
+  :5: {}
+  :1: {}
+}
 -Relationships-
-08: [14|8]
+8
+\-14
 
 <= AddComponent =>
--MemberBin-
-00: [00|02] [03|05] [06|07]
--DescriptorBin-
-00: [1|0] [2|0] [3|0] [1|1] [2|1]
-05: [3|1] [1|2] [4|0]
+-Space-
+{
+  :0: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Container: {
+      :m0: ['5', '6']
+    }
+  }
+}
 -TableStats-
 1: Stride: 8, Size: 3, Capacity: 10
 2: Stride: 12, Size: 2, Capacity: 10
@@ -91,97 +278,307 @@ UnusedMemberIds: 0, 2, 4, 6, 8
 2: [0, 1]
 3: [0, 1, 2]
 4: [2, 1, 0]
--MemberBin-
-00: [00|03] [08|11] [12|14]
--DescriptorBin-
-00: [1|0] [2|0] [3|0] [4|2] [inv]
-05: [inv] [inv] [inv] [1|1] [2|1]
-10: [3|1] [4|1] [1|2] [4|0] [3|2]
--ComponentData-
-1: [1, 1][1, 1][1, 1]
-2: [2, 2][2, 2]
-3: [3, 3, 3][3, 3, 3][3, 3, 3]
-4: [5, 6][4, 5][3]
+-Space-
+{
+  :0: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Container: {
+      :m0: ['3']
+    }
+  }
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Container: {
+      :m0: ['5', '6']
+    }
+  }
+}
 
 <= RemComponent =>
--MemberBin-
-00: [00|03] [04|06] [07|09] [10|12]
--DescriptorBin-
-00: [1|0] [2|0] [3|0] [4|0] [1|1]
-05: [2|1] [3|1] [2|2] [4|1] [3|2]
-10: [4|2] [3|3] [1|2]
--MemberBin-
-00: [00|02] [04|05] [07|07] [10|12]
--DescriptorBin-
-00: [1|0] [4|0] [3|0] [inv] [3|1]
-05: [2|1] [inv] [4|1] [inv] [inv]
-10: [4|2] [3|3] [1|2]
--MemberBin-
-00: [00|02] [04|05] [07|08] [10|12]
--DescriptorBin-
-00: [1|0] [4|0] [3|0] [inv] [3|1]
-05: [2|1] [inv] [4|1] [1|3] [inv]
-10: [4|2] [3|3] [1|2]
+-Space-
+{
+  :0: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+  :1: {
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+  :3: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+}
 -TableStats-
-1: Stride: 8, Size: 4, Capacity: 10
-2: Stride: 12, Size: 3, Capacity: 10
-3: Stride: 20, Size: 4, Capacity: 10
+1: Stride: 8, Size: 3, Capacity: 10
+2: Stride: 12, Size: 1, Capacity: 10
+3: Stride: 20, Size: 3, Capacity: 10
 4: Stride: 24, Size: 3, Capacity: 10
 -TableOwners-
-1: [0, -1, 3, 2]
-2: [-1, 1, -1]
-3: [0, 1, -1, 3]
+1: [0, 3, 2]
+2: [1]
+3: [0, 1, 3]
 4: [0, 2, 3]
 
 <= DeleteMembersWithComponents =>
-Members and Components Created
--MemberBin-
-00: [00|03] [04|04] [05|06] [07|08] [09|10]
-05: [11|12] [13|15] [16|16]
--DescriptorBin-
-00: [1|0] [2|0] [3|0] [4|0] [1|1]
-05: [1|2] [2|1] [1|3] [3|1] [1|4]
-10: [2|2] [1|5] [4|1] [1|6] [2|3]
-15: [3|2] [1|7]
-UnusedMemberIds: None
+-Space-
+{
+  :0: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+  }
+  :3: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :4: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+  }
+  :5: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+  :6: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :7: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+}
 -TableOwners-
 1: [0, 1, 2, 3, 4, 5, 6, 7]
 2: [0, 2, 4, 6]
 3: [0, 3, 6]
 4: [0, 5]
------
-Members Removed
--MemberBin-
-00: [ inv ] [04|04] [05|06] [ inv ] [ inv ]
-05: [11|12] [ inv ] [ inv ]
--DescriptorBin-
-00: [inv] [inv] [inv] [inv] [1|1]
-05: [1|2] [2|1] [inv] [inv] [inv]
-10: [inv] [1|5] [4|1] [inv] [inv]
-15: [inv] [inv]
-UnusedMemberIds: 0, 3, 4, 6, 7
+-Space-
+{
+  :5: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+  }
+}
 -TableOwners-
-1: [-1, 1, 2, -1, -1, 5, -1, -1]
-2: [-1, 2, -1, -1]
-3: [-1, -1, -1]
-4: [-1, 5]
------
-New Members and Components
--MemberBin-
-00: [ inv ] [04|04] [05|06] [ inv ] [ inv ]
-05: [11|12] [20|21] [17|19]
--DescriptorBin-
-00: [inv] [inv] [inv] [inv] [1|1]
-05: [1|2] [2|1] [inv] [inv] [inv]
-10: [inv] [1|5] [4|1] [inv] [inv]
-15: [inv] [inv] [1|8] [2|4] [3|3]
-20: [4|2] [2|5]
-UnusedMemberIds: 0, 3, 4
+1: [5, 1, 2]
+2: [2]
+3: []
+4: [5]
+-Space-
+{
+  :5: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+  }
+  :7: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :6: {
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+}
 -TableOwners-
-1: [-1, 1, 2, -1, -1, 5, -1, -1, 7]
-2: [-1, 2, -1, -1, 7, 6]
-3: [-1, -1, -1, 7]
-4: [-1, 5, 6]
+1: [5, 1, 2, 7]
+2: [2, 7, 6]
+3: [7]
+4: [5, 6]
 
 <= GetComponent =>
 -TableStats-
@@ -194,69 +591,545 @@ UnusedMemberIds: 0, 3, 4
 2: [0, 1]
 3: [0, 1]
 4: [0]
--MemberBin-
-00: [00|03] [04|06]
--DescriptorBin-
-00: [1|0] [2|0] [3|0] [4|0] [1|1]
-05: [2|1] [3|1]
--ComponentData-
-1: [0, 0][1, 1]
-2: [1, 1][2, 2]
-3: [2, 2, 2][3, 3, 3]
-4: [3]
+-Space-
+{
+  :0: {
+    :Simple0: {
+      :m0: '9'
+      :m1: '9'
+    }
+    :Simple1: {
+      :m0: '8'
+      :m1: '8'
+    }
+    :Dynamic: {
+      :m0: '7'
+      :m1: '7'
+      :m2: '7'
+    }
+    :Container: {
+      :m0: ['6', '7', '8']
+    }
+  }
+  :1: {
+    :Simple0: {
+      :m0: '9'
+      :m1: '9'
+    }
+    :Simple1: {
+      :m0: '8'
+      :m1: '8'
+    }
+    :Dynamic: {
+      :m0: '7'
+      :m1: '7'
+      :m2: '7'
+    }
+  }
+}
 
 <= HasComponent =>
--MemberBin-
-00: [04|06] [02|03]
--DescriptorBin-
-00: [inv] [inv] [1|0] [4|0] [2|0]
-05: [3|0] [4|1]
-011110010
+-Space-
+{
+  :0: {
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+  :1: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Container: {
+      :m0: ['4', '5']
+    }
+  }
+}
+01111001
 
-<= Duplicate =>
--MemberBin-
-00: [00|01] [02|03] [04|05] [06|07] [08|08]
-05: [09|10] [11|12] [13|13] [empty] [14|15]
-10: [16|17] [18|19] [20|21] [22|23] [24|25]
--DescriptorBin-
-00: [1|0] [2|0] [1|1] [2|1] [1|2]
-05: [2|2] [3|0] [4|0] [3|1] [1|3]
-10: [2|3] [3|2] [4|1] [3|3] [1|4]
-15: [3|4] [1|5] [4|2] [2|4] [4|3]
-20: [1|6] [3|5] [1|7] [4|4] [2|5]
-25: [4|5]
+<= Duplicate0 =>
+-TableOwners-
+1: [0, 1]
+2: [0, 1]
+-Space-
+{
+  :0: {
+    :Simple0: {
+      :m0: '0'
+      :m1: '0'
+    }
+    :Simple1: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+  :1: {
+    :Simple0: {
+      :m0: '0'
+      :m1: '0'
+    }
+    :Simple1: {
+      :m0: '1'
+      :m1: '1'
+    }
+  }
+}
+
+<= Duplicate1 =>
+-TableOwners-
+1: [0, 3]
+2: [0, 3]
+3: [1, 2, 4, 5]
+4: [1, 4]
+6: [1, 0, 2, 4, 3, 5]
+-Space-
+{
+  :0: {
+    :Simple0: {
+      :m0: '9'
+      :m1: '9'
+    }
+    :Simple1: {
+      :m0: '8'
+      :m1: '8'
+    }
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['1', '2']
+    }
+  }
+  :1: {
+    :Dynamic: {
+      :m0: '7'
+      :m1: '7'
+      :m2: '7'
+    }
+    :Container: {
+      :m0: ['6', '7', '8']
+    }
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: {}
+    }
+  }
+  :2: {
+    :Dynamic: {
+      :m0: '5'
+      :m1: '5'
+      :m2: '5'
+    }
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: {}
+    }
+  }
+  :3: {
+    :Simple0: {
+      :m0: '9'
+      :m1: '9'
+    }
+    :Simple1: {
+      :m0: '8'
+      :m1: '8'
+    }
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['4', '5']
+    }
+  }
+  :4: {
+    :Dynamic: {
+      :m0: '7'
+      :m1: '7'
+      :m2: '7'
+    }
+    :Container: {
+      :m0: ['6', '7', '8']
+    }
+    :Comp/Relationship: {
+      :Parent: '3'
+      :Children: {}
+    }
+  }
+  :5: {
+    :Dynamic: {
+      :m0: '5'
+      :m1: '5'
+      :m2: '5'
+    }
+    :Comp/Relationship: {
+      :Parent: '3'
+      :Children: {}
+    }
+  }
+}
 -Relationships-
-02: [3|2] [4|2]
-05: [6|5] [7|5]
-08: [9|8] [12|8]
-09: [10|9] [11|9]
-12: [13|12] [14|12]
--ComponentData-
-1: [0, 0][0, 0][1, 1][1, 1][2, 2][2, 2][2, 2][2, 2]
-2: [0, 0][0, 0][1, 1][1, 1][2, 2][2, 2]
-3: [1, 1, 1][1, 1, 1][1, 1, 1][1, 1, 1][2, 2, 2][2, 2, 2]
-4: [][][2][2][2][2]
+0
+\-1
+\-2
+3
+\-4
+\-5
+
+<= Duplicate2 =>
+-TableOwners-
+1: [1, 2, 4, 5]
+2: [3, 6]
+3: [1, 4]
+4: [2, 3, 5, 6]
+6: [1, 0, 2, 3, 4, 5, 6]
+-Space-
+{
+  :0: {
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['1', '4']
+    }
+  }
+  :1: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '2'
+      :m1: '2'
+      :m2: '2'
+    }
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['2', '3']
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '1'
+      :Children: {}
+    }
+  }
+  :3: {
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '1'
+      :Children: {}
+    }
+  }
+  :4: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '2'
+      :m1: '2'
+      :m2: '2'
+    }
+    :Comp/Relationship: {
+      :Parent: '0'
+      :Children: ['5', '6']
+    }
+  }
+  :5: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '4'
+      :Children: {}
+    }
+  }
+  :6: {
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '4'
+      :Children: {}
+    }
+  }
+}
+-Relationships-
+0
+\-1
+| \-2
+| \-3
+\-4
+  \-5
+  \-6
+
+<= Duplicate3 =>
+-TableOwners-
+1: [0, 1, 2, 5, 9, 10, 12, 13]
+2: [0, 1, 2, 5, 11, 14]
+3: [3, 4, 6, 7, 9, 12]
+4: [3, 6, 10, 11, 13, 14]
+6: [3, 2, 4, 6, 5, 7, 9, 8, 10, 11, 12, 13, 14]
+-Space-
+{
+  :0: {
+    :Simple0: {
+      :m0: '0'
+      :m1: '0'
+    }
+    :Simple1: {
+      :m0: '0'
+      :m1: '0'
+    }
+  }
+  :1: {
+    :Simple0: {
+      :m0: '0'
+      :m1: '0'
+    }
+    :Simple1: {
+      :m0: '0'
+      :m1: '0'
+    }
+  }
+  :2: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['3', '4']
+    }
+  }
+  :3: {
+    :Dynamic: {
+      :m0: '1'
+      :m1: '1'
+      :m2: '1'
+    }
+    :Container: {
+      :m0: []
+    }
+    :Comp/Relationship: {
+      :Parent: '2'
+      :Children: {}
+    }
+  }
+  :4: {
+    :Dynamic: {
+      :m0: '1'
+      :m1: '1'
+      :m2: '1'
+    }
+    :Comp/Relationship: {
+      :Parent: '2'
+      :Children: {}
+    }
+  }
+  :5: {
+    :Simple0: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Simple1: {
+      :m0: '1'
+      :m1: '1'
+    }
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['6', '7']
+    }
+  }
+  :6: {
+    :Dynamic: {
+      :m0: '1'
+      :m1: '1'
+      :m2: '1'
+    }
+    :Container: {
+      :m0: []
+    }
+    :Comp/Relationship: {
+      :Parent: '5'
+      :Children: {}
+    }
+  }
+  :7: {
+    :Dynamic: {
+      :m0: '1'
+      :m1: '1'
+      :m2: '1'
+    }
+    :Comp/Relationship: {
+      :Parent: '5'
+      :Children: {}
+    }
+  }
+  :8: {
+    :Comp/Relationship: {
+      :Parent: '-1'
+      :Children: ['9', '12']
+    }
+  }
+  :9: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '2'
+      :m1: '2'
+      :m2: '2'
+    }
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: ['10', '11']
+    }
+  }
+  :10: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '9'
+      :Children: {}
+    }
+  }
+  :11: {
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '9'
+      :Children: {}
+    }
+  }
+  :12: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Dynamic: {
+      :m0: '2'
+      :m1: '2'
+      :m2: '2'
+    }
+    :Comp/Relationship: {
+      :Parent: '8'
+      :Children: ['13', '14']
+    }
+  }
+  :13: {
+    :Simple0: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '12'
+      :Children: {}
+    }
+  }
+  :14: {
+    :Simple1: {
+      :m0: '2'
+      :m1: '2'
+    }
+    :Container: {
+      :m0: ['2']
+    }
+    :Comp/Relationship: {
+      :Parent: '12'
+      :Children: {}
+    }
+  }
+}
+-Relationships-
+2
+\-3
+\-4
+5
+\-6
+\-7
+8
+\-9
+| \-10
+| \-11
+\-12
+  \-13
+  \-14
 
 <= Dependencies =>
-=Add=
--MemberBin-
-00: [00|02] [03|05] [06|08]
--DescriptorBin-
-00: [0|0] [3|0] [5|0] [0|1] [3|1]
-05: [5|1] [0|2] [3|2] [5|2]
-=Rem=
--MemberBin-
-00: [00|00] [03|03] [06|07]
--DescriptorBin-
-00: [3|0] [inv] [inv] [0|1] [inv]
-05: [inv] [0|2] [3|2] [inv]
+-Space-
+{
+  :0: {
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+  :1: {
+    :CallCounter: {}
+  }
+  :2: {
+    :CallCounter: {}
+    :Dynamic: {
+      :m0: '3'
+      :m1: '3'
+      :m2: '3'
+    }
+  }
+}
 -Call Counts-
 Default Constructor Count: 3
 Copy Constructor Count: 0
 Move Constructor Count: 0
-Destructor Count: 1
+Move Assignment Count: 1
+Destructor Count: 3
 
 <= Slice =>
 Simple0: 0 1 2 3 4 5 6 7 8 9
 Simple1: 0 2 4 6 8 10 12 14 16 18
 Dynamic: 10 11 12 13 14 15 16 17 18 19
+

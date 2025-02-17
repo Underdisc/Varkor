@@ -154,3 +154,67 @@ void PrintMap(const Ds::Map<K, V>& map)
   BTreeIndenter indenter;
   PrintRbTreeNode<Ds::KvPair<K, V>>(*head, indenter);
 }
+
+template<typename T>
+void PrintPool(const Ds::Pool<T>& pool)
+{
+  // The width of each column is chosen based on the number of charaters in the
+  // words sparse, dense, and data.
+  int widths[3] = {6, 5, 4};
+
+  // Print the header.
+  // clang-format off
+  std::cout << std::left
+            << '+' << std::setw(widths[0]) << "Sparse"
+            << '+' << std::setw(widths[1]) << "Dense"
+            << '+' << std::setw(widths[2]) << "Data"
+            << "+\n";
+  // clang-format on
+  if (pool.Data().Size() == 0) {
+    return;
+  }
+
+  auto printRow = [&](int index, char* bars, int* barCount, int nextBarCount)
+  {
+    if (*barCount >= 2) {
+      std::stringstream sparseElementStream;
+      sparseElementStream << pool.Sparse()[index];
+      if (pool.Valid(index)) {
+        sparseElementStream << "*";
+      }
+      else {
+        sparseElementStream << "-";
+      }
+      std::cout << bars[0] << std::right << std::setw(widths[0])
+                << sparseElementStream.str() << bars[1];
+    }
+    if (*barCount >= 3) {
+      std::cout << std::right << std::setw(widths[1]) << pool.Dense()[index]
+                << bars[2];
+    }
+    if (*barCount >= 4) {
+      std::cout << std::right << std::setw(widths[2]) << pool.Data()[index]
+                << bars[3];
+    }
+    std::cout << '\n';
+    *barCount = nextBarCount;
+  };
+
+  // Print all of the rows.
+  char bars[4] = {'|', '|', '|', '|'};
+  int barCount = 4;
+  int nextBarCount = barCount;
+  for (int i = 0; i < pool.DenseUsage() - 1; ++i) {
+    printRow(i, bars, &barCount, nextBarCount);
+  }
+  --nextBarCount;
+  bars[3] = '+';
+  for (int i = pool.DenseUsage() - 1; i < pool.Capacity() - 1; ++i) {
+    printRow(i, bars, &barCount, nextBarCount);
+  }
+  nextBarCount = 0;
+  bars[2] = '+';
+  bars[1] = '+';
+  bars[0] = '+';
+  printRow(pool.Capacity() - 1, bars, &barCount, nextBarCount);
+}

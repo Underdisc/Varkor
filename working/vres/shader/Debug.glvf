@@ -1,0 +1,25 @@
+#type vertex
+
+#include "uniformBuffers/Universal.glh"
+
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aColor;
+out vec3 iColor;
+
+void main()
+{
+  mat4 transform = uProj * uView;
+  gl_Position = transform * vec4(aPos, 1.0);
+  iColor = aColor;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#type fragment
+
+in vec3 iColor;
+out vec4 iFinalColor;
+
+void main()
+{
+  iFinalColor = vec4(iColor, 1);
+}

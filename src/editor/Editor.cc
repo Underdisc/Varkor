@@ -1,6 +1,6 @@
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
 
 #include "Input.h"
 #include "Options.h"
@@ -9,6 +9,7 @@
 #include "editor/CoreInterface.h"
 #include "editor/LayerInterface.h"
 #include "editor/gizmos/Gizmos.h"
+#include "gfx/Shader.h"
 #include "rsl/Library.h"
 #include "world/World.h"
 
@@ -17,10 +18,10 @@ namespace Editor {
 CoreInterface nCoreInterface;
 ImGuiContext* nImGuiContext;
 bool nSuppressObjectPicking = false;
-bool nEditorMode = true;
+bool nPlayMode = false;
 bool nHideInterface = false;
 World::Space nSpace;
-Camera nCamera;
+void (*nExtension)() = nullptr;
 
 void SetStyle()
 {
@@ -115,29 +116,33 @@ void Init()
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   ImGui_ImplGlfw_InitForOpenGL(Viewport::Window(), true);
-  ImGui_ImplOpenGL3_Init("#version 330");
+  ImGui_ImplOpenGL3_Init(Gfx::Shader::smVersionHeader);
   SetStyle();
 
-  // Initialize the interfaces that are instantly opened.
-  StartImGuiFrame();
-  nCoreInterface.Init();
-  EndImGuiFrame();
+  nCamera.Init();
 
   // Load in the requested layers.
-  bool overviewCreated = false;
-  for (std::string layerFile : Options::nLoadLayers) {
+  World::LayerIt loadedLayerIt = World::nLayers.end();
+  for (std::string layerFile : Options::nConfig.mLoadLayers) {
     layerFile = Rsl::PrependResDirectory(layerFile);
     VResult<World::LayerIt> result = World::LoadLayer(layerFile.c_str());
     if (!result.Success()) {
       LogError(result.mError.c_str());
     }
-    else if (!overviewCreated) {
-      nCoreInterface.OpenInterface<LayerInterface>(result.mValue);
-      overviewCreated = true;
+    else if (loadedLayerIt != World::nLayers.end()) {
+      loadedLayerIt = result.mValue;
     }
   }
 
-  nCamera.Init();
+  if (Options::nConfig.mEditorLevel == Options::EditorLevel::Complete) {
+    // Initialize the interfaces that are instantly opened.
+    StartImGuiFrame();
+    nCoreInterface.Init();
+    EndImGuiFrame();
+    if (loadedLayerIt != World::nLayers.end()) {
+      nCoreInterface.OpenInterface<LayerInterface>(loadedLayerIt);
+    }
+  }
 }
 
 void Purge()
@@ -146,12 +151,16 @@ void Purge()
   Gizmos::Purge();
   nCamera.Purge();
   nSpace.Clear();
+
+  ImGui_ImplGlfw_Shutdown();
+  ImGui_ImplOpenGL3_Shutdown();
   ImGui::DestroyContext(nImGuiContext);
 }
 
 void StartFrame()
 {
   Gizmos::Update();
+  nCamera.Update();
   StartImGuiFrame();
   const ImGuiIO& io = ImGui::GetIO();
   Input::SetMouseFocus(!io.WantCaptureMouse);
@@ -173,31 +182,43 @@ void RunInWorlds()
   layerInterface->ObjectPicking();
 }
 
+void TrySaveLayer()
+{
+  if (nPlayMode) {
+    return;
+  }
+  if (Input::ActionPressed(Input::Action::SaveLayer)) {
+    auto* layerInterface = nCoreInterface.FindInterface<LayerInterface>();
+    if (layerInterface != nullptr) {
+      layerInterface->SaveLayer();
+    }
+  }
+}
+
 void EndFrame()
 {
-  if (nEditorMode) {
-    nCamera.Update();
-    bool leftCtrl = Input::KeyDown(Input::Key::LeftControl);
-    bool s = Input::KeyPressed(Input::Key::S);
-    if (leftCtrl && s) {
-      auto* layerInterface = nCoreInterface.FindInterface<LayerInterface>();
-      if (layerInterface != nullptr) {
-        layerInterface->SaveLayer();
-      }
+  if (Options::nConfig.mEditorLevel == Options::EditorLevel::Complete) {
+    TrySaveLayer();
+    nCoreInterface.HandleStaging();
+    RunInWorlds();
+  }
+
+  if (Input::ActionPressed(Input::Action::ToggleEditor)) {
+    nHideInterface = !nHideInterface;
+  }
+
+  if (!nHideInterface) {
+    ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
+    ImGui::DockSpaceOverViewport(
+      ImGui::GetWindowDockID(), ImGui::GetMainViewport(), flags);
+    if (Options::nConfig.mEditorLevel == Options::EditorLevel::Complete) {
+      nCoreInterface.ShowAll();
+    }
+    if (nExtension != nullptr) {
+      nExtension();
     }
   }
 
-  nCoreInterface.HandleStaging();
-  RunInWorlds();
-
-  if (Input::KeyPressed(Input::Key::GraveAccent)) {
-    nHideInterface = !nHideInterface;
-  }
-  if (!nHideInterface) {
-    ImGuiDockNodeFlags flags = ImGuiDockNodeFlags_PassthruCentralNode;
-    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), flags);
-    nCoreInterface.ShowAll();
-  }
   EndImGuiFrame();
 }
 

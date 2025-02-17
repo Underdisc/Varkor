@@ -21,6 +21,8 @@ struct Object
   template<typename T>
   T& AddComponent() const;
   template<typename T>
+  T& EnsureComponent() const;
+  template<typename T>
   void RemComponent() const;
   template<typename T>
   T& GetComponent() const;
@@ -32,6 +34,8 @@ struct Object
   template<typename T>
   T& Add() const;
   template<typename T>
+  T& Ensure() const;
+  template<typename T>
   void Rem() const;
   template<typename T>
   T& Get() const;
@@ -41,6 +45,7 @@ struct Object
   bool Has() const;
 
   void* AddComponent(Comp::TypeId typeId) const;
+  void* EnsureComponent(Comp::TypeId typeId) const;
   void RemComponent(Comp::TypeId typeId) const;
   void* GetComponent(Comp::TypeId typeId) const;
   void* TryGetComponent(Comp::TypeId typeId) const;
@@ -49,10 +54,7 @@ struct Object
   void Delete() const;
   Object CreateChild() const;
   Object Duplicate() const;
-  Member& GetMember() const;
-  std::string& GetName() const;
-  const Ds::Vector<World::MemberId>& Children() const;
-  bool HasParent() const;
+  void TryRemoveParent();
   Object Parent() const;
   bool Valid() const;
 

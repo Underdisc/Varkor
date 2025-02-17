@@ -2,6 +2,8 @@
 
 #include "Input.h"
 #include "Log.h"
+#include "comp/Name.h"
+#include "comp/Relationship.h"
 #include "editor/Editor.h"
 #include "editor/FileInterface.h"
 #include "editor/LayerInterface.h"
@@ -20,11 +22,15 @@ void LayerInterface::Show()
 
   // Allow the user to change the layer's camera with drag and drop.
   World::Space& space = mLayerIt->mSpace;
+  World::MemberId cameraId = mLayerIt->mCameraId;
   std::stringstream cameraLabel;
   cameraLabel << "Camera: ";
-  if (mLayerIt->mCameraId != World::nInvalidMemberId) {
-    const World::Member& camera = space.GetMember(mLayerIt->mCameraId);
-    cameraLabel << camera.mName;
+  if (cameraId != World::nInvalidMemberId) {
+    cameraLabel << cameraId;
+    Comp::Name* nameComp = space.TryGet<Comp::Name>(cameraId);
+    if (nameComp != nullptr) {
+      cameraLabel << " (" << nameComp->mName << ")";
+    }
   }
   else {
     cameraLabel << "None" << std::endl;
@@ -57,10 +63,7 @@ void LayerInterface::Show()
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MemberId");
     if (payload != nullptr) {
       World::MemberId childId = *(const World::MemberId*)payload->Data;
-      World::Member& member = space.GetMember(childId);
-      if (member.HasParent()) {
-        space.RemoveParent(childId);
-      }
+      space.TryRemoveParent(childId);
     }
     ImGui::EndDragDropTarget();
   }
@@ -133,18 +136,23 @@ void LayerInterface::DisplayMember(
     flags |= ImGuiTreeNodeFlags_Selected;
   }
   World::Space& space = mLayerIt->mSpace;
-  World::Member& member = space.GetMember(memberId);
-  if (member.Children().Size() == 0) {
+  if (!space.HasChildren(memberId)) {
     flags |= ImGuiTreeNodeFlags_Leaf;
   }
   ImGui::PushID(memberId);
-  bool memberOpened = ImGui::TreeNodeEx(member.mName.c_str(), flags);
+  std::stringstream memberLabel;
+  memberLabel << memberId;
+  Comp::Name* nameComp = space.TryGet<Comp::Name>(memberId);
+  if (nameComp != nullptr) {
+    memberLabel << " (" << nameComp->mName << ")";
+  }
+  bool memberOpened = ImGui::TreeNodeEx(memberLabel.str().c_str(), flags);
   ImGui::PopID();
 
   // Make the node a source and target for parenting drag drop operations.
   if (ImGui::BeginDragDropSource()) {
     ImGui::SetDragDropPayload("MemberId", &memberId, sizeof(World::MemberId));
-    ImGui::TextUnformatted(member.mName.c_str());
+    ImGui::TextUnformatted(memberLabel.str().c_str());
     ImGui::EndDragDropSource();
   }
   if (ImGui::BeginDragDropTarget()) {
@@ -178,16 +186,19 @@ void LayerInterface::DisplayMember(
   }
 
   // Display a text box for changing the Member's name.
-  if (selected) {
+  if (selected && nameComp != nullptr) {
     ImGui::PushItemWidth(-1);
-    InputText("Name", &member.mName);
+    InputText("Name", &nameComp->mName);
     ImGui::PopItemWidth();
   }
 
   // Display all of the children if the Member's tree node is opened.
   if (memberOpened) {
-    for (World::MemberId childId : member.Children()) {
-      DisplayMember(childId, inspector);
+    auto* relationship = space.TryGet<Comp::Relationship>(memberId);
+    if (relationship != nullptr) {
+      for (World::MemberId childId : relationship->mChildren) {
+        DisplayMember(childId, inspector);
+      }
     }
     ImGui::TreePop();
   }

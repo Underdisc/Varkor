@@ -31,7 +31,13 @@ Ds::Vector<std::string> nFinalizeQueue;
 
 Asset& AddAsset(const std::string& name)
 {
-  return nAssets.Emplace(name);
+  VResult<Ds::RbTree<Asset>::Iter> result = nAssets.Emplace(name);
+  if (!result.Success()) {
+    std::stringstream error;
+    error << "Asset \"" << name << "\" already in asset tree.";
+    LogAbort(error.str().c_str());
+  }
+  return *result.mValue;
 }
 
 Asset& QueueAsset(const std::string& name)
@@ -127,12 +133,12 @@ void WriteConfig(const std::string& assetName)
 
 bool IsStandalone()
 {
-  return Options::nProjectDirectory == "";
+  return Options::nConfig.mProjectDirectory == "";
 }
 
 std::string ResDirectory()
 {
-  return Options::nProjectDirectory + "res";
+  return Options::nConfig.mProjectDirectory + "res";
 }
 
 std::string PrependResDirectory(const std::string& path)
@@ -148,7 +154,7 @@ VResult<std::string> ResolveProjPath(const std::string& path)
   if (std::filesystem::exists(path)) {
     return VResult<std::string>(path);
   }
-  std::string projPath = Options::nProjectDirectory + path;
+  std::string projPath = Options::nConfig.mProjectDirectory + path;
   if (std::filesystem::exists(projPath)) {
     return VResult<std::string>(projPath);
   }

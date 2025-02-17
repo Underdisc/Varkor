@@ -10,6 +10,19 @@ bool Near(float a, float b)
   return difference < nEpsilon && difference > -nEpsilon;
 }
 
+float Sign(float value)
+{
+  if (value < 0) {
+    return -1;
+  }
+  return 1;
+}
+
+float Abs(float value)
+{
+  return Math::Sign(value) * value;
+}
+
 float Round(float value)
 {
   if (value < 0.0f) {

@@ -56,17 +56,29 @@ int CreateId();
 extern Ds::Vector<TypeData> nTypeData;
 
 template<typename T>
-void Type<T>::Register(const char* name)
+void Type<T>::Register(const std::string& name)
 {
   LogAbortIf(smId != nInvalidTypeId, "Type already registered.");
   smId = CreateId();
 
+  // Replace all instances of "::" (scope resolution operator) with "/".
+  std::string modifiedName;
+  size_t substrStart = 0;
+  size_t substrEnd = name.find("::", substrStart);
+  while (substrEnd != std::string::npos) {
+    modifiedName += name.substr(substrStart, substrEnd - substrStart) + '/';
+    substrStart = substrEnd + 2;
+    substrEnd = name.find("::", substrStart);
+  }
+  modifiedName += name.substr(substrStart);
+
   TypeData data;
-  data.mName = name;
+  data.mName = std::move(modifiedName);
   data.mSize = sizeof(T);
   data.mDefaultConstruct = &Util::DefaultConstruct<T>;
   data.mCopyConstruct = &Util::CopyConstruct<T>;
   data.mMoveConstruct = &Util::MoveConstruct<T>;
+  data.mMoveAssign = &Util::MoveAssign<T>;
   data.mDestruct = &Util::Destruct<T>;
   BindVStaticInit<T>(&data.mVStaticInit);
   BindVInit<T>(&data.mVInit);

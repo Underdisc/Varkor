@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "comp/Relationship.h"
 
 namespace World {
 
@@ -17,6 +18,11 @@ Object::Object(Space* space, MemberId memberId):
 void* Object::AddComponent(Comp::TypeId typeId) const
 {
   return mSpace->AddComponent(typeId, mMemberId);
+}
+
+void* Object::EnsureComponent(Comp::TypeId typeId) const
+{
+  return mSpace->EnsureComponent(typeId, mMemberId);
 }
 
 void Object::RemComponent(Comp::TypeId typeId) const
@@ -54,29 +60,18 @@ Object Object::Duplicate() const
   return Object(mSpace, mSpace->Duplicate(mMemberId));
 }
 
-Member& Object::GetMember() const
+void Object::TryRemoveParent()
 {
-  return mSpace->mMembers[mMemberId];
-}
-
-std::string& Object::GetName() const
-{
-  return mSpace->mMembers[mMemberId].mName;
-}
-
-const Ds::Vector<World::MemberId>& Object::Children() const
-{
-  return mSpace->mMembers[mMemberId].Children();
-}
-
-bool Object::HasParent() const
-{
-  return mSpace->mMembers[mMemberId].HasParent();
+  mSpace->TryRemoveParent(mMemberId);
 }
 
 Object Object::Parent() const
 {
-  return Object(mSpace, mSpace->mMembers[mMemberId].Parent());
+  auto* relationship = TryGet<Comp::Relationship>();
+  if (relationship == nullptr) {
+    return Object(mSpace, nInvalidMemberId);
+  }
+  return Object(mSpace, relationship->mParent);
 }
 
 bool Object::Valid() const

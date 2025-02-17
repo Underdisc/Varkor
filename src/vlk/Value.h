@@ -60,12 +60,14 @@ public:
   const Pair* TryGetConstPair(size_t index) const;
   Pair* TryGetPair(const std::string& key);
   Pair* TryGetPair(size_t index);
+  Pair& GetPair(const std::string& key);
   const Value* TryGetConstValue(size_t index) const;
   Value* TryGetValue(size_t index);
 
   Pair& operator()(const std::string& key);
   Pair& operator()(size_t index);
-  void TryRemovePair(const std::string& key);
+  bool TryRemovePair(const std::string& key);
+  void RemovePair(const std::string& key);
 
   Value& operator[](std::initializer_list<size_t> sizes);
   Value& operator[](size_t index);
@@ -179,6 +181,8 @@ void Value::operator=(const T& value)
 
 struct Pair: public Value
 {
+  Pair& operator=(Value&& value);
+
   const std::string& Key() const;
   bool operator==(const Pair& other) const;
   bool operator!=(const Pair& other) const;

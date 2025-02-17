@@ -10,9 +10,21 @@ T& Space::AddComponent(MemberId memberId)
 }
 
 template<typename T>
+T& Space::EnsureComponent(MemberId memberId)
+{
+  return *(T*)EnsureComponent(Comp::Type<T>::smId, memberId);
+}
+
+template<typename T>
 void Space::RemComponent(MemberId memberId)
 {
   RemComponent(Comp::Type<T>::smId, memberId);
+}
+
+template<typename T>
+void Space::TryRemComponent(MemberId memberId)
+{
+  TryRemComponent(Comp::Type<T>::smId, memberId);
 }
 
 template<typename T>
@@ -40,9 +52,21 @@ inline T& Space::Add(MemberId memberId)
 }
 
 template<typename T>
+T& Space::Ensure(MemberId memberId)
+{
+  return EnsureComponent<T>(memberId);
+}
+
+template<typename T>
 inline void Space::Rem(MemberId memberId)
 {
   RemComponent<T>(memberId);
+}
+
+template<typename T>
+inline void Space::TryRem(MemberId memberId)
+{
+  TryRemComponent<T>(memberId);
 }
 
 template<typename T>

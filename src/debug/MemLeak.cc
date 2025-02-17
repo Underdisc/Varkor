@@ -24,3 +24,19 @@ void DisableLeakOutput()
   _CrtSetDbgFlag(flags);
 #endif
 }
+
+// Enable memory profiling when Tracy is enabled.
+#ifdef TRACY_ENABLE
+#include "ext/Tracy.h"
+void* operator new(size_t size)
+{
+  void* data = malloc(size);
+  TracyAlloc(data, size);
+  return data;
+}
+void operator delete(void* data) noexcept
+{
+  TracyFree(data);
+  free(data);
+}
+#endif
