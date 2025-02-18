@@ -22,8 +22,7 @@ struct Serializer;
 // We have Pair inherit from Value instead of contain a Value because we don't
 // want to define Pair functions that just call the equivalent Value functions.
 
-struct Value
-{
+struct Value {
 public:
   Value();
   Value(const Value& other);
@@ -43,8 +42,7 @@ public:
   Result Write(const char* filename);
   Result Parse(const char* text);
 
-  enum class Type
-  {
+  enum class Type {
     Invalid,
     TrueValue,
     ValueArray,
@@ -88,8 +86,7 @@ public:
 
 private:
   Type mType;
-  union
-  {
+  union {
     std::string mTrueValue;
     Ds::Vector<Value> mValueArray;
     Ds::Vector<Pair> mPairArray;
@@ -118,18 +115,15 @@ private:
 };
 
 template<typename T>
-struct Converter
-{
-  static void Serialize(Value& val, const T& value)
-  {
+struct Converter {
+  static void Serialize(Value& val, const T& value) {
     val.EnsureType(Value::Type::TrueValue);
     std::stringstream ss;
     ss << value;
     val.mTrueValue = ss.str();
   }
 
-  static bool Deserialize(const Value& val, T* value)
-  {
+  static bool Deserialize(const Value& val, T* value) {
     if (val.mType != Value::Type::TrueValue) {
       return false;
     }
@@ -140,22 +134,19 @@ struct Converter
 };
 
 template<>
-struct Converter<std::string>
-{
+struct Converter<std::string> {
   static void Serialize(Value& val, const std::string& value);
   static bool Deserialize(const Value& val, std::string* value);
 };
 
 template<typename T>
-void Value::PushValue(const T& value)
-{
+void Value::PushValue(const T& value) {
   PushValue();
   mValueArray.Top() = value;
 }
 
 template<typename T>
-T Value::As() const
-{
+T Value::As() const {
   T value;
   bool deserialized = Converter<T>::Deserialize(*this, &value);
   LogAbortIf(!deserialized, "As without a default failed deserialization.");
@@ -163,8 +154,7 @@ T Value::As() const
 }
 
 template<typename T>
-T Value::As(const T& defaultValue) const
-{
+T Value::As(const T& defaultValue) const {
   T value;
   bool deserialzied = Converter<T>::Deserialize(*this, &value);
   if (!deserialzied) {
@@ -174,13 +164,11 @@ T Value::As(const T& defaultValue) const
 }
 
 template<typename T>
-void Value::operator=(const T& value)
-{
+void Value::operator=(const T& value) {
   Converter<T>::Serialize(*this, value);
 }
 
-struct Pair: public Value
-{
+struct Pair: public Value {
   Pair& operator=(Value&& value);
 
   const std::string& Key() const;
@@ -204,8 +192,7 @@ private:
 };
 
 template<typename T>
-void Pair::operator=(const T& value)
-{
+void Pair::operator=(const T& value) {
   (*(Value*)this) = value;
 }
 

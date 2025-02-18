@@ -11,8 +11,7 @@
 namespace Editor {
 namespace Gizmos {
 
-struct Rotator
-{
+struct Rotator {
   Rotator();
   ~Rotator();
   Rotator(Rotator&& other);
@@ -31,8 +30,7 @@ struct Rotator
     {0.0f, 0.0f, 0.7f, 1.0f},
     {0.7f, 0.7f, 0.7f, 0.8f}};
 
-  enum class Operation
-  {
+  enum class Operation {
     X = 0,
     Y = 1,
     Z = 2,
@@ -41,11 +39,9 @@ struct Rotator
   };
 
   World::MemberId mParent;
-  union
-  {
+  union {
     World::MemberId mHandles[smHandleCount];
-    struct
-    {
+    struct {
       World::MemberId mX, mY, mZ, mXyz;
     };
   };

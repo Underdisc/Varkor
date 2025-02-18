@@ -9,8 +9,7 @@
 #include "test/ds/TestType.h"
 #include "util/Utility.h"
 
-void InsertRemoveTryGet()
-{
+void InsertRemoveTryGet() {
   // Start by inserting random keys with incrementing values.
   Ds::Map<int, int> map;
   constexpr int insertions = 50;
@@ -47,8 +46,7 @@ void InsertRemoveTryGet()
   }
 }
 
-void StringMap()
-{
+void StringMap() {
   // Add a sequence of strings to a map.
   Ds::Map<std::string, int> map;
   const char* sequence[] = {
@@ -84,8 +82,7 @@ void StringMap()
   PrintMap(map);
 }
 
-void InsertEmplace()
-{
+void InsertEmplace() {
   // This will test the usage of move, copy, and special constructors when
   // inserting or emplacing. It will also test writing to newly added elements.
   Ds::Map<int, TestType> map;
@@ -112,8 +109,7 @@ void InsertEmplace()
   TestType::PrintCounts();
 }
 
-void Iterator()
-{
+void Iterator() {
   // Insert random key value pairs into the map.
   Ds::Map<int, int> map;
   constexpr int insertions = 20;
@@ -146,8 +142,7 @@ void Iterator()
   }
 }
 
-int main()
-{
+int main() {
   EnableLeakOutput();
   RunDsTest(InsertRemoveTryGet);
   RunDsTest(StringMap);

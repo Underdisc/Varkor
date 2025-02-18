@@ -15,11 +15,9 @@ FileInterface::FileInterface(
   std::function<void(const std::string&)> callback,
   AccessType accessType,
   const std::string& defaultFilename):
-  mCallback(callback), mAccessType(accessType), mFile(defaultFilename)
-{}
+  mCallback(callback), mAccessType(accessType), mFile(defaultFilename) {}
 
-void FileInterface::Show()
-{
+void FileInterface::Show() {
   // Get the full path based on the current path.
   static std::string path = ".";
   std::string fullPath;

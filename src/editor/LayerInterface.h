@@ -7,8 +7,7 @@
 
 namespace Editor {
 
-struct LayerInterface: public Interface
-{
+struct LayerInterface: public Interface {
 public:
   LayerInterface(World::LayerIt layerIt);
   void Show();

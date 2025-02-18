@@ -4,8 +4,7 @@
 #include "vlk/Explorer.h"
 #include "vlk/Value.h"
 
-void Deserialize()
-{
+void Deserialize() {
   Vlk::Value rootVal;
   rootVal.Read("../vlk_Value/SerializeDeserialize.vlk");
   Vlk::Explorer rootEx(rootVal);
@@ -25,7 +24,6 @@ void Deserialize()
   std::cout << "Other Key: " << rootEx("ArrayOfPairArrays")[1](1).Key() << '\n';
 }
 
-int main()
-{
+int main() {
   RunTest(Deserialize);
 }

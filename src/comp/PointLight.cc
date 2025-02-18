@@ -8,8 +8,7 @@
 
 namespace Comp {
 
-void PointLight::VInit(const World::Object& owner)
-{
+void PointLight::VInit(const World::Object& owner) {
   mAmbient = smDefaultAmbient;
   mDiffuse = smDefaultDiffuse;
   mSpecular = smDefaultSpecular;
@@ -18,8 +17,7 @@ void PointLight::VInit(const World::Object& owner)
   mQuadratic = smDefaultQuadratic;
 }
 
-void PointLight::VSerialize(Vlk::Value& val)
-{
+void PointLight::VSerialize(Vlk::Value& val) {
   val("Ambient") = mAmbient;
   val("Diffuse") = mDiffuse;
   val("Specular") = mSpecular;
@@ -28,8 +26,7 @@ void PointLight::VSerialize(Vlk::Value& val)
   val("Quadratic") = mQuadratic;
 }
 
-void PointLight::VDeserialize(const Vlk::Explorer& ex)
-{
+void PointLight::VDeserialize(const Vlk::Explorer& ex) {
   mAmbient = ex("Ambient").As<Gfx::HdrColor>(smDefaultAmbient);
   mDiffuse = ex("Diffuse").As<Gfx::HdrColor>(smDefaultDiffuse);
   mSpecular = ex("Specular").As<Gfx::HdrColor>(smDefaultSpecular);
@@ -38,8 +35,7 @@ void PointLight::VDeserialize(const Vlk::Explorer& ex)
   mQuadratic = ex("Quadratic").As<float>(smDefaultQuadratic);
 }
 
-void PointLight::VRenderable(const World::Object& owner)
-{
+void PointLight::VRenderable(const World::Object& owner) {
   Gfx::Renderable::Icon icon;
   icon.mOwner = owner.mMemberId;
   auto& transform = owner.Get<Transform>();
@@ -50,8 +46,7 @@ void PointLight::VRenderable(const World::Object& owner)
   Gfx::Collection::Add(std::move(icon));
 }
 
-void PointLight::VEdit(const World::Object& owner)
-{
+void PointLight::VEdit(const World::Object& owner) {
   float labelWidth = 65;
   ImGui::PushItemWidth(-labelWidth);
   ImGui::DragFloat("Constant", &mConstant, 0.01f, 1.0f, 2.0f);

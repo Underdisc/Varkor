@@ -13,8 +13,7 @@
 namespace Editor {
 namespace Gizmos {
 
-Scalor::Scalor(): mOperation(Operation::None)
-{
+Scalor::Scalor(): mOperation(Operation::None) {
   mParent = nSpace.CreateMember();
   nSpace.AddComponent<Comp::Transform>(mParent);
   for (int i = 0; i < smHandleCount; ++i) {
@@ -80,15 +79,13 @@ Scalor::Scalor(): mOperation(Operation::None)
     ResId(smScalorAssetName, smMaterialNames[(int)Operation::Xyz]);
 }
 
-Scalor::~Scalor()
-{
+Scalor::~Scalor() {
   if (mParent != World::nInvalidMemberId) {
     nSpace.DeleteMember(mParent);
   }
 }
 
-Scalor::Scalor(Scalor&& other)
-{
+Scalor::Scalor(Scalor&& other) {
   mParent = other.mParent;
   for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = other.mHandles[i];
@@ -104,8 +101,7 @@ Scalor::Scalor(Scalor&& other)
 }
 
 void Scalor::SetNextOperation(
-  const Vec3& scale, const Vec3& translation, const Quat& referenceFrame)
-{
+  const Vec3& scale, const Vec3& translation, const Quat& referenceFrame) {
   // Find the next operation type.
   const World::Object cameraObject = nCamera.GetObject();
   const auto& cameraComp = cameraObject.Get<Comp::Camera>();
@@ -165,8 +161,7 @@ void Scalor::SetNextOperation(
 }
 
 Vec3 Scalor::Run(
-  const Vec3& scale, const Vec3& translation, const Quat& referenceFrame)
-{
+  const Vec3& scale, const Vec3& translation, const Quat& referenceFrame) {
   // Set the transformations for the handles that change every frame.
   SetParentTransformation(mParent, translation, referenceFrame);
   const World::Object cameraObject = nCamera.GetObject();
@@ -253,8 +248,7 @@ Vec3 Scalor::Run(
   return scale;
 }
 
-void Scalor::Init()
-{
+void Scalor::Init() {
   Rsl::Asset& scalorAsset = Rsl::AddAsset(smScalorAssetName);
   for (int i = 0; i < smHandleCount; ++i) {
     Gfx::Material& material =
@@ -267,8 +261,7 @@ void Scalor::Init()
   scalorAsset.Finalize();
 }
 
-void Scalor::Purge()
-{
+void Scalor::Purge() {
   Rsl::RemAsset(smScalorAssetName);
 }
 

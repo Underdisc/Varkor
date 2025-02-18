@@ -13,8 +13,7 @@
 namespace Editor {
 namespace Gizmos {
 
-Translator::Translator(): mOperation(Operation::None)
-{
+Translator::Translator(): mOperation(Operation::None) {
   mParent = nSpace.CreateMember();
   nSpace.AddComponent<Comp::Transform>(mParent);
   for (int i = 0; i < smHandleCount; ++i) {
@@ -80,15 +79,13 @@ Translator::Translator(): mOperation(Operation::None)
     ResId(smTranslatorAssetName, smMaterialNames[(int)Operation::Xyz]);
 }
 
-Translator::~Translator()
-{
+Translator::~Translator() {
   if (mParent != World::nInvalidMemberId) {
     nSpace.DeleteMember(mParent);
   }
 }
 
-Translator::Translator(Translator&& other)
-{
+Translator::Translator(Translator&& other) {
   mParent = other.mParent;
   for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = other.mHandles[i];
@@ -102,8 +99,7 @@ Translator::Translator(Translator&& other)
 }
 
 void Translator::SetNextOperation(
-  const Vec3& translation, const Quat& referenceFrame)
-{
+  const Vec3& translation, const Quat& referenceFrame) {
   // Find out the new operation type.
   const World::Object cameraObject = nCamera.GetObject();
   const auto& cameraComp = cameraObject.Get<Comp::Camera>();
@@ -161,8 +157,7 @@ void Translator::SetNextOperation(
   }
 }
 
-Vec3 Translator::Run(const Vec3& translation, const Quat& referenceFrame)
-{
+Vec3 Translator::Run(const Vec3& translation, const Quat& referenceFrame) {
   SetParentTransformation(mParent, translation, referenceFrame);
 
   // Handle any switching between operations.
@@ -238,8 +233,7 @@ Vec3 Translator::Run(const Vec3& translation, const Quat& referenceFrame)
   return translation;
 }
 
-void Translator::Init()
-{
+void Translator::Init() {
   Rsl::Asset& translatorAsset = Rsl::AddAsset(smTranslatorAssetName);
   for (int i = 0; i < smHandleCount; ++i) {
     Gfx::Material& material = translatorAsset.InitRes<Gfx::Material>(
@@ -252,8 +246,7 @@ void Translator::Init()
   translatorAsset.Finalize();
 }
 
-void Translator::Purge()
-{
+void Translator::Purge() {
   Rsl::RemAsset(smTranslatorAssetName);
 }
 

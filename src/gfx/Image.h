@@ -7,8 +7,7 @@
 
 namespace Gfx {
 
-struct Image
-{
+struct Image {
 public:
   Image();
   Image(Image&& other);

@@ -6,11 +6,9 @@
 namespace Ds {
 
 template<typename T>
-class RbTree
-{
+class RbTree {
 public:
-  struct Node
-  {
+  struct Node {
     Node(const T& value);
     Node(T&& value);
     template<typename... Args>
@@ -18,11 +16,7 @@ public:
     Node* FindPredecessor() const;
     Node* FindSuccessor() const;
 
-    enum class Color
-    {
-      Red,
-      Black
-    };
+    enum class Color { Red, Black };
 
     T mValue;
     Node* mParent;
@@ -32,8 +26,7 @@ public:
   };
 
 private:
-  struct IterBase
-  {
+  struct IterBase {
     void operator++();
     bool operator==(const IterBase& other);
     bool operator!=(const IterBase& other);
@@ -44,16 +37,14 @@ private:
   };
 
 public:
-  struct Iter: IterBase
-  {
+  struct Iter: IterBase {
     T& operator*();
     T* operator->();
   };
   Iter begin() const;
   Iter end() const;
 
-  struct CIter: IterBase
-  {
+  struct CIter: IterBase {
     const T& operator*();
     const T* operator->();
   };

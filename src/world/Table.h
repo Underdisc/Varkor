@@ -9,8 +9,7 @@
 
 namespace World {
 
-class Table
-{
+class Table {
 public:
   Table(Comp::TypeId typeId);
   Table(Table&& other);

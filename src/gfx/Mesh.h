@@ -11,10 +11,8 @@
 
 namespace Gfx {
 
-struct Mesh
-{
-  enum Attribute : unsigned int
-  {
+struct Mesh {
+  enum Attribute : unsigned int {
     Position = 1 << 0,
     Tangent = 1 << 1,
     Bitagent = 1 << 2,

@@ -8,8 +8,8 @@
 
 namespace Gfx {
 
-Cubemap::FilterType Cubemap::GetFilterType(const std::string& filterTypeString)
-{
+Cubemap::FilterType Cubemap::GetFilterType(
+  const std::string& filterTypeString) {
   for (int i = 0; i < (int)FilterType::Count; ++i) {
     if (filterTypeString == smFilterTypeStrings[i]) {
       return (FilterType)i;
@@ -19,8 +19,7 @@ Cubemap::FilterType Cubemap::GetFilterType(const std::string& filterTypeString)
 }
 
 Cubemap::Specification Cubemap::GetSpecification(
-  const std::string& specificationString)
-{
+  const std::string& specificationString) {
   for (int i = 0; i < (int)Specification::Count; ++i) {
     if (specificationString == smSpecificationStrings[i]) {
       return (Specification)i;
@@ -31,26 +30,22 @@ Cubemap::Specification Cubemap::GetSpecification(
 
 Cubemap::Cubemap(): mId(0) {}
 
-Cubemap::Cubemap(Cubemap&& other)
-{
+Cubemap::Cubemap(Cubemap&& other) {
   *this = std::forward<Cubemap>(other);
 }
 
-Cubemap& Cubemap::operator=(Cubemap&& other)
-{
+Cubemap& Cubemap::operator=(Cubemap&& other) {
   mId = other.mId;
   other.mId = 0;
   return *this;
 }
 
-Cubemap::~Cubemap()
-{
+Cubemap::~Cubemap() {
   glDeleteTextures(1, &mId);
   mId = 0;
 }
 
-Result Cubemap::Init(const Vlk::Explorer& configEx)
-{
+Result Cubemap::Init(const Vlk::Explorer& configEx) {
   Config config;
 
   // Get the filter type.
@@ -105,8 +100,7 @@ Result Cubemap::Init(const Vlk::Explorer& configEx)
   return Result();
 }
 
-Result Cubemap::Init(const Config& config)
-{
+Result Cubemap::Init(const Config& config) {
   auto uploadFace = [](GLenum target, GLenum format, const Face& face)
   {
     glTexImage2D(
@@ -155,8 +149,7 @@ Result Cubemap::Init(const Config& config)
   return Result();
 }
 
-void Cubemap::EditConfig(Vlk::Value* configValP)
-{
+void Cubemap::EditConfig(Vlk::Value* configValP) {
   // Edit the filter type.
   ImGui::PushItemWidth(-Editor::CalcBufferWidth("Specification"));
   Vlk::Value& configVal = *configValP;
@@ -207,13 +200,11 @@ void Cubemap::EditConfig(Vlk::Value* configValP)
   }
 }
 
-GLuint Cubemap::Id() const
-{
+GLuint Cubemap::Id() const {
   return mId;
 }
 
-VResult<Cubemap::Face> Cubemap::Face::Init(const std::string& file)
-{
+VResult<Cubemap::Face> Cubemap::Face::Init(const std::string& file) {
   // Resolve the file path.
   VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
@@ -240,13 +231,11 @@ Cubemap::Face::Face(Face&& other):
   mData(other.mData),
   mWidth(other.mWidth),
   mHeight(other.mHeight),
-  mChannels(other.mChannels)
-{
+  mChannels(other.mChannels) {
   other.mData = nullptr;
 }
 
-Cubemap::Face::~Face()
-{
+Cubemap::Face::~Face() {
   if (mData != nullptr) {
     stbi_image_free(mData);
   }

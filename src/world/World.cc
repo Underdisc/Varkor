@@ -14,8 +14,7 @@ Layer::Layer(): mCameraId(nInvalidMemberId) {}
 Layer::Layer(const std::string& name):
   mName(name),
   mCameraId(nInvalidMemberId),
-  mPostMaterialId(Gfx::Renderer::nDefaultPostId)
-{}
+  mPostMaterialId(Gfx::Renderer::nDefaultPostId) {}
 
 bool nPause = true;
 Ds::List<Layer> nLayers;
@@ -24,18 +23,15 @@ Ds::List<Layer> nLayers;
 void (*nCentralUpdate)() = nullptr;
 void (*nLayerUpdate)(LayerIt layerIt) = nullptr;
 
-void Init()
-{
+void Init() {
   Registrar::Init();
 }
 
-void Purge()
-{
+void Purge() {
   nLayers.Clear();
 }
 
-void Update()
-{
+void Update() {
   if (nPause) {
     return;
   }
@@ -53,20 +49,17 @@ void Update()
   }
 }
 
-LayerIt CreateTopLayer()
-{
+LayerIt CreateTopLayer() {
   std::stringstream defaultName;
   defaultName << "Layer" << nLayers.Size();
   return nLayers.Emplace(nLayers.end(), defaultName.str());
 }
 
-void DeleteLayer(LayerIt it)
-{
+void DeleteLayer(LayerIt it) {
   nLayers.Erase(it);
 }
 
-VResult<LayerIt> LoadLayer(const char* filename)
-{
+VResult<LayerIt> LoadLayer(const char* filename) {
   Vlk::Value rootVal;
   Result result = rootVal.Read(filename);
   if (!result.Success()) {
@@ -120,8 +113,7 @@ VResult<LayerIt> LoadLayer(const char* filename)
   return VResult<LayerIt>(nLayers.Back());
 }
 
-Result SaveLayer(LayerIt it, const char* filename)
-{
+Result SaveLayer(LayerIt it, const char* filename) {
   Layer& layer = *it;
   layer.mFilename = filename;
   Vlk::Value rootVal;

@@ -1,8 +1,7 @@
 #include <iomanip>
 
 template<typename T>
-std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector)
-{
+std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector) {
   if (vector.Size() == 0) {
     os << "[]";
     return os;
@@ -16,15 +15,13 @@ std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector)
 }
 
 template<typename K, typename V>
-std::ostream& operator<<(std::ostream& os, const Ds::KvPair<K, V>& kv)
-{
+std::ostream& operator<<(std::ostream& os, const Ds::KvPair<K, V>& kv) {
   os << "[" << kv.Key() << ", " << kv.mValue << "]";
   return os;
 }
 
 template<typename T>
-void PrintVector(const Ds::Vector<T>& vector, bool stats)
-{
+void PrintVector(const Ds::Vector<T>& vector, bool stats) {
   if (stats) {
     std::cout << "Size: " << vector.Size() << std::endl;
     std::cout << "Capactiy: " << vector.Capacity() << std::endl;
@@ -33,13 +30,12 @@ void PrintVector(const Ds::Vector<T>& vector, bool stats)
 }
 
 template<typename T>
-void PrintList(const Ds::List<T>& list)
-{
+void PrintList(const Ds::List<T>& list) {
   std::cout << "-List-\n";
   std::cout << "Size: " << list.Size();
   const size_t rowCount = 5;
   size_t elementIndex = 0;
-  for (const T& value : list) {
+  for (const T& value: list) {
     size_t columnIndex = elementIndex % rowCount;
     if (columnIndex == 0) {
       std::cout << "\n"
@@ -54,39 +50,32 @@ void PrintList(const Ds::List<T>& list)
   std::cout << "\n";
 }
 
-struct BTreeIndenter
-{
+struct BTreeIndenter {
   BTreeIndenter(): mDepth(0), mIndent("") {}
 
-  void PushRight()
-  {
+  void PushRight() {
     mIndent += "|  ";
     ++mDepth;
   }
-  void PushRightNullLeft()
-  {
+  void PushRightNullLeft() {
     mIndent += "   ";
     ++mDepth;
   }
-  void PopRight()
-  {
+  void PopRight() {
     mIndent.erase(mIndent.size() - 3);
     --mDepth;
   }
 
-  void PushLeft()
-  {
+  void PushLeft() {
     mIndent += " ";
     ++mDepth;
   }
-  void PopLeft()
-  {
+  void PopLeft() {
     mIndent.erase(mIndent.size() - 1);
     --mDepth;
   }
 
-  friend std::ostream& operator<<(std::ostream& os, BTreeIndenter& indenter)
-  {
+  friend std::ostream& operator<<(std::ostream& os, BTreeIndenter& indenter) {
     if (indenter.mDepth > 0) {
       indenter.mIndent[indenter.mIndent.size() - 1] = '\\';
       os << indenter.mIndent;
@@ -101,8 +90,7 @@ struct BTreeIndenter
 
 template<typename T>
 void PrintRbTreeNode(
-  const typename Ds::RbTree<T>::Node& node, BTreeIndenter& indenter)
-{
+  const typename Ds::RbTree<T>::Node& node, BTreeIndenter& indenter) {
   // We first print the current node we are on with the proper indent.
   std::cout << indenter;
   if (node.mColor == Ds::RbTree<T>::Node::Color::Red) {
@@ -132,8 +120,7 @@ void PrintRbTreeNode(
 }
 
 template<typename T>
-void PrintRbTree(const Ds::RbTree<T>& rbTree)
-{
+void PrintRbTree(const Ds::RbTree<T>& rbTree) {
   const typename Ds::RbTree<T>::Node* head = rbTree.GetHead();
   if (head == nullptr) {
     std::cout << "Empty Tree" << std::endl;
@@ -144,8 +131,7 @@ void PrintRbTree(const Ds::RbTree<T>& rbTree)
 }
 
 template<typename K, typename V>
-void PrintMap(const Ds::Map<K, V>& map)
-{
+void PrintMap(const Ds::Map<K, V>& map) {
   const typename Ds::RbTree<Ds::KvPair<K, V>>::Node* head = map.GetHead();
   if (head == nullptr) {
     std::cout << "Empty Map" << std::endl;
@@ -156,8 +142,7 @@ void PrintMap(const Ds::Map<K, V>& map)
 }
 
 template<typename T>
-void PrintPool(const Ds::Pool<T>& pool)
-{
+void PrintPool(const Ds::Pool<T>& pool) {
   // The width of each column is chosen based on the number of charaters in the
   // words sparse, dense, and data.
   int widths[3] = {6, 5, 4};

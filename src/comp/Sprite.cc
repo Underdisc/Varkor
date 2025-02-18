@@ -9,32 +9,27 @@ namespace Comp {
 
 const ResId Sprite::smDefaultMaterialId(smDefaultAssetName, "Default");
 
-void Sprite::VStaticInit()
-{
+void Sprite::VStaticInit() {
   Rsl::RequireAsset(smDefaultAssetName);
 }
 
-void Sprite::VInit(const World::Object& owner)
-{
+void Sprite::VInit(const World::Object& owner) {
   mMaterialId = smDefaultMaterialId;
   mScalorImageId = Rsl::GetDefaultResId<Gfx::Image>();
 }
 
-void Sprite::VSerialize(Vlk::Value& spriteVal)
-{
+void Sprite::VSerialize(Vlk::Value& spriteVal) {
   spriteVal("MaterialId") = mMaterialId;
   spriteVal("ScalorImageId") = mScalorImageId;
 }
 
-void Sprite::VDeserialize(const Vlk::Explorer& spriteEx)
-{
+void Sprite::VDeserialize(const Vlk::Explorer& spriteEx) {
   mMaterialId = spriteEx("MaterialId").As<ResId>(smDefaultMaterialId);
   mScalorImageId =
     spriteEx("ScalorImageId").As<ResId>(Rsl::GetDefaultResId<Gfx::Image>());
 }
 
-void Sprite::VRenderable(const World::Object& owner)
-{
+void Sprite::VRenderable(const World::Object& owner) {
   auto& transform = owner.Get<Comp::Transform>();
   Mat4 aspectScale = GetAspectScale();
   Mat4 transformation = transform.GetWorldMatrix(owner);
@@ -47,15 +42,13 @@ void Sprite::VRenderable(const World::Object& owner)
   Gfx::Collection::Add(std::move(floater));
 }
 
-void Sprite::VEdit(const World::Object& owner)
-{
+void Sprite::VEdit(const World::Object& owner) {
   Editor::DropResourceIdWidget(Rsl::ResTypeId::Material, &mMaterialId);
   Editor::DropResourceIdWidget(
     Rsl::ResTypeId::Image, &mScalorImageId, "Scalor");
 }
 
-Mat4 Sprite::GetAspectScale()
-{
+Mat4 Sprite::GetAspectScale() {
   auto* scalorImage = Rsl::TryGetRes<Gfx::Image>(mScalorImageId);
   Mat4 aspectScale;
   if (scalorImage == nullptr) {

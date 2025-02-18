@@ -9,8 +9,7 @@
 #include "world/Space.h"
 #include "world/Types.h"
 
-void Registration()
-{
+void Registration() {
   PrintRegistration<CallCounter>();
   PrintRegistration<Simple0>();
   PrintRegistration<Simple1>();
@@ -20,8 +19,7 @@ void Registration()
   PrintRegistration<Comp::Relationship>();
 }
 
-void CreateMember()
-{
+void CreateMember() {
   World::Space space;
   for (size_t i = 0; i < 20; ++i) {
     space.CreateMember();
@@ -29,8 +27,7 @@ void CreateMember()
   PrintSpace(space);
 }
 
-void DeleteMember()
-{
+void DeleteMember() {
   World::Space space;
   World::MemberId memberIds[10];
   for (size_t i = 0; i < 10; ++i) {
@@ -43,8 +40,7 @@ void DeleteMember()
   PrintSpace(space);
 }
 
-void RootMemberIds()
-{
+void RootMemberIds() {
   World::Space space;
   MemberId mem0 = space.CreateMember();
   MemberId mem1 = space.CreateMember();
@@ -52,8 +48,7 @@ void RootMemberIds()
   std::cout << space.RootMemberIds() << '\n';
 }
 
-void Relationships0()
-{
+void Relationships0() {
   // Ensures that all children are deleted and not skipped over due to an
   // early removal of a child id from the relationship's children vector.
   World::Space space;
@@ -66,8 +61,7 @@ void Relationships0()
   PrintSpace(space);
 }
 
-void Relationships1()
-{
+void Relationships1() {
   World::Space space;
   MemberId parentId = space.CreateMember();
   MemberId childId = space.CreateMember();
@@ -78,8 +72,7 @@ void Relationships1()
   PrintSpace(space);
 }
 
-void Relationships2()
-{
+void Relationships2() {
   World::Space space;
   World::MemberId memberIds[10];
   for (size_t i = 0; i < 10; ++i) {
@@ -122,8 +115,7 @@ void Relationships2()
   PrintSpaceRelationships(space);
 }
 
-void AddComponent()
-{
+void AddComponent() {
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Simple0>(mem0);
@@ -148,8 +140,7 @@ void AddComponent()
   PrintSpace(space);
 }
 
-void RemComponent()
-{
+void RemComponent() {
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Simple0>(mem0);
@@ -181,8 +172,7 @@ void RemComponent()
   PrintSpaceTablesOwners(space);
 }
 
-void DeleteMembersWithComponents()
-{
+void DeleteMembersWithComponents() {
   World::Space space;
   World::MemberId memberIds[8];
   for (size_t i = 0; i < 8; ++i) {
@@ -220,8 +210,7 @@ void DeleteMembersWithComponents()
   PrintSpaceTablesOwners(space);
 }
 
-void GetComponent()
-{
+void GetComponent() {
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Simple0>(mem0);
@@ -246,8 +235,7 @@ void GetComponent()
   PrintSpace(space);
 }
 
-void HasComponent()
-{
+void HasComponent() {
   World::Space space;
   World::MemberId mem0 = space.CreateMember();
   space.AddComponent<Simple1>(mem0);
@@ -268,8 +256,7 @@ void HasComponent()
             << space.HasComponent<Container>(mem1) << '\n';
 }
 
-void Duplicate0()
-{
+void Duplicate0() {
   // Duplicate a lone member.
   World::Space space;
   World::MemberId testId = space.CreateMember();
@@ -280,8 +267,7 @@ void Duplicate0()
   PrintSpace(space);
 }
 
-void Duplicate1()
-{
+void Duplicate1() {
   // Duplicate a member with children.
   World::Space space;
   MemberId testId = space.CreateMember();
@@ -298,8 +284,7 @@ void Duplicate1()
   PrintSpaceRelationships(space);
 }
 
-void Duplicate2()
-{
+void Duplicate2() {
   // Duplicate a member with a parent and children.
   World::Space space;
   World::MemberId parentId = space.CreateMember();
@@ -318,8 +303,7 @@ void Duplicate2()
   PrintSpaceRelationships(space);
 }
 
-void Duplicate3()
-{
+void Duplicate3() {
   // A combination of the last three duplication tests. This will force the
   // table for the relationship components to grow. The test makes sure that an
   // access attempt on an invalidated relationship component isn't made.
@@ -355,8 +339,7 @@ void Duplicate3()
   PrintSpaceRelationships(space);
 }
 
-void Dependencies()
-{
+void Dependencies() {
   World::Space space;
 
   World::MemberId mem0 = space.CreateMember();
@@ -374,8 +357,7 @@ void Dependencies()
   PrintSpace(space);
 }
 
-void Slice()
-{
+void Slice() {
   World::Space space;
   for (int i = 0; i < 20; ++i) {
     World::MemberId memberId = space.CreateMember();
@@ -408,8 +390,7 @@ void Slice()
   printMemberVector(dynamicSlice);
 }
 
-int main(void)
-{
+int main(void) {
   Error::Init();
   RegisterComponentTypes();
 

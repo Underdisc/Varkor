@@ -7,8 +7,7 @@
 namespace Gfx {
 namespace GlError {
 
-void Init()
-{
+void Init() {
   glEnable(GL_DEBUG_OUTPUT);
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
   glDebugMessageCallback(Callback, nullptr);
@@ -30,8 +29,7 @@ void Init()
     GL_FALSE);
 }
 
-void LogFramebufferStatus(GLenum target)
-{
+void LogFramebufferStatus(GLenum target) {
   GLenum status = glCheckFramebufferStatus(target);
   switch (status) {
   case GL_FRAMEBUFFER_COMPLETE: Log::String("GL_FRAMEBUFFER_COMPLETE"); break;
@@ -60,8 +58,7 @@ void LogFramebufferStatus(GLenum target)
   }
 }
 
-void LogStatus()
-{
+void LogStatus() {
   std::string s;
   GLenum error = glGetError();
   switch (error) {
@@ -86,8 +83,7 @@ void GLAPIENTRY Callback(
   GLenum severity,
   GLsizei length,
   const GLchar* message,
-  const void* userParam)
-{
+  const void* userParam) {
   std::string e;
   e += "GlError(";
   switch (source) {

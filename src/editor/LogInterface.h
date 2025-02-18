@@ -5,8 +5,7 @@
 
 namespace Editor {
 
-struct LogInterface: public Interface
-{
+struct LogInterface: public Interface {
   void Show();
 };
 

@@ -11,8 +11,7 @@ namespace World {
 // This represents a game object in the world. Objects do not store any data.
 // They are merely a way to reference the collection of data that represents an
 // object.
-struct Object
-{
+struct Object {
   Object();
   Object(const Object& other);
   Object(Space* space);

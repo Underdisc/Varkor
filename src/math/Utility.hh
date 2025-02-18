@@ -1,8 +1,7 @@
 namespace Math {
 
 template<typename T>
-const T& Max(const T& a, const T& b)
-{
+const T& Max(const T& a, const T& b) {
   if (a > b) {
     return a;
   }
@@ -10,8 +9,7 @@ const T& Max(const T& a, const T& b)
 }
 
 template<typename T>
-const T& Min(const T& a, const T& b)
-{
+const T& Min(const T& a, const T& b) {
   if (a < b) {
     return a;
   }
@@ -19,8 +17,7 @@ const T& Min(const T& a, const T& b)
 }
 
 template<typename T>
-T Clamp(T minimum, T maximum, T value)
-{
+T Clamp(T minimum, T maximum, T value) {
   if (value < minimum) {
     return minimum;
   }

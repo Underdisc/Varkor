@@ -23,8 +23,7 @@ bool nHideInterface = false;
 World::Space nSpace;
 void (*nExtension)() = nullptr;
 
-void SetStyle()
-{
+void SetStyle() {
   // Change imgui's default style so I find it more pleasing (ah opinions).
   ImGuiStyle& imStyle = ImGui::GetStyle();
   imStyle.WindowRounding = 0.0f;
@@ -94,21 +93,18 @@ void SetStyle()
   colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 }
 
-void StartImGuiFrame()
-{
+void StartImGuiFrame() {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 }
 
-void EndImGuiFrame()
-{
+void EndImGuiFrame() {
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Init()
-{
+void Init() {
   Gizmos::Init();
 
   // Initialize imgui.
@@ -123,7 +119,7 @@ void Init()
 
   // Load in the requested layers.
   World::LayerIt loadedLayerIt = World::nLayers.end();
-  for (std::string layerFile : Options::nConfig.mLoadLayers) {
+  for (std::string layerFile: Options::nConfig.mLoadLayers) {
     layerFile = Rsl::PrependResDirectory(layerFile);
     VResult<World::LayerIt> result = World::LoadLayer(layerFile.c_str());
     if (!result.Success()) {
@@ -145,8 +141,7 @@ void Init()
   }
 }
 
-void Purge()
-{
+void Purge() {
   nCoreInterface.PurgeInterfaces();
   Gizmos::Purge();
   nCamera.Purge();
@@ -157,8 +152,7 @@ void Purge()
   ImGui::DestroyContext(nImGuiContext);
 }
 
-void StartFrame()
-{
+void StartFrame() {
   Gizmos::Update();
   nCamera.Update();
   StartImGuiFrame();
@@ -167,8 +161,7 @@ void StartFrame()
   Input::SetKeyboardFocus(!io.WantCaptureKeyboard);
 }
 
-void RunInWorlds()
-{
+void RunInWorlds() {
   auto* layerInterface = nCoreInterface.FindInterface<LayerInterface>();
   if (layerInterface == nullptr) {
     return;
@@ -182,8 +175,7 @@ void RunInWorlds()
   layerInterface->ObjectPicking();
 }
 
-void TrySaveLayer()
-{
+void TrySaveLayer() {
   if (nPlayMode) {
     return;
   }
@@ -195,8 +187,7 @@ void TrySaveLayer()
   }
 }
 
-void EndFrame()
-{
+void EndFrame() {
   if (Options::nConfig.mEditorLevel == Options::EditorLevel::Complete) {
     TrySaveLayer();
     nCoreInterface.HandleStaging();

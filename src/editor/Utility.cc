@@ -6,21 +6,18 @@
 
 namespace Editor {
 
-float CalcBufferWidth(const char* text)
-{
+float CalcBufferWidth(const char* text) {
   return ImGui::CalcTextSize(text).x + 3.0f;
 }
 
-int InputTextCallback(ImGuiInputTextCallbackData* data)
-{
+int InputTextCallback(ImGuiInputTextCallbackData* data) {
   std::string* str = (std::string*)data->UserData;
   str->resize(data->BufTextLen);
   data->Buf = (char*)str->data();
   return 0;
 }
 
-bool InputText(const char* label, std::string* str, float itemWidth)
-{
+bool InputText(const char* label, std::string* str, float itemWidth) {
   ImGui::PushItemWidth(itemWidth);
   bool result = ImGui::InputText(
     label,
@@ -33,8 +30,8 @@ bool InputText(const char* label, std::string* str, float itemWidth)
   return result;
 }
 
-bool InputTextMultiline(const char* label, const ImVec2& size, std::string* str)
-{
+bool InputTextMultiline(
+  const char* label, const ImVec2& size, std::string* str) {
   return ImGui::InputTextMultiline(
     label,
     (char*)str->data(),
@@ -45,8 +42,7 @@ bool InputTextMultiline(const char* label, const ImVec2& size, std::string* str)
     str);
 }
 
-void DragResourceId(Rsl::ResourceTypeId resTypeId, const ResId& resId)
-{
+void DragResourceId(Rsl::ResourceTypeId resTypeId, const ResId& resId) {
   std::string payloadName;
   if (resTypeId != Rsl::ResTypeId::Invalid) {
     const Rsl::ResTypeData& resTypeData = Rsl::GetResTypeData(resTypeId);
@@ -65,8 +61,10 @@ void DragResourceId(Rsl::ResourceTypeId resTypeId, const ResId& resId)
 }
 
 void DropResourceIdWidget(
-  Rsl::ResTypeId resTypeId, ResId* resId, const char* prefix, float bufferWidth)
-{
+  Rsl::ResTypeId resTypeId,
+  ResId* resId,
+  const char* prefix,
+  float bufferWidth) {
   // Display an editable text box.
   const Rsl::ResTypeData& resTypeData = Rsl::GetResTypeData(resTypeId);
   std::string label = prefix;
@@ -94,8 +92,7 @@ void DropResourceIdWidget(
   }
 }
 
-void DragResourceFile(const std::string& resFile)
-{
+void DragResourceFile(const std::string& resFile) {
   if (ImGui::BeginDragDropSource()) {
     ImGui::SetDragDropPayload(
       "ResFile", (void*)resFile.c_str(), resFile.size());
@@ -104,8 +101,7 @@ void DragResourceFile(const std::string& resFile)
   }
 }
 
-void DropResourceFileWidget(const char* label, std::string* resFile)
-{
+void DropResourceFileWidget(const char* label, std::string* resFile) {
   InputText(label, resFile, -CalcBufferWidth(label));
   if (ImGui::BeginDragDropTarget()) {
     const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ResFile");
@@ -117,8 +113,7 @@ void DropResourceFileWidget(const char* label, std::string* resFile)
   }
 }
 
-void HelpMarker(const char* text)
-{
+void HelpMarker(const char* text) {
   ImGui::SameLine();
   ImGui::TextDisabled("(?)");
   if (ImGui::IsItemHovered()) {
@@ -128,8 +123,8 @@ void HelpMarker(const char* text)
   }
 }
 
-void HdrColorEdit(const char* label, Gfx::HdrColor* hdrColor, float colorWidth)
-{
+void HdrColorEdit(
+  const char* label, Gfx::HdrColor* hdrColor, float colorWidth) {
   ImGui::PushID((void*)hdrColor);
   ImGui::PushItemWidth(60);
   ImGui::DragFloat("", &hdrColor->mIntensity, 0.01f, 0.0f, FLT_MAX, "I:%0.3f");
@@ -141,8 +136,7 @@ void HdrColorEdit(const char* label, Gfx::HdrColor* hdrColor, float colorWidth)
   ImGui::PopItemWidth();
 }
 
-bool RotationEdit(Math::Quaternion* rotation)
-{
+bool RotationEdit(Math::Quaternion* rotation) {
   Vec3 eulerAngles = rotation->EulerAngles();
   Vec3 newAngles = eulerAngles;
   bool rotationDragged =

@@ -8,8 +8,7 @@
 
 namespace Options {
 
-enum class EditorLevel
-{
+enum class EditorLevel {
   // Allows the creation of windows. No other windows are shown and no other
   // editor features are available.
   Simple = 0,
@@ -17,8 +16,7 @@ enum class EditorLevel
   Complete = 1,
 };
 
-struct Config
-{
+struct Config {
   std::string mWindowName;
   std::string mProjectDirectory;
   EditorLevel mEditorLevel;

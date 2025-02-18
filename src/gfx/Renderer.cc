@@ -72,8 +72,7 @@ GLuint nBlurTbos[2];
 GLuint nFinalHdrFbo;
 GLuint nFinalHdrTbo;
 
-void InitRequiredFramebuffers(int width, int height)
-{
+void InitRequiredFramebuffers(int width, int height) {
   // Create the multisample buffer that renderables are rendered to.
   glGenFramebuffers(1, &nLayerFbo);
   glBindFramebuffer(GL_FRAMEBUFFER, nLayerFbo);
@@ -134,8 +133,7 @@ void InitRequiredFramebuffers(int width, int height)
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void PurgeRequiredFramebuffers()
-{
+void PurgeRequiredFramebuffers() {
   // Delete the framebuffer objects.
   glDeleteFramebuffers(1, &nLayerFbo);
   glDeleteFramebuffers(1, &nLayerResolvedFbo);
@@ -156,8 +154,7 @@ void PurgeRequiredFramebuffers()
   glDeleteTextures(1, &nFinalHdrTbo);
 }
 
-void PurgeMemberIdFbo()
-{
+void PurgeMemberIdFbo() {
   if (nMemberIdFbo != nUnusedFbo) {
     glDeleteFramebuffers(1, &nMemberIdFbo);
     glDeleteTextures(1, &nMemberIdColorTbo);
@@ -166,8 +163,7 @@ void PurgeMemberIdFbo()
   nMemberIdFbo = nUnusedFbo;
 }
 
-void Init()
-{
+void Init() {
   // Initialize all of the resources used by the renderer.
   Rsl::Asset& asset = Rsl::AddAsset(nRendererAssetName);
   // clang-format off
@@ -247,7 +243,7 @@ void Init()
     glBindBufferBase(GL_UNIFORM_BUFFER, binding, *vbo);
   };
   CreateUniformBuffer(&nUniversalUniformBufferVbo, 144, 0);
-  CreateUniformBuffer(&nLightsUniformBufferVbo, 17680, 1);
+  CreateUniformBuffer(&nLightsUniformBufferVbo, 17'680, 1);
   CreateUniformBuffer(&nShadowUniformBufferVbo, 80, 2);
 
   glEnable(GL_DEPTH_TEST);
@@ -257,14 +253,12 @@ void Init()
   InitRequiredFramebuffers(Viewport::Width(), Viewport::Height());
 }
 
-void Purge()
-{
+void Purge() {
   PurgeRequiredFramebuffers();
   PurgeMemberIdFbo();
 }
 
-void Clear()
-{
+void Clear() {
   glBindFramebuffer(GL_FRAMEBUFFER, nBlendedFbo);
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -281,15 +275,13 @@ void Clear()
   nMemberIdFboUsed = false;
 }
 
-void ResizeRequiredFramebuffers()
-{
+void ResizeRequiredFramebuffers() {
   PurgeRequiredFramebuffers();
   InitRequiredFramebuffers(Viewport::Width(), Viewport::Height());
   PurgeMemberIdFbo();
 }
 
-void InitializeUniversalUniformBuffer(const World::Object& cameraObject)
-{
+void InitializeUniversalUniformBuffer(const World::Object& cameraObject) {
   const auto& cameraComp = cameraObject.Get<Comp::Camera>();
   Mat4 viewTranspose = Math::Transpose(cameraComp.View(cameraObject));
   Mat4 projTranspose = Math::Transpose(cameraComp.Proj());
@@ -304,8 +296,7 @@ void InitializeUniversalUniformBuffer(const World::Object& cameraObject)
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void InitializeLightsUniformBuffer(const World::Space& space)
-{
+void InitializeLightsUniformBuffer(const World::Space& space) {
   GLenum buffer = GL_UNIFORM_BUFFER;
   glBindBuffer(buffer, nLightsUniformBufferVbo);
 
@@ -388,8 +379,7 @@ void InitializeLightsUniformBuffer(const World::Space& space)
 }
 
 void InitializeShadowUniformBuffer(
-  const World::Space& space, Collection* collection)
-{
+  const World::Space& space, Collection* collection) {
   // Determine whether the shadow exists.
   GLenum buffer = GL_UNIFORM_BUFFER;
   glBindBuffer(buffer, nShadowUniformBufferVbo);
@@ -423,7 +413,7 @@ void InitializeShadowUniformBuffer(
   Gfx::Shader& depthShader = Rsl::GetRes<Shader>(nDepthShaderId);
   depthShader.Use();
   depthShader.SetUniform("uProjView", projView);
-  for (const Renderable::Floater& floater : collection->mFloaters) {
+  for (const Renderable::Floater& floater: collection->mFloaters) {
     const Mesh* mesh = Rsl::TryGetRes<Mesh>(floater.mMeshId);
     if (mesh == nullptr) {
       continue;
@@ -435,8 +425,7 @@ void InitializeShadowUniformBuffer(
     UniformTypeId::Texture2d, "uShadowTexture", shadowMap.mTbo);
 }
 
-void EnsureMemberIdFbo()
-{
+void EnsureMemberIdFbo() {
   nMemberIdFboUsed = true;
   if (nMemberIdFbo != nUnusedFbo) {
     return;
@@ -483,12 +472,11 @@ void EnsureMemberIdFbo()
 }
 
 void RenderMemberIds(
-  const Collection& collection, const World::Object& cameraObject)
-{
+  const Collection& collection, const World::Object& cameraObject) {
   InitializeUniversalUniformBuffer(cameraObject);
   auto& memberIdShader = Rsl::GetRes<Gfx::Shader>(nMemberIdShaderId);
   memberIdShader.Use();
-  for (const Renderable::Floater& floater : collection.mFloaters) {
+  for (const Renderable::Floater& floater: collection.mFloaters) {
     const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(floater.mMeshId);
     if (mesh == nullptr) {
       continue;
@@ -501,8 +489,7 @@ void RenderMemberIds(
 }
 
 void RenderMemberOutline(
-  const Collection& collection, const World::Object& cameraObject)
-{
+  const Collection& collection, const World::Object& cameraObject) {
   // Render the memberIds.
   EnsureMemberIdFbo();
   glBindFramebuffer(GL_FRAMEBUFFER, nMemberIdFbo);
@@ -531,8 +518,7 @@ void RenderMemberOutline(
 }
 
 World::MemberId HoveredMemberId(
-  const World::Space& space, const World::Object& cameraObject)
-{
+  const World::Space& space, const World::Object& cameraObject) {
   // Render all of the MemberIds to a framebuffer.
   Collection collection;
   collection.Collect(space);
@@ -557,8 +543,7 @@ World::MemberId HoveredMemberId(
   return memberId;
 }
 
-void RenderLayer(const World::Space& space, const World::Object& cameraObject)
-{
+void RenderLayer(const World::Space& space, const World::Object& cameraObject) {
   Collection collection;
   collection.Collect(space);
 
@@ -595,8 +580,7 @@ void RenderLayer(const World::Space& space, const World::Object& cameraObject)
     GL_NEAREST);
 }
 
-void BlendLayer(GLuint toFbo, const ResId& postMaterialId)
-{
+void BlendLayer(GLuint toFbo, const ResId& postMaterialId) {
   // Acquire the material.
   const auto* material =
     Rsl::TryGetRes<Material>(postMaterialId, nDefaultPostId);
@@ -627,8 +611,7 @@ void BlendLayer(GLuint toFbo, const ResId& postMaterialId)
   glEnable(GL_DEPTH_TEST);
 }
 
-void BloomAndTonemapPasses()
-{
+void BloomAndTonemapPasses() {
   // Extract the instense colors into the first blur buffer.
   glDisable(GL_DEPTH_TEST);
   glBindFramebuffer(GL_FRAMEBUFFER, nBlurFbos[0]);
@@ -699,9 +682,8 @@ void BloomAndTonemapPasses()
   glEnable(GL_DEPTH_TEST);
 }
 
-Result RenderWorld()
-{
-  for (World::Layer& layer : World::nLayers) {
+Result RenderWorld() {
+  for (World::Layer& layer: World::nLayers) {
     // Make sure the layer has a camera.
     if (layer.mCameraId == World::nInvalidMemberId) {
       std::stringstream error;
@@ -727,8 +709,7 @@ Result RenderWorld()
   return Result();
 }
 
-void Render()
-{
+void Render() {
   ZoneScoped;
 
   Clear();

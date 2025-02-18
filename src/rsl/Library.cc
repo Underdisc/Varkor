@@ -12,8 +12,7 @@
 
 namespace Rsl {
 
-struct SharedConfig
-{
+struct SharedConfig {
   Vlk::Value mConfig;
   int mRefCount;
 };
@@ -29,8 +28,7 @@ Ds::Vector<std::string> nInitQueue;
 std::mutex nFinalizeQueueMutex;
 Ds::Vector<std::string> nFinalizeQueue;
 
-Asset& AddAsset(const std::string& name)
-{
+Asset& AddAsset(const std::string& name) {
   VResult<Ds::RbTree<Asset>::Iter> result = nAssets.Emplace(name);
   if (!result.Success()) {
     std::stringstream error;
@@ -40,37 +38,31 @@ Asset& AddAsset(const std::string& name)
   return *result.mValue;
 }
 
-Asset& QueueAsset(const std::string& name)
-{
+Asset& QueueAsset(const std::string& name) {
   Asset& asset = AddAsset(name);
   asset.QueueInit();
   return asset;
 }
 
-Asset& RequireAsset(const std::string& name)
-{
+Asset& RequireAsset(const std::string& name) {
   Asset& asset = AddAsset(name);
   asset.InitFinalize();
   return asset;
 }
 
-void RemAsset(const std::string& name)
-{
+void RemAsset(const std::string& name) {
   nAssets.Remove(name);
 }
 
-Asset& GetAsset(const std::string& name)
-{
+Asset& GetAsset(const std::string& name) {
   return nAssets.Get(name);
 }
 
-Asset* TryGetAsset(const std::string& name)
-{
+Asset* TryGetAsset(const std::string& name) {
   return nAssets.TryGet(name);
 }
 
-Asset::Status GetAssetStatus(const std::string& name)
-{
+Asset::Status GetAssetStatus(const std::string& name) {
   Asset* asset = TryGetAsset(name);
   if (asset != nullptr) {
     return asset->GetStatus();
@@ -78,8 +70,7 @@ Asset::Status GetAssetStatus(const std::string& name)
   return Asset::Status::Dormant;
 }
 
-VResult<Vlk::Value*> AddConfig(const std::string& assetName)
-{
+VResult<Vlk::Value*> AddConfig(const std::string& assetName) {
   // Try to get the existing config.
   SharedConfig* sharedConfig = nSharedConfigs.TryGet(assetName);
   if (sharedConfig != nullptr) {
@@ -108,8 +99,7 @@ VResult<Vlk::Value*> AddConfig(const std::string& assetName)
   return &nSharedConfigs.Emplace(assetName, std::move(newSharedConfig)).mConfig;
 }
 
-void RemConfig(const std::string& assetName)
-{
+void RemConfig(const std::string& assetName) {
   SharedConfig& sharedConfig = nSharedConfigs.Get(assetName);
   --sharedConfig.mRefCount;
   if (sharedConfig.mRefCount == 0) {
@@ -117,13 +107,11 @@ void RemConfig(const std::string& assetName)
   }
 }
 
-Vlk::Value& GetConfig(const std::string& assetName)
-{
+Vlk::Value& GetConfig(const std::string& assetName) {
   return nSharedConfigs.Get(assetName).mConfig;
 }
 
-void WriteConfig(const std::string& assetName)
-{
+void WriteConfig(const std::string& assetName) {
   Vlk::Value& assetVal = GetConfig(assetName);
   std::string assetFile = assetName + Rsl::nAssetExtension;
   VResult<std::string> result = Rsl::ResolveResPath(assetFile);
@@ -131,26 +119,22 @@ void WriteConfig(const std::string& assetName)
   assetVal.Write(result.mValue.c_str());
 }
 
-bool IsStandalone()
-{
+bool IsStandalone() {
   return Options::nConfig.mProjectDirectory == "";
 }
 
-std::string ResDirectory()
-{
+std::string ResDirectory() {
   return Options::nConfig.mProjectDirectory + "res";
 }
 
-std::string PrependResDirectory(const std::string& path)
-{
+std::string PrependResDirectory(const std::string& path) {
   return ResDirectory() + '/' + path;
 }
 
 // A path can be next to the executable or within a project directory. This
 // function will return a path that is guaranteed to reference a directory entry
 // in one of these two locations or an error when an entry doesn't exist.
-VResult<std::string> ResolveProjPath(const std::string& path)
-{
+VResult<std::string> ResolveProjPath(const std::string& path) {
   if (std::filesystem::exists(path)) {
     return VResult<std::string>(path);
   }
@@ -162,8 +146,7 @@ VResult<std::string> ResolveProjPath(const std::string& path)
 }
 
 // The same as ResolveProjPath, but for a project's res/ directory.
-VResult<std::string> ResolveResPath(const std::string& path)
-{
+VResult<std::string> ResolveResPath(const std::string& path) {
   if (std::filesystem::exists(path)) {
     return VResult<std::string>(path);
   }
@@ -174,14 +157,12 @@ VResult<std::string> ResolveResPath(const std::string& path)
   return Result("Resource path \"" + path + "\" failed resolution.");
 }
 
-void Init()
-{
+void Init() {
   RegisterResourceTypes();
   RequireAsset(nDefaultAssetName);
 }
 
-void Purge()
-{
+void Purge() {
   if (nInitThread != nullptr) {
     nStopInitThread = true;
     nInitThread->join();
@@ -192,8 +173,7 @@ void Purge()
   nAssets.Clear();
 }
 
-void AddToInitQueue(const Asset& asset)
-{
+void AddToInitQueue(const Asset& asset) {
   if (asset.GetStatus() != Asset::Status::Queued) {
     std::string error =
       "Asset \"" + asset.GetName() + "\" lacks Queued status.";
@@ -204,13 +184,11 @@ void AddToInitQueue(const Asset& asset)
   nInitQueueMutex.unlock();
 }
 
-bool InitThreadOpen()
-{
+bool InitThreadOpen() {
   return nInitThread != nullptr;
 }
 
-void InitializationThreadMain()
-{
+void InitializationThreadMain() {
   ProfileThread("Init");
 
   Viewport::StartContextSharing();
@@ -236,8 +214,7 @@ void InitializationThreadMain()
   nInitThreadRunning = false;
 }
 
-void HandleFinalization()
-{
+void HandleFinalization() {
   while (!nFinalizeQueue.Empty()) {
     Asset& asset = GetAsset(nFinalizeQueue[0]);
     asset.Finalize();
@@ -247,8 +224,7 @@ void HandleFinalization()
   }
 }
 
-void HandleInitialization()
-{
+void HandleInitialization() {
   // Create the thread when there are initializations to perform and delete it
   // when there are no initializations left.
   if (nInitThread != nullptr && !nInitThreadRunning) {

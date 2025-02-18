@@ -12,8 +12,7 @@ namespace Error {
 std::string FormatFileName(const char* file);
 void SignalHandler(int signal);
 
-void Init()
-{
+void Init() {
   EnableLeakOutput();
   signal(SIGABRT, SignalHandler);
   signal(SIGFPE, SignalHandler);
@@ -23,22 +22,19 @@ void Init()
   signal(SIGTERM, SignalHandler);
 }
 
-void Log(const char* reason)
-{
+void Log(const char* reason) {
   std::stringstream ss;
   ss << "Error: " << reason;
   Log::String(ss.str().c_str());
 }
 
-void Log(const char* function, const char* reason)
-{
+void Log(const char* function, const char* reason) {
   std::stringstream ss;
   ss << "Error>" << function << ": " << reason;
   Log::String(ss.str().c_str());
 }
 
-void Log(const char* file, int line, const char* function, const char* reason)
-{
+void Log(const char* file, int line, const char* function, const char* reason) {
   std::stringstream ss;
   std::string filename = FormatFileName(file);
   ss << "Error>" << filename << "(" << line << ")>" << function << ": "
@@ -46,14 +42,13 @@ void Log(const char* file, int line, const char* function, const char* reason)
   Log::String(ss.str().c_str());
 }
 
-void AbortInternal(const char* string)
-{
+void AbortInternal(const char* string) {
   Log::String(string);
   abort();
 }
 
-void Abort(const char* file, int line, const char* function, const char* reason)
-{
+void Abort(
+  const char* file, int line, const char* function, const char* reason) {
   std::stringstream ss;
   std::string filename = FormatFileName(file);
   ss << "Abort>" << filename << "(" << line << ")>" << function << ": "
@@ -61,20 +56,17 @@ void Abort(const char* file, int line, const char* function, const char* reason)
   AbortInternal(ss.str().c_str());
 }
 
-void Abort(const char* reason)
-{
+void Abort(const char* reason) {
   std::stringstream ss;
   ss << "Abort: " << reason;
   AbortInternal(ss.str().c_str());
 }
 
-void Abort()
-{
+void Abort() {
   AbortInternal("Abort");
 }
 
-std::string FormatFileName(const char* file)
-{
+std::string FormatFileName(const char* file) {
   std::string filename(file);
   size_t index = filename.find("src");
   filename = filename.substr(index);
@@ -86,8 +78,7 @@ std::string FormatFileName(const char* file)
   return filename;
 }
 
-void SignalHandler(int signal)
-{
+void SignalHandler(int signal) {
   switch (signal) {
   case SIGABRT: Log::String("\nSIGABRT: Abort"); break;
   case SIGFPE: Log::String("SIGFPE: Floating-Point Exception"); break;

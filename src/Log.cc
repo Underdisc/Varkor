@@ -11,8 +11,7 @@ std::string nLog;
 std::ofstream nFile;
 bool nUseCout = true;
 
-void Init(const char* logFile)
-{
+void Init(const char* logFile) {
   if (logFile == nullptr) {
     return;
   }
@@ -23,15 +22,13 @@ void Init(const char* logFile)
   }
 }
 
-void Purge()
-{
+void Purge() {
   if (nFile.is_open()) {
     nFile.close();
   }
 }
 
-void StackTrace()
-{
+void StackTrace() {
   backward::TraceResolver dummyResolver;
   backward::StackTrace trace;
   trace.load_here(32);
@@ -42,8 +39,7 @@ void StackTrace()
   String(traceOutput.str().c_str());
 }
 
-void String(const char* string)
-{
+void String(const char* string) {
   std::stringstream logStream;
   logStream << string << '\n';
   nLogMutex.lock();
@@ -57,8 +53,7 @@ void String(const char* string)
   nLogMutex.unlock();
 }
 
-void String(const std::string& string)
-{
+void String(const std::string& string) {
   String(string.c_str());
 }
 

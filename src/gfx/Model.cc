@@ -14,13 +14,11 @@ namespace Gfx {
 
 Model::Model() {}
 
-Model::Model(Model&& other)
-{
+Model::Model(Model&& other) {
   *this = std::move(other);
 }
 
-Model& Model::operator=(Model&& other)
-{
+Model& Model::operator=(Model&& other) {
   mRenderableDescs = std::move(other.mRenderableDescs);
   mMeshDescs = std::move(other.mMeshDescs);
   mMaterialIds = std::move(other.mMaterialIds);
@@ -28,8 +26,7 @@ Model& Model::operator=(Model&& other)
 }
 
 VResult<const aiScene*> Model::Import(
-  const std::string& file, Assimp::Importer* importer, bool flipUvs)
-{
+  const std::string& file, Assimp::Importer* importer, bool flipUvs) {
   // Resolve the file to an absolute path.
   VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
@@ -56,8 +53,7 @@ VResult<const aiScene*> Model::Import(
   return VResult<const aiScene*>(scene);
 }
 
-void Model::EditConfig(Vlk::Value* configValP)
-{
+void Model::EditConfig(Vlk::Value* configValP) {
   Mesh::EditConfig(configValP);
   Vlk::Value& configVal = *configValP;
   Vlk::Value& shaderIdVal = configVal("ShaderId");
@@ -66,8 +62,7 @@ void Model::EditConfig(Vlk::Value* configValP)
   shaderIdVal = shaderId;
 }
 
-Result Model::Init(const Vlk::Explorer& configEx)
-{
+Result Model::Init(const Vlk::Explorer& configEx) {
   // Get the file to import.
   Vlk::Explorer fileEx = configEx("File");
   if (!fileEx.Valid(Vlk::Value::Type::TrueValue)) {
@@ -159,13 +154,11 @@ Result Model::Init(const Vlk::Explorer& configEx)
   return Result();
 }
 
-size_t Model::RenderableCount() const
-{
+size_t Model::RenderableCount() const {
   return mRenderableDescs.Size();
 }
 
-Renderable::Floater Model::GetFloater(size_t renderableDescIndex) const
-{
+Renderable::Floater Model::GetFloater(size_t renderableDescIndex) const {
   const RenderableDescriptor& renderableDesc =
     mRenderableDescs[renderableDescIndex];
   const MeshDescriptor& meshDesc = mMeshDescs[renderableDesc.mMeshIndex];
@@ -178,8 +171,7 @@ Renderable::Floater Model::GetFloater(size_t renderableDescIndex) const
 }
 
 void Model::CreateRenderables(
-  const aiNode& assimpNode, const Mat4& parentTransform)
-{
+  const aiNode& assimpNode, const Mat4& parentTransform) {
   Mat4 transformation;
   float* fromTransformation = (float*)&assimpNode.mTransformation.a1;
   float* toTransformation = transformation[0];

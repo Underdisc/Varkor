@@ -10,8 +10,7 @@
 #include "world/Table.h"
 
 template<typename T>
-void PrintRegistration()
-{
+void PrintRegistration() {
   const Comp::TypeData& typeData = Comp::GetTypeData<T>();
   std::cout << "-" << Comp::Type<T>::smId << "-"
             << "\nName: " << typeData.mName << "\nSize: " << typeData.mSize
@@ -33,8 +32,7 @@ void PrintRegistration()
 }
 
 template<typename T>
-void PrintTable(const World::Table& table)
-{
+void PrintTable(const World::Table& table) {
   std::cout << "-TableData- [owner, data]\n";
   for (size_t i = 0; i < table.Size(); ++i) {
     std::cout << "[" << table.GetOwnerAtDenseIndex(i) << ", "
@@ -42,15 +40,13 @@ void PrintTable(const World::Table& table)
   }
 }
 
-void PrintTableStats(const World::Table& table)
-{
+void PrintTableStats(const World::Table& table) {
   std::cout << "-TableStats-\n"
             << "Stride: " << table.Stride() << ", Size: " << table.Size()
             << ", Capacity: " << table.Capacity() << "\n";
 }
 
-void PrintTableOwners(const World::Table& table)
-{
+void PrintTableOwners(const World::Table& table) {
   std::cout << "-TableOwners-\n[";
   for (size_t i = 0; i < table.Size(); ++i) {
     std::cout << table.GetOwnerAtDenseIndex(i);
@@ -61,8 +57,7 @@ void PrintTableOwners(const World::Table& table)
   std::cout << "]\n";
 }
 
-void PrintSpaceTablesStats(const World::Space& space)
-{
+void PrintSpaceTablesStats(const World::Space& space) {
   std::cout << "-TableStats-\n";
   const Ds::Pool<World::Table>& tables = space.Tables();
   for (Ds::PoolId id = 0; id < tables.Capacity(); ++id) {
@@ -76,8 +71,7 @@ void PrintSpaceTablesStats(const World::Space& space)
   }
 }
 
-void PrintSpaceTablesOwners(const World::Space& space)
-{
+void PrintSpaceTablesOwners(const World::Space& space) {
   std::cout << "-TableOwners-\n";
   const Ds::Pool<World::Table>& tables = space.Tables();
   for (Ds::PoolId id = 0; id < tables.Capacity(); ++id) {
@@ -100,8 +94,7 @@ void PrintChildren(
   const World::Space& space,
   MemberId memberId,
   std::stringstream* output,
-  std::string indent = "")
-{
+  std::string indent = "") {
   auto* relationship = space.TryGet<Comp::Relationship>(memberId);
   if (relationship == nullptr || relationship->mChildren.Empty()) {
     return;
@@ -120,11 +113,10 @@ void PrintChildren(
   }
 }
 
-void PrintSpaceRelationships(const World::Space& space)
-{
+void PrintSpaceRelationships(const World::Space& space) {
   std::stringstream output;
   const Ds::Vector<MemberId> rootMembers = space.RootMemberIds();
-  for (MemberId rootMemberId : rootMembers) {
+  for (MemberId rootMemberId: rootMembers) {
     auto* relationship = space.TryGet<Comp::Relationship>(rootMemberId);
     if (relationship == nullptr) {
       continue;
@@ -138,8 +130,7 @@ void PrintSpaceRelationships(const World::Space& space)
   }
 }
 
-void PrintSpace(const World::Space& space)
-{
+void PrintSpace(const World::Space& space) {
   std::cout << "-Space-\n";
   Vlk::Value spaceVal;
   space.Serialize(spaceVal);

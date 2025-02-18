@@ -8,8 +8,7 @@
 namespace Comp {
 
 #pragma pack(push, 1)
-struct Sprite
-{
+struct Sprite {
   constexpr static const char* smDefaultAssetName = "vres/sprite";
   static const ResId smDefaultMaterialId;
 

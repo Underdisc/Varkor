@@ -5,8 +5,7 @@ const path = require('path');
 const repoDir = path.join(__dirname, '..');
 const testDirectory = path.join(repoDir, 'working', 'test');
 
-function GetTargets()
-{
+function GetTargets() {
   const dirs = fs.readdirSync(testDirectory, {withFileTypes: true})
                  .filter(dirent => dirent.isDirectory());
   let targets = [];
@@ -16,8 +15,7 @@ function GetTargets()
   return targets;
 }
 
-function GetInfo(testName, fullBuildDir)
-{
+function GetInfo(testName, fullBuildDir) {
   let testInfo = {};
   testInfo.name = testName;
   testInfo.workingDir = path.join(testDirectory, testName);
@@ -27,8 +25,7 @@ function GetInfo(testName, fullBuildDir)
   return testInfo;
 }
 
-function Run(testInfo)
-{
+function Run(testInfo) {
   process.chdir(testInfo.workingDir);
   try {
     childProcess.execSync(testInfo.command, {stdio: 'inherit'});
@@ -38,8 +35,7 @@ function Run(testInfo)
   }
 }
 
-function Diff(testInfo)
-{
+function Diff(testInfo) {
   let command = testInfo.command + ' > out_diff.txt'
   process.chdir(testInfo.workingDir);
   childProcess.execSync(command, {stdio: 'inherit'});
@@ -52,15 +48,13 @@ function Diff(testInfo)
   }
 }
 
-function Overwrite(testInfo)
-{
+function Overwrite(testInfo) {
   process.chdir(testInfo.workingDir);
   let overwiteCommand = testInfo.command + ' > out.txt';
   childProcess.execSync(overwiteCommand, {stdio: 'inherit'});
 }
 
-function Test(testInfo)
-{
+function Test(testInfo) {
   let command = testInfo.command + ' > out_diff.txt'
   process.chdir(testInfo.workingDir);
   childProcess.execSync(command, {stdio: 'inherit'});
@@ -76,8 +70,7 @@ function Test(testInfo)
   console.log(testInfo.name + ': ' + testStatus);
 }
 
-function Coverage(testInfo)
-{
+function Coverage(testInfo) {
   let srcsDir = path.join(repoDir, 'src', '*');
   let coverageDir = path.join(testInfo.workingDir, 'coverage');
   process.chdir(path.dirname(testInfo.command))

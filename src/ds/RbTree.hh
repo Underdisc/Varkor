@@ -11,8 +11,7 @@ RbTree<T>::Node::Node(const T& value):
   mParent(nullptr),
   mLeft(nullptr),
   mRight(nullptr),
-  mColor(Color::Red)
-{}
+  mColor(Color::Red) {}
 
 template<typename T>
 RbTree<T>::Node::Node(T&& value):
@@ -20,8 +19,7 @@ RbTree<T>::Node::Node(T&& value):
   mParent(nullptr),
   mLeft(nullptr),
   mRight(nullptr),
-  mColor(Color::Red)
-{}
+  mColor(Color::Red) {}
 
 template<typename T>
 template<typename... Args>
@@ -30,12 +28,10 @@ RbTree<T>::Node::Node(Args&&... args):
   mParent(nullptr),
   mLeft(nullptr),
   mRight(nullptr),
-  mColor(Color::Red)
-{}
+  mColor(Color::Red) {}
 
 template<typename T>
-typename RbTree<T>::Node* RbTree<T>::Node::FindPredecessor() const
-{
+typename RbTree<T>::Node* RbTree<T>::Node::FindPredecessor() const {
   if (mLeft == nullptr) {
     return nullptr;
   }
@@ -47,8 +43,7 @@ typename RbTree<T>::Node* RbTree<T>::Node::FindPredecessor() const
 }
 
 template<typename T>
-typename RbTree<T>::Node* RbTree<T>::Node::FindSuccessor() const
-{
+typename RbTree<T>::Node* RbTree<T>::Node::FindSuccessor() const {
   if (mRight == nullptr) {
     return nullptr;
   }
@@ -61,8 +56,7 @@ typename RbTree<T>::Node* RbTree<T>::Node::FindSuccessor() const
 
 ////////////////////////////////////////////////////////////////////////////////
 template<typename T>
-void RbTree<T>::IterBase::operator++()
-{
+void RbTree<T>::IterBase::operator++() {
   Node* successor = mCurrent->FindSuccessor();
   if (successor != nullptr) {
     mCurrent = successor;
@@ -83,68 +77,58 @@ void RbTree<T>::IterBase::operator++()
 }
 
 template<typename T>
-bool RbTree<T>::IterBase::operator==(const IterBase& other)
-{
+bool RbTree<T>::IterBase::operator==(const IterBase& other) {
   return mCurrent == other.mCurrent;
 }
 
 template<typename T>
-bool RbTree<T>::IterBase::operator!=(const IterBase& other)
-{
+bool RbTree<T>::IterBase::operator!=(const IterBase& other) {
   return mCurrent != other.mCurrent;
 }
 
 template<typename T>
-T& RbTree<T>::Iter::operator*()
-{
+T& RbTree<T>::Iter::operator*() {
   return this->mCurrent->mValue;
 }
 
 template<typename T>
-T* RbTree<T>::Iter::operator->()
-{
+T* RbTree<T>::Iter::operator->() {
   return &this->mCurrent->mValue;
 }
 
 template<typename T>
-const T& RbTree<T>::CIter::operator*()
-{
+const T& RbTree<T>::CIter::operator*() {
   return this->mCurrent->mValue;
 }
 
 template<typename T>
-const T* RbTree<T>::CIter::operator->()
-{
+const T* RbTree<T>::CIter::operator->() {
   return &this->mCurrent->mValue;
 }
 
 template<typename T>
-typename RbTree<T>::Iter RbTree<T>::begin() const
-{
+typename RbTree<T>::Iter RbTree<T>::begin() const {
   Iter begin;
   begin.mCurrent = LeftmostNode();
   return begin;
 }
 
 template<typename T>
-typename RbTree<T>::Iter RbTree<T>::end() const
-{
+typename RbTree<T>::Iter RbTree<T>::end() const {
   Iter end;
   end.mCurrent = nullptr;
   return end;
 }
 
 template<typename T>
-typename RbTree<T>::CIter RbTree<T>::cbegin() const
-{
+typename RbTree<T>::CIter RbTree<T>::cbegin() const {
   CIter begin;
   begin.mCurrent = LeftmostNode();
   return begin;
 }
 
 template<typename T>
-typename RbTree<T>::CIter RbTree<T>::cend() const
-{
+typename RbTree<T>::CIter RbTree<T>::cend() const {
   CIter end;
   end.mCurrent = nullptr;
   return end;
@@ -152,14 +136,12 @@ typename RbTree<T>::CIter RbTree<T>::cend() const
 
 ////////////////////////////////////////////////////////////////////////////////
 template<typename T>
-RbTree<T>::RbTree()
-{
+RbTree<T>::RbTree() {
   mHead = nullptr;
 }
 
 template<typename T>
-RbTree<T>::~RbTree()
-{
+RbTree<T>::~RbTree() {
   Delete(mHead);
 }
 
@@ -168,23 +150,20 @@ RbTree<T>::~RbTree()
 // the nodes come from that array. That way we can guarantee to load the minimum
 // number of cache lines when accessing the tree.
 template<typename T>
-Result RbTree<T>::Insert(const T& value)
-{
+Result RbTree<T>::Insert(const T& value) {
   Node* newNode = alloc Node(value);
   return InsertNode(newNode);
 }
 
 template<typename T>
-Result RbTree<T>::Insert(T&& value)
-{
+Result RbTree<T>::Insert(T&& value) {
   Node* newNode = alloc Node(std::forward<T>(value));
   return InsertNode(newNode);
 }
 
 template<typename T>
 template<typename... Args>
-VResult<typename RbTree<T>::Iter> RbTree<T>::Emplace(Args&&... args)
-{
+VResult<typename RbTree<T>::Iter> RbTree<T>::Emplace(Args&&... args) {
   Iter iter;
   iter.mCurrent = alloc Node(std::forward<Args>(args)...);
   Result result = InsertNode(iter.mCurrent);
@@ -196,16 +175,14 @@ VResult<typename RbTree<T>::Iter> RbTree<T>::Emplace(Args&&... args)
 
 template<typename T>
 template<typename CT>
-void RbTree<T>::Remove(const CT& value)
-{
+void RbTree<T>::Remove(const CT& value) {
   Node* node = FindNode<CT>(value);
   LogAbortIf(node == nullptr, "The RbTree does not contain the value.");
   RemoveNode(node);
 }
 
 template<typename T>
-void RbTree<T>::RemoveNode(Node* node)
-{
+void RbTree<T>::RemoveNode(Node* node) {
   // Find out if there is a node that will take the place of the node to be
   // removed.
   Node* replace = node->FindPredecessor();
@@ -267,16 +244,14 @@ void RbTree<T>::RemoveNode(Node* node)
 }
 
 template<typename T>
-void RbTree<T>::Clear()
-{
+void RbTree<T>::Clear() {
   Delete(mHead);
   mHead = nullptr;
 }
 
 template<typename T>
 template<typename CT>
-T& RbTree<T>::Get(const CT& value)
-{
+T& RbTree<T>::Get(const CT& value) {
   Node* node = FindNode<CT>(value);
   LogAbortIf(node == nullptr, "Value did not represent a tree element.");
   return node->mValue;
@@ -284,8 +259,7 @@ T& RbTree<T>::Get(const CT& value)
 
 template<typename T>
 template<typename CT>
-T* RbTree<T>::TryGet(const CT& value)
-{
+T* RbTree<T>::TryGet(const CT& value) {
   Node* node = FindNode<CT>(value);
   if (node == nullptr) {
     return nullptr;
@@ -294,27 +268,23 @@ T* RbTree<T>::TryGet(const CT& value)
 }
 
 template<typename T>
-bool RbTree<T>::Contains(const T& value) const
-{
+bool RbTree<T>::Contains(const T& value) const {
   Node* node = FindNode<T>(value);
   return node != nullptr;
 }
 
 template<typename T>
-bool RbTree<T>::Empty() const
-{
+bool RbTree<T>::Empty() const {
   return mHead == nullptr;
 }
 
 template<typename T>
-bool RbTree<T>::HasDoubleRed()
-{
+bool RbTree<T>::HasDoubleRed() {
   return HasDoubleRed(mHead);
 }
 
 template<typename T>
-bool RbTree<T>::HasConsistentBlackHeight()
-{
+bool RbTree<T>::HasConsistentBlackHeight() {
   // We find the expected black height by going down the left side of the tree
   // as far as we can.
   int expectedBh = 0;
@@ -331,15 +301,13 @@ bool RbTree<T>::HasConsistentBlackHeight()
 }
 
 template<typename T>
-const typename RbTree<T>::Node* RbTree<T>::GetHead() const
-{
+const typename RbTree<T>::Node* RbTree<T>::GetHead() const {
   return mHead;
 }
 
 template<typename T>
 template<typename CT>
-typename RbTree<T>::Node* RbTree<T>::FindNode(const CT& value) const
-{
+typename RbTree<T>::Node* RbTree<T>::FindNode(const CT& value) const {
   Node* node = mHead;
   while (node != nullptr) {
     if (node->mValue > value) {
@@ -356,8 +324,7 @@ typename RbTree<T>::Node* RbTree<T>::FindNode(const CT& value) const
 }
 
 template<typename T>
-Result RbTree<T>::InsertNode(Node* newNode)
-{
+Result RbTree<T>::InsertNode(Node* newNode) {
   if (mHead == nullptr) {
     mHead = newNode;
     mHead->mColor = Node::Color::Black;
@@ -390,8 +357,7 @@ Result RbTree<T>::InsertNode(Node* newNode)
 }
 
 template<typename T>
-void RbTree<T>::BalanceInsertion(Node* child)
-{
+void RbTree<T>::BalanceInsertion(Node* child) {
   while (child != nullptr && child->mColor == Node::Color::Red &&
          child->mParent->mColor == Node::Color::Red) {
     Node* parent = child->mParent;
@@ -451,8 +417,7 @@ void RbTree<T>::BalanceInsertion(Node* child)
 }
 
 template<typename T>
-void RbTree<T>::BalanceRemoval(Node* node)
-{
+void RbTree<T>::BalanceRemoval(Node* node) {
   // The node passed in is a double black node and we balance it out here.
   while (node->mParent != nullptr && node->mColor == Node::Color::Black) {
     Node* parent = node->mParent;
@@ -545,8 +510,7 @@ void RbTree<T>::BalanceRemoval(Node* node)
 }
 
 template<typename T>
-void RbTree<T>::RotateLeft(Node* oldRoot)
-{
+void RbTree<T>::RotateLeft(Node* oldRoot) {
   // Perform the primary rotation operation.
   Node* newRoot = oldRoot->mRight;
   oldRoot->mRight = newRoot->mLeft;
@@ -573,8 +537,7 @@ void RbTree<T>::RotateLeft(Node* oldRoot)
 }
 
 template<typename T>
-void RbTree<T>::RotateRight(Node* oldRoot)
-{
+void RbTree<T>::RotateRight(Node* oldRoot) {
   // This is just the reflection of function for rotating left.
   Node* newRoot = oldRoot->mLeft;
   oldRoot->mLeft = newRoot->mRight;
@@ -599,8 +562,7 @@ void RbTree<T>::RotateRight(Node* oldRoot)
 }
 
 template<typename T>
-void RbTree<T>::SwapNodes(Node* a, Node* b)
-{
+void RbTree<T>::SwapNodes(Node* a, Node* b) {
   // Update all of the pointers on the nodes being swapped and the pointers on
   // nodes connected to them.
   if (b->mParent == a) {
@@ -625,8 +587,7 @@ void RbTree<T>::SwapNodes(Node* a, Node* b)
 }
 
 template<typename T>
-void RbTree<T>::SwapAttachedNodePointers(Node* above, Node* below)
-{
+void RbTree<T>::SwapAttachedNodePointers(Node* above, Node* below) {
   // Handle above's Parent.
   if (above->mParent != nullptr) {
     if (above->mParent->mLeft == above) {
@@ -671,8 +632,7 @@ void RbTree<T>::SwapAttachedNodePointers(Node* above, Node* below)
 }
 
 template<typename T>
-void RbTree<T>::SwapDetachedNodePointers(Node* a, Node* b)
-{
+void RbTree<T>::SwapDetachedNodePointers(Node* a, Node* b) {
   // This will change all pointers that point to leaving to point to taking.
   auto takePlace = [](Node* taking, Node* leaving)
   {
@@ -707,8 +667,7 @@ void RbTree<T>::SwapDetachedNodePointers(Node* a, Node* b)
 }
 
 template<typename T>
-void RbTree<T>::Delete(Node* node)
-{
+void RbTree<T>::Delete(Node* node) {
   if (node == nullptr) {
     return;
   }
@@ -718,8 +677,7 @@ void RbTree<T>::Delete(Node* node)
 }
 
 template<typename T>
-typename RbTree<T>::Node* RbTree<T>::LeftmostNode() const
-{
+typename RbTree<T>::Node* RbTree<T>::LeftmostNode() const {
   if (mHead == nullptr) {
     return nullptr;
   }
@@ -731,8 +689,7 @@ typename RbTree<T>::Node* RbTree<T>::LeftmostNode() const
 }
 
 template<typename T>
-bool RbTree<T>::HasBlackHeight(Node* node, int currentBh, int expectedBh)
-{
+bool RbTree<T>::HasBlackHeight(Node* node, int currentBh, int expectedBh) {
   if (node == nullptr) {
     ++currentBh;
     return currentBh == expectedBh;
@@ -747,8 +704,7 @@ bool RbTree<T>::HasBlackHeight(Node* node, int currentBh, int expectedBh)
 }
 
 template<typename T>
-bool RbTree<T>::HasDoubleRed(Node* node)
-{
+bool RbTree<T>::HasDoubleRed(Node* node) {
   if (node == nullptr) {
     return false;
   }

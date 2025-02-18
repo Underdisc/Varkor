@@ -3,8 +3,7 @@
 namespace Editor {
 
 template<typename T, typename... Args>
-T* Interface::OpenInterface(Args&&... args)
-{
+T* Interface::OpenInterface(Args&&... args) {
   // If an instance of the interface exists, we make it known that it's no
   // longer needed and stage a new instance.
   T* interface = FindInterface<T>();
@@ -18,15 +17,13 @@ T* Interface::OpenInterface(Args&&... args)
 }
 
 template<typename T>
-void Interface::CloseInterface()
-{
+void Interface::CloseInterface() {
   Interface* interface = mInterfaces.Get(Util::GetFullTypename<T>());
   interface->mOpen = false;
 }
 
 template<typename T>
-T* Interface::FindInterface()
-{
+T* Interface::FindInterface() {
   Interface** interface = mInterfaces.TryGet(Util::GetFullTypename<T>());
   if (interface == nullptr) {
     return nullptr;

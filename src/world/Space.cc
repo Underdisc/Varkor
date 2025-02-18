@@ -12,14 +12,12 @@ namespace World {
 
 Space::Space() {}
 
-void Space::Clear()
-{
+void Space::Clear() {
   mTables.Clear();
   mMembers.Clear();
 }
 
-void Space::Update()
-{
+void Space::Update() {
   Object currentObject(this);
   for (int i = 0; i < mTables.DenseUsage(); ++i) {
     const Table& table = mTables.GetWithDenseIndex(i);
@@ -36,29 +34,24 @@ void Space::Update()
   }
 }
 
-MemberId Space::CreateMember()
-{
+MemberId Space::CreateMember() {
   return mMembers.Add();
 }
 
-Object Space::CreateObject()
-{
+Object Space::CreateObject() {
   return Object(this, CreateMember());
 }
 
-Object Space::CreateChildObject(const Object& parent)
-{
+Object Space::CreateChildObject(const Object& parent) {
   LogAbortIf(this != parent.mSpace, "The parent points to a different space.");
   return Object(this, CreateChildMember(parent.mMemberId));
 }
 
-Object Space::CreateChildObject(MemberId parentId)
-{
+Object Space::CreateChildObject(MemberId parentId) {
   return Object(this, CreateChildMember(parentId));
 }
 
-MemberId Space::Duplicate(MemberId memberId, bool root)
-{
+MemberId Space::Duplicate(MemberId memberId, bool root) {
   // Duplicate all components from the member except the relationship component.
   VerifyMemberId(memberId);
   MemberId duplicateMemberId = CreateMember();
@@ -81,7 +74,7 @@ MemberId Space::Duplicate(MemberId memberId, bool root)
       MakeParent(relationship->mParent, duplicateMemberId);
       relationship = &Get<Comp::Relationship>(memberId);
     }
-    for (MemberId childId : relationship->mChildren) {
+    for (MemberId childId: relationship->mChildren) {
       MemberId newChildId = Duplicate(childId, false);
       relationship = &Get<Comp::Relationship>(memberId);
       MakeParent(duplicateMemberId, newChildId);
@@ -91,15 +84,13 @@ MemberId Space::Duplicate(MemberId memberId, bool root)
   return duplicateMemberId;
 }
 
-MemberId Space::CreateChildMember(MemberId parentId)
-{
+MemberId Space::CreateChildMember(MemberId parentId) {
   MemberId childId = CreateMember();
   MakeParent(parentId, childId);
   return childId;
 }
 
-void Space::DeleteMember(MemberId memberId, bool root)
-{
+void Space::DeleteMember(MemberId memberId, bool root) {
   // Delete all of the member's children and if there is parent remove the
   // member's id from the parent's relationship .
   VerifyMemberId(memberId);
@@ -127,15 +118,13 @@ void Space::DeleteMember(MemberId memberId, bool root)
   mMembers.Remove(memberId);
 }
 
-void Space::TryDeleteMember(MemberId memberId)
-{
+void Space::TryDeleteMember(MemberId memberId) {
   if (ValidMemberId(memberId)) {
     DeleteMember(memberId);
   }
 }
 
-void Space::MakeParent(MemberId parentId, MemberId childId)
-{
+void Space::MakeParent(MemberId parentId, MemberId childId) {
   // Verify the existence of the parent and child members.
   VerifyMemberId(parentId);
   VerifyMemberId(childId);
@@ -160,8 +149,7 @@ void Space::MakeParent(MemberId parentId, MemberId childId)
   newParentRelationship.mChildren.Push(childId);
 }
 
-void Space::TryRemoveParent(MemberId memberId)
-{
+void Space::TryRemoveParent(MemberId memberId) {
   VerifyMemberId(memberId);
   auto* relationship = TryGet<Comp::Relationship>(memberId);
   if (relationship == nullptr) {
@@ -186,20 +174,17 @@ void Space::TryRemoveParent(MemberId memberId)
   }
 }
 
-bool Space::HasParent(MemberId memberId)
-{
+bool Space::HasParent(MemberId memberId) {
   auto* relationship = TryGet<Comp::Relationship>(memberId);
   return relationship != nullptr && relationship->HasParent();
 }
 
-bool Space::HasChildren(MemberId memberId)
-{
+bool Space::HasChildren(MemberId memberId) {
   auto* relationship = TryGet<Comp::Relationship>(memberId);
   return relationship != nullptr && !relationship->mChildren.Empty();
 }
 
-void* Space::AddComponent(Comp::TypeId typeId, MemberId owner, bool init)
-{
+void* Space::AddComponent(Comp::TypeId typeId, MemberId owner, bool init) {
   // Create the component table if necessary and make sure the member doesn't
   // already have the component.
   Table* table;
@@ -223,7 +208,7 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId owner, bool init)
   }
 
   // Add any missing dependencies.
-  for (Comp::TypeId dependencyId : typeData.mDependencies) {
+  for (Comp::TypeId dependencyId: typeData.mDependencies) {
     if (!HasComponent(dependencyId, owner)) {
       void* depedency = AddComponent(dependencyId, owner, init);
       const Comp::TypeData& dependencyTypeData =
@@ -244,8 +229,7 @@ void* Space::AddComponent(Comp::TypeId typeId, MemberId owner, bool init)
   return component;
 }
 
-void* Space::EnsureComponent(Comp::TypeId typeId, MemberId owner)
-{
+void* Space::EnsureComponent(Comp::TypeId typeId, MemberId owner) {
   void* component = TryGetComponent(typeId, owner);
   if (component == nullptr) {
     component = AddComponent(typeId, owner);
@@ -253,8 +237,7 @@ void* Space::EnsureComponent(Comp::TypeId typeId, MemberId owner)
   return component;
 }
 
-void Space::RemComponent(Comp::TypeId typeId, MemberId owner)
-{
+void Space::RemComponent(Comp::TypeId typeId, MemberId owner) {
   VerifyMemberId(owner);
   const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
   Table& table = mTables[(SparseId)typeId];
@@ -271,7 +254,7 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId owner)
   }
 
   // Remove all of the dependant components and the requested component.
-  for (Comp::TypeId dependantId : typeData.mDependants) {
+  for (Comp::TypeId dependantId: typeData.mDependants) {
     if (HasComponent(dependantId, owner)) {
       RemComponent(dependantId, owner);
     }
@@ -279,15 +262,13 @@ void Space::RemComponent(Comp::TypeId typeId, MemberId owner)
   table.Remove(owner);
 }
 
-void Space::TryRemComponent(Comp::TypeId typeId, MemberId owner)
-{
+void Space::TryRemComponent(Comp::TypeId typeId, MemberId owner) {
   if (HasComponent(typeId, owner)) {
     RemComponent(typeId, owner);
   }
 }
 
-void* Space::GetComponent(Comp::TypeId typeId, MemberId owner) const
-{
+void* Space::GetComponent(Comp::TypeId typeId, MemberId owner) const {
   VerifyMemberId(owner);
   void* component = TryGetComponent(typeId, owner);
   if (component == nullptr) {
@@ -305,8 +286,7 @@ void* Space::GetComponent(Comp::TypeId typeId, MemberId owner) const
   return component;
 }
 
-void* Space::TryGetComponent(Comp::TypeId typeId, MemberId owner) const
-{
+void* Space::TryGetComponent(Comp::TypeId typeId, MemberId owner) const {
   if (!ValidMemberId(owner)) {
     return nullptr;
   }
@@ -320,14 +300,12 @@ void* Space::TryGetComponent(Comp::TypeId typeId, MemberId owner) const
   return table.GetComponent(owner);
 }
 
-bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const
-{
+bool Space::HasComponent(Comp::TypeId typeId, MemberId memberId) const {
   void* component = TryGetComponent(typeId, memberId);
   return component != nullptr;
 }
 
-Ds::Vector<MemberId> Space::Slice(Comp::TypeId typeId) const
-{
+Ds::Vector<MemberId> Space::Slice(Comp::TypeId typeId) const {
   Ds::Vector<MemberId> members;
   if (!mTables.Valid((SparseId)typeId)) {
     return members;
@@ -341,8 +319,7 @@ Ds::Vector<MemberId> Space::Slice(Comp::TypeId typeId) const
   return members;
 }
 
-Ds::Vector<MemberId> Space::RootMemberIds() const
-{
+Ds::Vector<MemberId> Space::RootMemberIds() const {
   Ds::Vector<MemberId> rootMembers;
   for (size_t i = 0; i < mMembers.DenseUsage(); ++i) {
     MemberId memberId = mMembers.Dense()[i];
@@ -354,8 +331,7 @@ Ds::Vector<MemberId> Space::RootMemberIds() const
   return rootMembers;
 }
 
-Ds::Vector<Comp::TypeId> Space::GetComponentTypes(MemberId owner) const
-{
+Ds::Vector<Comp::TypeId> Space::GetComponentTypes(MemberId owner) const {
   Ds::Vector<Comp::TypeId> componentTypes;
   for (int i = 0; i < mTables.DenseUsage(); ++i) {
     const Table& table = mTables.GetWithDenseIndex(i);
@@ -366,18 +342,15 @@ Ds::Vector<Comp::TypeId> Space::GetComponentTypes(MemberId owner) const
   return componentTypes;
 }
 
-const Ds::SparseSet& Space::Members() const
-{
+const Ds::SparseSet& Space::Members() const {
   return mMembers;
 }
 
-const Ds::Pool<Table>& Space::Tables() const
-{
+const Ds::Pool<Table>& Space::Tables() const {
   return mTables;
 }
 
-void Space::Serialize(Vlk::Value& spaceVal) const
-{
+void Space::Serialize(Vlk::Value& spaceVal) const {
   for (int i = 0; i < mMembers.DenseUsage(); ++i) {
     // Create the member's value.
     MemberId memberId = mMembers.Dense()[i];
@@ -403,8 +376,7 @@ void Space::Serialize(Vlk::Value& spaceVal) const
   }
 }
 
-Result Space::Deserialize(const Vlk::Explorer& spaceEx)
-{
+Result Space::Deserialize(const Vlk::Explorer& spaceEx) {
   if (!spaceEx.Valid(Vlk::Value::Type::PairArray)) {
     return Result("Space Value must be a ValueArray");
   }
@@ -443,13 +415,11 @@ Result Space::Deserialize(const Vlk::Explorer& spaceEx)
   return Result();
 }
 
-bool Space::ValidMemberId(MemberId memberId) const
-{
+bool Space::ValidMemberId(MemberId memberId) const {
   return mMembers.Valid(memberId);
 }
 
-void Space::VerifyMemberId(MemberId memberId) const
-{
+void Space::VerifyMemberId(MemberId memberId) const {
   if (ValidMemberId(memberId)) {
     return;
   }

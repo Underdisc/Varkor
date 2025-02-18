@@ -5,8 +5,7 @@
 
 namespace Editor {
 
-void FramerInterface::Show()
-{
+void FramerInterface::Show() {
   ImGui::Begin("Framer", &mOpen, ImGuiWindowFlags_AlwaysAutoResize);
 
   // Display the statistics.

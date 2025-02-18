@@ -10,8 +10,7 @@ void InitLineMesh(
   float fill,
   float thickness,
   TerminalType startTerminal,
-  TerminalType endTerminal)
-{
+  TerminalType endTerminal) {
   LogAbortIf(
     points.Size() < 2,
     "Initialialzing a line model requires two 2 or more points.");

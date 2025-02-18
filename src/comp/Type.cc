@@ -7,24 +7,20 @@ namespace Comp {
 int nVersion = -1;
 Ds::Vector<TypeData> nTypeData;
 
-int CreateId()
-{
+int CreateId() {
   static int id = 0;
   return id++;
 }
 
-const TypeData& GetTypeData(TypeId id)
-{
+const TypeData& GetTypeData(TypeId id) {
   return nTypeData[id];
 }
 
-size_t TypeDataCount()
-{
+size_t TypeDataCount() {
   return nTypeData.Size();
 }
 
-TypeId GetTypeId(const std::string& typeName)
-{
+TypeId GetTypeId(const std::string& typeName) {
   for (TypeId typeId = 0; typeId < nTypeData.Size(); ++typeId) {
     if (typeName == GetTypeData(typeId).mName) {
       return typeId;
@@ -33,23 +29,20 @@ TypeId GetTypeId(const std::string& typeName)
   return nInvalidTypeId;
 }
 
-std::string AssessmentHeader(TypeId id)
-{
+std::string AssessmentHeader(TypeId id) {
   const TypeData& typeData = GetTypeData(id);
   std::stringstream header;
   header << "Component " << id << " (" << typeData.mName << ") assessment: ";
   return header.str();
 }
 
-std::string DifferenceHeader(TypeId id)
-{
+std::string DifferenceHeader(TypeId id) {
   std::stringstream header;
   header << AssessmentHeader(id) << "Live versus saved difference: ";
   return header.str();
 }
 
-void AssessName(TypeId id, const Vlk::Explorer& compEx)
-{
+void AssessName(TypeId id, const Vlk::Explorer& compEx) {
   Vlk::Explorer nameEx = compEx("Name");
   if (!nameEx.Valid()) {
     std::stringstream error;
@@ -68,8 +61,7 @@ void AssessName(TypeId id, const Vlk::Explorer& compEx)
   }
 }
 
-void AssessSize(TypeId id, const Vlk::Explorer& compEx)
-{
+void AssessSize(TypeId id, const Vlk::Explorer& compEx) {
   Vlk::Explorer sizeEx = compEx("Size");
   if (!sizeEx.Valid()) {
     std::stringstream error;
@@ -88,8 +80,7 @@ void AssessSize(TypeId id, const Vlk::Explorer& compEx)
   }
 }
 
-void AssessDependencies(TypeId id, const Vlk::Explorer& compEx)
-{
+void AssessDependencies(TypeId id, const Vlk::Explorer& compEx) {
   Vlk::Explorer dependenciesEx = compEx("Dependencies");
   if (!dependenciesEx.Valid()) {
     std::stringstream error;
@@ -121,7 +112,7 @@ void AssessDependencies(TypeId id, const Vlk::Explorer& compEx)
   }
 
   // Find live dependencies that do not exist of the saved component.
-  for (TypeId liveId : typeData.mDependencies) {
+  for (TypeId liveId: typeData.mDependencies) {
     if (!savedIds.Contains(liveId)) {
       const TypeData& dependencyTypeData = GetTypeData(liveId);
       std::stringstream error;
@@ -133,8 +124,7 @@ void AssessDependencies(TypeId id, const Vlk::Explorer& compEx)
 }
 
 const char* nComponentsFilename = "components.vlk";
-void AssessComponentsFile()
-{
+void AssessComponentsFile() {
   if (Rsl::IsStandalone()) {
     return;
   }
@@ -175,8 +165,7 @@ void AssessComponentsFile()
   }
 }
 
-void SaveComponentsFile()
-{
+void SaveComponentsFile() {
   Vlk::Value rootVal;
   rootVal("Version") = nVersion;
   Vlk::Value& componentsVal = rootVal("Components")[{TypeDataCount()}];

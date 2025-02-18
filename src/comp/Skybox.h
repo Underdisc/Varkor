@@ -8,8 +8,7 @@
 namespace Comp {
 
 #pragma pack(push, 1)
-struct Skybox
-{
+struct Skybox {
   constexpr static const char* smDefaultAssetName = "vres/skybox";
   static const ResId smDefaultMaterialId;
 

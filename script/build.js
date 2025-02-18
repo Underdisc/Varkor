@@ -40,8 +40,7 @@ A <yes|no> option can be toggled by using the option without an argument.
     not run easy. A build of OpenCppCoverage needs to be in your path. It can
     be found here (https://github.com/OpenCppCoverage/OpenCppCoverage). Only
     works on Windows with msvc debug builds.`;
-function HelpText()
-{
+function HelpText() {
   console.log(helpText);
 }
 
@@ -136,8 +135,7 @@ if (!fs.existsSync(fullBuildDir + '/build.ninja')) {
   return;
 }
 
-function BuildTarget(target)
-{
+function BuildTarget(target) {
   const targetNinjaCommand = 'ninja ' + target;
   process.chdir(fullBuildDir);
   childProcess.execSync(targetNinjaCommand, {stdio: 'inherit'});

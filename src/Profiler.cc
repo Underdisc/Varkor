@@ -15,8 +15,7 @@ typedef std::chrono::nanoseconds Nanoseconds;
 typedef std::chrono::microseconds Microseconds;
 typedef std::chrono::milliseconds Milliseconds;
 
-struct Block
-{
+struct Block {
   Block(const char* name, const Clock::time_point& timestamp);
   const char* mName;
   Clock::time_point mStart;
@@ -25,14 +24,12 @@ struct Block
 };
 
 Block::Block(const char* name, const Clock::time_point& timestamp):
-  mName(name), mStart(timestamp)
-{}
+  mName(name), mStart(timestamp) {}
 
 Ds::Vector<Block*> nBlockChain;
 Ds::Vector<Block> nBlocks;
 
-void Start(const char* name)
-{
+void Start(const char* name) {
   if (nBlockChain.Size() == 0) {
     nBlocks.Emplace(name, Clock::now());
     nBlockChain.Push(&nBlocks.Top());
@@ -42,14 +39,12 @@ void Start(const char* name)
   nBlockChain.Push(&nBlockChain.Top()->mSubBlocks.Top());
 }
 
-void EndStart(const char* name)
-{
+void EndStart(const char* name) {
   End();
   Start(name);
 }
 
-void End()
-{
+void End() {
   LogAbortIf(
     nBlockChain.Size() == 0,
     "EndBlock can only be called if there is matching StartBlock call.");
@@ -58,19 +53,18 @@ void End()
   nBlockChain.Pop();
 }
 
-void ShowBlock(const Block& block, const std::string& indent)
-{
+void ShowBlock(const Block& block, const std::string& indent) {
   // Split the time in nanoseconds into seperate values for seconds,
   // milliseconds, microseconds, and nanoseconds and print out the time.
   Nanoseconds blockTime = block.mEnd - block.mStart;
   const long long seconds = blockTime.count() / Nanoseconds::period::den;
   long long shave = seconds * Nanoseconds::period::den;
 
-  const long long nanoInMilli = 1000000;
+  const long long nanoInMilli = 1'000'000;
   const long long millis = (blockTime.count() - shave) / nanoInMilli;
   shave += millis * nanoInMilli;
 
-  const long long nanoInMicro = 1000;
+  const long long nanoInMicro = 1'000;
   const long long micros = (blockTime.count() - shave) / nanoInMicro;
   shave += micros * nanoInMicro;
 
@@ -89,24 +83,22 @@ void ShowBlock(const Block& block, const std::string& indent)
 
   std::string subBlockIndent = indent + "| ";
   std::cout << " {" << std::endl;
-  for (const Block& subBlock : block.mSubBlocks) {
+  for (const Block& subBlock: block.mSubBlocks) {
     ShowBlock(subBlock, subBlockIndent);
   }
   std::cout << indent << "}" << std::endl;
 }
 
-void Show()
-{
+void Show() {
   LogAbortIf(
     nBlockChain.Size() != 0,
     "ShowBlocks can only be called if all blocks have been closed.");
-  for (const Block& block : nBlocks) {
+  for (const Block& block: nBlocks) {
     ShowBlock(block, "");
   }
 }
 
-void Clear()
-{
+void Clear() {
   nBlocks.Clear();
 }
 

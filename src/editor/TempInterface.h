@@ -7,8 +7,7 @@ namespace Editor {
 
 // Use this to quickly test editing properties without needing to make a
 // deditcated interface or repurposing part of another interface.
-struct TempInterface: public Interface
-{
+struct TempInterface: public Interface {
   void Show();
 };
 

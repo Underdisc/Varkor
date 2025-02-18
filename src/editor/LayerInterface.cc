@@ -16,8 +16,7 @@ namespace Editor {
 
 LayerInterface::LayerInterface(World::LayerIt layerIt): mLayerIt(layerIt) {}
 
-void LayerInterface::Show()
-{
+void LayerInterface::Show() {
   ImGui::Begin("Layer", &mOpen);
 
   // Allow the user to change the layer's camera with drag and drop.
@@ -70,8 +69,7 @@ void LayerInterface::Show()
   ImGui::End();
 }
 
-void LayerInterface::ObjectPicking()
-{
+void LayerInterface::ObjectPicking() {
   if (!nSuppressObjectPicking && Input::MousePressed(Input::Mouse::Left)) {
     World::Space& space = mLayerIt->mSpace;
     World::MemberId clickedMemberId =
@@ -90,8 +88,7 @@ void LayerInterface::ObjectPicking()
   nSuppressObjectPicking = false;
 }
 
-void LayerInterface::SaveLayer()
-{
+void LayerInterface::SaveLayer() {
   if (mLayerIt->mFilename == "") {
     SaveLayerAs();
   }
@@ -100,8 +97,7 @@ void LayerInterface::SaveLayer()
   }
 }
 
-void LayerInterface::SaveLayerAs()
-{
+void LayerInterface::SaveLayerAs() {
   OpenInterface<FileInterface>(
     [this](const std::string& filename)
     {
@@ -111,8 +107,7 @@ void LayerInterface::SaveLayerAs()
     mLayerIt->mName + World::nLayerExtension);
 }
 
-void LayerInterface::SaveLayerAs(const std::string& filename)
-{
+void LayerInterface::SaveLayerAs(const std::string& filename) {
   Result result = World::SaveLayer(mLayerIt, filename.c_str());
   std::string logString =
     "\"" + mLayerIt->mName + "\" in \"" + mLayerIt->mFilename + "\".";
@@ -126,8 +121,7 @@ void LayerInterface::SaveLayerAs(const std::string& filename)
 }
 
 void LayerInterface::DisplayMember(
-  World::MemberId memberId, InspectorInterface** inspector)
-{
+  World::MemberId memberId, InspectorInterface** inspector) {
   // Create the Member's tree node.
   bool selected =
     *inspector != nullptr && memberId == (*inspector)->mObject.mMemberId;
@@ -196,7 +190,7 @@ void LayerInterface::DisplayMember(
   if (memberOpened) {
     auto* relationship = space.TryGet<Comp::Relationship>(memberId);
     if (relationship != nullptr) {
-      for (World::MemberId childId : relationship->mChildren) {
+      for (World::MemberId childId: relationship->mChildren) {
         DisplayMember(childId, inspector);
       }
     }

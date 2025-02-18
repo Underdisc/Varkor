@@ -10,8 +10,7 @@
 
 namespace Gfx {
 
-unsigned int Mesh::AttributesSize(unsigned int attributes)
-{
+unsigned int Mesh::AttributesSize(unsigned int attributes) {
   unsigned int size = 0;
   if (attributes & Attribute::Position) {
     size += sizeof(Vec3);
@@ -33,13 +32,11 @@ unsigned int Mesh::AttributesSize(unsigned int attributes)
 
 Mesh::Mesh(): mVao(0), mVbo(0), mEbo(0), mIndexCount(0), mAttributes(0) {}
 
-Mesh::Mesh(Mesh&& other)
-{
+Mesh::Mesh(Mesh&& other) {
   *this = std::move(other);
 }
 
-Mesh& Mesh::operator=(Mesh&& other)
-{
+Mesh& Mesh::operator=(Mesh&& other) {
   mVao = other.mVao;
   mVbo = other.mVbo;
   mEbo = other.mEbo;
@@ -54,13 +51,11 @@ Mesh& Mesh::operator=(Mesh&& other)
   return *this;
 }
 
-Mesh::~Mesh()
-{
+Mesh::~Mesh() {
   Purge();
 }
 
-void Mesh::EditConfig(Vlk::Value* configValP)
-{
+void Mesh::EditConfig(Vlk::Value* configValP) {
   Vlk::Value& configVal = *configValP;
   Vlk::Value& fileVal = configVal("File");
   std::string file = configVal("File").As<std::string>("");
@@ -80,13 +75,11 @@ void Mesh::EditConfig(Vlk::Value* configValP)
   scaleVal = scale;
 }
 
-Result Mesh::Init()
-{
+Result Mesh::Init() {
   return Result();
 }
 
-Result Mesh::Init(const Vlk::Explorer& configEx)
-{
+Result Mesh::Init(const Vlk::Explorer& configEx) {
   Vlk::Explorer fileEx = configEx("File");
   if (!fileEx.Valid(Vlk::Value::Type::TrueValue)) {
     return Result("Missing :File: TrueValue.");
@@ -97,8 +90,7 @@ Result Mesh::Init(const Vlk::Explorer& configEx)
   return Init(file, flipUvs, scale);
 }
 
-Result Mesh::Init(const std::string& file, bool flipUvs, float scale)
-{
+Result Mesh::Init(const std::string& file, bool flipUvs, float scale) {
   Assimp::Importer importer;
   VResult<const aiScene*> importResult =
     Gfx::Model::Import(file, &importer, flipUvs);
@@ -114,8 +106,7 @@ Result Mesh::Init(const std::string& file, bool flipUvs, float scale)
   return Result();
 }
 
-Result Mesh::Init(const aiMesh& assimpMesh, float scale)
-{
+Result Mesh::Init(const aiMesh& assimpMesh, float scale) {
   // Find the size of a single vertex and all of its attributes.
   unsigned int attributes = Attribute::Position;
   if (assimpMesh.mTangents != nullptr) {
@@ -209,8 +200,7 @@ Result Mesh::Init(const aiMesh& assimpMesh, float scale)
 Result Mesh::Init(
   unsigned int attributes,
   const Ds::Vector<Vec3>& vertices,
-  const Ds::Vector<unsigned int>& indices)
-{
+  const Ds::Vector<unsigned int>& indices) {
   return Init(
     (void*)vertices.CData(),
     3 * sizeof(float) * vertices.Size(),
@@ -223,8 +213,7 @@ Result Mesh::Init(
 Result Mesh::Init(
   unsigned int attributes,
   const Ds::Vector<char>& vertexBuffer,
-  const Ds::Vector<unsigned int>& elementBuffer)
-{
+  const Ds::Vector<unsigned int>& elementBuffer) {
   return Init(
     (void*)vertexBuffer.CData(),
     vertexBuffer.Size(),
@@ -240,8 +229,7 @@ Result Mesh::Init(
   unsigned int attributes,
   void* elementBuffer,
   size_t elementBufferSize,
-  size_t elementCount)
-{
+  size_t elementCount) {
   mAttributes = attributes;
 
   // Upload the vertex buffer.
@@ -268,8 +256,7 @@ Result Mesh::Init(
   return Result();
 }
 
-void Mesh::Finalize()
-{
+void Mesh::Finalize() {
   // Specify the vertex buffer's attribute layout.
   glGenVertexArrays(1, &mVao);
   glBindVertexArray(mVao);
@@ -313,39 +300,33 @@ void Mesh::Finalize()
 }
 
 void Mesh::UpdateVbo(
-  size_t byteOffset, size_t byteCount, const void* data) const
-{
+  size_t byteOffset, size_t byteCount, const void* data) const {
   glBindBuffer(GL_ARRAY_BUFFER, mVbo);
   glBufferSubData(GL_ARRAY_BUFFER, byteOffset, byteCount, data);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Mesh::Purge()
-{
+void Mesh::Purge() {
   glDeleteVertexArrays(1, &mVao);
   glDeleteBuffers(1, &mVbo);
   glDeleteBuffers(1, &mEbo);
 }
 
-void Mesh::Render() const
-{
+void Mesh::Render() const {
   glBindVertexArray(mVao);
   glDrawElements(GL_TRIANGLES, (GLsizei)mIndexCount, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 }
 
-GLuint Mesh::Vao() const
-{
+GLuint Mesh::Vao() const {
   return mVao;
 }
 
-GLuint Mesh::Ebo() const
-{
+GLuint Mesh::Ebo() const {
   return mEbo;
 }
 
-bool Mesh::Initialized() const
-{
+bool Mesh::Initialized() const {
   return mVao != 0;
 }
 

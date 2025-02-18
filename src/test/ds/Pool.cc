@@ -4,8 +4,7 @@
 #include "test/Test.h"
 #include "test/ds/Print.h"
 
-Ds::Pool<std::string> AlphabetSoup(int count)
-{
+Ds::Pool<std::string> AlphabetSoup(int count) {
   Ds::Pool<std::string> pool;
   for (int i = 0; i < count; ++i) {
     std::stringstream ss;
@@ -15,44 +14,38 @@ Ds::Pool<std::string> AlphabetSoup(int count)
   return pool;
 }
 
-void Add()
-{
+void Add() {
   Ds::Pool<std::string> test = AlphabetSoup(10);
   PrintPool(test);
 }
 
-void Copy()
-{
+void Copy() {
   Ds::Pool<std::string> test = AlphabetSoup(10);
   Ds::Pool<std::string> copied(test);
   PrintPool(test);
   PrintPool(copied);
 }
 
-void Move()
-{
+void Move() {
   Ds::Pool<std::string> test = AlphabetSoup(10);
   Ds::Pool<std::string> moved(std::move(test));
   PrintPool(test);
   PrintPool(moved);
 }
 
-void Request0()
-{
+void Request0() {
   Ds::Pool<std::string> test;
   test.Request(5) = 'a';
   PrintPool(test);
 }
 
-void Request1()
-{
+void Request1() {
   Ds::Pool<std::string> test = AlphabetSoup(5);
   test.Request(10) = 'a' + 9;
   PrintPool(test);
 }
 
-void Request2()
-{
+void Request2() {
   Ds::Pool<std::string> test;
   test.Request(4) = 'e';
   test.Request(0) = 'a';
@@ -60,22 +53,19 @@ void Request2()
   PrintPool(test);
 }
 
-void Remove0()
-{
+void Remove0() {
   Ds::Pool<std::string> test = AlphabetSoup(1);
   test.Remove(0);
   PrintPool(test);
 }
 
-void Remove1()
-{
+void Remove1() {
   Ds::Pool<std::string> test = AlphabetSoup(2);
   test.Remove(0);
   PrintPool(test);
 }
 
-void Remove2()
-{
+void Remove2() {
   Ds::Pool<std::string> test = AlphabetSoup(4);
   test.Remove(2);
   test.Remove(1);
@@ -83,8 +73,7 @@ void Remove2()
   PrintPool(test);
 }
 
-void Remove3()
-{
+void Remove3() {
   Ds::Pool<std::string> test = AlphabetSoup(10);
   for (int i = 8; i >= 0; i -= 2) {
     test.Remove(i);
@@ -92,8 +81,7 @@ void Remove3()
   PrintPool(test);
 }
 
-void Remove4()
-{
+void Remove4() {
   Ds::Pool<std::string> test = AlphabetSoup(10);
   for (int i = 9; i > 0; --i) {
     test.Remove(i);
@@ -101,8 +89,7 @@ void Remove4()
   PrintPool(test);
 }
 
-void Remove5()
-{
+void Remove5() {
   Ds::Pool<std::string> test;
   test.Request(4) = 'e';
   test.Request(0) = 'a';
@@ -111,16 +98,14 @@ void Remove5()
   PrintPool(test);
 }
 
-void RemoveAdd0()
-{
+void RemoveAdd0() {
   Ds::Pool<std::string> test = AlphabetSoup(4);
   test.Remove(3);
   test.Add("e");
   PrintPool(test);
 }
 
-void RemoveAdd1()
-{
+void RemoveAdd1() {
   Ds::Pool<std::string> test = AlphabetSoup(4);
   test.Remove(2);
   test.Remove(3);
@@ -129,8 +114,7 @@ void RemoveAdd1()
   PrintPool(test);
 }
 
-void RemoveAdd2()
-{
+void RemoveAdd2() {
   Ds::Pool<std::string> test = AlphabetSoup(5);
   test.Remove(1);
   test.Remove(0);
@@ -140,16 +124,14 @@ void RemoveAdd2()
   PrintPool(test);
 }
 
-void RemoveRequest0()
-{
+void RemoveRequest0() {
   Ds::Pool<std::string> test = AlphabetSoup(2);
   test.Remove(0);
   test.Request(3) = "c";
   PrintPool(test);
 }
 
-void RemoveRequestAdd0()
-{
+void RemoveRequestAdd0() {
   Ds::Pool<std::string> test = AlphabetSoup(2);
   test.Remove(0);
   test.Request(3) = "c";
@@ -158,15 +140,13 @@ void RemoveRequestAdd0()
   PrintPool(test);
 }
 
-void Clear()
-{
+void Clear() {
   Ds::Pool<std::string> test = AlphabetSoup(5);
   test.Clear();
   PrintPool(test);
 }
 
-void IndexOperator()
-{
+void IndexOperator() {
   Ds::Pool<std::string> test = AlphabetSoup(3);
   test.Remove(0);
   test.Remove(2);
@@ -180,8 +160,7 @@ void IndexOperator()
   PrintPool(test);
 }
 
-int main()
-{
+int main() {
   Error::Init();
   EnableLeakOutput();
   RunTest(Add);

@@ -10,8 +10,7 @@
 #include "test/ds/Test.h"
 #include "test/ds/TestType.h"
 
-void LeftInsert()
-{
+void LeftInsert() {
   // Every time a value is inserted, it will become the leftmost leaf node.
   Ds::RbTree<int> tree;
   for (int i = 20; i > 0; --i) {
@@ -20,8 +19,7 @@ void LeftInsert()
   PrintRbTree(tree);
 }
 
-void RightInsert()
-{
+void RightInsert() {
   // Every time a value is inserted, it will become the rightmost leaf node.
   Ds::RbTree<int> tree;
   for (int i = 0; i < 20; ++i) {
@@ -30,8 +28,7 @@ void RightInsert()
   PrintRbTree(tree);
 }
 
-void ExplicitInsert()
-{
+void ExplicitInsert() {
   // The insertions for this tree make use of every possible type of
   // transforation used when balancing the tree.
   int sequence[] = {18, 5,  10, 15, 16, 9,  6,  4,  2, 19, 20, 21,
@@ -44,8 +41,7 @@ void ExplicitInsert()
   PrintRbTree(tree);
 }
 
-void MoveInsert()
-{
+void MoveInsert() {
   int sequence[] = {10, 5, 6, 11, 1, 9, 2};
   int sequenceSize = sizeof(sequence) / sizeof(int);
   Ds::RbTree<TestType> tree;
@@ -57,8 +53,7 @@ void MoveInsert()
   TestType::PrintCounts();
 }
 
-void Emplace()
-{
+void Emplace() {
   int sequence[] = {0, 9, 1, 8, 2, 7, 3, 6, 4, 5};
   int sequenceSize = sizeof(sequence) / sizeof(int);
   Ds::RbTree<TestType> tree;
@@ -69,8 +64,7 @@ void Emplace()
   TestType::PrintCounts();
 }
 
-void BasicRemove()
-{
+void BasicRemove() {
   // This tests the basic cases for removal such as deleting the head or
   // removing dangling red nodes.
   Ds::RbTree<int> tree;
@@ -120,8 +114,7 @@ void BasicRemove()
   std::cout << "--- 8 ---\n";
 }
 
-void Iterator()
-{
+void Iterator() {
   // Attempt to create an iterator for an empty tree.
   Ds::RbTree<int> tree;
   if (tree.cbegin() == tree.cend()) {
@@ -151,8 +144,7 @@ void Iterator()
   std::cout << '\n';
 }
 
-void ExtensiveModification()
-{
+void ExtensiveModification() {
   Ds::RbTree<int> tree;
   constexpr int valueArrays = 11;
   constexpr int exchangeCount = 20;
@@ -217,8 +209,7 @@ void ExtensiveModification()
   PrintRbTree(tree);
 }
 
-int main()
-{
+int main() {
   EnableLeakOutput();
   RunDsTest(LeftInsert);
   RunDsTest(RightInsert);

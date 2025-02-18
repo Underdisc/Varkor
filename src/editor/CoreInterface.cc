@@ -18,15 +18,13 @@
 
 namespace Editor {
 
-void CoreInterface::Init()
-{
+void CoreInterface::Init() {
   OpenInterface<LogInterface>();
   OpenInterface<LibraryInterface>();
   mShowImGuiDemo = false;
 }
 
-void CoreInterface::Show()
-{
+void CoreInterface::Show() {
   ImGui::Begin("Core", nullptr, ImGuiWindowFlags_MenuBar);
   ImGui::BeginMenuBar();
   FileMenu();
@@ -98,8 +96,7 @@ void CoreInterface::Show()
   }
 }
 
-void CoreInterface::FileMenu()
-{
+void CoreInterface::FileMenu() {
   if (!ImGui::BeginMenu("File")) {
     return;
   }
@@ -142,8 +139,7 @@ void CoreInterface::FileMenu()
   ImGui::EndMenu();
 }
 
-void CoreInterface::ViewMenu()
-{
+void CoreInterface::ViewMenu() {
   if (ImGui::BeginMenu("View")) {
     InterfaceMenuItem<LogInterface>("Log");
     InterfaceMenuItem<FramerInterface>("Framer");
@@ -156,8 +152,7 @@ void CoreInterface::ViewMenu()
 }
 
 template<typename T>
-void CoreInterface::InterfaceMenuItem(const char* label)
-{
+void CoreInterface::InterfaceMenuItem(const char* label) {
   T* interface = FindInterface<T>();
   bool open = interface != nullptr;
   if (ImGui::MenuItem(label, nullptr, &open)) {

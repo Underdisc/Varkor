@@ -5,13 +5,11 @@
 
 namespace Gfx {
 
-struct HdrColor
-{
+struct HdrColor {
   Vec3 mColor;
   float mIntensity;
 
-  Vec3 TrueColor()
-  {
+  Vec3 TrueColor() {
     return mColor * mIntensity;
   }
 };

@@ -1,8 +1,7 @@
 namespace Rsl {
 
 template<typename T, typename... Args>
-T& Asset::InitRes(const std::string& name, Args&&... args)
-{
+T& Asset::InitRes(const std::string& name, Args&&... args) {
   VResult<T*> result = TryInitRes<T>(name, std::forward<Args>(args)...);
   if (!result.Success()) {
     std::string error = "Resource \"" + mName + ":" + name +
@@ -13,8 +12,7 @@ T& Asset::InitRes(const std::string& name, Args&&... args)
 }
 
 template<typename T, typename... Args>
-VResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args)
-{
+VResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args) {
   smInitResName = name;
   T newRes;
   Result initResult = newRes.Init(std::forward<Args>(args)...);
@@ -33,8 +31,7 @@ VResult<T*> Asset::TryInitRes(const std::string& name, Args&&... args)
 }
 
 template<typename T>
-T& Asset::GetRes(const std::string& name)
-{
+T& Asset::GetRes(const std::string& name) {
   T* res = TryGetRes<T>(name);
   if (res == nullptr) {
     std::string error =
@@ -45,10 +42,9 @@ T& Asset::GetRes(const std::string& name)
 }
 
 template<typename T>
-T* Asset::TryGetRes(const std::string& name)
-{
+T* Asset::TryGetRes(const std::string& name) {
   ResTypeId requestedResTypeId = Rsl::GetResTypeId<T>();
-  for (const ResDesc& resDesc : mResDescs) {
+  for (const ResDesc& resDesc: mResDescs) {
     if (resDesc.mResTypeId == requestedResTypeId && resDesc.mName == name) {
       return (T*)GetResDescData(resDesc);
     }
@@ -57,10 +53,9 @@ T* Asset::TryGetRes(const std::string& name)
 }
 
 template<typename T>
-bool Asset::HasRes(const std::string& name)
-{
+bool Asset::HasRes(const std::string& name) {
   ResTypeId resTypeId = Rsl::GetResTypeId<T>();
-  for (const ResDesc& resDesc : mResDescs) {
+  for (const ResDesc& resDesc: mResDescs) {
     if (resDesc.mResTypeId == resTypeId && resDesc.mName == name) {
       return true;
     }

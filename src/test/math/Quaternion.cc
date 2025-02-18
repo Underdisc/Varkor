@@ -6,8 +6,7 @@
 #include "math/Quaternion.h"
 #include "test/Test.h"
 
-void AngleAxis()
-{
+void AngleAxis() {
   float angle = Math::nPiO2;
   Vec3 axis = {1.0f, 1.0f, 1.0f};
   axis = Math::Normalize(axis);
@@ -18,8 +17,7 @@ void AngleAxis()
   std::cout << "quaternion: " << quat << '\n';
 }
 
-void FromTo()
-{
+void FromTo() {
   Vec3 v[4];
   Math::Quaternion q[3];
   v[0] = {1.0f, 0.0f, 0.0f};
@@ -37,8 +35,7 @@ void FromTo()
   std::cout << q[2].Rotate(v[0]) << '\n';
 }
 
-void BasisVectors()
-{
+void BasisVectors() {
   auto testBasis = [](Vec3 xAxis, Vec3 up)
   {
     xAxis = Math::Normalize(xAxis);
@@ -64,8 +61,7 @@ void BasisVectors()
   testBasis({1.0f, -1.0f, -1.0f}, {0.0f, -1.0f, 0.0f});
 }
 
-void Interpolate()
-{
+void Interpolate() {
   std::cout << "-NegativeZAxis-\n";
   Math::Quaternion q;
   q.AngleAxis(Math::nPi, {0.0f, 0.0f, -1.0f});
@@ -82,16 +78,14 @@ void Interpolate()
   std::cout << q << "\n";
 }
 
-void Conjugate()
-{
+void Conjugate() {
   Quat quat = {1.0f, 2.0f, 3.0f, 4.0f};
   Quat conj = quat.Conjugate();
   std::cout << "quaternion: " << quat << '\n';
   std::cout << "conjugate: " << conj << '\n';
 }
 
-void Multiplication()
-{
+void Multiplication() {
   Quat quat1 = {1.0f, 2.0f, 3.0f, 4.0f};
   Quat quat2 = {4.0f, 3.0f, 2.0f, 1.0f};
   Quat result = quat1 * quat2;
@@ -100,8 +94,7 @@ void Multiplication()
   std::cout << "result: " << result << '\n';
 }
 
-void EulerAngles()
-{
+void EulerAngles() {
   Quat q;
   q.AngleAxis(Math::nPi / 2.0f, {1.0f, 0.0f, 0.0f});
   Vec3 eulerAngles = q.EulerAngles();
@@ -114,8 +107,7 @@ void EulerAngles()
   std::cout << eulerAngles << '\n';
 }
 
-void Rotate()
-{
+void Rotate() {
   Math::Quaternion a, b;
   a = {0.0f, 1.0f / sqrtf(2.0f), 0.0f, 1.0f / sqrtf(2.0f)};
   b.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
@@ -125,8 +117,7 @@ void Rotate()
   std::cout << b.Rotate({0.0f, 1.0f, 0.0f}) << '\n';
 }
 
-int main(void)
-{
+int main(void) {
   RunTest(AngleAxis);
   RunTest(FromTo);
   RunTest(BasisVectors);

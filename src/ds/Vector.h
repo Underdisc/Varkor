@@ -8,8 +8,7 @@
 namespace Ds {
 
 template<typename T>
-class Vector
-{
+class Vector {
 public:
   Vector();
   Vector(const Vector<T>& other);

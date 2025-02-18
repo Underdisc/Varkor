@@ -12,8 +12,7 @@ namespace Editor {
 
 Camera nCamera;
 
-void CameraInterface::Show()
-{
+void CameraInterface::Show() {
   ImGui::Begin("Camera");
   ImGui::PushItemWidth(-Editor::CalcBufferWidth("TranslationT"));
   ImGui::DragFloat(
@@ -25,8 +24,7 @@ void CameraInterface::Show()
   ImGui::End();
 }
 
-void Camera::Init()
-{
+void Camera::Init() {
   mSpeed = 1.0f;
   mTranslationT = 0.5f;
   mSensitivity = 0.001f * Math::nPi;
@@ -39,18 +37,15 @@ void Camera::Init()
   mTargetEulerRotation = {0, 0};
 }
 
-void Camera::Purge()
-{
+void Camera::Purge() {
   GetObject().Delete();
 }
 
-World::Object Camera::GetObject()
-{
+World::Object Camera::GetObject() {
   return World::Object(&Editor::nSpace, mCameraId);
 }
 
-void Camera::Update()
-{
+void Camera::Update() {
   // Change the camera's yaw and pitch depending on input.
   const World::Object cameraObject = GetObject();
   auto& transformComp = cameraObject.Get<Comp::Transform>();

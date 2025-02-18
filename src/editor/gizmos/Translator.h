@@ -10,8 +10,7 @@
 namespace Editor {
 namespace Gizmos {
 
-struct Translator
-{
+struct Translator {
   Translator();
   ~Translator();
   Translator(Translator&& other);
@@ -33,8 +32,7 @@ struct Translator
     {0.0f, 0.7f, 0.7f, 1.0f},
     {0.7f, 0.7f, 0.7f, 1.0f}};
 
-  enum class Operation
-  {
+  enum class Operation {
     X = 0,
     Y = 1,
     Z = 2,
@@ -46,11 +44,9 @@ struct Translator
   };
 
   World::MemberId mParent;
-  union
-  {
+  union {
     World::MemberId mHandles[smHandleCount];
-    struct
-    {
+    struct {
       World::MemberId mX, mY, mZ, mXy, mXz, mYz, mXyz;
     };
   };

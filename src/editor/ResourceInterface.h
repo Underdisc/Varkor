@@ -8,8 +8,7 @@
 
 namespace Editor {
 
-struct ResourceInterface: public Interface
-{
+struct ResourceInterface: public Interface {
   ResourceInterface(const ResId& id);
   ~ResourceInterface();
   void Show();

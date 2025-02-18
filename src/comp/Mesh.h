@@ -7,8 +7,7 @@
 namespace Comp {
 
 #pragma pack(push, 1)
-struct Mesh
-{
+struct Mesh {
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& modelVal);
   void VDeserialize(const Vlk::Explorer& modelEx);

@@ -8,8 +8,7 @@
 
 namespace Vlk {
 
-struct Parser
-{
+struct Parser {
 public:
   Result Parse(const char* text, Value* root);
 

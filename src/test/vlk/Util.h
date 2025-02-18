@@ -6,8 +6,7 @@
 
 #include "vlk/Value.h"
 
-void PrintParsePrint(const Vlk::Value& rootVal)
-{
+void PrintParsePrint(const Vlk::Value& rootVal) {
   std::stringstream rootText;
   rootText << rootVal;
   Vlk::Value rootValCopy;

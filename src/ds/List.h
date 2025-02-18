@@ -4,11 +4,9 @@
 namespace Ds {
 
 template<typename T>
-struct List
-{
+struct List {
 private:
-  struct Node
-  {
+  struct Node {
     Node(const T& value);
     Node(T&& value);
     template<typename... Args>
@@ -23,8 +21,7 @@ private:
   Node* mTail;
   size_t mSize;
 
-  struct IterBase
-  {
+  struct IterBase {
   public:
     void operator++();
     bool operator==(const IterBase& other) const;
@@ -38,8 +35,7 @@ private:
   };
 
 public:
-  struct Iter: IterBase
-  {
+  struct Iter: IterBase {
   public:
     T& operator*() const;
     T* operator->() const;
@@ -49,8 +45,7 @@ public:
     friend List<T>;
   };
 
-  struct CIter: IterBase
-  {
+  struct CIter: IterBase {
   public:
     const T& operator*() const;
     const T* operator->() const;

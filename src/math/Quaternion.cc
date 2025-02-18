@@ -7,26 +7,22 @@ namespace Math {
 
 Quaternion::Quaternion() {}
 
-Quaternion::Quaternion(float a, float b, float c, float d): mVec({a, b, c, d})
-{}
+Quaternion::Quaternion(float a, float b, float c, float d):
+  mVec({a, b, c, d}) {}
 
-Quaternion::Quaternion(const Vec3& from, const Vec3& to)
-{
+Quaternion::Quaternion(const Vec3& from, const Vec3& to) {
   FromTo(from, to);
 }
 
-Quaternion::Quaternion(float angle, const Vec3& axis)
-{
+Quaternion::Quaternion(float angle, const Vec3& axis) {
   AngleAxis(angle, axis);
 }
 
-void Quaternion::Identity()
-{
+void Quaternion::Identity() {
   mVec = {1.0f, 0.0, 0.0f, 0.0f};
 }
 
-void Quaternion::AngleAxis(float angle, Vec3 axis)
-{
+void Quaternion::AngleAxis(float angle, Vec3 axis) {
   float halfAngle = angle / 2.0f;
   mA = cosf(halfAngle);
   axis = Math::Normalize(axis) * sinf(halfAngle);
@@ -35,8 +31,7 @@ void Quaternion::AngleAxis(float angle, Vec3 axis)
   mD = axis[2];
 }
 
-void Quaternion::FromTo(const Vec3& from, const Vec3& to)
-{
+void Quaternion::FromTo(const Vec3& from, const Vec3& to) {
   float magSqProduct = Math::MagnitudeSq(from) * Math::MagnitudeSq(to);
   LogAbortIf(magSqProduct == 0.0f, "One of the vectors is a zero vector.");
   mA = sqrtf(magSqProduct) + Math::Dot(from, to);
@@ -57,8 +52,7 @@ void Quaternion::FromTo(const Vec3& from, const Vec3& to)
 // associated with it. What happens when a proper orthogonal basis is not
 // supplied is beyond the scope of this function.
 void Quaternion::BasisVectors(
-  const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis)
-{
+  const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis) {
   // These values are found with the basis vector rotation matrix [X, Y, Z]
   // where X, Y, and Z are the basis vectors for the respective axes. Using
   // that and the quaternion rotation matrix representation, we can calculate
@@ -98,8 +92,7 @@ void Quaternion::BasisVectors(
   mC = (yAxis[2] + zAxis[1]) / z4;
 }
 
-Quaternion Quaternion::Interpolate(float t) const
-{
+Quaternion Quaternion::Interpolate(float t) const {
   float halfAngle = acosf(mA);
   halfAngle *= t;
   Vec3 axis = {mB, mC, mD};
@@ -107,40 +100,33 @@ Quaternion Quaternion::Interpolate(float t) const
   return Quaternion(cosf(halfAngle), axis[0], axis[1], axis[2]);
 }
 
-void Quaternion::Normalize()
-{
+void Quaternion::Normalize() {
   mVec = Math::Normalize(mVec);
 }
 
-Quaternion Quaternion::Conjugate() const
-{
+Quaternion Quaternion::Conjugate() const {
   Quaternion result(mA, -mB, -mC, -mD);
   return result;
 }
 
-Quaternion& Quaternion::operator*=(const Quaternion& other)
-{
+Quaternion& Quaternion::operator*=(const Quaternion& other) {
   *this = *this * other;
   return *this;
 }
 
-const float& Quaternion::operator[](int index) const
-{
+const float& Quaternion::operator[](int index) const {
   return mVec[index];
 }
 
-float& Quaternion::operator[](int index)
-{
+float& Quaternion::operator[](int index) {
   return mVec[index];
 }
 
-float Quaternion::Magnitude() const
-{
+float Quaternion::Magnitude() const {
   return Math::Magnitude(mVec);
 }
 
-Vec3 Quaternion::Axis() const
-{
+Vec3 Quaternion::Axis() const {
   Vec3 axis = {mB, mC, mD};
   float magnitude = Math::Magnitude(axis);
   if (magnitude == 0.0f) {
@@ -150,8 +136,7 @@ Vec3 Quaternion::Axis() const
   return axis / magnitude;
 }
 
-Vec3 Quaternion::EulerAngles() const
-{
+Vec3 Quaternion::EulerAngles() const {
   // The angle order is the rotation around the x, y, and then z axis.
   Vec3 angles;
   float m21 = 2.0f * mC * mD + 2.0f * mB * mA;
@@ -166,8 +151,7 @@ Vec3 Quaternion::EulerAngles() const
   return angles;
 }
 
-Vec3 Quaternion::Rotate(const Vec3& vector) const
-{
+Vec3 Quaternion::Rotate(const Vec3& vector) const {
   Vec3 axis = {mB, mC, mD};
   Vec3 result = 2.0f * Math::Dot(axis, vector) * axis;
   result += (mA * mA - Math::MagnitudeSq(axis)) * vector;
@@ -175,8 +159,7 @@ Vec3 Quaternion::Rotate(const Vec3& vector) const
   return result;
 }
 
-Quaternion operator*(const Quaternion& a, const Quaternion& b)
-{
+Quaternion operator*(const Quaternion& a, const Quaternion& b) {
   Quaternion result;
   result.mA = a.mA * b.mA - a.mB * b.mB - a.mC * b.mC - a.mD * b.mD;
   result.mB = a.mA * b.mB + a.mB * b.mA + a.mC * b.mD - a.mD * b.mC;

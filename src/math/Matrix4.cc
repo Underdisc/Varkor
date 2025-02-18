@@ -7,28 +7,24 @@
 
 namespace Math {
 
-float* Matrix<float, 4>::Data()
-{
+float* Matrix<float, 4>::Data() {
   return (float*)mD;
 }
 
-const float* Matrix<float, 4>::CData() const
-{
+const float* Matrix<float, 4>::CData() const {
   return (const float*)mD;
 }
 
-float* Matrix<float, 4>::operator[](int row)
-{
+float* Matrix<float, 4>::operator[](int row) {
   return mD[row];
 }
 
-const float* Matrix<float, 4>::operator[](int row) const
-{
+const float* Matrix<float, 4>::operator[](int row) const {
   return mD[row];
 }
 
-Matrix<float, 4> operator*(const Matrix<float, 4>& a, const Matrix<float, 4>& b)
-{
+Matrix<float, 4> operator*(
+  const Matrix<float, 4>& a, const Matrix<float, 4>& b) {
   Matrix<float, 4> res;
   res[0][0] = a[0][0] * b[0][0] + a[0][1] * b[1][0] + a[0][2] * b[2][0] +
     a[0][3] * b[3][0];
@@ -68,14 +64,12 @@ Matrix<float, 4> operator*(const Matrix<float, 4>& a, const Matrix<float, 4>& b)
   return res;
 }
 
-Matrix<float, 4>& operator*=(Matrix<float, 4>& a, const Matrix<float, 4>& b)
-{
+Matrix<float, 4>& operator*=(Matrix<float, 4>& a, const Matrix<float, 4>& b) {
   a = a * b;
   return a;
 }
 
-void Scale(Matrix<float, 4>* m, const Vec3& s)
-{
+void Scale(Matrix<float, 4>* m, const Vec3& s) {
   // clang-format off
   *m = {s[0], 0.0f, 0.0f, 0.0f,
         0.0f, s[1], 0.0f, 0.0f,
@@ -84,8 +78,7 @@ void Scale(Matrix<float, 4>* m, const Vec3& s)
   // clang-format on
 }
 
-void Scale(Matrix<float, 4>* m, float uniS)
-{
+void Scale(Matrix<float, 4>* m, float uniS) {
   // clang-format off
   *m = {uniS, 0.0f, 0.0f, 0.0f,
         0.0f, uniS, 0.0f, 0.0f,
@@ -94,8 +87,7 @@ void Scale(Matrix<float, 4>* m, float uniS)
   // clang-format on
 }
 
-void Translate(Matrix<float, 4>* m, const Vec3& t)
-{
+void Translate(Matrix<float, 4>* m, const Vec3& t) {
   // clang-format off
   *m = {1.0f, 0.0f, 0.0f, t[0],
         0.0f, 1.0f, 0.0f, t[1],
@@ -104,16 +96,14 @@ void Translate(Matrix<float, 4>* m, const Vec3& t)
   // clang-format on
 }
 
-void Rotate(Matrix<float, 4>* m, const Quaternion& rot)
-{
+void Rotate(Matrix<float, 4>* m, const Quaternion& rot) {
   Mat3 orientation;
   Rotate(&orientation, rot);
   *m = (Mat4)orientation;
 }
 
 void Perspective(
-  Matrix<float, 4>* m, float fovY, float aspect, float near, float far)
-{
+  Matrix<float, 4>* m, float fovY, float aspect, float near, float far) {
   // The fov passed into this function is the angle formed by the top and the
   // bottom of the view fustum, not the left and right.
   float tanHalfFov = tanf(fovY / 2.0f);
@@ -132,8 +122,7 @@ void Perspective(
 }
 
 void Orthographic(
-  Matrix<float, 4>* m, float height, float aspect, float near, float far)
-{
+  Matrix<float, 4>* m, float height, float aspect, float near, float far) {
   LogAbortIf(height == 0.0f, "height must be a non-zero value.");
   LogAbortIf(near == far, "near and far must be different values.");
 

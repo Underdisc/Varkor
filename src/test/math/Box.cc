@@ -3,8 +3,7 @@
 
 namespace Test {
 
-void Support0()
-{
+void Support0() {
   Math::Box box;
   Vec3 center = {0, 0, 0};
   Vec3 size = {2, 2, 2};
@@ -15,8 +14,7 @@ void Support0()
   std::cout << box.Support({0.5f, -0.5f, -0.5f}) << std::endl;
 }
 
-void Support1()
-{
+void Support1() {
   Math::Box box;
   Vec3 center = {1, 1, 0};
   Vec3 size = {4, 2, 4};
@@ -30,8 +28,7 @@ void Support1()
 } // namespace Test
 
 #ifndef RemoveTestEntryPoint
-int main()
-{
+int main() {
   using namespace Test;
   RunTest(Support0);
   RunTest(Support1);

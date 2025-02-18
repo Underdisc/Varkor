@@ -4,16 +4,14 @@
 #include "math/Constants.h"
 #include "test/Test.h"
 
-void Assignment()
-{
+void Assignment() {
   Complex a = {1.0f, 2.0f};
   Complex b = a;
   std::cout << "a: " << a << '\n';
   std::cout << "b: " << b << '\n';
 }
 
-void Addition()
-{
+void Addition() {
   Complex a = {1.0f, 2.0f};
   Complex b = a;
   Complex c = a + b;
@@ -23,8 +21,7 @@ void Addition()
   std::cout << "c: " << c << '\n';
 }
 
-void Subtraction()
-{
+void Subtraction() {
   Complex a = {1.0f, 2.0f};
   Complex b = {2.0f, 5.0f};
   Complex c = a - b;
@@ -34,8 +31,7 @@ void Subtraction()
   std::cout << "c: " << c << '\n';
 }
 
-void Multiplication()
-{
+void Multiplication() {
   Complex a = {1.0f, 2.0f};
   Complex b = {2.0f, 5.0f};
   Complex c = a * b;
@@ -48,8 +44,7 @@ void Multiplication()
   std::cout << "d: " << d << '\n';
 }
 
-void PolarComplex()
-{
+void PolarComplex() {
   Complex a = Math::ComplexPolar(2.0f, 0.0f);
   Complex b = Math::ComplexPolar(3.0f, Math::nPiO2);
   Complex c = Math::ComplexPolar(1.0f, Math::nPi);
@@ -62,8 +57,7 @@ void PolarComplex()
   std::cout << "e: " << e << '\n';
 }
 
-int main(void)
-{
+int main(void) {
   RunTest(Assignment);
   RunTest(Addition);
   RunTest(Subtraction);

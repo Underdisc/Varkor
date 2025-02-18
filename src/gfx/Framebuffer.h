@@ -5,11 +5,9 @@
 
 namespace Gfx {
 
-class Framebuffer
-{
+class Framebuffer {
 public:
-  struct Options
-  {
+  struct Options {
     int mWidth;
     int mHeight;
     GLint mInternalFormat;

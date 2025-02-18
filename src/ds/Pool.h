@@ -10,8 +10,7 @@ typedef SparseId PoolId;
 constexpr PoolId nInvalidPoolId = nInvalidSparseId;
 
 template<typename T>
-struct Pool: public SparseSet
-{
+struct Pool: public SparseSet {
   PoolId Add(const T& element);
   template<typename... Args>
   T& Request(PoolId id, Args&&... args);

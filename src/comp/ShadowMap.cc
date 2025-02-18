@@ -11,44 +11,39 @@
 
 namespace Comp {
 
-ShadowMap::~ShadowMap()
-{
+ShadowMap::~ShadowMap() {
   DeleteFramebuffer();
 }
 
-void ShadowMap::VInit(const World::Object& owner)
-{
+void ShadowMap::VInit(const World::Object& owner) {
   mWidth = smDefaultWidth;
   mHeight = smDefaultHeight;
   mBias = smDefaultBias;
   CreateFramebuffer();
 }
 
-void ShadowMap::VSerialize(Vlk::Value& val)
-{
+void ShadowMap::VSerialize(Vlk::Value& val) {
   val("Width") = mWidth;
   val("Height") = mHeight;
   val("Bias") = mBias;
 }
 
-void ShadowMap::VDeserialize(const Vlk::Explorer& ex)
-{
+void ShadowMap::VDeserialize(const Vlk::Explorer& ex) {
   mWidth = ex("Width").As<unsigned int>(smDefaultWidth);
   mHeight = ex("Height").As<unsigned int>(smDefaultHeight);
   mBias = ex("Bias").As<float>(smDefaultBias);
   CreateFramebuffer();
 }
 
-void ShadowMap::VEdit(const World::Object& owner)
-{
+void ShadowMap::VEdit(const World::Object& owner) {
   ImGui::PushItemWidth(-Editor::CalcBufferWidth("Height"));
   ImGui::SliderFloat("Bias", &mBias, -0.1f, 0.1f);
   int newWidth = (int)mWidth;
   ImGui::DragInt(
-    "Width", &newWidth, 1, 1, 4096, "%d", ImGuiSliderFlags_Logarithmic);
+    "Width", &newWidth, 1, 1, 4'096, "%d", ImGuiSliderFlags_Logarithmic);
   int newHeight = (int)mHeight;
   ImGui::DragInt(
-    "Height", &newHeight, 1, 1, 4096, "%d", ImGuiSliderFlags_Logarithmic);
+    "Height", &newHeight, 1, 1, 4'096, "%d", ImGuiSliderFlags_Logarithmic);
   if (newWidth != (int)mWidth || newHeight != (int)mHeight) {
     mWidth = (unsigned int)newWidth;
     mHeight = (unsigned int)newHeight;
@@ -58,8 +53,7 @@ void ShadowMap::VEdit(const World::Object& owner)
   ImGui::PopItemWidth();
 }
 
-Mat4 ShadowMap::ProjView(const World::Object& owner) const
-{
+Mat4 ShadowMap::ProjView(const World::Object& owner) const {
   Comp::Transform& transform = owner.Get<Comp::Transform>();
   Comp::Camera& camera = owner.Get<Comp::Camera>();
   Mat4 view = transform.GetInverseWorldMatrix(owner);
@@ -67,8 +61,7 @@ Mat4 ShadowMap::ProjView(const World::Object& owner) const
   return proj * view;
 }
 
-void ShadowMap::CreateFramebuffer()
-{
+void ShadowMap::CreateFramebuffer() {
   glGenTextures(1, &mTbo);
   glBindTexture(GL_TEXTURE_2D, mTbo);
   glTexImage2D(
@@ -100,8 +93,7 @@ void ShadowMap::CreateFramebuffer()
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void ShadowMap::DeleteFramebuffer()
-{
+void ShadowMap::DeleteFramebuffer() {
   glDeleteTextures(1, &mTbo);
   glDeleteFramebuffers(1, &mFbo);
 }

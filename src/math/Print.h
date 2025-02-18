@@ -8,8 +8,7 @@
 #include "math/Quaternion.h"
 
 template<typename T, unsigned int N>
-std::ostream& operator<<(std::ostream& os, const Math::Matrix<T, N>& matrix)
-{
+std::ostream& operator<<(std::ostream& os, const Math::Matrix<T, N>& matrix) {
   // We find the longest number in each column so that all columns are aligned
   // when printed to console. Do note that this does not work if any formatting
   // specifiers are applied to os.
@@ -49,8 +48,7 @@ std::ostream& operator<<(std::ostream& os, const Math::Matrix<T, N>& matrix)
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Quaternion& q)
-{
+std::ostream& operator<<(std::ostream& os, const Quaternion& q) {
   bool firstValue = true;
   auto printValue = [&os, &firstValue](float value, const char* basis)
   {

@@ -5,8 +5,7 @@
 #include "math/Vector.h"
 #include "rsl/ResourceId.h"
 
-enum class TerminalType
-{
+enum class TerminalType {
   Flat,
   Point,
   CollapsedNormal,

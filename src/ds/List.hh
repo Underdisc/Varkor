@@ -7,178 +7,150 @@ namespace Ds {
 
 template<typename T>
 List<T>::Node::Node(const T& value):
-  mValue(value), mNext(nullptr), mPrev(nullptr)
-{}
+  mValue(value), mNext(nullptr), mPrev(nullptr) {}
 
 template<typename T>
 List<T>::Node::Node(T&& value):
-  mValue(std::forward<T>(value)), mNext(nullptr), mPrev(nullptr)
-{}
+  mValue(std::forward<T>(value)), mNext(nullptr), mPrev(nullptr) {}
 
 template<typename T>
 template<typename... Args>
 List<T>::Node::Node(Args&&... args):
-  mValue(std::forward<Args>(args)...), mNext(nullptr), mPrev(nullptr)
-{}
+  mValue(std::forward<Args>(args)...), mNext(nullptr), mPrev(nullptr) {}
 
 template<typename T>
-void List<T>::IterBase::operator++()
-{
+void List<T>::IterBase::operator++() {
   this->VerifyCurrent();
   this->mCurrent = mCurrent->mNext;
 }
 
 template<typename T>
-bool List<T>::IterBase::operator==(const IterBase& other) const
-{
+bool List<T>::IterBase::operator==(const IterBase& other) const {
   return this->mCurrent == other.mCurrent;
 }
 
 template<typename T>
-bool List<T>::IterBase::operator!=(const IterBase& other) const
-{
+bool List<T>::IterBase::operator!=(const IterBase& other) const {
   return this->mCurrent != other.mCurrent;
 }
 
 template<typename T>
-List<T>::IterBase::IterBase(Node* current): mCurrent(current)
-{}
+List<T>::IterBase::IterBase(Node* current): mCurrent(current) {}
 
 template<typename T>
-void List<T>::IterBase::VerifyCurrent() const
-{
+void List<T>::IterBase::VerifyCurrent() const {
   LogAbortIf(mCurrent == nullptr, "The Iter does not point to a Node.");
 }
 
 template<typename T>
-List<T>::Iter::Iter(Node* current): IterBase(current)
-{}
+List<T>::Iter::Iter(Node* current): IterBase(current) {}
 
 template<typename T>
-T& List<T>::Iter::operator*() const
-{
+T& List<T>::Iter::operator*() const {
   this->VerifyCurrent();
   return this->mCurrent->mValue;
 }
 
 template<typename T>
-T* List<T>::Iter::operator->() const
-{
+T* List<T>::Iter::operator->() const {
   this->VerifyCurrent();
   return &this->mCurrent->mValue;
 }
 
 template<typename T>
-List<T>::CIter::CIter(Node* current): IterBase(current)
-{}
+List<T>::CIter::CIter(Node* current): IterBase(current) {}
 
 template<typename T>
-const T& List<T>::CIter::operator*() const
-{
+const T& List<T>::CIter::operator*() const {
   this->VerifyCurrent();
   return this->mCurrent->mValue;
 }
 
 template<typename T>
-const T* List<T>::CIter::operator->() const
-{
+const T* List<T>::CIter::operator->() const {
   this->VerifyCurrent();
   return &this->mCurrent->mValue;
 }
 
 template<typename T>
-typename List<T>::Iter List<T>::begin() const
-{
+typename List<T>::Iter List<T>::begin() const {
   Iter begin(mHead);
   return begin;
 }
 
 template<typename T>
-typename List<T>::Iter List<T>::end() const
-{
+typename List<T>::Iter List<T>::end() const {
   Iter end(nullptr);
   return end;
 }
 
 template<typename T>
-typename List<T>::CIter List<T>::cbegin() const
-{
+typename List<T>::CIter List<T>::cbegin() const {
   CIter cbegin(mHead);
   return cbegin;
 }
 
 template<typename T>
-typename List<T>::CIter List<T>::cend() const
-{
+typename List<T>::CIter List<T>::cend() const {
   CIter cend(nullptr);
   return cend;
 }
 
 template<typename T>
-List<T>::List(): mHead(nullptr), mTail(nullptr), mSize(0)
-{}
+List<T>::List(): mHead(nullptr), mTail(nullptr), mSize(0) {}
 
 template<typename T>
-List<T>::~List()
-{
+List<T>::~List() {
   Clear();
 }
 
 template<typename T>
-void List<T>::PushBack(const T& value)
-{
+void List<T>::PushBack(const T& value) {
   Node* newNode = alloc Node(value);
   InsertNode(end(), newNode);
 }
 
 template<typename T>
-void List<T>::PushFront(const T& value)
-{
+void List<T>::PushFront(const T& value) {
   Node* newNode = alloc Node(value);
   InsertNode(begin(), newNode);
 }
 
 template<typename T>
-void List<T>::PushBack(T&& value)
-{
+void List<T>::PushBack(T&& value) {
   Node* newNode = alloc Node(std::forward<T>(value));
   InsertNode(end(), newNode);
 }
 
 template<typename T>
-void List<T>::PushFront(T&& value)
-{
+void List<T>::PushFront(T&& value) {
   Node* newNode = alloc Node(std::forward<T>(value));
   InsertNode(begin(), newNode);
 }
 
 template<typename T>
 template<typename... Args>
-void List<T>::EmplaceBack(Args&&... args)
-{
+void List<T>::EmplaceBack(Args&&... args) {
   Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(end(), newNode);
 }
 
 template<typename T>
 template<typename... Args>
-void List<T>::EmplaceFront(Args&&... args)
-{
+void List<T>::EmplaceFront(Args&&... args) {
   Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(begin(), newNode);
 }
 
 template<typename T>
-typename List<T>::Iter List<T>::Insert(Iter it, const T& value)
-{
+typename List<T>::Iter List<T>::Insert(Iter it, const T& value) {
   Node* newNode = alloc Node(value);
   InsertNode(it, newNode);
   return Iter(newNode);
 }
 
 template<typename T>
-typename List<T>::Iter List<T>::Insert(Iter it, T&& value)
-{
+typename List<T>::Iter List<T>::Insert(Iter it, T&& value) {
   Node* newNode = alloc Node(std::forward<T>(value));
   InsertNode(it, newNode);
   return Iter(newNode);
@@ -186,16 +158,14 @@ typename List<T>::Iter List<T>::Insert(Iter it, T&& value)
 
 template<typename T>
 template<typename... Args>
-typename List<T>::Iter List<T>::Emplace(Iter it, Args&&... args)
-{
+typename List<T>::Iter List<T>::Emplace(Iter it, Args&&... args) {
   Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(it, newNode);
   return Iter(newNode);
 }
 
 template<typename T>
-void List<T>::PopBack()
-{
+void List<T>::PopBack() {
   LogAbortIf(mTail == nullptr, "The list is empty");
   --mSize;
   if (mTail->mPrev == nullptr) {
@@ -211,8 +181,7 @@ void List<T>::PopBack()
 }
 
 template<typename T>
-void List<T>::PopFront()
-{
+void List<T>::PopFront() {
   LogAbortIf(mHead == nullptr, "The list is empty");
   --mSize;
   if (mHead->mNext == nullptr) {
@@ -228,8 +197,7 @@ void List<T>::PopFront()
 }
 
 template<typename T>
-typename List<T>::Iter List<T>::Erase(Iter it)
-{
+typename List<T>::Iter List<T>::Erase(Iter it) {
   it.VerifyCurrent();
   --mSize;
   if (it.mCurrent->mNext == nullptr && it.mCurrent->mPrev == nullptr) {
@@ -262,8 +230,7 @@ typename List<T>::Iter List<T>::Erase(Iter it)
 }
 
 template<typename T>
-void List<T>::Clear()
-{
+void List<T>::Clear() {
   Node* current = mHead;
   Node* next = nullptr;
   while (current != nullptr) {
@@ -277,26 +244,22 @@ void List<T>::Clear()
 }
 
 template<typename T>
-typename List<T>::Iter List<T>::Front()
-{
+typename List<T>::Iter List<T>::Front() {
   return Iter(mHead);
 }
 
 template<typename T>
-typename List<T>::Iter List<T>::Back()
-{
+typename List<T>::Iter List<T>::Back() {
   return Iter(mTail);
 }
 
 template<typename T>
-size_t List<T>::Size() const
-{
+size_t List<T>::Size() const {
   return mSize;
 }
 
 template<typename T>
-void List<T>::InsertNode(Iter it, Node* newNode)
-{
+void List<T>::InsertNode(Iter it, Node* newNode) {
   ++mSize;
   if (mHead == nullptr) {
     mHead = newNode;

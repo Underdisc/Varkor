@@ -1,28 +1,24 @@
 namespace Rsl {
 
 template<typename T>
-ResId GetDefaultResId()
-{
+ResId GetDefaultResId() {
   const ResTypeData& resTypeData = GetResTypeData<T>();
   return ResId(nDefaultAssetName, "Default");
 }
 
 template<typename T>
-T& GetDefaultRes()
-{
+T& GetDefaultRes() {
   return GetRes<T>(GetDefaultResId<T>());
 }
 
 template<typename T>
-T& GetRes(const ResId& resId)
-{
+T& GetRes(const ResId& resId) {
   Asset& asset = nAssets.Get(resId.GetAssetName());
   return asset.GetRes<T>(resId.GetResourceName());
 }
 
 template<typename T>
-T* TryGetRes(const ResId& resId, const ResId& defaultResId)
-{
+T* TryGetRes(const ResId& resId, const ResId& defaultResId) {
   std::string assetName = resId.GetAssetName();
   switch (GetAssetStatus(assetName)) {
   case Asset::Status::Dormant: QueueAsset(assetName);
@@ -43,8 +39,7 @@ T* TryGetRes(const ResId& resId, const ResId& defaultResId)
 }
 
 template<typename T>
-bool HasRes(const ResId& resId)
-{
+bool HasRes(const ResId& resId) {
   Asset* asset = nAssets.TryGet(resId.GetAssetName());
   if (asset == nullptr) {
     return false;

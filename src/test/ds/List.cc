@@ -8,8 +8,7 @@
 #include "test/ds/Test.h"
 #include "test/ds/TestType.h"
 
-void Push()
-{
+void Push() {
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     TestType testType(i);
@@ -22,8 +21,7 @@ void Push()
   TestType::PrintCounts();
 }
 
-void Pop()
-{
+void Pop() {
   Ds::List<TestType> list;
   for (int i = 0; i < 20; ++i) {
     list.PushBack(TestType(i));
@@ -45,8 +43,7 @@ void Pop()
   TestType::PrintCounts();
 }
 
-void Iter()
-{
+void Iter() {
   Ds::List<TestType> list;
   for (int i = 0; i < 5; ++i) {
     list.EmplaceFront(i);
@@ -80,8 +77,7 @@ void Iter()
   std::cout << "Empty: " << (list.begin() == list.end()) << "\n";
 }
 
-void EmplaceBackFront()
-{
+void EmplaceBackFront() {
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(i);
@@ -92,8 +88,7 @@ void EmplaceBackFront()
   TestType::PrintCounts();
 }
 
-void MovePush()
-{
+void MovePush() {
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     TestType testType(i);
@@ -105,8 +100,7 @@ void MovePush()
   TestType::PrintCounts();
 }
 
-void Insert()
-{
+void Insert() {
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(i);
@@ -127,8 +121,7 @@ void Insert()
   TestType::PrintCounts();
 }
 
-void Emplace()
-{
+void Emplace() {
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(TestType(i));
@@ -146,8 +139,7 @@ void Emplace()
   TestType::PrintCounts();
 }
 
-void Erase()
-{
+void Erase() {
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
     list.EmplaceBack(i);
@@ -180,8 +172,7 @@ void Erase()
   TestType::PrintCounts();
 }
 
-int main()
-{
+int main() {
   EnableLeakOutput();
   RunDsTest(Push);
   RunDsTest(Pop);

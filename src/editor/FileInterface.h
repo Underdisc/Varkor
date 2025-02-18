@@ -8,11 +8,9 @@
 
 namespace Editor {
 
-struct FileInterface: public Interface
-{
+struct FileInterface: public Interface {
 public:
-  enum class AccessType
-  {
+  enum class AccessType {
     Select,
     Save,
   };

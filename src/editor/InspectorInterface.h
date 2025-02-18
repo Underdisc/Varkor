@@ -7,8 +7,7 @@
 
 namespace Editor {
 
-struct InspectorInterface: public Interface
-{
+struct InspectorInterface: public Interface {
 public:
   InspectorInterface(World::Object& object);
   void Show();
@@ -18,8 +17,7 @@ public:
   static Ds::Vector<Comp::TypeId> smOpenTypes;
 };
 
-struct AddComponentInterface: public Interface
-{
+struct AddComponentInterface: public Interface {
 public:
   AddComponentInterface(const World::Object& object);
   void Show();

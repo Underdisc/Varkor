@@ -5,8 +5,7 @@
 
 namespace Editor {
 
-struct CoreInterface: public Interface
-{
+struct CoreInterface: public Interface {
 public:
   void Init();
   void Show();

@@ -7,15 +7,13 @@ namespace Options {
 
 Config nConfig;
 
-void ShowHelp()
-{
+void ShowHelp() {
   std::cout << "--help | -h: Prints this.\n"
                "--load-layer | -l [layer.vlk]: The editor will instantly load "
                "and select the layer saved within the given file.\n";
 }
 
-Result Init(int argc, char* argv[], Config&& config)
-{
+Result Init(int argc, char* argv[], Config&& config) {
   nConfig = std::move(config);
   std::string& projectDir = nConfig.mProjectDirectory;
   if (!projectDir.empty() && projectDir.back() != '/') {

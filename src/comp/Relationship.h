@@ -10,8 +10,7 @@
 namespace Comp {
 
 #pragma pack(push, 1)
-struct Relationship
-{
+struct Relationship {
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& nameVal);
   void VDeserialize(const Vlk::Explorer& nameEx);
@@ -28,18 +27,15 @@ struct Relationship
 };
 #pragma pack(pop)
 
-inline bool Relationship::HasParent() const
-{
+inline bool Relationship::HasParent() const {
   return mParent != World::nInvalidMemberId;
 }
 
-inline bool Relationship::HasChildren() const
-{
+inline bool Relationship::HasChildren() const {
   return !mChildren.Empty();
 }
 
-inline bool Relationship::HasRelationship() const
-{
+inline bool Relationship::HasRelationship() const {
   return HasParent() || HasChildren();
 }
 

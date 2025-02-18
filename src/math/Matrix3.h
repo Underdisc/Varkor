@@ -10,8 +10,7 @@ typedef Math::Matrix<float, 3> Mat3;
 namespace Math {
 
 template<>
-struct Matrix<float, 3>
-{
+struct Matrix<float, 3> {
   float mD[3][3];
 
   float* Data();

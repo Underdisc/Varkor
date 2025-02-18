@@ -11,8 +11,7 @@
 
 namespace Gfx {
 
-struct Font
-{
+struct Font {
 public:
   Font();
   Font(Font&& other);
@@ -23,8 +22,7 @@ public:
   Result Init(const Vlk::Explorer& configEx);
   Result Init(const std::string& file);
 
-  struct GlyphData
-  {
+  struct GlyphData {
     // The bottom left and top right offsets from the center of the glyph.
     Vec2 mBlOffset;
     Vec2 mTrOffset;

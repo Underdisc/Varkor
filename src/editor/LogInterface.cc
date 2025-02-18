@@ -5,8 +5,7 @@
 
 namespace Editor {
 
-void LogInterface::Show()
-{
+void LogInterface::Show() {
   ImGui::Begin("Log", &mOpen);
   if (ImGui::Button("Clear", ImVec2(-1, 0))) {
     Log::nLogMutex.lock();

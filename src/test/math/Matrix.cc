@@ -8,8 +8,7 @@
 #include "math/Vector.h"
 #include "test/Test.h"
 
-Math::Matrix<float, 5> CreateGenericMat5()
-{
+Math::Matrix<float, 5> CreateGenericMat5() {
   Math::Matrix<float, 5> matrix;
   for (int r = 0; r < 5; ++r) {
     for (int c = 0; c < 5; ++c) {
@@ -19,60 +18,52 @@ Math::Matrix<float, 5> CreateGenericMat5()
   return matrix;
 }
 
-void Cast()
-{
+void Cast() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   std::cout << "up\n"
             << (Math::Matrix<float, 7>)matrix << "down\n"
             << (Math::Matrix<float, 3>)matrix;
 }
 
-void EqualsOperator()
-{
+void EqualsOperator() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   std::cout << "original\n" << matrix;
   Math::Matrix<float, 5> copyMatrix = matrix;
   std::cout << "copy\n" << copyMatrix;
 }
 
-void Multiply()
-{
+void Multiply() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   Math::Matrix<float, 5> product = matrix * matrix;
   std::cout << "product matrix\n" << product;
 }
 
-void MultiplyEquals()
-{
+void MultiplyEquals() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   matrix *= matrix;
   std::cout << "product matrix\n" << matrix;
 }
 
-void MultiplyVector()
-{
+void MultiplyVector() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   Math::Vector<float, 5> vector = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
   Math::Vector<float, 5> result = matrix * vector;
   std::cout << result << '\n';
 }
 
-void Zero()
-{
+void Zero() {
   Math::Matrix<float, 5> matrix;
   Math::Zero(&matrix);
   std::cout << "zero matrix\n" << matrix;
 }
 
-void Identity()
-{
+void Identity() {
   Math::Matrix<float, 5> matrix;
   Math::Identity(&matrix);
   std::cout << "identity matrix\n" << matrix;
 }
 
-void Transpose()
-{
+void Transpose() {
   Math::Matrix<float, 5> matrix;
   for (int i = 0; i < 5; ++i) {
     for (int j = 0; j < 5; ++j) {
@@ -84,8 +75,7 @@ void Transpose()
 }
 
 template<unsigned int N, unsigned int M>
-void ResizePrint()
-{
+void ResizePrint() {
   Math::Matrix<float, M> original;
   unsigned int min = Math::Min(N, M);
   for (int i = 0; i < min; ++i) {
@@ -98,31 +88,27 @@ void ResizePrint()
   std::cout << resized;
 }
 
-void Resize()
-{
+void Resize() {
   ResizePrint<2, 4>();
   ResizePrint<4, 2>();
   ResizePrint<5, 5>();
 }
 
-void Scale()
-{
+void Scale() {
   Math::Matrix<float, 5> matrix;
   Math::Vector<float, 4> scale = {1.0f, 2.0f, 3.0f, 4.0f};
   Math::Scale(&matrix, scale);
   std::cout << "scale matrix\n" << matrix;
 }
 
-void Translate()
-{
+void Translate() {
   Math::Matrix<float, 5> matrix;
   Math::Vector<float, 4> translate = {1.0f, 2.0f, 3.0f, 4.0f};
   Math::Translate(&matrix, translate);
   std::cout << "translation matrix\n" << matrix;
 }
 
-void ApplyToPointVector()
-{
+void ApplyToPointVector() {
   Vec3 value = {1.0f, 1.0f, 1.0f};
   Math::Matrix<float, 4> scale;
   Math::Matrix<float, 4> translate;
@@ -133,16 +119,14 @@ void ApplyToPointVector()
   std::cout << Math::ApplyToVector(matrix, value) << '\n';
 }
 
-void GetBasisVector()
-{
+void GetBasisVector() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   for (int i = 0; i < 5; ++i) {
     std::cout << Math::GetBasisVector(matrix, i) << std::endl;
   }
 }
 
-void Inverse()
-{
+void Inverse() {
   Math::Matrix<float, 5> matrix;
   Math::Identity(&matrix);
   matrix[0][0] = 0;
@@ -165,8 +149,7 @@ void Inverse()
   std::cout << "identity\n" << identity;
 }
 
-void HomogeneousOrthogonalInverse()
-{
+void HomogeneousOrthogonalInverse() {
   Quat rotation;
   rotation.AngleAxis(Math::nPi / 4.0f, {1.0f, 1.0f, 1.0f});
   Mat4 translate, rotate;
@@ -177,32 +160,28 @@ void HomogeneousOrthogonalInverse()
   std::cout << inverseMatrix * matrix;
 }
 
-void MultiplyRow()
-{
+void MultiplyRow() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   std::cout << "original\n" << matrix;
   Math::MultiplyRow(&matrix, 1, 4.0f);
   std::cout << "row 1 multiplied by 4\n" << matrix;
 }
 
-void AddRowMultiple()
-{
+void AddRowMultiple() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   std::cout << "original\n" << matrix;
   Math::AddRowMultiple(&matrix, 0, 1, 2.0f);
   std::cout << "row 1 multiplied by 2 and added to row 0\n" << matrix;
 }
 
-void SwapRows()
-{
+void SwapRows() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   std::cout << "original\n" << matrix;
   Math::SwapRows(&matrix, 1, 2);
   std::cout << "new\n" << matrix;
 }
 
-void NoInverseZeroRow()
-{
+void NoInverseZeroRow() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   // Make a zero row.
   for (int col = 0; col < 5; ++col) {
@@ -212,8 +191,7 @@ void NoInverseZeroRow()
   Math::Inverse(matrix);
 }
 
-void NoInverseZeroColumn()
-{
+void NoInverseZeroColumn() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   // Make a zero column.
   for (int row = 0; row < 5; ++row) {
@@ -223,8 +201,7 @@ void NoInverseZeroColumn()
   Math::Inverse(matrix);
 }
 
-void NoInverseDependentRow()
-{
+void NoInverseDependentRow() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   // Create a linearly dependent row.
   for (int col = 0; col < 5; ++col) {
@@ -234,8 +211,7 @@ void NoInverseDependentRow()
   Math::Inverse(matrix);
 }
 
-void NoInverseDependentColumn()
-{
+void NoInverseDependentColumn() {
   Math::Matrix<float, 5> matrix = CreateGenericMat5();
   // Create a linearly dependent column.
   for (int row = 0; row < 5; ++row) {
@@ -245,8 +221,7 @@ void NoInverseDependentColumn()
   Math::Inverse(matrix);
 }
 
-int main(void)
-{
+int main(void) {
   RunTest(Cast);
   RunTest(EqualsOperator);
   RunTest(Multiply);

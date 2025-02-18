@@ -36,32 +36,27 @@ template<int N>
 void LayerProgression(Vlk::Value& layerVal);
 
 template<int N>
-void AssignLayerProgressions()
-{
+void AssignLayerProgressions() {
   nLayerProgressions[N] = LayerProgression<N>;
   AssignLayerProgressions<N - 1>();
 }
 
 template<>
-void AssignLayerProgressions<nInvalidProgression>()
-{}
+void AssignLayerProgressions<nInvalidProgression>() {}
 
 template<int N>
 void ComponentProgression(Vlk::Value& componentsVal);
 
 template<int N>
-void AssignComponentProgressions()
-{
+void AssignComponentProgressions() {
   nComponentProgressions[N] = ComponentProgression<N>;
   AssignComponentProgressions<N - 1>();
 }
 
 template<>
-void AssignComponentProgressions<nInvalidProgression>()
-{}
+void AssignComponentProgressions<nInvalidProgression>() {}
 
-void RegisterTypes()
-{
+void RegisterTypes() {
   using namespace Comp;
   RegisterComponent(Transform);
   RegisterComponent(Mesh);
@@ -93,8 +88,7 @@ void RegisterTypes()
 }
 
 template<>
-void LayerProgression<0>(Vlk::Value& layerVal)
-{
+void LayerProgression<0>(Vlk::Value& layerVal) {
   Vlk::Value& spaceVal = layerVal.GetPair("Space");
   for (int i = 0; i < spaceVal.Size(); ++i) {
     Vlk::Value& entityVal = spaceVal[i];
@@ -106,8 +100,7 @@ void LayerProgression<0>(Vlk::Value& layerVal)
 }
 
 template<>
-void LayerProgression<1>(Vlk::Value& layerVal)
-{
+void LayerProgression<1>(Vlk::Value& layerVal) {
   Vlk::Value& metadataVal = layerVal.GetPair("Metadata");
   Vlk::Value& progressionVal = metadataVal.GetPair("Progression");
   metadataVal("ComponentProgression") = progressionVal.As<int>();
@@ -115,8 +108,7 @@ void LayerProgression<1>(Vlk::Value& layerVal)
 }
 
 template<>
-void LayerProgression<2>(Vlk::Value& layerVal)
-{
+void LayerProgression<2>(Vlk::Value& layerVal) {
   Vlk::Value& spaceVal = layerVal.GetPair("Space");
   for (int i = 0; i < spaceVal.Size(); ++i) {
     Vlk::Value& entityVal = spaceVal[i];
@@ -135,8 +127,7 @@ void LayerProgression<2>(Vlk::Value& layerVal)
 }
 
 template<>
-void LayerProgression<3>(Vlk::Value& layerVal)
-{
+void LayerProgression<3>(Vlk::Value& layerVal) {
   // Convert the Space value from a value array to a pair array where each
   // pairs' key is a member id and the value is a pair array of the components.
   Vlk::Value& spaceVal = layerVal.GetPair("Space");
@@ -152,8 +143,7 @@ void LayerProgression<3>(Vlk::Value& layerVal)
 }
 
 template<>
-void ComponentProgression<0>(Vlk::Value& componentsVal)
-{
+void ComponentProgression<0>(Vlk::Value& componentsVal) {
   Vlk::Value* directionLightVal = componentsVal.TryGetPair("DirectionalLight");
   if (directionLightVal == nullptr) {
     return;
@@ -170,8 +160,7 @@ void ComponentProgression<0>(Vlk::Value& componentsVal)
 }
 
 template<>
-void ComponentProgression<1>(Vlk::Value& componentsVal)
-{
+void ComponentProgression<1>(Vlk::Value& componentsVal) {
   Vlk::Value* pointLightVal = componentsVal.TryGetPair("PointLight");
   if (pointLightVal == nullptr) {
     return;
@@ -185,8 +174,7 @@ void ComponentProgression<1>(Vlk::Value& componentsVal)
 }
 
 template<>
-void ComponentProgression<2>(Vlk::Value& componentsVal)
-{
+void ComponentProgression<2>(Vlk::Value& componentsVal) {
   Vlk::Value* spotLightVal = componentsVal.TryGetPair("SpotLight");
   if (spotLightVal == nullptr) {
     return;
@@ -205,8 +193,7 @@ void ComponentProgression<2>(Vlk::Value& componentsVal)
 }
 
 template<>
-void ComponentProgression<3>(Vlk::Value& componentsVal)
-{
+void ComponentProgression<3>(Vlk::Value& componentsVal) {
   Vlk::Value* cameraOrbiterVal = componentsVal.TryGetPair("CameraOrbiter");
   if (cameraOrbiterVal == nullptr) {
     return;
@@ -216,8 +203,7 @@ void ComponentProgression<3>(Vlk::Value& componentsVal)
   (*cameraOrbiterVal)("Period") = 1 / rate;
 }
 
-void Init()
-{
+void Init() {
   RegisterTypes();
   if (nRegisterCustomTypes != nullptr) {
     nRegisterCustomTypes();
@@ -227,15 +213,13 @@ void Init()
   AssignLayerProgressions<nCurrentLayerProgression>();
 }
 
-void ProgressLayer(Vlk::Value& layerValue, int startProgression)
-{
+void ProgressLayer(Vlk::Value& layerValue, int startProgression) {
   for (int i = startProgression + 1; i <= nCurrentLayerProgression; ++i) {
     nLayerProgressions[i](layerValue);
   }
 }
 
-void ProgressComponents(Vlk::Value& spaceVal, int startComponentProgression)
-{
+void ProgressComponents(Vlk::Value& spaceVal, int startComponentProgression) {
   int i = startComponentProgression + 1;
   for (; i <= nCurrentComponentProgression; ++i) {
     for (int j = 0; j < spaceVal.Size(); ++j) {

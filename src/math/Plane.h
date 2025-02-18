@@ -5,8 +5,7 @@
 
 namespace Math {
 
-struct Plane
-{
+struct Plane {
   // A point on the plane.
   Vec3 mPoint;
   // A unit vector perpendicular to the plane.

@@ -11,20 +11,17 @@ namespace Gfx {
 
 Material::Material() {}
 
-Material::Material(Material&& other)
-{
+Material::Material(Material&& other) {
   *this = std::move(other);
 }
 
-Material& Material::operator=(Material&& other)
-{
+Material& Material::operator=(Material&& other) {
   mShaderId = std::move(other.mShaderId);
   mUniforms = std::move(other.mUniforms);
   return *this;
 }
 
-void Material::EditConfig(Vlk::Value* configValP)
-{
+void Material::EditConfig(Vlk::Value* configValP) {
   // A widget for changing the shader.
   Vlk::Value& configVal = *configValP;
   Vlk::Value& ShaderIdVal = configVal("ShaderId");
@@ -167,8 +164,7 @@ void Material::EditConfig(Vlk::Value* configValP)
   ImGui::Text("Uniforms");
 }
 
-Result Material::Init(const Vlk::Explorer& configEx)
-{
+Result Material::Init(const Vlk::Explorer& configEx) {
   // Get the material shader from an id or a new shader config.
   Vlk::Explorer shaderResIdEx = configEx("ShaderId");
   Vlk::Explorer shaderConfigEx = configEx("ShaderConfig");
@@ -211,14 +207,12 @@ Result Material::Init(const Vlk::Explorer& configEx)
   return Result();
 }
 
-Result Material::Init(const ResId& shaderResId)
-{
+Result Material::Init(const ResId& shaderResId) {
   mShaderId = shaderResId;
   return Result();
 }
 
-Result Material::Init(Material&& other)
-{
+Result Material::Init(Material&& other) {
   *this = std::move(other);
   return Result();
 }
@@ -228,8 +222,7 @@ Result Material::Init(
   const std::string& materialName,
   const aiMaterial& assimpMat,
   const std::string& directory,
-  const Ds::Vector<std::string>& embeddedImageNames)
-{
+  const Ds::Vector<std::string>& embeddedImageNames) {
   mShaderId = shaderResId;
 
   // Load textures and create their respective uniforms.
@@ -295,8 +288,7 @@ Result Material::Init(
   return Result();
 }
 
-Result Material::InitUniform(const Vlk::Explorer& uniformEx)
-{
+Result Material::InitUniform(const Vlk::Explorer& uniformEx) {
   if (!uniformEx.Valid(Vlk::Value::Type::PairArray)) {
     return Result(
       "Uniform element at \"" + uniformEx.Path() + "\" must be a PairArray.");
@@ -352,8 +344,7 @@ Result Material::InitUniform(const Vlk::Explorer& uniformEx)
   return Result();
 }
 
-const char* Material::GetUniformName(aiTextureType aiType)
-{
+const char* Material::GetUniformName(aiTextureType aiType) {
   switch (aiType) {
   case aiTextureType_DIFFUSE: return "uDiffuse";
   case aiTextureType_SPECULAR: return "uSpecular";

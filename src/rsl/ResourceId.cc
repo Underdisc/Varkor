@@ -13,37 +13,31 @@ ResourceId::ResourceId(const char* id): mId(id) {}
 ResourceId::ResourceId(const std::string& id): mId(id) {}
 
 ResourceId::ResourceId(
-  const std::string& assetName, const std::string& resourceName)
-{
+  const std::string& assetName, const std::string& resourceName) {
   Init(assetName, resourceName);
 }
 
-ResourceId& ResourceId::operator=(const ResourceId& other)
-{
+ResourceId& ResourceId::operator=(const ResourceId& other) {
   mId = other.mId;
   return *this;
 }
 
-ResourceId& ResourceId::operator=(const char* id)
-{
+ResourceId& ResourceId::operator=(const char* id) {
   mId = id;
   return *this;
 }
 
-ResourceId& ResourceId::operator=(const std::string& id)
-{
+ResourceId& ResourceId::operator=(const std::string& id) {
   mId = id;
   return *this;
 }
 
 void ResourceId::Init(
-  const std::string& assetName, const std::string& resourceName)
-{
+  const std::string& assetName, const std::string& resourceName) {
   mId = assetName + nResIdDelimeter + resourceName;
 }
 
-std::string ResourceId::GetAssetName() const
-{
+std::string ResourceId::GetAssetName() const {
   size_t assetIdEnd = mId.find(nResIdDelimeter);
   if (assetIdEnd == std::string::npos) {
     return mId;
@@ -51,13 +45,11 @@ std::string ResourceId::GetAssetName() const
   return mId.substr(0, assetIdEnd);
 }
 
-std::string ResourceId::GetAssetFile() const
-{
+std::string ResourceId::GetAssetFile() const {
   return GetAssetName() + nAssetExtension;
 }
 
-std::string ResourceId::GetResourceName() const
-{
+std::string ResourceId::GetResourceName() const {
   size_t assetIdEnd = mId.find(nResIdDelimeter);
   if (assetIdEnd == std::string::npos) {
     return "";
@@ -67,8 +59,7 @@ std::string ResourceId::GetResourceName() const
   return mId.substr(resourceNameStart, count);
 }
 
-void ResourceId::SetResourceName(const std::string& name)
-{
+void ResourceId::SetResourceName(const std::string& name) {
   size_t assetNameEnd = mId.find(nResIdDelimeter);
   if (assetNameEnd == std::string::npos) {
     mId = nResIdDelimeter + name;
@@ -78,13 +69,11 @@ void ResourceId::SetResourceName(const std::string& name)
   mId += name;
 }
 
-bool ResourceId::operator==(const ResId& other) const
-{
+bool ResourceId::operator==(const ResId& other) const {
   return mId == other.mId;
 }
 
-bool ResourceId::operator!=(const ResourceId& other) const
-{
+bool ResourceId::operator!=(const ResourceId& other) const {
   return mId != other.mId;
 }
 

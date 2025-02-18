@@ -18,8 +18,7 @@ int nHeight;
 #define EnsureExtension(ExtensionName) \
   LogAbortIf(!GLAD_##ExtensionName, #ExtensionName " not available.")
 
-void Init(const char* windowName, bool visible)
-{
+void Init(const char* windowName, bool visible) {
   // Create a maximized window and an opengl context.
   glfwSetErrorCallback(ErrorCallback);
   glfwInit();
@@ -52,67 +51,55 @@ void Init(const char* windowName, bool visible)
   glfwSetFramebufferSizeCallback(nWindow, ResizeCallback);
 }
 
-void Update()
-{
+void Update() {
   nActive = !glfwWindowShouldClose(nWindow);
 }
 
-void Purge()
-{
+void Purge() {
   glfwDestroyWindow(nSharedWindow);
   glfwDestroyWindow(nWindow);
   glfwTerminate();
 }
 
-void SwapBuffers()
-{
+void SwapBuffers() {
   glfwSwapBuffers(nWindow);
 }
 
-void StartContextSharing()
-{
+void StartContextSharing() {
   glfwMakeContextCurrent(nSharedWindow);
 }
 
-void EndContextSharing()
-{
+void EndContextSharing() {
   glfwMakeContextCurrent(nullptr);
 }
 
-int Width()
-{
+int Width() {
   return nWidth;
 }
 
-int Height()
-{
+int Height() {
   return nHeight;
 }
 
-float Aspect()
-{
+float Aspect() {
   return (float)nWidth / (float)nHeight;
 }
 
-GLFWwindow* Window()
-{
+GLFWwindow* Window() {
   return nWindow;
 }
 
-bool Active()
-{
+bool Active() {
   return nActive;
 }
 
-void ResizeCallback(GLFWwindow* window, int width, int height)
-{
+void ResizeCallback(GLFWwindow* window, int width, int height) {
   nWidth = width;
   nHeight = height;
   Gfx::Renderer::ResizeRequiredFramebuffers();
 }
 
-const char* ErrorCodeString(int code)
-{
+const char* ErrorCodeString(int code) {
   switch (code) {
   case GLFW_NO_ERROR: return "GLFW_NO_ERROR";
   case GLFW_NOT_INITIALIZED: return "GLFW_NOT_INITIALIZED";
@@ -129,8 +116,7 @@ const char* ErrorCodeString(int code)
   return "GLFW_NO_ERROR";
 }
 
-void ErrorCallback(int code, const char* description)
-{
+void ErrorCallback(int code, const char* description) {
   std::string error = "GlfwError(";
   error += ErrorCodeString(code);
   error += ")\n  ";

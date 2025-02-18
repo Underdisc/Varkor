@@ -13,18 +13,15 @@
 namespace Vlk {
 
 template<typename T>
-struct Converter<Ds::Vector<T>>
-{
-  static void Serialize(Value& val, const Ds::Vector<T>& vector)
-  {
+struct Converter<Ds::Vector<T>> {
+  static void Serialize(Value& val, const Ds::Vector<T>& vector) {
     val[{vector.Size()}];
     for (int i = 0; i < vector.Size(); ++i) {
       val[i] = vector[i];
     }
   }
 
-  static void Deserialize(const Value& val, Ds::Vector<T>* vector)
-  {
+  static void Deserialize(const Value& val, Ds::Vector<T>* vector) {
     for (int i = 0; i < val.Size(); ++i) {
       T element;
       Converter<T>::Deserialize(val[i], &element);
@@ -34,18 +31,15 @@ struct Converter<Ds::Vector<T>>
 };
 
 template<typename T, unsigned int N>
-struct Converter<Math::Vector<T, N>>
-{
-  static void Serialize(Value& val, const Math::Vector<T, N>& value)
-  {
+struct Converter<Math::Vector<T, N>> {
+  static void Serialize(Value& val, const Math::Vector<T, N>& value) {
     val[{N}];
     for (int i = 0; i < N; ++i) {
       val[i] = value[i];
     }
   }
 
-  static bool Deserialize(const Value& val, Math::Vector<T, N>* value)
-  {
+  static bool Deserialize(const Value& val, Math::Vector<T, N>* value) {
     for (int i = 0; i < N; ++i) {
       const Value* element = val.TryGetConstValue(i);
       if (element == nullptr) {
@@ -60,18 +54,15 @@ struct Converter<Math::Vector<T, N>>
 };
 
 template<>
-struct Converter<Quat>
-{
-  static void Serialize(Value& val, const Quat& quat)
-  {
+struct Converter<Quat> {
+  static void Serialize(Value& val, const Quat& quat) {
     val[{4}];
     for (int i = 0; i < 4; ++i) {
       val[i] = quat[i];
     }
   }
 
-  static bool Deserialize(const Value& val, Quat* quat)
-  {
+  static bool Deserialize(const Value& val, Quat* quat) {
     for (int i = 0; i < 4; ++i) {
       const Value* element = val.TryGetConstValue(i);
       if (element == nullptr) {
@@ -86,16 +77,13 @@ struct Converter<Quat>
 };
 
 template<>
-struct Converter<Gfx::HdrColor>
-{
-  static void Serialize(Value& val, const Gfx::HdrColor& value)
-  {
+struct Converter<Gfx::HdrColor> {
+  static void Serialize(Value& val, const Gfx::HdrColor& value) {
     val("Color") = value.mColor;
     val("Intensity") = value.mIntensity;
   }
 
-  static bool Deserialize(const Value& val, Gfx::HdrColor* value)
-  {
+  static bool Deserialize(const Value& val, Gfx::HdrColor* value) {
     const Value* colorVal = val.TryGetConstPair("Color");
     const Value* intensityVal = val.TryGetConstPair("Intensity");
     if (colorVal == nullptr || intensityVal == nullptr) {
@@ -107,16 +95,13 @@ struct Converter<Gfx::HdrColor>
 };
 
 template<>
-struct Converter<Rsl::ResId>
-{
-  static void Serialize(Value& val, const ResId& value)
-  {
+struct Converter<Rsl::ResId> {
+  static void Serialize(Value& val, const ResId& value) {
     val.EnsureType(Value::Type::TrueValue);
     val.mTrueValue = value.mId;
   }
 
-  static bool Deserialize(const Value& val, ResId* value)
-  {
+  static bool Deserialize(const Value& val, ResId* value) {
     if (val.mType != Value::Type::TrueValue) {
       return false;
     }

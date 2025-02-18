@@ -4,70 +4,57 @@
 #include "test/world/Print.h"
 #include "world/Space.h"
 
-struct A
-{
+struct A {
   Vec3 m1;
   Vec3 m2;
-  A()
-  {
+  A() {
     Write(0.0f);
   }
-  void Write(float value)
-  {
+  void Write(float value) {
     m1 = {value, value, value};
     m2 = {value, value, value};
   }
 };
 
-struct B
-{
+struct B {
   float m1;
   Vec3 m2;
-  B()
-  {
+  B() {
     Write(0.0f);
   }
-  void Write(float value)
-  {
+  void Write(float value) {
     m1 = value;
     m2 = {value, value, value};
   }
 };
 
-struct C
-{
+struct C {
   Vec2 m1;
   Vec2 m2;
-  C()
-  {
+  C() {
     Write(0.0f);
   }
-  void Write(float value)
-  {
+  void Write(float value) {
     m1 = {value, value};
     m2 = {value, value};
   }
 };
 
-struct D
-{
+struct D {
   int m1;
   float m2;
   Vec2 m3;
-  D()
-  {
+  D() {
     Write(0.0f);
   }
-  void Write(float value)
-  {
+  void Write(float value) {
     m1 = (int)value;
     m2 = value;
     m3 = {value, value};
   }
 };
 
-void Create()
-{
+void Create() {
   // Create a large number of entities.
   ZoneScopedC(0xFF0000);
   World::Space space;
@@ -76,8 +63,7 @@ void Create()
   }
 }
 
-void Add()
-{
+void Add() {
   // Create a large number of entities and add the same components to each.
   ZoneScopedC(0x00FF00);
   World::Space space;
@@ -90,8 +76,7 @@ void Add()
   }
 }
 
-void AddWriteDelete()
-{
+void AddWriteDelete() {
   ZoneScopedC(0x0000FF);
   World::Space space;
   const int cycles = 300;
@@ -122,8 +107,7 @@ void AddWriteDelete()
   }
 }
 
-void DistributedAddWriteRemoveAddDelete()
-{
+void DistributedAddWriteRemoveAddDelete() {
   ZoneScopedC(0xFFFF00);
   World::Space space;
   const int cycles = 300;
@@ -191,8 +175,7 @@ void DistributedAddWriteRemoveAddDelete()
   }
 }
 
-void RelationshipAddWriteDelete()
-{
+void RelationshipAddWriteDelete() {
   ZoneScopedC(0xFF00FF);
   World::Space space;
   const int cycles = 500;
@@ -219,10 +202,10 @@ void RelationshipAddWriteDelete()
       space.Get<A>(rootIds[j]).Write(1.0f);
       space.Get<B>(rootIds[j]).Write(1.0f);
       const auto& rootRelationship = space.Get<Comp::Relationship>(rootIds[j]);
-      for (World::MemberId childId : rootRelationship.mChildren) {
+      for (World::MemberId childId: rootRelationship.mChildren) {
         space.Get<C>(childId).Write(1.0f);
         const auto& childRelationship = space.Get<Comp::Relationship>(childId);
-        for (World::MemberId grandchildId : childRelationship.mChildren) {
+        for (World::MemberId grandchildId: childRelationship.mChildren) {
           space.Get<D>(grandchildId).Write(1.0f);
         }
       }
@@ -235,8 +218,7 @@ void RelationshipAddWriteDelete()
   }
 }
 
-void Random()
-{
+void Random() {
   ZoneScopedC(0x00FFFF);
   World::Space space;
   Ds::Vector<World::MemberId> idBuffer;
@@ -367,16 +349,14 @@ void Random()
   }
 }
 
-void Profile(void (*function)(), int count)
-{
+void Profile(void (*function)(), int count) {
   ZoneScopedC(0xFFFFFF);
   for (int i = 0; i < count; ++i) {
     function();
   }
 }
 
-int main(void)
-{
+int main(void) {
   ProfileThread("Main");
 
   Error::Init();

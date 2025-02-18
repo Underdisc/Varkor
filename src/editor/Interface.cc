@@ -9,8 +9,7 @@ Interface::Interface(): mOpen(true) {}
 
 Interface::~Interface() {}
 
-void Interface::HandleStaging()
-{
+void Interface::HandleStaging() {
   // Remove all of the closed interfaces. This happens before inserting the
   // StagedInterfaces to account for the same Interface being closed and opened
   // during the same frame.
@@ -24,14 +23,14 @@ void Interface::HandleStaging()
     }
     ++it;
   }
-  for (const std::string& closed : closedInterfaces) {
+  for (const std::string& closed: closedInterfaces) {
     Interface* interface = mInterfaces.Get(closed);
     delete interface;
     mInterfaces.Remove(closed);
   }
 
   // Insert the staged interfaces that are still open.
-  for (const StagedInterface& staged : mStagedInterfaces) {
+  for (const StagedInterface& staged: mStagedInterfaces) {
     if (staged.mInterface->mOpen) {
       mInterfaces.Insert(staged.mName, staged.mInterface);
     }
@@ -51,8 +50,7 @@ void Interface::HandleStaging()
   }
 }
 
-void Interface::PurgeInterfaces()
-{
+void Interface::PurgeInterfaces() {
   auto it = mInterfaces.begin();
   auto itE = mInterfaces.end();
   while (it != itE) {
@@ -63,8 +61,7 @@ void Interface::PurgeInterfaces()
   mInterfaces.Clear();
 }
 
-void Interface::ShowAll()
-{
+void Interface::ShowAll() {
   for (auto it = mInterfaces.begin(); it != mInterfaces.end(); ++it) {
     it->mValue->ShowAll();
   }

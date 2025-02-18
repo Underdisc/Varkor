@@ -5,8 +5,7 @@
 
 namespace Test {
 
-void At()
-{
+void At() {
   Math::Ray a, b;
   a.StartDirection({0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f});
   std::cout << a.At(0.0f) << ", " << a.At(1.0f) << ", " << a.At(-2.0f) << '\n';
@@ -14,8 +13,7 @@ void At()
   std::cout << b.At(0.0f) << ", " << b.At(1.0f) << ", " << b.At(-2.0f) << '\n';
 }
 
-void ClosestPoint()
-{
+void ClosestPoint() {
   Math::Ray a, b, c, d, e, f, g, h, i;
   a.StartDirection({1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f});
   b.StartDirection({1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f});
@@ -47,8 +45,7 @@ void ClosestPoint()
 
 } // namespace Test
 
-int main(void)
-{
+int main(void) {
   using namespace Test;
   RunTest(At);
   RunTest(ClosestPoint);

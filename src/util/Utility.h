@@ -7,15 +7,13 @@
 namespace Util {
 
 template<typename T>
-std::string GetFullTypename()
-{
+std::string GetFullTypename() {
   std::string fullName(typeid(T).name());
   return fullName;
 }
 
 template<typename T>
-std::string GetShortTypename()
-{
+std::string GetShortTypename() {
   std::string fullName(typeid(T).name());
   std::string::size_type start = fullName.find_last_of(" :");
   if (start == std::string::npos) {
@@ -25,12 +23,10 @@ std::string GetShortTypename()
 }
 
 template<bool, class T = void>
-struct EnableIf
-{};
+struct EnableIf {};
 
 template<class T>
-struct EnableIf<true, T>
-{
+struct EnableIf<true, T> {
   typedef T Type;
 };
 

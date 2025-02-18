@@ -12,8 +12,7 @@
 
 namespace Editor {
 
-LibraryInterface::LibraryInterface(): mRootTree("")
-{
+LibraryInterface::LibraryInterface(): mRootTree("") {
   mHeight = ImGui::GetFontSize();
   mHalfHeight = mHeight / 2.0f;
   mDecorationColor = ImGui::GetColorU32(ImGuiCol_Border);
@@ -33,8 +32,7 @@ LibraryInterface::LibraryInterface(): mRootTree("")
   }
 }
 
-void LibraryInterface::Show()
-{
+void LibraryInterface::Show() {
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4.0f, 4.0f));
   ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4.0f, 4.0f));
 
@@ -51,14 +49,12 @@ void LibraryInterface::Show()
 }
 
 LibraryInterface::OpenAsset::OpenAsset(const std::string& name):
-  mName(name), mShowDefinedResources(true)
-{}
+  mName(name), mShowDefinedResources(true) {}
 
 LibraryInterface::Tree::Tree(const std::string& name): mName(name) {}
 
 LibraryInterface::Tree* LibraryInterface::Tree::ToggleSubTree(
-  const std::string& name)
-{
+  const std::string& name) {
   for (int i = 0; i < mSubTrees.Size(); ++i) {
     if (mSubTrees[i].mName == name) {
       mSubTrees.Remove(i);
@@ -70,9 +66,8 @@ LibraryInterface::Tree* LibraryInterface::Tree::ToggleSubTree(
 }
 
 LibraryInterface::Tree* LibraryInterface::Tree::TryGetSubTree(
-  const std::string& name)
-{
-  for (Tree& tree : mSubTrees) {
+  const std::string& name) {
+  for (Tree& tree: mSubTrees) {
     if (tree.mName == name) {
       return &tree;
     }
@@ -81,8 +76,7 @@ LibraryInterface::Tree* LibraryInterface::Tree::TryGetSubTree(
 }
 
 LibraryInterface::OpenAsset* LibraryInterface::Tree::ToggleOpenAsset(
-  const std::string& assetName)
-{
+  const std::string& assetName) {
   for (int i = 0; i < mOpenAssets.Size(); ++i) {
     if (mOpenAssets[i].mName == assetName) {
       mOpenAssets.Remove(i);
@@ -111,9 +105,8 @@ LibraryInterface::OpenAsset* LibraryInterface::Tree::ToggleOpenAsset(
 }
 
 LibraryInterface::OpenAsset* LibraryInterface::Tree::TryGetOpenAsset(
-  const std::string& name)
-{
-  for (OpenAsset& openAsset : mOpenAssets) {
+  const std::string& name) {
+  for (OpenAsset& openAsset: mOpenAssets) {
     if (openAsset.mName == name) {
       return &openAsset;
     }
@@ -125,14 +118,13 @@ void LibraryInterface::ShowDirectory(
   const std::string& rootPath,
   const std::string& path,
   Tree* dirTree,
-  int indents)
-{
+  int indents) {
   // Go through all entries in the directory.
   ImGui::PushID(dirTree->mName.c_str());
   float lineStartY = ImGui::GetCursorScreenPos().y;
   float lineEndY;
   std::filesystem::directory_iterator dirIter(rootPath + path);
-  for (const std::filesystem::directory_entry& dirEntry : dirIter) {
+  for (const std::filesystem::directory_entry& dirEntry: dirIter) {
     lineEndY = ImGui::GetCursorScreenPos().y;
 
     std::string entryName = dirEntry.path().filename().string();
@@ -163,8 +155,7 @@ void LibraryInterface::ShowDirectory(
 }
 
 Result LibraryInterface::ShowDefinedResources(
-  const OpenAsset& openAsset, int indents)
-{
+  const OpenAsset& openAsset, int indents) {
   // Get the asset's defined resource information.
   const std::string& assetName = openAsset.mName;
   Vlk::Value& assetVal = Rsl::GetConfig(assetName);
@@ -232,8 +223,7 @@ Result LibraryInterface::ShowDefinedResources(
 }
 
 Result LibraryInterface::ShowInitializedResources(
-  const OpenAsset& openAsset, int indents)
-{
+  const OpenAsset& openAsset, int indents) {
   // Ensure that we can get the resource descriptors from an existing asset.
   const std::string& assetName = openAsset.mName;
   const Rsl::Asset* asset = Rsl::TryGetAsset(assetName);
@@ -249,7 +239,7 @@ Result LibraryInterface::ShowInitializedResources(
   float lineStartY = ImGui::GetCursorScreenPos().y;
   float lineEndY;
   const Ds::Vector<Rsl::Asset::ResDesc>& resDescs = asset->GetResDescs();
-  for (const Rsl::Asset::ResDesc& resDesc : resDescs) {
+  for (const Rsl::Asset::ResDesc& resDesc: resDescs) {
     lineEndY = ImGui::GetCursorScreenPos().y;
 
     ShowBasicEntry(resDesc.mName, false, indents);
@@ -268,8 +258,7 @@ Result LibraryInterface::ShowInitializedResources(
 }
 
 bool LibraryInterface::ShowBasicEntry(
-  const std::string& name, bool selected, int indents)
-{
+  const std::string& name, bool selected, int indents) {
   const float entryNameOffset = GetEntryNameOffset(indents);
   const ImGuiStyle& imStyle = ImGui::GetStyle();
   AddEntryLine(entryNameOffset - imStyle.ItemSpacing.x, indents);
@@ -281,8 +270,7 @@ void LibraryInterface::ShowDirectoryEntry(
   const std::string& rootPath,
   const std::string& path,
   Tree* parentTree,
-  int indents)
-{
+  int indents) {
   ImVec2 cursorStartScreenPos = ImGui::GetCursorScreenPos();
 
   // Display the selectable entry.
@@ -308,8 +296,7 @@ void LibraryInterface::ShowAssetEntry(
   const std::string& path,
   const std::string& entryName,
   Tree* parentTree,
-  int indents)
-{
+  int indents) {
   ImVec2 cursorStartScreenPos = ImGui::GetCursorScreenPos();
 
   // Display the selectable entry.
@@ -416,8 +403,7 @@ void LibraryInterface::ShowLayerEntry(
   const std::string& rootPath,
   const std::string& path,
   const std::string& entryName,
-  int indents)
-{
+  int indents) {
   ShowBasicEntry(entryName, false, indents);
   DragResourceFile(path);
   if (ImGui::BeginPopupContextItem()) {
@@ -435,8 +421,7 @@ void LibraryInterface::ShowLayerEntry(
   }
 }
 
-void LibraryInterface::ShowStatus(Rsl::Asset::Status status)
-{
+void LibraryInterface::ShowStatus(Rsl::Asset::Status status) {
   ImGui::PushItemWidth(-1);
   const ImVec4 gray(0.5f, 0.5f, 0.5f, 1.0f);
   const ImVec4 purple(0.5f, 0.0f, 1.0f, 1.0f);
@@ -454,8 +439,7 @@ void LibraryInterface::ShowStatus(Rsl::Asset::Status status)
   ImGui::PopItemWidth();
 }
 
-void LibraryInterface::ShowResourceType(Rsl::ResTypeId resTypeId)
-{
+void LibraryInterface::ShowResourceType(Rsl::ResTypeId resTypeId) {
   const Rsl::ResTypeData& resTypeData = Rsl::GetResTypeData(resTypeId);
   std::string resTypeLabel = "(";
   resTypeLabel += resTypeData.mName;
@@ -463,27 +447,23 @@ void LibraryInterface::ShowResourceType(Rsl::ResTypeId resTypeId)
   ImGui::TextDisabled(resTypeLabel.c_str());
 }
 
-float LibraryInterface::GetLineOffset(int indents)
-{
+float LibraryInterface::GetLineOffset(int indents) {
   const ImGuiStyle& imStyle = ImGui::GetStyle();
   return (float)(indents - 1) * imStyle.IndentSpacing + mHalfHeight;
 }
 
-float LibraryInterface::GetEntryNameOffset(int indents)
-{
+float LibraryInterface::GetEntryNameOffset(int indents) {
   const ImGuiStyle& imStyle = ImGui::GetStyle();
   return (float)indents * imStyle.IndentSpacing + mHeight;
 }
 
-float LibraryInterface::GetEntrySymbolOffset(int indents)
-{
+float LibraryInterface::GetEntrySymbolOffset(int indents) {
   const ImGuiStyle& imStyle = ImGui::GetStyle();
   return (float)indents * imStyle.IndentSpacing;
 }
 
 void LibraryInterface::AddIndentLine(
-  float startScreenPosY, float endScreenPosY, int indents)
-{
+  float startScreenPosY, float endScreenPosY, int indents) {
   ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
   const ImGuiStyle& style = ImGui::GetStyle();
   const float lineOffset = GetLineOffset(indents);
@@ -493,8 +473,7 @@ void LibraryInterface::AddIndentLine(
   drawList->AddLine(lineStart, lineEnd, mDecorationColor, mLineThickness);
 }
 
-void LibraryInterface::AddEntryLine(float endOffset, int indents)
-{
+void LibraryInterface::AddEntryLine(float endOffset, int indents) {
   ImVec2 screenCursorPos = ImGui::GetCursorScreenPos();
   const float lineOffset = GetLineOffset(indents);
   ImVec2 lineStart(
@@ -505,8 +484,7 @@ void LibraryInterface::AddEntryLine(float endOffset, int indents)
 }
 
 void LibraryInterface::AddArrow(
-  bool open, float symbolOffset, ImVec2 cursorStartScreenPos)
-{
+  bool open, float symbolOffset, ImVec2 cursorStartScreenPos) {
   const Vec2* points = mArrowPointsClosed;
   if (open) {
     points = mArrowPointsOpen;

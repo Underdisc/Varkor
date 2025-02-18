@@ -9,8 +9,7 @@ template<typename K, typename V>
 class Map;
 
 template<typename K, typename V>
-struct KvPair
-{
+struct KvPair {
   const K& Key() const;
   V mValue;
 
@@ -31,8 +30,7 @@ private:
 };
 
 template<typename K, typename V>
-class Map: public RbTree<KvPair<K, V>>
-{
+class Map: public RbTree<KvPair<K, V>> {
 public:
   typedef typename RbTree<KvPair<K, V>>::Iter Iter;
   typedef typename RbTree<KvPair<K, V>>::CIter CIter;

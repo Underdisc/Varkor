@@ -27,20 +27,17 @@ float nTranslateSnapInterval = 1.0f;
 float nScaleSnapInterval = 0.5f;
 float nRotateSnapInterval = Math::nPi / 4.0f;
 
-void Init()
-{
+void Init() {
   Rsl::RequireAsset(nGizmoAssetName);
 }
 
-void Purge()
-{
+void Purge() {
   for (int i = 0; i < nClears.Size(); ++i) {
     nClears[i]();
   }
 }
 
-void Update()
-{
+void Update() {
   for (int i = 0; i < nUpdates.Size(); ++i) {
     nUpdates[i]();
   }
@@ -66,8 +63,7 @@ void Update()
   }
 }
 
-void ImGuiOptions()
-{
+void ImGuiOptions() {
   // Display drop down lists for switching between modes and reference frames.
   const char* modeNames[] = {"Translate", "Scale", "Rotate"};
   const int modeNameCount = sizeof(modeNames) / sizeof(const char*);
@@ -97,8 +93,9 @@ void ImGuiOptions()
 // of their handles. It's special because it scales the parent depending on the
 // editor camera's distance.
 void SetParentTransformation(
-  World::MemberId parentId, const Vec3& translation, const Quat& referenceFrame)
-{
+  World::MemberId parentId,
+  const Vec3& translation,
+  const Quat& referenceFrame) {
   const World::Object cameraObject = nCamera.GetObject();
   const auto& cameraComp = cameraObject.Get<Comp::Camera>();
   float uniformScale = cameraComp.ProjectedDistance(cameraObject, translation);

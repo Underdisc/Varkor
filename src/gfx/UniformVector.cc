@@ -9,8 +9,7 @@
 
 namespace Gfx {
 
-UniformTypeId GetUniformTypeId(const std::string& name)
-{
+UniformTypeId GetUniformTypeId(const std::string& name) {
   for (size_t i = 0; i < (size_t)UniformTypeId::Count; ++i) {
     const UniformTypeData& typeData = GetUniformTypeData((UniformTypeId)i);
     if (name == typeData.mName) {
@@ -24,8 +23,7 @@ UniformTypeData nUniformTypeData[(int)UniformTypeId::Count];
 
 UniformTypeData::UniformTypeData(): mName(nullptr), mSize(0) {}
 
-const UniformTypeData& GetUniformTypeData(UniformTypeId typeId)
-{
+const UniformTypeData& GetUniformTypeData(UniformTypeId typeId) {
   if ((int)typeId < 0 || UniformTypeId::Count <= typeId) {
     std::stringstream error;
     error << "UniformTypeId \"" << (int)typeId << "\" invalid.";
@@ -34,8 +32,7 @@ const UniformTypeData& GetUniformTypeData(UniformTypeId typeId)
   return nUniformTypeData[(int)typeId];
 }
 
-void UniformVector::Init()
-{
+void UniformVector::Init() {
   UniformType<int>::RegisterAttached(UniformTypeId::Int, "Int");
   UniformType<float>::RegisterAttached(UniformTypeId::Float, "Float");
   UniformType<Vec3>::RegisterAttached(UniformTypeId::Vec3, "Vec3");
@@ -49,19 +46,16 @@ void UniformVector::Init()
     UniformTypeId::TextureCubemap, "TextureCubemap");
 }
 
-UniformVector::UniformVector()
-{
+UniformVector::UniformVector() {
   mData = nullptr;
   mSize = 0;
 }
 
-UniformVector::UniformVector(UniformVector&& other)
-{
+UniformVector::UniformVector(UniformVector&& other) {
   *this = std::move(other);
 }
 
-UniformVector& UniformVector::operator=(UniformVector&& other)
-{
+UniformVector& UniformVector::operator=(UniformVector&& other) {
   mData = other.mData;
   mSize = other.mSize;
   mUniformDescs = std::move(other.mUniformDescs);
@@ -72,8 +66,7 @@ UniformVector& UniformVector::operator=(UniformVector&& other)
   return *this;
 }
 
-UniformVector::~UniformVector()
-{
+UniformVector::~UniformVector() {
   if (mData == nullptr) {
     return;
   }
@@ -81,8 +74,7 @@ UniformVector::~UniformVector()
   delete[] mData;
 }
 
-void* UniformVector::Add(UniformTypeId typeId, const std::string& name)
-{
+void* UniformVector::Add(UniformTypeId typeId, const std::string& name) {
   const UniformTypeData& typeData = GetUniformTypeData(typeId);
   size_t oldSize = mSize;
   size_t newSize = mSize + typeData.mSize;
@@ -97,7 +89,7 @@ void* UniformVector::Add(UniformTypeId typeId, const std::string& name)
   }
   else {
     char* newData = alloc char[newSize];
-    for (const UniformDescriptor& uniformDesc : mUniformDescs) {
+    for (const UniformDescriptor& uniformDesc: mUniformDescs) {
       void* oldUniformData = (void*)(mData + uniformDesc.mByteIndex);
       void* newUniformData = (void*)(newData + uniformDesc.mByteIndex);
       const UniformTypeData& currentTypeData =
@@ -116,9 +108,8 @@ void* UniformVector::Add(UniformTypeId typeId, const std::string& name)
   return uniformData;
 }
 
-void* UniformVector::Get(UniformTypeId typeId, const std::string& name)
-{
-  for (const UniformDescriptor& uniformDesc : mUniformDescs) {
+void* UniformVector::Get(UniformTypeId typeId, const std::string& name) {
+  for (const UniformDescriptor& uniformDesc: mUniformDescs) {
     if (uniformDesc.mTypeId == typeId && uniformDesc.mName == name) {
       return (void*)(mData + uniformDesc.mByteIndex);
     }
@@ -130,15 +121,13 @@ void* UniformVector::Get(UniformTypeId typeId, const std::string& name)
   return nullptr;
 }
 
-void UniformVector::Bind(const Shader& shader) const
-{
+void UniformVector::Bind(const Shader& shader) const {
   int textureIndex = 0;
   Bind(shader, &textureIndex);
 }
 
-void UniformVector::Bind(const Shader& shader, int* textureIndex) const
-{
-  for (const UniformDescriptor& uniformDesc : mUniformDescs) {
+void UniformVector::Bind(const Shader& shader, int* textureIndex) const {
+  for (const UniformDescriptor& uniformDesc: mUniformDescs) {
     switch (uniformDesc.mTypeId) {
     case UniformTypeId::Int: BindUniform<int>(shader, uniformDesc); break;
     case UniformTypeId::Float: BindUniform<float>(shader, uniformDesc); break;
@@ -161,9 +150,8 @@ void UniformVector::Bind(const Shader& shader, int* textureIndex) const
   }
 }
 
-void UniformVector::DestructUniforms()
-{
-  for (const UniformDescriptor& uniformDesc : mUniformDescs) {
+void UniformVector::DestructUniforms() {
+  for (const UniformDescriptor& uniformDesc: mUniformDescs) {
     void* uniformData = (void*)(mData + uniformDesc.mByteIndex);
     const UniformTypeData& uniformTypeData =
       GetUniformTypeData(uniformDesc.mTypeId);
@@ -175,8 +163,7 @@ void UniformVector::BindTexture(
   const Shader& shader,
   int* textureIndex,
   const UniformDescriptor& uniformDesc,
-  GLenum target) const
-{
+  GLenum target) const {
   char* uniformData = mData + uniformDesc.mByteIndex;
   BindTexture(shader, textureIndex, uniformDesc, target, *(GLuint*)uniformData);
 }
@@ -186,8 +173,7 @@ void UniformVector::BindTexture(
   int* textureIndex,
   const UniformDescriptor& uniformDesc,
   GLenum target,
-  GLuint id) const
-{
+  GLuint id) const {
   glActiveTexture(GL_TEXTURE0 + *textureIndex);
   glBindTexture(target, id);
   shader.SetUniform(uniformDesc.mName.c_str(), *textureIndex);
@@ -197,8 +183,7 @@ void UniformVector::BindTexture(
 void UniformVector::BindTexture2DRes(
   const Shader& shader,
   int* textureIndex,
-  const UniformDescriptor& uniformDesc) const
-{
+  const UniformDescriptor& uniformDesc) const {
   const ResId& imageId = *(ResId*)(mData + uniformDesc.mByteIndex);
   Gfx::Image* image = Rsl::TryGetRes<Gfx::Image>(imageId);
   if (image == nullptr) {
@@ -210,8 +195,7 @@ void UniformVector::BindTexture2DRes(
 void UniformVector::BindTextureCubemapRes(
   const Shader& shader,
   int* textureIndex,
-  const UniformDescriptor& uniformDesc) const
-{
+  const UniformDescriptor& uniformDesc) const {
   const ResId& cubemapId = *(ResId*)(mData + uniformDesc.mByteIndex);
   Gfx::Cubemap* cubemap = Rsl::TryGetRes<Gfx::Cubemap>(cubemapId);
   if (cubemap == nullptr) {

@@ -16,13 +16,11 @@ namespace Gfx {
 
 Image::Image(): mId(0) {}
 
-Image::Image(Image&& other)
-{
+Image::Image(Image&& other) {
   *this = std::move(other);
 }
 
-Image& Image::operator=(Image&& other)
-{
+Image& Image::operator=(Image&& other) {
   mWidth = other.mWidth;
   mHeight = other.mHeight;
   mId = other.mId;
@@ -32,16 +30,14 @@ Image& Image::operator=(Image&& other)
   return *this;
 }
 
-Image::~Image()
-{
+Image::~Image() {
   if (mId != 0) {
     glDeleteTextures(1, &mId);
     mId = 0;
   }
 }
 
-void Image::EditConfig(Vlk::Value* configValP)
-{
+void Image::EditConfig(Vlk::Value* configValP) {
   Vlk::Value& configVal = *configValP;
   Vlk::Value& fileVal = configVal("File");
   std::string file = fileVal.As<std::string>("");
@@ -49,8 +45,7 @@ void Image::EditConfig(Vlk::Value* configValP)
   fileVal = file;
 }
 
-Result Image::Init(const Vlk::Explorer& configEx)
-{
+Result Image::Init(const Vlk::Explorer& configEx) {
   Vlk::Explorer fileEx = configEx("File");
   if (!fileEx.Valid(Vlk::Value::Type::TrueValue)) {
     return Result("Missing :File: TrueValue");
@@ -59,8 +54,7 @@ Result Image::Init(const Vlk::Explorer& configEx)
   return Init(file);
 }
 
-Result Image::Init(const std::string& file)
-{
+Result Image::Init(const std::string& file) {
   // Resolve the file path.
   VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
@@ -98,8 +92,7 @@ Result Image::Init(const std::string& file)
   return Result();
 }
 
-Result Image::InitDDS(FILE* stream)
-{
+Result Image::InitDDS(FILE* stream) {
   // Read the entire dds file stream.
   fseek(stream, 0, SEEK_END);
   long byteCount = ftell(stream);
@@ -147,8 +140,7 @@ Result Image::InitDDS(FILE* stream)
   return Result();
 }
 
-Result Image::Init(const void* fileData, int size)
-{
+Result Image::Init(const void* fileData, int size) {
   int width, height, channels;
   void* imageData = stbi_load_from_memory(
     (stbi_uc*)fileData, size, &width, &height, &channels, 0);
@@ -160,8 +152,7 @@ Result Image::Init(const void* fileData, int size)
   return Result();
 }
 
-Result Image::Init(const void* imageData, int width, int height, int channels)
-{
+Result Image::Init(const void* imageData, int width, int height, int channels) {
   GLenum internalFormat;
   channels == 4 ? internalFormat = GL_RGBA : internalFormat = GL_RGB;
   GLenum format = internalFormat;
@@ -176,8 +167,7 @@ Result Image::Init(
   int height,
   GLenum internalFormat,
   GLenum format,
-  GLint pixelAlignment)
-{
+  GLint pixelAlignment) {
   mWidth = width;
   mHeight = height;
   CreateTexutre();
@@ -196,8 +186,7 @@ Result Image::Init(
   return Result();
 }
 
-void Image::CreateTexutre()
-{
+void Image::CreateTexutre() {
   glGenTextures(1, &mId);
   glBindTexture(GL_TEXTURE_2D, mId);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -207,13 +196,11 @@ void Image::CreateTexutre()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-GLuint Image::Id() const
-{
+GLuint Image::Id() const {
   return mId;
 }
 
-float Image::Aspect() const
-{
+float Image::Aspect() const {
   return (float)mWidth / (float)mHeight;
 }
 

@@ -22,16 +22,14 @@ typedef int TypeId;
 constexpr TypeId nInvalidTypeId = -1;
 
 template<typename T>
-struct Type
-{
+struct Type {
   static TypeId smId;
   static void Register(const std::string& name);
   template<typename... Dependencies>
   static void AddDependencies();
 };
 
-struct TypeData
-{
+struct TypeData {
   std::string mName;
   size_t mSize;
   Ds::Vector<TypeId> mDependencies;

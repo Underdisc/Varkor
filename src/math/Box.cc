@@ -5,20 +5,17 @@ namespace Math {
 
 Box::Box() {}
 
-Box::Box(const Vec3& center, const Vec3& scale, const Quat& rotation)
-{
+Box::Box(const Vec3& center, const Vec3& scale, const Quat& rotation) {
   Init(center, scale, rotation);
 }
 
-void Box::Init(const Vec3& center, const Vec3& scale, const Quat& rotation)
-{
+void Box::Init(const Vec3& center, const Vec3& scale, const Quat& rotation) {
   mCenter = center;
   mScale = scale;
   mRotation = rotation;
 }
 
-Vec3 Box::Support(const Vec3& direction) const
-{
+Vec3 Box::Support(const Vec3& direction) const {
   // Orient the direction vector relative to the box's orientation.
   Mat3 orientation;
   Rotate(&orientation, mRotation);

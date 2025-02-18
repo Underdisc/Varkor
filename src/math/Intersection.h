@@ -9,15 +9,13 @@
 
 namespace Math {
 
-struct RayPlane
-{
+struct RayPlane {
   bool mIntersecting;
   Vec3 mIntersection;
 };
 RayPlane Intersection(const Ray& ray, const Plane& plane);
 
-struct SphereSphere
-{
+struct SphereSphere {
   bool mIntersecting;
   // The distance sphere b needs to be moved to be outside of sphere a.
   Vec3 mSeparation;
@@ -26,15 +24,13 @@ SphereSphere Intersection(const Sphere& a, const Sphere& b);
 
 bool HasIntersection(const Box& a, const Box& b);
 
-struct SphereTriangle
-{
+struct SphereTriangle {
   bool mIntersecting;
   Vec3 mSeparation;
 };
 SphereTriangle Intersection(const Sphere& sphere, const Triangle& triangle);
 
-struct RaySphere
-{
+struct RaySphere {
   int mCount;
   Vec3 mPoints[2];
 };

@@ -7,12 +7,10 @@
 
 namespace Test {
 
-struct TriangleClosestPointToTest: BaseTest
-{
+struct TriangleClosestPointToTest: BaseTest {
   TriangleClosestPointToTest(
     const std::string& name, const Math::Triangle& triangle, const Vec3& point):
-    BaseTest(name), mTriangle(triangle), mPoint(point)
-  {}
+    BaseTest(name), mTriangle(triangle), mPoint(point) {}
   Math::Triangle mTriangle;
   Vec3 mPoint;
 };

@@ -9,8 +9,7 @@
 namespace Comp {
 
 #pragma pack(push, 1)
-struct PointLight
-{
+struct PointLight {
   Gfx::HdrColor mAmbient;
   Gfx::HdrColor mDiffuse;
   Gfx::HdrColor mSpecular;

@@ -7,16 +7,9 @@
 
 namespace Gfx {
 
-struct Cubemap
-{
+struct Cubemap {
 public:
-  enum class FilterType
-  {
-    Nearest,
-    Linear,
-    Count,
-    Invalid
-  };
+  enum class FilterType { Nearest, Linear, Count, Invalid };
   constexpr static const char* smFilterTypeStrings[(int)FilterType::Count] {
     "Nearest", "Linear"};
   constexpr static GLint smFilterTypeGlValues[(int)FilterType::Count] {
@@ -24,8 +17,7 @@ public:
   static FilterType GetFilterType(const std::string& filterTypeString);
 
   // Determines whether one or six image files are used in the cubemap.
-  enum class Specification
-  {
+  enum class Specification {
     Split,
     Single,
     Count,
@@ -40,8 +32,7 @@ public:
   constexpr static const char* smFileDescriptorStrings[smFileDescriptorCount] {
     "Right", "Left", "Top", "Bottom", "Back", "Front"};
 
-  struct Config
-  {
+  struct Config {
     std::string mFaceFiles[smFileDescriptorCount];
     GLint mGlFilter;
     Specification mSpecification;
@@ -59,8 +50,7 @@ public:
   GLuint Id() const;
 
 private:
-  struct Face
-  {
+  struct Face {
   public:
     static VResult<Face> Init(const std::string& file);
     unsigned char* mData;

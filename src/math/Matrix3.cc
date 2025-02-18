@@ -2,28 +2,23 @@
 
 namespace Math {
 
-float* Mat3::Data()
-{
+float* Mat3::Data() {
   return (float*)mD;
 }
 
-const float* Mat3::CData() const
-{
+const float* Mat3::CData() const {
   return (const float*)mD;
 }
 
-float* Mat3::operator[](int row)
-{
+float* Mat3::operator[](int row) {
   return mD[row];
 }
 
-const float* Mat3::operator[](int row) const
-{
+const float* Mat3::operator[](int row) const {
   return mD[row];
 }
 
-Mat3::operator Mat4() const
-{
+Mat3::operator Mat4() const {
   Mat4 m;
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
@@ -36,8 +31,7 @@ Mat3::operator Mat4() const
   return m;
 }
 
-void Rotate(Mat3* m, const Quaternion& r)
-{
+void Rotate(Mat3* m, const Quaternion& r) {
   m->mD[0][0] = 1.0f - 2.0f * r.mC * r.mC - 2.0f * r.mD * r.mD;
   m->mD[0][1] = 2.0f * r.mB * r.mC - 2.0f * r.mD * r.mA;
   m->mD[0][2] = 2.0f * r.mB * r.mD + 2.0f * r.mC * r.mA;

@@ -9,8 +9,7 @@
 namespace Comp {
 
 #pragma pack(push, 1)
-struct Camera
-{
+struct Camera {
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& cameraVal);
   void VDeserialize(const Vlk::Explorer& cameraEx);
@@ -41,15 +40,10 @@ struct Camera
   Math::Ray NdcPositionToWorldRay(
     const Vec2& ndcPosition, const World::Object& owner) const;
 
-  enum class ProjectionType
-  {
-    Perspective,
-    Orthographic
-  };
+  enum class ProjectionType { Perspective, Orthographic };
 
   ProjectionType mProjectionType;
-  union
-  {
+  union {
     float mFov;
     float mHeight;
   };

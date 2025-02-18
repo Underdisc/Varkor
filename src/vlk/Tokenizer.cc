@@ -6,14 +6,11 @@
 namespace Vlk {
 
 // Qualifier ///////////////////////////////////////////////////////////////////
-struct Qualifier
-{
+struct Qualifier {
 private:
-  struct Range
-  {
+  struct Range {
     Range(char start, char end): mStart(start), mEnd(end) {}
-    bool Contains(char c) const
-    {
+    bool Contains(char c) const {
       return mStart <= c && c <= mEnd;
     }
     char mStart;
@@ -23,30 +20,26 @@ private:
   Ds::Vector<Range> mRangeWhitelist;
 
 public:
-  void WhitelistChar(char c)
-  {
+  void WhitelistChar(char c) {
     mCharWhitelist.Push(c);
   }
 
-  void WhitelistRange(char start, char end)
-  {
+  void WhitelistRange(char start, char end) {
     mRangeWhitelist.Emplace(start, end);
   }
 
-  void Clear()
-  {
+  void Clear() {
     mCharWhitelist.Clear();
     mRangeWhitelist.Clear();
   }
 
-  bool Qualify(char c) const
-  {
-    for (char whitelistChar : mCharWhitelist) {
+  bool Qualify(char c) const {
+    for (char whitelistChar: mCharWhitelist) {
       if (c == whitelistChar) {
         return true;
       }
     }
-    for (const Range& range : mRangeWhitelist) {
+    for (const Range& range: mRangeWhitelist) {
       if (range.Contains(c)) {
         return true;
       }
@@ -62,10 +55,8 @@ public:
 typedef int StateIndex;
 static constexpr StateIndex nInvalidTerminal = -1;
 
-struct State
-{
-  struct Edge
-  {
+struct State {
+  struct Edge {
     StateIndex mTo;
     Qualifier mQ;
   };
@@ -74,18 +65,15 @@ struct State
   Token::Type mTokenType;
 
   State(Token::Type tokenType):
-    mDefault(nInvalidTerminal), mTokenType(tokenType)
-  {}
+    mDefault(nInvalidTerminal), mTokenType(tokenType) {}
 
-  void AddEdge(StateIndex to, const Qualifier& q)
-  {
+  void AddEdge(StateIndex to, const Qualifier& q) {
     Edge edge = {to, q};
     mEdges.Push(edge);
   }
 
-  StateIndex NextState(char c)
-  {
-    for (const Edge& edge : mEdges) {
+  StateIndex NextState(char c) {
+    for (const Edge& edge: mEdges) {
       if (edge.mQ.Qualify(c)) {
         return edge.mTo;
       }
@@ -101,34 +89,29 @@ struct State
 Ds::Vector<State> nStates;
 StateIndex nRoot;
 
-StateIndex AddStates(Token::Type tokenType, size_t amount)
-{
+StateIndex AddStates(Token::Type tokenType, size_t amount) {
   for (size_t i = 0; i < amount; ++i) {
     nStates.Emplace(tokenType);
   }
   return (StateIndex)(nStates.Size() - amount);
 }
 
-void AddEdge(StateIndex from, StateIndex to, const Qualifier& q)
-{
+void AddEdge(StateIndex from, StateIndex to, const Qualifier& q) {
   nStates[from].AddEdge(to, q);
 }
 
-void AddDefault(StateIndex from, StateIndex to)
-{
+void AddDefault(StateIndex from, StateIndex to) {
   nStates[from].mDefault = to;
 }
 
-void AddLoneState(Token::Type tokenType, char c)
-{
+void AddLoneState(Token::Type tokenType, char c) {
   StateIndex valid = AddStates(tokenType, 1);
   Qualifier q;
   q.WhitelistChar(c);
   AddEdge(nRoot, valid, q);
 }
 
-void InitTokenizer()
-{
+void InitTokenizer() {
   // Add all of the states and edges needed for the Tokenizer's DFA.
   nRoot = AddStates(Token::Type::Invalid, 1);
 
@@ -185,8 +168,7 @@ void InitTokenizer()
   AddLoneState(Token::Type::Comma, ',');
 }
 
-Token ReadNextToken(const char** text)
-{
+Token ReadNextToken(const char** text) {
   const char* start = *text;
   StateIndex currentState = nRoot;
   StateIndex nextState = nStates[nRoot].NextState(**text);
@@ -207,8 +189,7 @@ Token ReadNextToken(const char** text)
   return token;
 }
 
-VResult<Ds::Vector<Token>> Tokenize(const char* text)
-{
+VResult<Ds::Vector<Token>> Tokenize(const char* text) {
   // Initialize the Tokenizer if it hasn't been.
   if (nStates.Empty()) {
     InitTokenizer();
@@ -234,8 +215,7 @@ VResult<Ds::Vector<Token>> Tokenize(const char* text)
   return VResult<Ds::Vector<Token>>(std::move(tokens));
 }
 
-size_t CountNewLines(const char* start, const char* end)
-{
+size_t CountNewLines(const char* start, const char* end) {
   size_t newLineCount = 0;
   const char* currentChar = start;
   while (currentChar < end) {

@@ -9,8 +9,7 @@
 namespace Comp {
 
 #pragma pack(push, 1)
-struct Name
-{
+struct Name {
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& nameVal);
   void VDeserialize(const Vlk::Explorer& nameEx);

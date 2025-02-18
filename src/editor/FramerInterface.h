@@ -5,8 +5,7 @@
 
 namespace Editor {
 
-struct FramerInterface: public Interface
-{
+struct FramerInterface: public Interface {
   void Show();
 };
 

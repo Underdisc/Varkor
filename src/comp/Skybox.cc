@@ -8,28 +8,23 @@ namespace Comp {
 
 const ResId Skybox::smDefaultMaterialId(Skybox::smDefaultAssetName, "Default");
 
-void Skybox::VStaticInit()
-{
+void Skybox::VStaticInit() {
   Rsl::RequireAsset(smDefaultAssetName);
 }
 
-void Skybox::VInit(const World::Object& owner)
-{
+void Skybox::VInit(const World::Object& owner) {
   mMaterialId = smDefaultMaterialId;
 }
 
-void Skybox::VSerialize(Vlk::Value& val)
-{
+void Skybox::VSerialize(Vlk::Value& val) {
   val("MaterialId") = mMaterialId;
 }
 
-void Skybox::VDeserialize(const Vlk::Explorer& ex)
-{
+void Skybox::VDeserialize(const Vlk::Explorer& ex) {
   mMaterialId = ex("MaterialId").As<ResId>(smDefaultMaterialId);
 }
 
-void Skybox::VRenderable(const World::Object& owner)
-{
+void Skybox::VRenderable(const World::Object& owner) {
   Gfx::Renderable::Skybox skybox;
   skybox.mOwner = owner.mMemberId;
   skybox.mMaterialId = mMaterialId;
@@ -44,8 +39,7 @@ void Skybox::VRenderable(const World::Object& owner)
   Gfx::Collection::Add(std::move(icon));
 }
 
-void Skybox::VEdit(const World::Object& owner)
-{
+void Skybox::VEdit(const World::Object& owner) {
   Editor::DropResourceIdWidget(Rsl::ResTypeId::Material, &mMaterialId);
 }
 

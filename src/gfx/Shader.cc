@@ -17,26 +17,22 @@ namespace Gfx {
 
 Shader::Shader(): mId(0) {}
 
-Shader::Shader(Shader&& other)
-{
+Shader::Shader(Shader&& other) {
   *this = std::move(other);
 }
 
-Shader& Shader::operator=(Shader&& other)
-{
+Shader& Shader::operator=(Shader&& other) {
   mId = other.mId;
   other.mId = 0;
   return *this;
 }
 
-Shader::~Shader()
-{
+Shader::~Shader() {
   glDeleteProgram(mId);
   mId = 0;
 }
 
-Shader::SubType Shader::GetSubType(const std::string& subTypeString)
-{
+Shader::SubType Shader::GetSubType(const std::string& subTypeString) {
   for (int i = 0; i < (int)SubType::Count; ++i) {
     if (subTypeString == smSubTypeStrings[i]) {
       return (SubType)i;
@@ -45,8 +41,7 @@ Shader::SubType Shader::GetSubType(const std::string& subTypeString)
   return SubType::Invalid;
 }
 
-int Shader::CompileInfo::GetChunkIndex(int lineNumber) const
-{
+int Shader::CompileInfo::GetChunkIndex(int lineNumber) const {
   for (int i = 0; i < mChunks.Size(); ++i) {
     bool afterStart = mChunks[i].mStartLine <= lineNumber;
     if (afterStart && lineNumber < mChunks[i].mEndLine) {
@@ -59,8 +54,7 @@ int Shader::CompileInfo::GetChunkIndex(int lineNumber) const
   return -1;
 }
 
-void Shader::EditConfig(Vlk::Value* configValP)
-{
+void Shader::EditConfig(Vlk::Value* configValP) {
   ImGuiTableFlags flags = ImGuiTableFlags_Resizable |
     ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV;
   if (!ImGui::BeginTable("Files", 2, flags)) {
@@ -108,8 +102,7 @@ void Shader::EditConfig(Vlk::Value* configValP)
   ImGui::EndTable();
 }
 
-Result Shader::Init(const Vlk::Explorer& configEx)
-{
+Result Shader::Init(const Vlk::Explorer& configEx) {
   // Get the names of the files containing shader source.
   Vlk::Explorer filesEx = configEx("Files");
   if (!filesEx.Valid(Vlk::Value::Type::ValueArray)) {
@@ -129,12 +122,11 @@ Result Shader::Init(const Vlk::Explorer& configEx)
   return Init(files);
 }
 
-Result Shader::Init(const Ds::Vector<std::string>& files)
-{
+Result Shader::Init(const Ds::Vector<std::string>& files) {
   // Get the CompileInfo contained in each of the files.
   Result result;
   Ds::Vector<CompileInfo> allCompileInfo;
-  for (const std::string& file : files) {
+  for (const std::string& file: files) {
     VResult<Ds::Vector<CompileInfo>> collectResult = CollectCompileInfo(file);
     if (!collectResult.Success()) {
       if (!result.mError.empty()) {
@@ -153,8 +145,7 @@ Result Shader::Init(const Ds::Vector<std::string>& files)
   return Init(allCompileInfo);
 }
 
-Result Shader::Init(const Ds::Vector<CompileInfo>& allCompileInfo)
-{
+Result Shader::Init(const Ds::Vector<CompileInfo>& allCompileInfo) {
   this->~Shader();
   Result result = CreateProgram(allCompileInfo);
   if (!result.Success()) {
@@ -164,13 +155,11 @@ Result Shader::Init(const Ds::Vector<CompileInfo>& allCompileInfo)
   return result;
 }
 
-GLuint Shader::Id() const
-{
+GLuint Shader::Id() const {
   return mId;
 }
 
-GLint Shader::UniformLocation(const char* name) const
-{
+GLint Shader::UniformLocation(const char* name) const {
   GLint location = glGetUniformLocation(mId, name);
   if (location == -1 && smLogMissingUniforms) {
     std::stringstream error;
@@ -180,49 +169,41 @@ GLint Shader::UniformLocation(const char* name) const
   return location;
 }
 
-void Shader::Use() const
-{
+void Shader::Use() const {
   glUseProgram(mId);
 }
 
-void Shader::SetUniform(const char* name, float value) const
-{
+void Shader::SetUniform(const char* name, float value) const {
   GLint location = UniformLocation(name);
   glUniform1f(location, value);
 }
 
-void Shader::SetUniform(const char* name, int value) const
-{
+void Shader::SetUniform(const char* name, int value) const {
   GLint location = UniformLocation(name);
   glUniform1i(location, value);
 }
 
-void Shader::SetUniform(const char* name, const Vec2& value) const
-{
+void Shader::SetUniform(const char* name, const Vec2& value) const {
   GLint location = UniformLocation(name);
   glUniform2fv(location, 1, value.mD);
 }
 
-void Shader::SetUniform(const char* name, const Vec3& value) const
-{
+void Shader::SetUniform(const char* name, const Vec3& value) const {
   GLint location = UniformLocation(name);
   glUniform3fv(location, 1, value.mD);
 }
 
-void Shader::SetUniform(const char* name, const Vec4& value) const
-{
+void Shader::SetUniform(const char* name, const Vec4& value) const {
   GLint location = UniformLocation(name);
   glUniform4fv(location, 1, value.mD);
 }
 
-void Shader::SetUniform(const char* name, const Mat4& value) const
-{
+void Shader::SetUniform(const char* name, const Mat4& value) const {
   GLint location = UniformLocation(name);
   glUniformMatrix4fv(location, 1, true, value.CData());
 }
 
-void Shader::InitializeUniforms()
-{
+void Shader::InitializeUniforms() {
   auto tryBindUniformBlock = [this](const char* name, GLuint binding)
   {
     GLuint index = glGetUniformBlockIndex(mId, name);
@@ -236,8 +217,7 @@ void Shader::InitializeUniforms()
 }
 
 Result Shader::CompileSubShader(
-  const CompileInfo& compileInfo, GLuint subShaderId)
-{
+  const CompileInfo& compileInfo, GLuint subShaderId) {
   // Add the version header and compile the subshader source.
   std::string source = smVersionHeader;
   source += "\n" + compileInfo.mSource;
@@ -279,13 +259,12 @@ Result Shader::CompileSubShader(
   return Result(error.str());
 }
 
-Result Shader::CreateProgram(const Ds::Vector<CompileInfo>& allCompileInfo)
-{
+Result Shader::CreateProgram(const Ds::Vector<CompileInfo>& allCompileInfo) {
   // Ensure that there aren't multiple versions of the same subtype.
   Result result;
   for (int i = 0; i < (int)SubType::Count; ++i) {
     Ds::Vector<const CompileInfo*> infoPointers;
-    for (const CompileInfo& info : allCompileInfo) {
+    for (const CompileInfo& info: allCompileInfo) {
       if (info.mSubType == (SubType)i) {
         infoPointers.Push(&info);
       }
@@ -307,7 +286,7 @@ Result Shader::CreateProgram(const Ds::Vector<CompileInfo>& allCompileInfo)
 
   // Attempt to compile all of the subshaders.
   Ds::Vector<GLuint> subShaderIds;
-  for (const CompileInfo& compileInfo : allCompileInfo) {
+  for (const CompileInfo& compileInfo: allCompileInfo) {
     GLenum newSubType = smGlSubTypes[(int)compileInfo.mSubType];
     GLuint newSubShaderId = glCreateShader(newSubType);
     if (newSubShaderId == 0) {
@@ -322,7 +301,7 @@ Result Shader::CreateProgram(const Ds::Vector<CompileInfo>& allCompileInfo)
     subShaderIds.Push(newSubShaderId);
   }
   if (!result.Success()) {
-    for (GLuint subShaderId : subShaderIds) {
+    for (GLuint subShaderId: subShaderIds) {
       glDeleteShader(subShaderId);
     }
     result.mError.pop_back();
@@ -331,11 +310,11 @@ Result Shader::CreateProgram(const Ds::Vector<CompileInfo>& allCompileInfo)
 
   // Create the shader program.
   mId = glCreateProgram();
-  for (GLuint subShaderId : subShaderIds) {
+  for (GLuint subShaderId: subShaderIds) {
     glAttachShader(mId, subShaderId);
   }
   glLinkProgram(mId);
-  for (GLuint subShaderId : subShaderIds) {
+  for (GLuint subShaderId: subShaderIds) {
     glDeleteShader(subShaderId);
   }
 
@@ -358,8 +337,7 @@ Result Shader::CreateProgram(const Ds::Vector<CompileInfo>& allCompileInfo)
   return Result();
 }
 
-int Shader::GetLineNumber(size_t until, const std::string& string)
-{
+int Shader::GetLineNumber(size_t until, const std::string& string) {
   int lineNumber = 1;
   size_t currentChar = string.find('\n', 0);
   while (currentChar < until) {
@@ -369,8 +347,7 @@ int Shader::GetLineNumber(size_t until, const std::string& string)
   return lineNumber;
 }
 
-VResult<std::string> Shader::GetFileContent(const std::string& file)
-{
+VResult<std::string> Shader::GetFileContent(const std::string& file) {
   VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
     return resolutionResult;
@@ -385,8 +362,7 @@ VResult<std::string> Shader::GetFileContent(const std::string& file)
   return VResult<std::string>(fileContentStream.str());
 }
 
-Result Shader::HandleIncludes(CompileInfo* compileInfo)
-{
+Result Shader::HandleIncludes(CompileInfo* compileInfo) {
   // We repeatedly search for include statements until there are none left.
   std::string& source = compileInfo->mSource;
   Ds::Vector<SourceChunk>& chunks = compileInfo->mChunks;
@@ -400,7 +376,7 @@ Result Shader::HandleIncludes(CompileInfo* compileInfo)
 
     // Ignore the inclusion if the file has already been included.
     bool includedGuarded = false;
-    for (const SourceChunk& chunk : chunks) {
+    for (const SourceChunk& chunk: chunks) {
       if (includeFile == chunk.mFile) {
         source.replace(match[0].first, match[0].second, "");
         includedGuarded = true;
@@ -469,8 +445,7 @@ Result Shader::HandleIncludes(CompileInfo* compileInfo)
 }
 
 VResult<Ds::Vector<Shader::CompileInfo>> Shader::CollectCompileInfo(
-  const std::string& file)
-{
+  const std::string& file) {
   // Get the file content.
   VResult<std::string> fileConentResult = GetFileContent(file);
   if (!fileConentResult.Success()) {
@@ -479,8 +454,7 @@ VResult<Ds::Vector<Shader::CompileInfo>> Shader::CollectCompileInfo(
   const std::string& content = fileConentResult.mValue;
 
   // Used to track the headers for each subshader in the file.
-  struct HeaderData
-  {
+  struct HeaderData {
     // The range of the header [mStart, mEnd).
     size_t mStart;
     size_t mEnd;

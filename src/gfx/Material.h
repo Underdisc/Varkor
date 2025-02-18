@@ -11,8 +11,7 @@
 
 namespace Gfx {
 
-struct Material
-{
+struct Material {
   Material();
   Material(Material&& other);
   Material& operator=(Material&& other);

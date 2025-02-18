@@ -6,18 +6,15 @@ namespace Temporal {
 
 float nTotalTime = 0.0f;
 
-void Update()
-{
+void Update() {
   nTotalTime += DeltaTime();
 }
 
-float DeltaTime()
-{
+float DeltaTime() {
   return Framer::FrameTime();
 }
 
-float TotalTime()
-{
+float TotalTime() {
   return nTotalTime;
 }
 

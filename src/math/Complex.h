@@ -4,8 +4,7 @@
 namespace Math {
 
 template<typename T>
-class Complex
-{
+class Complex {
 public:
   T mReal;
   T mImaginary;

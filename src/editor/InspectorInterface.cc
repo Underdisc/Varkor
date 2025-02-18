@@ -8,11 +8,10 @@ namespace Editor {
 
 Ds::Vector<Comp::TypeId> InspectorInterface::smOpenTypes;
 
-InspectorInterface::InspectorInterface(World::Object& object): mObject(object)
-{}
+InspectorInterface::InspectorInterface(World::Object& object):
+  mObject(object) {}
 
-void InspectorInterface::Show()
-{
+void InspectorInterface::Show() {
   // Perform a duplication and inspect the duplicate if requested.
   if (Input::ActionPressed(Input::Action::DuplicateEntity)) {
     mObject = mObject.Duplicate();
@@ -26,7 +25,7 @@ void InspectorInterface::Show()
   // Display all of the Member's components and the active component hooks.
   Ds::Vector<Comp::TypeId> componentTypes =
     mObject.mSpace->GetComponentTypes(mObject.mMemberId);
-  for (Comp::TypeId typeId : componentTypes) {
+  for (Comp::TypeId typeId: componentTypes) {
     bool removeComponent = false;
     const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
     bool inspecting = ImGui::CollapsingHeader(typeData.mName.c_str());
@@ -56,9 +55,8 @@ void InspectorInterface::Show()
   ImGui::End();
 }
 
-void InspectorInterface::ShowGizmos()
-{
-  for (Comp::TypeId typeId : smOpenTypes) {
+void InspectorInterface::ShowGizmos() {
+  for (Comp::TypeId typeId: smOpenTypes) {
     const Comp::TypeData& typeData = Comp::GetTypeData(typeId);
     if (typeData.mVGizmoEdit.Open()) {
       void* component = mObject.TryGetComponent(typeId);
@@ -70,11 +68,9 @@ void InspectorInterface::ShowGizmos()
 }
 
 AddComponentInterface::AddComponentInterface(const World::Object& object):
-  mObject(object)
-{}
+  mObject(object) {}
 
-void AddComponentInterface::Show()
-{
+void AddComponentInterface::Show() {
   ImGui::Begin("Add Components", &mOpen);
   for (Comp::TypeId typeId = 0; typeId < Comp::TypeDataCount(); ++typeId) {
     if (mObject.HasComponent(typeId)) {

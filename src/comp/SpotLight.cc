@@ -10,8 +10,7 @@
 
 namespace Comp {
 
-void SpotLight::VInit(const World::Object& owner)
-{
+void SpotLight::VInit(const World::Object& owner) {
   mAmbient = smDefaultAmbient;
   mDiffuse = smDefaultDiffuse;
   mSpecular = smDefaultSpecular;
@@ -22,8 +21,7 @@ void SpotLight::VInit(const World::Object& owner)
   SetOuterCutoff(smDefaultOuterCutoff);
 }
 
-void SpotLight::VSerialize(Vlk::Value& val)
-{
+void SpotLight::VSerialize(Vlk::Value& val) {
   val("Ambient") = mAmbient;
   val("Diffuse") = mDiffuse;
   val("Specular") = mSpecular;
@@ -34,8 +32,7 @@ void SpotLight::VSerialize(Vlk::Value& val)
   val("OuterCutoff") = GetOuterCutoff();
 }
 
-void SpotLight::VDeserialize(const Vlk::Explorer& ex)
-{
+void SpotLight::VDeserialize(const Vlk::Explorer& ex) {
   mAmbient = ex("Ambient").As<Gfx::HdrColor>(smDefaultAmbient);
   mDiffuse = ex("Diffuse").As<Gfx::HdrColor>(smDefaultDiffuse);
   mSpecular = ex("Specular").As<Gfx::HdrColor>(smDefaultSpecular);
@@ -46,8 +43,7 @@ void SpotLight::VDeserialize(const Vlk::Explorer& ex)
   SetOuterCutoff(ex("OuterCutoff").As<float>(smDefaultOuterCutoff));
 }
 
-void SpotLight::VRenderable(const World::Object& owner)
-{
+void SpotLight::VRenderable(const World::Object& owner) {
   Gfx::Renderable::Icon icon;
   icon.mOwner = owner.mMemberId;
   auto& transform = owner.Get<Transform>();
@@ -58,28 +54,23 @@ void SpotLight::VRenderable(const World::Object& owner)
   Gfx::Collection::Add(std::move(icon));
 }
 
-void SpotLight::SetInnerCutoff(float angle)
-{
+void SpotLight::SetInnerCutoff(float angle) {
   mInnerCutoff = cosf(angle);
 }
 
-void SpotLight::SetOuterCutoff(float angle)
-{
+void SpotLight::SetOuterCutoff(float angle) {
   mOuterCutoff = cosf(angle);
 }
 
-float SpotLight::GetInnerCutoff() const
-{
+float SpotLight::GetInnerCutoff() const {
   return acosf(mInnerCutoff);
 }
 
-float SpotLight::GetOuterCutoff() const
-{
+float SpotLight::GetOuterCutoff() const {
   return acosf(mOuterCutoff);
 }
 
-void SpotLight::VEdit(const World::Object& owner)
-{
+void SpotLight::VEdit(const World::Object& owner) {
   float labelWidth = 65;
   ImGui::PushItemWidth(-labelWidth);
   ImGui::DragFloat("Constant", &mConstant, 0.01f, 1.0f, 2.0f);

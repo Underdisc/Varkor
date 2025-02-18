@@ -15,8 +15,7 @@
 #include "rsl/Library.h"
 #include "world/World.h"
 
-Result VarkorInit(int argc, char* argv[], Options::Config&& config)
-{
+Result VarkorInit(int argc, char* argv[], Options::Config&& config) {
   ProfileThread("Main");
 
   Result result = Options::Init(argc, argv, std::move(config));
@@ -39,8 +38,7 @@ Result VarkorInit(int argc, char* argv[], Options::Config&& config)
   return Result();
 }
 
-void VarkorRun()
-{
+void VarkorRun() {
   while (Viewport::Active() || Rsl::InitThreadOpen()) {
     Framer::Start();
 
@@ -60,8 +58,7 @@ void VarkorRun()
   }
 }
 
-void VarkorPurge()
-{
+void VarkorPurge() {
   Editor::Purge();
   World::Purge();
   Gfx::Renderer::Purge();

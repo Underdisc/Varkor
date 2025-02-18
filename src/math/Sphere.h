@@ -5,8 +5,7 @@
 
 namespace Math {
 
-struct Sphere
-{
+struct Sphere {
   Vec3 mCenter;
   float mRadius;
 

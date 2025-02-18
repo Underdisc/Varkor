@@ -5,8 +5,7 @@
 
 namespace Math {
 
-struct Triangle
-{
+struct Triangle {
   Vec3 mPoints[3];
 
   // Finds the barycentric coordinates of p. The barycentric vector's components

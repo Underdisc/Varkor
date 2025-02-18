@@ -12,8 +12,7 @@ namespace Rsl {
 ResourceTypeData nResourceTypeData[(int)ResTypeId::Count];
 
 template<typename T>
-void ResourceType<T>::Register(ResTypeId resTypeId, const char* name)
-{
+void ResourceType<T>::Register(ResTypeId resTypeId, const char* name) {
   smResTypeId = resTypeId;
 
   ResourceTypeData newTypeData;
@@ -24,8 +23,7 @@ void ResourceType<T>::Register(ResTypeId resTypeId, const char* name)
   nResourceTypeData[(int)resTypeId] = newTypeData;
 }
 
-void RegisterResourceTypes()
-{
+void RegisterResourceTypes() {
   ResourceType<Gfx::Cubemap>::Register(ResTypeId::Cubemap, "Cubemap");
   ResourceType<Gfx::Font>::Register(ResTypeId::Font, "Font");
   ResourceType<Gfx::Image>::Register(ResTypeId::Image, "Image");
@@ -35,8 +33,7 @@ void RegisterResourceTypes()
   ResourceType<Gfx::Shader>::Register(ResTypeId::Shader, "Shader");
 }
 
-ResTypeId GetResTypeId(const std::string& resTypeName)
-{
+ResTypeId GetResTypeId(const std::string& resTypeName) {
   for (int i = 0; i < (int)ResTypeId::Count; ++i) {
     if (resTypeName == nResourceTypeData[i].mName) {
       return (ResTypeId)i;
@@ -45,15 +42,13 @@ ResTypeId GetResTypeId(const std::string& resTypeName)
   return ResTypeId::Invalid;
 }
 
-const ResourceTypeData& GetResTypeData(ResTypeId resTypeId)
-{
+const ResourceTypeData& GetResTypeData(ResTypeId resTypeId) {
   bool invalid = resTypeId == ResTypeId::Invalid;
   LogAbortIf(invalid, "Type has an invalid ResourceTypeId.");
   return nResourceTypeData[(int)resTypeId];
 }
 
-const ResTypeData& GetResTypeData(const std::string& resTypeName)
-{
+const ResTypeData& GetResTypeData(const std::string& resTypeName) {
   ResTypeId resTypeId = GetResTypeId(resTypeName);
   return GetResTypeData(resTypeId);
 }

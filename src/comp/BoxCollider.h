@@ -6,8 +6,7 @@
 
 namespace Comp {
 
-struct BoxCollider
-{
+struct BoxCollider {
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& modelVal);
   void VDeserialize(const Vlk::Explorer& modelEx);

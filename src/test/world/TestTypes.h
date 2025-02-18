@@ -12,40 +12,32 @@
 #include "world/Registrar.h"
 
 #pragma pack(push, 1)
-struct CallCounter
-{
-  CallCounter()
-  {
+struct CallCounter {
+  CallCounter() {
     ++smDefaultConstructorCount;
   }
-  CallCounter(const CallCounter& other)
-  {
+  CallCounter(const CallCounter& other) {
     ++smCopyConstructorCount;
   }
-  CallCounter(CallCounter&& other)
-  {
+  CallCounter(CallCounter&& other) {
     ++smMoveConstructorCount;
   }
-  CallCounter& operator=(CallCounter&& other)
-  {
+  CallCounter& operator=(CallCounter&& other) {
     ++smMoveAssignmentCount;
     mData = other.mData;
     return *this;
   }
-  ~CallCounter()
-  {
+  ~CallCounter() {
     ++smDestructorCount;
   }
-  static void Reset()
-  {
+  static void Reset() {
     smDefaultConstructorCount = 0;
     smCopyConstructorCount = 0;
     smMoveConstructorCount = 0;
     smMoveAssignmentCount = 0;
     smDestructorCount = 0;
   }
-  static void Print()
-  {
+  static void Print() {
     std::cout << "-Call Counts-"
               << "\nDefault Constructor Count: " << smDefaultConstructorCount
               << "\nCopy Constructor Count: " << smCopyConstructorCount
@@ -73,79 +65,64 @@ int CallCounter::smDestructorCount;
   CallCounter::Reset();              \
   std::cout << std::endl
 
-struct Simple0
-{
+struct Simple0 {
   float m0;
   float m1;
-  Simple0()
-  {
+  Simple0() {
     SetData(Comp::Type<Simple0>::smId);
   }
-  void SetData(int value)
-  {
+  void SetData(int value) {
     m0 = (float)value;
     m1 = (float)value;
   }
-  void VSerialize(Vlk::Value& val)
-  {
+  void VSerialize(Vlk::Value& val) {
     val("m0") = m0;
     val("m1") = m1;
   }
 };
 
-std::ostream& operator<<(std::ostream& os, const Simple0& comp)
-{
+std::ostream& operator<<(std::ostream& os, const Simple0& comp) {
   os << "[" << comp.m0 << ", " << comp.m1 << "]";
   return os;
 }
 
-struct Simple1
-{
+struct Simple1 {
   double m0;
   int m1;
-  Simple1()
-  {
+  Simple1() {
     SetData(Comp::Type<Simple1>::smId);
   }
-  void SetData(int value)
-  {
+  void SetData(int value) {
     m0 = (double)value;
     m1 = value;
   }
-  void VSerialize(Vlk::Value& val)
-  {
+  void VSerialize(Vlk::Value& val) {
     val("m0") = m0;
     val("m1") = m1;
   }
 };
 
-std::ostream& operator<<(std::ostream& os, const Simple1& comp)
-{
+std::ostream& operator<<(std::ostream& os, const Simple1& comp) {
   os << "[" << comp.m0 << ", " << comp.m1 << "]";
   return os;
 }
 
-struct Dynamic
-{
+struct Dynamic {
   int* m0;
   double m1;
   float m2;
-  Dynamic(): m0(nullptr)
-  {
+  Dynamic(): m0(nullptr) {
     SetData(Comp::Type<Dynamic>::smId);
   }
-  Dynamic(const Dynamic& other): m0(nullptr)
-  {
+  Dynamic(const Dynamic& other): m0(nullptr) {
     SetData(*other.m0);
   }
-  Dynamic(Dynamic&& other): m0(other.m0), m1(other.m1), m2(other.m2)
-  {
+  Dynamic(Dynamic&& other): m0(other.m0), m1(other.m1), m2(other.m2) {
     other.m0 = nullptr;
     other.m1 = 0.0;
     other.m2 = 0.0f;
   }
-  Dynamic& operator=(Dynamic&& other)
-  {
+  Dynamic& operator=(Dynamic&& other) {
     delete m0;
     m0 = other.m0;
     m1 = other.m1;
@@ -155,14 +132,12 @@ struct Dynamic
     other.m2 = 0.0f;
     return *this;
   }
-  ~Dynamic()
-  {
+  ~Dynamic() {
     if (m0 != nullptr) {
       delete m0;
     }
   }
-  void SetData(int value)
-  {
+  void SetData(int value) {
     if (m0 == nullptr) {
       m0 = alloc int;
     }
@@ -170,73 +145,60 @@ struct Dynamic
     m1 = (double)value;
     m2 = (float)value;
   }
-  void VSerialize(Vlk::Value& val)
-  {
+  void VSerialize(Vlk::Value& val) {
     val("m0") = *m0;
     val("m1") = m1;
     val("m2") = m2;
   }
 };
 
-std::ostream& operator<<(std::ostream& os, const Dynamic& comp)
-{
+std::ostream& operator<<(std::ostream& os, const Dynamic& comp) {
   os << "[" << *comp.m0 << ", " << comp.m1 << ", " << comp.m2 << "]";
   return os;
 }
 
-struct Container
-{
+struct Container {
   Ds::Vector<int> mVector;
-  Container()
-  {
+  Container() {
     SetData(Comp::Type<Container>::smId);
   }
-  void SetData(int value)
-  {
+  void SetData(int value) {
     mVector.Clear();
     for (int i = 0; i < value / 2; ++i) {
       mVector.Push(value + i);
     }
   }
-  void VSerialize(Vlk::Value& val)
-  {
+  void VSerialize(Vlk::Value& val) {
     val("m0") = mVector;
   }
 };
 
-std::ostream& operator<<(std::ostream& os, const Container& comp)
-{
+std::ostream& operator<<(std::ostream& os, const Container& comp) {
   os << comp.mVector;
   return os;
 }
 
-struct Dependant
-{
+struct Dependant {
   int m0;
-  Dependant()
-  {
+  Dependant() {
     SetData(Comp::Type<Dependant>::smId);
   }
-  void SetData(int value)
-  {
+  void SetData(int value) {
     m0 = value;
   }
-  void VSerialize(Vlk::Value& val)
-  {
+  void VSerialize(Vlk::Value& val) {
     val("m0") = m0;
   }
 };
 
-std::ostream& operator<<(std::ostream& os, const Dependant& comp)
-{
+std::ostream& operator<<(std::ostream& os, const Dependant& comp) {
   os << "[" << comp.m0 << "]";
   return os;
 }
 
 #pragma pack(pop)
 
-void RegisterComponentTypes()
-{
+void RegisterComponentTypes() {
   RegisterComponent(CallCounter);
   RegisterComponent(Simple0);
   RegisterComponent(Simple1);

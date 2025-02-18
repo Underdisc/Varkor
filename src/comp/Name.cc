@@ -3,23 +3,19 @@
 
 namespace Comp {
 
-void Name::VInit(const World::Object& owner)
-{
+void Name::VInit(const World::Object& owner) {
   mName = "Name";
 }
 
-void Name::VSerialize(Vlk::Value& val)
-{
+void Name::VSerialize(Vlk::Value& val) {
   val = mName;
 }
 
-void Name::VDeserialize(const Vlk::Explorer& ex)
-{
+void Name::VDeserialize(const Vlk::Explorer& ex) {
   mName = ex.As<std::string>("Name");
 }
 
-void Name::VEdit(const World::Object& owner)
-{
+void Name::VEdit(const World::Object& owner) {
   Editor::InputText("Value", &mName);
 }
 

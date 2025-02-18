@@ -15,8 +15,7 @@
 
 namespace Gfx {
 
-struct Model
-{
+struct Model {
   Model();
   Model(Model&& other);
   Model& operator=(Model&& other);
@@ -30,13 +29,11 @@ struct Model
   Renderable::Floater GetFloater(size_t renderableDescIndex) const;
 
 private:
-  struct RenderableDescriptor
-  {
+  struct RenderableDescriptor {
     Mat4 mTransformation;
     size_t mMeshIndex;
   };
-  struct MeshDescriptor
-  {
+  struct MeshDescriptor {
     ResId mMeshId;
     size_t mMaterialIndex;
   };

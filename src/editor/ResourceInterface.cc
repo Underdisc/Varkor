@@ -13,8 +13,7 @@
 
 namespace Editor {
 
-ResourceInterface::ResourceInterface(const ResId& id): mResId(id)
-{
+ResourceInterface::ResourceInterface(const ResId& id): mResId(id) {
   Result result = Rsl::AddConfig(id.GetAssetName());
   if (!result.Success()) {
     LogError(result.mError.c_str());
@@ -22,13 +21,11 @@ ResourceInterface::ResourceInterface(const ResId& id): mResId(id)
   }
 }
 
-ResourceInterface::~ResourceInterface()
-{
+ResourceInterface::~ResourceInterface() {
   Rsl::RemConfig(mResId.GetAssetName());
 }
 
-void ResourceInterface::Show()
-{
+void ResourceInterface::Show() {
   // Ensure that there is a Value for the desired resource.
   std::string assetName = mResId.GetAssetName();
   Vlk::Value& assetVal = Rsl::GetConfig(assetName);

@@ -6,67 +6,54 @@ namespace World {
 Object::Object(): mSpace(nullptr), mMemberId(nInvalidMemberId) {}
 
 Object::Object(const Object& other):
-  mSpace(other.mSpace), mMemberId(other.mMemberId)
-{}
+  mSpace(other.mSpace), mMemberId(other.mMemberId) {}
 
 Object::Object(Space* space): mSpace(space) {}
 
 Object::Object(Space* space, MemberId memberId):
-  mSpace(space), mMemberId(memberId)
-{}
+  mSpace(space), mMemberId(memberId) {}
 
-void* Object::AddComponent(Comp::TypeId typeId) const
-{
+void* Object::AddComponent(Comp::TypeId typeId) const {
   return mSpace->AddComponent(typeId, mMemberId);
 }
 
-void* Object::EnsureComponent(Comp::TypeId typeId) const
-{
+void* Object::EnsureComponent(Comp::TypeId typeId) const {
   return mSpace->EnsureComponent(typeId, mMemberId);
 }
 
-void Object::RemComponent(Comp::TypeId typeId) const
-{
+void Object::RemComponent(Comp::TypeId typeId) const {
   mSpace->RemComponent(typeId, mMemberId);
 }
 
-void* Object::GetComponent(Comp::TypeId typeId) const
-{
+void* Object::GetComponent(Comp::TypeId typeId) const {
   return mSpace->GetComponent(typeId, mMemberId);
 }
 
-void* Object::TryGetComponent(Comp::TypeId typeId) const
-{
+void* Object::TryGetComponent(Comp::TypeId typeId) const {
   return mSpace->TryGetComponent(typeId, mMemberId);
 }
 
-bool Object::HasComponent(Comp::TypeId typeId) const
-{
+bool Object::HasComponent(Comp::TypeId typeId) const {
   return mSpace->HasComponent(typeId, mMemberId);
 }
 
-void Object::Delete() const
-{
+void Object::Delete() const {
   mSpace->DeleteMember(mMemberId);
 }
 
-Object Object::CreateChild() const
-{
+Object Object::CreateChild() const {
   return Object(mSpace, mSpace->CreateChildMember(mMemberId));
 }
 
-Object Object::Duplicate() const
-{
+Object Object::Duplicate() const {
   return Object(mSpace, mSpace->Duplicate(mMemberId));
 }
 
-void Object::TryRemoveParent()
-{
+void Object::TryRemoveParent() {
   mSpace->TryRemoveParent(mMemberId);
 }
 
-Object Object::Parent() const
-{
+Object Object::Parent() const {
   auto* relationship = TryGet<Comp::Relationship>();
   if (relationship == nullptr) {
     return Object(mSpace, nInvalidMemberId);
@@ -74,8 +61,7 @@ Object Object::Parent() const
   return Object(mSpace, relationship->mParent);
 }
 
-bool Object::Valid() const
-{
+bool Object::Valid() const {
   return mSpace != nullptr && mMemberId != nInvalidMemberId;
 }
 

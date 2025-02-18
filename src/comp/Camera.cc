@@ -15,16 +15,14 @@ float Camera::smMinimumPerspectiveNear = 0.1f;
 float Camera::smMinimumOrthographicNear = 0.0f;
 float Camera::smMaximumFar = 1000000.0f;
 
-void Camera::VInit(const World::Object& owner)
-{
+void Camera::VInit(const World::Object& owner) {
   mProjectionType = ProjectionType::Perspective;
   mFov = smDefaultFov;
   mNear = smMinimumPerspectiveNear;
   mFar = smMaximumFar;
 }
 
-void Camera::VSerialize(Vlk::Value& cameraVal)
-{
+void Camera::VSerialize(Vlk::Value& cameraVal) {
   Vlk::Value& projectionTypeVal = cameraVal("ProjectionType");
   switch (mProjectionType) {
   case ProjectionType::Perspective:
@@ -40,8 +38,7 @@ void Camera::VSerialize(Vlk::Value& cameraVal)
   cameraVal("Far") = mFar;
 }
 
-void Camera::VDeserialize(const Vlk::Explorer& cameraEx)
-{
+void Camera::VDeserialize(const Vlk::Explorer& cameraEx) {
   std::string projectionTypeName =
     cameraEx("ProjectionType").As<std::string>(smProjectionTypeNames[0]);
   if (projectionTypeName == smProjectionTypeNames[1]) {
@@ -57,8 +54,7 @@ void Camera::VDeserialize(const Vlk::Explorer& cameraEx)
   mFar = cameraEx("Far").As<float>(smMaximumFar);
 }
 
-void Camera::VRenderable(const World::Object& owner)
-{
+void Camera::VRenderable(const World::Object& owner) {
   Gfx::Renderable::Icon icon;
   icon.mOwner = owner.mMemberId;
   auto& transform = owner.Get<Transform>();
@@ -70,8 +66,7 @@ void Camera::VRenderable(const World::Object& owner)
 
 // This will make the camera look at a position in its local space.
 void Camera::LocalLookAt(
-  const Vec3& localPosition, const Vec3& localUp, const World::Object& owner)
-{
+  const Vec3& localPosition, const Vec3& localUp, const World::Object& owner) {
   Transform& transform = owner.GetComponent<Transform>();
   LogAbortIf(
     Math::Near(localPosition, transform.GetTranslation()),
@@ -89,8 +84,7 @@ void Camera::LocalLookAt(
 // This will make the camera look at a position in world space. If the camera
 // has a parent lineage, this will account for the parent transformations.
 void Camera::WorldLookAt(
-  const Vec3& worldPosition, const Vec3& worldUp, const World::Object& owner)
-{
+  const Vec3& worldPosition, const Vec3& worldUp, const World::Object& owner) {
   World::Object parent = owner.Parent();
   if (!parent.Valid()) {
     LocalLookAt(worldPosition, worldUp, owner);
@@ -111,8 +105,7 @@ void Camera::WorldLookAt(
   LocalLookAt(localPosition, localUp, owner);
 }
 
-Mat4 Camera::Proj() const
-{
+Mat4 Camera::Proj() const {
   Mat4 projection;
   switch (mProjectionType) {
   case ProjectionType::Perspective:
@@ -125,8 +118,7 @@ Mat4 Camera::Proj() const
   return projection;
 }
 
-Mat4 Camera::View(const World::Object& owner) const
-{
+Mat4 Camera::View(const World::Object& owner) const {
   auto& transformComp = owner.Get<Transform>();
   Quat worldRotation = transformComp.GetWorldRotation(owner);
   Vec3 worldTranslation = transformComp.GetWorldTranslation(owner);
@@ -136,8 +128,7 @@ Mat4 Camera::View(const World::Object& owner) const
   return rotate * translate;
 }
 
-Mat4 Camera::InverseView(const World::Object& owner) const
-{
+Mat4 Camera::InverseView(const World::Object& owner) const {
   auto& transformComp = owner.Get<Transform>();
   Quat worldRotation = transformComp.GetWorldRotation(owner);
   Vec3 worldTranslation = transformComp.GetWorldTranslation(owner);
@@ -147,36 +138,30 @@ Mat4 Camera::InverseView(const World::Object& owner) const
   return translate * rotate;
 }
 
-Vec3 Camera::WorldTranslation(const World::Object& owner) const
-{
+Vec3 Camera::WorldTranslation(const World::Object& owner) const {
   auto& transformComp = owner.Get<Comp::Transform>();
   return transformComp.GetWorldTranslation(owner);
 }
 
-Quat Camera::WorldRotation(const World::Object& owner) const
-{
+Quat Camera::WorldRotation(const World::Object& owner) const {
   auto& transformComp = owner.Get<Comp::Transform>();
   return transformComp.GetWorldRotation(owner);
 }
 
-Vec3 Camera::WorldForward(const World::Object& owner) const
-{
+Vec3 Camera::WorldForward(const World::Object& owner) const {
   return WorldRotation(owner).Rotate({0.0f, 0.0f, -1.0f});
 }
 
-Vec3 Camera::WorldRight(const World::Object& owner) const
-{
+Vec3 Camera::WorldRight(const World::Object& owner) const {
   return WorldRotation(owner).Rotate({1.0f, 0.0f, 0.0f});
 }
 
-Vec3 Camera::WorldUp(const World::Object& owner) const
-{
+Vec3 Camera::WorldUp(const World::Object& owner) const {
   return WorldRotation(owner).Rotate({0.0f, 1.0f, 0.0f});
 }
 
 float Camera::ProjectedDistance(
-  const World::Object& owner, const Vec3& worldTranslation) const
-{
+  const World::Object& owner, const Vec3& worldTranslation) const {
   Math::Ray viewRay;
   Vec3 viewPos = WorldTranslation(owner);
   viewRay.StartDirection(viewPos, WorldForward(owner));
@@ -190,8 +175,7 @@ float Camera::ProjectedDistance(
 
 // Retruns a point's ndc.
 Vec2 Camera::WorldTranslationToNdcPosition(
-  Vec3 worldTranslation, const World::Object& owner) const
-{
+  Vec3 worldTranslation, const World::Object& owner) const {
   Vec4 projectedPoint = (Vec4)worldTranslation;
   projectedPoint[3] = 1;
   projectedPoint = Proj() * View(owner) * projectedPoint;
@@ -204,8 +188,7 @@ Vec2 Camera::WorldTranslationToNdcPosition(
 // represents the leftmost and bottommost edges of the window. The value
 // returned will be on the view frustrum's near plane.
 Vec3 Camera::NdcPositionToWorldTranslation(
-  Vec2 ndcPosition, const World::Object& owner) const
-{
+  Vec2 ndcPosition, const World::Object& owner) const {
   float heightOver2;
   switch (mProjectionType) {
   case ProjectionType::Perspective:
@@ -224,8 +207,7 @@ Vec3 Camera::NdcPositionToWorldTranslation(
 // are only able to see it as a single point. This function will return a
 // ray that represents exactly that.
 Math::Ray Camera::NdcPositionToWorldRay(
-  const Vec2& ndcPosition, const World::Object& owner) const
-{
+  const Vec2& ndcPosition, const World::Object& owner) const {
   Math::Ray ray;
   Vec3 cameraTranslation = WorldTranslation(owner);
   Vec3 worldTranslation = NdcPositionToWorldTranslation(ndcPosition, owner);
@@ -240,8 +222,7 @@ Math::Ray Camera::NdcPositionToWorldRay(
   return ray;
 }
 
-void Camera::VEdit(const World::Object& owner)
-{
+void Camera::VEdit(const World::Object& owner) {
   const int projectionNameCount =
     sizeof(Comp::Camera::smProjectionTypeNames) / sizeof(const char*);
   int intProj = (int)mProjectionType;

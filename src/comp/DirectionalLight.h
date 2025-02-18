@@ -9,8 +9,7 @@
 namespace Comp {
 
 #pragma pack(push, 1)
-struct DirectionalLight
-{
+struct DirectionalLight {
   Gfx::HdrColor mAmbient;
   Gfx::HdrColor mDiffuse;
   Gfx::HdrColor mSpecular;

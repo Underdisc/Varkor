@@ -6,8 +6,7 @@
 
 namespace Input {
 
-enum class Mouse
-{
+enum class Mouse {
   Left = GLFW_MOUSE_BUTTON_1,
   Right = GLFW_MOUSE_BUTTON_2,
   Middle = GLFW_MOUSE_BUTTON_3,
@@ -18,8 +17,7 @@ enum class Mouse
   Eight = GLFW_MOUSE_BUTTON_8,
 };
 
-enum class Key
-{
+enum class Key {
   Unknown = GLFW_KEY_UNKNOWN,
   Space = GLFW_KEY_SPACE,
   Apostrophe = GLFW_KEY_APOSTROPHE,
@@ -143,8 +141,7 @@ enum class Key
   Menu = GLFW_KEY_MENU,
 };
 
-enum class Action
-{
+enum class Action {
   MoveForward,
   MoveBackward,
   MoveLeft,

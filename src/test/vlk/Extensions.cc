@@ -5,8 +5,7 @@
 #include "test/vlk/Util.h"
 #include "vlk/Valkor.h"
 
-void VectorSerialize()
-{
+void VectorSerialize() {
   Vlk::Value root;
   Vec2 vec2 = {0.0f, 1.0f};
   Vec3 vec3 = {0.0f, 1.0f, 2.0f};
@@ -17,8 +16,7 @@ void VectorSerialize()
   PrintParsePrint(root);
 }
 
-void VectorDeserialize()
-{
+void VectorDeserialize() {
   Vlk::Value rootVal;
   rootVal.Read("Vector.vlk");
   Vlk::Explorer rootEx(rootVal);
@@ -39,8 +37,7 @@ void VectorDeserialize()
   std::cout << vec4Ex("4").As<Vec4>({16.0f, 17.0f, 18.0f, 19.0f}) << '\n';
 }
 
-int main()
-{
+int main() {
   RunTest(VectorSerialize);
   RunTest(VectorDeserialize);
 }

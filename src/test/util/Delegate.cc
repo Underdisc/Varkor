@@ -3,24 +3,20 @@
 #include "test/Test.h"
 #include "util/Delegate.h"
 
-void Basic()
-{
+void Basic() {
   std::cout << "Basic\n";
 }
 
-void Args(int i, float f)
-{
+void Args(int i, float f) {
   std::cout << "Args " << i << " " << f << '\n';
 }
 
-int ReturnAndArgs(int i, float f)
-{
+int ReturnAndArgs(int i, float f) {
   std::cout << "ReturnAndArgs " << i << " " << f;
   return i + 2;
 }
 
-void FreeFunction()
-{
+void FreeFunction() {
   Util::Delegate<void> basic;
   basic.Bind<Basic>();
   basic.Invoke();
@@ -37,24 +33,19 @@ void FreeFunction()
             << '\n';
 }
 
-void MemberFunction()
-{
-  struct Object
-  {
+void MemberFunction() {
+  struct Object {
     int mValue;
     Object(): mValue(0) {}
-    void Basic()
-    {
+    void Basic() {
       ++mValue;
       std::cout << mValue << " Basic\n";
     }
-    void Args(int i, float f)
-    {
+    void Args(int i, float f) {
       ++mValue;
       std::cout << mValue << " Args " << i << " " << f << '\n';
     }
-    int ReturnAndArgs(int i, float f)
-    {
+    int ReturnAndArgs(int i, float f) {
       ++mValue;
       std::cout << mValue << " ReturnAndArgs " << i << " " << f;
       return i + 2;
@@ -77,15 +68,13 @@ void MemberFunction()
             << '\n';
 }
 
-void NullFunction()
-{
+void NullFunction() {
   Util::Delegate<void> test;
   test.BindNull();
   std::cout << "Open: " << test.Open() << '\n';
 }
 
-int main(void)
-{
+int main(void) {
   RunTest(FreeFunction);
   RunTest(MemberFunction);
   RunTest(NullFunction);

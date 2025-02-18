@@ -12,8 +12,7 @@ namespace Test {
   function();             \
   std::cout << std::endl
 
-struct BaseTest
-{
+struct BaseTest {
   BaseTest(const std::string& name): mName(name) {}
   std::string mName;
 };

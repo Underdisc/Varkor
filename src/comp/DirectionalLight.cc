@@ -6,29 +6,25 @@
 
 namespace Comp {
 
-void DirectionalLight::VInit(const World::Object& owner)
-{
+void DirectionalLight::VInit(const World::Object& owner) {
   mAmbient = smDefaultAmbient;
   mDiffuse = smDefaultDiffuse;
   mSpecular = smDefaultSpecular;
 }
 
-void DirectionalLight::VSerialize(Vlk::Value& val)
-{
+void DirectionalLight::VSerialize(Vlk::Value& val) {
   val("Ambient") = mAmbient;
   val("Diffuse") = mDiffuse;
   val("Specular") = mSpecular;
 }
 
-void DirectionalLight::VDeserialize(const Vlk::Explorer& ex)
-{
+void DirectionalLight::VDeserialize(const Vlk::Explorer& ex) {
   mAmbient = ex("Ambient").As<Gfx::HdrColor>(smDefaultAmbient);
   mDiffuse = ex("Diffuse").As<Gfx::HdrColor>(smDefaultDiffuse);
   mSpecular = ex("Specular").As<Gfx::HdrColor>(smDefaultSpecular);
 }
 
-void DirectionalLight::VRenderable(const World::Object& owner)
-{
+void DirectionalLight::VRenderable(const World::Object& owner) {
   Gfx::Renderable::Icon icon;
   icon.mOwner = owner.mMemberId;
   auto& transform = owner.Get<Transform>();
@@ -39,8 +35,7 @@ void DirectionalLight::VRenderable(const World::Object& owner)
   Gfx::Collection::Add(std::move(icon));
 }
 
-void DirectionalLight::VEdit(const World::Object& owner)
-{
+void DirectionalLight::VEdit(const World::Object& owner) {
   float labelWidth = 65;
   Editor::HdrColorEdit("Ambient", &mAmbient, -labelWidth);
   Editor::HdrColorEdit("Diffuse", &mDiffuse, -labelWidth);

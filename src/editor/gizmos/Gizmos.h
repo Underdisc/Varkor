@@ -22,14 +22,8 @@ extern Ds::Vector<void (*)()> nUpdates;
 extern Ds::Vector<void (*)()> nClears;
 
 // Options for switching between gizmo types, reference frames, etc.
-enum class Mode
-{
-  Translate,
-  Scale,
-  Rotate
-};
-enum class ReferenceFrame
-{
+enum class Mode { Translate, Scale, Rotate };
+enum class ReferenceFrame {
   World,
   Parent,
   Relative,
@@ -54,14 +48,12 @@ void SetParentTransformation(
 } // namespace Gizmos
 
 template<typename T>
-struct Gizmo
-{
+struct Gizmo {
   static Ds::Vector<T> smInstances;
   static int smNext;
   static bool smRegistered;
 
-  static T& Next()
-  {
+  static T& Next() {
     if (!smRegistered) {
       Gizmos::nUpdates.Push(Update);
       Gizmos::nClears.Push(Clear);
@@ -77,8 +69,7 @@ struct Gizmo
     return smInstances[smNext++];
   }
 
-  static void Update()
-  {
+  static void Update() {
     if (smNext == 0) {
       Clear();
       return;
@@ -87,8 +78,7 @@ struct Gizmo
     smNext = 0;
   }
 
-  static void Clear()
-  {
+  static void Clear() {
     if (smInstances.Size() != 0) {
       T::Purge();
     }

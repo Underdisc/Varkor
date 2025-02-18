@@ -4,8 +4,7 @@
 
 namespace Editor {
 
-void TempInterface::Show()
-{
+void TempInterface::Show() {
   ImGui::Begin("Temp", &mOpen);
   ImGui::End();
 }

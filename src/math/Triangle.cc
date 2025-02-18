@@ -2,8 +2,7 @@
 
 namespace Math {
 
-Vec3 Triangle::BarycentricCoords(const Vec3& p) const
-{
+Vec3 Triangle::BarycentricCoords(const Vec3& p) const {
   const Vec3& a = mPoints[0];
   const Vec3& b = mPoints[1];
   const Vec3& c = mPoints[2];
@@ -24,14 +23,12 @@ Vec3 Triangle::BarycentricCoords(const Vec3& p) const
   return barycentricCoords;
 }
 
-Vec3 Triangle::BarycentricCoordsToPoint(const Vec3& barycentricCoords) const
-{
+Vec3 Triangle::BarycentricCoordsToPoint(const Vec3& barycentricCoords) const {
   return mPoints[0] * barycentricCoords[0] + mPoints[1] * barycentricCoords[1] +
     mPoints[2] * barycentricCoords[2];
 }
 
-Vec3 Triangle::ClosestPointTo(const Vec3& point) const
-{
+Vec3 Triangle::ClosestPointTo(const Vec3& point) const {
   // Find the projection, r, of the point onto the plane formed by the triangle.
   const Vec3& a = mPoints[0];
   const Vec3& b = mPoints[1];

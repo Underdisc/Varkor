@@ -4,8 +4,7 @@
 #include "math/Vector.h"
 #include "test/Test.h"
 
-void Cast()
-{
+void Cast() {
   Math::Vector<float, 4> vec;
   vec[0] = 0;
   vec[1] = 1;
@@ -19,8 +18,7 @@ void Cast()
   std::cout << "largerVec " << largerVec << '\n';
 }
 
-void Addition()
-{
+void Addition() {
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = a;
   Vec3 c = a + b;
@@ -32,8 +30,7 @@ void Addition()
   std::cout << "d: " << d << '\n';
 }
 
-void Subtraction()
-{
+void Subtraction() {
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = a;
   Vec3 c = a - b;
@@ -45,8 +42,7 @@ void Subtraction()
   std::cout << "d: " << d << '\n';
 }
 
-void ScalerMultiplication()
-{
+void ScalerMultiplication() {
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = a * 2.0f;
   Vec3 c = 3.0f * a;
@@ -58,8 +54,7 @@ void ScalerMultiplication()
   std::cout << "d: " << d << '\n';
 }
 
-void ScalerDivision()
-{
+void ScalerDivision() {
   Vec3 a = {2.0f, 4.0f, 6.0f};
   Vec3 b = a / 2.0f;
   Vec3 c = a;
@@ -71,48 +66,42 @@ void ScalerDivision()
   std::cout << "d: " << d << '\n';
 }
 
-void Negation()
-{
+void Negation() {
   Vec3 a = {2.0f, -4.0f, 6.0f};
   Vec3 b = -a;
   std::cout << "a: " << a << '\n';
   std::cout << "b: " << b << '\n';
 }
 
-void Equality()
-{
+void Equality() {
   Vec3 a = {1.0f, 0.0f, 0.0f};
   Vec3 b = {2.0f, 0.0f, 1.0f};
   Vec3 c = {2.0f, 0.0f, 1.0f};
   std::cout << (a == a) << (a == b) << (b == c) << '\n';
 }
 
-void Near()
-{
+void Near() {
   Vec3 a = {1.0f, 0.0f, 0.0f};
   Vec3 b = {0.0f, 1.0f, 0.0f};
   Vec3 c = {Math::nEpsilon * Math::nEpsilon, 1.0f, 0.0f};
   std::cout << Math::Near(a, b) << Math::Near(a, c) << Math::Near(b, c) << '\n';
 }
 
-void MagnitudeSquared()
-{
+void MagnitudeSquared() {
   Vec3 a = {1.0f, -2.0f, 3.0f};
   float magSq = Math::MagnitudeSq(a);
   std::cout << "a: " << a << '\n';
   std::cout << "magnitude squared: " << magSq << '\n';
 }
 
-void Magnitude()
-{
+void Magnitude() {
   Vec3 a = {1.0f, 2.0f, 3.0f};
   float mag = Math::Magnitude(a);
   std::cout << "a: " << a << '\n';
   std::cout << "magnitude: " << mag << '\n';
 }
 
-void Normalize()
-{
+void Normalize() {
   Vec3 a = {1.0f, 2.0f, 3.0f};
   std::cout << "original: " << a << '\n';
   a = Math::Normalize(a);
@@ -123,8 +112,7 @@ void Normalize()
   // Math::Normalize(a);
 }
 
-void Cross()
-{
+void Cross() {
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = {4.0f, 5.0f, 6.0f};
   Vec3 cross = Math::Cross(a, b);
@@ -133,8 +121,7 @@ void Cross()
   std::cout << "cross: " << cross << '\n';
 }
 
-void Dot()
-{
+void Dot() {
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = {4.0f, 5.0f, 6.0f};
   float dot = Math::Dot(a, b);
@@ -143,8 +130,7 @@ void Dot()
   std::cout << "dot: " << dot << '\n';
 }
 
-void ComponentwiseProduct()
-{
+void ComponentwiseProduct() {
   Vec3 a = {1.0f, 2.0f, 3.0f};
   Vec3 b = {3.0f, 2.0f, 1.0f};
   std::cout << Math::ComponentwiseProduct(a, a) << '\n';
@@ -152,8 +138,7 @@ void ComponentwiseProduct()
   std::cout << Math::ComponentwiseProduct(a, b) << '\n';
 }
 
-void PerpendicularTo()
-{
+void PerpendicularTo() {
   Vec3 a = {0.0f, 0.5f, 0.0f};
   Vec3 b = {1.0f, 1.0f, -1.0f};
   Vec3 c = {1.0f, 0.0f, -2.0f};
@@ -162,8 +147,7 @@ void PerpendicularTo()
   std::cout << Math::PerpendicularTo(c) << '\n';
 }
 
-void ScaleToInterval()
-{
+void ScaleToInterval() {
   std::cout << Math::ScaleToInterval(Vec3({1.0f, 0.0f, 0.0f}), 0.5f) << '\n'
             << Math::ScaleToInterval(Vec3({0.2f, 0.0f, 0.0f}), 0.5f) << '\n'
             << Math::ScaleToInterval(Vec3({0.0f, 0.6f, 0.6f}), 1.0f) << '\n'
@@ -171,8 +155,7 @@ void ScaleToInterval()
             << Math::ScaleToInterval(Vec3({-1.0f, -1.0f, -1.0f}), 0.5f) << '\n';
 }
 
-void ScaleComponentsToInterval()
-{
+void ScaleComponentsToInterval() {
   // clang-format off
   std::cout
     << Math::ScaleComponentsToInterval(Vec3({1.0f, 0.5f, 6.6f}), 0.5f) << '\n'
@@ -184,8 +167,7 @@ void ScaleComponentsToInterval()
   // clang-format on
 }
 
-int main(void)
-{
+int main(void) {
   RunTest(Cast);
   RunTest(Addition);
   RunTest(Subtraction);

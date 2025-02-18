@@ -7,8 +7,7 @@
 
 namespace Input {
 
-struct KeyStringMap
-{
+struct KeyStringMap {
   Key mKey;
   const char* mString;
 };
@@ -155,16 +154,14 @@ const char* nActionStrings[] = {
   "DuplicateEntity",
 };
 
-struct Keybind
-{
+struct Keybind {
   bool mControl;
   bool mAlt;
   Key mKey;
   bool ModifierTest() const;
 };
 
-bool Keybind::ModifierTest() const
-{
+bool Keybind::ModifierTest() const {
   bool controlDown = KeyDown(Key::LeftControl) || KeyDown(Key::RightControl);
   if (mControl && !controlDown || (!mControl && controlDown)) {
     return false;
@@ -202,8 +199,7 @@ const char* nKeybindsFile = "vKeybinds.vlk";
 Keybind nActionKeybinds[(int)Action::Count];
 Ds::Vector<Action> nActionsPressed;
 
-void Init()
-{
+void Init() {
   nMouseFocus = true;
   nKeyboardFocus = true;
 
@@ -218,8 +214,7 @@ void Init()
   InitKeybinds();
 }
 
-void Update()
-{
+void Update() {
   ZoneScoped;
 
   nMouseMotion[0] = 0.0f;
@@ -245,76 +240,63 @@ void Update()
   }
 }
 
-const Vec2& MousePosition()
-{
+const Vec2& MousePosition() {
   return nMousePosition;
 }
 
 // This will give the mouse position in the window. Both values in the returned
 // vector are in the range of [-1, 1], where -1 represents the leftmost and
 // bottommost edges of the window.
-Vec2 NdcMousePosition()
-{
+Vec2 NdcMousePosition() {
   Vec2 ndcPosition = nMousePosition;
   ndcPosition[0] = 2.0f * (ndcPosition[0] / Viewport::Width() - 0.5f);
   ndcPosition[1] = -2.0f * (ndcPosition[1] / Viewport::Height() - 0.5f);
   return ndcPosition;
 }
 
-const Vec2& MouseMotion()
-{
+const Vec2& MouseMotion() {
   return nMouseMotion;
 }
 
-const Vec2& MouseScroll()
-{
+const Vec2& MouseScroll() {
   return nMouseScroll;
 }
 
-void SetMouseFocus(bool hasFocus)
-{
+void SetMouseFocus(bool hasFocus) {
   nMouseFocus = hasFocus;
 }
 
-void SetKeyboardFocus(bool hasFocus)
-{
+void SetKeyboardFocus(bool hasFocus) {
   nKeyboardFocus = hasFocus;
 }
 
-bool MousePressed(Mouse mouseButton)
-{
+bool MousePressed(Mouse mouseButton) {
   return nMouseFocus && nMousePressed.Contains((int)mouseButton);
 }
 
-bool MouseReleased(Mouse mouseButton)
-{
+bool MouseReleased(Mouse mouseButton) {
   return nMouseFocus && nMouseReleased.Contains((int)mouseButton);
 }
 
-bool MouseDown(Mouse mouseButton)
-{
+bool MouseDown(Mouse mouseButton) {
   return nMouseFocus &&
     GLFW_PRESS == glfwGetMouseButton(Viewport::Window(), (int)mouseButton);
 }
 
-bool KeyPressed(Key key)
-{
+bool KeyPressed(Key key) {
   return nKeyboardFocus && nKeyPressed.Contains((int)key);
 }
 
-bool KeyReleased(Key key)
-{
+bool KeyReleased(Key key) {
   return nKeyboardFocus && nKeyReleased.Contains((int)key);
 }
 
-bool KeyDown(Key key)
-{
+bool KeyDown(Key key) {
   return nKeyboardFocus &&
     GLFW_PRESS == glfwGetKey(Viewport::Window(), (int)key);
 }
 
-void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-{
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
   if (window != Viewport::Window()) {
     return;
   }
@@ -332,8 +314,7 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 }
 
 void KeyCallback(
-  GLFWwindow* window, int key, int scancode, int action, int mods)
-{
+  GLFWwindow* window, int key, int scancode, int action, int mods) {
   if (window != Viewport::Window()) {
     return;
   }
@@ -350,8 +331,7 @@ void KeyCallback(
   }
 }
 
-void CursorPosCallback(GLFWwindow* window, double xPos, double yPos)
-{
+void CursorPosCallback(GLFWwindow* window, double xPos, double yPos) {
   Vec2 newPos;
   newPos[0] = (float)xPos;
   newPos[1] = (float)yPos;
@@ -363,8 +343,7 @@ void CursorPosCallback(GLFWwindow* window, double xPos, double yPos)
   }
 }
 
-void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
-{
+void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
   if (nMouseFocus) {
     nMouseScroll[0] = (float)xOffset;
     nMouseScroll[1] = (float)yOffset;
@@ -377,10 +356,8 @@ void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
   }
 }
 
-void InitKeybinds()
-{
-  struct DefaultKeybind
-  {
+void InitKeybinds() {
+  struct DefaultKeybind {
     Action mAction;
     Keybind mKeybind;
   };
@@ -454,8 +431,7 @@ void InitKeybinds()
   }
 }
 
-void SaveKeybinds()
-{
+void SaveKeybinds() {
   Vlk::Value rootVal;
   for (int i = 0; i < (int)Action::Count; ++i) {
     Vlk::Value& actionVal = rootVal(nActionStrings[i]);
@@ -474,8 +450,7 @@ void SaveKeybinds()
   rootVal.Write(nKeybindsFile);
 }
 
-bool ActionActive(Action action)
-{
+bool ActionActive(Action action) {
   const Keybind& keybind = nActionKeybinds[(int)action];
   if (!keybind.ModifierTest()) {
     return false;
@@ -486,8 +461,7 @@ bool ActionActive(Action action)
   return true;
 }
 
-bool ActionPressed(Action action)
-{
+bool ActionPressed(Action action) {
   if (nActionsPressed.Contains(action)) {
     return true;
   }

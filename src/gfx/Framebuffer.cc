@@ -8,25 +8,21 @@ namespace Gfx {
 Framebuffer::Framebuffer(): mFbo(0), mColorTbo(0), mDepthTbo(0) {}
 
 Framebuffer::Framebuffer(const Options& options):
-  mFbo(0), mColorTbo(0), mDepthTbo(0)
-{
+  mFbo(0), mColorTbo(0), mDepthTbo(0) {
   Init(options);
 }
 
-Framebuffer::~Framebuffer()
-{
+Framebuffer::~Framebuffer() {
   Purge();
 }
 
-void Framebuffer::Resize(int width, int height)
-{
+void Framebuffer::Resize(int width, int height) {
   mOptions.mWidth = width;
   mOptions.mHeight = height;
   Init(mOptions);
 }
 
-void Framebuffer::Init(const Options& options)
-{
+void Framebuffer::Init(const Options& options) {
   Purge();
 
   mOptions = options;
@@ -100,8 +96,7 @@ void Framebuffer::Init(const Options& options)
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Framebuffer::Purge()
-{
+void Framebuffer::Purge() {
   glDeleteFramebuffers(1, &mFbo);
   glDeleteTextures(1, &mColorTbo);
   glDeleteTextures(1, &mDepthTbo);
@@ -111,23 +106,19 @@ void Framebuffer::Purge()
   mDepthTbo = 0;
 }
 
-GLuint Framebuffer::Fbo() const
-{
+GLuint Framebuffer::Fbo() const {
   return mFbo;
 }
 
-GLuint Framebuffer::ColorTbo() const
-{
+GLuint Framebuffer::ColorTbo() const {
   return mColorTbo;
 }
 
-GLenum Framebuffer::Format() const
-{
+GLenum Framebuffer::Format() const {
   return mOptions.mFormat;
 }
 
-GLenum Framebuffer::PixelType() const
-{
+GLenum Framebuffer::PixelType() const {
   return mOptions.mPixelType;
 }
 

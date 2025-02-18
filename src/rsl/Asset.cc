@@ -23,16 +23,13 @@ Asset::Asset(const std::string& name):
   mStatus(Status::Dormant),
   mResBin(nullptr),
   mResBinSize(0),
-  mResBinCapacity(0)
-{}
+  mResBinCapacity(0) {}
 
-Asset::Asset(Asset&& other)
-{
+Asset::Asset(Asset&& other) {
   *this = std::move(other);
 }
 
-Asset& Asset::operator=(Asset&& rhs)
-{
+Asset& Asset::operator=(Asset&& rhs) {
   Purge();
   mName = std::move(rhs.mName);
   mStatus = rhs.mStatus;
@@ -47,39 +44,32 @@ Asset& Asset::operator=(Asset&& rhs)
   return *this;
 }
 
-Asset::~Asset()
-{
+Asset::~Asset() {
   Purge();
 }
 
-const std::string& Asset::GetName() const
-{
+const std::string& Asset::GetName() const {
   return mName;
 }
 
-std::string Asset::GetFile() const
-{
+std::string Asset::GetFile() const {
   return mName + nAssetExtension;
 }
 
-bool Asset::HasFile() const
-{
+bool Asset::HasFile() const {
   std::string file = GetFile();
   return std::filesystem::exists(file);
 }
 
-Asset::Status Asset::GetStatus() const
-{
+Asset::Status Asset::GetStatus() const {
   return mStatus;
 }
 
-const Ds::Vector<Asset::ResDesc>& Asset::GetResDescs() const
-{
+const Ds::Vector<Asset::ResDesc>& Asset::GetResDescs() const {
   return mResDescs;
 }
 
-void Asset::QueueInit()
-{
+void Asset::QueueInit() {
   if (mStatus != Status::Dormant && mStatus != Status::Failed) {
     std::string error = "Asset \"" + mName + "\" already ";
     switch (mStatus) {
@@ -94,8 +84,7 @@ void Asset::QueueInit()
   AddToInitQueue(*this);
 }
 
-void Asset::Init()
-{
+void Asset::Init() {
   Result result = TryInit();
   if (!result.Success()) {
     std::stringstream error;
@@ -105,8 +94,7 @@ void Asset::Init()
   }
 }
 
-Result Asset::TryInit()
-{
+Result Asset::TryInit() {
   ZoneScoped;
   ZoneText(mName.c_str(), (size_t)mName.size());
 
@@ -139,11 +127,10 @@ Result Asset::TryInit()
   return initResResult;
 }
 
-void Asset::Finalize()
-{
+void Asset::Finalize() {
   ZoneScoped;
 
-  for (ResDesc& resDesc : mResDescs) {
+  for (ResDesc& resDesc: mResDescs) {
     if (resDesc.mResTypeId == ResTypeId::Mesh) {
       Gfx::Mesh& mesh = *(Gfx::Mesh*)GetResDescData(resDesc);
       mesh.Finalize();
@@ -152,15 +139,13 @@ void Asset::Finalize()
   mStatus = Status::Live;
 }
 
-void Asset::InitFinalize()
-{
+void Asset::InitFinalize() {
   Init();
   Finalize();
 }
 
 Vlk::Value* Asset::TryGetResVal(
-  Vlk::Value& assetVal, const std::string& resName)
-{
+  Vlk::Value& assetVal, const std::string& resName) {
   for (int i = 0; i < assetVal.Size(); ++i) {
     Vlk::Value& resVal = assetVal[i];
     const Vlk::Value* nameVal = resVal.TryGetConstPair("Name");
@@ -178,8 +163,7 @@ Vlk::Value* Asset::TryGetResVal(
 }
 
 VResult<Ds::Vector<Asset::DefResInfo>> Asset::GetAllDefResInfo(
-  const Vlk::Explorer& assetEx)
-{
+  const Vlk::Explorer& assetEx) {
   if (!assetEx.Valid(Vlk::Value::Type::ValueArray)) {
     return Result("Root Value is not a ValueArray.");
   }
@@ -208,19 +192,16 @@ VResult<Ds::Vector<Asset::DefResInfo>> Asset::GetAllDefResInfo(
   return allDefResInfo;
 }
 
-Asset& Asset::GetInitAsset()
-{
+Asset& Asset::GetInitAsset() {
   LogAbortIf(smInitAsset == nullptr, "An asset is not being initialized.");
   return *smInitAsset;
 }
 
-const std::string& Asset::GetInitResName()
-{
+const std::string& Asset::GetInitResName() {
   return smInitResName;
 }
 
-Result Asset::TryInitRes(const Vlk::Explorer& resEx)
-{
+Result Asset::TryInitRes(const Vlk::Explorer& resEx) {
   ZoneScoped;
 
   // Get the resource's name.
@@ -286,8 +267,7 @@ Result Asset::TryInitRes(const Vlk::Explorer& resEx)
   return result;
 }
 
-void Asset::Purge()
-{
+void Asset::Purge() {
   DestructResources();
   if (mResBin != nullptr) {
     delete[] mResBin;
@@ -298,16 +278,14 @@ void Asset::Purge()
   mResDescs.Clear();
 }
 
-void* Asset::GetResDescData(const ResDesc& resDesc)
-{
+void* Asset::GetResDescData(const ResDesc& resDesc) {
   return (void*)&mResBin[resDesc.mByteIndex];
 }
 
 VResult<Asset::ResDesc> Asset::AllocateRes(
-  ResTypeId resTypeId, const std::string& name)
-{
+  ResTypeId resTypeId, const std::string& name) {
   // Make sure the supplied resource name is not already in use.
-  for (const ResDesc& resDesc : mResDescs) {
+  for (const ResDesc& resDesc: mResDescs) {
     if (resTypeId == resDesc.mResTypeId && name == resDesc.mName) {
       const ResTypeData& resTypeData = GetResTypeData(resTypeId);
       std::string typeName = resTypeData.mName;
@@ -337,8 +315,7 @@ VResult<Asset::ResDesc> Asset::AllocateRes(
   return mResDescs.Top();
 }
 
-void Asset::GrowResBin(size_t newCapacity)
-{
+void Asset::GrowResBin(size_t newCapacity) {
   char* newResBin = alloc char[newCapacity];
   if (mResBin != nullptr) {
     MoveResources(mResBin, newResBin);
@@ -349,9 +326,8 @@ void Asset::GrowResBin(size_t newCapacity)
   mResBinCapacity = newCapacity;
 }
 
-void Asset::MoveResources(char* fromBin, char* toBin)
-{
-  for (const ResDesc& resDesc : mResDescs) {
+void Asset::MoveResources(char* fromBin, char* toBin) {
+  for (const ResDesc& resDesc: mResDescs) {
     void* fromRes = (void*)&fromBin[resDesc.mByteIndex];
     void* toRes = (void*)&toBin[resDesc.mByteIndex];
     const ResTypeData& resTypeData = GetResTypeData(resDesc.mResTypeId);
@@ -359,42 +335,35 @@ void Asset::MoveResources(char* fromBin, char* toBin)
   }
 }
 
-void Asset::DestructResources()
-{
-  for (const ResDesc& resDesc : mResDescs) {
+void Asset::DestructResources() {
+  for (const ResDesc& resDesc: mResDescs) {
     void* atRes = (void*)&mResBin[resDesc.mByteIndex];
     const ResTypeData& resTypeData = GetResTypeData(resDesc.mResTypeId);
     resTypeData.mDestruct(atRes);
   }
 }
 
-bool operator>(const Asset& lhs, const Asset& rhs)
-{
+bool operator>(const Asset& lhs, const Asset& rhs) {
   return lhs.GetName() > rhs.GetName();
 }
 
-bool operator<(const Asset& lhs, const Asset& rhs)
-{
+bool operator<(const Asset& lhs, const Asset& rhs) {
   return lhs.GetName() < rhs.GetName();
 }
 
-bool operator>(const std::string& lhs, const Asset& rhs)
-{
+bool operator>(const std::string& lhs, const Asset& rhs) {
   return lhs > rhs.GetName();
 }
 
-bool operator>(const Asset& lhs, const std::string& rhs)
-{
+bool operator>(const Asset& lhs, const std::string& rhs) {
   return lhs.GetName() > rhs;
 }
 
-bool operator<(const std::string& lhs, const Asset& rhs)
-{
+bool operator<(const std::string& lhs, const Asset& rhs) {
   return lhs < rhs.GetName();
 }
 
-bool operator<(const Asset& lhs, const std::string& rhs)
-{
+bool operator<(const Asset& lhs, const std::string& rhs) {
   return lhs.GetName() < rhs;
 }
 

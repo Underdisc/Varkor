@@ -5,12 +5,9 @@
 
 namespace Math {
 
-struct Quaternion
-{
-  union
-  {
-    struct
-    {
+struct Quaternion {
+  union {
+    struct {
       float mA, mB, mC, mD;
     };
     Vec4 mVec;

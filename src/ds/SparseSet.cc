@@ -9,26 +9,21 @@ const size_t SparseSet::smStartCapacity = 10;
 const float SparseSet::smGrowthFactor = 2.0f;
 
 SparseSet::SparseSet():
-  mDense(nullptr), mSparse(nullptr), mCapacity(0), mDenseUsage(0)
-{}
+  mDense(nullptr), mSparse(nullptr), mCapacity(0), mDenseUsage(0) {}
 
-SparseSet::~SparseSet()
-{
+SparseSet::~SparseSet() {
   Clear();
 }
 
-SparseSet::SparseSet(const SparseSet& other)
-{
+SparseSet::SparseSet(const SparseSet& other) {
   *this = other;
 }
 
-SparseSet::SparseSet(SparseSet&& other)
-{
+SparseSet::SparseSet(SparseSet&& other) {
   *this = std::move(other);
 }
 
-SparseSet& SparseSet::operator=(const SparseSet& other)
-{
+SparseSet& SparseSet::operator=(const SparseSet& other) {
   size_t allocSize = other.mCapacity * (sizeof(SparseId) + sizeof(size_t));
   char* newData = alloc char[allocSize];
   mDense = (SparseId*)newData;
@@ -39,8 +34,7 @@ SparseSet& SparseSet::operator=(const SparseSet& other)
   return *this;
 }
 
-SparseSet& SparseSet::operator=(SparseSet&& other)
-{
+SparseSet& SparseSet::operator=(SparseSet&& other) {
   mDense = other.mDense;
   mSparse = other.mSparse;
   mCapacity = other.mCapacity;
@@ -53,16 +47,14 @@ SparseSet& SparseSet::operator=(SparseSet&& other)
   return *this;
 }
 
-SparseId SparseSet::Add()
-{
+SparseId SparseSet::Add() {
   if (mDenseUsage >= mCapacity) {
     Grow();
   }
   return mDense[mDenseUsage++];
 }
 
-void SparseSet::Request(SparseId id)
-{
+void SparseSet::Request(SparseId id) {
   // Ensure that the sparse set is large enough to include the requested id.
   if (id >= mCapacity) {
     Grow((size_t)((float)(id + 1) * smGrowthFactor));
@@ -75,8 +67,7 @@ void SparseSet::Request(SparseId id)
   ++mDenseUsage;
 }
 
-void SparseSet::Remove(SparseId id)
-{
+void SparseSet::Remove(SparseId id) {
   Verify(id);
   size_t temp = mSparse[id];
   Util::Swap(mSparse, (size_t)id, (size_t)mDense[mDenseUsage - 1]);
@@ -84,8 +75,7 @@ void SparseSet::Remove(SparseId id)
   --mDenseUsage;
 }
 
-void SparseSet::Clear()
-{
+void SparseSet::Clear() {
   if (mDense != nullptr) {
     delete (char*)mDense;
     mDense = nullptr;
@@ -95,38 +85,31 @@ void SparseSet::Clear()
   mDenseUsage = 0;
 }
 
-bool SparseSet::Valid(SparseId id) const
-{
+bool SparseSet::Valid(SparseId id) const {
   return id >= 0 && id < mCapacity && mSparse[id] < mDenseUsage;
 }
 
-void SparseSet::Verify(SparseId id) const
-{
+void SparseSet::Verify(SparseId id) const {
   LogAbortIf(!Valid(id), "The provided SparseId is invalid.");
 }
 
-const SparseId* SparseSet::Dense() const
-{
+const SparseId* SparseSet::Dense() const {
   return mDense;
 }
 
-const size_t* SparseSet::Sparse() const
-{
+const size_t* SparseSet::Sparse() const {
   return mSparse;
 }
 
-size_t SparseSet::Capacity() const
-{
+size_t SparseSet::Capacity() const {
   return mCapacity;
 }
 
-size_t SparseSet::DenseUsage() const
-{
+size_t SparseSet::DenseUsage() const {
   return mDenseUsage;
 }
 
-void SparseSet::Grow()
-{
+void SparseSet::Grow() {
   if (mCapacity == 0) {
     Grow(smStartCapacity);
   }
@@ -135,8 +118,7 @@ void SparseSet::Grow()
   }
 }
 
-void SparseSet::Grow(size_t newCapacity)
-{
+void SparseSet::Grow(size_t newCapacity) {
   // Create a new allocation.
   char* oldData = (char*)mDense;
   size_t allocSize = newCapacity * (sizeof(SparseId) + sizeof(size_t));

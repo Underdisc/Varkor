@@ -12,13 +12,11 @@ namespace Editor {
 struct Camera;
 extern Camera nCamera;
 
-struct CameraInterface: public Interface
-{
+struct CameraInterface: public Interface {
   void Show();
 };
 
-struct Camera
-{
+struct Camera {
 public:
   void Init();
   void Purge();

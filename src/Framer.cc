@@ -44,8 +44,7 @@ float nAverageFps;
 float nAverageUpdatePeriod = 1.0f;
 Clock::time_point nLastAverageUpdateTime;
 
-void Init()
-{
+void Init() {
 #if defined WIN32
   // This gives the Window's sleep function millisecond accuracy.
   timeBeginPeriod(1);
@@ -56,15 +55,13 @@ void Init()
   nLastAverageUpdateTime = Clock::now();
 }
 
-void Purge()
-{
+void Purge() {
 #if defined WIN32
   timeEndPeriod(1);
 #endif
 }
 
-void Start()
-{
+void Start() {
   nStartTime = Clock::now();
 }
 
@@ -74,8 +71,7 @@ void Start()
 // requires 8.333 ms frame times, but since sleep_for has millisecond precision
 // this will result in either 8 ms (125 fps) or 9 ms (111 fps) frames. This is
 // the behaviour under msvc 1927.
-void End()
-{
+void End() {
   Clock::time_point endTime = Clock::now();
   if (!VSyncEnabled() && !FramerateUncapped()) {
     Nanoseconds timePassed = endTime - nStartTime;
@@ -83,7 +79,7 @@ void End()
 
     // The highest precision sleep_for operates on are millisecond intervals, so
     // we convert our remaining time from nanoseconds to milliseconds.
-    constexpr int nanoInMilli = 1000000;
+    constexpr int nanoInMilli = 1'000'000;
     Milliseconds remainingTimeMilli(remainingTime.count() / nanoInMilli);
     if (remainingTimeMilli.count() > 0) {
       std::this_thread::sleep_for(remainingTimeMilli);
@@ -115,8 +111,7 @@ void End()
   }
 }
 
-void SetVSync(bool active)
-{
+void SetVSync(bool active) {
   if (active) {
     glfwSwapInterval(1);
     nFramerate = nVSyncValue;
@@ -130,8 +125,7 @@ void SetVSync(bool active)
     Nanoseconds(Nanoseconds::period::den / nDefaultFramerate);
 }
 
-void SetFramerate(int framerate)
-{
+void SetFramerate(int framerate) {
   LogAbortIf(VSyncEnabled(), "VSync must be disabled to set a framerate.");
   if (framerate == nUncappedValue) {
     nFramerate = nUncappedValue;
@@ -142,59 +136,50 @@ void SetFramerate(int framerate)
   nTargetFrameTimeNano = Nanoseconds(Nanoseconds::period::den / framerate);
 }
 
-void SetDefaultFramerate()
-{
+void SetDefaultFramerate() {
   SetFramerate(nDefaultFramerate);
 }
 
-void SetFrameAverageCount(int count)
-{
+void SetFrameAverageCount(int count) {
   nPreviousFrameUsages.Resize(count, 0.0f);
   nPreviousFrameUsages.Shrink();
   nPreviousFpsValues.Resize(count, 0.0f);
   nPreviousFpsValues.Shrink();
 }
 
-bool VSyncEnabled()
-{
+bool VSyncEnabled() {
   return nFramerate == nVSyncValue;
 }
 
-bool FramerateUncapped()
-{
+bool FramerateUncapped() {
   return nFramerate == nUncappedValue;
 }
 
-float FrameTime()
-{
+float FrameTime() {
   return nFrameTime;
 }
 
-float GetAverageFrameUsage()
-{
+float GetAverageFrameUsage() {
   return nAverageFrameUsage;
 }
 
-float GetAverageFps()
-{
+float GetAverageFps() {
   return nAverageFps;
 }
 
-int GetFramerate()
-{
+int GetFramerate() {
   return nFramerate;
 }
 
-void CalculateAverages()
-{
+void CalculateAverages() {
   nAverageFrameUsage = 0.0f;
-  for (float prevFrameUsage : nPreviousFrameUsages) {
+  for (float prevFrameUsage: nPreviousFrameUsages) {
     nAverageFrameUsage += prevFrameUsage;
   }
   nAverageFrameUsage /= nPreviousFrameUsages.Size();
 
   nAverageFps = 0.0f;
-  for (float prevFpsValue : nPreviousFpsValues) {
+  for (float prevFpsValue: nPreviousFpsValues) {
     nAverageFps += prevFpsValue;
   }
   nAverageFps /= nPreviousFpsValues.Size();

@@ -6,8 +6,7 @@
 
 namespace Test {
 
-std::ostream& operator<<(std::ostream& os, const Math::RayPlane& intersection)
-{
+std::ostream& operator<<(std::ostream& os, const Math::RayPlane& intersection) {
   os << intersection.mIntersecting;
   if (intersection.mIntersecting) {
     os << ": " << intersection.mIntersection;
@@ -15,8 +14,8 @@ std::ostream& operator<<(std::ostream& os, const Math::RayPlane& intersection)
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Math::RaySphere& intersection)
-{
+std::ostream& operator<<(
+  std::ostream& os, const Math::RaySphere& intersection) {
   os << '{';
   if (intersection.mCount > 0) {
     os << intersection.mPoints[0];
@@ -28,8 +27,7 @@ std::ostream& operator<<(std::ostream& os, const Math::RaySphere& intersection)
   return os;
 }
 
-void Intersection()
-{
+void Intersection() {
   Math::Ray rays[3];
   Math::Plane planes[3];
   rays[0].StartDirection({0.0, 0.0f, 1.0f}, {0.0f, 0.0f, -1.0f});
@@ -46,8 +44,7 @@ void Intersection()
   std::cout << Math::Intersection(rays[2], planes[1]) << '\n';
 }
 
-void RaySphere()
-{
+void RaySphere() {
   Math::Ray rays[3];
   Math::Sphere spheres[2];
   rays[0].StartDirection({0, 0, 0}, {1, 0, 0});
@@ -61,8 +58,7 @@ void RaySphere()
   std::cout << Math::Intersection(rays[2], spheres[1]) << '\n';
 }
 
-Ds::Vector<SphereSphereIntersectionTest> GetSphereSphereIntersectionTests()
-{
+Ds::Vector<SphereSphereIntersectionTest> GetSphereSphereIntersectionTests() {
   Ds::Vector<SphereSphereIntersectionTest> tests;
   Math::Sphere a, b;
 
@@ -97,10 +93,9 @@ Ds::Vector<SphereSphereIntersectionTest> GetSphereSphereIntersectionTests()
   return tests;
 }
 
-void SphereSphereIntersection()
-{
+void SphereSphereIntersection() {
   const auto tests = GetSphereSphereIntersectionTests();
-  for (const SphereSphereIntersectionTest& test : tests) {
+  for (const SphereSphereIntersectionTest& test: tests) {
     Math::SphereSphere result = Math::Intersection(test.mA, test.mB);
     std::cout << test.mName << ": " << result.mIntersecting;
     if (result.mIntersecting) {
@@ -110,8 +105,7 @@ void SphereSphereIntersection()
   }
 }
 
-Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests()
-{
+Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests() {
   Math::Box a, b;
   Ds::Vector<BoxBoxIntersectionTest> boxIntersectoinTests;
 
@@ -276,17 +270,16 @@ Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests()
   return boxIntersectoinTests;
 }
 
-void BoxBoxIntersection()
-{
+void BoxBoxIntersection() {
   Ds::Vector<BoxBoxIntersectionTest> tests = GetBoxBoxIntersectionTests();
-  for (const BoxBoxIntersectionTest& test : tests) {
+  for (const BoxBoxIntersectionTest& test: tests) {
     std::cout << test.mName << ": " << Math::HasIntersection(test.mA, test.mB)
               << '\n';
   }
 }
 
-Ds::Vector<SphereTriangleIntersectionTest> GetSphereTriangleIntersectionTests()
-{
+Ds::Vector<SphereTriangleIntersectionTest>
+GetSphereTriangleIntersectionTests() {
   Ds::Vector<SphereTriangleIntersectionTest> tests;
   Math::Sphere sphere = {{0, 0, 0}, 1};
   Math::Triangle triangle = {{{-1, -1, 0}, {1, 0, 0}, {0, 1, 0}}};
@@ -347,11 +340,10 @@ Ds::Vector<SphereTriangleIntersectionTest> GetSphereTriangleIntersectionTests()
   return tests;
 }
 
-void SphereTriangleIntersection()
-{
+void SphereTriangleIntersection() {
   Ds::Vector<SphereTriangleIntersectionTest> tests =
     GetSphereTriangleIntersectionTests();
-  for (const SphereTriangleIntersectionTest& test : tests) {
+  for (const SphereTriangleIntersectionTest& test: tests) {
     Math::SphereTriangle intersection =
       Math::Intersection(test.mSphere, test.mTriangle);
     std::cout << test.mName << ": " << intersection.mIntersecting;
@@ -365,8 +357,7 @@ void SphereTriangleIntersection()
 } // namespace Test
 
 #ifndef RemoveTestEntryPoint
-int main(void)
-{
+int main(void) {
   using namespace Test;
   RunTest(Intersection);
   RunTest(RaySphere);

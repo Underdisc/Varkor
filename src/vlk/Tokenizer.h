@@ -6,10 +6,8 @@
 
 namespace Vlk {
 
-struct Token
-{
-  enum class Type
-  {
+struct Token {
+  enum class Type {
     Invalid,
     Whitespace,
     Key,

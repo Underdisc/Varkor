@@ -6,8 +6,7 @@
 namespace Math {
 
 template<typename T, unsigned int N>
-struct Vector
-{
+struct Vector {
   T mD[N];
 
   const T& operator[](int index) const;

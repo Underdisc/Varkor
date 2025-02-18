@@ -7,8 +7,7 @@
 
 namespace Comp {
 
-struct Model
-{
+struct Model {
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& modelVal);
   void VDeserialize(const Vlk::Explorer& modelEx);

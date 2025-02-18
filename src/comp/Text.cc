@@ -16,13 +16,11 @@ namespace Comp {
 const ResId Text::smDefaultFontId(Text::smDefaultAssetName, "Default");
 const ResId Text::smDefaultMaterialId(Text::smDefaultAssetName, "Default");
 
-void Text::VStaticInit()
-{
+void Text::VStaticInit() {
   Rsl::RequireAsset(smDefaultAssetName);
 }
 
-void Text::VInit(const World::Object& owner)
-{
+void Text::VInit(const World::Object& owner) {
   mFontId = smDefaultFontId;
   mMaterialId = smDefaultMaterialId;
 
@@ -34,8 +32,7 @@ void Text::VInit(const World::Object& owner)
   mColor = {1.0f, 1.0f, 1.0f, 1.0f};
 }
 
-void Text::VSerialize(Vlk::Value& textVal)
-{
+void Text::VSerialize(Vlk::Value& textVal) {
   textVal("FontId") = mFontId;
   textVal("Material") = mMaterialId;
   textVal("Text") = mText;
@@ -46,8 +43,7 @@ void Text::VSerialize(Vlk::Value& textVal)
   textVal("Color") = mColor;
 }
 
-void Text::VDeserialize(const Vlk::Explorer& textEx)
-{
+void Text::VDeserialize(const Vlk::Explorer& textEx) {
   mFontId = textEx("FontId").As<ResId>(smDefaultFontId);
   mMaterialId = textEx("MaterialId").As<ResId>(smDefaultMaterialId);
   mText = textEx("Text").As<std::string>("");
@@ -58,8 +54,7 @@ void Text::VDeserialize(const Vlk::Explorer& textEx)
   mColor = textEx("Color").As<Vec4>({1.0f, 1.0f, 1.0f, 1.0f});
 }
 
-void Text::VRenderable(const World::Object& owner)
-{
+void Text::VRenderable(const World::Object& owner) {
   Gfx::Font* font = Rsl::TryGetRes<Gfx::Font>(mFontId);
   if (font == nullptr) {
     return;
@@ -71,7 +66,7 @@ void Text::VRenderable(const World::Object& owner)
   auto& transformComp = owner.Get<Comp::Transform>();
   const Mat4& ownerTransformation = transformComp.GetWorldMatrix(owner);
   Ds::Vector<Line> lines = GetLines(*font);
-  for (const Line& line : lines) {
+  for (const Line& line: lines) {
     switch (mAlign) {
     case Alignment::Left: baselineOffset[0] = -halfWidth; break;
     case Alignment::Center: baselineOffset[0] = -line.mWidth / 2.0f; break;
@@ -110,8 +105,7 @@ void Text::VRenderable(const World::Object& owner)
   }
 }
 
-void Text::VEdit(const World::Object& owner)
-{
+void Text::VEdit(const World::Object& owner) {
   Editor::DropResourceIdWidget(Rsl::ResTypeId::Font, &mFontId);
   Editor::DropResourceIdWidget(Rsl::ResTypeId::Material, &mMaterialId);
   ImGui::PushItemWidth(-Editor::CalcBufferWidth("FillAmount"));
@@ -128,8 +122,7 @@ void Text::VEdit(const World::Object& owner)
   ImGui::PopID();
 }
 
-Ds::Vector<Text::Line> Text::GetLines(const Gfx::Font& font) const
-{
+Ds::Vector<Text::Line> Text::GetLines(const Gfx::Font& font) const {
   Ds::Vector<Line> lines;
 
   auto isWhitespace = [](char codepoint) -> bool
@@ -189,7 +182,7 @@ Ds::Vector<Text::Line> Text::GetLines(const Gfx::Font& font) const
   lines.Push({lineStart, (int)mText.size()});
 
   // Find the length of each line.
-  for (Line& line : lines) {
+  for (Line& line: lines) {
     line.mWidth = 0.0f;
     for (size_t i = line.mStart; i < line.mEnd; ++i) {
       const Gfx::Font::GlyphData& glyphData = font.GetGlyphData(mText[i]);
@@ -199,8 +192,7 @@ Ds::Vector<Text::Line> Text::GetLines(const Gfx::Font& font) const
   return lines;
 }
 
-std::ostream& operator<<(std::ostream& os, const Text::Alignment& align)
-{
+std::ostream& operator<<(std::ostream& os, const Text::Alignment& align) {
   switch (align) {
   case Text::Alignment::Left: os << "Left"; break;
   case Text::Alignment::Center: os << "Center"; break;
@@ -209,8 +201,7 @@ std::ostream& operator<<(std::ostream& os, const Text::Alignment& align)
   return os;
 }
 
-std::istream& operator>>(std::istream& is, Text::Alignment& align)
-{
+std::istream& operator>>(std::istream& is, Text::Alignment& align) {
   std::string alignString;
   is >> alignString;
   align = Text::Alignment::Left;

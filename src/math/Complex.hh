@@ -4,16 +4,14 @@
 namespace Math {
 
 template<typename T>
-Complex<T>& Complex<T>::operator=(const Complex<T>& other)
-{
+Complex<T>& Complex<T>::operator=(const Complex<T>& other) {
   mReal = other.mReal;
   mImaginary = other.mImaginary;
   return *this;
 }
 
 template<typename T>
-Complex<T> Complex<T>::operator+(const Complex<T>& other) const
-{
+Complex<T> Complex<T>::operator+(const Complex<T>& other) const {
   Complex<T> result;
   result.mReal = mReal + other.mReal;
   result.mImaginary = mImaginary + other.mImaginary;
@@ -21,8 +19,7 @@ Complex<T> Complex<T>::operator+(const Complex<T>& other) const
 }
 
 template<typename T>
-Complex<T> Complex<T>::operator-(const Complex<T>& other) const
-{
+Complex<T> Complex<T>::operator-(const Complex<T>& other) const {
   Complex<T> result;
   result.mReal = mReal - other.mReal;
   result.mImaginary = mImaginary - other.mImaginary;
@@ -30,8 +27,7 @@ Complex<T> Complex<T>::operator-(const Complex<T>& other) const
 }
 
 template<typename T>
-Complex<T> Complex<T>::operator*(const Complex<T>& other) const
-{
+Complex<T> Complex<T>::operator*(const Complex<T>& other) const {
   Complex<T> result;
   result.mReal = mReal * other.mReal - mImaginary * other.mImaginary;
   result.mImaginary = mReal * other.mImaginary + mImaginary * other.mReal;
@@ -39,8 +35,7 @@ Complex<T> Complex<T>::operator*(const Complex<T>& other) const
 }
 
 template<typename T>
-Complex<T> Complex<T>::operator*(T scaler) const
-{
+Complex<T> Complex<T>::operator*(T scaler) const {
   Complex<T> result;
   result.mReal = mReal * scaler;
   result.mImaginary = mImaginary * scaler;
@@ -48,24 +43,21 @@ Complex<T> Complex<T>::operator*(T scaler) const
 }
 
 template<typename T>
-Complex<T>& Complex<T>::operator+=(const Complex<T>& other)
-{
+Complex<T>& Complex<T>::operator+=(const Complex<T>& other) {
   mReal += other.mReal;
   mImaginary += other.mImaginary;
   return *this;
 }
 
 template<typename T>
-Complex<T>& Complex<T>::operator-=(const Complex<T>& other)
-{
+Complex<T>& Complex<T>::operator-=(const Complex<T>& other) {
   mReal -= other.mReal;
   mImaginary -= other.mImaginary;
   return *this;
 }
 
 template<typename T>
-Complex<T>& Complex<T>::operator*=(const Complex<T>& other)
-{
+Complex<T>& Complex<T>::operator*=(const Complex<T>& other) {
   T newReal = mReal * other.mReal - mImaginary * other.mImaginary;
   T newImaginary = mReal * other.mImaginary + mImaginary * other.mReal;
   mReal = newReal;
@@ -74,15 +66,13 @@ Complex<T>& Complex<T>::operator*=(const Complex<T>& other)
 }
 
 template<typename T>
-Complex<T>& Complex<T>::operator*=(T scaler)
-{
+Complex<T>& Complex<T>::operator*=(T scaler) {
   mReal = mReal * scaler;
   mImaginary = mImaginary * scaler;
   return *this;
 }
 
-Complex<float> ComplexPolar(float magnitude, float angle)
-{
+Complex<float> ComplexPolar(float magnitude, float angle) {
   Complex<float> result;
   result.mReal = magnitude * cosf(angle);
   result.mImaginary = magnitude * sinf(angle);
@@ -90,8 +80,7 @@ Complex<float> ComplexPolar(float magnitude, float angle)
 }
 
 template<typename T>
-std::ostream& operator<<(std::ostream& os, const Complex<T>& value)
-{
+std::ostream& operator<<(std::ostream& os, const Complex<T>& value) {
   os << value.mReal;
   if (value.mImaginary >= (T)0) {
     os << "+";

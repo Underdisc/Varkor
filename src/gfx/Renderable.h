@@ -15,8 +15,7 @@ struct Object;
 namespace Gfx {
 
 namespace Renderable {
-struct Floater
-{
+struct Floater {
   World::MemberId mOwner;
   Mat4 mTransform;
   ResId mMaterialId;
@@ -24,16 +23,14 @@ struct Floater
   UniformVector mUniforms;
 };
 
-struct Skybox
-{
+struct Skybox {
   World::MemberId mOwner;
   Mat4 mTransform;
   ResId mMaterialId;
   UniformVector mUniforms;
 };
 
-struct Icon
-{
+struct Icon {
   World::MemberId mOwner;
   Vec3 mTranslation;
   Vec4 mColor;
@@ -41,8 +38,7 @@ struct Icon
 };
 } // namespace Renderable
 
-struct Collection
-{
+struct Collection {
   Ds::Vector<Renderable::Floater> mFloaters;
   Renderable::Skybox mSkybox;
   Ds::Vector<Renderable::Icon> mIcons;

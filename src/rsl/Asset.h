@@ -10,11 +10,9 @@
 
 namespace Rsl {
 
-struct Asset
-{
+struct Asset {
   // A status to indicate whether an asset or resource has been loaded or not.
-  enum class Status
-  {
+  enum class Status {
     Dormant,
     Queued,
     Initializing,
@@ -23,8 +21,7 @@ struct Asset
   };
 
   // A way to track a resource within the asset's allocation.
-  struct ResourceDescriptor
-  {
+  struct ResourceDescriptor {
     ResTypeId mResTypeId;
     std::string mName;
     size_t mByteIndex;
@@ -74,8 +71,7 @@ public:
   void InitFinalize();
 
   // A way to store basic information about an asset's defined resource.
-  struct DefinedResourceInfo
-  {
+  struct DefinedResourceInfo {
     std::string mName;
     ResTypeId mTypeId;
   };

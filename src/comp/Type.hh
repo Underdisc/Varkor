@@ -56,8 +56,7 @@ int CreateId();
 extern Ds::Vector<TypeData> nTypeData;
 
 template<typename T>
-void Type<T>::Register(const std::string& name)
-{
+void Type<T>::Register(const std::string& name) {
   LogAbortIf(smId != nInvalidTypeId, "Type already registered.");
   smId = CreateId();
 
@@ -97,15 +96,13 @@ void Type<T>::Register(const std::string& name)
 
 template<typename T>
 template<typename... Dependencies>
-void Type<T>::AddDependencies()
-{
+void Type<T>::AddDependencies() {
   TypeData& typeData = nTypeData[smId];
   typeData.AddDependencies<T, Dependencies...>();
 }
 
 template<typename Dependant, typename Dependency, typename... Rest>
-void TypeData::AddDependencies()
-{
+void TypeData::AddDependencies() {
   if (Type<Dependency>::smId == nInvalidTypeId) {
     std::stringstream error;
     error << "Dependency of " << mName << " (TypeId: " << Type<Dependant>::smId
@@ -119,12 +116,10 @@ void TypeData::AddDependencies()
 }
 
 template<typename Dependant>
-void TypeData::AddDependencies()
-{}
+void TypeData::AddDependencies() {}
 
 template<typename T>
-const TypeData& GetTypeData()
-{
+const TypeData& GetTypeData() {
   LogAbortIf(Type<T>::smId == nInvalidTypeId, "Type not registered.");
   return nTypeData[Type<T>::smId];
 }

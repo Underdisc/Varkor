@@ -6,21 +6,17 @@
 namespace Vlk {
 
 Explorer::Explorer(const Value& rootVal):
-  mParent(nullptr), mValue(&rootVal), mIsPair(false)
-{}
+  mParent(nullptr), mValue(&rootVal), mIsPair(false) {}
 
 Explorer::Explorer(const Explorer* parent): mParent(parent), mValue(nullptr) {}
 
 Explorer::Explorer(const Explorer* parent, const Pair* pair):
-  mParent(parent), mValue(pair), mIsPair(true)
-{}
+  mParent(parent), mValue(pair), mIsPair(true) {}
 
 Explorer::Explorer(const Explorer* parent, const Value* value, size_t index):
-  mParent(parent), mValue(value), mIsPair(false), mIndex(index)
-{}
+  mParent(parent), mValue(value), mIsPair(false), mIndex(index) {}
 
-std::string Explorer::Path() const
-{
+std::string Explorer::Path() const {
   LogAbortIf(!Valid(), "Path of an invalid Explorer cannot be obtained.");
 
   // We collect all the ancestors in a vector so this Explorer's lineage can be
@@ -49,8 +45,7 @@ std::string Explorer::Path() const
   return path.str();
 }
 
-const std::string& Explorer::Key() const
-{
+const std::string& Explorer::Key() const {
   LogAbortIf(!Valid(), "Key of an invalid Explorer cannot be obtained.");
   if (!mIsPair) {
     std::stringstream error;
@@ -61,26 +56,22 @@ const std::string& Explorer::Key() const
   return pair.Key();
 }
 
-size_t Explorer::Size() const
-{
+size_t Explorer::Size() const {
   if (!Valid()) {
     return 0;
   }
   return mValue->Size();
 }
 
-bool Explorer::Valid() const
-{
+bool Explorer::Valid() const {
   return mValue != nullptr;
 }
 
-bool Explorer::Valid(Value::Type type) const
-{
+bool Explorer::Valid(Value::Type type) const {
   return Valid() && mValue->GetType() == type;
 }
 
-Explorer Explorer::operator()(const std::string& key) const
-{
+Explorer Explorer::operator()(const std::string& key) const {
   if (!Valid()) {
     return Explorer(this);
   }
@@ -91,8 +82,7 @@ Explorer Explorer::operator()(const std::string& key) const
   return Explorer(this, pair);
 }
 
-Explorer Explorer::operator()(size_t index) const
-{
+Explorer Explorer::operator()(size_t index) const {
   if (!Valid()) {
     return Explorer(this);
   }
@@ -103,8 +93,7 @@ Explorer Explorer::operator()(size_t index) const
   return Explorer(this, pair);
 }
 
-Explorer Explorer::operator[](size_t index) const
-{
+Explorer Explorer::operator[](size_t index) const {
   if (!Valid()) {
     return Explorer(this);
   }

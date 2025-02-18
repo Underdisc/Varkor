@@ -7,15 +7,13 @@
 #include "test/vlk/Util.h"
 #include "vlk/Value.h"
 
-void PrintParseError(const char* text)
-{
+void PrintParseError(const char* text) {
   Vlk::Value rootVal;
   Result result = rootVal.Parse(text);
   std::cout << result.mError << std::endl;
 }
 
-void TrueValue()
-{
+void TrueValue() {
   Vlk::Value rootVal;
   rootVal(std::string("Integer")) = 10;
   rootVal(std::string("Float")) = 10.5f;
@@ -23,8 +21,7 @@ void TrueValue()
   PrintParsePrint(rootVal);
 }
 
-void ValueArray()
-{
+void ValueArray() {
   Vlk::Value rootVal;
   Vlk::Value& intergerArrayVal = rootVal("Integers")[{5}];
   for (size_t i = 0; i < 5; ++i) {
@@ -50,8 +47,7 @@ void ValueArray()
   PrintParsePrint(rootVal);
 }
 
-void PairArray()
-{
+void PairArray() {
   Vlk::Value rootVal;
   rootVal("Integer") = 5;
   Vlk::Value& array1Val = rootVal("Array1");
@@ -67,8 +63,7 @@ void PairArray()
   PrintParsePrint(rootVal);
 }
 
-void MultidimensionalArrays()
-{
+void MultidimensionalArrays() {
   Vlk::Value rootVal;
   Vlk::Value& valueArraysVal = rootVal("ValueArrays");
   Vlk::Value& float1DVal = valueArraysVal("Float1D")[{4}];
@@ -93,8 +88,7 @@ void MultidimensionalArrays()
   PrintParsePrint(rootVal);
 }
 
-void ValueArrayPairArray()
-{
+void ValueArrayPairArray() {
   Vlk::Value rootVal;
   Vlk::Value& valueArrayVal = rootVal("ValueArray")[{5}];
   for (int i = 0; i < 5; ++i) {
@@ -104,8 +98,7 @@ void ValueArrayPairArray()
   PrintParsePrint(rootVal);
 }
 
-void SerializeDeserialize()
-{
+void SerializeDeserialize() {
   const char* filename = "SerializeDeserialize.vlk";
   // Serialization
   {
@@ -189,8 +182,7 @@ void SerializeDeserialize()
   }
 }
 
-Vlk::Value CreateTestValue()
-{
+Vlk::Value CreateTestValue() {
   Vlk::Value rootVal;
   rootVal("TrueValue") = "Value";
   Vlk::Value& valArrayVal = rootVal("ValueArray")[{5}];
@@ -210,8 +202,7 @@ Vlk::Value CreateTestValue()
   return rootVal;
 }
 
-void Move0()
-{
+void Move0() {
   Vlk::Value rootVal = CreateTestValue();
 
   Vlk::Value movedVal(std::move(rootVal("TrueValue")));
@@ -228,8 +219,7 @@ void Move0()
   std::cout << "<- Original ->\n" << rootVal << '\n';
 }
 
-void Move1()
-{
+void Move1() {
   // Ensure that Pair implements a move assignment that takes a Value argument.
   Vlk::Value rootVal;
   Vlk::Value& fromVal = rootVal("FromPair");
@@ -239,8 +229,7 @@ void Move1()
   std::cout << rootVal << '\n';
 }
 
-void Errors()
-{
+void Errors() {
   PrintParseError(".");
   PrintParseError("}");
   PrintParseError("{");
@@ -256,8 +245,7 @@ void Errors()
   std::cout << result.mError << std::endl;
 }
 
-void FindPair()
-{
+void FindPair() {
   Vlk::Value rootVal = CreateTestValue();
   rootVal("TrueValue") = "Replaced";
   rootVal("ValueArray")[1] = "Replaced";
@@ -266,8 +254,7 @@ void FindPair()
   std::cout << rootVal << '\n';
 }
 
-void Copy()
-{
+void Copy() {
   Vlk::Value rootVal = CreateTestValue();
   Vlk::Value rootValCopy(rootVal);
   rootValCopy("TrueValue") = "Replaced";
@@ -291,8 +278,7 @@ void Copy()
   std::cout << "<- Original ->\n" << rootVal << '\n';
 }
 
-void Comparison()
-{
+void Comparison() {
   auto compare = [](const Vlk::Value& a, const Vlk::Value& b)
   {
     std::cout << "==:" << (a == b) << " | !=:" << (a != b) << '\n';
@@ -341,8 +327,7 @@ void Comparison()
   compare(rootVal, rootValCopy);
 }
 
-void PushPopRemoveValue()
-{
+void PushPopRemoveValue() {
   Vlk::Value arrayVal;
   for (int i = 0; i < 20; ++i) {
     std::stringstream valueStream;
@@ -358,8 +343,7 @@ void PushPopRemoveValue()
   std::cout << arrayVal << '\n';
 }
 
-int main()
-{
+int main() {
   EnableLeakOutput();
   RunTest(TrueValue);
   RunTest(ValueArray);

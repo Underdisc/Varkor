@@ -11,16 +11,14 @@
 
 namespace Comp {
 
-void Transform::VInit(const World::Object& owner)
-{
+void Transform::VInit(const World::Object& owner) {
   mScale = {1.0f, 1.0f, 1.0f};
   mRotation = {1.0f, 0.0f, 0.0f, 0.0f};
   mTranslation = {0.0f, 0.0f, 0.0f};
   mUpdated = false;
 }
 
-void Transform::VSerialize(Vlk::Value& transformVal)
-{
+void Transform::VSerialize(Vlk::Value& transformVal) {
   Vlk::Value& scaleVal = transformVal("Scale")[{3}];
   Vlk::Value& rotationVal = transformVal("Rotation")[{4}];
   Vlk::Value& translationVal = transformVal("Translation")[{3}];
@@ -32,8 +30,7 @@ void Transform::VSerialize(Vlk::Value& transformVal)
   rotationVal[3] = mRotation[3];
 }
 
-void Transform::VDeserialize(const Vlk::Explorer& transformEx)
-{
+void Transform::VDeserialize(const Vlk::Explorer& transformEx) {
   Vlk::Explorer scaleEx = transformEx("Scale");
   Vlk::Explorer rotationEx = transformEx("Rotation");
   Vlk::Explorer translationEx = transformEx("Translation");
@@ -46,8 +43,7 @@ void Transform::VDeserialize(const Vlk::Explorer& transformEx)
   mUpdated = false;
 }
 
-void Transform::VEdit(const World::Object& owner)
-{
+void Transform::VEdit(const World::Object& owner) {
   // Display all of the transformation component's parameters.
   Vec3 translation = GetTranslation();
   ImGui::PushItemWidth(-60.0f);
@@ -71,8 +67,7 @@ void Transform::VEdit(const World::Object& owner)
   Editor::Gizmos::ImGuiOptions();
 }
 
-void Transform::VGizmoEdit(const World::Object& owner)
-{
+void Transform::VGizmoEdit(const World::Object& owner) {
   // Get a rotation depending on the current reference frame.
   using namespace Editor::Gizmos;
   Quat referenceFrameRotation;
@@ -116,32 +111,27 @@ void Transform::VGizmoEdit(const World::Object& owner)
   }
 }
 
-const Vec3& Transform::GetTranslation() const
-{
+const Vec3& Transform::GetTranslation() const {
   return mTranslation;
 }
 
-Vec3 Transform::GetWorldTranslation(const World::Object& object)
-{
+Vec3 Transform::GetWorldTranslation(const World::Object& object) {
   Mat4 worldMatrix = GetWorldMatrix(object);
   return Math::ApplyToPoint(worldMatrix, {0.0f, 0.0f, 0.0f});
 }
 
-void Transform::SetTranslation(const Vec3& newTranslation)
-{
+void Transform::SetTranslation(const Vec3& newTranslation) {
   mTranslation = newTranslation;
   mUpdated = false;
 }
 
 void Transform::SetWorldTranslation(
-  const Vec3& worldTranslation, const World::Object& object)
-{
+  const Vec3& worldTranslation, const World::Object& object) {
   SetTranslation(WorldToLocalTranslation(worldTranslation, object));
 }
 
 Vec3 Transform::WorldToLocalTranslation(
-  const Vec3& worldTranslation, const World::Object& object)
-{
+  const Vec3& worldTranslation, const World::Object& object) {
   World::Object pObject = object.Parent();
   Transform* pTransform = pObject.TryGetComponent<Transform>();
   if (pTransform == nullptr) {
@@ -151,39 +141,33 @@ Vec3 Transform::WorldToLocalTranslation(
   return Math::ApplyToPoint(pInverseWorldMatrix, worldTranslation);
 }
 
-const Vec3& Transform::GetScale() const
-{
+const Vec3& Transform::GetScale() const {
   return mScale;
 }
 
-void Transform::SetScale(const Vec3& newScale)
-{
+void Transform::SetScale(const Vec3& newScale) {
   mScale = newScale;
   mUpdated = false;
 }
 
-void Transform::SetUniformScale(float newUniformScale)
-{
+void Transform::SetUniformScale(float newUniformScale) {
   mScale[0] = newUniformScale;
   mScale[1] = newUniformScale;
   mScale[2] = newUniformScale;
   mUpdated = false;
 }
 
-const Quat& Transform::GetRotation() const
-{
+const Quat& Transform::GetRotation() const {
   return mRotation;
 }
 
-Quat Transform::GetWorldRotation(const World::Object& object) const
-{
+Quat Transform::GetWorldRotation(const World::Object& object) const {
   Quat worldRotation = GetParentWorldRotation(object) * mRotation;
   worldRotation.Normalize();
   return worldRotation;
 }
 
-Quat Transform::GetParentWorldRotation(const World::Object& object) const
-{
+Quat Transform::GetParentWorldRotation(const World::Object& object) const {
   World::Object pObject = object.Parent();
   Transform* pTransform = pObject.TryGetComponent<Transform>();
   if (pTransform == nullptr) {
@@ -192,16 +176,14 @@ Quat Transform::GetParentWorldRotation(const World::Object& object) const
   return pTransform->GetWorldRotation(pObject);
 }
 
-void Transform::SetRotation(const Quat& newRotation)
-{
+void Transform::SetRotation(const Quat& newRotation) {
   mRotation = newRotation;
   mRotation.Normalize();
   mUpdated = false;
 }
 
 void Transform::SetWorldRotation(
-  const Quat& newWorldRotation, const World::Object& object)
-{
+  const Quat& newWorldRotation, const World::Object& object) {
   World::Object pObject = object.Parent();
   Transform* pTransform = pObject.TryGetComponent<Transform>();
   if (pTransform == nullptr) {
@@ -215,8 +197,7 @@ void Transform::SetWorldRotation(
   mUpdated = false;
 }
 
-const Mat4& Transform::GetLocalMatrix()
-{
+const Mat4& Transform::GetLocalMatrix() {
   if (!mUpdated) {
     // todo: Use matrix functions that automatically apply the desired
     // transformation to a matrix rather than creating a new matrix for every
@@ -231,8 +212,7 @@ const Mat4& Transform::GetLocalMatrix()
   return mMatrix;
 }
 
-Mat4 Transform::GetInverseLocalMatrix() const
-{
+Mat4 Transform::GetInverseLocalMatrix() const {
   Mat4 inverseScale, inverseRotate, inverseTranslate;
   Math::Scale(&inverseScale, 1.0f / mScale);
   Math::Rotate(&inverseRotate, mRotation.Conjugate());
@@ -240,8 +220,7 @@ Mat4 Transform::GetInverseLocalMatrix() const
   return inverseScale * inverseRotate * inverseTranslate;
 }
 
-Mat4 Transform::GetWorldMatrix(const World::Object& object)
-{
+Mat4 Transform::GetWorldMatrix(const World::Object& object) {
   World::Object pObject = object.Parent();
   Transform* pTransform = pObject.TryGetComponent<Transform>();
   if (pTransform == nullptr) {
@@ -252,8 +231,7 @@ Mat4 Transform::GetWorldMatrix(const World::Object& object)
   return parentTransformation * localTransformation;
 }
 
-Mat4 Transform::GetInverseWorldMatrix(const World::Object& object)
-{
+Mat4 Transform::GetInverseWorldMatrix(const World::Object& object) {
   World::Object pObject = object.Parent();
   Transform* pTransform = pObject.TryGetComponent<Transform>();
   if (pTransform == nullptr) {

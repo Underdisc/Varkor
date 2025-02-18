@@ -6,8 +6,7 @@
 
 namespace Comp {
 
-struct CameraOrbiter
-{
+struct CameraOrbiter {
   Vec3 mPosition;
   float mDistance;
   float mHeight;

@@ -4,8 +4,7 @@
 
 namespace Math {
 
-RayPlane Intersection(const Ray& ray, const Plane& plane)
-{
+RayPlane Intersection(const Ray& ray, const Plane& plane) {
   RayPlane info;
   float nd = Math::Dot(plane.Normal(), ray.Direction());
   if (nd == 0.0f) {
@@ -20,8 +19,7 @@ RayPlane Intersection(const Ray& ray, const Plane& plane)
   return info;
 }
 
-SphereSphere Intersection(const Sphere& a, const Sphere& b)
-{
+SphereSphere Intersection(const Sphere& a, const Sphere& b) {
   // Determine whether there is an intersection.
   SphereSphere info;
   Vec3 distVec = b.mCenter - a.mCenter;
@@ -44,8 +42,7 @@ SphereSphere Intersection(const Sphere& a, const Sphere& b)
   return info;
 }
 
-RaySphere Intersection(const Ray& ray, const Sphere& sphere)
-{
+RaySphere Intersection(const Ray& ray, const Sphere& sphere) {
   Vec3 relativeStart = ray.mStart - sphere.mCenter;
   float a = Dot(ray.Direction(), ray.Direction());
   float b = 2 * Dot(relativeStart, ray.Direction());
@@ -70,8 +67,7 @@ RaySphere Intersection(const Ray& ray, const Sphere& sphere)
   return intersection;
 }
 
-bool HasIntersection(const Box& a, const Box& b)
-{
+bool HasIntersection(const Box& a, const Box& b) {
   // Returns true when there is an overlap on the axis.
   auto OverlapOnAxis = [&](const Vec3& axis) -> bool
   {
@@ -123,8 +119,7 @@ bool HasIntersection(const Box& a, const Box& b)
   return true;
 }
 
-SphereTriangle Intersection(const Sphere& sphere, const Triangle& tri)
-{
+SphereTriangle Intersection(const Sphere& sphere, const Triangle& tri) {
   Vec3 closestTriPoint = tri.ClosestPointTo(sphere.mCenter);
   Vec3 distVec = sphere.mCenter - closestTriPoint;
   float distSq = MagnitudeSq(distVec);

@@ -5,8 +5,7 @@
 #include "test/Test.h"
 #include "vlk/Tokenizer.h"
 
-std::ostream& operator<<(std::ostream& os, Vlk::Token::Type tokenType)
-{
+std::ostream& operator<<(std::ostream& os, Vlk::Token::Type tokenType) {
   switch (tokenType) {
   case Vlk::Token::Type::Key: os << "Key"; break;
   case Vlk::Token::Type::TrueValue: os << "TrueValue"; break;
@@ -20,8 +19,7 @@ std::ostream& operator<<(std::ostream& os, Vlk::Token::Type tokenType)
   return os;
 }
 
-void PrintTokens(const char* text)
-{
+void PrintTokens(const char* text) {
   // Tokenize the text and print the results.
   VResult<Ds::Vector<Vlk::Token>> result = Vlk::Tokenize(text);
   if (!result.Success()) {
@@ -41,8 +39,7 @@ void PrintTokens(const char* text)
   }
 }
 
-void Key()
-{
+void Key() {
   PrintTokens(
     ":a_key:\n"
     ":a_key_with_1234:\n"
@@ -51,8 +48,7 @@ void Key()
     ":_a_key_with_SOME_CAPS:\n");
 }
 
-void TrueValue()
-{
+void TrueValue() {
   PrintTokens(
     "\'1\'\n"
     "\'143\'\n"
@@ -62,13 +58,11 @@ void TrueValue()
     "\'WithEscape\\\'Characters\\\\\'\n");
 }
 
-void Characters()
-{
+void Characters() {
   PrintTokens("[]{},");
 }
 
-void InvalidToken()
-{
+void InvalidToken() {
   PrintTokens("+");
   PrintTokens("\'an incomplete string");
   PrintTokens(":an incomplete key");
@@ -81,8 +75,7 @@ void InvalidToken()
     "  \'information\'\n");
 }
 
-int main()
-{
+int main() {
   EnableLeakOutput();
   RunTest(Key);
   RunTest(TrueValue);

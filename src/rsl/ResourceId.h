@@ -9,8 +9,7 @@ constexpr const char* nAssetExtension = ".a";
 constexpr const char* nResIdDelimeter = ":";
 
 // A way to identify a specific resource within the resource library.
-struct ResourceId
-{
+struct ResourceId {
   // Stores the asset and resource name like so "AssetName:ResourceName"
   std::string mId;
 

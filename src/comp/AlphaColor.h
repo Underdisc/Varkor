@@ -7,8 +7,7 @@
 
 namespace Comp {
 
-struct AlphaColor
-{
+struct AlphaColor {
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& val);
   void VDeserialize(const Vlk::Explorer& ex);

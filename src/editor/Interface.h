@@ -8,8 +8,7 @@
 
 namespace Editor {
 
-struct Interface
-{
+struct Interface {
 public:
   Interface();
   virtual ~Interface();
@@ -31,8 +30,7 @@ private:
   void ShowAll();
   virtual void Show() = 0;
 
-  struct StagedInterface
-  {
+  struct StagedInterface {
     std::string mName;
     Interface* mInterface;
   };

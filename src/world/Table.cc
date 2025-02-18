@@ -5,11 +5,10 @@
 
 namespace World {
 
-Table::Table(Comp::TypeId typeId): mData(nullptr), mTypeId(typeId), mCapacity(0)
-{}
+Table::Table(Comp::TypeId typeId):
+  mData(nullptr), mTypeId(typeId), mCapacity(0) {}
 
-Table::Table(Table&& other)
-{
+Table::Table(Table&& other) {
   mTypeId = other.mTypeId;
   mMemberIdToIndexMap = std::move(other.mMemberIdToIndexMap);
   mData = other.mData;
@@ -19,8 +18,7 @@ Table::Table(Table&& other)
   mCapacity = 0;
 }
 
-Table::~Table()
-{
+Table::~Table() {
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   for (int i = 0; i < mMemberIdToIndexMap.DenseUsage(); ++i) {
     typeData.mDestruct(GetComponentAtDenseIndex(i));
@@ -30,16 +28,14 @@ Table::~Table()
   }
 }
 
-void* Table::Request(MemberId owner)
-{
+void* Table::Request(MemberId owner) {
   void* component = AllocateComponent(owner);
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   typeData.mDefaultConstruct(component);
   return component;
 }
 
-void* Table::Duplicate(MemberId owner, MemberId duplicateOwner)
-{
+void* Table::Duplicate(MemberId owner, MemberId duplicateOwner) {
   void* duplicateComponent = AllocateComponent(duplicateOwner);
   void* component = GetComponent(owner);
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
@@ -47,8 +43,7 @@ void* Table::Duplicate(MemberId owner, MemberId duplicateOwner)
   return duplicateComponent;
 }
 
-void Table::Remove(MemberId owner)
-{
+void Table::Remove(MemberId owner) {
   VerifyComponent(owner);
   size_t removeIndex = mMemberIdToIndexMap.Sparse()[owner];
   size_t replaceIndex = mMemberIdToIndexMap.DenseUsage() - 1;
@@ -60,82 +55,68 @@ void Table::Remove(MemberId owner)
   mMemberIdToIndexMap.Remove(owner);
 }
 
-void* Table::GetComponent(MemberId owner) const
-{
+void* Table::GetComponent(MemberId owner) const {
   VerifyComponent(owner);
   size_t denseIndex = mMemberIdToIndexMap.Sparse()[owner];
   return GetComponentAtDenseIndex(denseIndex);
 }
 
-void* Table::GetComponentAtDenseIndex(size_t denseIndex) const
-{
+void* Table::GetComponentAtDenseIndex(size_t denseIndex) const {
   VerifyDenseIndex(denseIndex);
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   return (void*)(mData + typeData.mSize * denseIndex);
 }
 
-MemberId Table::GetOwnerAtDenseIndex(size_t denseIndex) const
-{
+MemberId Table::GetOwnerAtDenseIndex(size_t denseIndex) const {
   VerifyDenseIndex(denseIndex);
   return mMemberIdToIndexMap.Dense()[denseIndex];
 }
 
-MemberId Table::GetMemberIdAtDenseIndex(size_t denseIndex) const
-{
+MemberId Table::GetMemberIdAtDenseIndex(size_t denseIndex) const {
   VerifyDenseIndex(denseIndex);
   return mMemberIdToIndexMap.Dense()[denseIndex];
 }
 
-Comp::TypeId Table::TypeId() const
-{
+Comp::TypeId Table::TypeId() const {
   return mTypeId;
 }
 
-const Ds::SparseSet& Table::MemberIdToIndexMap() const
-{
+const Ds::SparseSet& Table::MemberIdToIndexMap() const {
   return mMemberIdToIndexMap;
 }
 
-const void* Table::Data() const
-{
+const void* Table::Data() const {
   return (void*)mData;
 }
 
-size_t Table::Stride() const
-{
+size_t Table::Stride() const {
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   return typeData.mSize;
 }
 
-size_t Table::Size() const
-{
+size_t Table::Size() const {
   return mMemberIdToIndexMap.DenseUsage();
 }
 
-size_t Table::Capacity() const
-{
+size_t Table::Capacity() const {
   return mCapacity;
 }
 
-bool Table::ValidComponent(MemberId owner) const
-{
+bool Table::ValidComponent(MemberId owner) const {
   return mMemberIdToIndexMap.Valid(owner);
 }
 
-void Table::VerifyComponent(MemberId owner) const
-{
+void Table::VerifyComponent(MemberId owner) const {
   mMemberIdToIndexMap.Verify(owner);
 }
 
-void Table::VerifyDenseIndex(size_t denseIndex) const
-{
+void Table::VerifyDenseIndex(size_t denseIndex) const {
   if (denseIndex >= mMemberIdToIndexMap.DenseUsage()) {
     LogAbort("The provided dense index is invalid.");
   }
 }
 
-void* Table::AllocateComponent(MemberId owner)
-{
+void* Table::AllocateComponent(MemberId owner) {
   if (mMemberIdToIndexMap.DenseUsage() == mCapacity) {
     Grow();
   }
@@ -143,8 +124,7 @@ void* Table::AllocateComponent(MemberId owner)
   return GetComponent(owner);
 }
 
-void Table::Grow()
-{
+void Table::Grow() {
   const Comp::TypeData& typeData = Comp::GetTypeData(mTypeId);
   if (mData == nullptr) {
     mData = alloc char[smStartCapacity * typeData.mSize];

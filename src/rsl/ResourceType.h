@@ -6,8 +6,7 @@
 
 namespace Rsl {
 
-enum class ResourceTypeId
-{
+enum class ResourceTypeId {
   Cubemap,
   Font,
   Image,
@@ -20,8 +19,7 @@ enum class ResourceTypeId
 };
 typedef ResourceTypeId ResTypeId;
 
-struct ResourceTypeData
-{
+struct ResourceTypeData {
   size_t mSize;
   const char* mName;
   void (*mMoveConstruct)(void* from, void* to);
@@ -30,8 +28,7 @@ struct ResourceTypeData
 typedef ResourceTypeData ResTypeData;
 
 template<typename T>
-struct ResourceType
-{
+struct ResourceType {
   static ResTypeId smResTypeId;
 
 private:
@@ -51,8 +48,7 @@ const ResTypeData& GetResTypeData(ResTypeId resTypeId);
 const ResTypeData& GetResTypeData(const std::string& resTypeName);
 
 template<typename T>
-ResTypeId GetResTypeId()
-{
+ResTypeId GetResTypeId() {
   if (ResourceType<T>::smResTypeId == ResTypeId::Invalid) {
     LogAbort("Resource type not registered.");
   }
@@ -60,8 +56,7 @@ ResTypeId GetResTypeId()
 }
 
 template<typename T>
-const ResourceTypeData& GetResTypeData()
-{
+const ResourceTypeData& GetResTypeData() {
   return GetResTypeData(ResourceType<T>::smResTypeId);
 }
 

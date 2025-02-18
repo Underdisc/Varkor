@@ -7,8 +7,7 @@
 
 namespace Test {
 
-void BarycentricCoords()
-{
+void BarycentricCoords() {
   Math::Triangle tri = {{{-1, -1, -1}, {1, 0, 1}, {0, 1, 0}}};
 
   auto printBarycentricCoords = [&](const Vec3& point)
@@ -27,8 +26,7 @@ void BarycentricCoords()
   printBarycentricCoords(c + (a - c) + (b - c));
 }
 
-Ds::Vector<TriangleClosestPointToTest> GetTriangleClosestPointToTests()
-{
+Ds::Vector<TriangleClosestPointToTest> GetTriangleClosestPointToTests() {
   Ds::Vector<TriangleClosestPointToTest> tests;
   Math::Triangle triangle;
   Vec3 point;
@@ -104,10 +102,9 @@ Ds::Vector<TriangleClosestPointToTest> GetTriangleClosestPointToTests()
   return tests;
 }
 
-void ClosestPointTo()
-{
+void ClosestPointTo() {
   auto tests = GetTriangleClosestPointToTests();
-  for (const TriangleClosestPointToTest& test : tests) {
+  for (const TriangleClosestPointToTest& test: tests) {
     std::cout << test.mName << ": "
               << test.mTriangle.ClosestPointTo(test.mPoint) << '\n';
   }
@@ -116,8 +113,7 @@ void ClosestPointTo()
 } // namespace Test
 
 #ifndef RemoveTestEntryPoint
-void main()
-{
+void main() {
   using namespace Test;
   RunTest(BarycentricCoords);
   RunTest(ClosestPointTo);

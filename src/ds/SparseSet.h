@@ -6,8 +6,7 @@ namespace Ds {
 typedef int SparseId;
 constexpr SparseId nInvalidSparseId = -1;
 
-struct SparseSet
-{
+struct SparseSet {
 public:
   SparseSet();
   ~SparseSet();

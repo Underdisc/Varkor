@@ -4,27 +4,23 @@
 namespace Math {
 
 template<typename T, unsigned int N>
-T* Matrix<T, N>::Data()
-{
+T* Matrix<T, N>::Data() {
   return (T*)this->mValue;
 }
 
 template<typename T, unsigned int N>
-const T* Matrix<T, N>::CData() const
-{
+const T* Matrix<T, N>::CData() const {
   return (const T*)this->mValue;
 }
 
 template<typename T, unsigned int N>
-T* Matrix<T, N>::operator[](int row)
-{
+T* Matrix<T, N>::operator[](int row) {
   return (T*)mD[row];
 }
 
 template<typename T, unsigned int N>
 template<unsigned int M>
-Matrix<T, N>::operator Matrix<T, M>() const
-{
+Matrix<T, N>::operator Matrix<T, M>() const {
   // Copy all needed elements from the old matrix into the new matrix.
   Matrix<T, M> matrix;
   for (int i = 0; i < N && i < M; ++i) {
@@ -52,14 +48,12 @@ Matrix<T, N>::operator Matrix<T, M>() const
 }
 
 template<typename T, unsigned int N>
-const T* Matrix<T, N>::operator[](int row) const
-{
+const T* Matrix<T, N>::operator[](int row) const {
   return (const T*)mD[row];
 }
 
 template<typename T, unsigned int N>
-Matrix<T, N> operator*(const Matrix<T, N>& a, const Matrix<T, N>& b)
-{
+Matrix<T, N> operator*(const Matrix<T, N>& a, const Matrix<T, N>& b) {
   Matrix<T, N> result;
   for (int r = 0; r < N; ++r) {
     for (int c = 0; c < N; ++c) {
@@ -70,16 +64,14 @@ Matrix<T, N> operator*(const Matrix<T, N>& a, const Matrix<T, N>& b)
 }
 
 template<typename T, unsigned int N>
-Matrix<T, N>& operator*=(Matrix<T, N>& a, const Matrix<T, N>& b)
-{
+Matrix<T, N>& operator*=(Matrix<T, N>& a, const Matrix<T, N>& b) {
   Matrix<T, N> result = a * b;
   a = result;
   return a;
 }
 
 template<typename T, unsigned int N>
-Vector<T, N> operator*(const Matrix<T, N>& matrix, const Vector<T, N>& vector)
-{
+Vector<T, N> operator*(const Matrix<T, N>& matrix, const Vector<T, N>& vector) {
   Vector<T, N> result;
   for (int r = 0; r < N; ++r) {
     result[r] = (T)0;
@@ -91,8 +83,7 @@ Vector<T, N> operator*(const Matrix<T, N>& matrix, const Vector<T, N>& vector)
 }
 
 template<typename T, unsigned int N>
-void Zero(Matrix<T, N>* matrix)
-{
+void Zero(Matrix<T, N>* matrix) {
   for (int r = 0; r < N; ++r) {
     for (int c = 0; c < N; ++c) {
       (*matrix)[r][c] = (T)0;
@@ -101,8 +92,7 @@ void Zero(Matrix<T, N>* matrix)
 }
 
 template<typename T, unsigned int N>
-void Identity(Matrix<T, N>* matrix)
-{
+void Identity(Matrix<T, N>* matrix) {
   Zero(matrix);
   for (int d = 0; d < N; ++d) {
     (*matrix)[d][d] = (T)1;
@@ -110,8 +100,7 @@ void Identity(Matrix<T, N>* matrix)
 }
 
 template<typename T, unsigned int N>
-void Scale(Matrix<T, N>* matrix, const Vector<T, N - 1>& scale)
-{
+void Scale(Matrix<T, N>* matrix, const Vector<T, N - 1>& scale) {
   Zero(matrix);
   for (int i = 0; i < N - 1; ++i) {
     (*matrix)[i][i] = scale[i];
@@ -120,8 +109,7 @@ void Scale(Matrix<T, N>* matrix, const Vector<T, N - 1>& scale)
 }
 
 template<typename T, unsigned int N>
-void Translate(Matrix<T, N>* matrix, const Vector<T, N - 1>& translation)
-{
+void Translate(Matrix<T, N>* matrix, const Vector<T, N - 1>& translation) {
   Identity(matrix);
   for (int i = 0; i < N - 1; ++i) {
     (*matrix)[i][N - 1] = translation[i];
@@ -129,8 +117,7 @@ void Translate(Matrix<T, N>* matrix, const Vector<T, N - 1>& translation)
 }
 
 template<typename T, unsigned int N>
-Matrix<T, N> Transpose(const Matrix<T, N>& matrix)
-{
+Matrix<T, N> Transpose(const Matrix<T, N>& matrix) {
   Matrix<T, N> newMatrix;
   for (int i = 0; i < N; ++i) {
     for (int j = 0; j < N; ++j) {
@@ -141,8 +128,7 @@ Matrix<T, N> Transpose(const Matrix<T, N>& matrix)
 }
 
 template<typename T, unsigned int N, unsigned int M>
-void Resize(Matrix<T, N>* matrix, const Matrix<T, M>& other)
-{
+void Resize(Matrix<T, N>* matrix, const Matrix<T, M>& other) {
   Identity(matrix);
   unsigned int min = Math::Min(N, M);
   for (unsigned int i = 0; i < min; ++i) {
@@ -155,23 +141,20 @@ void Resize(Matrix<T, N>* matrix, const Matrix<T, M>& other)
 
 template<typename T, unsigned int N>
 Vector<T, N - 1> ApplyToPoint(
-  const Matrix<T, N>& matrix, const Vector<T, N - 1>& point)
-{
+  const Matrix<T, N>& matrix, const Vector<T, N - 1>& point) {
   Vec4 fullPoint = {point[0], point[1], point[2], 1.0f};
   return (Vector<T, N - 1>)(matrix * fullPoint);
 }
 
 template<typename T, unsigned int N>
 Vector<T, N - 1> ApplyToVector(
-  const Matrix<T, N>& matrix, const Vector<T, N - 1>& vector)
-{
+  const Matrix<T, N>& matrix, const Vector<T, N - 1>& vector) {
   Vec4 fullVector = {vector[0], vector[1], vector[2], 0.0f};
   return (Vector<T, N - 1>)(matrix * fullVector);
 }
 
 template<typename T, unsigned int N>
-Vector<T, N> GetBasisVector(const Matrix<T, N>& matrix, unsigned int column)
-{
+Vector<T, N> GetBasisVector(const Matrix<T, N>& matrix, unsigned int column) {
   Vector<T, N> basisAxis;
   for (int i = 0; i < N; ++i) {
     basisAxis[i] = matrix[i][column];
@@ -180,8 +163,7 @@ Vector<T, N> GetBasisVector(const Matrix<T, N>& matrix, unsigned int column)
 }
 
 template<typename T, unsigned int N>
-Matrix<T, N> HomogeneousOrthogonalInverse(const Matrix<T, N>& matrix)
-{
+Matrix<T, N> HomogeneousOrthogonalInverse(const Matrix<T, N>& matrix) {
   Matrix<T, N> result;
   for (int r = 0; r < N - 1; ++r) {
     result[r][N - 1] = (T)0;
@@ -198,8 +180,7 @@ Matrix<T, N> HomogeneousOrthogonalInverse(const Matrix<T, N>& matrix)
 }
 
 template<typename T, unsigned int N>
-Matrix<T, N> Inverse(const Matrix<T, N>& matrix)
-{
+Matrix<T, N> Inverse(const Matrix<T, N>& matrix) {
   // We find the inverse using Gauss-Jordan elimination. That is, we augment
   // the square matrix by the identity and perform row operations until the new
   // N by 2N matrix is in reduced row echelon form. At this point the inverse
@@ -253,24 +234,21 @@ Matrix<T, N> Inverse(const Matrix<T, N>& matrix)
 }
 
 template<typename T, unsigned int N>
-void MultiplyRow(Matrix<T, N>* matrix, int row, T factor)
-{
+void MultiplyRow(Matrix<T, N>* matrix, int row, T factor) {
   for (int col = 0; col < N; ++col) {
     (*matrix)[row][col] *= factor;
   }
 }
 
 template<typename T, unsigned int N>
-void AddRowMultiple(Matrix<T, N>* matrix, int row, int factorRow, T factor)
-{
+void AddRowMultiple(Matrix<T, N>* matrix, int row, int factorRow, T factor) {
   for (int col = 0; col < N; ++col) {
     (*matrix)[row][col] += (*matrix)[factorRow][col] * factor;
   }
 }
 
 template<typename T, unsigned int N>
-void SwapRows(Matrix<T, N>* matrix, int rowA, int rowB)
-{
+void SwapRows(Matrix<T, N>* matrix, int rowA, int rowB) {
   for (int col = 0; col < N; ++col) {
     T temp = (*matrix)[rowA][col];
     (*matrix)[rowA][col] = (*matrix)[rowB][col];
@@ -283,8 +261,7 @@ T CalculateProductElement(
   const Matrix<T, N>& a,
   const Matrix<T, N>& b,
   int elementRow,
-  int elementColumn)
-{
+  int elementColumn) {
   T result = (T)0;
   for (int i = 0; i < N; ++i) {
     result += a[elementRow][i] * b[i][elementColumn];

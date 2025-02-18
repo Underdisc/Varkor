@@ -1,32 +1,27 @@
 const ArgType = {
-  Single: "single",
-  Optional: "optional",
-  Required: "required"
+  Single: 'single',
+  Optional: 'optional',
+  Required: 'required',
 };
 
 // Used for identifying commandline arguments and what those arguments expect.
-class Switch
-{
-  constructor(long, short, argType)
-  {
+class Switch {
+  constructor(long, short, argType) {
     this.name = long;
     this.long = '--' + long;
     this.short = '-' + short;
     this.argType = argType
   }
-  MatchingClArg(clArg)
-  {
+  MatchingClArg(clArg) {
     return this.long == clArg || this.short == clArg;
   }
-  static IsSwitch(arg)
-  {
+  static IsSwitch(arg) {
     return arg.slice(0, 1) == '-';
   }
 }
 
 // Processes the arguments given on the command line.
-function ProcessClArgs(switches, args)
-{
+function ProcessClArgs(switches, args) {
   let options = {};
   for (let a = 0; a < args.length; ++a) {
     const arg = args[a];
@@ -70,5 +65,5 @@ function ProcessClArgs(switches, args)
 module.exports = {
   ArgType,
   Switch,
-  ProcessClArgs
+  ProcessClArgs,
 };

@@ -6,26 +6,22 @@
 
 namespace Comp {
 
-void Model::VInit(const World::Object& owner)
-{
+void Model::VInit(const World::Object& owner) {
   mModelId = Rsl::GetDefaultResId<Gfx::Model>();
   mVisible = true;
 }
 
-void Model::VSerialize(Vlk::Value& val)
-{
+void Model::VSerialize(Vlk::Value& val) {
   val("ModelId") = mModelId;
   val("Visible") = mVisible;
 }
 
-void Model::VDeserialize(const Vlk::Explorer& modelEx)
-{
+void Model::VDeserialize(const Vlk::Explorer& modelEx) {
   mModelId = modelEx("ModelId").As<ResId>(Rsl::GetDefaultResId<Gfx::Model>());
   mVisible = modelEx("Visible").As<bool>(true);
 }
 
-void Model::VRenderable(const World::Object& owner)
-{
+void Model::VRenderable(const World::Object& owner) {
   if (!mVisible) {
     return;
   }
@@ -43,8 +39,7 @@ void Model::VRenderable(const World::Object& owner)
   }
 }
 
-void Model::VEdit(const World::Object& owner)
-{
+void Model::VEdit(const World::Object& owner) {
   Editor::DropResourceIdWidget(Rsl::ResTypeId::Model, &mModelId);
   ImGui::Checkbox("Visible", &mVisible);
 }

@@ -15,15 +15,13 @@
 namespace Debug {
 namespace Draw {
 
-struct PointData
-{
+struct PointData {
   Vec3 mPoint;
   Vec3 mColor;
 };
 Ds::Vector<PointData> nPoints;
 
-struct LineData
-{
+struct LineData {
   Vec3 mStart;
   Vec3 mStartColor;
   Vec3 mEnd;
@@ -35,31 +33,27 @@ const char* nDebugDrawAssetName = "vres/debugDraw";
 const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Basic");
 const ResId nTbnShaderId(nDebugDrawAssetName, "Tbn");
 
-void Init()
-{
+void Init() {
   glPointSize(12.0f);
   glLineWidth(3.0f);
 }
 
-void Point(const Vec3& point, const Vec3& color)
-{
+void Point(const Vec3& point, const Vec3& color) {
   nPoints.Push({point, color});
 }
 
-void Line(const Vec3& a, const Vec3& b, const Vec3& color)
-{
+void Line(const Vec3& a, const Vec3& b, const Vec3& color) {
   ZoneScoped;
   nLines.Push({a, color, b, color});
 }
 
-void Line(const Vec3& a, const Vec3& b, const Vec3& aColor, const Vec3& bColor)
-{
+void Line(
+  const Vec3& a, const Vec3& b, const Vec3& aColor, const Vec3& bColor) {
   ZoneScoped;
   nLines.Push({a, aColor, b, bColor});
 }
 
-void Plane(const Math::Plane& plane, const Vec3& color)
-{
+void Plane(const Math::Plane& plane, const Vec3& color) {
   Vec3 corners[4];
   const Vec3& normal = plane.Normal();
   Vec3 planeLines[2];
@@ -77,8 +71,7 @@ void Plane(const Math::Plane& plane, const Vec3& color)
   Line(corners[3], corners[0], color);
 }
 
-void Box(const Math::Box& box, const Vec3& color)
-{
+void Box(const Math::Box& box, const Vec3& color) {
   Mat3 orientation;
   Math::Rotate(&orientation, box.mRotation);
   Vec3 scaledBasis[3];
@@ -103,8 +96,7 @@ void Box(const Math::Box& box, const Vec3& color)
   }
 }
 
-void Sphere(const Math::Sphere& sphere, const Vec3& color)
-{
+void Sphere(const Math::Sphere& sphere, const Vec3& color) {
   // Create an array of points that outline a unit circle around the z axis.
   constexpr int pointCount = 40;
   static Vec3 circlePoints[pointCount];
@@ -132,8 +124,7 @@ void Sphere(const Math::Sphere& sphere, const Vec3& color)
   createLines(Quat(Math::nPi * 0.5f, {1, 0, 0}));
 }
 
-void Triangle(const Math::Triangle& triangle, const Vec3& color)
-{
+void Triangle(const Math::Triangle& triangle, const Vec3& color) {
   const Vec3& a = triangle.mPoints[0];
   const Vec3& b = triangle.mPoints[1];
   const Vec3& c = triangle.mPoints[2];
@@ -142,8 +133,7 @@ void Triangle(const Math::Triangle& triangle, const Vec3& color)
   Line(c, a, color);
 }
 
-void CartesianAxes()
-{
+void CartesianAxes() {
   Vec3 x = {1.0f, 0.0f, 0.0f};
   Vec3 y = {0.0f, 1.0f, 0.0f};
   Vec3 z = {0.0f, 0.0f, 1.0f};
@@ -153,8 +143,7 @@ void CartesianAxes()
   Line(o, z, z);
 }
 
-void Render(const World::Object& cameraObject)
-{
+void Render(const World::Object& cameraObject) {
   ZoneScoped;
 
   Gfx::Shader* shader = Rsl::TryGetRes<Gfx::Shader>(nDebugDrawShaderId);
@@ -208,14 +197,13 @@ void Render(const World::Object& cameraObject)
   nLines.Clear();
 }
 
-void RenderTbnVectors(const Gfx::Collection& collection)
-{
+void RenderTbnVectors(const Gfx::Collection& collection) {
   auto* shader = Rsl::TryGetRes<Gfx::Shader>(nTbnShaderId);
   if (shader == nullptr) {
     return;
   }
   shader->Use();
-  for (const Gfx::Renderable::Floater& floater : collection.mFloaters) {
+  for (const Gfx::Renderable::Floater& floater: collection.mFloaters) {
     const auto* mesh = Rsl::TryGetRes<Gfx::Mesh>(floater.mMeshId);
     if (mesh == nullptr) {
       continue;

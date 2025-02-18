@@ -7,8 +7,7 @@
 #include "test/world/TestTypes.h"
 #include "world/Table.h"
 
-void Add()
-{
+void Add() {
   World::Table counter(Comp::Type<CallCounter>::smId);
   World::Table simple(Comp::Type<Simple0>::smId);
   World::Table dynamic(Comp::Type<Dynamic>::smId);
@@ -30,8 +29,7 @@ void Add()
   PrintTableOwners(container);
 }
 
-void Move()
-{
+void Move() {
   World::Table container(Comp::Type<Container>::smId);
   for (World::MemberId i = 0; i < 15; ++i) {
     ((Container*)container.Request(i))->SetData(i);
@@ -41,8 +39,7 @@ void Move()
   PrintTable<Container>(moved);
 }
 
-void Remove0()
-{
+void Remove0() {
   World::Table table(Comp::Type<Dynamic>::smId);
   table.Request(0);
   table.Request(1);
@@ -50,8 +47,7 @@ void Remove0()
   PrintTable<Dynamic>(table);
 }
 
-void Remove1()
-{
+void Remove1() {
   World::Table table(Comp::Type<Dynamic>::smId);
   table.Request(0);
   table.Request(1);
@@ -62,8 +58,7 @@ void Remove1()
   PrintTable<Dynamic>(table);
 }
 
-void Remove2()
-{
+void Remove2() {
   World::Table tables[4] = {
     Comp::Type<CallCounter>::smId,
     Comp::Type<Simple0>::smId,
@@ -89,16 +84,14 @@ void Remove2()
   PrintTable<Container>(tables[3]);
 }
 
-void Duplicate0()
-{
+void Duplicate0() {
   World::Table table(Comp::Type<Dynamic>::smId);
   ((Dynamic*)table.Request(0))->SetData(0);
   table.Duplicate(0, 1);
   PrintTable<Dynamic>(table);
 }
 
-void Duplicate1()
-{
+void Duplicate1() {
   World::Table counterTable(Comp::Type<CallCounter>::smId);
   World::Table dynamicTable(Comp::Type<Dynamic>::smId);
   World::Table containerTable(Comp::Type<Container>::smId);
@@ -121,8 +114,7 @@ void Duplicate1()
   }
 }
 
-void GetComponent()
-{
+void GetComponent() {
   // We create some components, but before creating all components, we set
   // some data to ensure that data is copied when the tables grow.
   World::Table dynamic(Comp::Type<Dynamic>::smId);
@@ -145,8 +137,7 @@ void GetComponent()
   PrintTable<Container>(container);
 }
 
-int main(void)
-{
+int main(void) {
   Error::Init();
   RegisterComponentTypes();
 

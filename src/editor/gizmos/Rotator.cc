@@ -13,8 +13,7 @@
 namespace Editor {
 namespace Gizmos {
 
-Rotator::Rotator(): mOperation(Operation::None)
-{
+Rotator::Rotator(): mOperation(Operation::None) {
   // Create all of the handles.
   mParent = nSpace.CreateMember();
   nSpace.AddComponent<Comp::Transform>(mParent);
@@ -53,15 +52,13 @@ Rotator::Rotator(): mOperation(Operation::None)
     ResId(smRotatorAssetName, smMaterialNames[(int)Operation::Xyz]);
 }
 
-Rotator::~Rotator()
-{
+Rotator::~Rotator() {
   if (mParent != World::nInvalidMemberId) {
     nSpace.DeleteMember(mParent);
   }
 }
 
-Rotator::Rotator(Rotator&& other)
-{
+Rotator::Rotator(Rotator&& other) {
   mParent = other.mParent;
   for (int i = 0; i < smHandleCount; ++i) {
     mHandles[i] = other.mHandles[i];
@@ -74,8 +71,7 @@ Rotator::Rotator(Rotator&& other)
 }
 
 void Rotator::SetNextOperation(
-  const Vec3& translation, const Quat& referenceFrame)
-{
+  const Vec3& translation, const Quat& referenceFrame) {
   // Find out the type of operation.
   const World::Object cameraObject = nCamera.GetObject();
   const auto& cameraComp = cameraObject.Get<Comp::Camera>();
@@ -120,8 +116,7 @@ void Rotator::SetNextOperation(
 }
 
 Quat Rotator::Run(
-  const Quat& rotation, const Vec3& translation, const Quat& referenceFrame)
-{
+  const Quat& rotation, const Vec3& translation, const Quat& referenceFrame) {
   SetParentTransformation(mParent, translation, referenceFrame);
 
   // Handle the transitions between all operation types.
@@ -194,8 +189,7 @@ Quat Rotator::Run(
   return rotation;
 }
 
-void Rotator::Init()
-{
+void Rotator::Init() {
   // Create all of the handles.
   Rsl::Asset& rotatorAsset = Rsl::AddAsset(smRotatorAssetName);
   for (int i = 0; i < smHandleCount; ++i) {
@@ -212,8 +206,7 @@ void Rotator::Init()
   rotatorAsset.Finalize();
 }
 
-void Rotator::Purge()
-{
+void Rotator::Purge() {
   Rsl::RemAsset(smRotatorAssetName);
 }
 

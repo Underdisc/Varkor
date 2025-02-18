@@ -11,13 +11,11 @@ namespace Gfx {
 
 Collection* Collection::smActiveCollection = nullptr;
 
-Collection::Collection()
-{
+Collection::Collection() {
   mSkybox.mOwner = World::nInvalidMemberId;
 }
 
-void Collection::Collect(const World::Space& space)
-{
+void Collection::Collect(const World::Space& space) {
   ZoneScoped;
 
   // Collect all renderables from every component in the given space.
@@ -29,7 +27,7 @@ void Collection::Collect(const World::Space& space)
     }
     // todo: Add CObjects (const Object).
     Ds::Vector<World::MemberId> slice = space.Slice(typeId);
-    for (World::MemberId memberId : slice) {
+    for (World::MemberId memberId: slice) {
       void* component = space.GetComponent(typeId, memberId);
       World::Object owner(const_cast<World::Space*>(&space), memberId);
       typeData.mVRenderable.Invoke(component, owner);
@@ -38,8 +36,7 @@ void Collection::Collect(const World::Space& space)
   smActiveCollection = nullptr;
 }
 
-void Collection::Collect(const World::Object& object)
-{
+void Collection::Collect(const World::Object& object) {
   // Collect all of the renderables on a specific object.
   smActiveCollection = this;
   for (Comp::TypeId typeId = 0; typeId < Comp::TypeDataCount(); ++typeId) {
@@ -55,32 +52,28 @@ void Collection::Collect(const World::Object& object)
   smActiveCollection = nullptr;
 }
 
-void Collection::Add(Renderable::Floater&& floater)
-{
+void Collection::Add(Renderable::Floater&& floater) {
   VerifyActiveCollection();
   smActiveCollection->mFloaters.Push(std::move(floater));
 }
 
-void Collection::Use(Renderable::Skybox&& skybox)
-{
+void Collection::Use(Renderable::Skybox&& skybox) {
   VerifyActiveCollection();
   LogErrorIf(
     smActiveCollection->HasSkybox(), "Previous Skybox renderable overwritten.");
   smActiveCollection->mSkybox = std::move(skybox);
 }
 
-void Collection::Add(Renderable::Icon&& icon)
-{
+void Collection::Add(Renderable::Icon&& icon) {
   VerifyActiveCollection();
   smActiveCollection->mIcons.Push(std::move(icon));
 }
 
-void Collection::RenderFloaters()
-{
+void Collection::RenderFloaters() {
   ResId currentMaterialId;
   int currentTextureIndex;
   Shader* currentShader = nullptr;
-  for (const Renderable::Floater& floater : mFloaters) {
+  for (const Renderable::Floater& floater: mFloaters) {
     // Bind a new material if the material changes.
     if (floater.mMaterialId != currentMaterialId) {
       const auto* nextMaterial =
@@ -118,13 +111,11 @@ void Collection::RenderFloaters()
   }
 }
 
-bool Collection::HasSkybox() const
-{
+bool Collection::HasSkybox() const {
   return mSkybox.mOwner != World::nInvalidMemberId;
 }
 
-void Collection::RenderSkybox()
-{
+void Collection::RenderSkybox() {
   LogAbortIf(!HasSkybox(), "Collection does not have a Skybox renderable.");
   const auto* material = Rsl::TryGetRes<Gfx::Material>(mSkybox.mMaterialId);
   if (material == nullptr) {
@@ -146,8 +137,7 @@ void Collection::RenderSkybox()
 }
 
 void Collection::RenderIcons(
-  bool memberIds, const World::Object& cameraObject) const
-{
+  bool memberIds, const World::Object& cameraObject) const {
   Shader* shader;
   if (memberIds) {
     shader = &Rsl::GetRes<Shader>("vres/renderer:MemberId");
@@ -161,7 +151,7 @@ void Collection::RenderIcons(
   Quat iconRotation = cameraComp.WorldRotation(cameraObject);
   Mat4 iconRotate;
   Math::Rotate(&iconRotate, iconRotation);
-  for (const Renderable::Icon& icon : mIcons) {
+  for (const Renderable::Icon& icon: mIcons) {
     Mesh* mesh = Rsl::TryGetRes<Mesh>(icon.mMeshId);
     if (mesh == nullptr) {
       return;
@@ -191,8 +181,7 @@ void Collection::RenderIcons(
   }
 }
 
-void Collection::VerifyActiveCollection()
-{
+void Collection::VerifyActiveCollection() {
   LogAbortIf(smActiveCollection == nullptr, "Active collection not set.");
 }
 

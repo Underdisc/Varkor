@@ -12,16 +12,14 @@
 
 namespace Gfx {
 
-struct Shader
-{
+struct Shader {
   Shader();
   Shader(Shader&& other);
   Shader& operator=(Shader&& other);
   ~Shader();
 
   // Tracks where a chunk of source code came from.
-  struct SourceChunk
-  {
+  struct SourceChunk {
     // The file that the chunk comes from.
     std::string mFile;
     // The line numbers that the chunk of source code starts and ends on.
@@ -33,8 +31,7 @@ struct Shader
     int mExcludedLines;
   };
 
-  enum class SubType
-  {
+  enum class SubType {
     Vertex,
     Geometry,
     Fragment,
@@ -48,8 +45,7 @@ struct Shader
   static SubType GetSubType(const std::string& subTypeString);
 
   // The information needed to compile subshader source code.
-  struct CompileInfo
-  {
+  struct CompileInfo {
     std::string mSource;
     SubType mSubType;
     // Chunks describing where each part of the source came from.

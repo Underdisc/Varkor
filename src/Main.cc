@@ -1,7 +1,6 @@
 #include "VarkorMain.h"
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   Options::Config config;
   config.mEditorLevel = Options::EditorLevel::Complete;
   config.mProjectDirectory = "";

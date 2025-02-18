@@ -9,24 +9,21 @@
 
 namespace Editor {
 
-struct LibraryInterface: public Interface
-{
+struct LibraryInterface: public Interface {
 public:
   LibraryInterface();
   void Show();
 
 private:
   // This represents an expanded asset within the Library tree.
-  struct OpenAsset
-  {
+  struct OpenAsset {
     OpenAsset(const std::string& name);
     std::string mName;
     bool mShowDefinedResources;
   };
 
   // This represents an expanded directory within the Library tree.
-  struct Tree
-  {
+  struct Tree {
     Tree(const std::string& name);
     std::string mName;
     Ds::Vector<Tree> mSubTrees;

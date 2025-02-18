@@ -10,16 +10,15 @@
 
 namespace Comp {
 
-struct ShadowMap
-{
+struct ShadowMap {
   GLuint mFbo;
   GLuint mTbo;
   unsigned int mWidth;
   unsigned int mHeight;
   float mBias;
 
-  constexpr static unsigned int smDefaultWidth = 1024;
-  constexpr static unsigned int smDefaultHeight = 1024;
+  constexpr static unsigned int smDefaultWidth = 1'024;
+  constexpr static unsigned int smDefaultHeight = 1'024;
   constexpr static float smDefaultBias = 0.0f;
 
   ~ShadowMap();

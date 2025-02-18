@@ -14,8 +14,7 @@
 namespace Comp {
 
 #pragma pack(push, 1)
-struct Text
-{
+struct Text {
   constexpr static const char* smDefaultAssetName = "vres/text";
   static const ResId smDefaultFontId;
   static const ResId smDefaultMaterialId;
@@ -27,8 +26,7 @@ struct Text
   void VRenderable(const World::Object& owner);
   void VEdit(const World::Object& owner);
 
-  struct Line
-  {
+  struct Line {
     int mStart;
     int mEnd;
     float mWidth;
@@ -40,8 +38,7 @@ struct Text
   ResId mMaterialId;
   std::string mText;
 
-  enum class Alignment
-  {
+  enum class Alignment {
     Left,
     Center,
     Right,

@@ -8,8 +8,7 @@
 
 namespace Gfx {
 
-enum class UniformTypeId
-{
+enum class UniformTypeId {
   Int,
   Float,
   Vec3,
@@ -22,8 +21,7 @@ enum class UniformTypeId
   Invalid,
 };
 template<typename T>
-struct UniformType
-{
+struct UniformType {
   static UniformTypeId smTypeId;
   // Attached implies a one to one relationship between T and UniformTypeId.
   static void RegisterAttached(UniformTypeId typeId, const char* name);
@@ -34,8 +32,7 @@ template<typename T>
 UniformTypeId GetUniformTypeId();
 UniformTypeId GetUniformTypeId(const std::string& name);
 
-struct UniformTypeData
-{
+struct UniformTypeData {
   UniformTypeData();
   const char* mName;
   size_t mSize;
@@ -47,12 +44,10 @@ template<typename T>
 const UniformTypeData& GetUniformTypeData();
 const UniformTypeData& GetUniformTypeData(UniformTypeId typeId);
 
-struct UniformVector
-{
+struct UniformVector {
   static void Init();
 
-  struct UniformDescriptor
-  {
+  struct UniformDescriptor {
     std::string mName;
     UniformTypeId mTypeId;
     size_t mByteIndex;

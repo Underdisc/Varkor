@@ -6,8 +6,7 @@
 namespace Math {
 
 template<typename T, unsigned int N>
-struct Matrix
-{
+struct Matrix {
   T mD[N][N];
 
   T* Data();

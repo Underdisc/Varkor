@@ -9,8 +9,7 @@
 namespace Comp {
 
 #pragma pack(push, 1)
-struct Transform
-{
+struct Transform {
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& transformVal);
   void VDeserialize(const Vlk::Explorer& transformEx);

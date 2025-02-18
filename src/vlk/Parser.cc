@@ -16,8 +16,7 @@
 
 namespace Vlk {
 
-bool Parser::Accept(Token::Type tokenType)
-{
+bool Parser::Accept(Token::Type tokenType) {
   if (mTokens[mCurrentToken].mType == Token::Type::Terminator) {
     return false;
   }
@@ -34,35 +33,30 @@ bool Parser::Accept(Token::Type tokenType)
   return false;
 }
 
-bool Parser::Expect(Token::Type tokenType, const char* error)
-{
+bool Parser::Expect(Token::Type tokenType, const char* error) {
   return Expect(Accept(tokenType), error);
 }
 
-bool Parser::Expect(bool success, const char* error)
-{
+bool Parser::Expect(bool success, const char* error) {
   if (success) {
     return true;
   }
   throw error;
 }
 
-const Token& Parser::LastToken()
-{
+const Token& Parser::LastToken() {
   LogAbortIf(
     mCurrentToken == 0,
     "LastToken can only be used after tokens have been accepted.");
   return mTokens[mCurrentToken - 1];
 }
 
-size_t Parser::LastTokenLength()
-{
+size_t Parser::LastTokenLength() {
   const Token& lastToken = LastToken();
   return mTokens[mCurrentToken].mText - lastToken.mText;
 }
 
-Result Parser::Parse(const char* text, Value* root)
-{
+Result Parser::Parse(const char* text, Value* root) {
   VResult<Ds::Vector<Token>> result = Tokenize(text);
   if (!result.Success()) {
     return Result(result.mError);
@@ -82,8 +76,7 @@ Result Parser::Parse(const char* text, Value* root)
   return Result();
 }
 
-bool Parser::ParseValue()
-{
+bool Parser::ParseValue() {
   if (!Accept(Token::Type::TrueValue)) {
     return ParsePairArray() || ParseValueArray();
   }
@@ -111,8 +104,7 @@ bool Parser::ParseValue()
   return true;
 }
 
-bool Parser::ParsePairArray()
-{
+bool Parser::ParsePairArray() {
   if (!Accept(Token::Type::OpenBrace)) {
     return false;
   }
@@ -132,8 +124,7 @@ bool Parser::ParsePairArray()
   return true;
 }
 
-bool Parser::ParseValueArray()
-{
+bool Parser::ParseValueArray() {
   if (!Accept(Token::Type::OpenBracket)) {
     return false;
   }
@@ -152,8 +143,7 @@ bool Parser::ParseValueArray()
   return true;
 }
 
-bool Parser::ParsePair()
-{
+bool Parser::ParsePair() {
   if (!Accept(Token::Type::Key)) {
     return false;
   }
@@ -170,8 +160,7 @@ bool Parser::ParsePair()
   return true;
 }
 
-bool Parser::ParseValueList()
-{
+bool Parser::ParseValueList() {
   if (!ParseValue()) {
     return false;
   }
@@ -180,8 +169,7 @@ bool Parser::ParseValueList()
   return true;
 }
 
-bool Parser::ParseValueArrayList()
-{
+bool Parser::ParseValueArrayList() {
   if (!ParseValueArray()) {
     return false;
   }

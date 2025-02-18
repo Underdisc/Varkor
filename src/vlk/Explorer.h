@@ -19,8 +19,7 @@ struct Deserializer;
 // Explorers should be used when deserializing data whereas Values should be
 // used when serializing data.
 
-struct Explorer
-{
+struct Explorer {
   Explorer(const Value& rootVal);
 
   template<typename T>
@@ -50,14 +49,12 @@ private:
 };
 
 template<typename T>
-T Explorer::As() const
-{
+T Explorer::As() const {
   return mValue->As<T>();
 }
 
 template<typename T>
-T Explorer::As(const T& defaultValue) const
-{
+T Explorer::As(const T& defaultValue) const {
   if (!Valid()) {
     return defaultValue;
   }

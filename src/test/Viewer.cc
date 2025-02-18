@@ -20,32 +20,26 @@
 namespace Viewer {
 
 template<typename T>
-void Show(const T& test)
-{}
+void Show(const T& test) {}
 
 template<typename T>
-void Gizmo(T* test)
-{}
+void Gizmo(T* test) {}
 
 bool nShowGizmo = false;
 
 template<typename T>
-struct TestVector
-{
+struct TestVector {
   static Ds::Vector<T> smTests;
 
-  static size_t Count()
-  {
+  static size_t Count() {
     return smTests.Size();
   }
 
-  static const std::string& TestName(size_t idx)
-  {
+  static const std::string& TestName(size_t idx) {
     return smTests[idx].mName;
   }
 
-  static void ShowTest(size_t idx)
-  {
+  static void ShowTest(size_t idx) {
     if (nShowGizmo) {
       Gizmo<T>(&smTests[idx]);
     }
@@ -55,15 +49,13 @@ struct TestVector
 template<typename T>
 Ds::Vector<T> TestVector<T>::smTests;
 
-struct TestVectorTypeData
-{
+struct TestVectorTypeData {
   size_t (*mCount)();
   const std::string& (*mTestName)(size_t idx);
   void (*mShowTest)(size_t idx);
 };
 
-enum class TestType
-{
+enum class TestType {
   BoxBoxIntersection = 0,
   SphereSphereIntersection = 1,
   TriangleClosestPointTo = 2,
@@ -80,8 +72,7 @@ const char* nTypeStrs[] = {
 Ds::Vector<TestVectorTypeData> nTestVectorTypeData;
 
 template<typename T>
-void RegisterTestVector(TestType type, Ds::Vector<T> (*getTests)())
-{
+void RegisterTestVector(TestType type, Ds::Vector<T> (*getTests)()) {
   TestVector<T>::smTests = getTests();
 
   TestVectorTypeData newTypeData;
@@ -95,23 +86,20 @@ void RegisterTestVector(TestType type, Ds::Vector<T> (*getTests)())
   nTestVectorTypeData[(size_t)type] = newTypeData;
 }
 
-void PointGizmo(Vec3* point)
-{
+void PointGizmo(Vec3* point) {
   using namespace Editor::Gizmos;
   if (nMode == Mode::Translate) {
     *point = Editor::Gizmo<Translator>::Next().Run(*point, {1, 0, 0, 0});
   }
 }
 
-void TriangleGizmo(Math::Triangle* triangle)
-{
+void TriangleGizmo(Math::Triangle* triangle) {
   PointGizmo(&(*triangle).mPoints[0]);
   PointGizmo(&(*triangle).mPoints[1]);
   PointGizmo(&(*triangle).mPoints[2]);
 }
 
-void SphereGizmo(Math::Sphere* sphere)
-{
+void SphereGizmo(Math::Sphere* sphere) {
   using namespace Editor::Gizmos;
   switch (nMode) {
   case Mode::Translate:
@@ -127,8 +115,7 @@ void SphereGizmo(Math::Sphere* sphere)
   }
 }
 
-void BoxGizmo(Math::Box* box)
-{
+void BoxGizmo(Math::Box* box) {
   using namespace Editor::Gizmos;
   const Quat& referenceFrameRotation = box->mRotation;
   switch (nMode) {
@@ -149,8 +136,7 @@ void BoxGizmo(Math::Box* box)
 
 template<>
 void Show<Test::BoxBoxIntersectionTest>(
-  const Test::BoxBoxIntersectionTest& test)
-{
+  const Test::BoxBoxIntersectionTest& test) {
   Vec3 color = {1, 1, 1};
   if (Math::HasIntersection(test.mA, test.mB)) {
     color = {0, 1, 0};
@@ -160,16 +146,14 @@ void Show<Test::BoxBoxIntersectionTest>(
 }
 
 template<>
-void Gizmo<Test::BoxBoxIntersectionTest>(Test::BoxBoxIntersectionTest* test)
-{
+void Gizmo<Test::BoxBoxIntersectionTest>(Test::BoxBoxIntersectionTest* test) {
   BoxGizmo(&test->mA);
   BoxGizmo(&test->mB);
 }
 
 template<>
 void Show<Test::SphereSphereIntersectionTest>(
-  const Test::SphereSphereIntersectionTest& test)
-{
+  const Test::SphereSphereIntersectionTest& test) {
   Vec3 color = {1, 1, 1};
   Math::SphereSphere result = Math::Intersection(test.mA, test.mB);
   if (result.mIntersecting) {
@@ -185,16 +169,14 @@ void Show<Test::SphereSphereIntersectionTest>(
 
 template<>
 void Gizmo<Test::SphereSphereIntersectionTest>(
-  Test::SphereSphereIntersectionTest* test)
-{
+  Test::SphereSphereIntersectionTest* test) {
   SphereGizmo(&test->mA);
   SphereGizmo(&test->mB);
 }
 
 template<>
 void Show<Test::TriangleClosestPointToTest>(
-  const Test::TriangleClosestPointToTest& test)
-{
+  const Test::TriangleClosestPointToTest& test) {
   Debug::Draw::Triangle(test.mTriangle, {1, 1, 1});
   Debug::Draw::Point(test.mPoint, {1, 1, 1});
   Vec3 closestPoint = test.mTriangle.ClosestPointTo(test.mPoint);
@@ -229,16 +211,14 @@ void Show<Test::TriangleClosestPointToTest>(
 
 template<>
 void Gizmo<Test::TriangleClosestPointToTest>(
-  Test::TriangleClosestPointToTest* test)
-{
+  Test::TriangleClosestPointToTest* test) {
   TriangleGizmo(&test->mTriangle);
   PointGizmo(&test->mPoint);
 }
 
 template<>
 void Show<Test::SphereTriangleIntersectionTest>(
-  const Test::SphereTriangleIntersectionTest& test)
-{
+  const Test::SphereTriangleIntersectionTest& test) {
   Vec3 color = {1, 1, 1};
   Math::SphereTriangle intersection =
     Math::Intersection(test.mSphere, test.mTriangle);
@@ -285,22 +265,19 @@ void Show<Test::SphereTriangleIntersectionTest>(
 
 template<>
 void Gizmo<Test::SphereTriangleIntersectionTest>(
-  Test::SphereTriangleIntersectionTest* test)
-{
+  Test::SphereTriangleIntersectionTest* test) {
   SphereGizmo(&test->mSphere);
   TriangleGizmo(&test->mTriangle);
 }
 
-struct Desc
-{
+struct Desc {
   TestType mType;
   int mIdx;
 };
 
 Desc nSelectedTest;
 
-void Init()
-{
+void Init() {
   RegisterTestVector<Test::BoxBoxIntersectionTest>(
     TestType::BoxBoxIntersection, Test::GetBoxBoxIntersectionTests);
   RegisterTestVector<Test::SphereSphereIntersectionTest>(
@@ -315,15 +292,13 @@ void Init()
   nSelectedTest.mIdx = 0;
 }
 
-void Update()
-{
+void Update() {
   const TestVectorTypeData& currentTypeData =
     nTestVectorTypeData[(size_t)nSelectedTest.mType];
   currentTypeData.mShowTest(nSelectedTest.mIdx);
 }
 
-void Interface()
-{
+void Interface() {
   ImGui::Begin("TestSelector");
 
   // A combo for selecting the type of test.
@@ -379,8 +354,7 @@ void Interface()
 
 } // namespace Viewer
 
-void main(int argc, char* argv[])
-{
+void main(int argc, char* argv[]) {
   Viewer::Init();
 
   Options::Config config;

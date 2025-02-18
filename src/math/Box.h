@@ -6,8 +6,7 @@
 
 namespace Math {
 
-struct Box
-{
+struct Box {
   Box();
   Box(const Vec3& center, const Vec3& scale, const Quat& rotation);
   void Init(const Vec3& center, const Vec3& scale, const Quat& rotation);

@@ -15,8 +15,7 @@ namespace World {
 struct Object;
 struct Space;
 
-struct Space
-{
+struct Space {
   Space();
   void Clear();
   void Update();

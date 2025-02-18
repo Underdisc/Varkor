@@ -5,8 +5,7 @@
 
 namespace Math {
 
-struct Ray
-{
+struct Ray {
 public:
   Vec3 mStart;
 

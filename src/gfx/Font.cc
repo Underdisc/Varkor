@@ -12,18 +12,15 @@
 
 namespace Gfx {
 
-Font::Font()
-{
+Font::Font() {
   mFontInfo.data = nullptr;
 }
 
-Font::Font(Font&& other)
-{
+Font::Font(Font&& other) {
   *this = std::move(other);
 }
 
-Font& Font::operator=(Font&& other)
-{
+Font& Font::operator=(Font&& other) {
   mFontInfo.data = other.mFontInfo.data;
   mNewlineOffset = other.mNewlineOffset;
   for (size_t i = 0; i < smGlyphCount; ++i) {
@@ -35,16 +32,14 @@ Font& Font::operator=(Font&& other)
   return *this;
 }
 
-Font::~Font()
-{
+Font::~Font() {
   if (mFontInfo.data == nullptr) {
     return;
   }
   delete[] mFontInfo.data;
 }
 
-void Font::EditConfig(Vlk::Value* configValP)
-{
+void Font::EditConfig(Vlk::Value* configValP) {
   Vlk::Value& configVal = *configValP;
   Vlk::Value& fileVal = configVal("File");
   std::string file = fileVal.As<std::string>("");
@@ -52,8 +47,7 @@ void Font::EditConfig(Vlk::Value* configValP)
   fileVal = file;
 }
 
-Result Font::Init(const Vlk::Explorer& configEx)
-{
+Result Font::Init(const Vlk::Explorer& configEx) {
   Vlk::Explorer fileEx = configEx("File");
   if (!fileEx.Valid(Vlk::Value::Type::TrueValue)) {
     return Result("Missing :File: TrueValue.");
@@ -61,8 +55,7 @@ Result Font::Init(const Vlk::Explorer& configEx)
   return Init(fileEx.As<std::string>());
 }
 
-Result Font::Init(const std::string& file)
-{
+Result Font::Init(const std::string& file) {
   // Resolve the resource path.
   VResult<std::string> resolutionResult = Rsl::ResolveResPath(file);
   if (!resolutionResult.Success()) {
@@ -93,8 +86,7 @@ Result Font::Init(const std::string& file)
   return Result();
 }
 
-void Font::InitGlyphs()
-{
+void Font::InitGlyphs() {
   // To get the scale applied to the metrics for baseline offsets, advances,
   // line gap, etc. we take an arbitrary character (capital 'U' in this case)
   // and find the scale that makes the height of its box 1.
@@ -160,18 +152,15 @@ void Font::InitGlyphs()
   }
 }
 
-GLuint Font::GetTextureId(int codepoint)
-{
+GLuint Font::GetTextureId(int codepoint) {
   return mGlyphData[codepoint].mImage.Id();
 }
 
-const Font::GlyphData& Font::GetGlyphData(int codepoint) const
-{
+const Font::GlyphData& Font::GetGlyphData(int codepoint) const {
   return mGlyphData[codepoint];
 }
 
-float Font::NewlineOffset() const
-{
+float Font::NewlineOffset() const {
   return mNewlineOffset;
 }
 

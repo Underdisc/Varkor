@@ -3,8 +3,7 @@
 
 #include <ostream>
 
-struct TestType
-{
+struct TestType {
   TestType();
   TestType(int value);
   TestType(int a, float b);
