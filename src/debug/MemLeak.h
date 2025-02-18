@@ -12,11 +12,11 @@
 // todo: Investigate new ways to track memory leaks that don't involve replacing
 // the new keyword for lines that perform actual memory allocation.
 #if defined WIN32 && defined _DEBUG
-  #define _CRTDBG_MAP_ALLOC
-  #include <crtdbg.h>
-  #define alloc new (_CLIENT_BLOCK, __FILE__, __LINE__)
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#define alloc new (_CLIENT_BLOCK, __FILE__, __LINE__)
 #else
-  #define alloc new
+#define alloc new
 #endif
 
 void EnableLeakOutput();
