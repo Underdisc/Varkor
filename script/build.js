@@ -55,8 +55,8 @@ let switches = [
   new opt.Switch('showSavedOptions', 's', opt.ArgType.Single),
   new opt.Switch('subBuildDirectory', 'b', opt.ArgType.Required),
   new opt.Switch('target', 't', opt.ArgType.Required),
-  new opt.Switch('run', 'r', opt.ArgType.Optional),
-  new opt.Switch('testMode', 'tm', opt.ArgType.Optional),
+  new opt.Switch('run', 'r', opt.ArgType.Required),
+  new opt.Switch('testMode', 'tm', opt.ArgType.Required),
   new opt.Switch('showTests', 'st', opt.ArgType.Single),
   new opt.Switch('testTarget', 'tt', opt.ArgType.Required),
   new opt.Switch('testAction', 'ta', opt.ArgType.Required),
@@ -70,6 +70,7 @@ let savedOptions = {
   run: 'no',
   testMode: 'no',
   testTarget: '',
+  testAction: 'r',
 };
 
 // Process the options from the commandline and read the saved options.
@@ -92,18 +93,12 @@ for (const key in savedOptions) {
   if (options[key] === undefined) {
     continue;
   }
-  if (['yes', 'no'].includes(savedOptions[key])) {
-    if (options[key].length == 0) {
-      savedOptions[key] = savedOptions[key] == 'yes' ? 'no' : 'yes';
-      continue;
-    }
-    if (!['yes', 'no'].includes(options[key][0])) {
-      console.error(
-        'Invalid argument \'' + options[key] + '\' used for the \'' + key +
-        '\' option. Expects \'yes\' or \'no\'.');
-      continue;
-    }
-    savedOptions[key] = options[key][0];
+  const invalidYesNo = ['yes', 'no'].includes(savedOptions[key]) &&
+    !['yes', 'no'].includes(options[key]);
+  if (invalidYesNo) {
+    console.error(
+      'Invalid argument \'' + options[key] + '\' used for the \'' + key +
+      '\' option. Expects \'yes\' or \'no\'.');
     continue;
   }
   savedOptions[key] = options[key];
@@ -196,25 +191,21 @@ else {
     return;
   }
 
-  if (options.testAction === undefined) {
-    return;
-  }
-  if (options.testAction === 'c' && process.platform !== 'win32') {
+  // Run the desired action for all tests.
+  if (savedOptions.testAction === 'c' && process.platform !== 'win32') {
     console.error('Coverage reports only available on Windows under msvc');
     return;
   }
-
-  // Run the desired action for all tests.
   if (savedOptions.testTarget === 'all') {
     const targets = test.GetTargets();
     for (const target of targets) {
       const testInfo = test.GetInfo(target, fullBuildDir);
-      switch (options.testAction) {
+      switch (savedOptions.testAction) {
       case 't': test.Test(testInfo); break;
       case 'c': test.Coverage(testInfo); break;
       default:
         console.error(
-          '\'' + options.testAction + '\' is not a valid action for all.');
+          '\'' + savedOptions.testAction + '\' is not a valid action for all.');
         return;
       }
     }
@@ -223,13 +214,13 @@ else {
 
   // Run the desired action for a single test.
   const testInfo = test.GetInfo(savedOptions.testTarget, fullBuildDir);
-  switch (options.testAction) {
+  switch (savedOptions.testAction) {
   case 'r': test.Run(testInfo); break;
   case 'd': test.Diff(testInfo); break;
   case 'o': test.Overwrite(testInfo); break;
   case 't': test.Test(testInfo); break;
   case 'c': test.Coverage(testInfo); break;
   default:
-    console.error('\'' + options.testAction + '\' is not a valid action.');
+    console.error('\'' + savedOptions.testAction + '\' is not a valid action.');
   }
 }
