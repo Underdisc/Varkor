@@ -1,6 +1,7 @@
 #include <random>
 
 #include "ext/Tracy.h"
+#include "test/perf/Helper.h"
 #include "test/world/Print.h"
 #include "world/Space.h"
 
@@ -346,13 +347,6 @@ void Random() {
         randomWrite();
       }
     }
-  }
-}
-
-void Profile(void (*function)(), int count) {
-  ZoneScopedC(0xFFFFFF);
-  for (int i = 0; i < count; ++i) {
-    function();
   }
 }
 
