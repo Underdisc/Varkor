@@ -66,7 +66,7 @@ target_include_directories(varkor PUBLIC "sub/tracy/public/tracy")
 if("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
   set(TRACY_ENABLE ON)
   set(TRACY_ON_DEMAND OFF)
-  set(TRACY_NO_EXIT ON)
+  set(TRACY_NO_EXIT OFF)
   add_subdirectory(sub/tracy)
 endif()
 
