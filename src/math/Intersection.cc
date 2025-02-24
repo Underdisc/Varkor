@@ -26,19 +26,24 @@ SphereSphere Intersection(const Sphere& a, const Sphere& b) {
   float sqrDist = Math::Dot(distVec, distVec);
   float radiusSum = a.mRadius + b.mRadius;
   float sqrMaxDist = radiusSum * radiusSum;
+
+  // Handle no intersection and the degenerate case.
   if (sqrDist > sqrMaxDist) {
     info.mIntersecting = false;
     return info;
   }
-  info.mIntersecting = true;
-
-  // Find the separation vector when there is an intersection.
   float dist = Math::Magnitude(distVec);
   if (Near(dist, 0)) {
-    info.mSeparation = {radiusSum, 0, 0};
+    info.mIntersecting = false;
     return info;
   }
-  info.mSeparation = (radiusSum - dist) * (distVec / dist);
+
+  // Generate the contact information.
+  info.mIntersecting = true;
+  info.mNormal = distVec / dist;
+  info.mPenetration = dist - radiusSum;
+  Vec3 aEdge = a.mCenter + a.mRadius * info.mNormal;
+  info.mContactPoint = aEdge + info.mNormal * (info.mPenetration / 2.0f);
   return info;
 }
 

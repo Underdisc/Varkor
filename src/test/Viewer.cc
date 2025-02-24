@@ -154,17 +154,20 @@ void Gizmo<Test::BoxBoxIntersectionTest>(Test::BoxBoxIntersectionTest* test) {
 template<>
 void Show<Test::SphereSphereIntersectionTest>(
   const Test::SphereSphereIntersectionTest& test) {
-  Vec3 color = {1, 1, 1};
   Math::SphereSphere result = Math::Intersection(test.mA, test.mB);
   if (result.mIntersecting) {
-    color = {0, 1, 0};
-    Vec3 separationDir = Math::Normalize(result.mSeparation);
-    Vec3 start = test.mB.mCenter - test.mB.mRadius * separationDir;
-    Vec3 end = start + result.mSeparation;
-    Debug::Draw::Line(start, end, {1, 1, 1});
+    Vec3 bEdge = test.mB.mCenter - (test.mB.mRadius * result.mNormal);
+    Vec3 aEdge = bEdge - result.mPenetration * result.mNormal;
+    Debug::Draw::Line(aEdge, bEdge, {1, 1, 1});
+    Debug::Draw::Point(bEdge, {1, 1, 1});
+    Debug::Draw::Point(result.mContactPoint, {1, 1, 1});
+    Debug::Draw::Sphere(test.mA, {0, 1, 0});
+    Debug::Draw::Sphere(test.mB, {0, 1, 1});
   }
-  Debug::Draw::Sphere(test.mA, color);
-  Debug::Draw::Sphere(test.mB, color);
+  else {
+    Debug::Draw::Sphere(test.mA, {1, 1, 1});
+    Debug::Draw::Sphere(test.mB, {1, 1, 1});
+  }
 }
 
 template<>

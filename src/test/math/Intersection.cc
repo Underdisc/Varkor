@@ -99,7 +99,8 @@ void SphereSphereIntersection() {
     Math::SphereSphere result = Math::Intersection(test.mA, test.mB);
     std::cout << test.mName << ": " << result.mIntersecting;
     if (result.mIntersecting) {
-      std::cout << ", " << result.mSeparation;
+      std::cout << ", " << result.mNormal << ", " << result.mContactPoint
+                << ", " << result.mPenetration;
     }
     std::cout << "\n";
   }

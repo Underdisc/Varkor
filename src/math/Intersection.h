@@ -17,8 +17,9 @@ RayPlane Intersection(const Ray& ray, const Plane& plane);
 
 struct SphereSphere {
   bool mIntersecting;
-  // The distance sphere b needs to be moved to be outside of sphere a.
-  Vec3 mSeparation;
+  Vec3 mNormal;
+  Vec3 mContactPoint;
+  float mPenetration;
 };
 SphereSphere Intersection(const Sphere& a, const Sphere& b);
 
