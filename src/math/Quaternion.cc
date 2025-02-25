@@ -92,6 +92,18 @@ void Quaternion::BasisVectors(
   mC = (yAxis[2] + zAxis[1]) / z4;
 }
 
+Quaternion Quaternion::InitAngleAxis(float angle, const Vec3& axis) {
+  Quaternion quat;
+  quat.AngleAxis(angle, axis);
+  return quat;
+}
+
+Quaternion Quaternion::InitFromTo(const Vec3& from, const Vec3& to) {
+  Quaternion quat;
+  quat.FromTo(from, to);
+  return quat;
+}
+
 Quaternion Quaternion::Interpolate(float t) const {
   float halfAngle = acosf(mA);
   halfAngle *= t;

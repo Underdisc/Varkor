@@ -33,9 +33,18 @@ const char* nDebugDrawAssetName = "vres/debugDraw";
 const ResId nDebugDrawShaderId(nDebugDrawAssetName, "Basic");
 const ResId nTbnShaderId(nDebugDrawAssetName, "Tbn");
 
+static constexpr int nCirclePointCount = 40;
+static Vec3 nCirclePoints[nCirclePointCount];
+
 void Init() {
   glPointSize(12.0f);
   glLineWidth(3.0f);
+
+  // Initialize the array of points outlining a unit circle around the x axis.
+  for (int i = 0; i < nCirclePointCount; ++i) {
+    float theta = 2 * Math::nPi * (i / (float)nCirclePointCount);
+    nCirclePoints[i] = {0, std::sinf(theta), std::cosf(theta)};
+  }
 }
 
 void Point(const Vec3& point, const Vec3& color) {
@@ -97,31 +106,66 @@ void Box(const Math::Box& box, const Vec3& color) {
 }
 
 void Sphere(const Math::Sphere& sphere, const Vec3& color) {
-  // Create an array of points that outline a unit circle around the z axis.
-  constexpr int pointCount = 40;
-  static Vec3 circlePoints[pointCount];
-  static bool circlePointsInitialized = false;
-  if (!circlePointsInitialized) {
-    for (int i = 0; i < pointCount; ++i) {
-      float theta = 2 * Math::nPi * (i / (float)pointCount);
-      circlePoints[i] = {std::cosf(theta), std::sinf(theta), 0};
-    }
-  }
-
-  // Transform the points to create a sphere representation using lines.
-  auto createLines = [&](const Quat& rotation)
-  {
-    for (int i = 0; i < pointCount; ++i) {
-      Vec3 start = rotation.Rotate(circlePoints[i % pointCount]);
-      Vec3 end = rotation.Rotate(circlePoints[(i + 1) % pointCount]);
+  // Draw three circles rotated to be parallel with each cartesian plane.
+  Quat circleRotations[3];
+  circleRotations[0] = {1, 0, 0, 0};
+  circleRotations[1] = Quat::InitAngleAxis(Math::nPi * 0.5f, {0, 1, 0});
+  circleRotations[2] = Quat::InitAngleAxis(Math::nPi * 0.5f, {0, 0, 1});
+  for (int j = 0; j < 3; ++j) {
+    const Quat& rotation = circleRotations[j];
+    for (int i = 0; i < nCirclePointCount; ++i) {
+      Vec3 start = rotation.Rotate(nCirclePoints[i % nCirclePointCount]);
+      Vec3 end = rotation.Rotate(nCirclePoints[(i + 1) % nCirclePointCount]);
       start = start * sphere.mRadius + sphere.mCenter;
       end = end * sphere.mRadius + sphere.mCenter;
       Line(start, end, color);
     }
-  };
-  createLines(Quat({1, 0, 0, 0}));
-  createLines(Quat(Math::nPi * 0.5f, {0, 1, 0}));
-  createLines(Quat(Math::nPi * 0.5f, {1, 0, 0}));
+  }
+}
+
+void Capsule(const Math::Capsule& capsule, const Vec3& color) {
+  // Draw the lines along the length of the central cylinder.
+  const Vec3* centers = capsule.mCenters;
+  Quat capsuleRotation = Quat::InitFromTo({1, 0, 0}, centers[1] - centers[0]);
+  Vec3 rimPoints[4] = {
+    {0, 0, -capsule.mRadius},
+    {0, capsule.mRadius, 0},
+    {0, 0, capsule.mRadius},
+    {0, -capsule.mRadius, 0}};
+  for (int i = 0; i < 4; ++i) {
+    rimPoints[i] = capsuleRotation.Rotate(rimPoints[i]);
+    Line(rimPoints[i] + centers[0], rimPoints[i] + centers[1], color);
+  }
+
+  // Draw the rims of the capsule (where the sphere caps meet the cylinder).
+  for (int i = 0; i < nCirclePointCount; ++i) {
+    Vec3 start = nCirclePoints[i % nCirclePointCount];
+    Vec3 end = nCirclePoints[(i + 1) % nCirclePointCount];
+    start = capsuleRotation.Rotate(start) * capsule.mRadius;
+    end = capsuleRotation.Rotate(end) * capsule.mRadius;
+    Line(start + centers[0], end + centers[0], color);
+    Line(start + centers[1], end + centers[1], color);
+  }
+
+  // Draw the half circles showing the spherical caps.
+  Quat halfCircleRotations[4];
+  halfCircleRotations[0] = Quat::InitAngleAxis(Math::nPiO2, {0, 0, 1});
+  halfCircleRotations[1] = Quat::InitAngleAxis(Math::nPiO2, {1, 0, 0});
+  halfCircleRotations[1] = halfCircleRotations[1] * halfCircleRotations[0];
+  halfCircleRotations[2] = Quat::InitAngleAxis(-Math::nPiO2, {0, 0, 1});
+  halfCircleRotations[3] = Quat::InitAngleAxis(Math::nPiO2, {1, 0, 0});
+  halfCircleRotations[3] = halfCircleRotations[3] * halfCircleRotations[2];
+  for (int j = 0; j < 4; ++j) {
+    const Vec3& center = centers[j / 2];
+   Quat halfCircleRot = capsuleRotation * halfCircleRotations[j];
+    for (int i = 0; i < nCirclePointCount / 2; ++i) {
+      Vec3 start = nCirclePoints[i % nCirclePointCount];
+      Vec3 end = nCirclePoints[(i + 1) % nCirclePointCount];
+      start = halfCircleRot.Rotate(start) * capsule.mRadius;
+      end = halfCircleRot.Rotate(end) * capsule.mRadius;
+      Line(start + center, end + center, color);
+    }
+  }
 }
 
 void Triangle(const Math::Triangle& triangle, const Vec3& color) {

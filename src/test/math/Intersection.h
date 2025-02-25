@@ -3,6 +3,7 @@
 
 #include "ds/Vector.h"
 #include "math/Box.h"
+#include "math/Capsule.h"
 #include "math/Sphere.h"
 #include "math/Triangle.h"
 #include "test/Test.h"
@@ -16,6 +17,17 @@ struct SphereSphereIntersectionTest: BaseTest {
   Math::Sphere mA, mB;
 };
 Ds::Vector<SphereSphereIntersectionTest> GetSphereSphereIntersectionTests();
+
+struct SphereCapsuleIntersectionTest: BaseTest {
+  SphereCapsuleIntersectionTest(
+    const std::string& name,
+    const Math::Sphere& sphere,
+    const Math::Capsule& capsule):
+    BaseTest(name), mSphere(sphere), mCapsule(capsule) {}
+  Math::Sphere mSphere;
+  Math::Capsule mCapsule;
+};
+Ds::Vector<SphereCapsuleIntersectionTest> GetSphereCapsuleIntersectionTests();
 
 struct BoxBoxIntersectionTest: BaseTest {
   BoxBoxIntersectionTest(

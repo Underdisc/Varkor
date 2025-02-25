@@ -20,6 +20,8 @@ struct Quaternion {
   void AngleAxis(float angle, Vec3 axis);
   void FromTo(const Vec3& from, const Vec3& to);
   void BasisVectors(const Vec3& right, const Vec3& up, const Vec3& forward);
+  static Quaternion InitAngleAxis(float angle, const Vec3& axis);
+  static Quaternion InitFromTo(const Vec3& from, const Vec3& to);
 
   Quaternion Interpolate(float t) const;
   Quaternion Conjugate() const;

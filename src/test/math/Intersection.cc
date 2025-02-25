@@ -106,6 +106,16 @@ void SphereSphereIntersection() {
   }
 }
 
+Ds::Vector<SphereCapsuleIntersectionTest> GetSphereCapsuleIntersectionTests() {
+  Ds::Vector<SphereCapsuleIntersectionTest> tests;
+  Math::Sphere sphere;
+  Math::Capsule capsule;
+  sphere = {{5, 5, 5}, 1};
+  capsule = {{{0, 0, 0}, {1, 1, 1}}, 1};
+  tests.Emplace("0", sphere, capsule);
+  return tests;
+}
+
 Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests() {
   Math::Box a, b;
   Ds::Vector<BoxBoxIntersectionTest> boxIntersectoinTests;

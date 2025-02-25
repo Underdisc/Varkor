@@ -56,15 +56,17 @@ struct TestVectorTypeData {
 };
 
 enum class TestType {
-  BoxBoxIntersection = 0,
-  SphereSphereIntersection = 1,
-  TriangleClosestPointTo = 2,
-  SphereTriangleIntersection = 3,
-  Invalid = 4,
+  BoxBoxIntersection,
+  SphereSphereIntersection,
+  SphereCapsuleIntersection,
+  TriangleClosestPointTo,
+  SphereTriangleIntersection,
+  Invalid,
 };
 const char* nTypeStrs[] = {
   "BoxBoxIntersection",
   "SphereSphereIntersection",
+  "SphereCapsuleIntersection",
   "TriangleClosestPointTo",
   "SphereTriangleIntersection",
 };
@@ -111,6 +113,18 @@ void SphereGizmo(Math::Sphere* sphere) {
     scale =
       Editor::Gizmo<Scalor>::Next().Run(scale, sphere->mCenter, {1, 0, 0, 0});
     sphere->mRadius = scale[0];
+    break;
+  }
+}
+
+void CapsuleGizmo(Math::Capsule* capsule) {
+  using namespace Editor::Gizmos;
+  switch (nMode) {
+  case Mode::Translate:
+    capsule->mCenters[0] =
+      Editor::Gizmo<Translator>::Next().Run(capsule->mCenters[0], {1, 0, 0, 0});
+    capsule->mCenters[1] =
+      Editor::Gizmo<Translator>::Next().Run(capsule->mCenters[1], {1, 0, 0, 0});
     break;
   }
 }
@@ -175,6 +189,20 @@ void Gizmo<Test::SphereSphereIntersectionTest>(
   Test::SphereSphereIntersectionTest* test) {
   SphereGizmo(&test->mA);
   SphereGizmo(&test->mB);
+}
+
+template<>
+void Show<Test::SphereCapsuleIntersectionTest>(
+  const Test::SphereCapsuleIntersectionTest& test) {
+  Debug::Draw::Sphere(test.mSphere, {1, 1, 1});
+  Debug::Draw::Capsule(test.mCapsule, {1, 1, 1});
+}
+
+template<>
+void Gizmo<Test::SphereCapsuleIntersectionTest>(
+  Test::SphereCapsuleIntersectionTest* test) {
+  SphereGizmo(&test->mSphere);
+  CapsuleGizmo(&test->mCapsule);
 }
 
 template<>
@@ -285,6 +313,9 @@ void Init() {
     TestType::BoxBoxIntersection, Test::GetBoxBoxIntersectionTests);
   RegisterTestVector<Test::SphereSphereIntersectionTest>(
     TestType::SphereSphereIntersection, Test::GetSphereSphereIntersectionTests);
+  RegisterTestVector<Test::SphereCapsuleIntersectionTest>(
+    TestType::SphereCapsuleIntersection,
+    Test::GetSphereCapsuleIntersectionTests);
   RegisterTestVector<Test::SphereTriangleIntersectionTest>(
     TestType::SphereTriangleIntersection,
     Test::GetSphereTriangleIntersectionTests);
