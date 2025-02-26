@@ -10,8 +10,7 @@ void AngleAxis() {
   float angle = Math::nPiO2;
   Vec3 axis = {1.0f, 1.0f, 1.0f};
   axis = Math::Normalize(axis);
-  Quat quat;
-  quat.AngleAxis(angle, axis);
+  Quat quat = Quat::AngleAxis(angle, axis);
   std::cout << "angle: " << angle << '\n';
   std::cout << "axis: " << axis << '\n';
   std::cout << "quaternion: " << quat << '\n';
@@ -24,9 +23,9 @@ void FromTo() {
   v[1] = {0.0f, 1.0f, 0.0f};
   v[2] = {0.0f, 0.0f, 1.0f};
   v[3] = {-1.0f, 0.0f, 0.0f};
-  q[0].FromTo(v[0], v[1]);
-  q[1].FromTo(v[1], v[2]);
-  q[2].FromTo(v[0], v[3]);
+  q[0] = Quat::FromTo(v[0], v[1]);
+  q[1] = Quat::FromTo(v[1], v[2]);
+  q[2] = Quat::FromTo(v[0], v[3]);
   std::cout << q[0] << '\n';
   std::cout << q[0].Rotate(v[0]) << '\n';
   std::cout << q[1] << '\n';
@@ -42,11 +41,9 @@ void BasisVectors() {
     Vec3 zAxis = Math::Normalize(Math::Cross(xAxis, up));
     Vec3 yAxis = Math::Normalize(Math::Cross(zAxis, xAxis));
 
-    Math::Quaternion q;
-    q.BasisVectors(xAxis, yAxis, zAxis);
+    Quat q = Quat::BasisVectors(xAxis, yAxis, zAxis);
     std::cout << q << '\n';
   };
-  Math::Quaternion q;
   testBasis({1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
   testBasis({1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f});
   testBasis({-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
@@ -63,14 +60,13 @@ void BasisVectors() {
 
 void Interpolate() {
   std::cout << "-NegativeZAxis-\n";
-  Math::Quaternion q;
-  q.AngleAxis(Math::nPi, {0.0f, 0.0f, -1.0f});
+  Quat q = Quat::AngleAxis(Math::nPi, {0.0f, 0.0f, -1.0f});
   std::cout << q.Interpolate(0.25f) << '\n';
   std::cout << q.Interpolate(0.5f) << '\n';
   std::cout << q.Interpolate(0.75f) << '\n';
   std::cout << q.Interpolate(1.0f) << '\n';
   std::cout << "-PositiveAxis-\n";
-  q.AngleAxis(Math::nPi, {1.0f, 1.0f, 1.0f});
+  q = Quat::AngleAxis(Math::nPi, {1.0f, 1.0f, 1.0f});
   std::cout << q.Interpolate(0.25f) << '\n';
   std::cout << q.Interpolate(0.5f) << '\n';
   std::cout << q.Interpolate(0.75f) << '\n';
@@ -95,22 +91,21 @@ void Multiplication() {
 }
 
 void EulerAngles() {
-  Quat q;
-  q.AngleAxis(Math::nPi / 2.0f, {1.0f, 0.0f, 0.0f});
+  Quat q = Quat::AngleAxis(Math::nPi / 2.0f, {1.0f, 0.0f, 0.0f});
   Vec3 eulerAngles = q.EulerAngles();
   std::cout << eulerAngles << '\n';
-  q.AngleAxis(Math::nPi / 2.0f, {0.0f, 1.0f, 0.0f});
+  q = Quat::AngleAxis(Math::nPi / 2.0f, {0.0f, 1.0f, 0.0f});
   eulerAngles = q.EulerAngles();
   std::cout << eulerAngles << '\n';
-  q.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
+  q = Quat::AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
   eulerAngles = q.EulerAngles();
   std::cout << eulerAngles << '\n';
 }
 
 void Rotate() {
-  Math::Quaternion a, b;
+  Quat a, b;
   a = {0.0f, 1.0f / sqrtf(2.0f), 0.0f, 1.0f / sqrtf(2.0f)};
-  b.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
+  b = Quat::AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
   std::cout << a.Rotate({1.0f, 0.0f, 0.0f}) << '\n';
   std::cout << a.Rotate({-1.0f, 0.0f, -1.0f}) << '\n';
   std::cout << b.Rotate({1.0f, 0.0f, 0.0f}) << '\n';

@@ -142,10 +142,9 @@ bool RotationEdit(Math::Quaternion* rotation) {
   bool rotationDragged =
     ImGui::DragFloat3("Rotation", newAngles.mD, 0.01f, 0.0f, 0.0f, "%.3f");
   if (rotationDragged) {
-    Math::Quaternion xDelta, yDelta, zDelta;
-    xDelta.AngleAxis(newAngles[0], {1.0f, 0.0f, 0.0f});
-    yDelta.AngleAxis(newAngles[1], {0.0f, 1.0f, 0.0f});
-    zDelta.AngleAxis(newAngles[2], {0.0f, 0.0f, 1.0f});
+    Quat xDelta = Quat::AngleAxis(newAngles[0], {1.0f, 0.0f, 0.0f});
+    Quat yDelta = Quat::AngleAxis(newAngles[1], {0.0f, 1.0f, 0.0f});
+    Quat zDelta = Quat::AngleAxis(newAngles[2], {0.0f, 0.0f, 1.0f});
     *rotation = zDelta * yDelta * xDelta;
     rotation->Normalize();
     return true;

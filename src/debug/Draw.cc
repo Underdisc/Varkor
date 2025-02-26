@@ -109,8 +109,8 @@ void Sphere(const Math::Sphere& sphere, const Vec3& color) {
   // Draw three circles rotated to be parallel with each cartesian plane.
   Quat circleRotations[3];
   circleRotations[0] = {1, 0, 0, 0};
-  circleRotations[1] = Quat::InitAngleAxis(Math::nPi * 0.5f, {0, 1, 0});
-  circleRotations[2] = Quat::InitAngleAxis(Math::nPi * 0.5f, {0, 0, 1});
+  circleRotations[1] = Quat::AngleAxis(Math::nPiO2, {0, 1, 0});
+  circleRotations[2] = Quat::AngleAxis(Math::nPiO2, {0, 0, 1});
   for (int j = 0; j < 3; ++j) {
     const Quat& rotation = circleRotations[j];
     for (int i = 0; i < nCirclePointCount; ++i) {
@@ -126,7 +126,7 @@ void Sphere(const Math::Sphere& sphere, const Vec3& color) {
 void Capsule(const Math::Capsule& capsule, const Vec3& color) {
   // Draw the lines along the length of the central cylinder.
   const Vec3* centers = capsule.mCenters;
-  Quat capsuleRotation = Quat::InitFromTo({1, 0, 0}, centers[1] - centers[0]);
+  Quat capsuleRotation = Quat::FromTo({1, 0, 0}, centers[1] - centers[0]);
   Vec3 rimPoints[4] = {
     {0, 0, -capsule.mRadius},
     {0, capsule.mRadius, 0},
@@ -149,15 +149,15 @@ void Capsule(const Math::Capsule& capsule, const Vec3& color) {
 
   // Draw the half circles showing the spherical caps.
   Quat halfCircleRotations[4];
-  halfCircleRotations[0] = Quat::InitAngleAxis(Math::nPiO2, {0, 0, 1});
-  halfCircleRotations[1] = Quat::InitAngleAxis(Math::nPiO2, {1, 0, 0});
+  halfCircleRotations[0] = Quat::AngleAxis(Math::nPiO2, {0, 0, 1});
+  halfCircleRotations[1] = Quat::AngleAxis(Math::nPiO2, {1, 0, 0});
   halfCircleRotations[1] = halfCircleRotations[1] * halfCircleRotations[0];
-  halfCircleRotations[2] = Quat::InitAngleAxis(-Math::nPiO2, {0, 0, 1});
-  halfCircleRotations[3] = Quat::InitAngleAxis(Math::nPiO2, {1, 0, 0});
+  halfCircleRotations[2] = Quat::AngleAxis(-Math::nPiO2, {0, 0, 1});
+  halfCircleRotations[3] = Quat::AngleAxis(Math::nPiO2, {1, 0, 0});
   halfCircleRotations[3] = halfCircleRotations[3] * halfCircleRotations[2];
   for (int j = 0; j < 4; ++j) {
     const Vec3& center = centers[j / 2];
-   Quat halfCircleRot = capsuleRotation * halfCircleRotations[j];
+    Quat halfCircleRot = capsuleRotation * halfCircleRotations[j];
     for (int i = 0; i < nCirclePointCount / 2; ++i) {
       Vec3 start = nCirclePoints[i % nCirclePointCount];
       Vec3 end = nCirclePoints[(i + 1) % nCirclePointCount];

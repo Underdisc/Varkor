@@ -150,8 +150,7 @@ void Inverse() {
 }
 
 void HomogeneousOrthogonalInverse() {
-  Quat rotation;
-  rotation.AngleAxis(Math::nPi / 4.0f, {1.0f, 1.0f, 1.0f});
+  Quat rotation = Quat::AngleAxis(Math::nPi / 4.0f, {1.0f, 1.0f, 1.0f});
   Mat4 translate, rotate;
   Math::Translate(&translate, {1.0f, 2.0f, 3.0f});
   Math::Rotate(&rotate, rotation);

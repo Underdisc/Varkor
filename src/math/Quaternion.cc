@@ -11,96 +11,112 @@ Quaternion::Quaternion(float a, float b, float c, float d):
   mVec({a, b, c, d}) {}
 
 Quaternion::Quaternion(const Vec3& from, const Vec3& to) {
-  FromTo(from, to);
+  *this = FromTo(from, to);
 }
 
 Quaternion::Quaternion(float angle, const Vec3& axis) {
-  AngleAxis(angle, axis);
+  *this = AngleAxis(angle, axis);
 }
 
-void Quaternion::Identity() {
-  mVec = {1.0f, 0.0, 0.0f, 0.0f};
+Quaternion::Quaternion(
+  const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis) {
+  *this = BasisVectors(xAxis, yAxis, zAxis);
 }
 
-void Quaternion::AngleAxis(float angle, Vec3 axis) {
+void Quaternion::InitIdentity() {
+  *this = Identity();
+}
+
+void Quaternion::InitAngleAxis(float angle, const Vec3& axis) {
+  *this = AngleAxis(angle, axis);
+}
+
+void Quaternion::InitFromTo(const Vec3& from, const Vec3& to) {
+  *this = FromTo(from, to);
+}
+
+void Quaternion::InitBasisVectors(
+  const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis) {
+  *this = BasisVectors(xAxis, yAxis, zAxis);
+}
+
+Quaternion Quaternion::Identity() {
+  return Quat(1, 0, 0, 0);
+}
+
+Quaternion Quaternion::AngleAxis(float angle, Vec3 axis) {
+  Quat quat;
   float halfAngle = angle / 2.0f;
-  mA = cosf(halfAngle);
+  quat.mA = cosf(halfAngle);
   axis = Math::Normalize(axis) * sinf(halfAngle);
-  mB = axis[0];
-  mC = axis[1];
-  mD = axis[2];
+  quat.mB = axis[0];
+  quat.mC = axis[1];
+  quat.mD = axis[2];
+  return quat;
 }
 
-void Quaternion::FromTo(const Vec3& from, const Vec3& to) {
+Quaternion Quaternion::FromTo(const Vec3& from, const Vec3& to) {
   float magSqProduct = Math::MagnitudeSq(from) * Math::MagnitudeSq(to);
   LogAbortIf(magSqProduct == 0.0f, "One of the vectors is a zero vector.");
-  mA = sqrtf(magSqProduct) + Math::Dot(from, to);
+  Quat quat;
+  quat.mA = sqrtf(magSqProduct) + Math::Dot(from, to);
   Vec3 axis;
-  if (Near(mA, 0.0f)) {
+  if (Near(quat.mA, 0.0f)) {
     axis = Math::PerpendicularTo(from);
   }
   else {
     axis = Math::Cross(from, to);
   }
-  mB = axis[0];
-  mC = axis[1];
-  mD = axis[2];
-  Normalize();
+  quat.mB = axis[0];
+  quat.mC = axis[1];
+  quat.mD = axis[2];
+  quat.Normalize();
+  return quat;
 }
 
 // This initializes the quaternion using the 3 orthogonal unit vectors
 // associated with it. What happens when a proper orthogonal basis is not
 // supplied is beyond the scope of this function.
-void Quaternion::BasisVectors(
+Quaternion Quaternion::BasisVectors(
   const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis) {
   // These values are found with the basis vector rotation matrix [X, Y, Z]
   // where X, Y, and Z are the basis vectors for the respective axes. Using
   // that and the quaternion rotation matrix representation, we can calculate
   // the quaternion coefficients.
+  Quaternion quat;
   float wSquared = (xAxis[0] + yAxis[1] + zAxis[2] + 1.0f) * 0.25f;
   if (wSquared > 0.0f) {
-    mA = sqrtf(wSquared);
-    float w4 = mA * 4.0f;
-    mB = (yAxis[2] - zAxis[1]) / w4;
-    mC = (zAxis[0] - xAxis[2]) / w4;
-    mD = (xAxis[1] - yAxis[0]) / w4;
-    return;
+    quat.mA = sqrtf(wSquared);
+    float w4 = quat.mA * 4.0f;
+    quat.mB = (yAxis[2] - zAxis[1]) / w4;
+    quat.mC = (zAxis[0] - xAxis[2]) / w4;
+    quat.mD = (xAxis[1] - yAxis[0]) / w4;
+    return quat;
   }
   float xSquared = (xAxis[0] - yAxis[1] - zAxis[2] + 1.0f) * 0.25f;
   if (xSquared > 0.0f) {
-    mB = sqrtf(xSquared);
-    float x4 = mB * 4.0f;
-    mA = (yAxis[2] - zAxis[1]) / x4;
-    mC = (xAxis[1] + yAxis[0]) / x4;
-    mD = (xAxis[2] + zAxis[0]) / x4;
-    return;
+    quat.mB = sqrtf(xSquared);
+    float x4 = quat.mB * 4.0f;
+    quat.mA = (yAxis[2] - zAxis[1]) / x4;
+    quat.mC = (xAxis[1] + yAxis[0]) / x4;
+    quat.mD = (xAxis[2] + zAxis[0]) / x4;
+    return quat;
   }
   float ySquared = (yAxis[1] - xAxis[0] - zAxis[2] + 1.0f) * 0.25f;
   if (ySquared > 0.0f) {
-    mC = sqrtf(ySquared);
-    float y4 = mC * 4.0f;
-    mA = (zAxis[0] - xAxis[2]) / y4;
-    mB = (xAxis[1] + yAxis[0]) / y4;
-    mD = (yAxis[2] + zAxis[1]) / y4;
-    return;
+    quat.mC = sqrtf(ySquared);
+    float y4 = quat.mC * 4.0f;
+    quat.mA = (zAxis[0] - xAxis[2]) / y4;
+    quat.mB = (xAxis[1] + yAxis[0]) / y4;
+    quat.mD = (yAxis[2] + zAxis[1]) / y4;
+    return quat;
   }
   float zSquared = (zAxis[2] - xAxis[0] - yAxis[1] + 1.0f) * 0.25f;
-  mD = sqrtf(zSquared);
-  float z4 = mD * 4.0f;
-  mA = (xAxis[1] - yAxis[0]) / z4;
-  mB = (xAxis[2] + zAxis[0]) / z4;
-  mC = (yAxis[2] + zAxis[1]) / z4;
-}
-
-Quaternion Quaternion::InitAngleAxis(float angle, const Vec3& axis) {
-  Quaternion quat;
-  quat.AngleAxis(angle, axis);
-  return quat;
-}
-
-Quaternion Quaternion::InitFromTo(const Vec3& from, const Vec3& to) {
-  Quaternion quat;
-  quat.FromTo(from, to);
+  quat.mD = sqrtf(zSquared);
+  float z4 = quat.mD * 4.0f;
+  quat.mA = (xAxis[1] - yAxis[0]) / z4;
+  quat.mB = (xAxis[2] + zAxis[0]) / z4;
+  quat.mC = (yAxis[2] + zAxis[1]) / z4;
   return quat;
 }
 

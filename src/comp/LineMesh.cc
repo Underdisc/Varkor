@@ -36,8 +36,7 @@ void InitLineMesh(
   binormals.Push(Math::Cross(normals[0], tangents[0]));
   for (int i = 1; i < points.Size() - 1; ++i) {
     tangents.Push(Math::Normalize(points[i + 1] - points[i]));
-    Math::Quaternion rotation;
-    rotation.FromTo(tangents[i - 1], tangents[i]);
+    Math::Quaternion rotation = Quat::FromTo(tangents[i - 1], tangents[i]);
     normals.Push(rotation.Rotate(normals[i - 1]));
     binormals.Push(rotation.Rotate(binormals[i - 1]));
   }

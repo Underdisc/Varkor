@@ -55,9 +55,8 @@ void Camera::Update() {
     mTargetEulerRotation -= mouseMotion * mSensitivity;
   }
   mEulerRotation += mRotationT * (mTargetEulerRotation - mEulerRotation);
-  Math::Quaternion hRot, vRot;
-  hRot.AngleAxis(mEulerRotation[0], {0.0f, 1.0f, 0.0f});
-  vRot.AngleAxis(mEulerRotation[1], {1.0f, 0.0f, 0.0f});
+  Quat hRot = Quat::AngleAxis(mEulerRotation[0], {0.0f, 1.0f, 0.0f});
+  Quat vRot = Quat::AngleAxis(mEulerRotation[1], {1.0f, 0.0f, 0.0f});
   Math::Quaternion rotation = hRot * vRot;
   transformComp.SetRotation(rotation);
 

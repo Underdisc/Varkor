@@ -28,17 +28,14 @@ Rotator::Rotator(): mOperation(Operation::None) {
     ResId(smRotatorAssetName, smMaterialNames[(int)Operation::X]);
 
   Comp::Transform& yT = nSpace.AddComponent<Comp::Transform>(mY);
-  Math::Quaternion rotation;
-  rotation.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
-  yT.SetRotation(rotation);
+  yT.SetRotation(Quat::AngleAxis(Math::nPiO2, {0.0f, 0.0f, 1.0f}));
   auto& yMesh = nSpace.AddComponent<Comp::Mesh>(mY);
   yMesh.mMeshId = nTorusMeshId;
   yMesh.mMaterialId =
     ResId(smRotatorAssetName, smMaterialNames[(int)Operation::Y]);
 
   Comp::Transform& zT = nSpace.AddComponent<Comp::Transform>(mZ);
-  rotation.AngleAxis(-Math::nPi / 2.0f, {0.0f, 1.0f, 0.0f});
-  zT.SetRotation(rotation);
+  zT.SetRotation(Quat::AngleAxis(-Math::nPiO2, {0.0f, 1.0f, 0.0f}));
   auto& zMesh = nSpace.AddComponent<Comp::Mesh>(mZ);
   zMesh.mMeshId = nTorusMeshId;
   zMesh.mMaterialId =
@@ -173,17 +170,17 @@ Quat Rotator::Run(
     if (Math::Dot(normNew, positiveDirection) < 0.0f) {
       angle *= -1.0f;
     }
-    Math::Quaternion delta;
-    delta.AngleAxis(angle, mRotationPlane.Normal());
+    Quat delta = Quat::AngleAxis(angle, mRotationPlane.Normal());
     mMouseOffset = delta.Rotate(mMouseOffset);
     return delta * rotation;
   }
   else if (mOperation == Operation::Xyz) {
     const float pixelsPerRadian = 500.0f;
     Vec2 radians = (Input::MouseMotion() / pixelsPerRadian) * Math::nPi;
-    Math::Quaternion horizontalRotation, verticalRotation;
-    horizontalRotation.AngleAxis(radians[0], cameraComp.WorldUp(cameraObject));
-    verticalRotation.AngleAxis(radians[1], cameraComp.WorldRight(cameraObject));
+    Quat horizontalRotation =
+      Quat::AngleAxis(radians[0], cameraComp.WorldUp(cameraObject));
+    Quat verticalRotation =
+      Quat::AngleAxis(radians[1], cameraComp.WorldRight(cameraObject));
     return horizontalRotation * verticalRotation * rotation;
   }
   return rotation;

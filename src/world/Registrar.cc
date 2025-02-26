@@ -154,8 +154,7 @@ void ComponentProgression<0>(Vlk::Value& componentsVal) {
   directionLightVal->TryRemovePair("Direction");
 
   Vlk::Value& transformVal = componentsVal("Transform");
-  Quat rotation;
-  rotation.FromTo({1.0f, 0.0f, 0.0f}, direction);
+  Quat rotation = Quat::FromTo({1.0f, 0.0f, 0.0f}, direction);
   transformVal("Rotation") = rotation;
 }
 
@@ -187,8 +186,7 @@ void ComponentProgression<2>(Vlk::Value& componentsVal) {
 
   Vlk::Value& transformVal = componentsVal("Transform");
   transformVal("Translation") = position;
-  Quat rotation;
-  rotation.FromTo({1.0f, 0.0f, 0.0f}, direction);
+  Quat rotation = Quat::FromTo({1.0f, 0.0f, 0.0f}, direction);
   transformVal("Rotation") = rotation;
 }
 

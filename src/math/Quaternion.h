@@ -14,14 +14,19 @@ struct Quaternion {
   };
   Quaternion();
   Quaternion(float a, float b, float c, float d);
-  Quaternion(const Vec3& from, const Vec3& to);
   Quaternion(float angle, const Vec3& axis);
-  void Identity();
-  void AngleAxis(float angle, Vec3 axis);
-  void FromTo(const Vec3& from, const Vec3& to);
-  void BasisVectors(const Vec3& right, const Vec3& up, const Vec3& forward);
-  static Quaternion InitAngleAxis(float angle, const Vec3& axis);
-  static Quaternion InitFromTo(const Vec3& from, const Vec3& to);
+  Quaternion(const Vec3& from, const Vec3& to);
+  Quaternion(const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis);
+  void InitIdentity();
+  void InitAngleAxis(float angle, const Vec3& axis);
+  void InitFromTo(const Vec3& from, const Vec3& to);
+  void InitBasisVectors(
+    const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis);
+  static Quaternion Identity();
+  static Quaternion AngleAxis(float angle, Vec3 axis);
+  static Quaternion FromTo(const Vec3& from, const Vec3& to);
+  static Quaternion BasisVectors(
+    const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis);
 
   Quaternion Interpolate(float t) const;
   Quaternion Conjugate() const;

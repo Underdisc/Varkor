@@ -75,10 +75,7 @@ void Camera::LocalLookAt(
   Vec3 back = Math::Normalize(-direction);
   Vec3 right = Math::Normalize(Math::Cross(localUp, back));
   Vec3 up = Math::Cross(back, right);
-
-  Math::Quaternion newRotation;
-  newRotation.BasisVectors(right, up, back);
-  transform.SetRotation(newRotation);
+  transform.SetRotation(Quat::BasisVectors(right, up, back));
 }
 
 // This will make the camera look at a position in world space. If the camera

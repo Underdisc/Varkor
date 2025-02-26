@@ -13,7 +13,7 @@ namespace Comp {
 void BoxCollider::VInit(const World::Object& owner) {
   mBox.mCenter = {0, 0, 0};
   mBox.mScale = {1, 1, 1};
-  mBox.mRotation.Identity();
+  mBox.mRotation = Quat::Identity();
   mShow = false;
 }
 

@@ -29,9 +29,7 @@ Translator::Translator(): mOperation(Operation::None) {
 
   Comp::Transform& yT = nSpace.AddComponent<Comp::Transform>(mY);
   yT.SetTranslation({0.0f, 0.5f, 0.0f});
-  Math::Quaternion yRotation;
-  yRotation.AngleAxis(Math::nPi / 2.0f, {0.0f, 0.0f, 1.0f});
-  yT.SetRotation(yRotation);
+  yT.SetRotation(Quat::AngleAxis(Math::nPiO2, {0.0f, 0.0f, 1.0f}));
   auto& yMesh = nSpace.AddComponent<Comp::Mesh>(mY);
   yMesh.mMeshId = nArrowMeshId;
   yMesh.mMaterialId =
@@ -39,9 +37,7 @@ Translator::Translator(): mOperation(Operation::None) {
 
   Comp::Transform& zT = nSpace.AddComponent<Comp::Transform>(mZ);
   zT.SetTranslation({0.0f, 0.0f, 0.5f});
-  Math::Quaternion zRotation;
-  zRotation.AngleAxis(-Math::nPi / 2.0f, {0.0f, 1.0f, 0.0f});
-  zT.SetRotation(zRotation);
+  zT.SetRotation(Quat::AngleAxis(-Math::nPiO2, {0.0f, 1.0f, 0.0f}));
   auto& zMesh = nSpace.AddComponent<Comp::Mesh>(mZ);
   zMesh.mMeshId = nArrowMeshId;
   zMesh.mMaterialId =
