@@ -221,7 +221,7 @@ void ProgressComponents(Vlk::Value& spaceVal, int startComponentProgression) {
   int i = startComponentProgression + 1;
   for (; i <= nCurrentComponentProgression; ++i) {
     for (int j = 0; j < spaceVal.Size(); ++j) {
-      Vlk::Value& componentsVal = spaceVal[j]("Components");
+      Vlk::Value& componentsVal = spaceVal(j);
       nComponentProgressions[i](componentsVal);
     }
   }
