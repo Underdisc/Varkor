@@ -2,6 +2,7 @@
 #define math_Intersection_h
 
 #include "math/Box.h"
+#include "math/Capsule.h"
 #include "math/Plane.h"
 #include "math/Ray.h"
 #include "math/Sphere.h"
@@ -22,6 +23,14 @@ struct SphereSphere {
   float mPenetration;
 };
 SphereSphere Intersection(const Sphere& a, const Sphere& b);
+
+struct SphereCapsule {
+  bool mIntersecting;
+  Vec3 mNormal;
+  Vec3 mContactPoint;
+  float mPenetration;
+};
+SphereCapsule Intersection(const Sphere& sphere, const Capsule& capsule);
 
 bool HasIntersection(const Box& a, const Box& b);
 

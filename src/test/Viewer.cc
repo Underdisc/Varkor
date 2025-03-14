@@ -119,13 +119,16 @@ void SphereGizmo(Math::Sphere* sphere) {
 
 void CapsuleGizmo(Math::Capsule* capsule) {
   using namespace Editor::Gizmos;
-  switch (nMode) {
-  case Mode::Translate:
-    capsule->mCenters[0] =
-      Editor::Gizmo<Translator>::Next().Run(capsule->mCenters[0], {1, 0, 0, 0});
-    capsule->mCenters[1] =
-      Editor::Gizmo<Translator>::Next().Run(capsule->mCenters[1], {1, 0, 0, 0});
-    break;
+  if (nMode == Mode::Translate) {
+    capsule->mCenters[0] = Editor::Gizmo<Translator>::Next().Run(
+      capsule->mCenters[0], Quat::Identity());
+    capsule->mCenters[1] = Editor::Gizmo<Translator>::Next().Run(
+      capsule->mCenters[1], Quat::Identity());
+  }
+  else if (nMode == Mode::Scale) {
+    const Vec3 center = (capsule->mCenters[0] + capsule->mCenters[1]) / 2.0f;
+    capsule->mRadius = Editor::Gizmo<Scalor>::Next().Run(
+      {capsule->mRadius}, center, Quat::Identity())[0];
   }
 }
 
@@ -194,8 +197,44 @@ void Gizmo<Test::SphereSphereIntersectionTest>(
 template<>
 void Show<Test::SphereCapsuleIntersectionTest>(
   const Test::SphereCapsuleIntersectionTest& test) {
-  Debug::Draw::Sphere(test.mSphere, {1, 1, 1});
-  Debug::Draw::Capsule(test.mCapsule, {1, 1, 1});
+  Math::SphereCapsule result = Math::Intersection(test.mSphere, test.mCapsule);
+  if (result.mIntersecting) {
+    Vec3 sEdge = test.mSphere.mCenter + result.mNormal * test.mSphere.mRadius;
+    Vec3 cEdge = sEdge + result.mPenetration * result.mNormal;
+    Debug::Draw::Line(sEdge, cEdge, {1, 1, 1});
+    Debug::Draw::Point(sEdge, {1, 1, 1});
+    Debug::Draw::Point(cEdge, {1, 1, 1});
+    Debug::Draw::Point(result.mContactPoint, {1, 1, 1});
+    Debug::Draw::Sphere(test.mSphere, {0, 1, 0});
+    Debug::Draw::Capsule(test.mCapsule, {0, 1, 1});
+  }
+  else {
+    Debug::Draw::Sphere(test.mSphere, {1, 1, 1});
+    Debug::Draw::Capsule(test.mCapsule, {1, 1, 1});
+  }
+
+  if (Input::KeyPressed(Input::Key::O)) {
+    static size_t currentTestNumber =
+      nTestVectorTypeData[(size_t)TestType::SphereCapsuleIntersection].mCount();
+    std::cout << std::fixed << std::setprecision(4);
+    // clang-format off
+    std::cout << "sphere = {{"
+      << test.mSphere.mCenter[0] << "f,"
+      << test.mSphere.mCenter[1] << "f,"
+      << test.mSphere.mCenter[2] << "f}, "
+      << test.mSphere.mRadius << "f};\n"
+      << "capsule = {{{"
+      << test.mCapsule.mCenters[0][0] << "f,"
+      << test.mCapsule.mCenters[0][1] << "f,"
+      << test.mCapsule.mCenters[0][2] << "f}, {"
+      << test.mCapsule.mCenters[1][0] << "f,"
+      << test.mCapsule.mCenters[1][1] << "f,"
+      << test.mCapsule.mCenters[1][2] << "f}}, "
+      << test.mCapsule.mRadius << "f};\n"
+      << "tests.Emplace(\"" << currentTestNumber++
+      <<  "\", sphere, capsule);\n";
+    // clang-format on
+  }
 }
 
 template<>

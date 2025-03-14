@@ -110,10 +110,80 @@ Ds::Vector<SphereCapsuleIntersectionTest> GetSphereCapsuleIntersectionTests() {
   Ds::Vector<SphereCapsuleIntersectionTest> tests;
   Math::Sphere sphere;
   Math::Capsule capsule;
+
   sphere = {{5, 5, 5}, 1};
   capsule = {{{0, 0, 0}, {1, 1, 1}}, 1};
   tests.Emplace("0", sphere, capsule);
+
+  sphere = {{0, 0, 0}, 1};
+  capsule = {{{-1, -1, -1}, {1, 1, 1}}, 1};
+  tests.Emplace("1", sphere, capsule);
+
+  sphere = {{1.6687f, -0.4907f, -4.0675f}, 1.6563f};
+  capsule = {
+    {{-2.1669f, -1.0000f, -0.6779f}, {2.7004f, 1.0000f, 1.1486f}}, 1.8639f};
+  tests.Emplace("2", sphere, capsule);
+
+  sphere = {{-1.3258f, -1.1305f, 4.9931f}, 2.5096f};
+  tests.Emplace("3", sphere, capsule);
+
+  sphere = {{0.6818f, -2.9356f, 0.1855f}, 2.5096f};
+  tests.Emplace("4", sphere, capsule);
+
+  sphere = {{0.4264f, 0.4388f, 0.2364f}, 1.1320f};
+  tests.Emplace("5", sphere, capsule);
+
+  sphere = {{-6.0112f, -2.1214f, -2.1946f}, 1.8175f};
+  tests.Emplace("6", sphere, capsule);
+
+  sphere = {{-4.0366f, -1.6187f, 0.7057f}, 1.0381f};
+  tests.Emplace("7", sphere, capsule);
+
+  sphere = {{-2.5295f, -1.6187f, -0.7662f}, 0.6799f};
+  tests.Emplace("8", sphere, capsule);
+
+  sphere = {{6.1649f, 1.6899f, 1.7145f}, 1.1597f};
+  tests.Emplace("9", sphere, capsule);
+
+  sphere = {{3.4205f, 1.6899f, 3.4498f}, 1.6814f};
+  tests.Emplace("10", sphere, capsule);
+
+  sphere = {{3.7903f, 1.6899f, 0.4259f}, 0.8216f};
+  tests.Emplace("11", sphere, capsule);
+
+  sphere = {{2.4973f, 1.0105f, 2.2872f}, 0.4375f};
+  tests.Emplace("12", sphere, capsule);
+
+  sphere = {{1.1753f, 0.5273f, 5.2915f}, 7.5788f};
+  capsule = {
+    {{-1.6669f, -1.0000f, 2.9636f}, {2.7004f, 1.0000f, 1.1486f}}, 1.8639f};
+  tests.Emplace("13", sphere, capsule);
+
+  sphere = {{0.0640f, 0.1648f, 4.7739f}, 4.4379f};
+  capsule = {
+    {{-0.4242f, -1.0000f, 6.7640f}, {1.9947f, 1.0000f, 4.3498f}}, 1.8639f};
+  tests.Emplace("14", sphere, capsule);
+
+  sphere = {{-0.9883f, -0.6375f, 7.7481f}, 9.9813f};
+  capsule = {
+    {{-0.4242f, -1.0000f, 6.7640f}, {1.9947f, 1.0000f, 4.3498f}}, 1.8639f};
+  tests.Emplace("15", sphere, capsule);
+
   return tests;
+}
+
+void SphereCapsuleIntersection() {
+  const auto tests = GetSphereCapsuleIntersectionTests();
+  for (const SphereCapsuleIntersectionTest& test: tests) {
+    Math::SphereCapsule result =
+      Math::Intersection(test.mSphere, test.mCapsule);
+    std::cout << test.mName << ": " << result.mIntersecting;
+    if (result.mIntersecting) {
+      std::cout << ", " << result.mNormal << ", " << result.mContactPoint
+                << ", " << result.mPenetration;
+    }
+    std::cout << "\n";
+  }
 }
 
 Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests() {
@@ -373,6 +443,7 @@ int main(void) {
   RunTest(Intersection);
   RunTest(RaySphere);
   RunTest(SphereSphereIntersection);
+  RunTest(SphereCapsuleIntersection);
   RunTest(BoxBoxIntersection);
   RunTest(SphereTriangleIntersection);
 }

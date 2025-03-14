@@ -47,6 +47,37 @@ SphereSphere Intersection(const Sphere& a, const Sphere& b) {
   return info;
 }
 
+SphereCapsule Intersection(const Sphere& sphere, const Capsule& capsule) {
+  // Find the vector describing direction between capsule centers.
+  SphereCapsule info;
+  const Vec3& cC1 = capsule.mCenters[0];
+  const Vec3& cC2 = capsule.mCenters[1];
+  Vec3 cDist = cC2 - cC1;
+  float cL = Math::Magnitude(cDist);
+  Vec3 cDir = cDist / cL;
+
+  // Find closest point to the sphere's center on the line formed using the
+  // capsule's centers.
+  const Vec3& sC = sphere.mCenter;
+  float cT = Math::Dot(sC - cC1, cDir);
+  cT = Math::Max(0.0f, Math::Min(cT, cL));
+  Vec3 cN = cC1 + cDir * cT;
+
+  // Determine whether a collision occurred and generate contact information.
+  const float& sR = sphere.mRadius;
+  float collisionStart = sR + capsule.mRadius;
+  float scDist = Math::Magnitude(sC - cN);
+  if (scDist > collisionStart || Math::Near(scDist, 0)) {
+    info.mIntersecting = false;
+    return info;
+  }
+  info.mIntersecting = true;
+  info.mPenetration = scDist - collisionStart;
+  info.mNormal = Math::Normalize(cN - sC);
+  info.mContactPoint = sC + info.mNormal * (sR + info.mPenetration / 2.0f);
+  return info;
+}
+
 RaySphere Intersection(const Ray& ray, const Sphere& sphere) {
   Vec3 relativeStart = ray.mStart - sphere.mCenter;
   float a = Dot(ray.Direction(), ray.Direction());
