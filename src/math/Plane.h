@@ -17,6 +17,8 @@ struct Plane {
   void Init(const Vec3& a, const Vec3& b, const Vec3& c);
   void InitNormalized(const Vec3& point, const Vec3& normalizedNormal);
   void PointNormal(const Vec3& point, const Vec3& normal);
+
+  bool WithinHalfSpace(const Vec3& point);
   void Normal(const Vec3& normal);
   const Vec3& Normal() const;
 };

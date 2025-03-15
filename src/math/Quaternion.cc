@@ -187,6 +187,30 @@ Vec3 Quaternion::Rotate(const Vec3& vector) const {
   return result;
 }
 
+Vec3 Quaternion::XBasisAxis() const {
+  Vec3 axis = {
+    1.0f - 2.0f * mC * mC - 2.0f * mD * mD,
+    2.0f * mB * mC + 2.0f * mD * mA,
+    2.0f * mB * mD - 2.0f * mC * mA};
+  return axis;
+}
+
+Vec3 Quaternion::YBasisAxis() const {
+  Vec3 axis = {
+    2.0f * mB * mC - 2.0f * mD * mA,
+    1.0f - 2.0f * mB * mB - 2.0f * mD * mD,
+    2.0f * mC * mD + 2.0f * mB * mA};
+  return axis;
+}
+
+Vec3 Quaternion::ZBasisAxis() const {
+  Vec3 axis = {
+    2.0f * mB * mD + 2.0f * mC * mA,
+    2.0f * mC * mD - 2.0f * mB * mA,
+    1.0f - 2.0f * mB * mB - 2.0f * mC * mC};
+  return axis;
+}
+
 Quaternion operator*(const Quaternion& a, const Quaternion& b) {
   Quaternion result;
   result.mA = a.mA * b.mA - a.mB * b.mB - a.mC * b.mC - a.mD * b.mD;

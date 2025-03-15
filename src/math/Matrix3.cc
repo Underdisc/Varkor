@@ -31,18 +31,15 @@ Mat3::operator Mat4() const {
   return m;
 }
 
-void Rotate(Mat3* m, const Quaternion& r) {
-  m->mD[0][0] = 1.0f - 2.0f * r.mC * r.mC - 2.0f * r.mD * r.mD;
-  m->mD[0][1] = 2.0f * r.mB * r.mC - 2.0f * r.mD * r.mA;
-  m->mD[0][2] = 2.0f * r.mB * r.mD + 2.0f * r.mC * r.mA;
-
-  m->mD[1][0] = 2.0f * r.mB * r.mC + 2.0f * r.mD * r.mA;
-  m->mD[1][1] = 1.0f - 2.0f * r.mB * r.mB - 2.0f * r.mD * r.mD;
-  m->mD[1][2] = 2.0f * r.mC * r.mD - 2.0f * r.mB * r.mA;
-
-  m->mD[2][0] = 2.0f * r.mB * r.mD - 2.0f * r.mC * r.mA;
-  m->mD[2][1] = 2.0f * r.mC * r.mD + 2.0f * r.mB * r.mA;
-  m->mD[2][2] = 1.0f - 2.0f * r.mB * r.mB - 2.0f * r.mC * r.mC;
+void Rotate(Mat3* m, const Quaternion& q) {
+  Vec3 xAxis = q.XBasisAxis();
+  Vec3 yAxis = q.YBasisAxis();
+  Vec3 zAxis = q.ZBasisAxis();
+  for (int i = 0; i < 3; ++i) {
+    m->mD[i][0] = xAxis[i];
+    m->mD[i][1] = yAxis[i];
+    m->mD[i][2] = zAxis[i];
+  }
 }
 
 } // namespace Math

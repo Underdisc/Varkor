@@ -226,6 +226,14 @@ Vec3 Translator::Run(const Vec3& translation, const Quat& referenceFrame) {
       return newTranslation;
     }
   }
+
+  // Guarantee that the handles are always facing the user.
+  AxisHandleGroup groups[3] = {
+    {referenceFrame.XBasisAxis(), mX, {mXy, mXz}},
+    {referenceFrame.YBasisAxis(), mY, {mXy, mYz}},
+    {referenceFrame.ZBasisAxis(), mZ, {mXz, mYz}}};
+  const Vec3 cameraTranslation = cameraComp.WorldTranslation(cameraObject);
+  OrientHandlesTowardsCamera(groups, translation, cameraTranslation);
   return translation;
 }
 

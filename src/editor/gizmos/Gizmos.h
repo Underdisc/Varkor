@@ -45,6 +45,16 @@ void SetParentTransformation(
   const Vec3& translation,
   const Quat& referenceFrame);
 
+struct AxisHandleGroup {
+  Vec3 mAxis;
+  MemberId mHandle;
+  MemberId mPlaneHandles[2];
+};
+void OrientHandlesTowardsCamera(
+  AxisHandleGroup groups[3],
+  const Vec3 gizmoTranslation,
+  const Vec3& cameraTranslation);
+
 } // namespace Gizmos
 
 template<typename T>

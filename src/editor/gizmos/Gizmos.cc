@@ -4,6 +4,7 @@
 #include "editor/Editor.h"
 #include "editor/gizmos/Gizmos.h"
 #include "math/Constants.h"
+#include "math/Plane.h"
 #include "rsl/Library.h"
 
 namespace Editor {
@@ -109,6 +110,40 @@ void SetParentTransformation(
   parentTransform.SetTranslation(translation);
   parentTransform.SetUniformScale(uniformScale);
   parentTransform.SetRotation(referenceFrame);
+}
+
+void OrientHandlesTowardsCamera(
+  AxisHandleGroup groups[3],
+  const Vec3 gizmoTranslation,
+  const Vec3& cameraTranslation) {
+  for (int i = 0; i < 3; ++i) {
+    Comp::Transform& handleT = nSpace.Get<Comp::Transform>(groups[i].mHandle);
+    if (handleT.GetScale()[0] < 0.0f) {
+      groups[i].mAxis *= -1.0f;
+    }
+    Math::Plane handlePlane;
+    handlePlane.InitNormalized(gizmoTranslation, groups[i].mAxis);
+    if (!handlePlane.WithinHalfSpace(cameraTranslation)) {
+      continue;
+    }
+
+    // Flip the side that the arrow is on. One scale negation flips the arrow
+    // direction and the other makes the model rightside out again.
+    handleT.SetTranslation(-1.0f * handleT.GetTranslation());
+    Vec3 newScale = handleT.GetScale();
+    newScale[0] *= -1.0f;
+    newScale[1] *= -1.0f;
+    handleT.SetScale(newScale);
+
+    // Update the location of the plane handles.
+    for (int j = 0; j < 2; ++j) {
+      Comp::Transform& planeHandleT =
+        nSpace.Get<Comp::Transform>(groups[i].mPlaneHandles[j]);
+      Vec3 newTranslation = planeHandleT.GetTranslation();
+      newTranslation[i] *= -1.0f;
+      planeHandleT.SetTranslation(newTranslation);
+    }
+  }
 }
 
 } // namespace Gizmos

@@ -34,7 +34,9 @@ struct Quaternion {
   void Normalize();
   Vec3 Axis() const;
   Vec3 EulerAngles() const;
-
+  Vec3 XBasisAxis() const;
+  Vec3 YBasisAxis() const;
+  Vec3 ZBasisAxis() const;
   Vec3 Rotate(const Vec3& point) const;
 
   Quaternion& operator*=(const Quaternion& other);

@@ -23,6 +23,11 @@ void Plane::PointNormal(const Vec3& point, const Vec3& normal) {
   Normal(normal);
 }
 
+bool Plane::WithinHalfSpace(const Vec3& point) {
+  Vec3 pp = point - mPoint;
+  return Math::Dot(pp, mNormal) <= 0.0f;
+}
+
 void Plane::Normal(const Vec3& normal) {
   mNormal = Normalize(normal);
 }

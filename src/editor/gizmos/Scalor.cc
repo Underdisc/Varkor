@@ -162,7 +162,8 @@ Vec3 Scalor::Run(
   SetParentTransformation(mParent, translation, referenceFrame);
   const World::Object cameraObject = nCamera.GetObject();
   const auto& cameraComp = cameraObject.Get<Comp::Camera>();
-  Vec3 torusDirection = cameraComp.WorldTranslation(cameraObject) - translation;
+  const Vec3 cameraTranslation = cameraComp.WorldTranslation(cameraObject);
+  Vec3 torusDirection = cameraTranslation - translation;
   Math::Quaternion xyzRotation =
     Quat::FromTo({1.0f, 0.0f, 0.0f}, torusDirection);
   xyzRotation = referenceFrame.Conjugate() * xyzRotation;
@@ -241,6 +242,13 @@ Vec3 Scalor::Run(
     mMousePosition += amount * mUniformScaleDirection;
     return scale + mNormalizedStartScale * amount;
   }
+
+  // Guarantee that the handles are always facing the user.
+  AxisHandleGroup groups[3] = {
+    {referenceFrame.XBasisAxis(), mX, {mXy, mXz}},
+    {referenceFrame.YBasisAxis(), mY, {mXy, mYz}},
+    {referenceFrame.ZBasisAxis(), mZ, {mXz, mYz}}};
+  OrientHandlesTowardsCamera(groups, translation, cameraTranslation);
   return scale;
 }
 
