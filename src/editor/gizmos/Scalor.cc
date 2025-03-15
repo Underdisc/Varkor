@@ -65,7 +65,7 @@ Scalor::Scalor(): mOperation(Operation::None) {
   auto& yzMesh = nSpace.AddComponent<Comp::Mesh>(mYz);
   yzMesh.mMeshId = nCubeMeshId;
   yzMesh.mMaterialId =
-    ResId(smScalorAssetName, smMaterialNames[(int)Operation::X]);
+    ResId(smScalorAssetName, smMaterialNames[(int)Operation::Yz]);
 
   Comp::Transform& xyzT = nSpace.AddComponent<Comp::Transform>(mXyz);
   xyzT.SetUniformScale(1.2f);
