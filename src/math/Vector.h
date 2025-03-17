@@ -9,6 +9,8 @@ template<typename T, unsigned int N>
 struct Vector {
   T mD[N];
 
+  static Vector<T, N> Zero();
+
   const T& operator[](int index) const;
   T& operator[](int index);
   template<unsigned int M>

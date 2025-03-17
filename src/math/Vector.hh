@@ -6,6 +6,15 @@
 namespace Math {
 
 template<typename T, unsigned int N>
+Vector<T, N> Vector<T, N>::Zero() {
+  Vector<T, N> result;
+  for (int i = 0; i < N; ++i) {
+    result[i] = 0.0f;
+  }
+  return result;
+}
+
+template<typename T, unsigned int N>
 const T& Vector<T, N>::operator[](int index) const {
   return mD[index];
 }

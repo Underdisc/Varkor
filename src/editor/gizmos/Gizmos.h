@@ -63,7 +63,8 @@ struct Gizmo {
   static int smNext;
   static bool smRegistered;
 
-  static T& Next() {
+  template<typename... Args>
+  static auto Use(Args&&... args) {
     if (!smRegistered) {
       Gizmos::nUpdates.Push(Update);
       Gizmos::nClears.Push(Clear);
@@ -76,7 +77,7 @@ struct Gizmo {
     if (smNext == smInstances.Size()) {
       smInstances.Emplace();
     }
-    return smInstances[smNext++];
+    return smInstances[smNext++].Run(std::forward<Args>(args)...);
   }
 
   static void Update() {
@@ -104,5 +105,8 @@ template<typename T>
 bool Gizmo<T>::smRegistered = false;
 
 } // namespace Editor
+
+template<typename T>
+using Gizmo = Editor::Gizmo<T>;
 
 #endif

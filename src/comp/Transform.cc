@@ -86,8 +86,8 @@ void Transform::VGizmoEdit(const World::Object& owner) {
   // Display the gizmo for the current mode we are in.
   Vec3 worldTranslation = GetWorldTranslation(owner);
   if (nMode == Mode::Translate) {
-    Vec3 newTranslation = Editor::Gizmo<Translator>::Next().Run(
-      worldTranslation, referenceFrameRotation);
+    Vec3 newTranslation =
+      Gizmo<Translator>::Use(worldTranslation, referenceFrameRotation);
     if (!Math::Near(newTranslation, worldTranslation)) {
       SetWorldTranslation(newTranslation, owner);
     }
@@ -95,15 +95,15 @@ void Transform::VGizmoEdit(const World::Object& owner) {
   else if (nMode == Mode::Scale) {
     referenceFrameRotation = GetWorldRotation(owner);
     Vec3 scale = GetScale();
-    Vec3 newScale = Editor::Gizmo<Scalor>::Next().Run(
-      scale, worldTranslation, referenceFrameRotation);
+    Vec3 newScale =
+      Gizmo<Scalor>::Use(scale, worldTranslation, referenceFrameRotation);
     if (!Math::Near(newScale, scale)) {
       SetScale(newScale);
     }
   }
   else {
     Quat worldRotation = GetWorldRotation(owner);
-    Quat newWorldRotation = Editor::Gizmo<Rotator>::Next().Run(
+    Quat newWorldRotation = Gizmo<Rotator>::Use(
       worldRotation, worldTranslation, referenceFrameRotation);
     if (!Math::Near(worldRotation.mVec, newWorldRotation.mVec)) {
       SetWorldRotation(newWorldRotation, owner);

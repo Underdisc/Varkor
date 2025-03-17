@@ -49,16 +49,15 @@ void BoxCollider::VGizmoEdit(const World::Object& owner) {
   const Quat& referenceFrameRotation = mBox.mRotation;
   switch (nMode) {
   case Mode::Translate:
-    mBox.mCenter = Editor::Gizmo<Translator>::Next().Run(
-      mBox.mCenter, referenceFrameRotation);
+    mBox.mCenter = Gizmo<Translator>::Use(mBox.mCenter, referenceFrameRotation);
     break;
   case Mode::Scale:
-    mBox.mScale = Editor::Gizmo<Scalor>::Next().Run(
-      mBox.mScale, mBox.mCenter, referenceFrameRotation);
+    mBox.mScale =
+      Gizmo<Scalor>::Use(mBox.mScale, mBox.mCenter, referenceFrameRotation);
     break;
   case Mode::Rotate:
-    mBox.mRotation = Editor::Gizmo<Rotator>::Next().Run(
-      mBox.mRotation, mBox.mCenter, referenceFrameRotation);
+    mBox.mRotation =
+      Gizmo<Rotator>::Use(mBox.mRotation, mBox.mCenter, referenceFrameRotation);
     break;
   }
 }
