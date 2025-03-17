@@ -4,7 +4,6 @@ target_sources(varkor PRIVATE
   Input.cc
   Log.cc
   Options.cc
-  Profiler.cc
   Result.cc
   Temporal.cc
   VarkorMain.cc
