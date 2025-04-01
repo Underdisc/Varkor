@@ -37,6 +37,7 @@ private:
 public:
   struct Iter: IterBase {
   public:
+    Iter();
     T& operator*() const;
     T* operator->() const;
 
@@ -47,6 +48,8 @@ public:
 
   struct CIter: IterBase {
   public:
+    CIter();
+    CIter(Iter iter);
     const T& operator*() const;
     const T* operator->() const;
 
@@ -62,11 +65,14 @@ public:
 
 public:
   List();
+  List(List<T>&& other);
   ~List();
-  void PushBack(const T& value);
-  void PushFront(const T& value);
-  void PushBack(T&& value);
-  void PushFront(T&& value);
+  List<T>& operator=(List<T>&& other);
+
+  Iter PushBack(const T& value);
+  Iter PushFront(const T& value);
+  Iter PushBack(T&& value);
+  Iter PushFront(T&& value);
   template<typename... Args>
   void EmplaceBack(Args&&... args);
   template<typename... Args>
@@ -81,6 +87,7 @@ public:
   void Clear();
   Iter Front();
   Iter Back();
+  bool Empty() const;
   size_t Size() const;
 
 private:

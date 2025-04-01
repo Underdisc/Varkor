@@ -8,6 +8,24 @@
 #include "test/ds/Test.h"
 #include "test/ds/TestType.h"
 
+void Move() {
+  Ds::List<TestType> list;
+  Ds::List<TestType> overwiteList;
+  for (int i = 0; i < 5; ++i) {
+    list.EmplaceFront(i);
+    list.EmplaceBack(i);
+  }
+  Ds::List<TestType> transferList(std::move(list));
+  for (int i = 0; i < 5; ++i) {
+    list.EmplaceFront(i);
+    list.EmplaceBack(i);
+  }
+  list = std::move(transferList);
+  PrintList(list);
+  PrintList(transferList);
+  TestType::PrintCounts();
+}
+
 void Push() {
   Ds::List<TestType> list;
   for (int i = 0; i < 10; ++i) {
@@ -174,6 +192,7 @@ void Erase() {
 
 int main() {
   EnableLeakOutput();
+  RunDsTest(Move);
   RunDsTest(Push);
   RunDsTest(Pop);
   RunDsTest(Iter);

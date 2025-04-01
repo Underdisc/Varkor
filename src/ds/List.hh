@@ -43,6 +43,9 @@ void List<T>::IterBase::VerifyCurrent() const {
 }
 
 template<typename T>
+List<T>::Iter::Iter(): IterBase(nullptr) {}
+
+template<typename T>
 List<T>::Iter::Iter(Node* current): IterBase(current) {}
 
 template<typename T>
@@ -58,7 +61,13 @@ T* List<T>::Iter::operator->() const {
 }
 
 template<typename T>
+List<T>::CIter::CIter(): IterBase(nullptr) {}
+
+template<typename T>
 List<T>::CIter::CIter(Node* current): IterBase(current) {}
+
+template<typename T>
+List<T>::CIter::CIter(Iter iter): IterBase(iter.mCurrent) {}
 
 template<typename T>
 const T& List<T>::CIter::operator*() const {
@@ -100,32 +109,57 @@ template<typename T>
 List<T>::List(): mHead(nullptr), mTail(nullptr), mSize(0) {}
 
 template<typename T>
+List<T>::List(List<T>&& other): List() {
+  *this = std::move(other);
+}
+
+template<typename T>
 List<T>::~List() {
-  Clear();
+  if (!Empty()) {
+    Clear();
+  }
 }
 
 template<typename T>
-void List<T>::PushBack(const T& value) {
+List<T>& List<T>::operator=(List<T>&& other) {
+  if (!Empty()) {
+    Clear();
+  }
+  mHead = other.mHead;
+  mTail = other.mTail;
+  mSize = other.mSize;
+  other.mHead = nullptr;
+  other.mTail = nullptr;
+  other.mSize = 0;
+  return *this;
+}
+
+template<typename T>
+typename List<T>::Iter List<T>::PushBack(const T& value) {
   Node* newNode = alloc Node(value);
   InsertNode(end(), newNode);
+  return Iter(newNode);
 }
 
 template<typename T>
-void List<T>::PushFront(const T& value) {
+typename List<T>::Iter List<T>::PushFront(const T& value) {
   Node* newNode = alloc Node(value);
   InsertNode(begin(), newNode);
+  return Iter(newNode);
 }
 
 template<typename T>
-void List<T>::PushBack(T&& value) {
+typename List<T>::Iter List<T>::PushBack(T&& value) {
   Node* newNode = alloc Node(std::forward<T>(value));
   InsertNode(end(), newNode);
+  return Iter(newNode);
 }
 
 template<typename T>
-void List<T>::PushFront(T&& value) {
+typename List<T>::Iter List<T>::PushFront(T&& value) {
   Node* newNode = alloc Node(std::forward<T>(value));
   InsertNode(begin(), newNode);
+  return Iter(newNode);
 }
 
 template<typename T>
@@ -231,6 +265,7 @@ typename List<T>::Iter List<T>::Erase(Iter it) {
 
 template<typename T>
 void List<T>::Clear() {
+  LogAbortIf(Empty(), "List is empty");
   Node* current = mHead;
   Node* next = nullptr;
   while (current != nullptr) {
@@ -251,6 +286,11 @@ typename List<T>::Iter List<T>::Front() {
 template<typename T>
 typename List<T>::Iter List<T>::Back() {
   return Iter(mTail);
+}
+
+template<typename T>
+bool List<T>::Empty() const {
+  return mHead == nullptr;
 }
 
 template<typename T>

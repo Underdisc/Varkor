@@ -28,7 +28,9 @@ void Init() {
 }
 
 void Purge() {
-  nLayers.Clear();
+  if (!nLayers.Empty()) {
+    nLayers.Clear();
+  }
 }
 
 void Update() {
