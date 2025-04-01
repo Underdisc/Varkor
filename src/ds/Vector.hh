@@ -35,6 +35,11 @@ Vector<T>::Vector(Vector<T>&& other):
 }
 
 template<typename T>
+Vector<T>::Vector(const std::initializer_list<T>& list): Vector() {
+  *this = list;
+}
+
+template<typename T>
 Vector<T>::~Vector() {
   Clear();
   if (mData != nullptr) {
@@ -350,6 +355,15 @@ Vector<T>& Vector<T>::operator=(Vector<T>&& other) {
   other.mData = nullptr;
   other.mSize = 0;
   other.mCapacity = 0;
+  return *this;
+}
+
+template<typename T>
+Vector<T>& Vector<T>::operator=(const std::initializer_list<T>& list) {
+  Clear();
+  for (const T& element: list) {
+    Push(element);
+  }
   return *this;
 }
 

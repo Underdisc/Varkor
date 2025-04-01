@@ -37,6 +37,13 @@ void CopyConstructor1() {
   PrintVector(copy);
 }
 
+void InitializerList() {
+  Ds::Vector<std::string> test = {"a", "b", "c", "d", "e"};
+  PrintVector(test);
+  test = {"f", "g", "h", "i", "j"};
+  PrintVector(test);
+}
+
 void MoveConstructor() {
   Ds::Vector<int> ogVector;
   for (int i = 0; i < 20; ++i) {
@@ -580,6 +587,7 @@ int main(void) {
   RunDsTest(CopyConstructor0);
   RunDsTest(CopyConstructor1);
   RunDsTest(MoveConstructor);
+  RunDsTest(InitializerList);
   RunDsTest(SinglePush);
   RunDsTest(MovePush);
   RunDsTest(MultiplePush);

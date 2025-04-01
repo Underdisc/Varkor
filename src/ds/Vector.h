@@ -13,6 +13,7 @@ public:
   Vector();
   Vector(const Vector<T>& other);
   Vector(Vector<T>&& other);
+  Vector(const std::initializer_list<T>& other);
   ~Vector();
   void Push(const T& value);
   void Push(T&& value);
@@ -46,6 +47,7 @@ public:
   T& operator[](size_t index);
   Vector<T>& operator=(const Vector<T>& other);
   Vector<T>& operator=(Vector<T>&& other);
+  Vector<T>& operator=(const std::initializer_list<T>& other);
 
   T* begin();
   T* end();
