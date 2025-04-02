@@ -28,11 +28,12 @@ std::ostream& operator<<(
 }
 
 void Intersection() {
-  Math::Ray rays[3];
+  Math::Ray rays[3] = {
+    Math::Ray::StartNormalizeDirection({0.0, 0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}),
+    Math::Ray::StartNormalizeDirection({0.0, 0.0f, 1.0f}, {1.0f, 1.0f, -1.0f}),
+    Math::Ray::StartNormalizeDirection({0.0, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}),
+  };
   Math::Plane planes[3];
-  rays[0].StartDirection({0.0, 0.0f, 1.0f}, {0.0f, 0.0f, -1.0f});
-  rays[1].StartDirection({0.0, 0.0f, 1.0f}, {1.0f, 1.0f, -1.0f});
-  rays[2].StartDirection({0.0, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f});
   planes[0].PointNormal({0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
   planes[1].PointNormal({1.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f});
   planes[2].PointNormal({1.0f, 1.0f, 0.0f}, {1.0f, -1.0f, 0.0f});
@@ -45,11 +46,12 @@ void Intersection() {
 }
 
 void RaySphere() {
-  Math::Ray rays[3];
+  Math::Ray rays[3] = {
+    Math::Ray::StartNormalizeDirection({0, 0, 0}, {1, 0, 0}),
+    Math::Ray::StartNormalizeDirection({2, 2, 2}, {-1, -1, -1}),
+    Math::Ray::StartNormalizeDirection({-1, 0, -5}, {0, 0, 1}),
+  };
   Math::Sphere spheres[2];
-  rays[0].StartDirection({0, 0, 0}, {1, 0, 0});
-  rays[1].StartDirection({2, 2, 2}, {-1, -1, -1});
-  rays[2].StartDirection({-1, 0, -5}, {0, 0, 1});
   spheres[0].Init({0, 0, 0}, 1);
   spheres[1].Init({2, 0, -2}, 2);
   std::cout << Math::Intersection(rays[0], spheres[0]) << '\n';

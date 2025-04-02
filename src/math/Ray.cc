@@ -2,22 +2,36 @@
 
 namespace Math {
 
-void Ray::InitNormalized(const Vec3& start, const Vec3& normalizedDirection) {
-  mStart = start;
-  mDirection = normalizedDirection;
+Ray Ray::Points(const Vec3& a, const Vec3& b) {
+  Ray newRay;
+  newRay.mStart = a, newRay.mDirection = Math::Normalize(b - a);
+  return newRay;
 }
 
-void Ray::StartDirection(const Vec3& start, const Vec3& direction) {
-  mStart = start;
-  Direction(direction);
+Ray Ray::StartDirection(const Vec3& point, const Vec3& direction) {
+  Ray newRay;
+  newRay.mStart = point;
+  newRay.mDirection = direction;
+  return newRay;
 }
 
-void Ray::Direction(const Vec3& direction) {
-  mDirection = Normalize(direction);
+Ray Ray::StartNormalizeDirection(const Vec3& point, const Vec3& direction) {
+  Ray newRay;
+  newRay.mStart = point;
+  newRay.mDirection = Math::Normalize(direction);
+  return newRay;
 }
 
 const Vec3& Ray::Direction() const {
   return mDirection;
+}
+
+void Ray::Direction(const Vec3& direction) {
+  mDirection = direction;
+}
+
+void Ray::NormalizeDirection(const Vec3& direction) {
+  mDirection = Math::Normalize(direction);
 }
 
 Vec3 Ray::At(float t) const {
@@ -40,8 +54,8 @@ bool Ray::HasClosestTo(const Ray& other) const {
 
 float Ray::ClosestTTo(const Ray& other) const {
   Vec3 sd = mStart - other.mStart;
-  const Vec3& da = Direction();
-  const Vec3& db = other.Direction();
+  const Vec3& da = mDirection;
+  const Vec3& db = other.mDirection;
   float dadb = Math::Dot(da, db);
   float dasd = Math::Dot(da, sd);
   float dbsd = Math::Dot(db, sd);

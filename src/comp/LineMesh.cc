@@ -104,9 +104,10 @@ void InitLineMesh(
   for (int i = 1; i < points.Size() - 1; ++i) {
     for (int j = 0; j < 4; ++j) {
       int edgePointIndex = i * 4 + j;
-      Math::Ray prevRay, currentRay;
-      prevRay.InitNormalized(edgePoints[edgePointIndex - 4], tangents[i - 1]);
-      currentRay.InitNormalized(edgePoints[edgePointIndex], tangents[i]);
+      Math::Ray prevRay = Math::Ray::StartDirection(
+        edgePoints[edgePointIndex - 4], tangents[i - 1]);
+      Math::Ray currentRay =
+        Math::Ray::StartDirection(edgePoints[edgePointIndex], tangents[i]);
       if (prevRay.HasClosestTo(currentRay)) {
         allVerts.Push(prevRay.ClosestPointTo(currentRay));
       }

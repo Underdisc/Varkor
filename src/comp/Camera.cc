@@ -159,11 +159,10 @@ Vec3 Camera::WorldUp(const World::Object& owner) const {
 
 float Camera::ProjectedDistance(
   const World::Object& owner, const Vec3& worldTranslation) const {
-  Math::Ray viewRay;
-  Vec3 viewPos = WorldTranslation(owner);
-  viewRay.StartDirection(viewPos, WorldForward(owner));
+  Math::Ray viewRay = Math::Ray::StartNormalizeDirection(
+    WorldTranslation(owner), WorldForward(owner));
   Vec3 projection = viewRay.ClosestPointTo(worldTranslation);
-  Vec3 distance = projection - viewPos;
+  Vec3 distance = projection - viewRay.mStart;
   if (Math::Near(distance, {0.0f, 0.0f, 0.0f})) {
     return 0.0f;
   }
@@ -210,10 +209,12 @@ Math::Ray Camera::NdcPositionToWorldRay(
   Vec3 worldTranslation = NdcPositionToWorldTranslation(ndcPosition, owner);
   switch (mProjectionType) {
   case ProjectionType::Perspective:
-    ray.StartDirection(cameraTranslation, worldTranslation - cameraTranslation);
+    ray = Math::Ray::StartNormalizeDirection(
+      cameraTranslation, worldTranslation - cameraTranslation);
     break;
   case ProjectionType::Orthographic:
-    ray.StartDirection(worldTranslation, WorldForward(owner));
+    ray =
+      Math::Ray::StartNormalizeDirection(worldTranslation, WorldForward(owner));
     break;
   }
   return ray;
