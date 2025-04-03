@@ -33,10 +33,11 @@ void Intersection() {
     Math::Ray::StartNormalizeDirection({0.0, 0.0f, 1.0f}, {1.0f, 1.0f, -1.0f}),
     Math::Ray::StartNormalizeDirection({0.0, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}),
   };
-  Math::Plane planes[3];
-  planes[0].PointNormal({0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
-  planes[1].PointNormal({1.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f});
-  planes[2].PointNormal({1.0f, 1.0f, 0.0f}, {1.0f, -1.0f, 0.0f});
+  Math::Plane planes[3] {
+    planes[0].PointNormal({0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}),
+    planes[1].PointNormal({1.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f}),
+    planes[2].PointNormal({1.0f, 1.0f, 0.0f}, {1.0f, -1.0f, 0.0f}),
+  };
   std::cout << Math::Intersection(rays[0], planes[0]) << '\n';
   std::cout << Math::Intersection(rays[0], planes[2]) << '\n';
   std::cout << Math::Intersection(rays[1], planes[0]) << '\n';

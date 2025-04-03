@@ -121,9 +121,9 @@ void OrientHandlesTowardsCamera(
     if (handleT.GetScale()[0] < 0.0f) {
       groups[i].mAxis *= -1.0f;
     }
-    Math::Plane handlePlane;
-    handlePlane.InitNormalized(gizmoTranslation, groups[i].mAxis);
-    if (!handlePlane.WithinHalfSpace(cameraTranslation)) {
+    Math::Plane handlePlane =
+      Math::Plane::PointNormal(gizmoTranslation, groups[i].mAxis);
+    if (!handlePlane.HalfSpaceContains(cameraTranslation)) {
       continue;
     }
 

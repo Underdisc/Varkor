@@ -6,19 +6,21 @@
 namespace Math {
 
 struct Plane {
+public:
   // A point on the plane.
   Vec3 mPoint;
+
+private:
   // A unit vector perpendicular to the plane.
   Vec3 mNormal;
 
-  Plane();
+public:
   // Defines the plane using three points a, b, and c.
-  Plane(const Vec3& a, const Vec3& b, const Vec3& c);
-  void Init(const Vec3& a, const Vec3& b, const Vec3& c);
-  void InitNormalized(const Vec3& point, const Vec3& normalizedNormal);
-  void PointNormal(const Vec3& point, const Vec3& normal);
+  static Plane Points(const Vec3& a, const Vec3& b, const Vec3& c);
+  static Plane PointNormal(const Vec3& point, const Vec3& normal);
+  static Plane PointNormalizeNormal(const Vec3& point, const Vec3& normal);
 
-  bool WithinHalfSpace(const Vec3& point);
+  bool HalfSpaceContains(const Vec3& point) const;
   void Normal(const Vec3& normal);
   const Vec3& Normal() const;
 };

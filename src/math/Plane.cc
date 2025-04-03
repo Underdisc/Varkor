@@ -1,31 +1,31 @@
 #include "math/Plane.h"
+#include "math/Constants.h"
 
 namespace Math {
 
-Plane::Plane() {}
-
-Plane::Plane(const Vec3& a, const Vec3& b, const Vec3& c) {
-  Init(a, b, c);
+Plane Plane::Points(const Vec3& a, const Vec3& b, const Vec3& c) {
+  Plane plane;
+  plane.mPoint = b;
+  plane.mNormal = Normalize(Cross(a - b, c - b));
+  return plane;
 }
 
-void Plane::Init(const Vec3& a, const Vec3& b, const Vec3& c) {
-  mPoint = a;
-  mNormal = Normalize(Cross(b - a, c - a));
+Plane Plane::PointNormal(const Vec3& point, const Vec3& normal) {
+  Plane plane;
+  plane.mPoint = point;
+  plane.mNormal = normal;
+  return plane;
 }
 
-void Plane::InitNormalized(const Vec3& point, const Vec3& normalizedNormal) {
-  mPoint = point;
-  mNormal = normalizedNormal;
+Plane Plane::PointNormalizeNormal(const Vec3& point, const Vec3& normal) {
+  Plane plane;
+  plane.mPoint = point;
+  plane.mNormal = Normalize(normal);
+  return plane;
 }
 
-void Plane::PointNormal(const Vec3& point, const Vec3& normal) {
-  mPoint = point;
-  Normal(normal);
-}
-
-bool Plane::WithinHalfSpace(const Vec3& point) {
-  Vec3 pp = point - mPoint;
-  return Math::Dot(pp, mNormal) <= 0.0f;
+bool Plane::HalfSpaceContains(const Vec3& point) const {
+  return Distance(point) <= nEpsilon;
 }
 
 void Plane::Normal(const Vec3& normal) {
