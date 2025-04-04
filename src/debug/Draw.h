@@ -4,6 +4,7 @@
 #include "gfx/Renderable.h"
 #include "math/Box.h"
 #include "math/Capsule.h"
+#include "math/Hull.h"
 #include "math/Matrix4.h"
 #include "math/Plane.h"
 #include "math/Sphere.h"
@@ -17,6 +18,11 @@ void Point(const Vec3& point, const Vec3& color);
 void Line(const Vec3& a, const Vec3& b, const Vec3& color);
 void Line(const Vec3& a, const Vec3& b, const Vec3& aColor, const Vec3& bColor);
 void Plane(const Math::Plane& plane, const Vec3& color);
+void Hull(const Math::Hull& hull, const Vec3& color);
+void Hull(
+  const Math::Hull& hull,
+  const Vec3& color,
+  const std::initializer_list<Vec3>& halfEdgeColors);
 void Box(const Math::Box& box, const Vec3& color);
 void Sphere(const Math::Sphere& sphere, const Vec3& color);
 void Capsule(const Math::Capsule& capsule, const Vec3& color);

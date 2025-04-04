@@ -28,6 +28,15 @@ bool Plane::HalfSpaceContains(const Vec3& point) const {
   return Distance(point) <= nEpsilon;
 }
 
+float Plane::Distance(const Vec3& point) const {
+  Vec3 pp = point - mPoint;
+  return Math::Dot(pp, mNormal);
+}
+
+Vec3 Plane::ClosestTo(const Vec3& point) const {
+  return point - Distance(point) * mNormal;
+}
+
 void Plane::Normal(const Vec3& normal) {
   mNormal = Normalize(normal);
 }

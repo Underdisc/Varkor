@@ -30,6 +30,7 @@ target_link_libraries(varkorStandalone varkor)
 add_executable(testViewer)
 target_sources(testViewer PRIVATE
   src/test/Viewer.cc
+  src/test/math/Hull.cc
   src/test/math/Intersection.cc
   src/test/math/Triangle.cc)
 target_link_libraries(testViewer varkor)

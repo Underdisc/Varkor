@@ -22,6 +22,7 @@ public:
   void NormalizeDirection(const Vec3& direction);
 
   Vec3 At(float t) const;
+  float DistanceSq(const Vec3& point) const;
   float ClosestTTo(const Vec3& point) const;
   Vec3 ClosestPointTo(const Vec3& point) const;
   bool HasClosestTo(const Ray& other) const;

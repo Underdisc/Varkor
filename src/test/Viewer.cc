@@ -1,6 +1,9 @@
 #include <imgui/imgui.h>
+#include <iomanip>
 
+#include "../math/Hull.h"
 #include "../math/Intersection.h"
+#include "Input.h"
 #include "VarkorMain.h"
 #include "debug/Draw.h"
 #include "editor/Camera.h"
@@ -10,12 +13,10 @@
 #include "editor/gizmos/Rotator.h"
 #include "editor/gizmos/Scalor.h"
 #include "editor/gizmos/Translator.h"
+#include "test/math/Hull.h"
 #include "test/math/Intersection.h"
 #include "test/math/Triangle.h"
 #include "world/World.h"
-
-#include "Input.h"
-#include <iomanip>
 
 namespace Viewer {
 
@@ -55,6 +56,7 @@ enum class TestType {
   SphereCapsuleIntersection,
   TriangleClosestPointTo,
   SphereTriangleIntersection,
+  QuickHull,
   Invalid,
 };
 const char* nTypeStrs[] = {
@@ -63,6 +65,7 @@ const char* nTypeStrs[] = {
   "SphereCapsuleIntersection",
   "TriangleClosestPointTo",
   "SphereTriangleIntersection",
+  "QuickHull",
 };
 
 Ds::Vector<TestVectorTypeData> nTestVectorTypeData;
@@ -322,6 +325,17 @@ void Show<Test::SphereTriangleIntersectionTest>(
   }
 }
 
+template<>
+void Show<Test::QuickHullTest>(Test::QuickHullTest* test) {
+  VResult<Math::Hull> result = Math::Hull::QuickHull(test->mPoints);
+  if (result.Success()) {
+    Debug::Draw::Hull(result.mValue, {1, 1, 1}, {});
+  }
+  for (int p = 0; p < test->mPoints.Size(); ++p) {
+    Debug::Draw::Point(test->mPoints[p], {1, 1, 1});
+  }
+}
+
 struct Desc {
   TestType mType;
   int mIdx;
@@ -342,6 +356,8 @@ void Init() {
     Test::GetSphereTriangleIntersectionTests);
   RegisterTestVector<Test::TriangleClosestPointToTest>(
     TestType::TriangleClosestPointTo, Test::GetTriangleClosestPointToTests);
+  RegisterTestVector<Test::QuickHullTest>(
+    TestType::QuickHull, Test::QuickHullTest::GetTests);
 
   nSelectedTest.mType = TestType::BoxBoxIntersection;
   nSelectedTest.mIdx = 0;

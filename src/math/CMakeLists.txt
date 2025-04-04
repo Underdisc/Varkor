@@ -1,5 +1,6 @@
 target_sources(varkor PRIVATE
   Box.cc
+  Hull.cc
   Intersection.cc
   Matrix3.cc
   Matrix4.cc

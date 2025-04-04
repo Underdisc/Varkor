@@ -38,6 +38,10 @@ Vec3 Ray::At(float t) const {
   return mStart + mDirection * t;
 }
 
+float Ray::DistanceSq(const Vec3& point) const {
+  return Math::MagnitudeSq(ClosestPointTo(point) - point);
+}
+
 float Ray::ClosestTTo(const Vec3& point) const {
   return Math::Dot(mDirection, point - mStart);
 }

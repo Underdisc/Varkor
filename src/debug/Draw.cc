@@ -80,6 +80,58 @@ void Plane(const Math::Plane& plane, const Vec3& color) {
   Line(corners[3], corners[0], color);
 }
 
+void Hull(const Math::Hull& hull, const Vec3& color) {
+  for (const Math::Hull::HalfEdge& halfEdge: hull.mHalfEdges) {
+    const Vec3& a = halfEdge.mVertex->mPosition;
+    const Vec3& b = halfEdge.mTwin->mVertex->mPosition;
+    Line(a, a + (b - a) * 0.5f, color);
+  }
+}
+
+void Hull(
+  const Math::Hull& hull,
+  const Vec3& color,
+  const std::initializer_list<Vec3>& halfEdgeColors) {
+  Ds::Vector<Vec3> colors;
+  if (halfEdgeColors.size() == 0) {
+    colors = {{1, 1, 0}, {0, 1, 0}, {0, 1, 1}, {1, 0, 1}};
+  }
+  else {
+    colors = halfEdgeColors;
+  }
+
+  int currentColorIdx = 0;
+  for (const Math::Hull::Face& face: hull.mFaces) {
+    // Find the face's center
+    Ds::List<Math::Hull::HalfEdge>::CIter currentEdge = face.mHalfEdge->mNext;
+    Vec3 center = face.mHalfEdge->mVertex->mPosition;
+    int totalVerts = 1;
+    while (currentEdge != face.mHalfEdge) {
+      center += currentEdge->mVertex->mPosition;
+      currentEdge = currentEdge->mNext;
+      ++totalVerts;
+    }
+    center /= (float)totalVerts;
+
+    // Draw the half edges of every face.
+    do {
+      Vec3 a = currentEdge->mVertex->mPosition;
+      Vec3 b = currentEdge->mNext->mVertex->mPosition;
+      Vec3 centerToA = a - center;
+      Vec3 centerToB = b - center;
+      Vec3 aToB = b - a;
+      Vec3 headBase = a + aToB * 0.35f;
+      Vec3 headCorner = b - aToB * 0.65f;
+      headCorner += (center - headCorner) * 0.1f;
+      Vec3 headTip = currentEdge->mTwin->mVertex->mPosition - aToB * 0.35f;
+      Debug::Draw::Line(a, headBase, color);
+      Debug::Draw::Line(headBase, headCorner, colors[currentColorIdx]);
+      Debug::Draw::Line(headCorner, headTip, colors[currentColorIdx]);
+    } while ((currentEdge = currentEdge->mNext) != face.mHalfEdge);
+    currentColorIdx = (currentColorIdx + 1) % colors.Size();
+  }
+}
+
 void Box(const Math::Box& box, const Vec3& color) {
   Mat3 orientation;
   Math::Rotate(&orientation, box.mRotation);
