@@ -15,8 +15,6 @@ node build.js [options] [-- targetArgs]
 [targetArgs] - The command line arguments passed to the built target
 
 Details
-A <yes|no> option can be toggled by using the option without an argument.
-
 --subBuildDir: It is expected that there is a directory called build/ in the
   root of the repository. 'subBuildDir' is the subdirectory within build/ that
   contains a 'ninja.build' file that's used for building with ninja.
