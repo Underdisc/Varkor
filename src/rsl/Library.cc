@@ -131,21 +131,11 @@ std::string PrependResDirectory(const std::string& path) {
   return ResDirectory() + '/' + path;
 }
 
-// A path can be next to the executable or within a project directory. This
-// function will return a path that is guaranteed to reference a directory entry
-// in one of these two locations or an error when an entry doesn't exist.
-VResult<std::string> ResolveProjPath(const std::string& path) {
-  if (std::filesystem::exists(path)) {
-    return VResult<std::string>(path);
-  }
-  std::string projPath = Options::nConfig.mProjectDirectory + path;
-  if (std::filesystem::exists(projPath)) {
-    return VResult<std::string>(projPath);
-  }
-  return Result("Project path \"" + path + "\" failed resolution.");
-}
 
-// The same as ResolveProjPath, but for a project's res/ directory.
+// A resource path can be relative to the executable or relative to one of a set
+// of directories. This function will return a path is guaranteed to reference
+// an existing entry in one of the possible paths or an error when an entry
+// doesn't exist. It's analogous to include directories.
 VResult<std::string> ResolveResPath(const std::string& path) {
   if (std::filesystem::exists(path)) {
     return VResult<std::string>(path);
