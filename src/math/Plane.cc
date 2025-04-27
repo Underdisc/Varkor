@@ -10,6 +10,23 @@ Plane Plane::Points(const Vec3& a, const Vec3& b, const Vec3& c) {
   return plane;
 }
 
+Plane Plane::Newell(const Ds::Vector<Vec3>& points) {
+  Plane plane;
+  plane.mNormal = Vec3::Zero();
+  plane.mPoint = Vec3::Zero();
+  for (int p = 0; p < points.Size(); ++p) {
+    const Vec3& a = points[p];
+    const Vec3& b = points[(p + 1) % points.Size()];
+    plane.mNormal[0] += (a[1] - b[1]) * (a[2] + b[2]);
+    plane.mNormal[1] += (a[2] - b[2]) * (a[0] + b[0]);
+    plane.mNormal[2] += (a[0] - b[0]) * (a[1] + b[1]);
+    plane.mPoint += points[p];
+  }
+  plane.mNormal = Normalize(plane.mNormal);
+  plane.mPoint /= (float)points.Size();
+  return plane;
+}
+
 Plane Plane::PointNormal(const Vec3& point, const Vec3& normal) {
   Plane plane;
   plane.mPoint = point;
@@ -43,6 +60,14 @@ void Plane::Normal(const Vec3& normal) {
 
 const Vec3& Plane::Normal() const {
   return mNormal;
+}
+
+bool Near(const Plane& a, const Plane& b) {
+  Vec4 aHalfspace = (Vec4)a.Normal();
+  aHalfspace[3] = -Dot(a.Normal(), a.mPoint);
+  Vec4 bHalfspace = (Vec4)b.Normal();
+  bHalfspace[3] = -Dot(b.Normal(), b.mPoint);
+  return Near(aHalfspace, bHalfspace);
 }
 
 } // namespace Math

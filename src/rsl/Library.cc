@@ -17,6 +17,7 @@ struct SharedConfig {
   int mRefCount;
 };
 
+std::string nExtraResDirectory;
 Ds::RbTree<Asset> nAssets;
 Ds::Map<std::string, SharedConfig> nSharedConfigs;
 
@@ -131,18 +132,20 @@ std::string PrependResDirectory(const std::string& path) {
   return ResDirectory() + '/' + path;
 }
 
-
 // A resource path can be relative to the executable or relative to one of a set
 // of directories. This function will return a path is guaranteed to reference
 // an existing entry in one of the possible paths or an error when an entry
 // doesn't exist. It's analogous to include directories.
 VResult<std::string> ResolveResPath(const std::string& path) {
-  if (std::filesystem::exists(path)) {
-    return VResult<std::string>(path);
-  }
-  std::string inResPath = PrependResDirectory(path);
-  if (std::filesystem::exists(inResPath)) {
-    return VResult<std::string>(inResPath);
+  std::string testPaths[4] = {
+    path,
+    VARKOR_WORKING_DIRECTORY + path,
+    PrependResDirectory(path),
+    nExtraResDirectory + path};
+  for (const std::string& testPath: testPaths) {
+    if (std::filesystem::exists(testPath)) {
+      return VResult<std::string>(testPath);
+    }
   }
   return Result("Resource path \"" + path + "\" failed resolution.");
 }

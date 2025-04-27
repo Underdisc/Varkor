@@ -11,6 +11,8 @@ add_externals(varkor)
 find_package(OpenGL)
 target_link_libraries(varkor ${OPENGL_gl_LIBRARY})
 target_include_directories(varkor PUBLIC "src")
+target_compile_definitions(varkor
+  PUBLIC VARKOR_WORKING_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/working/")
 
 # Set compiler options.
 target_compile_features(varkor PRIVATE cxx_std_17)

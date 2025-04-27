@@ -13,6 +13,7 @@
 #include "editor/gizmos/Rotator.h"
 #include "editor/gizmos/Scalor.h"
 #include "editor/gizmos/Translator.h"
+#include "rsl/Library.h"
 #include "test/math/Hull.h"
 #include "test/math/Intersection.h"
 #include "test/math/Triangle.h"
@@ -327,7 +328,21 @@ void Show<Test::SphereTriangleIntersectionTest>(
 
 template<>
 void Show<Test::QuickHullTest>(Test::QuickHullTest* test) {
-  VResult<Math::Hull> result = Math::Hull::QuickHull(test->mPoints);
+  // Save all of the results so they don't need to be recomputed.
+  const Ds::Vector<Test::QuickHullTest>& tests =
+    TestVector<Test::QuickHullTest>::smTests;
+  static auto getResults = [&]() -> Ds::Vector<VResult<Math::Hull>>
+  {
+    Ds::Vector<VResult<Math::Hull>> results;
+    results.Reserve(tests.Size());
+    for (int t = 0; t < tests.Size(); ++t) {
+      results.Push(Math::Hull::QuickHull(tests[t].mPoints));
+    }
+    return results;
+  };
+  static Ds::Vector<VResult<Math::Hull>> results = getResults();
+
+  const VResult<Math::Hull>& result = results[test - tests.CData()];
   if (result.Success()) {
     Debug::Draw::Hull(result.mValue, {1, 1, 1}, {});
   }
@@ -356,6 +371,7 @@ void Init() {
     Test::GetSphereTriangleIntersectionTests);
   RegisterTestVector<Test::TriangleClosestPointToTest>(
     TestType::TriangleClosestPointTo, Test::GetTriangleClosestPointToTests);
+  Rsl::nExtraResDirectory = "test/math_Hull/res/";
   RegisterTestVector<Test::QuickHullTest>(
     TestType::QuickHull, Test::QuickHullTest::GetTests);
 

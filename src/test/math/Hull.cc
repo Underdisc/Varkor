@@ -1,5 +1,6 @@
 #include <random>
 
+#include "gfx/Mesh.h"
 #include "math/Hull.h"
 #include "test/Test.h"
 #include "test/math/Hull.h"
@@ -53,52 +54,56 @@ Ds::Vector<QuickHullTest> QuickHullTest::GetTests() {
   points.Push({0, 0, 0});
   tests.Emplace("5", std::move(points));
 
-  for (int i = 0; i < 50; ++i) {
-    points.Push(acquireRandomPoint());
+  float heights[4] = {-1, -0.5f, 0.5f, 1};
+  for (int i = 0; i < 4; ++i) {
+    points.Push({1, heights[i], -1});
+    points.Push({1, heights[i], -0.5f});
+    points.Push({1, heights[i], 0.5f});
+    points.Push({1, heights[i], 1});
+    points.Push({0.5f, heights[i], 1});
+    points.Push({-0.5f, heights[i], 1});
+    points.Push({-1, heights[i], 1});
+    points.Push({-1, heights[i], 0.5f});
+    points.Push({-1, heights[i], -0.5f});
+    points.Push({-1, heights[i], -1});
+    points.Push({-0.5f, heights[i], -1});
+    points.Push({0.5f, heights[i], -1});
   }
   tests.Emplace("6", std::move(points));
 
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < 50; ++i) {
     points.Push(acquireRandomPoint());
   }
   tests.Emplace("7", std::move(points));
 
-  for (int i = 0; i < 100; ++i) {
+  for (int i = 0; i < 10; ++i) {
     points.Push(acquireRandomPoint());
   }
   tests.Emplace("8", std::move(points));
 
-  return tests;
-}
+  for (int i = 0; i < 100; ++i) {
+    points.Push(acquireRandomPoint());
+  }
+  tests.Emplace("9", std::move(points));
 
-Result IsHullStructureStable(const Math::Hull& hull) {
-  Ds::List<Math::Hull::Vertex>::CIter vertIt = hull.mVertices.cbegin();
-  Ds::List<Math::Hull::Vertex>::CIter vertEnd = hull.mVertices.cend();
-  for (; vertIt != vertEnd; ++vertIt) {
-    if (vertIt != vertIt->mHalfEdge->mVertex) {
-      return Result("Vertex edge has incorrect vertex reference");
+  auto meshTest =
+    [&tests](const char* testName, const char* meshFile, float scale)
+  {
+    VResult<Gfx::Mesh::Local> result = Gfx::Mesh::Local::Init(
+      meshFile, Gfx::Mesh::Attribute::Position, false, scale);
+    LogAbortIf(!result.Success(), result.mError.c_str());
+    Ds::Vector<Vec3> points;
+    for (int b = 0; b < result.mValue.mVertexBuffer.Size(); b += sizeof(Vec3)) {
+      points.Push(*(Vec3*)&result.mValue.mVertexBuffer[b]);
     }
-  }
+    tests.Emplace(testName, std::move(points));
+  };
+  meshTest("10", "suzanne.obj", 1.0f);
+  meshTest("11", "vres/model/scale.obj", 3.0f);
+  meshTest("12", "icepick.obj", 1.0f);
+  meshTest("13", "vres/model/questionmarkCube.obj", 1.0f);
 
-  size_t encounteredEdges = 0;
-  Ds::List<Math::Hull::Face>::CIter faceIt = hull.mFaces.cbegin();
-  Ds::List<Math::Hull::Face>::CIter faceEnd = hull.mFaces.cend();
-  for (; faceIt != faceEnd; ++faceIt) {
-    Ds::List<Math::Hull::HalfEdge>::CIter currentEdge = faceIt->mHalfEdge;
-    do {
-      if (faceIt != currentEdge->mFace) {
-        return Result("Edge in face's loop refers to wrong face");
-      }
-      if (currentEdge != currentEdge->mTwin->mTwin) {
-        return Result("Twin references of twin pair aren't cyclic");
-      }
-      ++encounteredEdges;
-    } while ((currentEdge = currentEdge->mNext) != faceIt->mHalfEdge);
-  }
-  if (encounteredEdges != hull.mHalfEdges.Size()) {
-    return Result("Number of visited edges not equivalent to edge list size");
-  }
-  return Result();
+  return tests;
 }
 
 void QuickHull() {
@@ -112,12 +117,18 @@ void QuickHull() {
     }
     std::cout << "Success\n";
     const Math::Hull& hull = result.mValue;
-    Result stabilityResult = IsHullStructureStable(hull);
+    Result stabilityResult = hull.IsStructureStable();
     if (!stabilityResult.Success()) {
       std::cout << "  " << stabilityResult.mError << '\n';
     }
     for (const Math::Hull::Vertex& vertex: hull.mVertices) {
-      std::cout << "  " << vertex.mPosition << '\n';
+      int vertexEdges = 0;
+      Ds::List<Math::Hull::HalfEdge>::CIter currentEdge = vertex.mHalfEdge;
+      do {
+        ++vertexEdges;
+        currentEdge = currentEdge->mTwin->mNext;
+      } while (vertex.mHalfEdge != currentEdge);
+      std::cout << "  " << vertexEdges << ":" << vertex.mPosition << '\n';
     }
   }
 }

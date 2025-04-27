@@ -18,6 +18,7 @@ struct Mesh {
     Bitagent = 1 << 2,
     Normal = 1 << 3,
     TexCoord = 1 << 4,
+    All = 0xff'ff'ff'ff,
   };
   static unsigned int AttributesSize(unsigned int attributes);
 
@@ -26,11 +27,25 @@ struct Mesh {
   Mesh& operator=(Mesh&& other);
   ~Mesh();
 
+  struct Local {
+    static VResult<Local> Init(
+      const std::string& file,
+      unsigned int selectedAttributes,
+      bool flipUvs,
+      float scale);
+    static VResult<Local> Init(
+      const aiMesh& assimpMesh, unsigned int selectedAttributes, float scale);
+    unsigned int mAttributes;
+    Ds::Vector<char> mVertexBuffer;
+    Ds::Vector<unsigned int> mElementBuffer;
+  };
+
   static void EditConfig(Vlk::Value* configValP);
   Result Init();
   Result Init(const Vlk::Explorer& configEx);
   Result Init(const std::string& file, bool flipUvs, float scale);
   Result Init(const aiMesh& assimpMesh, float scale);
+  Result Init(const Local& localMesh);
   Result Init(
     unsigned int attributes,
     const Ds::Vector<Vec3>& vertices,
@@ -46,6 +61,7 @@ struct Mesh {
     void* elementBuffer,
     size_t elementBufferSize,
     size_t elementCount);
+
   void Finalize();
   void UpdateVbo(size_t byteOffset, size_t byteCount, const void* data) const;
   void Purge();

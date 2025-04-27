@@ -12,6 +12,7 @@ namespace Rsl {
 
 constexpr const char* nInvalidAssetName = "vres/invalid";
 constexpr const char* nDefaultAssetName = "vres/defaults";
+extern std::string nExtraResDirectory;
 
 Asset& AddAsset(const std::string& name);
 Asset& QueueAsset(const std::string& name);

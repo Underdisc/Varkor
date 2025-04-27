@@ -91,6 +91,26 @@ Result Mesh::Init(const Vlk::Explorer& configEx) {
 }
 
 Result Mesh::Init(const std::string& file, bool flipUvs, float scale) {
+  VResult<Local> result = Local::Init(file, Attribute::All, flipUvs, scale);
+  if (!result.Success()) {
+    return result;
+  }
+  return Init(result.mValue);
+}
+
+Result Mesh::Init(const aiMesh& assimpMesh, float scale) {
+  VResult<Local> result = Local::Init(assimpMesh, Attribute::All, scale);
+  if (!result.Success()) {
+    return result;
+  }
+  return Init(result.mValue);
+}
+
+VResult<Mesh::Local> Mesh::Local::Init(
+  const std::string& file,
+  unsigned int selectedAttributes,
+  bool flipUvs,
+  float scale) {
   Assimp::Importer importer;
   VResult<const aiScene*> importResult =
     Gfx::Model::Import(file, &importer, flipUvs);
@@ -102,49 +122,57 @@ Result Mesh::Init(const std::string& file, bool flipUvs, float scale) {
   if (scene->mNumMeshes != 1) {
     return Result("File \"" + file + "\" can only contain one mesh.");
   }
-  Init(*scene->mMeshes[0], scale);
-  return Result();
+  return Init(*scene->mMeshes[0], selectedAttributes, scale);
 }
 
-Result Mesh::Init(const aiMesh& assimpMesh, float scale) {
+VResult<Mesh::Local> Mesh::Local::Init(
+  const aiMesh& assimpMesh, unsigned int selectedAttributes, float scale) {
+  Local local;
+  LogAbortIf(
+    !(selectedAttributes & Mesh::Attribute::Position),
+    "The position attribute must be selected.");
   // Find the size of a single vertex and all of its attributes.
-  unsigned int attributes = Attribute::Position;
-  if (assimpMesh.mTangents != nullptr) {
-    attributes = attributes | Attribute::Tangent | Attribute::Bitagent;
+  local.mAttributes = Mesh::Attribute::Position;
+  bool tangentsSelected = selectedAttributes & Mesh::Attribute::Tangent;
+  if (tangentsSelected && assimpMesh.mTangents != nullptr) {
+    local.mAttributes =
+      local.mAttributes | Mesh::Attribute::Tangent | Mesh::Attribute::Bitagent;
   }
-  if (assimpMesh.mNormals != nullptr) {
-    attributes = attributes | Attribute::Normal;
+  bool normalsSelected = selectedAttributes & Mesh::Attribute::Normal;
+  if (normalsSelected && assimpMesh.mNormals != nullptr) {
+    local.mAttributes = local.mAttributes | Mesh::Attribute::Normal;
   }
-  if (assimpMesh.mTextureCoords[0] != nullptr) {
-    attributes = attributes | Attribute::TexCoord;
+  bool texCoordsSelected = selectedAttributes & Mesh::Attribute::TexCoord;
+  if (texCoordsSelected && assimpMesh.mTextureCoords[0] != nullptr) {
+    local.mAttributes = local.mAttributes | Mesh::Attribute::TexCoord;
   }
-  size_t vertexByteCount = AttributesSize(attributes);
+  size_t vertexByteCount = Mesh::AttributesSize(local.mAttributes);
 
   // Create the vertex buffer. The order of the vertex data and Attribute enum
   // values are the same.
-  Ds::Vector<char> vertexBuffer;
-  vertexBuffer.Resize(vertexByteCount * assimpMesh.mNumVertices);
+  local.mVertexBuffer.Resize(vertexByteCount * assimpMesh.mNumVertices);
   size_t byteOffset = 0;
   size_t currentByte = byteOffset;
   // Add positions.
   for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v) {
     const aiVector3D& assimpVertex = assimpMesh.mVertices[v];
-    Vec3& vertex = *(Vec3*)&vertexBuffer[currentByte];
+    Vec3& vertex = *(Vec3*)&local.mVertexBuffer[currentByte];
     vertex[0] = assimpVertex.x;
     vertex[1] = assimpVertex.y;
     vertex[2] = assimpVertex.z;
     vertex *= scale;
     currentByte += vertexByteCount;
   }
-  byteOffset += AttributesSize(Attribute::Position);
+  byteOffset += Mesh::AttributesSize(Mesh::Attribute::Position);
   // Add tangents and bitangents.
-  if (attributes & Attribute::Tangent) {
+  if (local.mAttributes & Mesh::Attribute::Tangent) {
     currentByte = byteOffset;
     for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v) {
       const aiVector3D& assimpTangent = assimpMesh.mTangents[v];
       const aiVector3D& assimpBitangent = assimpMesh.mBitangents[v];
-      Vec3& tangent = *(Vec3*)&vertexBuffer[currentByte];
-      Vec3& bitangent = *(Vec3*)&vertexBuffer[currentByte + sizeof(Vec3)];
+      Vec3& tangent = *(Vec3*)&local.mVertexBuffer[currentByte];
+      Vec3& bitangent =
+        *(Vec3*)&local.mVertexBuffer[currentByte + sizeof(Vec3)];
       tangent[0] = assimpTangent.x;
       tangent[1] = assimpTangent.y;
       tangent[2] = assimpTangent.z;
@@ -153,48 +181,52 @@ Result Mesh::Init(const aiMesh& assimpMesh, float scale) {
       bitangent[2] = assimpBitangent.z;
       currentByte += vertexByteCount;
     }
-    byteOffset += AttributesSize(Attribute::Tangent | Attribute::Bitagent);
+    byteOffset += Mesh::AttributesSize(
+      Mesh::Attribute::Tangent | Mesh::Attribute::Bitagent);
   }
   // Add normals.
-  if (attributes & Attribute::Normal) {
+  if (local.mAttributes & Mesh::Attribute::Normal) {
     currentByte = byteOffset;
     for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v) {
       const aiVector3D& assimpNormal = assimpMesh.mNormals[v];
-      Vec3& normal = *(Vec3*)&vertexBuffer[currentByte];
+      Vec3& normal = *(Vec3*)&local.mVertexBuffer[currentByte];
       normal[0] = assimpNormal.x;
       normal[1] = assimpNormal.y;
       normal[2] = assimpNormal.z;
       currentByte += vertexByteCount;
     }
-    byteOffset += AttributesSize(Attribute::Normal);
+    byteOffset += Mesh::AttributesSize(Mesh::Attribute::Normal);
   }
   // Add texture coordinates.
-  if (attributes & Attribute::TexCoord) {
+  if (local.mAttributes & Mesh::Attribute::TexCoord) {
     currentByte = byteOffset;
     for (unsigned int v = 0; v < assimpMesh.mNumVertices; ++v) {
       const aiVector3D& assimpTexCoord = assimpMesh.mTextureCoords[0][v];
-      Vec2& texCoord = *(Vec2*)&vertexBuffer[currentByte];
+      Vec2& texCoord = *(Vec2*)&local.mVertexBuffer[currentByte];
       texCoord[0] = assimpTexCoord.x;
       texCoord[1] = assimpTexCoord.y;
       currentByte += vertexByteCount;
     }
-    byteOffset += AttributesSize(Attribute::TexCoord);
+    byteOffset += Mesh::AttributesSize(Mesh::Attribute::TexCoord);
   }
 
   // Create the index buffer.
   const unsigned int indicesPerFace = 3;
   unsigned int indexCount = assimpMesh.mNumFaces * indicesPerFace;
-  Ds::Vector<unsigned int> elementBuffer;
-  elementBuffer.Resize(indexCount);
+  local.mElementBuffer.Resize(indexCount);
   size_t currentIndex = 0;
   for (size_t f = 0; f < assimpMesh.mNumFaces; ++f) {
     const aiFace& assimpFace = assimpMesh.mFaces[f];
     for (size_t i = 0; i < indicesPerFace; ++i) {
-      elementBuffer[currentIndex] = assimpFace.mIndices[i];
+      local.mElementBuffer[currentIndex] = assimpFace.mIndices[i];
       ++currentIndex;
     }
   }
-  return Init(attributes, vertexBuffer, elementBuffer);
+  return local;
+}
+
+Result Mesh::Init(const Mesh::Local& local) {
+  return Init(local.mAttributes, local.mVertexBuffer, local.mElementBuffer);
 }
 
 Result Mesh::Init(
