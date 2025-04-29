@@ -29,7 +29,7 @@ Ds::Vector<std::string> nInitQueue;
 std::mutex nFinalizeQueueMutex;
 Ds::Vector<std::string> nFinalizeQueue;
 
-Asset& AddAsset(const std::string& name) {
+Asset& NewAsset(const std::string& name) {
   VResult<Ds::RbTree<Asset>::Iter> result = nAssets.Emplace(name);
   if (!result.Success()) {
     std::stringstream error;
@@ -39,14 +39,20 @@ Asset& AddAsset(const std::string& name) {
   return *result.mValue;
 }
 
+Asset& AddAsset(const std::string& name) {
+  Asset& asset = NewAsset(name);
+  asset.Finalize();
+  return asset;
+}
+
 Asset& QueueAsset(const std::string& name) {
-  Asset& asset = AddAsset(name);
+  Asset& asset = NewAsset(name);
   asset.QueueInit();
   return asset;
 }
 
 Asset& RequireAsset(const std::string& name) {
-  Asset& asset = AddAsset(name);
+  Asset& asset = NewAsset(name);
   asset.InitFinalize();
   return asset;
 }
