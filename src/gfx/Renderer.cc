@@ -595,7 +595,7 @@ void BlendLayer(GLuint toFbo, const ResId& postMaterialId) {
   shader->Use();
   shader->SetUniform("uTexture", 0);
   int textureIndex = 1;
-  material->mUniforms.Bind(*shader, &textureIndex);
+  material->Bind(*shader, &textureIndex);
 
   // Blend the layer.
   glBindFramebuffer(GL_FRAMEBUFFER, toFbo);
@@ -672,7 +672,7 @@ void BloomAndTonemapPasses() {
   tonemapShader->Use();
   tonemapShader->SetUniform("uTexture", 0);
   int textureIndex = 1;
-  tonemapMaterial->mUniforms.Bind(*tonemapShader, &textureIndex);
+  tonemapMaterial->Bind(*tonemapShader, &textureIndex);
 
   // Perform tonemapping into the default framebuffer.
   glBindFramebuffer(GL_FRAMEBUFFER, 0);

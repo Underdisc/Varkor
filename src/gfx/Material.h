@@ -11,7 +11,7 @@
 
 namespace Gfx {
 
-struct Material {
+struct Material: public UniformVector {
   Material();
   Material(Material&& other);
   Material& operator=(Material&& other);
@@ -29,7 +29,6 @@ struct Material {
   Result InitUniform(const Vlk::Explorer& uniformEx);
 
   ResId mShaderId;
-  UniformVector mUniforms;
 
 private:
   static const char* GetUniformName(aiTextureType aiType);

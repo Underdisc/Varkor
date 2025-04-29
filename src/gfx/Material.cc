@@ -16,8 +16,8 @@ Material::Material(Material&& other) {
 }
 
 Material& Material::operator=(Material&& other) {
+  UniformVector::operator=(std::move(other));
   mShaderId = std::move(other.mShaderId);
-  mUniforms = std::move(other.mUniforms);
   return *this;
 }
 
@@ -269,7 +269,7 @@ Result Material::Init(
 
       // Add the texture uniform.
       ResId imageId(initAsset.GetName(), imageResName);
-      mUniforms.Add<ResId>(UniformTypeId::Texture2dRes, uniformName, imageId);
+      Add<ResId>(UniformTypeId::Texture2dRes, uniformName, imageId);
     }
   }
 
@@ -282,7 +282,7 @@ Result Material::Init(
     diffuseColor[0] = assimpDiffuseColor.r;
     diffuseColor[1] = assimpDiffuseColor.g;
     diffuseColor[2] = assimpDiffuseColor.b;
-    mUniforms.Add<Vec3>("uDiffuseColor", diffuseColor);
+    Add<Vec3>("uDiffuseColor", diffuseColor);
   }
 
   return Result();
@@ -314,27 +314,24 @@ Result Material::InitUniform(const Vlk::Explorer& uniformEx) {
     return Result(uniformEx.Path() + " missing :Value:.");
   }
   switch (typeId) {
-  case UniformTypeId::Int:
-    mUniforms.Add<int>(uniformName, valueEx.As<int>(0));
-    break;
+  case UniformTypeId::Int: Add<int>(uniformName, valueEx.As<int>(0)); break;
   case UniformTypeId::Float:
-    mUniforms.Add<float>(uniformName, valueEx.As<float>(0.0f));
+    Add<float>(uniformName, valueEx.As<float>(0.0f));
     break;
   case UniformTypeId::Vec3:
-    mUniforms.Add<Vec3>(uniformName, valueEx.As<Vec3>({0.0f, 0.0f, 0.0f}));
+    Add<Vec3>(uniformName, valueEx.As<Vec3>({0.0f, 0.0f, 0.0f}));
     break;
   case UniformTypeId::Vec4:
-    mUniforms.Add<Vec4>(
-      uniformName, valueEx.As<Vec4>({0.0f, 0.0f, 0.0f, 0.0f}));
+    Add<Vec4>(uniformName, valueEx.As<Vec4>({0.0f, 0.0f, 0.0f, 0.0f}));
     break;
   case UniformTypeId::Texture2dRes:
-    mUniforms.Add<ResId>(
+    Add<ResId>(
       UniformTypeId::Texture2dRes,
       uniformName,
       valueEx.As<ResId>(Rsl::GetDefaultResId<Image>()));
     break;
   case UniformTypeId::TextureCubemapRes:
-    mUniforms.Add<ResId>(
+    Add<ResId>(
       UniformTypeId::TextureCubemapRes,
       uniformName,
       valueEx.As<ResId>(Rsl::GetDefaultResId<Cubemap>()));

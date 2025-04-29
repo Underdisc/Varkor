@@ -91,7 +91,7 @@ void Collection::RenderFloaters() {
       currentShader = nextShader;
       currentShader->Use();
       mUniforms.Bind(*currentShader, &currentTextureIndex);
-      nextMaterial->mUniforms.Bind(*currentShader, &currentTextureIndex);
+      nextMaterial->Bind(*currentShader, &currentTextureIndex);
     }
 
     // Ensure that rendering is possible.
@@ -129,7 +129,7 @@ void Collection::RenderSkybox() {
 
   int textureIndex = 0;
   mUniforms.Bind(*shader, &textureIndex);
-  material->mUniforms.Bind(*shader, &textureIndex);
+  material->Bind(*shader, &textureIndex);
   mSkybox.mUniforms.Bind(*shader, &textureIndex);
 
   const auto& skyboxMesh = Rsl::GetRes<Mesh>("vres/renderer:Skybox");

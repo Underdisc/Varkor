@@ -240,13 +240,11 @@ Vec3 Translator::Run(const Vec3& translation, const Quat& referenceFrame) {
 void Translator::Init() {
   Rsl::Asset& translatorAsset = Rsl::AddAsset(smTranslatorAssetName);
   for (int i = 0; i < smHandleCount; ++i) {
-    Gfx::Material& material = translatorAsset.InitRes<Gfx::Material>(
-      smMaterialNames[i], nColorShaderId);
-    material.mUniforms.Add<Vec4>("uColor") = smHandleColors[i];
+    translatorAsset.InitRes<Gfx::Material>(smMaterialNames[i], nColorShaderId)
+      .Add<Vec4>("uColor") = smHandleColors[i];
   }
-  Gfx::Material& material =
-    translatorAsset.InitRes<Gfx::Material>("ActiveColor", nColorShaderId);
-  material.mUniforms.Add<Vec4>("uColor") = {1, 1, 1, 1};
+  translatorAsset.InitRes<Gfx::Material>("ActiveColor", nColorShaderId)
+    .Add<Vec4>("uColor") = {1, 1, 1, 1};
   translatorAsset.Finalize();
 }
 

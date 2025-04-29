@@ -257,12 +257,10 @@ void Scalor::Init() {
   for (int i = 0; i < smHandleCount; ++i) {
     Gfx::Material& material =
       scalorAsset.InitRes<Gfx::Material>(smMaterialNames[i], nColorShaderId);
-    material.mUniforms.Add<Vec4>("uColor") = smHandleColors[i];
+    material.Add<Vec4>("uColor") = smHandleColors[i];
   }
-  Gfx::Material& material =
-    scalorAsset.InitRes<Gfx::Material>("ActiveColor", nColorShaderId);
-  material.mUniforms.Add<Vec4>("uColor") = {1, 1, 1, 1};
-  scalorAsset.Finalize();
+  scalorAsset.InitRes<Gfx::Material>("ActiveColor", nColorShaderId)
+    .Add<Vec4>("uColor") = {1, 1, 1, 1};
 }
 
 void Scalor::Purge() {

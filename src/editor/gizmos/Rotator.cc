@@ -190,16 +190,15 @@ void Rotator::Init() {
   // Create all of the handles.
   Rsl::Asset& rotatorAsset = Rsl::AddAsset(smRotatorAssetName);
   for (int i = 0; i < smHandleCount; ++i) {
-    Gfx::Material& material =
-      rotatorAsset.InitRes<Gfx::Material>(smMaterialNames[i], nColorShaderId);
-    material.mUniforms.Add<Vec4>("uColor") = smHandleColors[i];
+    rotatorAsset.InitRes<Gfx::Material>(smMaterialNames[i], nColorShaderId)
+      .Add<Vec4>("uColor") = smHandleColors[i];
   }
   auto& activeMaterial =
     rotatorAsset.InitRes<Gfx::Material>("ActiveColor", nColorShaderId);
-  activeMaterial.mUniforms.Add<Vec4>("uColor") = {1, 1, 1, 1};
+  activeMaterial.Add<Vec4>("uColor") = {1, 1, 1, 1};
   auto& transparentActiveMaterial = rotatorAsset.InitRes<Gfx::Material>(
     "TransparentActiveColor", nColorShaderId);
-  transparentActiveMaterial.mUniforms.Add<Vec4>("uColor") = {1, 1, 1, 0.8f};
+  transparentActiveMaterial.Add<Vec4>("uColor") = {1, 1, 1, 0.8f};
   rotatorAsset.Finalize();
 }
 
