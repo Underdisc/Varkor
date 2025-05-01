@@ -164,16 +164,18 @@ typename List<T>::Iter List<T>::PushFront(T&& value) {
 
 template<typename T>
 template<typename... Args>
-void List<T>::EmplaceBack(Args&&... args) {
+typename List<T>::Iter List<T>::EmplaceBack(Args&&... args) {
   Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(end(), newNode);
+  return Iter(newNode);
 }
 
 template<typename T>
 template<typename... Args>
-void List<T>::EmplaceFront(Args&&... args) {
+typename List<T>::Iter List<T>::EmplaceFront(Args&&... args) {
   Node* newNode = alloc Node(std::forward<Args>(args)...);
   InsertNode(begin(), newNode);
+  return Iter(newNode);
 }
 
 template<typename T>

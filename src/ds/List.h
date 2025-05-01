@@ -74,9 +74,9 @@ public:
   Iter PushBack(T&& value);
   Iter PushFront(T&& value);
   template<typename... Args>
-  void EmplaceBack(Args&&... args);
+  Iter EmplaceBack(Args&&... args);
   template<typename... Args>
-  void EmplaceFront(Args&&... args);
+  Iter EmplaceFront(Args&&... args);
   Iter Insert(Iter it, const T& value);
   Iter Insert(Iter it, T&& value);
   template<typename... Args>
