@@ -5,7 +5,6 @@
 #include "Input.h"
 #include "Temporal.h"
 #include "Viewport.h"
-#include "comp/AlphaColor.h"
 #include "comp/Camera.h"
 #include "comp/DirectionalLight.h"
 #include "comp/PointLight.h"
