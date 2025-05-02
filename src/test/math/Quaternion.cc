@@ -35,8 +35,7 @@ void FromTo() {
 }
 
 void BasisVectors() {
-  auto testBasis = [](Vec3 xAxis, Vec3 up)
-  {
+  auto testBasis = [](Vec3 xAxis, Vec3 up) {
     xAxis = Math::Normalize(xAxis);
     Vec3 zAxis = Math::Normalize(Math::Cross(xAxis, up));
     Vec3 yAxis = Math::Normalize(Math::Cross(zAxis, xAxis));

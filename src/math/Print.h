@@ -50,8 +50,7 @@ std::ostream& operator<<(std::ostream& os, const Math::Matrix<T, N>& matrix) {
 
 std::ostream& operator<<(std::ostream& os, const Quaternion& q) {
   bool firstValue = true;
-  auto printValue = [&os, &firstValue](float value, const char* basis)
-  {
+  auto printValue = [&os, &firstValue](float value, const char* basis) {
     if (std::fabs(value) < Math::nEpsilon) {
       return;
     }

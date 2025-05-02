@@ -331,8 +331,7 @@ void Show<Test::QuickHullTest>(Test::QuickHullTest* test) {
   // Save all of the results so they don't need to be recomputed.
   const Ds::Vector<Test::QuickHullTest>& tests =
     TestVector<Test::QuickHullTest>::smTests;
-  static auto getResults = [&]() -> Ds::Vector<VResult<Math::Hull>>
-  {
+  static auto getResults = [&]() -> Ds::Vector<VResult<Math::Hull>> {
     Ds::Vector<VResult<Math::Hull>> results;
     results.Reserve(tests.Size());
     for (int t = 0; t < tests.Size(); ++t) {

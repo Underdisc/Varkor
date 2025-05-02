@@ -226,16 +226,14 @@ void Random() {
   std::mt19937 generator;
   std::uniform_int_distribution<unsigned long long> distribution(0);
 
-  auto acquireRandomEntity = [&]() -> World::MemberId
-  {
+  auto acquireRandomEntity = [&]() -> World::MemberId {
     if (idBuffer.Size() == 0) {
       return World::nInvalidMemberId;
     }
     return idBuffer[distribution(generator) % idBuffer.Size()];
   };
 
-  auto randomCreate = [&]()
-  {
+  auto randomCreate = [&]() {
     World::MemberId id = space.CreateMember();
     idBuffer.Push(id);
     for (int j = 0; j < 4; ++j) {
@@ -251,8 +249,7 @@ void Random() {
     }
   };
 
-  auto randomWrite = [&]()
-  {
+  auto randomWrite = [&]() {
     World::MemberId id = acquireRandomEntity();
     if (id == World::nInvalidMemberId) {
       return;
@@ -267,8 +264,7 @@ void Random() {
     if (d != nullptr) d->Write(d->m1 + 1);
   };
 
-  auto randomEnsure = [&]()
-  {
+  auto randomEnsure = [&]() {
     World::MemberId id = acquireRandomEntity();
     if (id == World::nInvalidMemberId) {
       return;
@@ -282,8 +278,7 @@ void Random() {
     }
   };
 
-  auto randomTryRemove = [&]()
-  {
+  auto randomTryRemove = [&]() {
     World::MemberId id = acquireRandomEntity();
     if (id == World::nInvalidMemberId) {
       return;
@@ -297,8 +292,7 @@ void Random() {
     }
   };
 
-  auto randomDelete = [&]()
-  {
+  auto randomDelete = [&]() {
     if (idBuffer.Size() == 0) {
       return;
     }

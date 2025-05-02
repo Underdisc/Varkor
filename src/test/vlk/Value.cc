@@ -279,8 +279,7 @@ void Copy() {
 }
 
 void Comparison() {
-  auto compare = [](const Vlk::Value& a, const Vlk::Value& b)
-  {
+  auto compare = [](const Vlk::Value& a, const Vlk::Value& b) {
     std::cout << "==:" << (a == b) << " | !=:" << (a != b) << '\n';
   };
   Vlk::Value rootVal = CreateTestValue();

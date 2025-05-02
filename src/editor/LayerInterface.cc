@@ -98,11 +98,11 @@ void LayerInterface::SaveLayer() {
 }
 
 void LayerInterface::SaveLayerAs() {
+  auto saveLayer = [this](const std::string& filename) {
+    SaveLayerAs(Rsl::PrependResDirectory(filename));
+  };
   OpenInterface<FileInterface>(
-    [this](const std::string& filename)
-    {
-      SaveLayerAs(Rsl::PrependResDirectory(filename));
-    },
+    saveLayer,
     FileInterface::AccessType::Save,
     mLayerIt->mName + World::nLayerExtension);
 }

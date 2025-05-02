@@ -204,8 +204,7 @@ void Shader::SetUniform(const char* name, const Mat4& value) const {
 }
 
 void Shader::InitializeUniforms() {
-  auto tryBindUniformBlock = [this](const char* name, GLuint binding)
-  {
+  auto tryBindUniformBlock = [this](const char* name, GLuint binding) {
     GLuint index = glGetUniformBlockIndex(mId, name);
     if (index != GL_INVALID_INDEX) {
       glUniformBlockBinding(mId, index, binding);

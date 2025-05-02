@@ -105,8 +105,7 @@ RaySphere Intersection(const Ray& ray, const Sphere& sphere) {
 
 bool HasIntersection(const Box& a, const Box& b) {
   // Returns true when there is an overlap on the axis.
-  auto OverlapOnAxis = [&](const Vec3& axis) -> bool
-  {
+  auto OverlapOnAxis = [&](const Vec3& axis) -> bool {
     Vec3 aSupport = a.Support(axis);
     Vec3 raVec = aSupport - a.mCenter;
     float ra = Math::Abs(Math::Dot(raVec, axis));

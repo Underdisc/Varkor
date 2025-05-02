@@ -62,8 +62,7 @@ void Perspective() {
 }
 
 void Orthographic() {
-  auto useInputs = [](float height, float aspect, float near, float far)
-  {
+  auto useInputs = [](float height, float aspect, float near, float far) {
     Mat4 matrix;
     Math::Orthographic(&matrix, height, aspect, near, far);
     std::cout << matrix;

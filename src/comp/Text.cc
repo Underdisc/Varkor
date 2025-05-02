@@ -125,8 +125,7 @@ void Text::VEdit(const World::Object& owner) {
 Ds::Vector<Text::Line> Text::GetLines(const Gfx::Font& font) const {
   Ds::Vector<Line> lines;
 
-  auto isWhitespace = [](char codepoint) -> bool
-  {
+  auto isWhitespace = [](char codepoint) -> bool {
     return (codepoint == ' ' || codepoint == '\t' || codepoint == '\n');
   };
   constexpr int invalidLoc = -1;

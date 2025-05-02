@@ -192,8 +192,7 @@ void Sort() {
   }
 
   // Sort the vectors and make sure the result is truly sorted.
-  auto ensureSort = [](const Ds::Vector<int>& vector)
-  {
+  auto ensureSort = [](const Ds::Vector<int>& vector) {
     for (int j = 0; j < vector.Size() - 1; ++j) {
       LogAbortIf(vector[j] > vector[j + 1], "Elements not sorted");
     }

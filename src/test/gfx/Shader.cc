@@ -53,8 +53,7 @@ void CompilerErrors() {
 }
 
 void SingleSource() {
-  auto testSingleSource = [](const std::string& file)
-  {
+  auto testSingleSource = [](const std::string& file) {
     std::cout << "=" << file << "=\n";
     Ds::Vector<std::string> files;
     files.Push(file);

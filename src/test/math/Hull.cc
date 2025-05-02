@@ -10,8 +10,7 @@ namespace Test {
 Ds::Vector<QuickHullTest> QuickHullTest::GetTests() {
   std::mt19937 generator;
   std::uniform_int_distribution<uint64_t> distribution(0);
-  auto acquireRandomPoint = [&]() -> Vec3
-  {
+  auto acquireRandomPoint = [&]() -> Vec3 {
     Vec3 point;
     const uint64_t cutoff = 50;
     for (int i = 0; i < 3; ++i) {
@@ -87,8 +86,7 @@ Ds::Vector<QuickHullTest> QuickHullTest::GetTests() {
   tests.Emplace("9", std::move(points));
 
   auto meshTest =
-    [&tests](const char* testName, const char* meshFile, float scale)
-  {
+    [&tests](const char* testName, const char* meshFile, float scale) {
     VResult<Gfx::Mesh::Local> result = Gfx::Mesh::Local::Init(
       meshFile, Gfx::Mesh::Attribute::Position, false, scale);
     LogAbortIf(!result.Success(), result.mError.c_str());

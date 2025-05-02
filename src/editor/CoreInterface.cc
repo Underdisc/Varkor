@@ -103,19 +103,17 @@ void CoreInterface::FileMenu() {
 
   // Allow a user to load a Layer from file.
   if (ImGui::MenuItem("Load Layer")) {
-    OpenInterface<FileInterface>(
-      [this](const std::string& filename)
-      {
-        std::string path = Rsl::PrependResDirectory(filename);
-        VResult<World::LayerIt> result = World::LoadLayer(path.c_str());
-        if (result.Success()) {
-          OpenInterface<LayerInterface>(result.mValue);
-        }
-        else {
-          LogError(result.mError.c_str());
-        }
-      },
-      FileInterface::AccessType::Select);
+    auto loadLayer = [this](const std::string& filename) {
+      std::string path = Rsl::PrependResDirectory(filename);
+      VResult<World::LayerIt> result = World::LoadLayer(path.c_str());
+      if (result.Success()) {
+        OpenInterface<LayerInterface>(result.mValue);
+      }
+      else {
+        LogError(result.mError.c_str());
+      }
+    };
+    OpenInterface<FileInterface>(loadLayer, FileInterface::AccessType::Select);
   }
 
   // Allow a user to save a Space to file if one is selected.

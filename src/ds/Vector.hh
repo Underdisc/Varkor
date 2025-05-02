@@ -131,8 +131,7 @@ void Vector<T>::Pop() {
 
 template<typename T>
 void Vector<T>::Sort() {
-  auto greaterThan = [](const T& a, const T& b) -> bool
-  {
+  auto greaterThan = [](const T& a, const T& b) -> bool {
     return a > b;
   };
   Quicksort(0, mSize - 1, greaterThan);

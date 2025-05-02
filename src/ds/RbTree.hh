@@ -634,8 +634,7 @@ void RbTree<T>::SwapAttachedNodePointers(Node* above, Node* below) {
 template<typename T>
 void RbTree<T>::SwapDetachedNodePointers(Node* a, Node* b) {
   // This will change all pointers that point to leaving to point to taking.
-  auto takePlace = [](Node* taking, Node* leaving)
-  {
+  auto takePlace = [](Node* taking, Node* leaving) {
     if (leaving->mParent != nullptr) {
       if (leaving->mParent->mLeft == leaving) {
         leaving->mParent->mLeft = taking;

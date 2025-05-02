@@ -99,8 +99,7 @@ void InitRequiredFramebuffers(int width, int height) {
     0);
 
   // Generates a half float rgba framebuffer.
-  auto genRgba16fFramebuffer = [&width, &height](GLuint* fbo, GLuint* tbo)
-  {
+  auto genRgba16fFramebuffer = [&width, &height](GLuint* fbo, GLuint* tbo) {
     glGenFramebuffers(1, fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, *fbo);
     glGenTextures(1, tbo);
@@ -233,8 +232,7 @@ void Init() {
   asset.InitFinalize();
 
   // Create the uniform buffers.
-  auto CreateUniformBuffer = [](GLuint* vbo, GLsizeiptr size, GLuint binding)
-  {
+  auto CreateUniformBuffer = [](GLuint* vbo, GLsizeiptr size, GLuint binding) {
     glGenBuffers(1, vbo);
     glBindBuffer(GL_UNIFORM_BUFFER, *vbo);
     glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);

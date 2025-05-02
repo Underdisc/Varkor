@@ -159,8 +159,7 @@ void PrintPool(const Ds::Pool<T>& pool) {
     return;
   }
 
-  auto printRow = [&](int index, char* bars, int* barCount, int nextBarCount)
-  {
+  auto printRow = [&](int index, char* bars, int* barCount, int nextBarCount) {
     if (*barCount >= 2) {
       std::stringstream sparseElementStream;
       sparseElementStream << pool.Sparse()[index];

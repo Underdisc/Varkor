@@ -172,24 +172,21 @@ void ExtensiveModification() {
     {814, 426, 846, 508, 776, 402, 950, 555, 419, 424,
      946, 416, 34,  533, 460, 725, 558, 705, 193, 711}};
 
-  auto checkTree = [&tree]()
-  {
+  auto checkTree = [&tree]() {
     LogAbortIf(
       !tree.HasConsistentBlackHeight(),
       "The black height of the tree is not consistent.");
     LogAbortIf(tree.HasDoubleRed(), "The tree has a double red.");
   };
 
-  auto insertValues = [&checkTree, &tree, exchangeCount](const int* values)
-  {
+  auto insertValues = [&checkTree, &tree, exchangeCount](const int* values) {
     for (int i = 0; i < exchangeCount; ++i) {
       tree.Insert(values[i]);
       checkTree();
     }
   };
 
-  auto removeValues = [&checkTree, &tree, exchangeCount](const int* values)
-  {
+  auto removeValues = [&checkTree, &tree, exchangeCount](const int* values) {
     for (int i = 0; i < exchangeCount; ++i) {
       tree.Remove(values[i]);
       checkTree();

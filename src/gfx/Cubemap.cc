@@ -101,8 +101,7 @@ Result Cubemap::Init(const Vlk::Explorer& configEx) {
 }
 
 Result Cubemap::Init(const Config& config) {
-  auto uploadFace = [](GLenum target, GLenum format, const Face& face)
-  {
+  auto uploadFace = [](GLenum target, GLenum format, const Face& face) {
     glTexImage2D(
       target,
       0,

@@ -4,8 +4,8 @@
 #include "Result.h"
 #include "ds/List.h"
 #include "ds/Vector.h"
-#include "math/Vector.h"
 #include "math/Plane.h"
+#include "math/Vector.h"
 
 namespace Math {
 

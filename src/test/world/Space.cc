@@ -372,8 +372,7 @@ void Slice() {
     }
   }
 
-  auto printMemberVector = [](const Ds::Vector<World::MemberId>& ids)
-  {
+  auto printMemberVector = [](const Ds::Vector<World::MemberId>& ids) {
     for (int i = 0; i < ids.Size(); ++i) {
       std::cout << ' ' << ids[i];
     }

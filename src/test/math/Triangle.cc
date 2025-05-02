@@ -10,8 +10,7 @@ namespace Test {
 void BarycentricCoords() {
   Math::Triangle tri = {{{-1, -1, -1}, {1, 0, 1}, {0, 1, 0}}};
 
-  auto printBarycentricCoords = [&](const Vec3& point)
-  {
+  auto printBarycentricCoords = [&](const Vec3& point) {
     std::cout << tri.BarycentricCoords(point) << std::endl;
   };
   const Vec3& a = tri.mPoints[0];

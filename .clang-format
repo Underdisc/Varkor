@@ -93,7 +93,7 @@ BraceWrapping:
   AfterExternBlock: false
   BeforeCatch: true
   BeforeElse: true
-  BeforeLambdaBody: true
+  BeforeLambdaBody: false
   BeforeWhile: false
   IndentBraces: false
   SplitEmptyFunction: false
@@ -151,7 +151,7 @@ KeepEmptyLines:
   AtEndOfFile: false
   AtStartOfBlock: false
   AtStartOfFile: false
-LambdaBodyIndentation: Signature
+LambdaBodyIndentation: OuterScope
 LineEnding: DeriveLF
 MainIncludeChar: Any
 MaxEmptyLinesToKeep: "1"
@@ -162,7 +162,7 @@ PenaltyBreakAssignment: 1
 PenaltyBreakBeforeFirstCallParameter: 10
 PenaltyBreakComment: 50
 PenaltyBreakFirstLessLess: 120
-PenaltyBreakOpenParenthesis: 0
+PenaltyBreakOpenParenthesis: 100
 PenaltyBreakScopeResolution: 500
 PenaltyBreakString: 1000
 PenaltyBreakTemplateDeclaration: 10
