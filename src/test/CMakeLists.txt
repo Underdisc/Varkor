@@ -20,6 +20,7 @@ function(AddPerfTest target)
   add_externals(${target})
 endfunction()
 
+Addtest(ds_HashSet ds/HashSet.cc ds/TestType.cc)
 Addtest(ds_List ds/List.cc ds/TestType.cc)
 Addtest(ds_Map ds/Map.cc ds/TestType.cc)
 Addtest(ds_RbTree ds/RbTree.cc ds/TestType.cc)

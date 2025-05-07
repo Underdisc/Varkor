@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "ds/HashSet.h"
 #include "ds/List.h"
 #include "ds/Map.h"
 #include "ds/Pool.h"
@@ -10,9 +11,13 @@
 #include "ds/Vector.h"
 
 template<typename T>
-void PrintVector(const Ds::Vector<T>& vector, bool stats = true);
+std::ostream& operator<<(std::ostream& os, const Ds::HashSet<T>& hashSet);
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector);
+template<typename T>
+void PrintHashSetDs(const Ds::HashSet<T>& hashSet);
+template<typename T>
+void PrintVector(const Ds::Vector<T>& vector, bool stats = true);
 template<typename T>
 void PrintList(const Ds::List<T>& list);
 template<typename T>

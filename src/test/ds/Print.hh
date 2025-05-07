@@ -1,6 +1,22 @@
 #include <iomanip>
 
 template<typename T>
+std::ostream& operator<<(std::ostream& os, const Ds::HashSet<T>& hashSet) {
+  if (hashSet.Empty()) {
+    os << "[]";
+    return os;
+  }
+  auto it = hashSet.cbegin();
+  auto itE = --hashSet.cend();
+  os << '[';
+  do {
+    os << *it << ", ";
+  } while (++it != itE);
+  os << *itE << ']';
+  return os;
+}
+
+template<typename T>
 std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector) {
   if (vector.Size() == 0) {
     os << "[]";
@@ -18,6 +34,23 @@ template<typename K, typename V>
 std::ostream& operator<<(std::ostream& os, const Ds::KvPair<K, V>& kv) {
   os << "[" << kv.Key() << ", " << kv.mValue << "]";
   return os;
+}
+
+template<typename T>
+void PrintHashSetDs(const Ds::HashSet<T>& hashSet) {
+  if (hashSet.Empty()) {
+    std::cout << "[]";
+    return;
+  }
+  const Ds::Vector<Ds::Vector<T>>& buckets = hashSet.Buckets();
+  size_t bucketIdx = hashSet.StartBucket();
+  std::cout << '[' << buckets[bucketIdx];
+  while (++bucketIdx < buckets.Size()) {
+    if (!buckets[bucketIdx].Empty()) {
+      std::cout << ", " << buckets[bucketIdx];
+    }
+  }
+  std::cout << ']';
 }
 
 template<typename T>

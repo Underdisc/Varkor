@@ -13,6 +13,8 @@ struct TestType {
   void Set(int value);
   TestType& operator=(const TestType& other);
   TestType& operator=(TestType&& other);
+  bool operator==(const TestType& other);
+  bool operator!=(const TestType& other);
   bool operator>(const TestType& other);
   bool operator<(const TestType& other);
 

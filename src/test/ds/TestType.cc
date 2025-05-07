@@ -54,6 +54,14 @@ TestType& TestType::operator=(TestType&& other) {
   return *this;
 }
 
+bool TestType::operator==(const TestType& other) {
+  return mA == other.mA && mB == other.mB;
+}
+
+bool TestType::operator!=(const TestType& other) {
+  return !(*this == other);
+}
+
 bool TestType::operator>(const TestType& other) {
   return mA > other.mA;
 }
