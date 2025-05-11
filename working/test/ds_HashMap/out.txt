@@ -1,0 +1,7 @@
+<= InsertRemoveContains =>
+must not found, 0
+klar found, 1
+wann found, 1
+leben not found, 0
+[[sharp, 5], [quite, 69], [wann, 43], [mode, 25], [klar, 40], [wong, 15], [smith, 6]]
+[[[40, klar]], [[43, wann]], [[15, wong], [5, sharp], [25, mode]], [[6, smith]], [[69, quite]]]

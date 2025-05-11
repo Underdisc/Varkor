@@ -1,11 +1,6 @@
 namespace Ds {
 
 template<typename T>
-size_t Hash(const T& key) {
-  return (size_t)key;
-}
-
-template<typename T>
 void HashSet<T>::IterBase::operator++() {
   const Ds::Vector<Ds::Vector<T>>& buckets = mHashSet.mBuckets;
   if (++mIdx == buckets[mBucket].Size()) {
@@ -141,13 +136,13 @@ typename HashSet<T>::CIter HashSet<T>::CIter::operator--(int) {
 }
 
 template<typename T>
-typename HashSet<T>::Iter HashSet<T>::begin() {
-  return Iter(*this, StartBucket(), 0);
+typename HashSet<T>::Iter HashSet<T>::begin() const {
+  return Iter(const_cast<HashSet<T>&>(*this), StartBucket(), 0);
 }
 
 template<typename T>
-typename HashSet<T>::Iter HashSet<T>::end() {
-  return Iter(*this, mBuckets.Size(), 0);
+typename HashSet<T>::Iter HashSet<T>::end() const {
+  return Iter(const_cast<HashSet<T>&>(*this), mBuckets.Size(), 0);
 }
 
 template<typename T>
@@ -166,31 +161,25 @@ template<typename T>
 HashSet<T>::HashSet(): mSize(0) {}
 
 template<typename T>
-void HashSet<T>::Insert(const T& key) {
+typename HashSet<T>::Iter HashSet<T>::Insert(const T& key) {
   ++mSize;
   TryGrow();
   size_t bucket = Bucket(key);
   VResult<size_t> result = mBuckets[bucket].Find(key);
   LogAbortIf(result.Success(), "Key already in HashSet");
   mBuckets[bucket].Push(key);
+  return Iter(*this, bucket, mBuckets[bucket].Size() - 1);
 }
 
 template<typename T>
-void HashSet<T>::Insert(T&& key) {
+typename HashSet<T>::Iter HashSet<T>::Insert(T&& key) {
   ++mSize;
   TryGrow();
   size_t bucket = Bucket(key);
   VResult<size_t> result = mBuckets[bucket].Find(key);
   LogAbortIf(result.Success(), "Key already in HashSet");
   mBuckets[bucket].Push(std::move(key));
-}
-
-template<typename T>
-void HashSet<T>::Remove(const T& key) {
-  CIter it = Find(key);
-  LogAbortIf(it == end(), "Key not in HashSet");
-  it.mHashSet.mBuckets[it.mBucket].LazyRemove(it.mIdx);
-  --mSize;
+  return Iter(*this, bucket, mBuckets[bucket].Size() - 1);
 }
 
 template<typename T>
@@ -201,7 +190,17 @@ void HashSet<T>::Clear() {
 }
 
 template<typename T>
-typename HashSet<T>::Iter HashSet<T>::Find(const T& key) {
+template<typename CT>
+void HashSet<T>::Remove(const CT& key) {
+  CIter it = Find(key);
+  LogAbortIf(it == end(), "Key not in HashSet");
+  it.mHashSet.mBuckets[it.mBucket].LazyRemove(it.mIdx);
+  --mSize;
+}
+
+template<typename T>
+template<typename CT>
+typename HashSet<T>::Iter HashSet<T>::Find(const CT& key) const {
   if (mBuckets.Empty()) {
     return end();
   }
@@ -210,13 +209,14 @@ typename HashSet<T>::Iter HashSet<T>::Find(const T& key) {
   if (!result.Success()) {
     return end();
   }
-  Iter it(*this, bucket, result.mValue);
+  Iter it(const_cast<HashSet<T>&>(*this), bucket, result.mValue);
   return it;
 }
 
 template<typename T>
-bool HashSet<T>::Contains(const T& key) {
-  return Find(key) != end();
+template<typename CT>
+bool HashSet<T>::Contains(const CT& key) const {
+  return Find(key) != cend();
 }
 
 template<typename T>
@@ -239,7 +239,8 @@ size_t HashSet<T>::StartBucket() const {
 }
 
 template<typename T>
-size_t HashSet<T>::Bucket(const T& key) const {
+template<typename CT>
+size_t HashSet<T>::Bucket(const CT& key) const {
   return Hash(key) % mBuckets.Size();
 }
 

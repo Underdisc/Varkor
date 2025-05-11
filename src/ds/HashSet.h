@@ -1,14 +1,10 @@
 #ifndef ds_HashSet_h
 #define ds_HashSet_h
 
-#include <ostream>
-
+#include "ds/Hash.h"
 #include "ds/Vector.h"
 
 namespace Ds {
-
-template<typename T>
-size_t Hash(const T& key);
 
 template<typename T>
 struct HashSet {
@@ -58,18 +54,23 @@ public:
     friend HashSet<T>;
   };
 
-  Iter begin();
-  Iter end();
+  Iter begin() const;
+  Iter end() const;
   CIter cbegin() const;
   CIter cend() const;
 
   HashSet();
-  void Insert(const T& key);
-  void Insert(T&& key);
-  void Remove(const T& key);
+  Iter Insert(const T& key);
+  Iter Insert(T&& key);
   void Clear();
-  Iter Find(const T& key);
-  bool Contains(const T& key);
+
+  template<typename CT>
+  void Remove(const CT& key);
+  template<typename CT>
+  Iter Find(const CT& key) const;
+  template<typename CT>
+  bool Contains(const CT& key) const;
+
   bool Empty() const;
   const Ds::Vector<Ds::Vector<T>>& Buckets() const;
   size_t StartBucket() const;
@@ -78,7 +79,8 @@ private:
   Ds::Vector<Ds::Vector<T>> mBuckets;
   size_t mSize;
 
-  size_t Bucket(const T& key) const;
+  template<typename CT>
+  size_t Bucket(const CT& key) const;
   void TryGrow();
   void Grow();
   void Grow(size_t newBucketCount);

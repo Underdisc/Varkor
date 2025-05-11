@@ -86,22 +86,6 @@ void Remove1() {
   TestType::PrintCounts();
 }
 
-template<>
-size_t Ds::Hash(const std::string& str) {
-  // This is the Rabin fingerprint hash function (polynomial rolling hash
-  // function). The constants were shamelessly taken from wikipedia.
-  const size_t base = 256;
-  const size_t modulus = 101;
-  if (str.empty()) {
-    return 0;
-  }
-  size_t hash = str.back();
-  for (int c = str.size() - 2; c >= 0; --c) {
-    hash = (hash * base + str[c]) % modulus;
-  }
-  return hash;
-}
-
 void Contains() {
   // clang-format off
   Ds::HashSet<std::string> test = CreateSet<std::string>({"Here", "some",
