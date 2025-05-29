@@ -60,8 +60,8 @@ public:
   CIter cend() const;
 
   HashSet();
-  Iter Insert(const T& key);
-  Iter Insert(T&& key);
+  template<typename U>
+  Iter Insert(U&& key);
   void Clear();
 
   template<typename CT>

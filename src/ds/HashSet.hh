@@ -161,24 +161,14 @@ template<typename T>
 HashSet<T>::HashSet(): mSize(0) {}
 
 template<typename T>
-typename HashSet<T>::Iter HashSet<T>::Insert(const T& key) {
+template<typename U>
+typename HashSet<T>::Iter HashSet<T>::Insert(U&& key) {
   ++mSize;
   TryGrow();
   size_t bucket = Bucket(key);
   VResult<size_t> result = mBuckets[bucket].Find(key);
   LogAbortIf(result.Success(), "Key already in HashSet");
-  mBuckets[bucket].Push(key);
-  return Iter(*this, bucket, mBuckets[bucket].Size() - 1);
-}
-
-template<typename T>
-typename HashSet<T>::Iter HashSet<T>::Insert(T&& key) {
-  ++mSize;
-  TryGrow();
-  size_t bucket = Bucket(key);
-  VResult<size_t> result = mBuckets[bucket].Find(key);
-  LogAbortIf(result.Success(), "Key already in HashSet");
-  mBuckets[bucket].Push(std::move(key));
+  mBuckets[bucket].Push(std::forward<U>(key));
   return Iter(*this, bucket, mBuckets[bucket].Size() - 1);
 }
 
