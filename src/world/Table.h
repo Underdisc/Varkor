@@ -9,7 +9,7 @@
 
 namespace World {
 
-class Table {
+struct Table {
 public:
   Table(Comp::TypeId typeId);
   Table(Table&& other);

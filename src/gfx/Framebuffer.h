@@ -5,7 +5,7 @@
 
 namespace Gfx {
 
-class Framebuffer {
+struct Framebuffer {
 public:
   struct Options {
     int mWidth;

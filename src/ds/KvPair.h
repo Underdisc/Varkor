@@ -4,15 +4,15 @@
 namespace Ds {
 
 template<typename T>
-class RbTree;
+struct RbTree;
 template<typename K, typename V>
-class Map;
+struct Map;
 template<typename T>
-class HashSet;
+struct HashSet;
 template<typename K, typename V>
-class HashMap;
+struct HashMap;
 template<typename T>
-class Vector;
+struct Vector;
 
 template<typename K, typename V>
 struct KvPair {

@@ -6,7 +6,7 @@
 namespace Ds {
 
 template<typename T>
-class RbTree {
+struct RbTree {
 public:
   struct Node {
     Node(const T& value);

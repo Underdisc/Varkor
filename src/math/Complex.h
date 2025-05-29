@@ -4,7 +4,7 @@
 namespace Math {
 
 template<typename T>
-class Complex {
+struct Complex {
 public:
   T mReal;
   T mImaginary;

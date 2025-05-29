@@ -7,7 +7,7 @@
 namespace Ds {
 
 template<typename K, typename V>
-class Map: public RbTree<KvPair<K, V>> {
+struct Map: public RbTree<KvPair<K, V>> {
 public:
   typedef typename RbTree<KvPair<K, V>>::Iter Iter;
   typedef typename RbTree<KvPair<K, V>>::CIter CIter;
