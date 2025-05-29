@@ -26,6 +26,7 @@ private:
     void operator++();
     bool operator==(const IterBase& other) const;
     bool operator!=(const IterBase& other) const;
+    const Node* Current() const;
 
   protected:
     IterBase(Node* current);

@@ -35,6 +35,11 @@ bool List<T>::IterBase::operator!=(const IterBase& other) const {
 }
 
 template<typename T>
+typename const List<T>::Node* List<T>::IterBase::Current() const {
+  return mCurrent;
+}
+
+template<typename T>
 List<T>::IterBase::IterBase(Node* current): mCurrent(current) {}
 
 template<typename T>
