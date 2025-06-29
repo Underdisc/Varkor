@@ -4,12 +4,15 @@
 #include <iostream>
 
 #include "ds/HashSet.h"
+#include "ds/KvPair.h"
 #include "ds/List.h"
 #include "ds/Map.h"
 #include "ds/Pool.h"
 #include "ds/RbTree.h"
 #include "ds/Vector.h"
 
+template<typename K, typename V>
+std::ostream& operator<<(std::ostream& os, const Ds::KvPair<K, V>& hashSet);
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const Ds::HashSet<T>& hashSet);
 template<typename T>

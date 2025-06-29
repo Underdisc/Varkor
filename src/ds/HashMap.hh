@@ -12,13 +12,19 @@ inline typename HashMap<K, V>::Iter HashMap<K, V>::Insert(
 }
 
 template<typename K, typename V>
-inline typename HashMap<K, V>::Iter HashMap<K, V>::Insert(const K& key, V&& value) {
+inline typename HashMap<K, V>::Iter HashMap<K, V>::Insert(
+  const K& key, V&& value) {
   return HashSet<KvPair<K, V>>::Insert(KvPair<K, V>(key, std::move(value)));
 }
 
 template<typename K, typename V>
-inline void HashMap<K, V>::Remove(const K& key) {
-  HashSet<KvPair<K, V>>::Remove(key);
+inline typename HashMap<K, V>::Iter HashMap<K, V>::Remove(const K& key) {
+  return HashSet<KvPair<K, V>>::Remove(key);
+}
+
+template<typename K, typename V>
+inline typename HashMap<K, V>::Iter HashMap<K, V>::Remove(const CIter& it) {
+  return HashSet<KvPair<K, V>>::Remove(it);
 }
 
 template<typename K, typename V>

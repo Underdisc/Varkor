@@ -24,14 +24,21 @@ void InsertRemoveFindContains() {
 
   Ds::HashMap<std::string, int> stringIntMap = CreateHashMap(strings, ints);
   Ds::HashMap<int, std::string> intStringMap = CreateHashMap(ints, strings);
-  Ds::Vector<const char *> stringRemoves = {"must", "ziemlich", "leben"};
+  std::cout << "<Initial Maps>\n"
+            << stringIntMap << '\n'
+            << intStringMap << '\n';
+
+  Ds::Vector<const char*> stringRemoves = {"must", "ziemlich", "leben"};
   Ds::Vector<int> intRemoves = {0, 9, 3};
   for (size_t i = 0; i < stringRemoves.Size(); ++i) {
     stringIntMap.Remove(stringRemoves[i]);
     intStringMap.Remove(intRemoves[i]);
   }
+  std::cout << "<Elements Removed>\n"
+            << stringIntMap << '\n'
+            << intStringMap << '\n';
 
-  Ds::Vector<const char *> searches = {"must", "klar", "wann", "leben"};
+  Ds::Vector<const char*> searches = {"must", "klar", "wann", "leben"};
   for (size_t i = 0; i < searches.Size(); ++i) {
     Ds::HashMap<std::string, int>::CIter it = stringIntMap.Find(searches[i]);
     if (it == stringIntMap.cend()) {
@@ -43,8 +50,6 @@ void InsertRemoveFindContains() {
                 << stringIntMap.Contains(searches[i]) << '\n';
     }
   }
-  std::cout << stringIntMap << '\n';
-  PrintHashSetDs(intStringMap);
 }
 
 void Remove() {}

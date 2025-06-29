@@ -1,5 +1,11 @@
 #include <iomanip>
 
+template<typename K, typename V>
+std::ostream& operator<<(std::ostream& os, const Ds::KvPair<K, V>& kv) {
+  os << "[" << kv.Key() << ", " << kv.mValue << "]";
+  return os;
+}
+
 template<typename T>
 std::ostream& operator<<(std::ostream& os, const Ds::HashSet<T>& hashSet) {
   if (hashSet.Empty()) {
@@ -27,12 +33,6 @@ std::ostream& operator<<(std::ostream& os, const Ds::Vector<T>& vector) {
     os << vector[i] << ", ";
   }
   os << vector[vector.Size() - 1] << "]";
-  return os;
-}
-
-template<typename K, typename V>
-std::ostream& operator<<(std::ostream& os, const Ds::KvPair<K, V>& kv) {
-  os << "[" << kv.Key() << ", " << kv.mValue << "]";
   return os;
 }
 

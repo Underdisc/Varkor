@@ -1,7 +1,12 @@
-<= InsertRemoveContains =>
+<= InsertRemoveFindContains =>
+<Initial Maps>
+[[wong, 15], [smith, 6], [ziemlich, 9], [sharp, 5], [quite, 69], [leben, 3], [wann, 43], [mode, 25], [klar, 40], [must, 0]]
+[[0, must], [40, klar], [3, leben], [43, wann], [5, sharp], [25, mode], [6, smith], [9, ziemlich], [69, quite], [15, wong]]
+<Elements Removed>
+[[wong, 15], [smith, 6], [sharp, 5], [quite, 69], [wann, 43], [mode, 25], [klar, 40]]
+[[40, klar], [43, wann], [5, sharp], [25, mode], [6, smith], [69, quite], [15, wong]]
 must not found, 0
 klar found, 1
 wann found, 1
 leben not found, 0
-[[sharp, 5], [quite, 69], [wann, 43], [mode, 25], [klar, 40], [wong, 15], [smith, 6]]
-[[[40, klar]], [[43, wann]], [[15, wong], [5, sharp], [25, mode]], [[6, smith]], [[69, quite]]]
+

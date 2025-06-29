@@ -15,6 +15,9 @@ private:
     void operator--();
     bool operator==(const IterBase& other) const;
     bool operator!=(const IterBase& other) const;
+    void operator=(const IterBase& other);
+    size_t Bucket() const;
+    size_t Idx() const;
 
   protected:
     IterBase(HashSet<T>& hashSet, size_t bucket, size_t idx);
@@ -26,6 +29,7 @@ private:
   };
 
 public:
+  struct CIter;
   struct Iter: IterBase {
     T& operator*();
     T* operator->();
@@ -36,12 +40,13 @@ public:
 
   private:
     Iter(HashSet<T>& hashSet, size_t bucket, size_t idx);
+    Iter(const CIter& it);
     friend HashSet<T>;
   };
 
   struct CIter: IterBase {
   public:
-    CIter(Iter& iter);
+    CIter(const Iter& iter);
     const T& operator*() const;
     const T* operator->() const;
     CIter& operator++();
@@ -64,8 +69,9 @@ public:
   Iter Insert(U&& key);
   void Clear();
 
+  Iter Remove(const CIter& it);
   template<typename CT>
-  void Remove(const CT& key);
+  Iter Remove(const CT& key);
   template<typename CT>
   Iter Find(const CT& key) const;
   template<typename CT>
