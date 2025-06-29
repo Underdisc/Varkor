@@ -71,9 +71,16 @@ public:
   template<typename CT>
   bool Contains(const CT& key) const;
 
+  size_t Size() const;
   bool Empty() const;
   const Ds::Vector<Ds::Vector<T>>& Buckets() const;
+  float LoadFactor() const;
+  float LoadFactor(size_t size) const;
   size_t StartBucket() const;
+  void VerifySize() const;
+
+  const static size_t smInitialBucketCount;
+  const static float smGrowLoadFactor;
 
 private:
   Ds::Vector<Ds::Vector<T>> mBuckets;
@@ -83,7 +90,6 @@ private:
   size_t Bucket(const CT& key) const;
   void TryGrow();
   void Grow();
-  void Grow(size_t newBucketCount);
 };
 
 } // namespace Ds

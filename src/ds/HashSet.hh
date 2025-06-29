@@ -1,6 +1,11 @@
 namespace Ds {
 
 template<typename T>
+const size_t HashSet<T>::smInitialBucketCount = 10;
+template<typename T>
+const float HashSet<T>::smGrowLoadFactor = 1.0f;
+
+template<typename T>
 void HashSet<T>::IterBase::operator++() {
   const Ds::Vector<Ds::Vector<T>>& buckets = mHashSet.mBuckets;
   if (++mIdx == buckets[mBucket].Size()) {
@@ -210,6 +215,11 @@ bool HashSet<T>::Contains(const CT& key) const {
 }
 
 template<typename T>
+size_t HashSet<T>::Size() const {
+  return mSize;
+}
+
+template<typename T>
 bool HashSet<T>::Empty() const {
   return mSize == 0;
 }
@@ -217,6 +227,16 @@ bool HashSet<T>::Empty() const {
 template<typename T>
 const Ds::Vector<Ds::Vector<T>>& HashSet<T>::Buckets() const {
   return mBuckets;
+}
+
+template<typename T>
+float HashSet<T>::LoadFactor() const {
+  return LoadFactor(mSize);
+}
+
+template<typename T>
+float HashSet<T>::LoadFactor(size_t size) const {
+  return size / (float)mBuckets.Size();
 }
 
 template<typename T>
@@ -229,6 +249,15 @@ size_t HashSet<T>::StartBucket() const {
 }
 
 template<typename T>
+void HashSet<T>::VerifySize() const {
+  size_t sizeSum = 0;
+  for (const Ds::Vector<T>& bucket: mBuckets) {
+    sizeSum += bucket.Size();
+  }
+  LogAbortIf(sizeSum != mSize, "Size mismatch");
+}
+
+template<typename T>
 template<typename CT>
 size_t HashSet<T>::Bucket(const CT& key) const {
   return Hash(key) % mBuckets.Size();
@@ -237,26 +266,23 @@ size_t HashSet<T>::Bucket(const CT& key) const {
 template<typename T>
 void HashSet<T>::TryGrow() {
   if (mBuckets.Empty()) {
-    constexpr size_t initialBucketCount = 10;
-    mBuckets.Resize(initialBucketCount);
+    mBuckets.Resize(smInitialBucketCount);
     return;
   }
-  float loadFactor = (float)mSize / (float)mBuckets.Size();
-  if (loadFactor > 1) {
+  if (LoadFactor() >= smGrowLoadFactor) {
     Grow();
   }
 }
 
 template<typename T>
 void HashSet<T>::Grow() {
-  HashSet<T> newHash;
-  newHash.mBuckets.Resize(mBuckets.Size() * 2);
-  auto it = begin();
-  auto itE = end();
-  while (it != itE) {
-    newHash.Insert(std::move(*it++));
+  Ds::Vector<Ds::Vector<T>> newBuckets;
+  newBuckets.Resize(mBuckets.Size() * 2);
+  for (auto it = begin(); it != end(); ++it) {
+    size_t bucket = Hash(*it) % newBuckets.Size();
+    newBuckets[bucket].Push(std::move(*it));
   }
-  *this = std::move(newHash);
+  mBuckets = std::move(newBuckets);
 }
 
 } // namespace Ds

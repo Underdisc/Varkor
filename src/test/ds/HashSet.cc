@@ -55,6 +55,27 @@ void Insert3() {
   TestType::PrintCounts();
 }
 
+void Insert4() {
+  std::mt19937 generator;
+  std::uniform_int_distribution<unsigned int> distribution(0);
+  Ds::HashSet<unsigned int> test;
+  auto insertRandomValue = [&]() {
+    unsigned int newValue = distribution(generator) % 500;
+    if (!test.Contains(newValue)) {
+      test.Insert(newValue);
+    }
+  };
+  insertRandomValue();
+  while (test.LoadFactor(test.Size() + 1) < test.smGrowLoadFactor) {
+    insertRandomValue();
+  }
+  std::cout << "<Before Grow (BucketCount: " << test.Buckets().Size() << ")\n"
+            << test << '\n';
+  insertRandomValue();
+  std::cout << "<After Grow (BucketCount: " << test.Buckets().Size() << ")\n"
+            << test << '\n';
+}
+
 template<typename T>
 Ds::HashSet<T> CreateSet(const Ds::Vector<T>& values) {
   Ds::HashSet<T> hashSet;
@@ -126,6 +147,7 @@ int main(void) {
   RunDsTest(Insert1);
   RunDsTest(Insert2);
   RunDsTest(Insert3);
+  RunDsTest(Insert4);
   RunDsTest(Remove0);
   RunDsTest(Remove1);
   RunDsTest(Contains);
