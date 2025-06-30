@@ -29,4 +29,6 @@ void Abort();
     LogAbort(reason);            \
   }
 
+#define Assert(cond) LogAbortIf(!(cond), "Assert failed")
+
 #endif
