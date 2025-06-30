@@ -296,6 +296,21 @@ typename List<T>::Iter List<T>::Back() {
 }
 
 template<typename T>
+typename List<T>::Iter List<T>::Find(const T& value) {
+  for (Iter it = begin(); it != end(); ++it) {
+    if (*it == value) {
+      return it;
+    }
+  }
+  return end();
+}
+
+template<typename T>
+bool List<T>::Contains(const T& value) {
+  return Find(value) != end();
+}
+
+template<typename T>
 bool List<T>::Empty() const {
   return mHead == nullptr;
 }

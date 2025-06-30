@@ -88,6 +88,8 @@ public:
   void Clear();
   Iter Front();
   Iter Back();
+  Iter Find(const T& value);
+  bool Contains(const T& value);
   bool Empty() const;
   size_t Size() const;
 

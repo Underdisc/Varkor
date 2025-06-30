@@ -190,6 +190,16 @@ void Erase() {
   TestType::PrintCounts();
 }
 
+void Contains() {
+  Ds::List<int> list;
+  for (int i = 0; i < 20; i += 2) {
+    list.EmplaceBack(i);
+  }
+  for (int i = 0; i < 20; i += 3) {
+    std::cout << i << ": " << list.Contains(i) << '\n';
+  }
+}
+
 int main() {
   EnableLeakOutput();
   RunDsTest(Move);
@@ -201,4 +211,5 @@ int main() {
   RunDsTest(Insert);
   RunDsTest(Emplace);
   RunDsTest(Erase);
+  RunDsTest(Contains);
 }
