@@ -1,11 +1,14 @@
 #include <functional>
 
+#include "ds/HashMap.h"
 #include "math/Constants.h"
 #include "math/Hull.h"
 #include "math/Ray.h"
 
-#include "Input.h"
-#include "debug/Draw.h"
+template<>
+size_t Ds::Hash(const Ds::List<Math::Hull::Face>::Iter& it) {
+  return (size_t)it.Current();
+}
 
 namespace Math {
 
@@ -164,7 +167,6 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
   // Create a conflict list for each face. Each conflict list stores a vector of
   // points that do not lie in the hull.
   struct ConflictList {
-    Ds::List<Face>::Iter mFace;
     Math::Plane mPlane;
     struct Point {
       Vec3 mPosition;
@@ -172,68 +174,75 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     };
     Ds::Vector<Point> mPoints;
   };
-  Ds::Vector<ConflictList> conflictLists;
-  Ds::List<Face>::Iter currentFace = hull.mFaces.begin();
-  for (; currentFace != hull.mFaces.end(); ++currentFace) {
+  Ds::HashMap<Ds::List<Face>::Iter, ConflictList> faceConflictLists;
+  Ds::List<Face>::Iter faceIt = hull.mFaces.begin();
+  while (faceIt != hull.mFaces.end()) {
     ConflictList newList;
-    newList.mFace = currentFace;
-    newList.mPlane = currentFace->Plane();
-    conflictLists.Push(newList);
+    newList.mPlane = faceIt->Plane();
+    faceConflictLists.Insert(faceIt, newList);
+    ++faceIt;
   }
 
   // Find the plane each point is closest to and give the point to that plane's
   // conflict list. Conflict lists that didn't receive a point are removed.
   auto assignConflictPoint =
-    [&](const Vec3& point, Ds::Vector<ConflictList>& lists) {
+    [&](
+      const Vec3& point,
+      Ds::HashMap<Ds::List<Face>::Iter, ConflictList>& faceConflictLists) {
     float minDist = FLT_MAX;
-    ConflictList* bestConflictList = nullptr;
-    for (ConflictList& list: lists) {
-      float dist = list.mPlane.Distance(point);
-      if (dist <= nEpsilon) {
-        continue;
-      }
-      if (dist < minDist) {
+    auto bestFaceConflictListIt = faceConflictLists.end();
+    auto faceContlictListIt = faceConflictLists.begin();
+    while (faceContlictListIt != faceConflictLists.end()) {
+      float dist = faceContlictListIt->mValue.mPlane.Distance(point);
+      if (dist > nEpsilon && dist < minDist) {
         minDist = dist;
-        bestConflictList = &list;
+        bestFaceConflictListIt = faceContlictListIt;
       }
+      ++faceContlictListIt;
     }
-    if (bestConflictList != nullptr) {
-      bestConflictList->mPoints.Push({point, minDist});
+    if (bestFaceConflictListIt != faceConflictLists.end()) {
+      bestFaceConflictListIt->mValue.mPoints.Push({point, minDist});
     }
   };
   for (const Vec3& point: points) {
-    assignConflictPoint(point, conflictLists);
+    assignConflictPoint(point, faceConflictLists);
   }
-  for (int c = 0; c < conflictLists.Size(); ++c) {
-    if (conflictLists[c].mPoints.Size() == 0) {
-      conflictLists.LazyRemove(c--);
+
+  auto faceConflictListIt = faceConflictLists.begin();
+  while (faceConflictListIt != faceConflictLists.end()) {
+    if (faceConflictListIt->mValue.mPoints.Size() == 0) {
+      faceConflictListIt = faceConflictLists.Remove(faceConflictListIt);
+    }
+    else {
+      ++faceConflictListIt;
     }
   }
 
   // The convex hull has been obtained once all conflicting points are handled.
-  while (conflictLists.Size() > 0) {
+  while (faceConflictLists.Size() > 0) {
     // For all points in the conflict lists, find the point with maximum
     // distance from its respective plane. This point will be added next.
     float maxDist = -FLT_MAX;
-    int bestConflictListIdx = -1;
+    auto bestFaceConflictListIt = faceConflictLists.cend();
     int bestConflictPointIdx = -1;
-    for (int l = 0; l < conflictLists.Size(); ++l) {
-      const ConflictList& conflictList = conflictLists[l];
-      for (int p = 0; p < conflictList.mPoints.Size(); ++p) {
-        const ConflictList::Point conflictPoint = conflictList.mPoints[p];
+    auto it = faceConflictLists.cbegin();
+    while (it != faceConflictLists.cend()) {
+      for (int p = 0; p < it->mValue.mPoints.Size(); ++p) {
+        const ConflictList::Point& conflictPoint = it->mValue.mPoints[p];
         if (conflictPoint.mDistance > maxDist) {
           maxDist = conflictPoint.mDistance;
-          bestConflictListIdx = l;
+          bestFaceConflictListIt = it;
           bestConflictPointIdx = p;
         }
       }
+      ++it;
     }
 
     // Treating the best point as an eye looking towards the current hull,
     // find the edges that form the horizon around the hull. The horizon edges
     // are the edges that border the faces to be deleted and they are stored in
     // a ccw order.
-    const ConflictList& conflictList = conflictLists[bestConflictListIdx];
+    const ConflictList& conflictList = bestFaceConflictListIt->mValue;
     const Vec3& newPoint = conflictList.mPoints[bestConflictPointIdx].mPosition;
     Ds::Vector<Ds::List<HalfEdge>::Iter> horizon;
     Ds::Vector<Ds::List<Face>::Iter> visitedFaces;
@@ -255,7 +264,7 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
         }
       } while ((currentEdge = currentEdge->mNext) != edge);
     };
-    visitEdge(conflictList.mFace->mHalfEdge);
+    visitEdge(bestFaceConflictListIt->Key()->mHalfEdge);
 
     // Imagine drawing a line from the best point to each of the vertices that
     // lie on the horizon. The new faces formed by these lines and the horizon
@@ -304,15 +313,14 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     // list and, if so, save its conflict points in order to reassign them to
     // the new conflict lists at the end of the iteration.
     Ds::Vector<Vec3> conflictPoints;
-    auto tryRemoveConflictList = [&](Ds::List<Face>::Iter face) {
-      for (size_t c = 0; c < conflictLists.Size(); ++c) {
-        if (conflictLists[c].mFace == face) {
-          for (size_t p = 0; p < conflictLists[c].mPoints.Size(); ++p) {
-            conflictPoints.Push(conflictLists[c].mPoints[p].mPosition);
-          }
-          conflictLists.LazyRemove(c);
-          break;
+    auto tryRemoveFaceConflictList = [&](Ds::List<Face>::Iter faceIt) {
+      auto faceConflictIt = faceConflictLists.Find(faceIt);
+      if (faceConflictIt != faceConflictLists.end()) {
+        const ConflictList& conflictList = faceConflictIt->mValue;
+        for (size_t p = 0; p < conflictList.mPoints.Size(); ++p) {
+          conflictPoints.Push(conflictList.mPoints[p].mPosition);
         }
+        faceConflictLists.Remove(faceConflictIt);
       }
     };
 
@@ -329,7 +337,7 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
         hull.mHalfEdges.Erase(currentEdge);
         currentEdge = nextEdge;
       } while (currentEdge != faceIt->mHalfEdge);
-      tryRemoveConflictList(faceIt);
+      tryRemoveFaceConflictList(faceIt);
       hull.mFaces.Erase(faceIt);
     }
     for (const Ds::List<Vertex>::Iter& vertIt: deadVerts) {
@@ -401,8 +409,8 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
         edges[0]->mVertex->mHalfEdge = edges[0]->mPrev->mNext;
         edgeTwins[0]->mVertex->mHalfEdge = edgeTwins[0]->mPrev->mNext;
         // Remove no longer necessary elements.
-        tryRemoveConflictList(edges[0]->mFace);
-        tryRemoveConflictList(edgeTwins[0]->mFace);
+        tryRemoveFaceConflictList(edges[0]->mFace);
+        tryRemoveFaceConflictList(edgeTwins[0]->mFace);
         tryRemovePossibleMerge(edges[0]);
         tryRemovePossibleMerge(edges[1]);
         tryRemovePossibleMerge(edgeTwins[0]);
@@ -460,8 +468,8 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       // and erase no long necessary elements.
       ensureValidVertex(edge->mVertex);
       ensureValidVertex(edgeTwin->mVertex);
-      tryRemoveConflictList(edge->mFace);
-      tryRemoveConflictList(edgeTwin->mFace);
+      tryRemoveFaceConflictList(edge->mFace);
+      tryRemoveFaceConflictList(edgeTwin->mFace);
       tryRemovePossibleMerge(edge);
       tryRemovePossibleMerge(edgeTwin);
       hull.mFaces.Erase(edge->mFace);
@@ -487,21 +495,22 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     // Create new conflict lists from the faces that remain after merging,
     // distribute orphaned conflict points to the new conflict lists, and
     // ignore any conflict lists that have no conflict points.
-    Ds::Vector<ConflictList> newConflictLists;
+    Ds::HashMap<Ds::List<Face>::Iter, ConflictList> newFaceConflicts;
     currentEdge = newVertex->mHalfEdge;
     do {
       ConflictList newConflictList;
-      newConflictList.mFace = currentEdge->mFace;
       newConflictList.mPlane = currentEdge->mFace->Plane();
-      newConflictLists.Push(newConflictList);
+      newFaceConflicts.Insert(currentEdge->mFace, newConflictList);
       currentEdge = currentEdge->mPrev->mTwin;
     } while (currentEdge != newVertex->mHalfEdge);
     for (const Vec3& point: conflictPoints) {
-      assignConflictPoint(point, newConflictLists);
+      assignConflictPoint(point, newFaceConflicts);
     }
-    for (ConflictList& newList: newConflictLists) {
-      if (newList.mPoints.Size() > 0) {
-        conflictLists.Push(std::move(newList));
+    for (auto& newFaceConflict: newFaceConflicts) {
+      ConflictList& newConflictList = newFaceConflict.mValue;
+      if (newConflictList.mPoints.Size() > 0) {
+        faceConflictLists.Insert(
+          newFaceConflict.Key(), std::move(newConflictList));
       }
     }
   }
