@@ -119,14 +119,32 @@ void QuickHull() {
     if (!stabilityResult.Success()) {
       std::cout << "  " << stabilityResult.mError << '\n';
     }
+
+    struct VertexEdgeCount {
+      Vec3 mPosition;
+      int mEdgeCount;
+    };
+    Ds::Vector<VertexEdgeCount> vertices;
     for (const Math::Hull::Vertex& vertex: hull.mVertices) {
-      int vertexEdges = 0;
+      int edgeCount = 0;
       Ds::List<Math::Hull::HalfEdge>::CIter currentEdge = vertex.mHalfEdge;
       do {
-        ++vertexEdges;
+        ++edgeCount;
         currentEdge = currentEdge->mTwin->mNext;
       } while (vertex.mHalfEdge != currentEdge);
-      std::cout << "  " << vertexEdges << ":" << vertex.mPosition << '\n';
+      vertices.Push({vertex.mPosition, edgeCount});
+    }
+
+    vertices.Sort([](const VertexEdgeCount& a, const VertexEdgeCount& b) {
+      for (int i = 0; i < 3; ++i) {
+        if (!Math::Near(a.mPosition[i], b.mPosition[i])) {
+          return a.mPosition[i] > b.mPosition[i];
+        }
+      }
+      return a.mPosition[0] > b.mPosition[0];
+    });
+    for (const VertexEdgeCount& vertex: vertices) {
+      std::cout << "  " << vertex.mEdgeCount << ":" << vertex.mPosition << '\n';
     }
   }
 }
