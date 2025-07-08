@@ -192,6 +192,11 @@ template<typename T>
 HashSet<T>::HashSet(): mSize(0) {}
 
 template<typename T>
+HashSet<T>::HashSet(const std::initializer_list<T>& list): HashSet() {
+  *this = list;
+}
+
+template<typename T>
 template<typename CT>
 typename HashSet<T>::Iter HashSet<T>::Insert(CT&& key) {
   ++mSize;
@@ -223,10 +228,21 @@ typename HashSet<T>::Iter HashSet<T>::Remove(const CIter& it) {
 
 template<typename T>
 template<typename CT>
-typename HashSet<T>::Iter HashSet<T>::Remove(const CT& key) {
+void HashSet<T>::Remove(const CT& key) {
   CIter it = Find(key);
   LogAbortIf(it == end(), "Key not in HashSet");
-  return Remove(it);
+  Remove(it);
+}
+
+template<typename T>
+template<typename CT>
+bool HashSet<T>::TryRemove(const CT& key) {
+  CIter it = Find(key);
+  if (it != cend()) {
+    Remove(it);
+    return true;
+  }
+  return false;
 }
 
 template<typename T>
@@ -291,6 +307,15 @@ void HashSet<T>::VerifySize() const {
     sizeSum += bucket.Size();
   }
   LogAbortIf(sizeSum != mSize, "Size mismatch");
+}
+
+template<typename T>
+HashSet<T>& HashSet<T>::operator=(const std::initializer_list<T>& list) {
+  Clear();
+  for (const T& element: list) {
+    Insert(element);
+  }
+  return *this;
 }
 
 template<typename T>

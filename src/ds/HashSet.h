@@ -1,6 +1,8 @@
 #ifndef ds_HashSet_h
 #define ds_HashSet_h
 
+#include <cstdlib>
+
 #include "ds/Hash.h"
 #include "ds/Vector.h"
 
@@ -65,13 +67,16 @@ public:
   CIter cend() const;
 
   HashSet();
+  HashSet(const std::initializer_list<T>& other);
   template<typename U>
   Iter Insert(U&& key);
   void Clear();
 
   Iter Remove(const CIter& it);
   template<typename CT>
-  Iter Remove(const CT& key);
+  void Remove(const CT& key);
+  template<typename CT>
+  bool TryRemove(const CT& key);
   template<typename CT>
   Iter Find(const CT& key) const;
   template<typename CT>
@@ -84,6 +89,8 @@ public:
   float LoadFactor(size_t size) const;
   size_t StartBucket() const;
   void VerifySize() const;
+
+  HashSet<T>& operator=(const std::initializer_list<T>& other);
 
   const static size_t smInitialBucketCount;
   const static float smGrowLoadFactor;

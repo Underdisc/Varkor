@@ -76,18 +76,8 @@ void Insert4() {
             << test << '\n';
 }
 
-template<typename T>
-Ds::HashSet<T> CreateSet(const Ds::Vector<T>& values) {
-  Ds::HashSet<T> hashSet;
-  for (const T& value: values) {
-    hashSet.Insert(value);
-  }
-  return hashSet;
-}
-
 void Remove0() {
-  Ds::HashSet<unsigned int> test =
-    CreateSet<unsigned int>({1, 11, 3, 33, 4, 44, 8, 9, 99});
+  Ds::HashSet<unsigned int> test = {1, 11, 3, 33, 4, 44, 8, 9, 99};
   test.Remove(11);
   test.Remove(8);
   test.Remove(9);
@@ -96,8 +86,7 @@ void Remove0() {
 }
 
 void Remove1() {
-  Ds::HashSet<TestType> test =
-    CreateSet<TestType>({1, 11, 3, 33, 4, 44, 8, 9, 99});
+  Ds::HashSet<TestType> test = {1, 11, 3, 33, 4, 44, 8, 9, 99};
   test.Remove(TestType(3));
   test.Remove(TestType(44));
   test.Remove(TestType(9));
@@ -107,11 +96,27 @@ void Remove1() {
   TestType::PrintCounts();
 }
 
+void TryRemove() {
+  Ds::HashSet<int> test = {3, 5, 12, 13, 15, 20, 25, 30};
+  Ds::Vector<int> tryRemoveTests = {3, 10, 13, 17, 25};
+  std::cout << "<Initial Set>\n" << test << '\n';
+  for (int value: tryRemoveTests) {
+    std::cout << value << ' ';
+    if (test.TryRemove(value)) {
+      std::cout << "Removed\n";
+    }
+    else {
+      std::cout << "Not Removed\n";
+    }
+  }
+  std::cout << "<Final Set>\n" << test << '\n';
+}
+
 void Contains() {
   // clang-format off
-  Ds::HashSet<std::string> test = CreateSet<std::string>({"Here", "some",
+  Ds::HashSet<std::string> test = {"Here", "some",
     "random", "Velleicht", "words", "Yep", "auf", "Deutsch", "auch",
-    "gleichzeitig", "test"});
+    "gleichzeitig", "test"};
   std::string containmentTests[] = {"Nope", "Yep", "test", "false", "true",
     "Velleicht", "Deutsch", "nicht", "auch"};
   // clang-format on
@@ -123,7 +128,7 @@ void Contains() {
 }
 
 void Iterators() {
-  Ds::HashSet<int> test = CreateSet<int>({1, 11, 31, 5, 25, 6, 8, 68, 78});
+  Ds::HashSet<int> test = {1, 11, 31, 5, 25, 6, 8, 68, 78};
   std::cout << test << '\n';
   auto it = ++test.begin();
   std::cout << *it++ << ", ";
@@ -150,6 +155,7 @@ int main(void) {
   RunDsTest(Insert4);
   RunDsTest(Remove0);
   RunDsTest(Remove1);
+  RunDsTest(TryRemove);
   RunDsTest(Contains);
   RunDsTest(Iterators);
 }

@@ -32,11 +32,22 @@ MoveAssignment: 0
 -Counts-
 DefaultConstructor: 0
 Constructor: 13
-CopyConstructor: 18
+CopyConstructor: 9
 MoveConstructor: 0
-Destructor: 26
+Destructor: 17
 CopyAssignment: 0
 MoveAssignment: 3
+
+<= TryRemove =>
+<Initial Set>
+[20, 30, 12, 3, 13, 5, 15, 25]
+3 Removed
+10 Not Removed
+13 Removed
+17 Not Removed
+25 Removed
+<Final Set>
+[20, 30, 12, 5, 15]
 
 <= Contains =>
 [[Deutsch], [words], [Here], [some, Velleicht], [Yep], [test], [auch, gleichzeitig], [random], [auf]]
