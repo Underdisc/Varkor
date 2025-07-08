@@ -112,9 +112,10 @@ void ClosestPointTo() {
 } // namespace Test
 
 #ifndef RemoveTestEntryPoint
-void main() {
+int main() {
   using namespace Test;
   RunTest(BarycentricCoords);
   RunTest(ClosestPointTo);
+  return 0;
 }
 #endif

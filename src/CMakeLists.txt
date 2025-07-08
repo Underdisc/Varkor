@@ -15,6 +15,8 @@ add_subdirectory(editor)
 add_subdirectory(gfx)
 add_subdirectory(math)
 add_subdirectory(rsl)
+add_subdirectory(target)
+add_subdirectory(test)
 add_subdirectory(vlk)
 add_subdirectory(world)
 

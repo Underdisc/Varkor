@@ -4,8 +4,8 @@ project(varkor)
 
 # Create the target for the Varkor static library.
 add_library(varkor STATIC)
-add_subdirectory(src)
 add_subdirectory(ext)
+add_subdirectory(src)
 add_externals(varkor)
 
 find_package(OpenGL)
@@ -22,24 +22,6 @@ if(MSVC)
     target_link_options(varkor PRIVATE /MANIFEST:NO)
   endif()
 endif()
-
-# Create the target for the standalone version of Varkor.
-add_executable(varkorStandalone)
-target_sources(varkorStandalone PRIVATE src/Main.cc)
-target_link_libraries(varkorStandalone varkor)
-
-# Create the test viewer target.
-add_executable(testViewer)
-target_sources(testViewer PRIVATE
-  src/test/Viewer.cc
-  src/test/math/Hull.cc
-  src/test/math/Intersection.cc
-  src/test/math/Triangle.cc)
-target_link_libraries(testViewer varkor)
-target_compile_definitions(testViewer PUBLIC RemoveTestEntryPoint)
-
-# Create all of the test targets.
-add_subdirectory(src/test)
 
 # Create all of the targets for different Varkor projects.
 function(AddProject targetName directory)

@@ -1,8 +1,6 @@
 #include <imgui/imgui.h>
 #include <iomanip>
 
-#include "../math/Hull.h"
-#include "../math/Intersection.h"
 #include "Input.h"
 #include "VarkorMain.h"
 #include "debug/Draw.h"
@@ -13,6 +11,8 @@
 #include "editor/gizmos/Rotator.h"
 #include "editor/gizmos/Scalor.h"
 #include "editor/gizmos/Translator.h"
+#include "math/Hull.h"
+#include "math/Intersection.h"
 #include "rsl/Library.h"
 #include "test/math/Hull.h"
 #include "test/math/Intersection.h"
@@ -105,11 +105,12 @@ void SphereGizmo(Math::Sphere* sphere) {
   case Mode::Translate:
     sphere->mCenter = Gizmo<Translator>::Use(sphere->mCenter, Quat::Identity());
     break;
-  case Mode::Scale:
+  case Mode::Scale: {
     Vec3 scale = {sphere->mRadius};
     scale = Gizmo<Scalor>::Use(scale, sphere->mCenter, Quat::Identity());
     sphere->mRadius = scale[0];
-    break;
+  } break;
+  default: break;
   }
 }
 
@@ -440,7 +441,7 @@ void Interface() {
 
 } // namespace Viewer
 
-void main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
   Viewer::Init();
 
   Options::Config config;
@@ -453,4 +454,5 @@ void main(int argc, char* argv[]) {
   Editor::nExtension = Viewer::Interface;
   VarkorRun();
   VarkorPurge();
+  return 0;
 }
