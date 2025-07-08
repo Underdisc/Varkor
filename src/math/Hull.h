@@ -35,6 +35,7 @@ struct Hull {
   static VResult<Hull> QuickHull(const Ds::Vector<Vec3>& points);
 
   Result IsStructureStable() const;
+  Result HasDegenerateFace() const;
 };
 
 } // namespace Math

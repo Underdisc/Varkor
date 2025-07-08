@@ -23,6 +23,7 @@ public:
   static Plane PointNormalizeNormal(const Vec3& point, const Vec3& normal);
 
   bool HalfSpaceContains(const Vec3& point) const;
+  bool HalfSpaceContains(const Vec3& point, float epsilon) const;
   float Distance(const Vec3& point) const;
   Vec3 ClosestTo(const Vec3& point) const;
   void Normal(const Vec3& normal);

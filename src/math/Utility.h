@@ -4,6 +4,7 @@
 namespace Math {
 
 bool Near(float a, float b);
+bool Near(float a, float b, float epsilon);
 float Sign(float value);
 float Abs(float value);
 float Round(float value);

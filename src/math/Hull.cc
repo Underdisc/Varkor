@@ -52,9 +52,17 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     }
   }
 
-  // Cases where extreme points collapse or we don't get a polyhedron need to be
-  // handled before we construct a polyhedron. We choose the first four extreme
-  // points we find to create a polyhedron.
+  // Find an epsilon that accounts for the span of the point collection.
+  const Vec3** eps = extremePoints;
+  Vec3 maxes = {
+    Max(Abs((*eps[0])[0]), Abs((*eps[3])[0])),
+    Max(Abs((*eps[1])[1]), Abs((*eps[4])[1])),
+    Max(Abs((*eps[2])[2]), Abs((*eps[5])[2]))};
+  float epsilon = 3.0f * (maxes[0] + maxes[1] + maxes[2]) * nEpsilon;
+
+  // Cases where extreme points collapse or we don't get a polyhedron need to
+  // be handled before we construct a polyhedron. We choose the first four
+  // extreme points we find to create a polyhedron.
   Hull hull;
   hull.mVertices.PushBack({*extremePoints[0], hull.mHalfEdges.end()});
   Ds::Vector<Ds::List<Vertex>::Iter> verts;
@@ -62,7 +70,7 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
   for (size_t i = 1; i < 6; ++i) {
     const Vec3& newPoint = *extremePoints[i];
     if (verts.Size() == 1) {
-      if (!Math::Near(newPoint, verts[0]->mPosition)) {
+      if (!Math::Near(newPoint, verts[0]->mPosition, epsilon)) {
         hull.mVertices.PushBack({newPoint, hull.mHalfEdges.end()});
         verts.Push(hull.mVertices.Back());
       }
@@ -70,7 +78,7 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     else if (verts.Size() == 2) {
       Math::Ray edge =
         Math::Ray::Points(verts[0]->mPosition, verts[1]->mPosition);
-      if (!Math::Near(edge.DistanceSq(newPoint), 0.0f)) {
+      if (!Math::Near(edge.DistanceSq(newPoint), 0.0f, epsilon)) {
         hull.mVertices.PushBack({newPoint, hull.mHalfEdges.end()});
         verts.Push(hull.mVertices.Back());
       }
@@ -79,7 +87,7 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       Math::Plane plane = Math::Plane::Points(
         verts[0]->mPosition, verts[1]->mPosition, verts[2]->mPosition);
       float pointDist = plane.Distance(newPoint);
-      if (!Math::Near(pointDist, 0.0f)) {
+      if (!Math::Near(pointDist, 0.0f, epsilon)) {
         hull.mVertices.PushBack({newPoint, hull.mHalfEdges.end()});
         verts.Push(hull.mVertices.Back());
         if (pointDist < 0.0f) {
@@ -173,13 +181,14 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       float mDistance;
     };
     Ds::Vector<Point> mPoints;
+    ConflictList(const Math::Plane& plane) {
+      mPlane = plane;
+    }
   };
   Ds::HashMap<Ds::List<Face>::Iter, ConflictList> faceConflictLists;
   Ds::List<Face>::Iter faceIt = hull.mFaces.begin();
   while (faceIt != hull.mFaces.end()) {
-    ConflictList newList;
-    newList.mPlane = faceIt->Plane();
-    faceConflictLists.Insert(faceIt, newList);
+    faceConflictLists.Insert(faceIt, ConflictList(faceIt->Plane()));
     ++faceIt;
   }
 
@@ -194,7 +203,7 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     auto faceContlictListIt = faceConflictLists.begin();
     while (faceContlictListIt != faceConflictLists.end()) {
       float dist = faceContlictListIt->mValue.mPlane.Distance(point);
-      if (dist > nEpsilon && dist < minDist) {
+      if (dist > epsilon && dist < minDist) {
         minDist = dist;
         bestFaceConflictListIt = faceContlictListIt;
       }
@@ -204,10 +213,29 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       bestFaceConflictListIt->mValue.mPoints.Push({point, minDist});
     }
   };
+
+  // We only use unique points to define the hull. Equivalent points can
+  // potentially be added to the hull multiple times, resulting in a degenerate
+  // face. This is caused by a point lying outside of an average plane defined
+  // by a face containing an equivalent point.
+  Ds::Vector<Vec3> uniquePoints;
   for (const Vec3& point: points) {
-    assignConflictPoint(point, faceConflictLists);
+    bool unique = true;
+    for (const Vec3& uniquePoint: uniquePoints) {
+      if (Near(point, uniquePoint, epsilon)) {
+        unique = false;
+        break;
+      }
+    }
+    if (unique) {
+      uniquePoints.Push(point);
+    }
+  }
+  for (const Vec3& uniquePoint: uniquePoints) {
+    assignConflictPoint(uniquePoint, faceConflictLists);
   }
 
+  // Any faces without conflicting points do not need to be considered.
   auto faceConflictListIt = faceConflictLists.begin();
   while (faceConflictListIt != faceConflictLists.end()) {
     if (faceConflictListIt->mValue.mPoints.Size() == 0) {
@@ -223,10 +251,10 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     // For all points in the conflict lists, find the point with maximum
     // distance from its respective plane. This point will be added next.
     float maxDist = -FLT_MAX;
-    auto bestFaceConflictListIt = faceConflictLists.cend();
+    auto bestFaceConflictListIt = faceConflictLists.end();
     int bestConflictPointIdx = -1;
-    auto it = faceConflictLists.cbegin();
-    while (it != faceConflictLists.cend()) {
+    auto it = faceConflictLists.begin();
+    while (it != faceConflictLists.end()) {
       for (int p = 0; p < it->mValue.mPoints.Size(); ++p) {
         const ConflictList::Point& conflictPoint = it->mValue.mPoints[p];
         if (conflictPoint.mDistance > maxDist) {
@@ -242,8 +270,10 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     // find the edges that form the horizon around the hull. The horizon edges
     // are the edges that border the faces to be deleted and they are stored in
     // a ccw order.
-    const ConflictList& conflictList = bestFaceConflictListIt->mValue;
-    const Vec3& newPoint = conflictList.mPoints[bestConflictPointIdx].mPosition;
+    ConflictList& conflictList = bestFaceConflictListIt->mValue;
+    Vec3 newPoint = conflictList.mPoints[bestConflictPointIdx].mPosition;
+    // The point is being added to the hull and is hence no longer a conflict.
+    conflictList.mPoints.LazyRemove(bestConflictPointIdx);
     Ds::Vector<Ds::List<HalfEdge>::Iter> horizon;
     Ds::Vector<Ds::List<Face>::Iter> visitedFaces;
     std::function<void(Ds::List<HalfEdge>::CIter)> visitEdge =
@@ -256,7 +286,7 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       do {
         Ds::List<HalfEdge>::Iter twin = currentEdge->mTwin;
         Math::Plane twinPlane = twin->mFace->Plane();
-        if (twinPlane.HalfSpaceContains(newPoint)) {
+        if (twinPlane.HalfSpaceContains(newPoint, epsilon)) {
           horizon.Push(twin);
         }
         else {
@@ -266,22 +296,26 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     };
     visitEdge(bestFaceConflictListIt->Key()->mHalfEdge);
 
-    // Imagine drawing a line from the best point to each of the vertices that
-    // lie on the horizon. The new faces formed by these lines and the horizon
-    // edges are created here. We create a new vertex for each horizon vertex
-    // because it makes deleting no longer needed elements a bit easier.
-    Ds::List<Vertex>::Iter newVertex = hull.mVertices.PushBack({newPoint, end});
+    // We create a new vertex for each horizon vertex because it makes deleting
+    // no longer needed elements a bit easier.
     Ds::Vector<Ds::List<Vertex>::Iter> newHorizonVerts;
     for (const Ds::List<HalfEdge>::Iter& hEdge: horizon) {
       newHorizonVerts.Push(
         hull.mVertices.PushBack({hEdge->mVertex->mPosition, end}));
     }
+
+    // Imagine drawing a line from the best point to each of the vertices that
+    // lie on the horizon. The new faces formed by these lines and the horizon
+    // edges are created here.
+    Ds::List<Vertex>::Iter newVertex = hull.mVertices.PushBack({newPoint, end});
+    Ds::HashMap<Ds::List<Face>::Iter, ConflictList> newFaceConflictLists;
     for (int i = 0; i < horizon.Size(); ++i) {
       Ds::List<HalfEdge>::Iter hEdge = horizon[i];
       Ds::List<HalfEdge>::Iter hEdgeNext = horizon[(i + 1) % horizon.Size()];
       Ds::List<Vertex>::Iter nhVert = newHorizonVerts[i];
       Ds::List<Vertex>::Iter nhVertNext =
         newHorizonVerts[(i + 1) % horizon.Size()];
+
       Ds::List<Face>::Iter newFace = hull.mFaces.PushBack({end});
       Ds::List<HalfEdge>::Iter newEdges[3] = {
         edgeList.PushBack({newVertex, end, end, end, newFace}),
@@ -290,18 +324,27 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       newFace->mHalfEdge = newEdges[0];
       newVertex->mHalfEdge = newEdges[0];
       nhVert->mHalfEdge = newEdges[1];
+
+      // Ensure that all edges referencing to the old horizon vertex reference
+      // the new horizon vertex.
       Ds::List<HalfEdge>::Iter currentOldVertEdge = hEdge;
       do {
         currentOldVertEdge->mVertex = nhVert;
         currentOldVertEdge = currentOldVertEdge->mPrev->mTwin;
       } while (currentOldVertEdge != hEdgeNext->mTwin);
+
+      // Link together all edge edge references and create a conflict list
+      // representing the new face.
       hEdgeNext->mTwin = newEdges[1];
       newEdges[1]->mTwin = hEdgeNext;
       for (int e = 0; e < 3; ++e) {
         newEdges[e]->mNext = newEdges[(e + 1) % 3];
         newEdges[(e + 1) % 3]->mPrev = newEdges[e];
       }
+      newFaceConflictLists.Insert(newFace, ConflictList(newFace->Plane()));
     }
+
+    // Set the twin references of all edges going to and from the new vertex.
     for (int i = 0; i < horizon.Size(); ++i) {
       Ds::List<HalfEdge>::CIter hEdge = horizon[i];
       Ds::List<HalfEdge>::CIter hEdgeNext = horizon[(i + 1) % horizon.Size()];
@@ -309,9 +352,10 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       hEdgeNext->mTwin->mPrev->mTwin = hEdge->mTwin->mNext;
     }
 
-    // Any time we delete a face we need to see if that face had a conflict
-    // list and, if so, save its conflict points in order to reassign them to
-    // the new conflict lists at the end of the iteration.
+    // Any time we delete a face, we need to see if that face has an existing or
+    // new conflict list associated with it. If it has an existing conflict
+    // list, we save its conflict points in order to reassign them to the new
+    // set of conflict lists at the end of the iteration.
     Ds::Vector<Vec3> conflictPoints;
     auto tryRemoveFaceConflictList = [&](Ds::List<Face>::Iter faceIt) {
       auto faceConflictIt = faceConflictLists.Find(faceIt);
@@ -321,6 +365,10 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
           conflictPoints.Push(conflictList.mPoints[p].mPosition);
         }
         faceConflictLists.Remove(faceConflictIt);
+      }
+      auto newFaceConflictIt = newFaceConflictLists.Find(faceIt);
+      if (newFaceConflictIt != newFaceConflictLists.end()) {
+        newFaceConflictLists.Remove(newFaceConflictIt);
       }
     };
 
@@ -344,8 +392,9 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       hull.mVertices.Erase(vertIt);
     }
 
-    // We now need to merge faces that a coplanar. We only need check whether
-    // the faces adjacent across new edges are coplanar.
+    // We now need to merge faces that are coplanar. We only need to check
+    // whether faces adjacent across new edges are coplanar. We collect all of
+    // those edges here.
     Ds::Vector<Ds::List<HalfEdge>::Iter> possibleMerges;
     Ds::List<HalfEdge>::Iter currentEdge = newVertex->mHalfEdge;
     do {
@@ -374,6 +423,7 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       if (vertexEdges.Size() != 2) {
         return;
       }
+
       // How we deal with this topological error is determined by the number of
       // vertices the two adjacent faces have.
       int faceEdgeCounts[2] = {0, 0};
@@ -384,30 +434,34 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
           currentFaceEdge = currentFaceEdge->mNext;
         } while (currentFaceEdge != vertexEdges[ve]);
       }
+
       Ds::List<HalfEdge>::Iter edges[2] = {
         vertex->mHalfEdge->mPrev, vertex->mHalfEdge};
       Ds::List<HalfEdge>::Iter edgeTwins[2] = {
         edges[1]->mTwin, edges[0]->mTwin};
       if (faceEdgeCounts[0] == 3 || faceEdgeCounts[1] == 3) {
-        // One of the faces was a triangle, so we must remove the vertex and all
-        // edges going to and emerging from it. First update all references to
+        // When one of the faces is a triangle, we must remove the vertex and
+        // all edges going to and from it. First we update all references to
         // edges that will be removed.
         edges[0]->mPrev->mNext = edgeTwins[1]->mNext;
         edgeTwins[1]->mNext->mPrev = edges[0]->mPrev;
         edges[1]->mNext->mPrev = edgeTwins[0]->mPrev;
         edgeTwins[0]->mPrev->mNext = edges[1]->mNext;
-        // Ensure that the new face references a remaining half edge and that
-        // all edges reference the new face.
-        Ds::List<Face>::Iter newFace = hull.mFaces.PushBack({end});
-        newFace->mHalfEdge = edges[1]->mNext;
+
+        // Create the new face used to reprsent the merged faces.
+        Ds::List<Face>::Iter newFace = hull.mFaces.PushBack({edges[1]->mNext});
+        newFaceConflictLists.Insert(newFace, ConflictList(newFace->Plane()));
+
+        // Ensure all edges within the merged faces reference the new face and
+        // that remaining vertices reference existing half edges.
         Ds::List<HalfEdge>::Iter currentEdge = edges[1]->mNext;
         do {
           currentEdge->mFace = newFace;
           currentEdge = currentEdge->mNext;
         } while (currentEdge != edges[1]->mNext);
-        // Ensure that the remaing vertices reference existing half edges.
         edges[0]->mVertex->mHalfEdge = edges[0]->mPrev->mNext;
         edgeTwins[0]->mVertex->mHalfEdge = edgeTwins[0]->mPrev->mNext;
+
         // Remove no longer necessary elements.
         tryRemoveFaceConflictList(edges[0]->mFace);
         tryRemoveFaceConflictList(edgeTwins[0]->mFace);
@@ -424,18 +478,21 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
         hull.mHalfEdges.Erase(edgeTwins[1]);
       }
       else {
-        // Neither of the adjacent faces were triangles, so the redundant
-        // vertices edges are colinear and must be merged into a single edge.
-        // Update all references to edges that will be removed.
+        // When neither of the adjacent faces are triangles, the vertex edges
+        // are colinear and must be merged into a single edge. We repurpose one
+        // set of half edges to represent the merged edge and update  references
+        // to the other two half edges that will be removed.
         edges[0]->mNext = edges[1]->mNext;
         edges[0]->mTwin = edgeTwins[0];
         edges[1]->mNext->mPrev = edges[0];
         edgeTwins[0]->mNext = edgeTwins[1]->mNext;
         edgeTwins[0]->mTwin = edges[0];
         edgeTwins[1]->mNext->mPrev = edgeTwins[0];
+
         // Ensure that the faces reference existing edges.
         edges[0]->mFace->mHalfEdge = edges[0];
         edgeTwins[0]->mFace->mHalfEdge = edgeTwins[0];
+
         // Remove no longer necessary elements.
         tryRemovePossibleMerge(edges[1]);
         tryRemovePossibleMerge(edgeTwins[1]);
@@ -445,18 +502,19 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       }
     };
 
-    // We merge coplanar faces given one of the edges shared between them.
+    // Coplanar faces are merged using one of the edges shared between them.
     auto mergeFaces = [&](Ds::List<HalfEdge>::Iter edge) {
-      Ds::List<Face>::Iter newFace = hull.mFaces.PushBack({end});
-      Ds::List<HalfEdge>::Iter edgeTwin = edge->mTwin;
       // Link the edges going away and towards the deleted edge.
+      Ds::List<HalfEdge>::Iter edgeTwin = edge->mTwin;
       edge->mPrev->mNext = edgeTwin->mNext;
       edge->mNext->mPrev = edgeTwin->mPrev;
       edgeTwin->mPrev->mNext = edge->mNext;
       edgeTwin->mNext->mPrev = edge->mPrev;
-      // Ensure that the new face and vertices reference a remaining half edge
+
+      // Create the new face and ensure vertices reference a remaining half edge
       // and that all remaining edges reference the new face.
-      newFace->mHalfEdge = edge->mNext;
+      Ds::List<Face>::Iter newFace = hull.mFaces.PushBack({edge->mNext});
+      newFaceConflictLists.Insert(newFace, ConflictList(newFace->Plane()));
       edge->mVertex->mHalfEdge = edgeTwin->mNext;
       edgeTwin->mVertex->mHalfEdge = edge->mNext;
       Ds::List<HalfEdge>::Iter currentEdge = edge->mNext;
@@ -464,6 +522,7 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
         currentEdge->mFace = newFace;
         currentEdge = currentEdge->mNext;
       } while (currentEdge != edge->mNext);
+
       // Ensure that the two vertices that lost an edge an edge are still valid
       // and erase no long necessary elements.
       ensureValidVertex(edge->mVertex);
@@ -478,39 +537,41 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       hull.mHalfEdges.Erase(edgeTwin);
     };
 
-    // Merge faces coplanar with one another over possible merge edges.
+    // Check whether a merge should be performed over all possible merges.
     while (!possibleMerges.Empty()) {
-      Ds::List<HalfEdge>::Iter edge = possibleMerges[0];
+      // If a face's halfspace contains the center of the adjacent face and vice
+      // versa, the edge is considered convex.
+      Ds::List<HalfEdge>::Iter edge = possibleMerges.Top();
       Ds::List<HalfEdge>::Iter twinEdge = edge->mTwin;
       Plane facePlane = edge->mFace->Plane();
+      Vec3 faceCenter = edge->mFace->Center();
       Plane twinFacePlane = twinEdge->mFace->Plane();
-      if (Near(facePlane, twinFacePlane)) {
+      Vec3 twinFaceCenter = twinEdge->mFace->Center();
+      bool convex = facePlane.HalfSpaceContains(twinFaceCenter, epsilon) &&
+        twinFacePlane.HalfSpaceContains(faceCenter, epsilon);
+
+      // If the edge is convex and the angle between face normals lies within
+      // the epsilon, the faces are merged.
+      float angle = Math::Angle(facePlane.Normal(), twinFacePlane.Normal());
+      const float angleEpsilon = 0.015f;
+      if (convex && Near(angle, 0.0f, angleEpsilon)) {
         mergeFaces(edge);
       }
       else {
-        possibleMerges.LazyRemove(0);
+        possibleMerges.Pop();
       }
     }
 
-    // Create new conflict lists from the faces that remain after merging,
-    // distribute orphaned conflict points to the new conflict lists, and
-    // ignore any conflict lists that have no conflict points.
-    Ds::HashMap<Ds::List<Face>::Iter, ConflictList> newFaceConflicts;
-    currentEdge = newVertex->mHalfEdge;
-    do {
-      ConflictList newConflictList;
-      newConflictList.mPlane = currentEdge->mFace->Plane();
-      newFaceConflicts.Insert(currentEdge->mFace, newConflictList);
-      currentEdge = currentEdge->mPrev->mTwin;
-    } while (currentEdge != newVertex->mHalfEdge);
+    // Distribute orphaned conflict points to the new conflict lists. We ignore
+    // any conflict lists that have no conflict points.
     for (const Vec3& point: conflictPoints) {
-      assignConflictPoint(point, newFaceConflicts);
+      assignConflictPoint(point, newFaceConflictLists);
     }
-    for (auto& newFaceConflict: newFaceConflicts) {
-      ConflictList& newConflictList = newFaceConflict.mValue;
-      if (newConflictList.mPoints.Size() > 0) {
+    for (auto& newFaceConflictListIt: newFaceConflictLists) {
+      ConflictList& newFaceConflistList = newFaceConflictListIt.mValue;
+      if (newFaceConflistList.mPoints.Size() > 0) {
         faceConflictLists.Insert(
-          newFaceConflict.Key(), std::move(newConflictList));
+          newFaceConflictListIt.Key(), std::move(newFaceConflistList));
       }
     }
   }
@@ -543,6 +604,24 @@ Result Hull::IsStructureStable() const {
   }
   if (encounteredEdges != mHalfEdges.Size()) {
     return Result("Number of visited edges not equivalent to edge list size");
+  }
+  return Result();
+}
+
+Result Hull::HasDegenerateFace() const {
+  for (const Face& face: mFaces) {
+    auto edgeIt = face.mHalfEdge;
+    do {
+      const Vec3& a = edgeIt->mPrev->mVertex->mPosition;
+      const Vec3& b = edgeIt->mVertex->mPosition;
+      const Vec3& c = edgeIt->mNext->mVertex->mPosition;
+      Vec3 ba = a - b;
+      Vec3 bc = c - b;
+      if (Near(ba, bc)) {
+        return Result("Degenerate Face Found");
+      }
+      edgeIt = edgeIt->mNext;
+    } while (edgeIt != face.mHalfEdge);
   }
   return Result();
 }

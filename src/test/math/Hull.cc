@@ -1,6 +1,7 @@
 #include <random>
 
 #include "gfx/Mesh.h"
+#include "math/Constants.h"
 #include "math/Hull.h"
 #include "test/Test.h"
 #include "test/math/Hull.h"
@@ -100,6 +101,15 @@ Ds::Vector<QuickHullTest> QuickHullTest::GetTests() {
   meshTest("11", "vres/model/scale.obj", 3.0f);
   meshTest("12", "icepick.obj", 1.0f);
   meshTest("13", "vres/model/questionmarkCube.obj", 1.0f);
+
+  for (int i = 0; i < 10; ++i) {
+    float radians = ((float)i / 8.0f) * Math::nTau;
+    float x = std::cosf(radians) * 2.0f;
+    float y = std::sinf(radians) * 2.0f;
+    points.Push({x, y, 5});
+    points.Push({x, y, -5});
+  }
+  tests.Emplace("14", std::move(points));
 
   return tests;
 }

@@ -44,6 +44,8 @@ bool operator==(const Vector<T, N>& a, const Vector<T, N>& b);
 template<typename T, unsigned int N>
 bool Near(const Vector<T, N>& a, const Vector<T, N>& b);
 template<typename T, unsigned int N>
+bool Near(const Vector<T, N>& a, const Vector<T, N>& b, float epsilon);
+template<typename T, unsigned int N>
 std::ostream& operator<<(std::ostream& os, const Vector<T, N>& vec);
 
 template<typename T, unsigned int N>
@@ -56,6 +58,8 @@ template<typename T>
 Vector<T, 3> Cross(const Vector<T, 3>& a, const Vector<T, 3>& b);
 template<typename T, unsigned int N>
 T Dot(const Vector<T, N>& a, const Vector<T, N>& b);
+template<typename T, unsigned int N>
+T Angle(const Vector<T, N>& a, const Vector<T, N>& b);
 template<typename T, unsigned int N>
 Vector<T, N> ComponentwiseProduct(const Vector<T, N>& a, const Vector<T, N>& b);
 template<typename T>

@@ -42,7 +42,11 @@ Plane Plane::PointNormalizeNormal(const Vec3& point, const Vec3& normal) {
 }
 
 bool Plane::HalfSpaceContains(const Vec3& point) const {
-  return Distance(point) <= nEpsilon;
+  return HalfSpaceContains(point, nEpsilon);
+}
+
+bool Plane::HalfSpaceContains(const Vec3& point, float epsilon) const {
+  return Distance(point) <= epsilon;
 }
 
 float Plane::Distance(const Vec3& point) const {

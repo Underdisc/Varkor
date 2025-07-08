@@ -140,8 +140,13 @@ bool operator==(const Vector<T, N>& a, const Vector<T, N>& b) {
 
 template<typename T, unsigned int N>
 bool Near(const Vector<T, N>& a, const Vector<T, N>& b) {
+  return Near(a, b, FLT_EPSILON);
+}
+
+template<typename T, unsigned int N>
+bool Near(const Vector<T, N>& a, const Vector<T, N>& b, float epsilon) {
   for (int i = 0; i < N; ++i) {
-    if (!Near(a[i], b[i])) {
+    if (!Near(a[i], b[i], epsilon)) {
       return false;
     }
   }
@@ -195,6 +200,15 @@ T Dot(const Vector<T, N>& a, const Vector<T, N>& b) {
     dot += a[i] * b[i];
   }
   return dot;
+}
+
+template<typename T, unsigned int N>
+T Angle(const Vector<T, N>& a, const Vector<T, N>& b) {
+  float cos = Dot(a, b) / (Magnitude(a) * Magnitude(b));
+  if (Near(cos, 1.0f)) {
+    return 0.0f;
+  }
+  return std::acosf(cos);
 }
 
 template<typename T, unsigned int N>

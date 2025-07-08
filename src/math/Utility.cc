@@ -5,8 +5,12 @@
 namespace Math {
 
 bool Near(float a, float b) {
+  return Near(a, b, nEpsilon);
+}
+
+bool Near(float a, float b, float epsilon) {
   float difference = a - b;
-  return difference < nEpsilon && difference > -nEpsilon;
+  return difference < epsilon && difference > -epsilon;
 }
 
 float Sign(float value) {
