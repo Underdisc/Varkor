@@ -244,7 +244,8 @@ void Vector<T>::Shrink() {
 }
 
 template<typename T>
-VResult<size_t> Vector<T>::Find(const T& value) const {
+template<typename CT>
+VResult<size_t> Vector<T>::Find(const CT& value) const {
   for (size_t i = 0; i < mSize; ++i) {
     if (mData[i] == value) {
       return i;
@@ -254,7 +255,8 @@ VResult<size_t> Vector<T>::Find(const T& value) const {
 }
 
 template<typename T>
-bool Vector<T>::Contains(const T& value) const {
+template<typename CT>
+bool Vector<T>::Contains(const CT& value) const {
   return Find(value).Success();
 }
 

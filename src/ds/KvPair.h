@@ -33,11 +33,6 @@ private:
   bool operator==(const KvPair& other) const;
   bool operator!=(const KvPair& other) const;
 
-  friend bool operator==(const KvPair<K, V>& kvPair, const K& key);
-  friend bool operator!=(const KvPair<K, V>& kvPair, const K& key);
-  friend bool operator==(const K& key, const KvPair<K, V>& kvPair);
-  friend bool operator!=(const K& key, const KvPair<K, V>& kvPair);
-
   friend RbTree<KvPair<K, V>>;
   friend Map<K, V>;
   friend HashSet<KvPair<K, V>>;
@@ -46,13 +41,13 @@ private:
 };
 
 template<typename K, typename V>
-bool operator==(const KvPair<K, V>& kvPair, const K& otherKey);
+bool operator==(const KvPair<K, V>& kvPair, const K& key);
 template<typename K, typename V>
-bool operator!=(const KvPair<K, V>& kvPair, const K& otherKey);
+bool operator!=(const KvPair<K, V>& kvPair, const K& key);
 template<typename K, typename V>
-bool operator==(const K& otherKey, const KvPair<K, V>& kvPair);
+bool operator==(const K& key, const KvPair<K, V>& kvPair);
 template<typename K, typename V>
-bool operator!=(const K& otherKey, const KvPair<K, V>& kvPair);
+bool operator!=(const K& key, const KvPair<K, V>& kvPair);
 
 } // namespace Ds
 

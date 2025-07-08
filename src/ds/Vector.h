@@ -34,8 +34,10 @@ public:
   void Reserve(size_t newCapacity);
   void Shrink();
 
-  VResult<size_t> Find(const T& value) const;
-  bool Contains(const T& value) const;
+  template<typename CT>
+  VResult<size_t> Find(const CT& value) const;
+  template<typename CT>
+  bool Contains(const CT& value) const;
   size_t Size() const;
   bool Empty() const;
   size_t Capacity() const;

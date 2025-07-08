@@ -48,23 +48,23 @@ const K& KvPair<K, V>::Key() const {
 }
 
 template<typename K, typename V>
-bool operator==(const KvPair<K, V>& kvPair, const K& key) {
-  return kvPair.mKey == key;
+inline bool operator==(const KvPair<K, V>& kvPair, const K& key) {
+  return kvPair.Key() == key;
 }
 
 template<typename K, typename V>
-bool operator!=(const KvPair<K, V>& kvPair, const K& key) {
-  return kvPair.mKey == key;
+inline bool operator!=(const KvPair<K, V>& kvPair, const K& key) {
+  return kvPair.Key() != key;
 }
 
 template<typename K, typename V>
-bool operator==(const K& key, const KvPair<K, V>& kvPair) {
-  return key == kvPair.mKey;
+inline bool operator==(const K& key, const KvPair<K, V>& kvPair) {
+  return key == kvPair.Key();
 }
 
 template<typename K, typename V>
-bool operator!=(const K& key, const KvPair<K, V>& kvPair) {
-  return key != kvPair.mKey;
+inline bool operator!=(const K& key, const KvPair<K, V>& kvPair) {
+  return key != kvPair.Key();
 }
 
 } // namespace Ds
