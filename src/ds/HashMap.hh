@@ -18,8 +18,8 @@ inline typename HashMap<K, V>::Iter HashMap<K, V>::Insert(
 }
 
 template<typename K, typename V>
-inline typename HashMap<K, V>::Iter HashMap<K, V>::Remove(const K& key) {
-  return HashSet<KvPair<K, V>>::Remove(key);
+inline void HashMap<K, V>::Remove(const K& key) {
+  HashSet<KvPair<K, V>>::Remove(key);
 }
 
 template<typename K, typename V>

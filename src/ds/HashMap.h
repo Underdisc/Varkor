@@ -17,7 +17,7 @@ struct HashMap: public HashSet<KvPair<K, V>> {
   Iter Insert(const K& key, const V& value);
   Iter Insert(const K& key, V&& value);
   Iter Remove(const CIter& it);
-  Iter Remove(const K& key);
+  void Remove(const K& key);
   Iter Find(const K& key) const;
   bool Contains(const K& key) const;
 };
