@@ -13,6 +13,12 @@
 namespace Editor {
 namespace Gizmos {
 
+const Vec4 Rotator::smHandleColors[] = {
+  {0.7f, 0.0f, 0.0f, 1.0f},
+  {0.0f, 0.7f, 0.0f, 1.0f},
+  {0.0f, 0.0f, 0.7f, 1.0f},
+  {0.7f, 0.7f, 0.7f, 0.8f}};
+
 Rotator::Rotator(): mOperation(Operation::None) {
   // Create all of the handles.
   mParent = nSpace.CreateMember();

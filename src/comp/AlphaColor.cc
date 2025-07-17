@@ -4,6 +4,8 @@
 
 namespace Comp {
 
+const Vec4 AlphaColor::smDefaultColor = {0.0f, 1.0f, 0.0f, 1.0f};
+
 void AlphaColor::VInit(const World::Object& owner) {
   mColor = smDefaultColor;
 }

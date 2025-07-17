@@ -8,6 +8,10 @@
 
 namespace Comp {
 
+const Gfx::HdrColor PointLight::smDefaultAmbient = {1.0f, 1.0f, 1.0f, 0.1f};
+const Gfx::HdrColor PointLight::smDefaultDiffuse = {1.0f, 1.0f, 1.0f, 0.5f};
+const Gfx::HdrColor PointLight::smDefaultSpecular = {1.0f, 1.0f, 1.0f, 1.0f};
+
 void PointLight::VInit(const World::Object& owner) {
   mAmbient = smDefaultAmbient;
   mDiffuse = smDefaultDiffuse;

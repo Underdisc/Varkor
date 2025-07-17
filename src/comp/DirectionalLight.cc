@@ -6,6 +6,13 @@
 
 namespace Comp {
 
+const Gfx::HdrColor DirectionalLight::smDefaultAmbient = {
+  1.0f, 1.0f, 1.0f, 0.1f};
+const Gfx::HdrColor DirectionalLight::smDefaultDiffuse = {
+  1.0f, 1.0f, 1.0f, 0.5f};
+const Gfx::HdrColor DirectionalLight::smDefaultSpecular = {
+  1.0f, 1.0f, 1.0f, 1.0f};
+
 void DirectionalLight::VInit(const World::Object& owner) {
   mAmbient = smDefaultAmbient;
   mDiffuse = smDefaultDiffuse;

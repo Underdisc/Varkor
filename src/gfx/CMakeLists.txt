@@ -3,6 +3,7 @@ target_sources(varkor PRIVATE
   Font.cc
   Framebuffer.cc
   GlError.cc
+  HdrColor.cc
   Image.cc
   Material.cc
   Mesh.cc

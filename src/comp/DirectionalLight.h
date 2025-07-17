@@ -14,9 +14,9 @@ struct DirectionalLight {
   Gfx::HdrColor mDiffuse;
   Gfx::HdrColor mSpecular;
 
-  static constexpr Gfx::HdrColor smDefaultAmbient = {1.0f, 1.0f, 1.0f, 0.1f};
-  static constexpr Gfx::HdrColor smDefaultDiffuse = {1.0f, 1.0f, 1.0f, 0.5f};
-  static constexpr Gfx::HdrColor smDefaultSpecular = {1.0f, 1.0f, 1.0f, 1.0f};
+  static const Gfx::HdrColor smDefaultAmbient;
+  static const Gfx::HdrColor smDefaultDiffuse;
+  static const Gfx::HdrColor smDefaultSpecular;
 
   void VInit(const World::Object& owner);
   void VSerialize(Vlk::Value& val);

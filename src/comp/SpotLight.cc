@@ -10,6 +10,10 @@
 
 namespace Comp {
 
+const Gfx::HdrColor SpotLight::smDefaultAmbient = {1.0f, 1.0f, 1.0f, 0.1f};
+const Gfx::HdrColor SpotLight::smDefaultDiffuse = {1.0f, 1.0f, 1.0f, 0.5f};
+const Gfx::HdrColor SpotLight::smDefaultSpecular = {1.0f, 1.0f, 1.0f, 1.0f};
+
 void SpotLight::VInit(const World::Object& owner) {
   mAmbient = smDefaultAmbient;
   mDiffuse = smDefaultDiffuse;

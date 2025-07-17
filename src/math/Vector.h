@@ -1,6 +1,7 @@
 #ifndef math_Vector_h
 #define math_Vector_h
 
+#include <cstdlib>
 #include <iostream>
 
 namespace Math {
@@ -9,6 +10,10 @@ template<typename T, unsigned int N>
 struct Vector {
   T mD[N];
 
+  Vector() {}
+  Vector(const Vector<T, N - 1>& a, T b);
+  Vector(const std::initializer_list<T>& initList);
+  Vector<T, N>& operator=(const std::initializer_list<T>& initList);
   static Vector<T, N> Zero();
 
   const T& operator[](int index) const;

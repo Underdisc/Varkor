@@ -13,6 +13,15 @@
 namespace Editor {
 namespace Gizmos {
 
+const Vec4 Translator::smHandleColors[] = {
+  {0.7f, 0.0f, 0.0f, 1.0f},
+  {0.0f, 0.7f, 0.0f, 1.0f},
+  {0.0f, 0.0f, 0.7f, 1.0f},
+  {0.7f, 0.7f, 0.0f, 1.0f},
+  {0.7f, 0.0f, 0.7f, 1.0f},
+  {0.0f, 0.7f, 0.7f, 1.0f},
+  {0.7f, 0.7f, 0.7f, 1.0f}};
+
 Translator::Translator(): mOperation(Operation::None) {
   mParent = nSpace.CreateMember();
   nSpace.AddComponent<Comp::Transform>(mParent);

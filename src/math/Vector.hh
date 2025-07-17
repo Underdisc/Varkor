@@ -6,6 +6,30 @@
 namespace Math {
 
 template<typename T, unsigned int N>
+Vector<T, N>::Vector(const Vector<T, N - 1>& a, T b) {
+  for (int i = 0; i < N - 1; ++i) {
+    mD[i] = a[i];
+  }
+  mD[N - 1] = b;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N>::Vector(const std::initializer_list<T>& initList) {
+  *this = initList;
+}
+
+template<typename T, unsigned int N>
+Vector<T, N>& Vector<T, N>::operator=(
+  const std::initializer_list<T>& initList) {
+  Assert(initList.size() == N);
+  int listIndex = 0;
+  for (T value: initList) {
+    mD[listIndex++] = value;
+  }
+  return *this;
+}
+
+template<typename T, unsigned int N>
 Vector<T, N> Vector<T, N>::Zero() {
   Vector<T, N> result;
   for (int i = 0; i < N; ++i) {

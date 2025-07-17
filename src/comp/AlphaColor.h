@@ -13,7 +13,7 @@ struct AlphaColor {
   void VDeserialize(const Vlk::Explorer& ex);
   void VEdit(const World::Object& owner);
 
-  static constexpr Vec4 smDefaultColor = {0.0f, 1.0f, 0.0f, 1.0f};
+  static const Vec4 smDefaultColor;
   Vec4 mColor;
 };
 

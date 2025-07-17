@@ -4,6 +4,13 @@
 #include "math/Vector.h"
 #include "test/Test.h"
 
+void Initialization() {
+  Vec3 a({1, 2, 3});
+  Vec4 b(a, 4);
+  Math::Vector<float, 5> c = {1, 2, 3, 4, 5};
+  std::cout << a << '\n' << b << '\n' << c << '\n';
+}
+
 void Cast() {
   Math::Vector<float, 4> vec;
   vec[0] = 0;
@@ -168,6 +175,7 @@ void ScaleComponentsToInterval() {
 }
 
 int main(void) {
+  RunTest(Initialization);
   RunTest(Cast);
   RunTest(Addition);
   RunTest(Subtraction);

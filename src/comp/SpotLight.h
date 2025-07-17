@@ -19,9 +19,9 @@ struct SpotLight {
   float mInnerCutoff;
   float mOuterCutoff;
 
-  static constexpr Gfx::HdrColor smDefaultAmbient = {1.0f, 1.0f, 1.0f, 0.1f};
-  static constexpr Gfx::HdrColor smDefaultDiffuse = {1.0f, 1.0f, 1.0f, 0.5f};
-  static constexpr Gfx::HdrColor smDefaultSpecular = {1.0f, 1.0f, 1.0f, 1.0f};
+  static const Gfx::HdrColor smDefaultAmbient;
+  static const Gfx::HdrColor smDefaultDiffuse;
+  static const Gfx::HdrColor smDefaultSpecular;
   static constexpr float smDefaultConstant = 1.0f;
   static constexpr float smDefaultLinear = 0.35f;
   static constexpr float smDefaultQuadratic = 0.44f;

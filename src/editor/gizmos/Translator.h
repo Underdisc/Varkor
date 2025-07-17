@@ -23,14 +23,7 @@ struct Translator {
   constexpr static int smHandleCount = 7;
   constexpr static const char* smMaterialNames[] = {
     "X", "Y", "Z", "Xy", "Xz", "Yz", "Xyz"};
-  constexpr static Vec4 smHandleColors[] = {
-    {0.7f, 0.0f, 0.0f, 1.0f},
-    {0.0f, 0.7f, 0.0f, 1.0f},
-    {0.0f, 0.0f, 0.7f, 1.0f},
-    {0.7f, 0.7f, 0.0f, 1.0f},
-    {0.7f, 0.0f, 0.7f, 1.0f},
-    {0.0f, 0.7f, 0.7f, 1.0f},
-    {0.7f, 0.7f, 0.7f, 1.0f}};
+  const static Vec4 smHandleColors[];
 
   enum class Operation {
     X = 0,

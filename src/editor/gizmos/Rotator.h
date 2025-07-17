@@ -24,11 +24,7 @@ struct Rotator {
   constexpr static const char* smRotatorAssetName = "vres/rotator";
   constexpr static int smHandleCount = 4;
   constexpr static const char* smMaterialNames[] = {"X", "Y", "Z", "Xyz"};
-  constexpr static Vec4 smHandleColors[] = {
-    {0.7f, 0.0f, 0.0f, 1.0f},
-    {0.0f, 0.7f, 0.0f, 1.0f},
-    {0.0f, 0.0f, 0.7f, 1.0f},
-    {0.7f, 0.7f, 0.7f, 0.8f}};
+  const static Vec4 smHandleColors[];
 
   enum class Operation {
     X = 0,
