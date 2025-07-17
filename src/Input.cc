@@ -152,6 +152,7 @@ const char* nActionStrings[] = {
   "ToggleEditor",
   "SaveLayer",
   "DuplicateEntity",
+  "Close",
 };
 
 struct Keybind {
@@ -378,6 +379,7 @@ void InitKeybinds() {
     {Action::ToggleEditor, {false, false, Key::GraveAccent}},
     {Action::SaveLayer, {true, false, Key::S}},
     {Action::DuplicateEntity, {true, false, Key::D}},
+    {Action::Close, {false, false, Key::Escape}},
   };
 
   // Set all of the keybinds to the defaults.

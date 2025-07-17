@@ -157,6 +157,7 @@ enum class Action {
   ToggleEditor,
   SaveLayer,
   DuplicateEntity,
+  Close,
   Count
 };
 

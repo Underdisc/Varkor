@@ -1,4 +1,5 @@
 #include "Viewport.h"
+#include "Input.h"
 #include "Log.h"
 #include "ext/glfw.h"
 #include "gfx/Renderer.h"
@@ -52,7 +53,8 @@ void Init(const char* windowName, bool visible) {
 }
 
 void Update() {
-  nActive = !glfwWindowShouldClose(nWindow);
+  nActive = !glfwWindowShouldClose(nWindow) &&
+    !Input::ActionPressed(Input::Action::Close);
 }
 
 void Purge() {
