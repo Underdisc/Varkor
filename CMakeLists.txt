@@ -22,17 +22,3 @@ if(MSVC)
     target_link_options(varkor PRIVATE /MANIFEST:NO)
   endif()
 endif()
-
-# Create all of the targets for different Varkor projects.
-function(AddProject targetName directory)
-  project(${targetName})
-  add_executable(${targetName})
-  add_subdirectory(${directory}/src ${targetName}Obj)
-  target_include_directories(${targetName} PUBLIC ${directory}/src)
-  target_compile_definitions(${targetName}
-    PUBLIC PROJECT_DIRECTORY="${directory}")
-  target_link_libraries(${targetName} varkor)
-  add_externals(${targetName})
-endfunction()
-
-include("projects.cmake" OPTIONAL)

@@ -156,7 +156,8 @@ if (savedOptions.testMode == 'no') {
   const workingDir = path.join(__dirname, '..', 'working');
   process.chdir(workingDir);
   try {
-    let targetCommand = path.join(fullBuildDir, savedOptions.target);
+    let targetCommand =
+      path.join(fullBuildDir, 'src/target', savedOptions.target);
     const targetArgs = savedOptions.targetArgs[savedOptions.target];
     if (targetArgs !== undefined) {
       for (const targetArg of targetArgs) {
