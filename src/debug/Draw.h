@@ -23,6 +23,11 @@ void Hull(
   const Math::Hull& hull,
   const Vec3& color,
   const std::initializer_list<Vec3>& halfEdgeColors);
+void Hull(
+  const Math::Hull& hull,
+  const Vec3& color,
+  const std::initializer_list<Vec3>& halfEdgeColors,
+  const Mat4& transform);
 void Box(const Math::Box& box, const Vec3& color);
 void Sphere(const Math::Sphere& sphere, const Vec3& color);
 void Capsule(const Math::Capsule& capsule, const Vec3& color);

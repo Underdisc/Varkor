@@ -92,6 +92,16 @@ void Hull(
   const Math::Hull& hull,
   const Vec3& color,
   const std::initializer_list<Vec3>& halfEdgeColors) {
+  Mat4 identity;
+  Math::Identity(&identity);
+  Hull(hull, color, halfEdgeColors, identity);
+}
+
+void Hull(
+  const Math::Hull& hull,
+  const Vec3& color,
+  const std::initializer_list<Vec3>& halfEdgeColors,
+  const Mat4& transform) {
   Ds::Vector<Vec3> colors;
   if (halfEdgeColors.size() == 0) {
     colors = {{1, 1, 0}, {0, 1, 0}, {0, 1, 1}, {1, 0, 1}};
@@ -112,18 +122,24 @@ void Hull(
       ++totalVerts;
     }
     center /= (float)totalVerts;
+    center = (Vec3)(transform * Vec4(center, 1.0f));
 
     // Draw the half edges of every face.
     do {
-      Vec3 a = currentEdge->mVertex->mPosition;
-      Vec3 b = currentEdge->mNext->mVertex->mPosition;
+      Vec3 basePositions[] = {
+        currentEdge->mVertex->mPosition,
+        currentEdge->mNext->mVertex->mPosition,
+        currentEdge->mTwin->mVertex->mPosition};
+      Vec3 a = (Vec3)(transform * Vec4(basePositions[0], 1.0f));
+      Vec3 b = (Vec3)(transform * Vec4(basePositions[1], 1.0f));
+      Vec3 c = (Vec3)(transform * Vec4(basePositions[2], 1.0f));
       Vec3 centerToA = a - center;
       Vec3 centerToB = b - center;
       Vec3 aToB = b - a;
       Vec3 headBase = a + aToB * 0.35f;
       Vec3 headCorner = b - aToB * 0.65f;
       headCorner += (center - headCorner) * 0.1f;
-      Vec3 headTip = currentEdge->mTwin->mVertex->mPosition - aToB * 0.35f;
+      Vec3 headTip = c - aToB * 0.35f;
       Debug::Draw::Line(a, headBase, color);
       Debug::Draw::Line(headBase, headCorner, colors[currentColorIdx]);
       Debug::Draw::Line(headCorner, headTip, colors[currentColorIdx]);
