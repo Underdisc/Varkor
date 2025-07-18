@@ -15,7 +15,7 @@ target_compile_definitions(varkor
   PUBLIC VARKOR_WORKING_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/working/")
 
 # Set compiler options.
-target_compile_features(varkor PRIVATE cxx_std_17)
+target_compile_features(varkor PRIVATE cxx_std_20)
 if(MSVC)
   target_compile_options(varkor PRIVATE /WX /W3 /sdl /permissive-)
   if("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")

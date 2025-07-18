@@ -18,6 +18,7 @@ function(AddProject targetName directory)
   project(${targetName})
   add_executable(${targetName})
   add_subdirectory(${directory}/src ${targetName}Obj)
+  target_compile_features(${targetName} PRIVATE cxx_std_20)
   target_include_directories(${targetName} PUBLIC ${directory}/src)
   target_compile_definitions(${targetName}
     PUBLIC PROJECT_DIRECTORY="${directory}")
