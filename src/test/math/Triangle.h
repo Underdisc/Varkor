@@ -13,8 +13,8 @@ struct TriangleClosestPointToTest: BaseTest {
     BaseTest(name), mTriangle(triangle), mPoint(point) {}
   Math::Triangle mTriangle;
   Vec3 mPoint;
+  static Ds::Vector<TriangleClosestPointToTest> GetTests();
 };
-Ds::Vector<TriangleClosestPointToTest> GetTriangleClosestPointToTests();
 
 } // namespace Test
 

@@ -61,7 +61,8 @@ void RaySphere() {
   std::cout << Math::Intersection(rays[2], spheres[1]) << '\n';
 }
 
-Ds::Vector<SphereSphereIntersectionTest> GetSphereSphereIntersectionTests() {
+Ds::Vector<SphereSphereIntersectionTest>
+SphereSphereIntersectionTest::GetTests() {
   Ds::Vector<SphereSphereIntersectionTest> tests;
   Math::Sphere a, b;
 
@@ -97,7 +98,7 @@ Ds::Vector<SphereSphereIntersectionTest> GetSphereSphereIntersectionTests() {
 }
 
 void SphereSphereIntersection() {
-  const auto tests = GetSphereSphereIntersectionTests();
+  const auto tests = SphereSphereIntersectionTest::GetTests();
   for (const SphereSphereIntersectionTest& test: tests) {
     Math::SphereSphere result = Math::Intersection(test.mA, test.mB);
     std::cout << test.mName << ": " << result.mIntersecting;
@@ -109,7 +110,8 @@ void SphereSphereIntersection() {
   }
 }
 
-Ds::Vector<SphereCapsuleIntersectionTest> GetSphereCapsuleIntersectionTests() {
+Ds::Vector<SphereCapsuleIntersectionTest>
+SphereCapsuleIntersectionTest::GetTests() {
   Ds::Vector<SphereCapsuleIntersectionTest> tests;
   Math::Sphere sphere;
   Math::Capsule capsule;
@@ -176,7 +178,7 @@ Ds::Vector<SphereCapsuleIntersectionTest> GetSphereCapsuleIntersectionTests() {
 }
 
 void SphereCapsuleIntersection() {
-  const auto tests = GetSphereCapsuleIntersectionTests();
+  const auto tests = SphereCapsuleIntersectionTest::GetTests();
   for (const SphereCapsuleIntersectionTest& test: tests) {
     Math::SphereCapsule result =
       Math::Intersection(test.mSphere, test.mCapsule);
@@ -189,7 +191,7 @@ void SphereCapsuleIntersection() {
   }
 }
 
-Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests() {
+Ds::Vector<BoxBoxIntersectionTest> BoxBoxIntersectionTest::GetTests() {
   Math::Box a, b;
   Ds::Vector<BoxBoxIntersectionTest> boxIntersectoinTests;
 
@@ -355,7 +357,7 @@ Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests() {
 }
 
 void BoxBoxIntersection() {
-  Ds::Vector<BoxBoxIntersectionTest> tests = GetBoxBoxIntersectionTests();
+  Ds::Vector<BoxBoxIntersectionTest> tests = BoxBoxIntersectionTest::GetTests();
   for (const BoxBoxIntersectionTest& test: tests) {
     std::cout << test.mName << ": " << Math::HasIntersection(test.mA, test.mB)
               << '\n';
@@ -363,7 +365,7 @@ void BoxBoxIntersection() {
 }
 
 Ds::Vector<SphereTriangleIntersectionTest>
-GetSphereTriangleIntersectionTests() {
+SphereTriangleIntersectionTest::GetTests() {
   Ds::Vector<SphereTriangleIntersectionTest> tests;
   Math::Sphere sphere = {{0, 0, 0}, 1};
   Math::Triangle triangle = {{{-1, -1, 0}, {1, 0, 0}, {0, 1, 0}}};
@@ -426,7 +428,7 @@ GetSphereTriangleIntersectionTests() {
 
 void SphereTriangleIntersection() {
   Ds::Vector<SphereTriangleIntersectionTest> tests =
-    GetSphereTriangleIntersectionTests();
+    SphereTriangleIntersectionTest::GetTests();
   for (const SphereTriangleIntersectionTest& test: tests) {
     Math::SphereTriangle intersection =
       Math::Intersection(test.mSphere, test.mTriangle);

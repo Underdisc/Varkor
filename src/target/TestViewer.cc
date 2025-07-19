@@ -72,8 +72,8 @@ const char* nTypeStrs[] = {
 Ds::Vector<TestVectorTypeData> nTestVectorTypeData;
 
 template<typename T>
-void RegisterTestVector(TestType type, Ds::Vector<T> (*getTests)()) {
-  TestVector<T>::smTests = getTests();
+void RegisterTestVector(TestType type) {
+  TestVector<T>::smTests = TestType::GetTests();
 
   TestVectorTypeData newTypeData;
   newTypeData.mCount = TestVector<T>::Count;
@@ -360,20 +360,17 @@ Desc nSelectedTest;
 
 void Init() {
   RegisterTestVector<Test::BoxBoxIntersectionTest>(
-    TestType::BoxBoxIntersection, Test::GetBoxBoxIntersectionTests);
+    TestType::BoxBoxIntersection);
   RegisterTestVector<Test::SphereSphereIntersectionTest>(
-    TestType::SphereSphereIntersection, Test::GetSphereSphereIntersectionTests);
+    TestType::SphereSphereIntersection);
   RegisterTestVector<Test::SphereCapsuleIntersectionTest>(
-    TestType::SphereCapsuleIntersection,
-    Test::GetSphereCapsuleIntersectionTests);
+    TestType::SphereCapsuleIntersection);
   RegisterTestVector<Test::SphereTriangleIntersectionTest>(
-    TestType::SphereTriangleIntersection,
-    Test::GetSphereTriangleIntersectionTests);
+    TestType::SphereTriangleIntersection);
   RegisterTestVector<Test::TriangleClosestPointToTest>(
-    TestType::TriangleClosestPointTo, Test::GetTriangleClosestPointToTests);
+    TestType::TriangleClosestPointTo);
   Rsl::nExtraResDirectory = "test/math_Hull/res/";
-  RegisterTestVector<Test::QuickHullTest>(
-    TestType::QuickHull, Test::QuickHullTest::GetTests);
+  RegisterTestVector<Test::QuickHullTest>(TestType::QuickHull);
 
   nSelectedTest.mType = TestType::BoxBoxIntersection;
   nSelectedTest.mIdx = 0;

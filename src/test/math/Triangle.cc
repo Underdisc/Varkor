@@ -25,7 +25,7 @@ void BarycentricCoords() {
   printBarycentricCoords(c + (a - c) + (b - c));
 }
 
-Ds::Vector<TriangleClosestPointToTest> GetTriangleClosestPointToTests() {
+Ds::Vector<TriangleClosestPointToTest> TriangleClosestPointToTest::GetTests() {
   Ds::Vector<TriangleClosestPointToTest> tests;
   Math::Triangle triangle;
   Vec3 point;
@@ -102,7 +102,7 @@ Ds::Vector<TriangleClosestPointToTest> GetTriangleClosestPointToTests() {
 }
 
 void ClosestPointTo() {
-  auto tests = GetTriangleClosestPointToTests();
+  auto tests = TriangleClosestPointToTest::GetTests();
   for (const TriangleClosestPointToTest& test: tests) {
     std::cout << test.mName << ": "
               << test.mTriangle.ClosestPointTo(test.mPoint) << '\n';

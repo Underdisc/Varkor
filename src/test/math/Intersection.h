@@ -15,8 +15,8 @@ struct SphereSphereIntersectionTest: BaseTest {
     const std::string& name, const Math::Sphere& a, const Math::Sphere& b):
     BaseTest(name), mA(a), mB(b) {}
   Math::Sphere mA, mB;
+  static Ds::Vector<SphereSphereIntersectionTest> GetTests();
 };
-Ds::Vector<SphereSphereIntersectionTest> GetSphereSphereIntersectionTests();
 
 struct SphereCapsuleIntersectionTest: BaseTest {
   SphereCapsuleIntersectionTest(
@@ -26,16 +26,16 @@ struct SphereCapsuleIntersectionTest: BaseTest {
     BaseTest(name), mSphere(sphere), mCapsule(capsule) {}
   Math::Sphere mSphere;
   Math::Capsule mCapsule;
+  static Ds::Vector<SphereCapsuleIntersectionTest> GetTests();
 };
-Ds::Vector<SphereCapsuleIntersectionTest> GetSphereCapsuleIntersectionTests();
 
 struct BoxBoxIntersectionTest: BaseTest {
   BoxBoxIntersectionTest(
     const std::string& name, const Math::Box& a, const Math::Box& b):
     BaseTest(name), mA(a), mB(b) {}
   Math::Box mA, mB;
+  static Ds::Vector<BoxBoxIntersectionTest> GetTests();
 };
-Ds::Vector<BoxBoxIntersectionTest> GetBoxBoxIntersectionTests();
 
 struct SphereTriangleIntersectionTest: BaseTest {
   SphereTriangleIntersectionTest(
@@ -45,8 +45,8 @@ struct SphereTriangleIntersectionTest: BaseTest {
     BaseTest(name), mSphere(sphere), mTriangle(triangle) {}
   Math::Sphere mSphere;
   Math::Triangle mTriangle;
+  static Ds::Vector<SphereTriangleIntersectionTest> GetTests();
 };
-Ds::Vector<SphereTriangleIntersectionTest> GetSphereTriangleIntersectionTests();
 
 } // namespace Test
 
