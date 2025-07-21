@@ -91,11 +91,7 @@ Ds::Vector<QuickHullTest> QuickHullTest::GetTests() {
     VResult<Gfx::Mesh::Local> result = Gfx::Mesh::Local::Init(
       meshFile, Gfx::Mesh::Attribute::Position, false, scale);
     LogAbortIf(!result.Success(), result.mError.c_str());
-    Ds::Vector<Vec3> points;
-    for (int b = 0; b < result.mValue.mVertexBuffer.Size(); b += sizeof(Vec3)) {
-      points.Push(*(Vec3*)&result.mValue.mVertexBuffer[b]);
-    }
-    tests.Emplace(testName, std::move(points));
+    tests.Emplace(testName, result.mValue.Points());
   };
   meshTest("10", "suzanne.obj", 1.0f);
   meshTest("11", "vres/model/scale.obj", 3.0f);

@@ -225,6 +225,14 @@ VResult<Mesh::Local> Mesh::Local::Init(
   return local;
 }
 
+Ds::Vector<Vec3> Mesh::Local::Points() {
+  Ds::Vector<Vec3> points;
+  for (int b = 0; b < mVertexBuffer.Size(); b += sizeof(Vec3)) {
+    points.Push(*(Vec3*)&mVertexBuffer[b]);
+  }
+  return points;
+}
+
 Result Mesh::Init(const Mesh::Local& local) {
   return Init(local.mAttributes, local.mVertexBuffer, local.mElementBuffer);
 }

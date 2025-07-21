@@ -35,6 +35,8 @@ struct Mesh {
       float scale);
     static VResult<Local> Init(
       const aiMesh& assimpMesh, unsigned int selectedAttributes, float scale);
+
+    Ds::Vector<Vec3> Points();
     unsigned int mAttributes;
     Ds::Vector<char> mVertexBuffer;
     Ds::Vector<unsigned int> mElementBuffer;
