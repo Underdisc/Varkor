@@ -325,8 +325,8 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       newVertex->mHalfEdge = newEdges[0];
       nhVert->mHalfEdge = newEdges[1];
 
-      // Ensure that all edges referencing to the old horizon vertex reference
-      // the new horizon vertex.
+      // Ensure that all edges referencing the old horizon vertex reference the
+      // new horizon vertex.
       Ds::List<HalfEdge>::Iter currentOldVertEdge = hEdge;
       do {
         currentOldVertEdge->mVertex = nhVert;
@@ -375,21 +375,24 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     // Delete dead vertices, edges, faces, and conflict lists that were covered
     // by the new faces.
     Ds::Vector<Ds::List<Vertex>::Iter> deadVerts;
+    Ds::Vector<Ds::List<HalfEdge>::Iter> deadEdges;
     for (const Ds::List<Face>::Iter& faceIt: visitedFaces) {
       Ds::List<HalfEdge>::Iter currentEdge = faceIt->mHalfEdge;
       do {
         if (!deadVerts.Contains(currentEdge->mVertex)) {
           deadVerts.Push(currentEdge->mVertex);
         }
-        Ds::List<HalfEdge>::Iter nextEdge = currentEdge->mNext;
-        hull.mHalfEdges.Erase(currentEdge);
-        currentEdge = nextEdge;
+        deadEdges.Push(currentEdge);
+        currentEdge = currentEdge->mNext;
       } while (currentEdge != faceIt->mHalfEdge);
       tryRemoveFaceConflictList(faceIt);
       hull.mFaces.Erase(faceIt);
     }
     for (const Ds::List<Vertex>::Iter& vertIt: deadVerts) {
       hull.mVertices.Erase(vertIt);
+    }
+    for (const Ds::List<HalfEdge>::Iter& edgeIt: deadEdges) {
+      hull.mHalfEdges.Erase(edgeIt);
     }
 
     // We now need to merge faces that are coplanar. We only need to check
@@ -412,6 +415,8 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     // As we merge faces, topological errors can arise. If only two edges emerge
     // from a vertex, we have a topological error. Every vertex needs to have 3
     // edges to make it be a part of the volume.
+    Ds::Vector<Ds::List<Vertex>::Iter> mergedVerts;
+    Ds::Vector<Ds::List<HalfEdge>::Iter> mergedEdges;
     auto ensureValidVertex = [&](Ds::List<Vertex>::Iter vertex) {
       int vertexEdgeCount = 0;
       Ds::Vector<Ds::List<HalfEdge>::Iter> vertexEdges;
@@ -469,13 +474,13 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
         tryRemovePossibleMerge(edges[1]);
         tryRemovePossibleMerge(edgeTwins[0]);
         tryRemovePossibleMerge(edgeTwins[1]);
-        hull.mVertices.Erase(vertex);
+        mergedVerts.Push(vertex);
         hull.mFaces.Erase(edges[0]->mFace);
         hull.mFaces.Erase(edgeTwins[0]->mFace);
-        hull.mHalfEdges.Erase(edges[0]);
-        hull.mHalfEdges.Erase(edges[1]);
-        hull.mHalfEdges.Erase(edgeTwins[0]);
-        hull.mHalfEdges.Erase(edgeTwins[1]);
+        mergedEdges.Push(edges[0]);
+        mergedEdges.Push(edges[1]);
+        mergedEdges.Push(edgeTwins[0]);
+        mergedEdges.Push(edgeTwins[1]);
       }
       else {
         // When neither of the adjacent faces are triangles, the vertex edges
@@ -496,9 +501,9 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
         // Remove no longer necessary elements.
         tryRemovePossibleMerge(edges[1]);
         tryRemovePossibleMerge(edgeTwins[1]);
-        hull.mVertices.Erase(vertex);
-        hull.mHalfEdges.Erase(edges[1]);
-        hull.mHalfEdges.Erase(edgeTwins[1]);
+        mergedVerts.Push(vertex);
+        mergedEdges.Push(edges[1]);
+        mergedEdges.Push(edgeTwins[1]);
       }
     };
 
@@ -533,8 +538,8 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       tryRemovePossibleMerge(edgeTwin);
       hull.mFaces.Erase(edge->mFace);
       hull.mFaces.Erase(edgeTwin->mFace);
-      hull.mHalfEdges.Erase(edge);
-      hull.mHalfEdges.Erase(edgeTwin);
+      mergedEdges.Push(edge);
+      mergedEdges.Push(edgeTwin);
     };
 
     // Check whether a merge should be performed over all possible merges.
@@ -560,6 +565,12 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
       else {
         possibleMerges.Pop();
       }
+    }
+    for (const Ds::List<Vertex>::Iter& vertIt: mergedVerts) {
+      hull.mVertices.Erase(vertIt);
+    }
+    for (const Ds::List<HalfEdge>::Iter& edgeIt: mergedEdges) {
+      hull.mHalfEdges.Erase(edgeIt);
     }
 
     // Distribute orphaned conflict points to the new conflict lists. We ignore
