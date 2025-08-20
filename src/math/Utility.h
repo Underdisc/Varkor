@@ -15,6 +15,8 @@ template<typename T>
 const T& Min(const T& a, const T& b);
 template<typename T>
 T Clamp(T minimum, T maximum, T value);
+template<typename T>
+T Lerp(const T& start, const T& end, float t);
 
 } // namespace Math
 

@@ -27,4 +27,9 @@ T Clamp(T minimum, T maximum, T value) {
   return value;
 }
 
+template<typename T>
+T Lerp(const T& start, const T& end, float t) {
+  return start * (1.0f - t) + end * t;
+}
+
 } // namespace Math
