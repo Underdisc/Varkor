@@ -151,7 +151,7 @@ KeepEmptyLines:
   AtEndOfFile: false
   AtStartOfBlock: false
   AtStartOfFile: false
-LambdaBodyIndentation: OuterScope
+LambdaBodyIndentation: Signature
 LineEnding: DeriveLF
 MainIncludeChar: Any
 MaxEmptyLinesToKeep: "1"

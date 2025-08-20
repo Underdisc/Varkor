@@ -88,11 +88,11 @@ Ds::Vector<QuickHullTest> QuickHullTest::GetTests() {
 
   auto meshTest =
     [&tests](const char* testName, const char* meshFile, float scale) {
-    VResult<Gfx::Mesh::Local> result = Gfx::Mesh::Local::Init(
-      meshFile, Gfx::Mesh::Attribute::Position, false, scale);
-    LogAbortIf(!result.Success(), result.mError.c_str());
-    tests.Emplace(testName, result.mValue.Points());
-  };
+      VResult<Gfx::Mesh::Local> result = Gfx::Mesh::Local::Init(
+        meshFile, Gfx::Mesh::Attribute::Position, false, scale);
+      LogAbortIf(!result.Success(), result.mError.c_str());
+      tests.Emplace(testName, result.mValue.Points());
+    };
   meshTest("10", "suzanne.obj", 1.0f);
   meshTest("11", "vres/model/scale.obj", 3.0f);
   meshTest("12", "icepick.obj", 1.0f);

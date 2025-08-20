@@ -198,21 +198,21 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     [&](
       const Vec3& point,
       Ds::HashMap<Ds::List<Face>::Iter, ConflictList>& faceConflictLists) {
-    float minDist = FLT_MAX;
-    auto bestFaceConflictListIt = faceConflictLists.end();
-    auto faceContlictListIt = faceConflictLists.begin();
-    while (faceContlictListIt != faceConflictLists.end()) {
-      float dist = faceContlictListIt->mValue.mPlane.Distance(point);
-      if (dist > epsilon && dist < minDist) {
-        minDist = dist;
-        bestFaceConflictListIt = faceContlictListIt;
+      float minDist = FLT_MAX;
+      auto bestFaceConflictListIt = faceConflictLists.end();
+      auto faceContlictListIt = faceConflictLists.begin();
+      while (faceContlictListIt != faceConflictLists.end()) {
+        float dist = faceContlictListIt->mValue.mPlane.Distance(point);
+        if (dist > epsilon && dist < minDist) {
+          minDist = dist;
+          bestFaceConflictListIt = faceContlictListIt;
+        }
+        ++faceContlictListIt;
       }
-      ++faceContlictListIt;
-    }
-    if (bestFaceConflictListIt != faceConflictLists.end()) {
-      bestFaceConflictListIt->mValue.mPoints.Push({point, minDist});
-    }
-  };
+      if (bestFaceConflictListIt != faceConflictLists.end()) {
+        bestFaceConflictListIt->mValue.mPoints.Push({point, minDist});
+      }
+    };
 
   // We only use unique points to define the hull. Equivalent points can
   // potentially be added to the hull multiple times, resulting in a degenerate
@@ -278,22 +278,22 @@ VResult<Hull> Hull::QuickHull(const Ds::Vector<Vec3>& points) {
     Ds::Vector<Ds::List<Face>::Iter> visitedFaces;
     std::function<void(Ds::List<HalfEdge>::CIter)> visitEdge =
       [&](Ds::List<HalfEdge>::CIter edge) {
-      if (visitedFaces.Contains(edge->mFace)) {
-        return;
-      }
-      visitedFaces.Push(edge->mFace);
-      Ds::List<HalfEdge>::CIter currentEdge = edge;
-      do {
-        Ds::List<HalfEdge>::Iter twin = currentEdge->mTwin;
-        Math::Plane twinPlane = twin->mFace->Plane();
-        if (twinPlane.HalfSpaceContains(newPoint, epsilon)) {
-          horizon.Push(twin);
+        if (visitedFaces.Contains(edge->mFace)) {
+          return;
         }
-        else {
-          visitEdge(twin);
-        }
-      } while ((currentEdge = currentEdge->mNext) != edge);
-    };
+        visitedFaces.Push(edge->mFace);
+        Ds::List<HalfEdge>::CIter currentEdge = edge;
+        do {
+          Ds::List<HalfEdge>::Iter twin = currentEdge->mTwin;
+          Math::Plane twinPlane = twin->mFace->Plane();
+          if (twinPlane.HalfSpaceContains(newPoint, epsilon)) {
+            horizon.Push(twin);
+          }
+          else {
+            visitEdge(twin);
+          }
+        } while ((currentEdge = currentEdge->mNext) != edge);
+      };
     visitEdge(bestFaceConflictListIt->Key()->mHalfEdge);
 
     // We create a new vertex for each horizon vertex because it makes deleting
