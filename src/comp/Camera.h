@@ -28,6 +28,7 @@ struct Camera {
   Vec3 WorldTranslation(const World::Object& owner) const;
   Quat WorldRotation(const World::Object& owner) const;
   Vec3 WorldForward(const World::Object& owner) const;
+  Vec3 WorldBack(const World::Object& owner) const;
   Vec3 WorldRight(const World::Object& owner) const;
   Vec3 WorldUp(const World::Object& owner) const;
 

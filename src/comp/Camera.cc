@@ -149,6 +149,10 @@ Vec3 Camera::WorldForward(const World::Object& owner) const {
   return WorldRotation(owner).Rotate({0.0f, 0.0f, -1.0f});
 }
 
+Vec3 Camera::WorldBack(const World::Object& owner) const {
+  return WorldRotation(owner).Rotate({0.0f, 0.0f, 1.0f});
+}
+
 Vec3 Camera::WorldRight(const World::Object& owner) const {
   return WorldRotation(owner).Rotate({1.0f, 0.0f, 0.0f});
 }
