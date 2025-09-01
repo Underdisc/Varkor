@@ -23,6 +23,10 @@ template<typename T, unsigned int N>
 Matrix<T, N>& operator*=(Matrix<T, N>& a, const Matrix<T, N>& b);
 template<typename T, unsigned int N>
 Vector<T, N> operator*(const Matrix<T, N>& matrix, const Vector<T, N>& vector);
+template<typename T, unsigned int N>
+bool operator==(const Matrix<T, N>& a, const Matrix<T, N>& b);
+template<typename T, unsigned int N>
+bool operator!=(const Matrix<T, N>& a, const Matrix<T, N>& b);
 
 template<typename T, unsigned int N>
 void Zero(Matrix<T, N>* matrix);

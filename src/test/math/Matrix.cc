@@ -220,6 +220,17 @@ void NoInverseDependentColumn() {
   Math::Inverse(matrix);
 }
 
+void Equals() {
+  Math::Matrix<float, 5> a = CreateGenericMat5();
+  Math::Matrix<float, 5> b = CreateGenericMat5();
+  Math::Matrix<float, 5> c;
+  Math::Identity(&c);
+  std::cout << "a == b: " << (a == b) << '\n'
+            << "a != b: " << (a != b) << '\n'
+            << "a == c: " << (a == c) << '\n'
+            << "a != c: " << (a != c);
+}
+
 int main(void) {
   RunTest(Cast);
   RunTest(EqualsOperator);
@@ -239,6 +250,7 @@ int main(void) {
   RunTest(MultiplyRow);
   RunTest(AddRowMultiple);
   RunTest(SwapRows);
+  RunTest(Equals);
 
   // These functions test matrices that are not invertible. That is, they have
   // a zero row, a zero column, a linearly dependent row, or a linearly

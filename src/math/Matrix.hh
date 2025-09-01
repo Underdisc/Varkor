@@ -83,6 +83,23 @@ Vector<T, N> operator*(const Matrix<T, N>& matrix, const Vector<T, N>& vector) {
 }
 
 template<typename T, unsigned int N>
+bool operator==(const Matrix<T, N>& a, const Matrix<T, N>& b) {
+  for (int r = 0; r < N; ++r) {
+    for (int c = 0; c < N; ++c) {
+      if (a[r][c] != b[r][c]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+template<typename T, unsigned int N>
+bool operator!=(const Matrix<T, N>& a, const Matrix<T, N>& b) {
+  return !(a == b);
+}
+
+template<typename T, unsigned int N>
 void Zero(Matrix<T, N>* matrix) {
   for (int r = 0; r < N; ++r) {
     for (int c = 0; c < N; ++c) {
