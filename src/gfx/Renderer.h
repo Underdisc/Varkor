@@ -12,6 +12,7 @@
 namespace Gfx {
 namespace Renderer {
 
+extern Vec4 nClearColor;
 extern int nBloomBlurCount;
 extern float nBloomLuminanceThreshold;
 extern ResId nTonemapMaterial;

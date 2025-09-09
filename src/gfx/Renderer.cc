@@ -32,6 +32,7 @@
 namespace Gfx {
 namespace Renderer {
 
+Vec4 nClearColor = {0.1f, 0.1f, 0.1f, 1.0f};
 int nBloomBlurCount = 3;
 int nMemberOutlineWidth = 1;
 Vec4 nMemberOutlineColor = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -259,7 +260,7 @@ void Purge() {
 
 void Clear() {
   glBindFramebuffer(GL_FRAMEBUFFER, nBlendedFbo);
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  glClearColor(nClearColor[0], nClearColor[1], nClearColor[2], nClearColor[3]);
   glClear(GL_COLOR_BUFFER_BIT);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT);
