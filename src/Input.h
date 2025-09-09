@@ -158,6 +158,7 @@ enum class Action {
   SaveLayer,
   DuplicateEntity,
   Close,
+  Pause,
   Count
 };
 

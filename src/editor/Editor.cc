@@ -194,6 +194,9 @@ void EndFrame() {
     RunInWorlds();
   }
 
+  if (Input::ActionPressed(Input::Action::Pause)) {
+    World::nPause = !World::nPause;
+  }
   if (Input::ActionPressed(Input::Action::ToggleEditor)) {
     nHideInterface = !nHideInterface;
   }
