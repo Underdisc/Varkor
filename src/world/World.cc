@@ -14,7 +14,9 @@ Layer::Layer(): mCameraId(nInvalidMemberId) {}
 Layer::Layer(const std::string& name):
   mName(name),
   mCameraId(nInvalidMemberId),
-  mPostMaterialId(Gfx::Renderer::nDefaultPostId) {}
+  mPostMaterialId(Gfx::Renderer::nDefaultPostId),
+  mIntenseExtractMaterialId(Gfx::Renderer::nDefaultIntenseExtractId),
+  mTonemapMaterialId(Gfx::Renderer::nDefaultTonemapId) {}
 
 bool nPause = true;
 Ds::List<Layer> nLayers;

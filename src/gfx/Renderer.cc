@@ -33,8 +33,6 @@ namespace Gfx {
 namespace Renderer {
 
 int nBloomBlurCount = 3;
-float nBloomLuminanceThreshold = 1.0f;
-ResId nTonemapMaterial = "vres/renderer:ReinhardTonemap";
 int nMemberOutlineWidth = 1;
 Vec4 nMemberOutlineColor = {1.0f, 1.0f, 1.0f, 1.0f};
 void (*nCustomRender)() = nullptr;
@@ -52,11 +50,15 @@ bool nMemberIdFboUsed = false;
 
 const char* nRendererAssetName = "vres/renderer";
 const ResId nFullscreenMeshId(nRendererAssetName, "Fullscreen");
+const ResId nFullscreenDefaultMaterialId(
+  nRendererAssetName, "FullscreenDefault");
 const ResId nSpriteMeshId(nRendererAssetName, "Sprite");
 const ResId nSkyboxMeshId(nRendererAssetName, "Skybox");
 const ResId nMemberIdShaderId(nRendererAssetName, "MemberId");
 const ResId nDepthShaderId(nRendererAssetName, "Depth");
 const ResId nDefaultPostId(nRendererAssetName, "CopyTexture");
+const ResId nDefaultIntenseExtractId(nRendererAssetName, "IntenseExtract");
+const ResId nDefaultTonemapId(nRendererAssetName, "ReinhardTonemap");
 
 // Required framebuffers
 GLuint nLayerFbo;
@@ -608,18 +610,26 @@ void BlendLayer(GLuint toFbo, const ResId& postMaterialId) {
   glEnable(GL_DEPTH_TEST);
 }
 
-void BloomAndTonemapPasses() {
+void BloomAndTonemapPasses(
+  const ResId& intenseExtractMaterialId, const ResId& tonemapMaterialId) {
   // Extract the instense colors into the first blur buffer.
   glDisable(GL_DEPTH_TEST);
   glBindFramebuffer(GL_FRAMEBUFFER, nBlurFbos[0]);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, nBlendedTbo);
   auto& fullscreenMesh = Rsl::GetRes<Mesh>("vres/renderer:Fullscreen");
-  auto& intenseExtractShader =
-    Rsl::GetRes<Shader>("vres/renderer:IntenseExtract");
-  intenseExtractShader.Use();
-  intenseExtractShader.SetUniform(
-    "uLuminanceThreshold", nBloomLuminanceThreshold);
+  auto* intenseExtractMaterial = Rsl::TryGetRes<Material>(
+    intenseExtractMaterialId, nFullscreenDefaultMaterialId);
+  if (intenseExtractMaterial == nullptr) {
+    return;
+  }
+  const auto* intenseExtractShader = Rsl::TryGetRes<Shader>(
+    intenseExtractMaterial->mShaderId, nFullscreenDefaultMaterialId);
+  if (intenseExtractShader == nullptr) {
+    return;
+  }
+  intenseExtractShader->Use();
+  intenseExtractMaterial->Bind(*intenseExtractShader);
   fullscreenMesh.Render();
 
   // Perform the blur passes.
@@ -656,13 +666,13 @@ void BloomAndTonemapPasses() {
   fullscreenMesh.Render();
 
   // Acquire the tonemapping material.
-  const auto* tonemapMaterial = Rsl::TryGetRes<Material>(
-    nTonemapMaterial, "vres/renderer:FullscreenDefault");
+  const auto* tonemapMaterial =
+    Rsl::TryGetRes<Material>(tonemapMaterialId, nFullscreenDefaultMaterialId);
   if (tonemapMaterial == nullptr) {
     return;
   }
   const auto* tonemapShader = Rsl::TryGetRes<Shader>(
-    tonemapMaterial->mShaderId, "vres/renderer:FullscreenDefault");
+    tonemapMaterial->mShaderId, nFullscreenDefaultMaterialId);
   if (tonemapShader == nullptr) {
     return;
   }
@@ -700,7 +710,8 @@ Result RenderWorld() {
     // Render the space using the layer camera.
     RenderLayer(space, cameraObject);
     BlendLayer(nBlendedFbo, "vres/renderer:CopyTexture");
-    BloomAndTonemapPasses();
+    BloomAndTonemapPasses(
+      layer.mIntenseExtractMaterialId, layer.mTonemapMaterialId);
     Debug::Draw::Render(cameraObject);
   }
   return Result();
@@ -724,7 +735,8 @@ void Render() {
 
       RenderLayer(space, cameraObject);
       BlendLayer(nBlendedFbo, worldLayer.mPostMaterialId);
-      BloomAndTonemapPasses();
+      BloomAndTonemapPasses(
+        worldLayer.mIntenseExtractMaterialId, worldLayer.mTonemapMaterialId);
 
       // Render an outline around the selected object.
       Editor::InspectorInterface* inspectorInterface =

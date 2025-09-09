@@ -19,6 +19,8 @@ struct Layer {
   std::string mFilename;
   MemberId mCameraId;
   ResId mPostMaterialId;
+  ResId mTonemapMaterialId;
+  ResId mIntenseExtractMaterialId;
   Space mSpace;
 };
 

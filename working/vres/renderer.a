@@ -34,11 +34,18 @@
   },
   {
     :Name: 'IntenseExtract'
-    :Type: 'Shader'
+    :Type: 'Material'
     :Config: {
-      :Files: [
-        'vres/shader/FullscreenTexture.glv',
-        'vres/shader/IntenseExtract.glf']
+      :ShaderConfig: {
+        :Files: ['vres/shader/FullscreenTexture.glv', 'vres/shader/IntenseExtract.glf']
+      }
+      :Uniforms: [
+        {
+          :Name: 'uLuminanceThreshold'
+          :Type: 'Float'
+          :Value: '1'
+        }
+      ]
     }
   },
   {

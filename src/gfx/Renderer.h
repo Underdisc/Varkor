@@ -22,6 +22,8 @@ extern const ResId nFullscreenMeshId;
 extern const ResId nSpriteMeshId;
 extern const ResId nSkyboxMeshId;
 extern const ResId nDefaultPostId;
+extern const ResId nDefaultIntenseExtractId;
+extern const ResId nDefaultTonemapId;
 
 void Init();
 void Purge();

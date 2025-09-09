@@ -42,8 +42,15 @@ void LayerInterface::Show() {
     }
   }
 
+  // Widgets for changing the rendering materials.
   DropResourceIdWidget(
     Rsl::ResTypeId::Material, &mLayerIt->mPostMaterialId, "Post");
+  DropResourceIdWidget(
+    Rsl::ResTypeId::Material,
+    &mLayerIt->mIntenseExtractMaterialId,
+    "IntenseExtract");
+  DropResourceIdWidget(
+    Rsl::ResTypeId::Material, &mLayerIt->mTonemapMaterialId, "Tonemap");
 
   // Display a selectable list of all members in the layer's space.
   if (ImGui::Button("Create Member", ImVec2(-1, 0))) {
