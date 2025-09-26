@@ -11,14 +11,17 @@ git submodule update
 Varkor builds on Windows under MSVC and Clang 64bit and on Linux under Clang and G++ 64bit.
 
 ### General
-Create a build directory in the root of your repo. In this build directory, create another directory for the compiler you'll be using. Within that directory, create another directory for the configuration type you are building.
+Create a build directory in the root of your repo.
 ```
 cd repoRoot
 mkdir build && cd build
+```
+I also recommend creating compiler and configuration directories.
+```
 mkdir compiler && cd compiler
 mkdir configuration && cd configuration
 ```
-It's not absolutely necessary to use this structure, but I highly recommend it because there are scripts that let you build and run the project with a single command and they expect the build directory to be organized like this. As an example, here is what my build directory looks like.
+It's not necessary to do so, but organizing build directories like this will allow easy switching between the compiler and configuration being used to build. Additionally, there is a build script that simplifies the entire process of building and running Varkor and it takes a 'compiler/configuration' directory as an argument. As an example, this is what my build directory looks like.
 ```
 build/
 |-clang64/
@@ -115,18 +118,12 @@ ninja varkorStandalone
 ## Running Varkor Standalone
 All binaries must run from `working/`. This directory contains `vres/`, which stands for *Varkor resources*. It contains files Varkor expects to exist during initialization. If they aren't there, Varkor will crash during initialization. Move the binary you built into `working/` and run it from there.
 ```
-cd path/to/build/configuration
-move varkorStandalone.* ../../../working
-cd ../../../working
+cd path/to/build/configuration/src/target
+move varkorStandalone.* ../../../../../working
+cd ../../../../../working
 varkorStandalone.exe
 ```
 
 ### Rapid Runs
-Because binaries must run from `working/`, building a binary, moving it to `working/`, moving the prompt to `working/`, running it, and potentially moving it back again is extremely fucking annoying. Inside of `script/`, you will find `build.js`. This is a nodejs script that streamlines running varkor binaries. Look inside the script for more details. You will need nodejs in order to run it. For windows users, https://nodejs.org/en/ and make sure *node* is in your path.
-```
-sudo apt install node
-```
-Here's an example invocation of the script.
-```
-node build clang64 dbg varkorStandalone r
-```
+Because binaries must run from `working/`, building a binary, moving it to `working/`, moving the prompt to `working/`, running it, and moving it back again is extremely fucking annoying. Inside of `script/`, you will find `build.js`. This is a nodejs script that streamlines building and running varkor binaries. Look inside the script for more details. You will need nodejs in order to run it.
+For windows users, https://nodejs.org/en/ and make sure *node* is in your path. For linux users, `sudo apt install node` or whatever you packager manager might be.
