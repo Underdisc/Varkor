@@ -71,7 +71,7 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
 endif()
 
 function(add_externals target)
-  add_backward(${target})
+  target_link_libraries(${target} Backward::Interface)
   if("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
     target_link_libraries(${target} Tracy::TracyClient)
   endif()
