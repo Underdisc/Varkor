@@ -79,6 +79,11 @@ VResult<LayerIt> LoadLayer(const char* filename) {
   Vlk::Explorer postMaterialEx = metadataEx("PostMaterialId");
   newLayer.mPostMaterialId =
     postMaterialEx.As<ResId>(Gfx::Renderer::nDefaultPostId);
+  newLayer.mIntenseExtractMaterialId =
+    metadataEx("IntenseExtractMaterialId")
+      .As<ResId>(Gfx::Renderer::nDefaultIntenseExtractId);
+  newLayer.mTonemapMaterialId =
+    metadataEx("TonemapMaterialId").As<ResId>(Gfx::Renderer::nDefaultTonemapId);
 
   // Progress the layer forward.
   int layerProgression =
@@ -125,6 +130,8 @@ Result SaveLayer(LayerIt it, const char* filename) {
   metadataVal("Name") = layer.mName;
   metadataVal("CameraId") = layer.mCameraId;
   metadataVal("PostMaterialId") = layer.mPostMaterialId;
+  metadataVal("IntenseExtractMaterialId") = layer.mIntenseExtractMaterialId;
+  metadataVal("TonemapMaterialId") = layer.mTonemapMaterialId;
   metadataVal("ComponentProgression") = Registrar::nCurrentComponentProgression;
   metadataVal("LayerProgression") = Registrar::nCurrentLayerProgression;
   Vlk::Value& spaceVal = rootVal("Space");
