@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "ds/SparseSet.h"
 #include "Error.h"
 #include "debug/MemLeak.h"

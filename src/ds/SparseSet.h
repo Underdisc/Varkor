@@ -1,6 +1,8 @@
 #ifndef ds_SparseSet_h
 #define ds_SparseSet_h
 
+#include <cstddef>
+
 namespace Ds {
 
 typedef int SparseId;

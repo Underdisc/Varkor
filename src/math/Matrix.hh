@@ -5,12 +5,12 @@ namespace Math {
 
 template<typename T, unsigned int N>
 T* Matrix<T, N>::Data() {
-  return (T*)this->mValue;
+  return (T*)this->mD;
 }
 
 template<typename T, unsigned int N>
 const T* Matrix<T, N>::CData() const {
-  return (const T*)this->mValue;
+  return (const T*)this->mD;
 }
 
 template<typename T, unsigned int N>

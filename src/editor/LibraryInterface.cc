@@ -444,7 +444,7 @@ void LibraryInterface::ShowResourceType(Rsl::ResTypeId resTypeId) {
   std::string resTypeLabel = "(";
   resTypeLabel += resTypeData.mName;
   resTypeLabel += ")";
-  ImGui::TextDisabled(resTypeLabel.c_str());
+  ImGui::TextDisabled("%s", resTypeLabel.c_str());
 }
 
 float LibraryInterface::GetLineOffset(int indents) {

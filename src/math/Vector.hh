@@ -1,4 +1,5 @@
 #include <math.h>
+#include <cfloat>
 
 #include "Error.h"
 #include "math/Utility.h"
