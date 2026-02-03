@@ -23,6 +23,7 @@ struct Sprite {
 
   ResId mMaterialId;
   ResId mScalorImageId;
+  bool mVisible;
 };
 #pragma pack(pop)
 

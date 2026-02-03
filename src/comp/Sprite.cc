@@ -16,6 +16,7 @@ void Sprite::VStaticInit() {
 void Sprite::VInit(const World::Object& owner) {
   mMaterialId = smDefaultMaterialId;
   mScalorImageId = Rsl::GetDefaultResId<Gfx::Image>();
+  mVisible = true;
 }
 
 void Sprite::VSerialize(Vlk::Value& spriteVal) {
@@ -30,6 +31,10 @@ void Sprite::VDeserialize(const Vlk::Explorer& spriteEx) {
 }
 
 void Sprite::VRenderable(const World::Object& owner) {
+  if (!mVisible) {
+    return;
+  }
+
   auto& transform = owner.Get<Comp::Transform>();
   Mat4 aspectScale = GetAspectScale();
   Mat4 transformation = transform.GetWorldMatrix(owner);
