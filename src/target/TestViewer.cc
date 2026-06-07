@@ -73,7 +73,7 @@ Ds::Vector<TestVectorTypeData> nTestVectorTypeData;
 
 template<typename T>
 void RegisterTestVector(TestType type) {
-  TestVector<T>::smTests = TestType::GetTests();
+  TestVector<T>::smTests = T::GetTests();
 
   TestVectorTypeData newTypeData;
   newTypeData.mCount = TestVector<T>::Count;
